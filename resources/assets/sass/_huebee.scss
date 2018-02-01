@@ -1,0 +1,83 @@
+/*! Huebee v2.0.0
+http://huebee.buzz
+---------------------------------------------- */
+
+.huebee {
+    position: absolute;
+    z-index: 1;
+    transform: translateY(0px);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  
+  .huebee.is-hidden {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  
+  .huebee.is-static-open {
+    position: relative;
+    z-index: auto;
+  }
+  
+  .huebee__container {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    padding: 10px;
+    background: #EEE;
+    border-radius: 5px;
+    box-shadow: 0 5px 10px hsla(0, 0%, 0%, 0.3);
+  }
+  
+  .huebee.is-static-open .huebee__container {
+    position: relative;
+    display: inline-block;
+    left: auto;
+    top: auto;
+    box-shadow: none;
+  }
+  
+  .huebee__canvas {
+    display: block;
+    cursor: pointer;
+  }
+  
+  .huebee__cursor {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    box-sizing: content-box;
+    border: 3px solid white;
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  
+  .huebee__cursor.is-hidden { opacity: 0; }
+  
+  .huebee__close-button {
+    display: block;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: -9px;
+    right: -9px;
+    border-radius: 12px;
+    background: #222;
+  }
+  
+  .huebee__close-button__x {
+    stroke: white;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  
+  .huebee__close-button:hover {
+    background: white;
+    cursor: pointer;
+  }
+  
+  .huebee__close-button:hover .huebee__close-button__x {
+    stroke: #222;
+  }

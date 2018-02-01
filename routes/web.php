@@ -11,9 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'ItemController@dash');
 
 Route::resources([
     'items' => 'ItemController',

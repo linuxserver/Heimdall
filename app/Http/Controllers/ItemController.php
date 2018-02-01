@@ -7,6 +7,18 @@ use App\Item;
 
 class ItemController extends Controller
 {
+
+     /**
+     * Display a listing of the resource on the dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dash()
+    {
+        $data['apps'] = Item::all();
+        return view('welcome', $data);
+    }
+   
     /**
      * Display a listing of the resource.
      *
@@ -45,15 +57,10 @@ class ItemController extends Controller
             'url' => 'required',
         ]);
 
-        $item = new Item;
+        Item::create($request->all());
 
-        $item->title = $request->title;
-        $item->colour = $request->colour;
-        $item->url = $request->url;
-
-        $item->save();
-
-        return redirect()->route('items.index');
+        return redirect()->route('items.index')
+            ->with('success','Item created successfully');
     }
 
     /**
@@ -75,7 +82,12 @@ class ItemController extends Controller
      */
     public function edit($id)
     {
-        //
+        // Get the item
+        $item = Item::find($id);
+
+        // show the edit form and pass the nerd
+        return view('items.edit')
+            ->with('item', $item);    
     }
 
     /**
@@ -87,7 +99,15 @@ class ItemController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'url' => 'required',
+        ]);
+
+        Item::find($id)->update($request->all());
+
+        return redirect()->route('items.index')
+            ->with('success','Item updated successfully');
     }
 
     /**
@@ -99,5 +119,8 @@ class ItemController extends Controller
     public function destroy($id)
     {
         //
+        Item::find($id)->delete();
+        return redirect()->route('items.index')
+            ->with('success','Item deleted successfully');
     }
 }

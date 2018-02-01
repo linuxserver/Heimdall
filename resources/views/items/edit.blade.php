@@ -2,7 +2,7 @@
 
 @section('content')
 
-    {!! Form::open(array('route' => 'items.store','method'=>'POST')) !!}
+    {!! Form::model($item, ['method' => 'PATCH','route' => ['items.update', $item->id]]) !!}
     @include('items.form')
     {!! Form::close() !!}
 

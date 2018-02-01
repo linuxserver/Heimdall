@@ -220,6 +220,18 @@ th {
   padding: 0;
 }
 
+html {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit;
+}
+
 body {
   background: #cfd2d4;
 }
@@ -287,11 +299,31 @@ body {
 
 .item {
   width: 300px;
-  height: 200px;
+  height: 130px;
   margin: 20px;
-  background: #76b8bf;
+  background-image: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0.25)));
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25));
   border-radius: 6px;
   padding: 20px;
+  -webkit-box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.item:after {
+  content: "";
+  position: absolute;
+  width: 130px;
+  height: 134px;
+  border-radius: 50%;
+  position: absolute;
+  right: -78px;
+  top: -2px;
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.2);
 }
 
 .module-container {
@@ -330,6 +362,8 @@ body {
 
 .module-container .table {
   width: 100%;
+  margin: 0;
+  background: #fff;
 }
 
 .module-container .table thead th {
@@ -342,11 +376,34 @@ body {
   padding: 15px 25px;
 }
 
-.module-container .table td.form-error {
+.module-container .table tbody tr:hover {
+  background: #fefbf2;
+}
+
+.module-container .table tbody tr:hover td:first-child {
+  position: relative;
+}
+
+.module-container .table tbody tr:hover td:first-child:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  background: #0eb584;
+}
+
+.module-container .table tbody td {
+  padding: 20px 25px;
+  font-size: 13px;
+  color: #2f313a;
+}
+
+.module-container .table tbody td.form-error {
   background: #e69191;
   color: white;
   text-align: center;
-  padding: 20px;
 }
 
 .module-actions {
@@ -439,5 +496,99 @@ div.create .input input {
   border: 1px solid #dedfe2;
   padding: 10px;
   border-radius: 6px;
+}
+
+/*! Huebee v2.0.0
+http://huebee.buzz
+---------------------------------------------- */
+
+.huebee {
+  position: absolute;
+  z-index: 1;
+  -webkit-transform: translateY(0px);
+          transform: translateY(0px);
+  -webkit-transition: opacity 0.15s, -webkit-transform 0.15s;
+  transition: opacity 0.15s, -webkit-transform 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
+  transition: opacity 0.15s, transform 0.15s, -webkit-transform 0.15s;
+}
+
+.huebee.is-hidden {
+  opacity: 0;
+  -webkit-transform: translateY(10px);
+          transform: translateY(10px);
+}
+
+.huebee.is-static-open {
+  position: relative;
+  z-index: auto;
+}
+
+.huebee__container {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  padding: 10px;
+  background: #EEE;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.huebee.is-static-open .huebee__container {
+  position: relative;
+  display: inline-block;
+  left: auto;
+  top: auto;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+}
+
+.huebee__canvas {
+  display: block;
+  cursor: pointer;
+}
+
+.huebee__cursor {
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
+  border: 3px solid white;
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+.huebee__cursor.is-hidden {
+  opacity: 0;
+}
+
+.huebee__close-button {
+  display: block;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: -9px;
+  right: -9px;
+  border-radius: 12px;
+  background: #222;
+}
+
+.huebee__close-button__x {
+  stroke: white;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.huebee__close-button:hover {
+  background: white;
+  cursor: pointer;
+}
+
+.huebee__close-button:hover .huebee__close-button__x {
+  stroke: #222;
 }
 

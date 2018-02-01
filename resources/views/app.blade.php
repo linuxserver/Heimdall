@@ -24,6 +24,21 @@
                     test
                 </header>
                 <main>
+                    @if ($message = Session::get('success'))
+                        <div class="alert alert-success">
+                            <p>{{ $message }}</p>
+                        </div>
+                    @endif
+                    @if (count($errors) < 0)
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     @yield('content')
                 </main>
 
@@ -32,5 +47,8 @@
                 </footer>
             </div>
         </div>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
+        <script src="/js/app.js"></script>
     </body>
 </html>
