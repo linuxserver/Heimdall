@@ -28,7 +28,9 @@
                                 <td>{{ $app->url }}</td>
                                 <td class="text-center"><a href="{!! route('items.edit', $app->id) !!}" title="Edit {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
-                                        <a href="{!! route('items.destroy', $app->id) !!}" title="Delete {!! $app->title !!}" class="confirm-delete"><i class="fa fa-trash-alt"></i></a>
+                                        {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
+                                        <button type="submit"><i class="fa fa-trash-alt"></i></button>
+                                        {!! Form::close() !!}
                                 </td>
                             </tr>
                         @endforeach

@@ -357,6 +357,15 @@ body {
   transition: all .35s ease-in-out;
 }
 
+.message-container {
+  width: 100%;
+}
+
+.message-container .alert {
+  margin: 30px;
+  text-align: center;
+}
+
 #app.header .appheader {
   top: 0;
 }

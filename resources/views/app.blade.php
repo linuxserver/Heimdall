@@ -28,11 +28,14 @@
                 </header>
                 <main>
                     @if ($message = Session::get('success'))
+                    <div class="message-container">
                         <div class="alert alert-success">
                             <p>{{ $message }}</p>
                         </div>
+                    </div>
                     @endif
                     @if (count($errors) < 0)
+                    <div class="message-container">
                         <div class="alert alert-danger">
                             <ul>
                                 @foreach ($errors->all() as $error)
@@ -40,6 +43,7 @@
                                 @endforeach
                             </ul>
                         </div>
+                    </div>
                     @endif
                     
                     @yield('content')

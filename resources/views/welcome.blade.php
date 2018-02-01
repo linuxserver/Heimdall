@@ -7,7 +7,7 @@
         @endforeach
         @include('add')
     @else
-        There are currently no Applications, add one here
+        There are currently no Applications, <a href="{{ route('items.create') }}">add one here</a>
         @include('add')
     @endif
 

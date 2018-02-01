@@ -92,6 +92,13 @@ body {
 	width: 340px;
 	transition: all .35s ease-in-out;	
 }
+.message-container {
+	width: 100%;
+	.alert {
+		margin: 30px;
+		text-align: center;
+	}
+}
 #app {
 	&.header {
 		.appheader {

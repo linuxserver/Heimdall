@@ -59,7 +59,7 @@ class ItemController extends Controller
 
         Item::create($request->all());
 
-        return redirect()->route('items.index')
+        return redirect()->route('dash')
             ->with('success','Item created successfully');
     }
 
@@ -106,7 +106,7 @@ class ItemController extends Controller
 
         Item::find($id)->update($request->all());
 
-        return redirect()->route('items.index')
+        return redirect()->route('dash')
             ->with('success','Item updated successfully');
     }
 
@@ -120,7 +120,7 @@ class ItemController extends Controller
     {
         //
         Item::find($id)->delete();
-        return redirect()->route('items.index')
+        return redirect()->route('dash')
             ->with('success','Item deleted successfully');
     }
 }
