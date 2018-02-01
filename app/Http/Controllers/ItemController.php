@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Item;
+//use App\SupportedApps\Contracts\Applications;
+use App\SupportedApps\Nzbget;
 
 class ItemController extends Controller
 {
@@ -18,6 +20,7 @@ class ItemController extends Controller
         $data['apps'] = Item::all();
         return view('welcome', $data);
     }
+
    
     /**
      * Display a listing of the resource.

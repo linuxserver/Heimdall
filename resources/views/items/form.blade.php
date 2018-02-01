@@ -10,6 +10,11 @@
             {!! csrf_field() !!}
             <div class="input">
                 <label>Application name</label>
+                {!! Form::select('supported', \App\Item::supportedOptions(), array('placeholder' => 'Title','class' => 'form-control')) !!}
+            </div>
+
+            <div class="input">
+                <label>Application name</label>
                 {!! Form::text('title', null, array('placeholder' => 'Title','class' => 'form-control')) !!}
             </div>
             <div class="input">
