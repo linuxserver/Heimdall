@@ -21,7 +21,7 @@
             </nav>
             <div class="content">
                 <header>
-                    test
+                    <a href="{{ route('items.index') }}">Items</a>
                 </header>
                 <main>
                     @if ($message = Session::get('success'))
@@ -40,11 +40,9 @@
                     @endif
                     
                     @yield('content')
+                    <a class="config" href=""><i class="fas fa-cogs"></i></a>
                 </main>
 
-                <footer>
-                    test
-                </footer>
             </div>
         </div>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
