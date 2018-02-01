@@ -1,0 +1,15 @@
+language: php
+
+php:
+  - 5.3.3
+  - 5.4
+  - 5.5
+
+before_script:
+  - composer self-update
+  - composer install --no-interaction --prefer-source --dev
+
+script:
+  - ant phplint
+  - ant phpcs
+  - ant phpunit

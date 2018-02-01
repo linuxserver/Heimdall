@@ -1,0 +1,55 @@
+{
+    "name": "phpunit/php-code-coverage",
+    "description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
+    "type": "library",
+    "keywords": [
+        "coverage",
+        "testing",
+        "xunit"
+    ],
+    "homepage": "https://github.com/sebastianbergmann/php-code-coverage",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Sebastian Bergmann",
+            "email": "sebastian@phpunit.de",
+            "role": "lead"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.0",
+        "ext-dom": "*",
+        "ext-xmlwriter": "*",
+        "phpunit/php-file-iterator": "^1.4.2",
+        "phpunit/php-token-stream": "^2.0.1",
+        "phpunit/php-text-template": "^1.2.1",
+        "sebastian/code-unit-reverse-lookup": "^1.0.1",
+        "sebastian/environment": "^3.0",
+        "sebastian/version": "^2.0.1",
+        "theseer/tokenizer": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    },
+    "suggest": {
+        "ext-xdebug": "^2.5.5"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.3.x-dev"
+        }
+    }
+}

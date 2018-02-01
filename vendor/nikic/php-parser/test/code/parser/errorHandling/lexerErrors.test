@@ -1,0 +1,124 @@
+Lexer errors
+-----
+<?php
+
+$a = 42;
+/*
+$b = 24;
+-----
+Unterminated comment from 4:1 to 5:9
+array(
+    0: Expr_Assign(
+        var: Expr_Variable(
+            name: a
+        )
+        expr: Scalar_LNumber(
+            value: 42
+        )
+    )
+    1: Stmt_Nop(
+        comments: array(
+            0: /*
+            $b = 24;
+        )
+    )
+)
+-----
+<?php
+
+$a = 42;
+@@{ "\1" }@@
+$b = 24;
+-----
+Unexpected character "@@{ "\1" }@@" (ASCII 1) from 4:1 to 4:1
+array(
+    0: Expr_Assign(
+        var: Expr_Variable(
+            name: a
+        )
+        expr: Scalar_LNumber(
+            value: 42
+        )
+    )
+    1: Expr_Assign(
+        var: Expr_Variable(
+            name: b
+        )
+        expr: Scalar_LNumber(
+            value: 24
+        )
+    )
+)
+-----
+<?php
+
+$a = 42;
+@@{ "\0" }@@
+$b = 24;
+-----
+Unexpected null byte from 4:1 to 4:1
+array(
+    0: Expr_Assign(
+        var: Expr_Variable(
+            name: a
+        )
+        expr: Scalar_LNumber(
+            value: 42
+        )
+    )
+    1: Expr_Assign(
+        var: Expr_Variable(
+            name: b
+        )
+        expr: Scalar_LNumber(
+            value: 24
+        )
+    )
+)
+-----
+<?php
+
+$a = 1;
+@@{ "\1" }@@
+$b = 2;
+@@{ "\2" }@@
+$c = 3;
+-----
+Unexpected character "@@{ "\1" }@@" (ASCII 1) from 4:1 to 4:1
+Unexpected character "@@{ "\2" }@@" (ASCII 2) from 6:1 to 6:1
+array(
+    0: Expr_Assign(
+        var: Expr_Variable(
+            name: a
+        )
+        expr: Scalar_LNumber(
+            value: 1
+        )
+    )
+    1: Expr_Assign(
+        var: Expr_Variable(
+            name: b
+        )
+        expr: Scalar_LNumber(
+            value: 2
+        )
+    )
+    2: Expr_Assign(
+        var: Expr_Variable(
+            name: c
+        )
+        expr: Scalar_LNumber(
+            value: 3
+        )
+    )
+)
+-----
+<?php
+
+if ($b) {
+    $a = 1;
+    /* unterminated
+}
+-----
+Unterminated comment from 5:5 to 6:2
+Syntax error, unexpected EOF from 6:2 to 6:2

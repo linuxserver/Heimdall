@@ -1,0 +1,32 @@
+Error positions
+-----
+<?php foo
+-----
+Syntax error, unexpected EOF from 1:10 to 1:10
+array(
+    0: Expr_ConstFetch(
+        name: Name(
+            parts: array(
+                0: foo
+            )
+        )
+    )
+)
+-----
+<?php foo /* bar */
+-----
+Syntax error, unexpected EOF from 1:20 to 1:20
+array(
+    0: Expr_ConstFetch(
+        name: Name(
+            parts: array(
+                0: foo
+            )
+        )
+    )
+    1: Stmt_Nop(
+        comments: array(
+            0: /* bar */
+        )
+    )
+)

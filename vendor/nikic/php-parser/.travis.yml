@@ -1,0 +1,31 @@
+language: php
+dist: trusty
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  - nightly
+  - hhvm
+
+install:
+  - if [ $TRAVIS_PHP_VERSION = '5.6' ]; then composer require satooshi/php-coveralls '~1.0'; fi
+  - composer install --prefer-dist
+
+matrix:
+  allow_failures:
+    - php: nightly
+  fast_finish: true
+
+script:
+  - if [ $TRAVIS_PHP_VERSION = '5.6' ]; then vendor/bin/phpunit --coverage-clover build/logs/clover.xml; else vendor/bin/phpunit; fi
+  - if [ $TRAVIS_PHP_VERSION = '7.0' ]; then test_old/run-php-src.sh; fi
+
+after_success:
+  if [ $TRAVIS_PHP_VERSION = '5.6' ]; then php vendor/bin/coveralls; fi
+
