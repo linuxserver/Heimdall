@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/', 'ItemController@dash');
+Route::get('/', 'ItemController@dash')->name('dash');
 
 Route::resources([
     'items' => 'ItemController',

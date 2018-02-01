@@ -21,30 +21,60 @@ body {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		display:none;
+		position: absolute;
+		width: 340px;
+		left: -340px;
+		transition: all .35s ease-in-out;
+		background: rgba(0,0,0, 0.7);
+		color: white;
+		z-index: 2;
 	}
 	.content {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
-	> header {
-		background: rgba(0,0,0, 0.4);
-		padding: 20px;
-		text-align: center;
-		a {
-			color: white;
-			text-decoration: none;
+		.appheader {
+			background: rgba(0,0,0, 0.4);
+			text-align: center;
+			position:absolute;
+			height: 58px;
+			width: 100%;
+			top: -58px;
+			transition: all .35s ease-in-out;
+			z-index: 1;
+			ul {
+				display: inline-block;
+				list-style: none;
+				height: 58px;
+				border-left: 1px solid rgba(0,0,0,0.6);
+				border-right: 1px solid rgba(255,255,255,0.1);
+				margin: 0;
+				padding: 0;
+			}
+			li {
+				display: inline-block;
+				border-right: 1px solid rgba(0,0,0,0.6);
+				border-left: 1px solid rgba(255,255,255,0.1);
+
+			}
+			a {
+				display: inline-block;
+				color: white;
+				text-decoration: none;
+				padding: 20px;
+			}
 		}
-	}
 
 	}
 	main {
-		padding: 50px;
+		padding: 10px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex: 1;
 		position: relative;
+		flex-wrap: wrap;
+		align-content: center;
 		.config {
 			position: absolute;
 			bottom: 0;
@@ -58,11 +88,57 @@ body {
 		}
 	}
 }
-
+.item-container {
+	width: 340px;
+	transition: all .35s ease-in-out;	
+}
+#app {
+	&.header {
+		.appheader {
+			top: 0;
+		}
+		.item-container {
+			width: 280px;
+		}
+		.item, .add-item {
+			transform: scale(0.8);
+			opacity: 0.7;
+		}
+	}
+	&.sidebar {
+		nav {
+			left: 0;
+		}
+	}
+}
+.add-item {
+	width: 300px;
+	height: 130px;
+	margin: 20px;
+	flex: 0 0 300px;
+	border-radius: 6px;
+	padding: 20px;
+	border: 4px dashed rgba(255,255,255,0.7);
+	box-shadow: 0 0 20px 2px rgba(0,0,0,0.3);
+	color: white;
+	overflow: hidden;
+	position: relative;	
+	display: none;
+	outline: 1px solid transparent;
+	a {
+		display: block;
+		width: 100%;
+		text-align: center;
+		line-height: 90px;
+		color: white;
+		font-size: 19px;
+	}
+}
 .item {
 	width: 300px;
 	height: 130px;
 	margin: 20px;
+	flex: 0 0 300px;
 	background-image:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.25));
 	border-radius: 6px;
 	padding: 20px;
@@ -72,6 +148,8 @@ body {
 	color: white;
 	overflow: hidden;
 	position: relative;
+	transition: all .35s ease-in-out;
+	outline: 1px solid transparent;
 	&:after {
 		content: "";
 		position: absolute;

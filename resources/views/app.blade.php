@@ -20,8 +20,11 @@
                 </ul>
             </nav>
             <div class="content">
-                <header>
-                    <a href="{{ route('items.index') }}">Items</a>
+                <header class="appheader">
+                    <ul>
+                        <li><a href="{{ route('dash') }}">Dash</a></li><li>
+                            <a href="{{ route('items.index') }}">Items</a></li>
+                    </ul>
                 </header>
                 <main>
                     @if ($message = Session::get('success'))
@@ -40,7 +43,7 @@
                     @endif
                     
                     @yield('content')
-                    <a class="config" href=""><i class="fas fa-cogs"></i></a>
+                    <a id="config-button" class="config" href=""><i class="fas fa-cogs"></i></a>
                 </main>
 
             </div>
