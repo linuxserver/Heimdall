@@ -264,7 +264,7 @@ body {
           flex-direction: column;
 }
 
-#app header {
+#app .content > header {
   background: rgba(0, 0, 0, 0.4);
   padding: 20px;
 }
@@ -292,5 +292,152 @@ body {
   background: #76b8bf;
   border-radius: 6px;
   padding: 20px;
+}
+
+.module-container {
+  -webkit-box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+  border: 1px solid #cdced8;
+  background: #f9fafd;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 40px;
+}
+
+.module-container header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  border-top: 1px solid #fff;
+  background: #f2f3f6;
+  font-size: 16px;
+  border-bottom: 1px solid #dbdce3;
+  height: 60px;
+  position: relative;
+}
+
+.module-container header .section-title {
+  font-size: 18px;
+  color: #5b5b5b;
+  margin-left: 25px;
+}
+
+.module-container .table {
+  width: 100%;
+}
+
+.module-container .table thead th {
+  background: #f2f3f6;
+  color: #767d94;
+  border-top: 1px solid #fff;
+  text-align: left;
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 15px 25px;
+}
+
+.module-container .table td.form-error {
+  background: #e69191;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.module-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.module-actions .button {
+  font-size: 18px;
+  color: #515564;
+  padding: 0 10px;
+  border: none;
+  border-left: 1px solid #cdced8;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  line-height: 1;
+  position: relative;
+  background: transparent;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  min-width: 65px;
+  height: 60px;
+  text-decoration: none;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.module-actions .button:after {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-right: 1px solid #fff;
+}
+
+.module-actions .button span {
+  display: inline-block;
+  line-height: 1;
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #ababab;
+  position: relative;
+  top: 4px;
+  margin: 0;
+}
+
+div.create {
+  padding: 30px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+div.create .input {
+  width: 260px;
+  margin: 20px;
+}
+
+div.create .input label {
+  width: 100%;
+  font-size: 13px;
+  color: #9094a5;
+  margin-bottom: 15px;
+  display: block;
+  font-weight: 300;
+}
+
+div.create .input input {
+  width: 100%;
+  border: 1px solid #dedfe2;
+  padding: 10px;
+  border-radius: 6px;
 }
 

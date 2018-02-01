@@ -16,10 +16,10 @@ class CreateItemsTable extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->string('colour');
-            $table->string('icon');
+            $table->string('colour')->nullable();
+            $table->string('icon')->nullable();
             $table->string('url');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->boolean('pinned')->default(false);
             $table->timestamps();
         });

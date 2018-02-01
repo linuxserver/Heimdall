@@ -14,7 +14,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $data['apps'] = new Item;
+        $data['apps'] = Item::all();
         return view('items.list', $data);
     }
 
@@ -26,6 +26,9 @@ class ItemController extends Controller
     public function create()
     {
         //
+        $data = [];
+        return view('items.create', $data);
+
     }
 
     /**
@@ -37,6 +40,20 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         //
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'url' => 'required',
+        ]);
+
+        $item = new Item;
+
+        $item->title = $request->title;
+        $item->colour = $request->colour;
+        $item->url = $request->url;
+
+        $item->save();
+
+        return redirect()->route('items.index');
     }
 
     /**
