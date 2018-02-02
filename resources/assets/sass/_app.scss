@@ -157,6 +157,8 @@ body {
 	position: relative;
 	transition: all .35s ease-in-out;
 	outline: 1px solid transparent;
+	display: flex;
+	align-items: flex-start;
 	&:after {
 		content: "";
 		position: absolute;
@@ -324,4 +326,8 @@ div.create {
 			border-radius: 6px;
 		}
 	}
+}
+
+.app-icon {
+	max-width: 50px;
 }

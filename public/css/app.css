@@ -433,6 +433,12 @@ body {
   -webkit-transition: all .35s ease-in-out;
   transition: all .35s ease-in-out;
   outline: 1px solid transparent;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
 }
 
 .item:after {
@@ -640,6 +646,10 @@ div.create .input input {
   border: 1px solid #dedfe2;
   padding: 10px;
   border-radius: 6px;
+}
+
+.app-icon {
+  max-width: 50px;
 }
 
 /*! Huebee v2.0.0
