@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Item;
-//use App\SupportedApps\Contracts\Applications;
 use App\SupportedApps\Nzbget;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -60,6 +60,13 @@ class ItemController extends Controller
             'url' => 'required',
         ]);
 
+        if($request->hasFile('file')) {
+            $path = $request->file('file')->store('icons');
+            $request->merge([
+                'icon' => $path
+            ]);
+        }
+        
         Item::create($request->all());
 
         return redirect()->route('dash')
@@ -106,6 +113,14 @@ class ItemController extends Controller
             'title' => 'required|max:255',
             'url' => 'required',
         ]);
+
+        if($request->hasFile('file')) {
+            $path = $request->file('file')->store('icons');
+            $request->merge([
+                'icon' => $path
+            ]);
+        }
+        
 
         Item::find($id)->update($request->all());
 

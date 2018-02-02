@@ -18,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
             // first time setup
             touch(database_path(env('DB_DATABASE')));
             Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true));
+            Artisan::call('storage:link');
         }
     }
 
