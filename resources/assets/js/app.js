@@ -1,7 +1,14 @@
 $.when( $.ready ).then(function() {
 
-    
-    
+    if($('.message-container').length) {
+        setTimeout(
+        function() 
+        {
+            $('.message-container').fadeOut();
+        }, 3500);
+
+
+    }
 
     $( "#sortable" ).sortable({
         stop: function (event, ui) {
@@ -41,11 +48,16 @@ $.when( $.ready ).then(function() {
                 }, 350);
     
         }
-    }).on('click', '#add-item', function(e) {
+    }).on('click', '#add-item, #pin-item', function(e) {
         e.preventDefault();
         var app = $('#app');
         var active = (app.hasClass('sidebar'));
         app.toggleClass('sidebar');
+        
+    }).on('click', '.close-sidenav', function(e) {
+        e.preventDefault();
+        var app = $('#app');
+        app.removeClass('sidebar');
         
     });
     $('#pinlist').on('click', 'a', function(e) {

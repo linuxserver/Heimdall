@@ -22,6 +22,7 @@ class CreateItemsTable extends Migration
             $table->text('description')->nullable();
             $table->boolean('pinned')->default(false);
             $table->integer('order')->default(0);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

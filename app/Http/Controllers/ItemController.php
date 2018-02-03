@@ -90,11 +90,19 @@ class ItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $trash = (bool)$request->input('trash');
+
         $data['apps'] = Item::all();
-        return view('items.list', $data);
+        $data['trash'] = Item::onlyTrashed()->get();
+        if($trash) {
+            return view('items.trash', $data);
+        } else {
+            return view('items.list', $data);
+        }
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -197,11 +205,35 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         //
-        Item::find($id)->delete();
-        return redirect()->route('dash')
+        $force = (bool)$request->input('force');
+        if($force) {
+            Item::withTrashed()
+                ->where('id', $id)
+                ->forceDelete();
+        } else {
+            Item::find($id)->delete();
+        }
+        
+        return redirect()->route('items.index')
             ->with('success','Item deleted successfully');
+    }
+
+    /**
+     * Restore the specified resource from soft deletion.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id)
+    {
+        //
+        Item::withTrashed()
+                ->where('id', $id)
+                ->restore();        
+        return redirect()->route('items.index')
+            ->with('success','Item restored successfully');
     }
 }

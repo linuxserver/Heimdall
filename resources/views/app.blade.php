@@ -13,6 +13,7 @@
     <body>
         <div id="app">
             <nav class="sidenav">
+                <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))
                 <h2>Pinned Items</h2>
                 <ul id="pinlist">
@@ -41,7 +42,7 @@
                         </div>
                     </div>
                     @endif
-                    @if (count($errors) < 0)
+                    @if (count($errors) > 0)
                     <div class="message-container">
                         <div class="alert alert-danger">
                             <ul>

@@ -357,11 +357,65 @@ body {
 
 .message-container {
   width: 100%;
+  padding: 10px 20px;
 }
 
-.message-container .alert {
-  margin: 30px;
+.message-container2 {
+  width: 100%;
+  padding: 10px 20px;
+}
+
+.alert {
+  margin: 30px auto;
   text-align: center;
+  max-width: 800px;
+  background: #f1f4f7;
+  padding: 5px 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding-left: 80px;
+  -webkit-box-shadow: 0 0 15px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 0 15px 3px rgba(0, 0, 0, 0.3);
+}
+
+.alert.alert-success,
+.alert.alert-danger {
+  position: relative;
+}
+
+.alert.alert-success:before,
+.alert.alert-danger:before {
+  content: "\F00C";
+  font-family: 'Font Awesome 5 Pro';
+  font-weight: 900;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 60px;
+  background: #1cd41c;
+  text-align: center;
+  color: white;
+  line-height: 57px;
+  font-size: 24px;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.alert.alert-danger:before {
+  content: "\F00D";
+  background: #c00;
 }
 
 #app.header .appheader {
@@ -658,9 +712,22 @@ div.create .input input {
   margin-right: 10px;
 }
 
+.sidenav {
+  position: relative;
+}
+
+.sidenav .close-sidenav {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  color: #ccc;
+}
+
 .sidenav h2 {
   font-weight: 300;
   padding: 20px;
+  margin: 0;
 }
 
 .sidenav ul {
@@ -685,6 +752,12 @@ div.create .input input {
 
 .sidenav ul li a.active {
   color: #46b0e6;
+}
+
+.trashed {
+  font-size: 11px;
+  color: #91a1b3;
+  margin-left: 20px;
 }
 
 /*! Huebee v2.0.0
