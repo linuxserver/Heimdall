@@ -364,7 +364,7 @@ div.create {
 	.input {
 		width: 260px;
 		margin: 20px;
-		label {
+		label:not(.switch) {
 			width: 100%;
 			font-size: 13px;
 			color: lighten($app-text, 40%);
@@ -422,3 +422,74 @@ div.create {
 	color: #91a1b3;
 	margin-left: 20px;
 }
+
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 36px;
+	height: 20px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {display:none;}
+  
+  /* The slider */
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #4a556b;
+	-webkit-transition: .4s;
+	transition: .4s;
+  }
+  
+  .slider:before {
+	position: absolute;
+	content: "";
+	height: 14px;
+	width: 14px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+  }
+  
+  input:checked + .slider {
+	background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+	box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+	-webkit-transform: translateX(16px);
+	-ms-transform: translateX(16px);
+	transform: translateX(16px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+	border-radius: 20px;
+  }
+  
+  .slider.round:before {
+	border-radius: 50%;
+  }
+  
+  @-webkit-keyframes autofill {
+	  to {
+		  background:#f5f5f5;
+		  color:#fff;
+	  }
+  }
+  
+  input:-webkit-autofill {
+	  -webkit-animation-name: autofill;
+	  -webkit-animation-fill-mode: both;
+  }
+  

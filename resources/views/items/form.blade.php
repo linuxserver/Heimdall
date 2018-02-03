@@ -14,11 +14,11 @@
             </div>-->
 
             <div class="input">
-                <label>Application name</label>
+                <label>Application name *</label>
                 {!! Form::text('title', null, array('placeholder' => 'Title','class' => 'form-control')) !!}
             </div>
             <div class="input">
-                <label>Colour</label>
+                <label>Colour *</label>
                 {!! Form::text('colour', null, array('placeholder' => 'Hex Colour','class' => 'form-control color-picker')) !!}
             </div>
             <div class="input">
@@ -27,7 +27,7 @@
             </div>
             
             <div class="input">
-                <label>Icon *</label>
+                <label>Icon</label>
                 @if(isset($item->icon) && !empty($item->icon))
                 {{ asset('storage/'.$item->icon) }}
                 {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
@@ -36,16 +36,18 @@
                 
             </div>
 
-
-            <label class="switch">
-                <?php
-                $checked = false;
-                if(isset($item->pinned) && $item->pinned === 1) $checked = true;
-                $set_checked = ($checked) ? ' checked="checked"' : '';
-                ?>
-                <input type="checkbox" name="active" value="1"<?php echo $set_checked;?> />
-                <span class="slider round"></span>
-              </label>
+            <div class="input">
+                <label>Pinned</label>
+                <label class="switch">
+                    <?php
+                    $checked = false;
+                    if(isset($item->pinned) && $item->pinned === 1) $checked = true;
+                    $set_checked = ($checked) ? ' checked="checked"' : '';
+                    ?>
+                    <input type="checkbox" name="active" value="1"<?php echo $set_checked;?> />
+                    <span class="slider round"></span>
+                </label>
+            </div>
 
             
         </div>
