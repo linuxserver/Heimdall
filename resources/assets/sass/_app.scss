@@ -244,6 +244,9 @@ body {
 		font-size: 24px;
 		z-index: 1;
 	}
+	.title {
+		font-size: 16px;
+	}
 }
 .text-center {
 	text-align: center!important;
@@ -394,7 +397,7 @@ div.create {
 
 .app-icon {
 	max-width: 60px;
-	margin-right: 10px;
+	margin-right: 20px;
 }
 
 .sidenav {

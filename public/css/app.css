@@ -537,6 +537,10 @@ body {
   z-index: 1;
 }
 
+.item .title {
+  font-size: 16px;
+}
+
 .text-center {
   text-align: center !important;
 }
@@ -725,7 +729,7 @@ div.create .input input {
 
 .app-icon {
   max-width: 60px;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 
 .sidenav {

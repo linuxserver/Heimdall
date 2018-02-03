@@ -5,7 +5,7 @@
                             @else
                             <i class="fas fa-app-store-ios"></i>
                             @endif
-                            {{ $app->title }}
+                            <div class="title">{{ $app->title }}</div>
                             
                             <a class="link" href="{{ $app->url }}"><i class="fas fa-arrow-alt-to-right"></i></a>
                         </div>
