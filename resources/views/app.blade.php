@@ -12,12 +12,19 @@
     </head>
     <body>
         <div id="app">
-            <nav>
-                <ul>
-                    <li><a href=""><i class="fa fa-dash"></i></a></li>
-                    <li><a href=""><i class="fa fa-dash"></i></a></li>
-                    <li><a href=""><i class="fa fa-dash"></i></a></li>
+            <nav class="sidenav">
+                @if(isset($all_apps))
+                <h2>Pinned Items</h2>
+                <ul id="pinlist">
+                    @foreach($all_apps as $app)
+                    <?php
+                    $active = ((bool)$app->pinned === true) ? 'active' : '';
+                    ?>
+                    <li>{{ $app->title }}<a class="{{ $active }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', $app->id) }}"><i class="fas fa-thumbtack"></i></a></li>
+                    
+                    @endforeach
                 </ul>
+                @endif
             </nav>
             <div class="content">
                 <header class="appheader">
@@ -54,6 +61,8 @@
         </div>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="/js/app.js"></script>
+        
     </body>
 </html>

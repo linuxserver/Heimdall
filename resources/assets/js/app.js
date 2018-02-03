@@ -1,4 +1,23 @@
 $.when( $.ready ).then(function() {
+
+    
+    
+
+    $( "#sortable" ).sortable({
+        stop: function (event, ui) {
+            var idsInOrder = $("#sortable").sortable('toArray', {
+                attribute: 'data-id'
+            });
+            $.post(
+                '/order',
+                { order:idsInOrder }
+            );
+        }
+    
+    });
+    $("#sortable").sortable("disable");
+
+    
     $('.color-picker').each( function( i, elem ) {
         var hueb = new Huebee( elem, {
           // options
@@ -12,7 +31,9 @@ $.when( $.ready ).then(function() {
         if(active) {
             $('.add-item').hide();
             $('#app').removeClass('sidebar');
+            $("#sortable").sortable("disable")
         } else {
+            $("#sortable").sortable("enable")
             setTimeout(
                 function() 
                 {
@@ -27,4 +48,15 @@ $.when( $.ready ).then(function() {
         app.toggleClass('sidebar');
         
     });
+    $('#pinlist').on('click', 'a', function(e) {
+        e.preventDefault();
+        var current = $(this);
+        var id = current.data('id');
+        $.get('items/pintoggle/'+id+'/true', function(data) {
+            var inner = $(data).filter('#sortable').html();
+            $('#sortable').html(inner);
+            current.toggleClass('active');
+        });
+    });
+    
 });

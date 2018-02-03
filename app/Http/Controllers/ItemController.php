@@ -17,8 +17,71 @@ class ItemController extends Controller
      */
     public function dash()
     {
-        $data['apps'] = Item::all();
+        $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
+        $data['all_apps'] = Item::all();
         return view('welcome', $data);
+    }
+
+     /**
+     * Set order on the dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function setOrder(Request $request)
+    {
+        $order = array_filter($request->input('order'));
+        foreach($order as $o => $id) {
+            $item = Item::find($id);
+            $item->order = $o;
+            $item->save();
+        }
+    }
+    
+
+     /**
+     * Pin item on the dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pin($id)
+    {
+        $item = Item::findOrFail($id);
+        $item->pinned = true;
+        $item->save();
+        return redirect()->route('dash');
+    }
+
+     /**
+     * Unpin item on the dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function unpin($id)
+    {
+        $item = Item::findOrFail($id);
+        $item->pinned = false;
+        $item->save();
+        return redirect()->route('dash');
+    }
+
+     /**
+     * Unpin item on the dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pinToggle($id, $ajax=false)
+    {
+        $item = Item::findOrFail($id);
+        $new = ((bool)$item->pinned === true) ? false : true;
+        $item->pinned = $new;
+        $item->save();
+        if($ajax) {
+            $data['apps'] = Item::pinned()->get();
+            $data['ajax'] = true;
+            return view('sortable', $data);
+        } else {
+            return redirect()->route('dash');           
+        }
     }
 
    

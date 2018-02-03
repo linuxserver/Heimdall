@@ -318,7 +318,8 @@ body {
   padding: 20px;
 }
 
-#app main {
+#app main,
+#app #sortable {
   padding: 10px;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -337,9 +338,12 @@ body {
       flex-wrap: wrap;
   -ms-flex-line-pack: center;
       align-content: center;
+  list-style: none;
+  margin: 0;
 }
 
-#app main .config {
+#app main .config,
+#app #sortable .config {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -349,12 +353,6 @@ body {
   text-align: center;
   line-height: 50px;
   color: white;
-}
-
-.item-container {
-  width: 340px;
-  -webkit-transition: all .35s ease-in-out;
-  transition: all .35s ease-in-out;
 }
 
 .message-container {
@@ -370,15 +368,12 @@ body {
   top: 0;
 }
 
-#app.header .item-container {
-  width: 280px;
-}
-
 #app.header .item,
 #app.header .add-item {
   -webkit-transform: scale(0.8);
           transform: scale(0.8);
   opacity: 0.7;
+  margin: 20px 0;
 }
 
 #app.sidebar nav {
@@ -402,6 +397,10 @@ body {
   position: relative;
   display: none;
   outline: 1px solid transparent;
+}
+
+.add-item.active {
+  display: block;
 }
 
 .add-item a {
@@ -436,9 +435,9 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .item:after {
@@ -482,7 +481,8 @@ body {
   margin: 0 40px;
 }
 
-.module-container header {
+.module-container header,
+.module-container footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -500,10 +500,15 @@ body {
   position: relative;
 }
 
-.module-container header .section-title {
+.module-container header .section-title,
+.module-container footer .section-title {
   font-size: 18px;
   color: #5b5b5b;
   margin-left: 25px;
+}
+
+.module-container footer {
+  border-top: 1px solid #dbdce3;
 }
 
 .module-container .table {
@@ -649,7 +654,37 @@ div.create .input input {
 }
 
 .app-icon {
-  max-width: 50px;
+  max-width: 60px;
+  margin-right: 10px;
+}
+
+.sidenav h2 {
+  font-weight: 300;
+  padding: 20px;
+}
+
+.sidenav ul {
+  list-style: none;
+  margin: 0;
+  padding: 20px;
+}
+
+.sidenav ul li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  padding: 5px;
+}
+
+.sidenav ul li a {
+  color: #2b3542;
+}
+
+.sidenav ul li a.active {
+  color: #46b0e6;
 }
 
 /*! Huebee v2.0.0

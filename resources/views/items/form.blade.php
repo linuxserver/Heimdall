@@ -2,8 +2,8 @@
         <header>
             <div class="section-title">Add application</div>
             <div class="module-actions">
-                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>Cancel</span></a>
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>Save</span></button>
+                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>Cancel</span></a>
             </div>
         </header>
         <div class="create">
@@ -49,5 +49,12 @@
 
             
         </div>
+        <footer>
+            <div class="section-title">&nbsp;</div>
+            <div class="module-actions">
+                <button type="submit"class="button"><i class="fa fa-save"></i><span>Save</span></button>
+                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>Cancel</span></a>
+            </div>
+        </footer>
 
     </section>

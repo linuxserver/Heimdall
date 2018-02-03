@@ -21,6 +21,7 @@ class CreateItemsTable extends Migration
             $table->string('url');
             $table->text('description')->nullable();
             $table->boolean('pinned')->default(false);
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

@@ -16,3 +16,7 @@ Route::get('/', 'ItemController@dash')->name('dash');
 Route::resources([
     'items' => 'ItemController',
 ]);
+Route::get('items/pin/{id}', 'ItemController@pin')->name('items.pin');
+Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');
+Route::get('items/pintoggle/{id}/{ajax?}', 'ItemController@pinToggle')->name('items.pintoggle');
+Route::post('order', 'ItemController@setOrder')->name('items.order');
