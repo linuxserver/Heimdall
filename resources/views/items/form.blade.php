@@ -44,7 +44,7 @@
                     if(isset($item->pinned) && $item->pinned === 1) $checked = true;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
                     ?>
-                    <input type="checkbox" name="active" value="1"<?php echo $set_checked;?> />
+                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
                     <span class="slider round"></span>
                 </label>
             </div>
