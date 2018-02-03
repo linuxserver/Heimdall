@@ -1,3 +1,5 @@
+![alt text](https://i.imgur.com/u4n6ZKs.jpg)
+
 ## About 
 
 An Application dashboard and launcher
