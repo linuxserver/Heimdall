@@ -418,6 +418,10 @@ body {
   background: #c00;
 }
 
+.alert a {
+  color: #91a1b3;
+}
+
 #app.header .appheader {
   top: 0;
 }
