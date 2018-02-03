@@ -35,7 +35,7 @@
                                 <td class="text-center"><a href="{!! route('items.edit', $app->id) !!}" title="Edit {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
-                                        <button type="submit"><i class="fa fa-trash-alt"></i></button>
+                                        <button class="link" type="submit"><i class="fa fa-trash-alt"></i></button>
                                         {!! Form::close() !!}
                                 </td>
                             </tr>

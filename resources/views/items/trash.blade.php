@@ -28,7 +28,7 @@
                                 <td>{{ $app->title }}</td>
                                 <td>{{ $app->description }}</td>
                                 <td>{{ $app->url }}</td>
-                                <td class="text-center"><a href="{!! route('items.restore', $app->id) !!}" title="Restore {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
+                                <td class="text-center"><a href="{!! route('items.restore', $app->id) !!}" title="Restore {!! $app->title !!}"><i class="fas fa-undo"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
                                         <input type="hidden" name="force" value="1" />

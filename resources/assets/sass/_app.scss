@@ -134,7 +134,7 @@ body {
 				left: 0;
 				bottom: 0;
 				width: 60px;
-				background: #1cd41c;
+				background: $app-green;
 				text-align: center;
 				color: white;
 				line-height: 57px;
@@ -147,7 +147,7 @@ body {
 		&.alert-danger {
 			&:before {
 				content: "\f00d";
-				background: #c00;
+				background: $app-red;
 
 			}
 		}
@@ -504,3 +504,8 @@ div.create {
 	  -webkit-animation-fill-mode: both;
   }
   
+  button.link {
+	  border: none;
+	  appearance: none;
+	  background: transparent;
+  }

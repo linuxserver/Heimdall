@@ -413,7 +413,7 @@ body {
   left: 0;
   bottom: 0;
   width: 60px;
-  background: #1cd41c;
+  background: #0eb584;
   text-align: center;
   color: white;
   line-height: 57px;
@@ -431,7 +431,7 @@ body {
 
 .alert.alert-danger:before {
   content: "\F00D";
-  background: #c00;
+  background: #d64d55;
 }
 
 .alert a {
@@ -849,6 +849,14 @@ input:checked + .slider:before {
 input:-webkit-autofill {
   -webkit-animation-name: autofill;
   -webkit-animation-fill-mode: both;
+}
+
+button.link {
+  border: none;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background: transparent;
 }
 
 /*! Huebee v2.0.0
