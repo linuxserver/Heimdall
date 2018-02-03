@@ -342,17 +342,33 @@ body {
   margin: 0;
 }
 
-#app main .config,
-#app #sortable .config {
+#config-buttons {
   position: absolute;
   bottom: 0;
   right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+#config-buttons a {
   width: 50px;
   height: 50px;
   background: rgba(0, 0, 0, 0.8);
   text-align: center;
   line-height: 50px;
   color: white;
+  margin-top: 1px;
+}
+
+#config-buttons a img {
+  width: 26px;
+  height: 26px;
+  margin-top: 12px;
 }
 
 .message-container {
@@ -420,10 +436,6 @@ body {
 
 .alert a {
   color: #91a1b3;
-}
-
-#app.header .appheader {
-  top: 0;
 }
 
 #app.header .item,

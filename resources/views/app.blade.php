@@ -55,7 +55,15 @@
                     @endif
                     
                     @yield('content')
-                    <a id="config-button" class="config" href=""><i class="fas fa-cogs"></i></a>
+                    <div id="config-buttons">
+                        @if(!Route::is('dash'))
+                        <a id="dash" class="config" href="{{ route('dash') }}"><img src="/img/yggdrasil.svg" /></a>
+                        @endif
+                        @if(!Request::is(['items', 'items/*']))
+                        <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
+                        @endif
+                        <a id="config-button" class="config" href=""><i class="fas fa-cogs"></i></a>
+                    </div>
                 </main>
 
             </div>

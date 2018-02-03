@@ -77,19 +77,30 @@ body {
 		align-content: center;
 		list-style: none;
 		margin: 0;
-		.config {
-			position: absolute;
-			bottom: 0;
-			right: 0;
-			width: 50px;
-			height: 50px;
-			background: rgba(0,0,0,0.8);
-			text-align: center;
-			line-height: 50px;
-			color: white;
+	}
+}
+#config-buttons {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	display:flex;
+	flex-direction: column;
+	a {
+		width: 50px;
+		height: 50px;
+		background: rgba(0,0,0,0.8);
+		text-align: center;
+		line-height: 50px;
+		color: white;
+		margin-top: 1px;
+		img {
+			width: 26px;
+			height: 26px;
+			margin-top: 12px;
 		}
 	}
 }
+
 .item-container {
 	//width: 340px;
 	//transition: width .35s ease-in-out;	
@@ -148,7 +159,7 @@ body {
 #app {
 	&.header {
 		.appheader {
-			top: 0;
+			//top: 0;
 		}
 		.item-container {
 			//width: 240px;

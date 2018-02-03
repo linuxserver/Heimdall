@@ -29,7 +29,7 @@
             <div class="input">
                 <label>Icon</label>
                 @if(isset($item->icon) && !empty($item->icon))
-                {{ asset('storage/'.$item->icon) }}
+                <a href="{{ asset('storage/'.$item->icon) }}">View current icon</a>
                 {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
                 @endif
                 <input name="file" type="file" class="form-control">
@@ -41,7 +41,7 @@
                 <label class="switch">
                     <?php
                     $checked = false;
-                    if(isset($item->pinned) && $item->pinned === 1) $checked = true;
+                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
                     ?>
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
