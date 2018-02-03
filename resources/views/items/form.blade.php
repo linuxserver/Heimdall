@@ -44,6 +44,7 @@
                     if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
                     ?>
+                    {!! Form::hidden('pinned', '0') !!}
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
                     <span class="slider round"></span>
                 </label>
