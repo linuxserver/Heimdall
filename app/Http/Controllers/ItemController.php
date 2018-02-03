@@ -94,7 +94,7 @@ class ItemController extends Controller
     {
         $trash = (bool)$request->input('trash');
 
-        $data['apps'] = Item::all();
+        $data['apps'] = Item::orderBy('title', 'asc')->get();
         $data['trash'] = Item::onlyTrashed()->get();
         if($trash) {
             return view('items.trash', $data);

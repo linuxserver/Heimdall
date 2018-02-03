@@ -57,7 +57,7 @@
                     @yield('content')
                     <div id="config-buttons">
                         @if(!Route::is('dash'))
-                        <a id="dash" class="config" href="{{ route('dash') }}"><img src="/img/yggdrasil.svg" /></a>
+                        <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
                         @endif
                         @if(!Request::is(['items', 'items/*']))
                         <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
