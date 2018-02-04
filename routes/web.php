@@ -21,3 +21,21 @@ Route::get('items/restore/{id}', 'ItemController@restore')->name('items.restore'
 Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');
 Route::get('items/pintoggle/{id}/{ajax?}', 'ItemController@pinToggle')->name('items.pintoggle');
 Route::post('order', 'ItemController@setOrder')->name('items.order');
+
+/**
+ * Settings.
+ */
+Route::group([
+    'as'     => 'settings.',
+    'prefix' => 'settings',
+], function () {
+
+    Route::get('/', 'SettingsController@index')
+        ->name('index');
+    Route::get('edit/{id}', 'SettingsController@edit')
+        ->name('edit');
+
+
+    Route::post('edit/{id}', 'SettingsController@update');
+
+});
