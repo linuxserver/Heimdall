@@ -1,8 +1,11 @@
-![alt text](https://i.imgur.com/u4n6ZKs.jpg)
+![alt text](https://photos.app.goo.gl/8K1fVDdWHtpO71LF3)
 
 ## About 
 
 An Application dashboard and launcher
+
+## Video
+If you want to see a quick video of it in use, go to https://drive.google.com/file/d/1cijXgmjem_q2OfKMp36qVuXRiyOzvhWC/view
 
 ## Web Server Configuration
 
