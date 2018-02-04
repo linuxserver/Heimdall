@@ -11,7 +11,7 @@
 
     </head>
     <body>
-        <div id="app">
+        <div id="app"{!! $alt_bg !!}>
             <nav class="sidenav">
                 <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))

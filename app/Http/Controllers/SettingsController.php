@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Setting;
 use App\SettingGroup;
 use App\Http\Controllers\Controller;
@@ -47,7 +48,7 @@ class SettingsController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
         $setting = Setting::find($id);
 
@@ -55,24 +56,26 @@ class SettingsController extends Controller
             $data = Setting::getInput();
 
             if ($setting->type == 'image') {
-                if (!is_null($data->image) && $data->image->isValid()) {
-                    $destinationPath = uploads_path().'/settings/';
-                    $extension = $data->image->getClientOriginalExtension();
-                    $fileName = rand(11111111, 99999999).'.'.$extension;
-                    $data->image->move($destinationPath, $fileName);
-                    $setting->value = $fileName;
+
+
+                if($request->hasFile('value')) {
+                    $path = $request->file('value')->store('backgrounds');
+                    $setting->value = $path;
                 }
+            
+
+
             } else {
                 $setting->value = $data->value;
             }
 
             $setting->save();
 
-            return redirect()->route('settings.list')->with([
+            return redirect()->route('settings.index')->with([
                 'success' => 'You have successfully edited this Setting!',
             ]);
         } else {
-            return redirect()->route('settings.list')->with([
+            return redirect()->route('settings.index')->with([
                 'error' => 'This Setting does not exist.',
             ]);
         }

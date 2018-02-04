@@ -28,7 +28,7 @@
                                     @php($type = explode('|', $setting->type)[0])
                                     @if ($type == 'image')
                                         @if(!empty($setting->value))
-                                        <a href="/uploads/settings/{{ $setting->value }}" title="View" target="_blank">View</a>
+                                        <a href="{{ asset('storage/'.$setting->value) }}" title="View" target="_blank">View</a>
                                         @else
                                         - not set -
                                         @endif

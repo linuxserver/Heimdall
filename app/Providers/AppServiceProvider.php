@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Artisan;
+use App\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
             //Artisan::call('config:cache');
             //Artisan::call('route:cache');
         }
+        $alt_bg = '';
+        if($bg_image = Setting::fetch('background_image')) {
+            $alt_bg = ' style="background-image: url('.asset('storage/'.$bg_image).')"';
+        }
+        view()->share('alt_bg', $alt_bg);
+
     }
 
     /**

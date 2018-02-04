@@ -36,6 +36,6 @@ Route::group([
         ->name('edit');
 
 
-    Route::post('edit/{id}', 'SettingsController@update');
+    Route::patch('edit/{id}', 'SettingsController@update');
 
 });
