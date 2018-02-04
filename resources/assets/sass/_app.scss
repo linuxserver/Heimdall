@@ -237,12 +237,13 @@ body {
 		right: 0;
 		top: 0;
 		height: 100%;
-		width: 52px;
-		text-align: center;
+		width: 100%;
+		text-align: right;
 		line-height: 90px;
 		color: white;
 		font-size: 24px;
 		z-index: 1;
+		padding-right: 10px;
 	}
 	.title {
 		font-size: 16px;
