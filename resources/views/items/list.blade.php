@@ -19,7 +19,6 @@
                 <thead>
                     <tr>
                         <th>Title</th>
-                        <th>Description</th>
                         <th>Url</th>
                         <th class="text-center" width="100">Edit</th>
                         <th class="text-center" width="100">Delete</th>
@@ -30,8 +29,7 @@
                         @foreach($apps as $app)
                             <tr>
                                 <td>{{ $app->title }}</td>
-                                <td>{{ $app->description }}</td>
-                                <td>{{ $app->url }}</td>
+                                <td><a href="{{ $app->url }}">{{ $app->url }}</a></td>
                                 <td class="text-center"><a href="{!! route('items.edit', $app->id) !!}" title="Edit {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
@@ -42,7 +40,7 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="5" class="form-error text-center">
+                            <td colspan="4" class="form-error text-center">
                                 <strong>No items found</strong>
                             </td>
                         </tr>
