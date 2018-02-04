@@ -203,14 +203,14 @@ body {
 	}
 }
 .item {
-	width: 300px;
-	height: 130px;
+	width: 280px;
+	height: 90px;
 	margin: 20px;
-	flex: 0 0 300px;
+	flex: 0 0 280px;
 	background-image:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.25));
 	border-radius: 6px;
-	padding: 20px;
-	padding-right: 80px;
+	padding: 15px;
+	padding-right: 55px;
 	//border: 2px solid rgba(0,0,0,0.4);
 	box-shadow: 0 0 20px 2px rgba(0,0,0,0.3);
 	color: white;
@@ -223,12 +223,12 @@ body {
 	&:after {
 		content: "";
 		position: absolute;
-		width: 130px;
-		height: 134px;
+		width: 90px;
+		height: 90px;
 		border-radius: 50%;
 		position: absolute;
-		right: -78px;
-		top: -2px;
+		right: -48px;
+		top: 0px;
 		background: rgba(255,255,255,0.1);
 		box-shadow: 0 0 40px 0px rgba(0,0,0,0.2);
 	}
@@ -239,7 +239,7 @@ body {
 		height: 100%;
 		width: 52px;
 		text-align: center;
-		line-height: 134px;
+		line-height: 90px;
 		color: white;
 		font-size: 24px;
 		z-index: 1;

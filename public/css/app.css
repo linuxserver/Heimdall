@@ -483,17 +483,17 @@ body {
 }
 
 .item {
-  width: 300px;
-  height: 130px;
+  width: 280px;
+  height: 90px;
   margin: 20px;
   -webkit-box-flex: 0;
-      -ms-flex: 0 0 300px;
-          flex: 0 0 300px;
+      -ms-flex: 0 0 280px;
+          flex: 0 0 280px;
   background-image: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0.25)));
   background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25));
   border-radius: 6px;
-  padding: 20px;
-  padding-right: 80px;
+  padding: 15px;
+  padding-right: 55px;
   -webkit-box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
           box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
   color: white;
@@ -513,12 +513,12 @@ body {
 .item:after {
   content: "";
   position: absolute;
-  width: 130px;
-  height: 134px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   position: absolute;
-  right: -78px;
-  top: -2px;
+  right: -48px;
+  top: 0px;
   background: rgba(255, 255, 255, 0.1);
   -webkit-box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.2);
           box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.2);
@@ -531,7 +531,7 @@ body {
   height: 100%;
   width: 52px;
   text-align: center;
-  line-height: 134px;
+  line-height: 90px;
   color: white;
   font-size: 24px;
   z-index: 1;
