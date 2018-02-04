@@ -33,7 +33,7 @@ Someone was using the same nginx setup to both run this and reverse proxy Plex, 
 
 Therefore, if your fonts aren't showing because you have a location for /web add the following
 ```
-location /webfont {
+location /webfonts {
      try_files $uri $uri/;
 }
 ```
