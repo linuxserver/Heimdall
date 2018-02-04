@@ -1,4 +1,4 @@
-![alt text](https://photos.app.goo.gl/8K1fVDdWHtpO71LF3)
+![alt text](https://i.imgur.com/aUpMns5.jpg)
 
 ## About 
 
