@@ -165,8 +165,8 @@ body {
 			//width: 240px;
 		}
 		.item, .add-item {
-			transform: scale(0.8);
-			opacity: 0.7;
+			transform: scale(0.9);
+			opacity: 0.8;
 			margin: 20px 0;
 		}
 	}
@@ -177,10 +177,10 @@ body {
 	}
 }
 .add-item {
-	width: 300px;
-	height: 130px;
+	width: 280px;
+	height: 90px;
 	margin: 20px;
-	flex: 0 0 300px;
+	flex: 0 0 280px;
 	border-radius: 6px;
 	padding: 20px;
 	border: 4px dashed rgba(255,255,255,0.7);
@@ -197,7 +197,7 @@ body {
 		display: block;
 		width: 100%;
 		text-align: center;
-		line-height: 90px;
+		line-height: 40px;
 		color: white;
 		font-size: 19px;
 	}
