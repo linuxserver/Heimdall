@@ -20,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true));
             Artisan::call('storage:link');
             //Cache
-            Artisan::call('config:cache');
-            Artisan::call('route:cache');
+            //Artisan::call('config:cache');
+            //Artisan::call('route:cache');
         }
     }
 
