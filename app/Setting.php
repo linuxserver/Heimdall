@@ -168,6 +168,15 @@ class Setting extends Model
         $output = '';
         $homepage_search = self::fetch('homepage_search');
         $search_provider = self::where('key', '=', 'search_provider')->first();
+        
+        //die(var_dump($search_provider->value));
+        // return early if search isn't applicable
+        if((bool)$homepage_search !== true) return $output;
+        if($search_provider->value === 'none') return $output;
+        if(empty($search_provider->value)) return $output;
+        if(is_null($search_provider->value)) return $output;
+
+
         if((bool)$homepage_search && (bool)$search_provider) {
 
             $options = (array)json_decode($search_provider->options);
