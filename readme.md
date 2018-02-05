@@ -39,6 +39,12 @@ location /webfonts {
 ```
 If there are any other locations which might interefere with any of the folders in the /public folder, you might have to do the same for those as well, but it's a super fringe case.
 
+## Credits
+- PHP Framework - [Laravel](https://laravel.com/)
+- Icons - [FonteAwesome 5](https://fontawesome.com/)
+- Javascript - [jQuery](https://jquery.com/)
+- Colour picker - [Huebee](http://huebee.buzz/)
+
 ## License
 
 This app is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
