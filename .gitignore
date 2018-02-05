@@ -1,7 +1,6 @@
 /node_modules
 /public/hot
 /public/storage
-!/public/storage/supportedapps/
 /storage/*.key
 /.idea
 /.vagrant
