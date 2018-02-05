@@ -1,7 +1,6 @@
 /node_modules
 /public/hot
-/public/storage/backgrounds
-/public/storage/icons
+/public/storage
 /storage/*.key
 /.idea
 /.vagrant
