@@ -60,7 +60,6 @@ class Setting extends Model
             case 'select':
                 if(!empty($this->value) && $this->value !== 'none') {
                     $options =  (array)json_decode($this->options);
-                    d
                     $value = $options[$this->value];
                 } else {
                     $value = '- not set -';
