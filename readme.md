@@ -29,6 +29,15 @@ location / {
     try_files $uri $uri/ /index.php?$query_string;
 }
 ```
+Someone was using the same nginx setup to both run this and reverse proxy Plex, Plex is served from /web so their location was interferring with the /webfonts.
+
+Therefore, if your fonts aren't showing because you have a location for /web add the following
+```
+location /webfonts {
+     try_files $uri $uri/;
+}
+```
+If there are any other locations which might interefere with any of the folders in the /public folder, you might have to do the same for those as well, but it's a super fringe case.
 
 ## License
 
