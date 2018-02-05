@@ -168,32 +168,34 @@ class Setting extends Model
         $output = '';
         $homepage_search = self::fetch('homepage_search');
         $search_provider = self::where('key', '=', 'search_provider')->first();
-        
-        $options = (array)json_decode($search_provider->options);
-        $name = $options[$search_provider->value];
-        if((bool)$homepage_search && (bool)$search_provider->value) {
-            switch($search_provider->value) {
-                case 'google':
-                    $url = 'https://www.google.com/search';
-                    $var = 'q';
-                    break;
-                case 'ddg':
-                    $url = 'https://duckduckgo.com/';
-                    $var = 'q';
-                    break;
-                case 'bing':
-                    $url = 'https://www.bing.com/search';
-                    $var = 'q';
-                    break;
+        if((bool)$homepage_search && (bool)$search_provider) {
+
+            $options = (array)json_decode($search_provider->options);
+            $name = $options[$search_provider->value];
+            if((bool)$homepage_search && (bool)$search_provider->value) {
+                switch($search_provider->value) {
+                    case 'google':
+                        $url = 'https://www.google.com/search';
+                        $var = 'q';
+                        break;
+                    case 'ddg':
+                        $url = 'https://duckduckgo.com/';
+                        $var = 'q';
+                        break;
+                    case 'bing':
+                        $url = 'https://www.bing.com/search';
+                        $var = 'q';
+                        break;
+                }
+                $output .= '<div class="searchform">';
+                $output .= Form::open(['url' => $url, 'method' => 'get']);
+                $output .= '<div class="input-container">';
+                $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => $name.' search...']);
+                $output .= '<button type="submit">Search</button>';
+                $output .= '</div>';
+                $output .= Form::close();
+                $output .= '</div>';
             }
-            $output .= '<div class="searchform">';
-            $output .= Form::open(['url' => $url, 'method' => 'get']);
-            $output .= '<div class="input-container">';
-            $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => $name.' search...']);
-            $output .= '<button type="submit">Search</button>';
-            $output .= '</div>';
-            $output .= Form::close();
-            $output .= '</div>';
         }
         return $output;
     }
