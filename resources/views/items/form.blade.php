@@ -15,7 +15,7 @@
 
             <div class="input">
                 <label>Application name *</label>
-                {!! Form::text('title', null, array('placeholder' => 'Title','class' => 'form-control')) !!}
+                {!! Form::text('title', null, array('placeholder' => 'Title', 'id' => 'appname', 'class' => 'form-control')) !!}
             </div>
             <div class="input">
                 <label>Colour *</label>
@@ -61,3 +61,5 @@
         </footer>
 
     </section>
+
+

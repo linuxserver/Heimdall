@@ -1,6 +1,7 @@
 /node_modules
 /public/hot
-/public/storage
+/public/storage/backgrounds
+/public/storage/icons
 /storage/*.key
 /.idea
 /.vagrant
@@ -8,3 +9,5 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+storage/app/public/.DS_Store

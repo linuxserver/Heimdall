@@ -3,6 +3,6 @@
 class Plex implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#ccc';
+        return '#222';
     }
 }

@@ -237,4 +237,17 @@ class ItemController extends Controller
         return redirect()->route('items.index')
             ->with('success','Item restored successfully');
     }
+
+    /**
+     * Return details for supported apps
+     *
+     * @return Json
+     */
+    public function appload(Request $request)
+    {
+        $app = $request->input('app');
+        return "a: ".$app;
+    }
+
+    
 }
