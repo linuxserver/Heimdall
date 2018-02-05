@@ -36,7 +36,10 @@ class SettingsSeeder extends Seeder
             $setting_group->save();
         }
 
-        if(!Setting::find(1)) {
+        if($version = Setting::find(1)) {
+            $version->value = config('app.version');
+            $version->save();
+        } else {
             $setting = new Setting;
             $setting->id = 1;
             $setting->group_id = 1;
@@ -47,6 +50,7 @@ class SettingsSeeder extends Seeder
             $setting->system = true;
             $setting->save();
         }
+
         if(!Setting::find(2)) {
             $setting = new Setting;
             $setting->id = 2;

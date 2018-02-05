@@ -378,6 +378,24 @@ body {
   margin-top: 12px;
 }
 
+.item-container {
+  position: relative;
+}
+
+.item-container .item-edit {
+  color: white;
+  position: absolute;
+  bottom: 20px;
+  left: 8px;
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 30px;
+  display: none;
+}
+
 .message-container {
   width: 100%;
   padding: 10px 20px;
