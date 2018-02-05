@@ -246,7 +246,13 @@ class ItemController extends Controller
     public function appload(Request $request)
     {
         $app = $request->input('app');
-        return "a: ".$app;
+        if($app) {
+            $all_supported = Item::supportedList();
+            $app_details = new $all_supported[$app];
+        }
+        $output['icon'] = $app_details->icon();
+        $output['colour'] = $app_details->defaultColour();
+        return json_encode($output);
     }
 
     

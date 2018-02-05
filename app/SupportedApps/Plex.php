@@ -5,4 +5,8 @@ class Plex implements Contracts\Applications {
     {
         return '#222';
     }
+    public function icon()
+    {
+        return 'supportedapps/plex.png';
+    }
 }

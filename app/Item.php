@@ -26,8 +26,8 @@ class Item extends Model
     public static function supportedList()
     {
         return [
-            'NZBGet' => App\SupportedApps\Nzbget::class,
-            'Plex' => App\SupportedApps\Plex::class,
+            'NZBGet' => \App\SupportedApps\Nzbget::class,
+            'Plex' => \App\SupportedApps\Plex::class,
         ];
     }
     public static function supportedOptions()

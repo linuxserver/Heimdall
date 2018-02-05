@@ -28,10 +28,12 @@
             
             <div class="input">
                 <label>Icon</label>
+                <div id="appimage">
                 @if(isset($item->icon) && !empty($item->icon))
-                <a href="{{ asset('storage/'.$item->icon) }}">View current icon</a>
+                <img src="{{ asset('storage/'.$item->icon) }}" />
                 {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
                 @endif
+                </div>
                 <input name="file" type="file" class="form-control">
                 
             </div>

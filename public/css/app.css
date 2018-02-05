@@ -1003,6 +1003,10 @@ a.settinglink {
   font-weight: 700;
 }
 
+#appimage img {
+  max-width: 150px;
+}
+
 /*! Huebee v2.0.0
 http://huebee.buzz
 ---------------------------------------------- */

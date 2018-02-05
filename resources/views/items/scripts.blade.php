@@ -12,8 +12,9 @@
                 source: availableTags,
                 select: function( event, ui ) {
                     $.post('/appload', { app: ui.item.value }, function(data) {
-                        alert(data);
-                    });
+                        $('#appimage').html("<img src='/storage/"+data.icon+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
+                        $('input[name=colour]').val(data.colour);
+                    }, "json");
                 }
             });
         });

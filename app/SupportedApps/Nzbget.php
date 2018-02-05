@@ -5,4 +5,9 @@ class Nzbget implements Contracts\Applications {
     {
         return '#ccc';
     }
+    public function icon()
+    {
+        return 'supportedapps/nzbget.png';
+    }
+   
 }
