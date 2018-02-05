@@ -32,6 +32,8 @@ class SettingsController extends Controller
     {
         $setting = Setting::find($id);
 
+        if((bool)$setting->system === true) return abort(404);
+
         if (!is_null($setting)) {
             return view('settings.edit')->with([
                 'setting' => $setting,
@@ -79,5 +81,22 @@ class SettingsController extends Controller
                 'error' => 'This Setting does not exist.',
             ]);
         }
+    }
+    /**
+     * @param int $id
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function clear($id)
+    {
+        $setting = Setting::find($id);
+        if((bool)$setting->system !== true) {
+            $setting->value = '';
+            $setting->save();
+        }
+        return redirect()->route('settings.index')->with([
+            'success' => 'You have successfully edited this Setting!',
+        ]);
+    
     }
 }

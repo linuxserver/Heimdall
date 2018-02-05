@@ -18,6 +18,7 @@ class CreateSettingsTable extends Migration
             $table->integer('group_id')->default(0);
             $table->string('key');
             $table->string('type')->default('text');
+            $table->text('options')->nullable();
             $table->string('label');
             $table->string('value')->nullable();
             $table->string('order')->default(0);

@@ -15,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(!file_exists(database_path(env('DB_DATABASE')))) {
+        $alt_bg = '';
+
+        if(!is_file(database_path(env('DB_DATABASE')))) {
             // first time setup
             touch(database_path(env('DB_DATABASE')));
             Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));
@@ -24,9 +26,10 @@ class AppServiceProvider extends ServiceProvider
             //Artisan::call('config:cache');
             //Artisan::call('route:cache');
         }
-        $alt_bg = '';
-        if($bg_image = Setting::fetch('background_image')) {
-            $alt_bg = ' style="background-image: url('.asset('storage/'.$bg_image).')"';
+        if(is_file(database_path(env('DB_DATABASE')))) {
+            if($bg_image = Setting::fetch('background_image')) {
+                $alt_bg = ' style="background-image: url('.asset('storage/'.$bg_image).')"';
+            }
         }
         view()->share('alt_bg', $alt_bg);
 

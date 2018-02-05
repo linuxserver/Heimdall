@@ -25,22 +25,7 @@
                             <tr>
                                 <td>{{ $setting->label }}</td>
                                 <td>
-                                    @php($type = explode('|', $setting->type)[0])
-                                    @if ($type == 'image')
-                                        @if(!empty($setting->value))
-                                        <a href="{{ asset('storage/'.$setting->value) }}" title="View" target="_blank">View</a>
-                                        @else
-                                        - not set -
-                                        @endif
-                                    @elseif ($type == 'select')
-                                    @if ($setting->value == 1)
-                                    YES
-                                    @else
-                                    NO
-                                    @endif
-                                    @else
-                                    {!! $setting->value !!}
-                                    @endif
+                                    {!! $setting->list_value !!}
                                 </td>
                                 <td class="text-center">
                                     @if((bool)$setting->system !== true)

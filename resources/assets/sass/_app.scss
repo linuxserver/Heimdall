@@ -66,6 +66,9 @@ body {
 		}
 
 	}
+	main {
+		flex-direction: column;
+	}
 	main, #sortable {
 		padding: 10px;
 		display: flex;
@@ -387,7 +390,7 @@ div.create {
 			display: block;
 			font-weight: 300;
 		}
-		input {
+		input, select {
 			width: 100%;
 			border: 1px solid #dedfe2;
 			padding: 10px;
@@ -512,4 +515,66 @@ div.create {
 	  border: none;
 	  appearance: none;
 	  background: transparent;
+  }
+
+  a.settinglink {
+	  color: $app-text;
+	  font-size: 13px;
+	  margin: 15px 5px;
+	  display: inline-block;
+	  font-weight: 700;
+  }
+  .setting-view-image {
+	  margin-bottom: 20px;
+	  display: inline-block;
+	  img {
+		  max-width: 330px;
+	  }
+  }
+
+  .searchform {
+	  display: flex;
+	  align-self: flex-start;
+	  text-align: center;
+	  margin: 50px auto;
+	  padding: 14px;
+	  background: rgba(0,0,0,0.2);
+	  border-radius: 14px;
+	  box-shadow: inset 0px 1px 6px 0 rgba(0,0,0,0.3);
+	  border-top: 1px solid rgba(0,0,0,0.5);
+	  border-bottom: 1px solid rgba(255,255,255,0.35);
+	  position: relative;
+	  width: 100%;
+	  max-width: 500px;
+	  form { 
+		width: 100%;
+	  }
+	  .input-container {
+		background: white;
+		border-radius: 5px;
+		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
+		overflow: hidden;		  
+	  }
+	  input {
+		  padding: 17px 15px;
+		  font-size: 15px;
+		  border: 0 none;
+		  width: 100%;
+		  background: transparent;
+	  }
+	  button {
+		  position: absolute;
+		  right: 14px;
+		  top: 14px;
+		  border: none;
+		  font-size: 16px;
+		  padding: 7px 15px;
+		  line-height: 37px;
+		  font-weight: 500;
+		  border-top-right-radius: 5px;
+		  border-bottom-right-radius: 5px;
+		  color: white;
+		  text-transform: uppercase;
+		  background: $app-red;
+	  }
   }

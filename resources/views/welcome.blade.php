@@ -1,6 +1,8 @@
 @extends('app')
 
 @section('content')
+    @include('partials.search')
+
     @if($apps->first())
         @include('sortable')        
     @else

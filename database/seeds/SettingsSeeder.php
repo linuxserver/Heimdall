@@ -61,8 +61,25 @@ class SettingsSeeder extends Seeder
             $setting->id = 3;
             $setting->group_id = 3;
             $setting->key = 'homepage_search';
-            $setting->type = 'text';
+            $setting->type = 'boolean';
             $setting->label = 'Homepage Search';
+            $setting->save();
+        }
+        if(!Setting::find(4)) {
+            $options = json_encode([
+                'none' => '- not set -',
+                'google' => 'Google',
+                'ddg' => 'DuckDuckGo',
+                'bing' => 'Bing'
+            ]);
+            
+            $setting = new Setting;
+            $setting->id = 4;
+            $setting->group_id = 3;
+            $setting->key = 'search_provider';
+            $setting->type = 'select';
+            $setting->options = $options;
+            $setting->label = 'Search Provider';
             $setting->save();
         }
         

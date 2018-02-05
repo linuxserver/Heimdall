@@ -34,6 +34,8 @@ Route::group([
         ->name('index');
     Route::get('edit/{id}', 'SettingsController@edit')
         ->name('edit');
+    Route::get('clear/{id}', 'SettingsController@clear')
+        ->name('clear');
 
 
     Route::patch('edit/{id}', 'SettingsController@update');
