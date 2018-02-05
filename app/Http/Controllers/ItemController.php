@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Item;
+use App\Setting;
 use App\SupportedApps\Nzbget;
 use Illuminate\Support\Facades\Storage;
 

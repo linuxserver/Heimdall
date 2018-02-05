@@ -9,4 +9,6 @@
                             
                             <a class="link" href="{{ $app->url }}"><i class="fas fa-arrow-alt-to-right"></i></a>
                         </div>
+                        <a class="item-edit" href="{{ route('items.edit', $app->id) }}"><i class="fas fa-pencil"></i></a>
+                        
                     </section>

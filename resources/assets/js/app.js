@@ -37,6 +37,7 @@ $.when( $.ready ).then(function() {
         app.toggleClass('header');
         if(active) {
             $('.add-item').hide();
+            $('.item-edit').hide();
             $('#app').removeClass('sidebar');
             $("#sortable").sortable("disable")
         } else {
@@ -45,6 +46,7 @@ $.when( $.ready ).then(function() {
                 function() 
                 {
                   $('.add-item').fadeIn();
+                  $('.item-edit').fadeIn();
                 }, 350);
     
         }

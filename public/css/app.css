@@ -318,6 +318,13 @@ body {
   padding: 20px;
 }
 
+#app main {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
 #app main,
 #app #sortable {
   padding: 10px;
@@ -343,7 +350,7 @@ body {
 }
 
 #config-buttons {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   right: 0;
   display: -webkit-box;
@@ -369,6 +376,24 @@ body {
   width: 26px;
   height: 26px;
   margin-top: 12px;
+}
+
+.item-container {
+  position: relative;
+}
+
+.item-container .item-edit {
+  color: white;
+  position: absolute;
+  bottom: 20px;
+  left: 8px;
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 30px;
+  display: none;
 }
 
 .message-container {
@@ -553,7 +578,7 @@ body {
   background: #f9fafd;
   max-width: 1000px;
   width: 100%;
-  margin: 0 40px;
+  margin: 10px 40px;
 }
 
 .module-container header,
@@ -721,7 +746,8 @@ div.create .input label:not(.switch) {
   font-weight: 300;
 }
 
-div.create .input input {
+div.create .input input,
+div.create .input select {
   width: 100%;
   border: 1px solid #dedfe2;
   padding: 10px;
@@ -862,6 +888,79 @@ button.link {
      -moz-appearance: none;
           appearance: none;
   background: transparent;
+}
+
+a.settinglink {
+  color: #2f313a;
+  font-size: 13px;
+  margin: 15px 5px;
+  display: inline-block;
+  font-weight: 700;
+}
+
+.setting-view-image {
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.setting-view-image img {
+  max-width: 330px;
+}
+
+.searchform {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+  text-align: center;
+  margin: 50px auto;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  -webkit-box-shadow: inset 0px 1px 6px 0 rgba(0, 0, 0, 0.3);
+          box-shadow: inset 0px 1px 6px 0 rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.searchform form {
+  width: 100%;
+}
+
+.searchform .input-container {
+  background: white;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 5px 0 rgba(0, 0, 0, 0.4);
+          box-shadow: 0px 0px 5px 0 rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.searchform input {
+  padding: 17px 15px;
+  font-size: 15px;
+  border: 0 none;
+  width: 100%;
+  background: transparent;
+}
+
+.searchform button {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  border: none;
+  font-size: 16px;
+  padding: 7px 15px;
+  line-height: 37px;
+  font-weight: 500;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  color: white;
+  text-transform: uppercase;
+  background: #d64d55;
 }
 
 /*! Huebee v2.0.0

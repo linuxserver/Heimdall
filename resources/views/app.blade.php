@@ -11,7 +11,7 @@
 
     </head>
     <body>
-        <div id="app">
+        <div id="app"{!! $alt_bg !!}>
             <nav class="sidenav">
                 <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))
@@ -62,7 +62,12 @@
                         @if(!Request::is(['items', 'items/*']))
                         <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
                         @endif
-                        <a id="config-button" class="config" href=""><i class="fas fa-cogs"></i></a>
+                        @if(!Request::is(['settings', 'settings/*']))
+                        <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
+                        @endif
+                        @if(Route::is('dash'))
+                        <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
+                        @endif
                     </div>
                 </main>
 
