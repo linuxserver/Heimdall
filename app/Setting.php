@@ -172,7 +172,7 @@ class Setting extends Model
 
             $options = (array)json_decode($search_provider->options);
             $name = $options[$search_provider->value];
-            if((bool)$homepage_search && (bool)$search_provider->value) {
+            if((bool)$search_provider->value) {
                 switch($search_provider->value) {
                     case 'google':
                         $url = 'https://www.google.com/search';
