@@ -1007,6 +1007,11 @@ a.settinglink {
   max-width: 150px;
 }
 
+#sapconfig {
+  display: none;
+  width: 100%;
+}
+
 /*! Huebee v2.0.0
 http://huebee.buzz
 ---------------------------------------------- */

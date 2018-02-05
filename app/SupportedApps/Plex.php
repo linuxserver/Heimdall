@@ -9,4 +9,8 @@ class Plex implements Contracts\Applications {
     {
         return 'supportedapps/plex.png';
     }
+    public function configDetails()
+    {
+        return null;
+    }
 }

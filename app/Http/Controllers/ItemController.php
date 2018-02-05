@@ -252,6 +252,7 @@ class ItemController extends Controller
         }
         $output['icon'] = $app_details->icon();
         $output['colour'] = $app_details->defaultColour();
+        $output['config'] = $app_details->configDetails();
         return json_encode($output);
     }
 
