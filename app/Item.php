@@ -45,4 +45,19 @@ class Item extends Model
     {
         return $query->where('pinned', 1);
     }
+
+    public function getConfigAttribute()
+    {
+        $output = null;
+        if(isset($this->description) && !empty($this->description)){
+            $output = json_decode($this->description);
+            if(isset($output->type) && !empty($output->type)) {
+                $class = $output->type;
+                $sap = new $class();
+                $view = $sap->configDetails();
+            }
+            $output->view = $view;
+        }
+        return (object)$output;
+    }
 }

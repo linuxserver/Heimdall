@@ -52,9 +52,15 @@
                 </div>
             </div>
             
-            
+            @if(isset($item) && $item->config)
+            <div id="sapconfig" style="display: block;">
+                @if(isset($item))
+                @include('supportedapps.'.$item->config->view)
+                @endif
+            </div>
+            @else
             <div id="sapconfig"></div>
-
+            @endif
             
         </div>
         <footer>
