@@ -1,5 +1,3 @@
-# Heimdall
-
 ![alt text](https://i.imgur.com/aUpMns5.jpg)
 
 ## About 
