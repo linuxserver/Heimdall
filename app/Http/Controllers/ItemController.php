@@ -138,6 +138,15 @@ class ItemController extends Controller
                 'icon' => $path
             ]);
         }
+
+        $config = json_encode($request->input('config'));
+        if($config) {
+            $request->merge([
+                'description' => $config
+            ]);
+        }
+
+        //die(print_r($request->input('config')));
         
         Item::create($request->all());
 

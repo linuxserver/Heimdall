@@ -393,11 +393,11 @@ body {
     }
 }
 div.create {
-	padding: 30px;
+	padding: 30px 15px;
 	display: flex;
 	flex-wrap: wrap;
 	.input {
-		width: 260px;
+		width: 280px;
 		margin: 20px;
 		label:not(.switch) {
 			width: 100%;
@@ -651,4 +651,59 @@ div.create {
 #sapconfig {
 	display: none;
 	width: 100%;
+	h2 {
+		background: #f2f3f6;
+		padding: 18px 25px;
+		margin-left: -15px;
+		width: calc(100% + 30px);
+		/* margin-right: -30px; */
+		border-top: 1px solid #dbdce3;
+		border-bottom: 1px solid #dbdce3;
+		font-size: 18px;
+		color: #5b5b5b;
+		font-weight: 500;
+	}
+	.items {
+		display: flex;
+	}
 }
+hr {
+	margin: 23px 0 18px;
+	height: 0;
+	border-style: none;
+	border-width: 0;
+	border-top: 1px solid #eaeaea;
+	border-bottom: 1px solid #fff;
+	
+}
+
+.upload-btn-wrapper {
+	position: relative;
+	overflow: hidden;
+	display: inline-block;
+  }
+  
+  .btn {
+	border: none;
+	color: white;
+	background-color: $app-red;
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 16px;
+  }
+  
+  .upload-btn-wrapper input[type=file] {
+	font-size: 100px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	opacity: 0;
+  }
+
+  .icon-container {
+	display: flex;
+	align-items: center;
+	img {
+		margin-right: 15px;
+	}
+  }

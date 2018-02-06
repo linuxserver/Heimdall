@@ -16,29 +16,14 @@
             <div class="input">
                 <label>Application name *</label>
                 {!! Form::text('title', null, array('placeholder' => 'Title', 'id' => 'appname', 'class' => 'form-control')) !!}
+                <hr />
+                <label>URL</label>
+                {!! Form::text('url', null, array('placeholder' => 'Url','class' => 'form-control')) !!}
             </div>
             <div class="input">
                 <label>Colour *</label>
                 {!! Form::text('colour', null, array('placeholder' => 'Hex Colour','class' => 'form-control color-picker')) !!}
-            </div>
-            <div class="input">
-                <label>URL</label>
-                {!! Form::text('url', null, array('placeholder' => 'Url','class' => 'form-control')) !!}
-            </div>
-            
-            <div class="input">
-                <label>Icon</label>
-                <div id="appimage">
-                @if(isset($item->icon) && !empty($item->icon))
-                <img src="{{ asset('storage/'.$item->icon) }}" />
-                {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
-                @endif
-                </div>
-                <input name="file" type="file" class="form-control">
-                
-            </div>
-
-            <div class="input">
+                <hr />
                 <label>Pinned</label>
                 <label class="switch">
                     <?php
@@ -51,7 +36,23 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-
+            <div class="input">
+                <label>Icon</label>
+                <div class="icon-container">
+                    <div id="appimage">
+                    @if(isset($item->icon) && !empty($item->icon))
+                    <img src="{{ asset('storage/'.$item->icon) }}" />
+                    {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
+                    @endif
+                    </div>
+                    <div class="upload-btn-wrapper">
+                        <button class="btn">Upload a file</button>
+                        <input type="file" name="myfile" />
+                    </div>
+                </div>
+            </div>
+            
+            
             <div id="sapconfig"></div>
 
             
