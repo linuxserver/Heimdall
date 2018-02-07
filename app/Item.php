@@ -26,8 +26,14 @@ class Item extends Model
     public static function supportedList()
     {
         return [
+            'Duplicati' => \App\SupportedApps\Duplicati::class,
+            'Emby' => \App\SupportedApps\Emby::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
+            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
+            'UniFi' => \App\SupportedApps\Unifi::class,
+            'Portainer' => \App\SupportedApps\Portainer::class,
         ];
     }
     public static function supportedOptions()

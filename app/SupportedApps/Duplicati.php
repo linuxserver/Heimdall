@@ -1,19 +1,16 @@
 <?php namespace App\SupportedApps;
 
-class Nzbget implements Contracts\Applications {
-    
+class Duplicati implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#124019';
+        return '#222';
     }
     public function icon()
     {
-        return 'supportedapps/nzbget.png';
+        return 'supportedapps/duplicati.png';
     }
     public function configDetails()
     {
-        //return 'nzbget';
         return null;
     }
-   
 }
