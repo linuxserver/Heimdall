@@ -40,7 +40,7 @@ class SettingsController extends Controller
             ]);
         } else {
             return redirect()->route('settings.list')->with([
-                'error' => 'This Setting does not exist.',
+                'error' => __('app.alert.error.not_exist'),
             ]);
         }
     }
@@ -74,11 +74,11 @@ class SettingsController extends Controller
             $setting->save();
 
             return redirect()->route('settings.index')->with([
-                'success' => 'You have successfully edited this Setting!',
+                'success' => __('app.alert.success.setting_updated'),
             ]);
         } else {
             return redirect()->route('settings.index')->with([
-                'error' => 'This Setting does not exist.',
+                'error' => __('app.alert.error.not_exist'),
             ]);
         }
     }
@@ -95,7 +95,7 @@ class SettingsController extends Controller
             $setting->save();
         }
         return redirect()->route('settings.index')->with([
-            'success' => 'You have successfully edited this Setting!',
+            'success' => __('app.alert.success.setting_updated'),
         ]);
     
     }

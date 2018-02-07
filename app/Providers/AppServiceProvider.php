@@ -18,16 +18,20 @@ class AppServiceProvider extends ServiceProvider
     {
         $alt_bg = '';
 
-        if(!is_file(database_path(env('DB_DATABASE')))) {
+        if(!is_file(base_path('.env'))) {
+            touch(base_path('.env'));
+            Artisan::call('key:generate');
+        }
+        if(!is_file(database_path('app.sqlite'))) {
             // first time setup
-            touch(database_path(env('DB_DATABASE')));
+            touch(database_path('app.sqlite'));
             Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));
             Artisan::call('storage:link');
             //Cache
             //Artisan::call('config:cache');
             //Artisan::call('route:cache');
         }
-        if(is_file(database_path(env('DB_DATABASE')))) {
+        if(is_file(database_path('app.sqlite'))) {
             if(Schema::hasTable('settings')) {
                 if($bg_image = Setting::fetch('background_image')) {
                     $alt_bg = ' style="background-image: url('.asset('storage/'.$bg_image).')"';
@@ -42,6 +46,9 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true)); 
             }
+            $lang = Setting::fetch('language');
+            \App::setLocale($lang);
+
         }
         view()->share('alt_bg', $alt_bg);
 

@@ -151,7 +151,7 @@ class ItemController extends Controller
         Item::create($request->all());
 
         return redirect()->route('dash')
-            ->with('success','Item created successfully');
+            ->with('success', __('alert.success.item_created'));
     }
 
     /**
@@ -206,7 +206,7 @@ class ItemController extends Controller
         Item::find($id)->update($request->all());
 
         return redirect()->route('dash')
-            ->with('success','Item updated successfully');
+            ->with('success',__('alert.success.item_updated'));
     }
 
     /**
@@ -228,7 +228,7 @@ class ItemController extends Controller
         }
         
         return redirect()->route('items.index')
-            ->with('success','Item deleted successfully');
+            ->with('success',__('alert.success.item_deleted'));
     }
 
     /**
@@ -244,7 +244,7 @@ class ItemController extends Controller
                 ->where('id', $id)
                 ->restore();        
         return redirect()->route('items.index')
-            ->with('success','Item restored successfully');
+            ->with('success',__('alert.success.item_restored'));
     }
 
     /**
