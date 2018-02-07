@@ -1,6 +1,16 @@
 # Release Notes
 
-## v1.1.2 (2018-02-05)
+## v1.3.0 (2018-02-05)
+
+### Added
+
+### Changed
+
+### Fixed
+
+
+
+## v1.2.0 (2018-02-07)
 
 ### Added
 - Translation support
