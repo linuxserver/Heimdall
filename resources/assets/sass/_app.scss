@@ -466,7 +466,7 @@ div.create {
   }
   
   /* Hide default HTML checkbox */
-  .switch input {visibility:hidden;}
+  .switch input {display:none;}
   
   /* The slider */
   .slider {
@@ -517,17 +517,27 @@ div.create {
   }
   
   @-webkit-keyframes autofill {
-	  to {
-		  background:#f5f5f5;
-		  color:#fff;
-	  }
-  }
-  
-  input:-webkit-autofill {
-	  -webkit-animation-name: autofill;
-	  -webkit-animation-fill-mode: both;
-  }
-  
+	to {
+		background:#f5f5f5;
+		color:#fff;
+	}
+}
+	@keyframes autofill {
+		to {
+			background:#f5f5f5;
+			color:#fff;
+		}
+	}
+
+	input:-webkit-autofill {
+		-webkit-animation-name: autofill;
+		-webkit-animation-fill-mode: both;
+	}
+	input:autofill {
+		animation-name: autofill;
+		animation-fill-mode: both;
+	}
+
   button.link {
 	  border: none;
 	  appearance: none;

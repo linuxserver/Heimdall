@@ -817,7 +817,7 @@ div.create .input select {
 /* Hide default HTML checkbox */
 
 .switch input {
-  visibility: hidden;
+  display: none;
 }
 
 /* The slider */
@@ -877,9 +877,23 @@ input:checked + .slider:before {
   }
 }
 
+@keyframes autofill {
+  to {
+    background: #f5f5f5;
+    color: #fff;
+  }
+}
+
 input:-webkit-autofill {
   -webkit-animation-name: autofill;
   -webkit-animation-fill-mode: both;
+}
+
+input:autofill {
+  -webkit-animation-name: autofill;
+          animation-name: autofill;
+  -webkit-animation-fill-mode: both;
+          animation-fill-mode: both;
 }
 
 button.link {
