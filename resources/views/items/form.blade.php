@@ -52,7 +52,7 @@
                 </div>
             </div>
             
-            @if(isset($item) && $item->config)
+            @if(isset($item) && isset($item->config->view))
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
                 @include('supportedapps.'.$item->config->view)
