@@ -570,7 +570,8 @@ div.create {
 		background: white;
 		border-radius: 5px;
 		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
-		overflow: hidden;		  
+		overflow: hidden;	
+		position: relative;	  
 	  }
 	  input {
 		  padding: 17px 15px;
@@ -581,12 +582,12 @@ div.create {
 	  }
 	  button {
 		  position: absolute;
-		  right: 14px;
-		  top: 14px;
+		  right: 0px;
+		  top: 0px;
 		  border: none;
 		  font-size: 16px;
 		  padding: 7px 15px;
-		  line-height: 37px;
+		  line-height: 38px;
 		  font-weight: 500;
 		  border-top-right-radius: 5px;
 		  border-bottom-right-radius: 5px;

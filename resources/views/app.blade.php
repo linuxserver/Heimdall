@@ -56,18 +56,13 @@
                     
                     @yield('content')
                     <div id="config-buttons">
-                        @if(!Route::is('dash'))
-                        <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
-                        @endif
-                        @if(!Request::is(['items', 'items/*']))
-                        <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
-                        @endif
-                        @if(!Request::is(['settings', 'settings/*']))
-                        <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
-                        @endif
                         @if(Route::is('dash'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
                         @endif
+    
+                        <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
+                        <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
+                        <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
                     </div>
                 </main>
 
