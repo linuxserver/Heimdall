@@ -15,7 +15,7 @@
             <nav class="sidenav">
                 <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))
-                <h2>Pinned Items</h2>
+                <h2>{{ __('app.dash.pinned_items') }}</h2>
                 <ul id="pinlist">
                     @foreach($all_apps as $app)
                     <?php

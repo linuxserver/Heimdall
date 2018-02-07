@@ -8,7 +8,11 @@
     @else
     <div class="message-container2">
             <div class="alert alert-danger">
-                    <p>There are currently no pinned Applications, <a href="{{ route('items.create') }}">Add an application here</a> or <a id="pin-item" href="">Pin an item to the dash</a></p>
+                    <p>{{ __('app.dash.no_apps', 
+                        [
+                            'link1' => '<a href="'.route('items.create').'">'.__('app.dash.link1').'</a>', 
+                            'link2' => '<a id="pin-item" href="">'.__('app.dash.link2').'</a>'
+                        ]) }}</p>
                     </div>
                     
     </div>
