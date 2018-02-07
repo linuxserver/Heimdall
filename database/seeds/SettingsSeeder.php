@@ -14,29 +14,39 @@ class SettingsSeeder extends Seeder
     public function run()
     {
         // Groups
-        if(!SettingGroup::find(1)) {
+        if(!$setting_group = SettingGroup::find(1)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 1;
-            $setting_group->title = 'System';
+            $setting_group->title = 'app.settings.system';
             $setting_group->order = 0;
             $setting_group->save();
-        }
-        if(!SettingGroup::find(2)) {
-            $setting_group = new SettingGroup;
-            $setting_group->id = 2;
-            $setting_group->title = 'Appearance';
-            $setting_group->order = 1;
+        } else {
+            $setting_group->title = 'app.settings.system';
             $setting_group->save();
         }
-        if(!SettingGroup::find(3)) {
+        if(!$setting_group = SettingGroup::find(2)) {
+            $setting_group = new SettingGroup;
+            $setting_group->id = 2;
+            $setting_group->title = 'app.settings.appearance';
+            $setting_group->order = 1;
+            $setting_group->save();
+        } else {
+            $setting_group->title = 'app.settings.appearance';
+            $setting_group->save();
+        }
+        if(!$setting_group = SettingGroup::find(3)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 3;
-            $setting_group->title = 'Miscellaneous';
+            $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->order = 2;
+            $setting_group->save();
+        } else {
+            $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->save();
         }
 
         if($version = Setting::find(1)) {
+            $version->label = 'app.settings.version';
             $version->value = config('app.version');
             $version->save();
         } else {
@@ -45,37 +55,45 @@ class SettingsSeeder extends Seeder
             $setting->group_id = 1;
             $setting->key = 'version';
             $setting->type = 'text';
-            $setting->label = 'Version';
+            $setting->label = 'app.settings.version';
             $setting->value = config('app.version');
             $setting->system = true;
             $setting->save();
         }
 
-        if(!Setting::find(2)) {
+        if(!$setting = Setting::find(2)) {
             $setting = new Setting;
             $setting->id = 2;
             $setting->group_id = 2;
             $setting->key = 'background_image';
             $setting->type = 'image';
-            $setting->label = 'Background Image';
+            $setting->label = 'app.settings.background_image';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.background_image';
             $setting->save();
         }
-        if(!Setting::find(3)) {
+        if(!$setting = Setting::find(3)) {
             $setting = new Setting;
             $setting->id = 3;
             $setting->group_id = 3;
             $setting->key = 'homepage_search';
             $setting->type = 'boolean';
-            $setting->label = 'Homepage Search';
+            $setting->label = 'app.settings.homepage_search';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.homepage_search';
             $setting->save();
         }
-        if(!Setting::find(4)) {
-            $options = json_encode([
-                'none' => '- not set -',
-                'google' => 'Google',
-                'ddg' => 'DuckDuckGo',
-                'bing' => 'Bing'
-            ]);
+
+        $options = json_encode([
+            'none' => 'app.options.none',
+            'google' => 'app.options.google',
+            'ddg' => 'app.options.ddg',
+            'bing' => 'app.options.bing'
+        ]);
+
+        if(!$setting = Setting::find(4)) {
             
             $setting = new Setting;
             $setting->id = 4;
@@ -83,9 +101,38 @@ class SettingsSeeder extends Seeder
             $setting->key = 'search_provider';
             $setting->type = 'select';
             $setting->options = $options;
-            $setting->label = 'Search Provider';
+            $setting->label = 'app.settings.search_provider';
+            $setting->save();
+        } else {
+            $setting->options = $options;
+            $setting->label = 'app.settings.search_provider';
             $setting->save();
         }
+
+
+        $language_options = json_encode([
+            'de' => 'Deutsch (German)',
+            'en' => 'English',
+            'fi' => 'Suomi (Finnish)',
+            'fr' => 'Français (French)',
+            'sv' => 'Svenska (Swedish)',
+            'es' => 'Español (Spanish)',
+        ]);
+        if($languages = Setting::find(5)) {
+            $languages->options = $language_options;
+            $languages->save();
+        } else {
+            $setting = new Setting;
+            $setting->id = 5;
+            $setting->group_id = 1;
+            $setting->key = 'language';
+            $setting->type = 'select';
+            $setting->label = 'app.settings.language';
+            $setting->options = $language_options;
+            $setting->value = 'en';
+            $setting->save();
+        }
+
         
     }
 }

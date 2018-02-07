@@ -26,8 +26,14 @@ class Item extends Model
     public static function supportedList()
     {
         return [
-            'NZBGet' => App\SupportedApps\Nzbget::class,
-            'Plex' => App\SupportedApps\Plex::class,
+            'Duplicati' => \App\SupportedApps\Duplicati::class,
+            'Emby' => \App\SupportedApps\Emby::class,
+            'NZBGet' => \App\SupportedApps\Nzbget::class,
+            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'Pihole' => \App\SupportedApps\Pihole::class,
+            'Plex' => \App\SupportedApps\Plex::class,
+            'UniFi' => \App\SupportedApps\Unifi::class,
+            'Portainer' => \App\SupportedApps\Portainer::class,
         ];
     }
     public static function supportedOptions()
@@ -44,5 +50,20 @@ class Item extends Model
     public function scopePinned($query)
     {
         return $query->where('pinned', 1);
+    }
+
+    public function getConfigAttribute()
+    {
+        $output = null;
+        if(isset($this->description) && !empty($this->description)){
+            $output = json_decode($this->description);
+            if(isset($output->type) && !empty($output->type)) {
+                $class = $output->type;
+                $sap = new $class();
+                $view = $sap->configDetails();
+            }
+            $output->view = $view;
+        }
+        return (object)$output;
     }
 }

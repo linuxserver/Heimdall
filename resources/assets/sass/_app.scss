@@ -393,11 +393,11 @@ body {
     }
 }
 div.create {
-	padding: 30px;
+	padding: 30px 15px;
 	display: flex;
 	flex-wrap: wrap;
 	.input {
-		width: 260px;
+		width: 280px;
 		margin: 20px;
 		label:not(.switch) {
 			width: 100%;
@@ -517,17 +517,27 @@ div.create {
   }
   
   @-webkit-keyframes autofill {
-	  to {
-		  background:#f5f5f5;
-		  color:#fff;
-	  }
-  }
-  
-  input:-webkit-autofill {
-	  -webkit-animation-name: autofill;
-	  -webkit-animation-fill-mode: both;
-  }
-  
+	to {
+		background:#f5f5f5;
+		color:#fff;
+	}
+}
+	@keyframes autofill {
+		to {
+			background:#f5f5f5;
+			color:#fff;
+		}
+	}
+
+	input:-webkit-autofill {
+		-webkit-animation-name: autofill;
+		-webkit-animation-fill-mode: both;
+	}
+	input:autofill {
+		animation-name: autofill;
+		animation-fill-mode: both;
+	}
+
   button.link {
 	  border: none;
 	  appearance: none;
@@ -570,7 +580,8 @@ div.create {
 		background: white;
 		border-radius: 5px;
 		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
-		overflow: hidden;		  
+		overflow: hidden;	
+		position: relative;	  
 	  }
 	  input {
 		  padding: 17px 15px;
@@ -581,12 +592,12 @@ div.create {
 	  }
 	  button {
 		  position: absolute;
-		  right: 14px;
-		  top: 14px;
+		  right: 0px;
+		  top: 0px;
 		  border: none;
 		  font-size: 16px;
 		  padding: 7px 15px;
-		  line-height: 37px;
+		  line-height: 38px;
 		  font-weight: 500;
 		  border-top-right-radius: 5px;
 		  border-bottom-right-radius: 5px;
@@ -594,4 +605,116 @@ div.create {
 		  text-transform: uppercase;
 		  background: $app-red;
 	  }
+  }
+
+  .ui-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    float: left;
+    display: none;
+    min-width: 160px;   
+    padding: 4px 0;
+    margin: 0 0 10px 25px;
+    list-style: none;
+    background-color: #ffffff;
+    border-color: #ccc;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: solid;
+    border-width: 1px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+    *border-right-width: 2px;
+	*border-bottom-width: 2px;
+
+}
+
+.ui-menu-item {
+    display: block;
+    padding: 3px 15px;
+    clear: both;
+    font-weight: normal;
+    line-height: 18px;
+    color: #555555;
+    white-space: nowrap;
+	text-decoration: none;
+}
+
+.ui-state-hover, .ui-state-active {
+    font-weight: 700;
+	
+}
+
+#appimage {
+	img {
+		max-width: 150px;
+	}
+}
+
+#sapconfig {
+	display: none;
+	width: 100%;
+	h2 {
+		background: #f2f3f6;
+		padding: 18px 25px;
+		margin-left: -15px;
+		width: calc(100% + 30px);
+		/* margin-right: -30px; */
+		border-top: 1px solid #dbdce3;
+		border-bottom: 1px solid #dbdce3;
+		font-size: 18px;
+		color: #5b5b5b;
+		font-weight: 500;
+	}
+	.items {
+		display: flex;
+	}
+}
+hr {
+	margin: 23px 0 18px;
+	height: 0;
+	border-style: none;
+	border-width: 0;
+	border-top: 1px solid #eaeaea;
+	border-bottom: 1px solid #fff;
+	
+}
+
+.upload-btn-wrapper {
+	position: relative;
+	overflow: hidden;
+	display: inline-block;
+  }
+  
+  .btn {
+	border: none;
+	color: white;
+	background-color: $app-red;
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 16px;
+  }
+  
+  .upload-btn-wrapper input[type=file] {
+	font-size: 100px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	opacity: 0;
+  }
+
+  .icon-container {
+	display: flex;
+	align-items: center;
+	img {
+		margin-right: 15px;
+	}
   }

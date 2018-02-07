@@ -46,6 +46,9 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true)); 
             }
+            $lang = Setting::fetch('language');
+            \App::setLocale($lang);
+
         }
         view()->share('alt_bg', $alt_bg);
 

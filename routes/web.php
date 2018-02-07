@@ -22,6 +22,12 @@ Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');
 Route::get('items/pintoggle/{id}/{ajax?}', 'ItemController@pinToggle')->name('items.pintoggle');
 Route::post('order', 'ItemController@setOrder')->name('items.order');
 
+Route::post('appload', 'ItemController@appload')->name('appload');
+
+Route::get('view/{name_view}', function ($name_view) {
+    return view('supportedapps.'.$name_view);
+});
+
 /**
  * Settings.
  */

@@ -1,9 +1,9 @@
     <section class="module-container">
         <header>
-            <div class="section-title">Add application</div>
+            <div class="section-title">{{ __('app.apps.add_application') }}</div>
             <div class="module-actions">
-                <button type="submit"class="button"><i class="fa fa-save"></i><span>Save</span></button>
-                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>Cancel</span></a>
+                <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
+                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </header>
         <div class="create">
@@ -14,30 +14,17 @@
             </div>-->
 
             <div class="input">
-                <label>Application name *</label>
-                {!! Form::text('title', null, array('placeholder' => 'Title','class' => 'form-control')) !!}
+                <label>{{ __('app.apps.application_name') }} *</label>
+                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                <hr />
+                <label>{{ strtoupper(__('app.url')) }}</label>
+                {!! Form::text('url', null, array('placeholder' => __('app.url'),'class' => 'form-control')) !!}
             </div>
             <div class="input">
-                <label>Colour *</label>
-                {!! Form::text('colour', null, array('placeholder' => 'Hex Colour','class' => 'form-control color-picker')) !!}
-            </div>
-            <div class="input">
-                <label>URL</label>
-                {!! Form::text('url', null, array('placeholder' => 'Url','class' => 'form-control')) !!}
-            </div>
-            
-            <div class="input">
-                <label>Icon</label>
-                @if(isset($item->icon) && !empty($item->icon))
-                <a href="{{ asset('storage/'.$item->icon) }}">View current icon</a>
-                {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
-                @endif
-                <input name="file" type="file" class="form-control">
-                
-            </div>
-
-            <div class="input">
-                <label>Pinned</label>
+                <label>{{ __('app.apps.colour') }} *</label>
+                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
+                <hr />
+                <label>{{ __('app.apps.pinned') }}</label>
                 <label class="switch">
                     <?php
                     $checked = false;
@@ -49,15 +36,45 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-
+            <div class="input">
+                <label>{{ __('app.apps.icon') }}</label>
+                <div class="icon-container">
+                    <div id="appimage">
+                    @if(isset($item->icon) && !empty($item->icon) || old('icon'))
+                    <?php
+                        if(isset($item->icon)) $icon = $item->icon;
+                        else $icon = old('icon');
+                    ?>
+                    <img src="{{ asset('storage/'.$icon) }}" />
+                    {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
+                    @endif
+                    </div>
+                    <div class="upload-btn-wrapper">
+                        <button class="btn">{{ __('app.buttons.upload')}} </button>
+                        <input type="file" name="myfile" />
+                    </div>
+                </div>
+            </div>
+            
+            @if(isset($item) && isset($item->config->view))
+            <div id="sapconfig" style="display: block;">
+                @if(isset($item))
+                @include('supportedapps.'.$item->config->view)
+                @endif
+            </div>
+            @else
+            <div id="sapconfig"></div>
+            @endif
             
         </div>
         <footer>
             <div class="section-title">&nbsp;</div>
             <div class="module-actions">
-                <button type="submit"class="button"><i class="fa fa-save"></i><span>Save</span></button>
-                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>Cancel</span></a>
+                <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
+                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </footer>
 
     </section>
+
+

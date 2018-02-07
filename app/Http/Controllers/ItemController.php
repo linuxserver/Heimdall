@@ -138,11 +138,20 @@ class ItemController extends Controller
                 'icon' => $path
             ]);
         }
+
+        $config = json_encode($request->input('config'));
+        if($config) {
+            $request->merge([
+                'description' => $config
+            ]);
+        }
+
+        //die(print_r($request->input('config')));
         
         Item::create($request->all());
 
         return redirect()->route('dash')
-            ->with('success','Item created successfully');
+            ->with('success', __('alert.success.item_created'));
     }
 
     /**
@@ -197,7 +206,7 @@ class ItemController extends Controller
         Item::find($id)->update($request->all());
 
         return redirect()->route('dash')
-            ->with('success','Item updated successfully');
+            ->with('success',__('alert.success.item_updated'));
     }
 
     /**
@@ -219,7 +228,7 @@ class ItemController extends Controller
         }
         
         return redirect()->route('items.index')
-            ->with('success','Item deleted successfully');
+            ->with('success',__('alert.success.item_deleted'));
     }
 
     /**
@@ -235,6 +244,26 @@ class ItemController extends Controller
                 ->where('id', $id)
                 ->restore();        
         return redirect()->route('items.index')
-            ->with('success','Item restored successfully');
+            ->with('success',__('alert.success.item_restored'));
     }
+
+    /**
+     * Return details for supported apps
+     *
+     * @return Json
+     */
+    public function appload(Request $request)
+    {
+        $app = $request->input('app');
+        if($app) {
+            $all_supported = Item::supportedList();
+            $app_details = new $all_supported[$app];
+        }
+        $output['icon'] = $app_details->icon();
+        $output['colour'] = $app_details->defaultColour();
+        $output['config'] = $app_details->configDetails();
+        return json_encode($output);
+    }
+
+    
 }

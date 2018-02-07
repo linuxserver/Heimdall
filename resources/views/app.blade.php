@@ -15,7 +15,7 @@
             <nav class="sidenav">
                 <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))
-                <h2>Pinned Items</h2>
+                <h2>{{ __('app.dash.pinned_items') }}</h2>
                 <ul id="pinlist">
                     @foreach($all_apps as $app)
                     <?php
@@ -56,18 +56,13 @@
                     
                     @yield('content')
                     <div id="config-buttons">
-                        @if(!Route::is('dash'))
-                        <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
-                        @endif
-                        @if(!Request::is(['items', 'items/*']))
-                        <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
-                        @endif
-                        @if(!Request::is(['settings', 'settings/*']))
-                        <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
-                        @endif
                         @if(Route::is('dash'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
                         @endif
+    
+                        <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
+                        <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
+                        <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
                     </div>
                 </main>
 
@@ -77,6 +72,7 @@
         <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="{{ asset('js/app.js') }}"></script>
+        @yield('scripts')
         
     </body>
 </html>

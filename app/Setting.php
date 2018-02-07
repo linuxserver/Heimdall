@@ -15,6 +15,10 @@ class Setting extends Model
      */
     protected $table = 'settings';
 
+    protected $fillable = [
+        'id', 'group_id', 'key', 'type', 'options', 'label', 'value', 'order', 'system'
+    ];
+
     /**
      * Tell the Model this Table doesn't support timestamps.
      *
@@ -45,28 +49,28 @@ class Setting extends Model
         switch($this->type) {
             case 'image':
                 if(!empty($this->value)) {
-                    $value = '<a href="'.asset('storage/'.$this->value).'" title="View" target="_blank">View</a>';
+                    $value = '<a href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank">'.__('app.settings.view').'</a>';
                 } else {
-                    $value = '- not set -';
+                    $value = __('app.options.none');
                 }    
                 break;
             case 'boolean':
                 if((bool)$this->value === true) {
-                    $value = 'Yes';
+                    $value = __('app.options.yes');
                 } else {
-                    $value = 'No';
+                    $value = __('app.options.no');
                 }    
                 break;
             case 'select':
                 if(!empty($this->value) && $this->value !== 'none') {
                     $options =  (array)json_decode($this->options);
-                    $value = $options[$this->value];
+                    $value = __($options[$this->value]);
                 } else {
-                    $value = '- not set -';
+                    $value = __('app.options.none');
                 }                
                 break;
             default:
-                $value = $this->value;
+                $value = __($this->value);
                 break;
         }
 
@@ -80,11 +84,11 @@ class Setting extends Model
             case 'image':
                 $value = '';
                 if(isset($this->value) && !empty($this->value)) {
-                    $value .= '<a class="setting-view-image" href="'.asset('storage/'.$this->value).'" title="View" target="_blank"><img src="'.asset('storage/'.$this->value).'" /></a>';
+                    $value .= '<a class="setting-view-image" href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank"><img src="'.asset('storage/'.$this->value).'" /></a>';
                 }
                 $value .= Form::file('value', ['class' => 'form-control']);
                 if(isset($this->value) && !empty($this->value)) {
-                    $value .= '<a class="settinglink" href="'.route('settings.clear', $this->id).'" title="Remove">Reset back to default</a>';
+                    $value .= '<a class="settinglink" href="'.route('settings.clear', $this->id).'" title="'.__('app.settings.remove').'">'.__('app.settings.reset').'</a>';
                 }
                 
                 break;
@@ -102,6 +106,9 @@ class Setting extends Model
                 break;
             case 'select':
                 $options = json_decode($this->options);
+                foreach($options as $key => $opt) {
+                    $options->$key = __($opt);
+                }
                 $value = Form::select('value', $options, null, ['class' => 'form-control']);
                 break;
             default:
@@ -199,8 +206,8 @@ class Setting extends Model
                 $output .= '<div class="searchform">';
                 $output .= Form::open(['url' => $url, 'method' => 'get']);
                 $output .= '<div class="input-container">';
-                $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => $name.' search...']);
-                $output .= '<button type="submit">Search</button>';
+                $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
+                $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
                 $output .= Form::close();
                 $output .= '</div>';

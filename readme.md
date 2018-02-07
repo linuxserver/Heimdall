@@ -1,7 +1,6 @@
 ![alt text](https://i.imgur.com/aUpMns5.jpg)
 
 ## About 
-
 Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way.
 
 Simplicity is the key to Heimdall.
@@ -12,10 +11,25 @@ Why not use it as your browser start page?  It even has the ability to include a
 If you want to see a quick video of it in use, go to https://drive.google.com/file/d/1cijXgmjem_q2OfKMp36qVuXRiyOzvhWC/view
 
 ## Installing
-
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
 
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to it.  For simple testing you could just go to the folder and type `php artisan serve`
+
+## Languages
+The app has been translated into several languages, however the quality of the translations could do with work, if you would like to improve them or help with other translations they are stored in /resources/lang/
+
+To create a new one, create a new folder with the ISO 3166-1 alpha-2 code as the name, copy app.php from /resources/lang/en/app.php into your new folder and replace the english strings.
+
+When you are finished create a pull request.
+
+Currently added languages are
+
+- English
+- German
+- Finnish
+- French
+- Swedish
+- Spanish
 
 ## Web Server Configuration
 

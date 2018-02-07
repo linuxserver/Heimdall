@@ -1,13 +1,13 @@
 <?php namespace App\SupportedApps;
 
-class Plex implements Contracts\Applications {
+class Emby implements Contracts\Applications {
     public function defaultColour()
     {
         return '#222';
     }
     public function icon()
     {
-        return 'supportedapps/plex.png';
+        return 'supportedapps/emby.png';
     }
     public function configDetails()
     {

@@ -1,13 +1,13 @@
 <?php namespace App\SupportedApps;
 
-class Plex implements Contracts\Applications {
+class Duplicati implements Contracts\Applications {
     public function defaultColour()
     {
         return '#222';
     }
     public function icon()
     {
-        return 'supportedapps/plex.png';
+        return 'supportedapps/duplicati.png';
     }
     public function configDetails()
     {
