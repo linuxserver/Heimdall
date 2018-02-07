@@ -40,9 +40,13 @@
                 <label>{{ __('app.apps.icon') }}</label>
                 <div class="icon-container">
                     <div id="appimage">
-                    @if(isset($item->icon) && !empty($item->icon))
-                    <img src="{{ asset('storage/'.$item->icon) }}" />
-                    {!! Form::hidden('icon', $item->icon, ['class' => 'form-control']) !!}
+                    @if(isset($item->icon) && !empty($item->icon) || old('icon'))
+                    <?php
+                        if(isset($item->icon)) $icon = $item->icon;
+                        else $icon = old('icon');
+                    ?>
+                    <img src="{{ asset('storage/'.$icon) }}" />
+                    {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
                     @endif
                     </div>
                     <div class="upload-btn-wrapper">
