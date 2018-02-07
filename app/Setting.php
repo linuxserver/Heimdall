@@ -206,7 +206,7 @@ class Setting extends Model
                 $output .= '<div class="searchform">';
                 $output .= Form::open(['url' => $url, 'method' => 'get']);
                 $output .= '<div class="input-container">';
-                $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => $name.' '.__('app.settings.search').'...']);
+                $output .= Form::text($var, null, ['class' => 'homesearch', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
                 $output .= '<button type="submit">'.ucwords(__('app.settings.remove')).'</button>';
                 $output .= '</div>';
                 $output .= Form::close();
