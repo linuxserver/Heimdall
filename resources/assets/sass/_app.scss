@@ -466,7 +466,7 @@ div.create {
   }
   
   /* Hide default HTML checkbox */
-  .switch input {display:none;}
+  .switch input {visibility:hidden;}
   
   /* The slider */
   .slider {

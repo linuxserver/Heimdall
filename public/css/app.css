@@ -817,7 +817,7 @@ div.create .input select {
 /* Hide default HTML checkbox */
 
 .switch input {
-  display: none;
+  visibility: hidden;
 }
 
 /* The slider */

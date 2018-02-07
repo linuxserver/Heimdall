@@ -4,10 +4,14 @@
 
 ### Added
 - Translation support
-- Supported applications
+- Initial "Supported" application support
 
 ### Changed
-- Icon used to put tiles into config mode
+- button layout and behaviour
+
+### Fixed
+- Bottom of button too short in some browsers
+- Icon not loading back in when required fields not filled in
 
 
 ## v1.1.0 (2018-02-05)
