@@ -32,8 +32,9 @@ class Item extends Model
             'pFsense' => \App\SupportedApps\Pfsense::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
-            'UniFi' => \App\SupportedApps\Unifi::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
+            'UniFi' => \App\SupportedApps\Unifi::class,
+            'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
         ];
     }
     public static function supportedOptions()
