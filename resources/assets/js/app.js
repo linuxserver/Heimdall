@@ -11,6 +11,8 @@ $.when( $.ready ).then(function() {
     if($('.livestats-container').length) {
         $('.livestats-container').each(function(index){
             var id = $(this).data('id');
+            var dataonly = $(this).data('dataonly');
+            var increaseby = (dataonly == 1) ? 20000 : 1000;
             var container = $(this);
             var max_timer = 30000;
             var timer = 5000;
@@ -19,7 +21,7 @@ $.when( $.ready ).then(function() {
                   url: '/get_stats/'+id, 
                   success: function(data) {
                     container.html(data);
-                    if(data != '') timer = 1000;
+                    if(data != '') timer = increaseby;
                     else {
                         if(timer < max_timer) timer += 2000;
                     }

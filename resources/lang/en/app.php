@@ -60,6 +60,7 @@ return [
     'apps.password' => 'Password',
     'apps.config' => 'Config',
     'apps.apikey' => 'Api Key',
+    'apps.enable' => 'Enable',
 
     'url' => 'Url',
     'title' => 'Title',

@@ -64,6 +64,7 @@ class Item extends Model
                 $view = $sap->configDetails();
                 $output->view = $view;
             }
+            if(!isset($output->dataonly)) $output->dataonly = 0;
             
         }
         return (object)$output;
@@ -74,6 +75,7 @@ class Item extends Model
             $config = null;
         } else {
             $store = false;
+            //die(print_r($config));
             foreach($config as $key => $check) {
                 if($key == 'type') continue;
                 if(!empty($check)) {
