@@ -21,15 +21,21 @@ $.when( $.ready ).then(function() {
         $('.livestats-container').each(function(index){
             var id = $(this).data('id');
             var container = $(this);
-            (function worker() {
+            var max_timer = 30000;
+            var timer = 1000;
+        (function worker() {
                 $.ajax({
                   url: '/get_stats/'+id, 
                   success: function(data) {
                     container.html(data);
+                    if(data != '') timer = 1000;
+                    else {
+                        if(timer < max_timer) timer += 2000;
+                    }
                   },
                   complete: function() {
                     // Schedule the next request when the current one's complete
-                    setTimeout(worker, 5000);
+                    setTimeout(worker, timer);
                   }
                 });
               })();

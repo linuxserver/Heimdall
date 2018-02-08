@@ -39,19 +39,24 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
     }
     public function executeConfig()
     {
+        $output = '';
         $res = $this->buildRequest('status');
         $data = json_decode($res->getBody());
         //$data->result->RemainingSizeMB = '10000000';
         //$data->result->DownloadRate = '100000000';
-        $queue_size = format_bytes($data->result->RemainingSizeMB*1000*1000, false, ' <span>', '</span>');
-        $current_speed = format_bytes($data->result->DownloadRate, false, ' <span>');
+        $size = $data->result->RemainingSizeMB;
+        $rate = $data->result->DownloadRate;
+        $queue_size = format_bytes($size*1000*1000, false, ' <span>', '</span>');
+        $current_speed = format_bytes($rate, false, ' <span>');
 
-        $output = '
-        <ul class="livestats">
-            <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
-            <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
-        </ul>
-        ';
+        if($size > 0 || $rate > 0) {
+            $output = '
+            <ul class="livestats">
+                <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
+                <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
+            </ul>
+            ';
+        }
         return $output;
     }
     public function buildRequest($endpoint)
