@@ -36,11 +36,19 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
     }
     public function executeConfig()
     {
-        $config = json_decode($this->config);
-        $url = $config->url;
-        $user = $config->username;
-        $pass = $config->password;
-        return null;
+        $res = $this->buildRequest('status');
+        $data = json_decode($res->getBody());
+
+        $queue_size = $data->result->RemainingSizeMB;
+        $current_speed = $data->result->DownloadRate;
+
+        $output = '
+        <ul class="livestats">
+            <li><span>Remaining</span><strong>'.$queue_size.'</strong></li>
+            <li><span>Speed</span><strong>'.$current_speed.'</strong></li>
+        </ul>
+        ';
+        return $output;
     }
     public function buildRequest($endpoint)
     {

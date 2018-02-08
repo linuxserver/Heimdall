@@ -6,7 +6,18 @@ $.when( $.ready ).then(function() {
         {
             $('.message-container').fadeOut();
         }, 3500);
+    }
 
+    if($('.livestats-container').length) {
+        $('.livestats-container').each(function(index){
+            var id = $(this).data('id');
+            var container = $(this);
+            $.get('/get_stats/'+id, function(data) {
+                //alert(data);
+                container.html(data);
+    
+            })
+        });
 
     }
 

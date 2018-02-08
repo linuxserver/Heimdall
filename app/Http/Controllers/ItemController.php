@@ -302,5 +302,22 @@ class ItemController extends Controller
         $app_details->testConfig();
     }
 
+    public function getStats($id)
+    {
+        $item = Item::find($id);
+
+        $config = json_decode($item->description);
+        if(isset($config->type)) {
+            $config->url = $item->url;
+            if(isset($config->override_url) && !empty($config->override_url)) {
+                $config->url = $config->override_url;
+            }
+            $app_details = new $config->type;
+            $app_details->config = $config;
+            echo $app_details->executeConfig();
+        }
+        
+    }
+
     
 }
