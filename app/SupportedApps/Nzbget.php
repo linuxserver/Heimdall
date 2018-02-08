@@ -30,7 +30,7 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
                 echo 'Failed: Invalid credentials';
                 break;
             default:
-                throw new MyException("Invalid response from api...");
+                echo 'Something went wrong... Code: '.$res->getStatusCode();
                 break;
         }
     }
