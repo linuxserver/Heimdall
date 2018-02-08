@@ -38,14 +38,15 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
     {
         $res = $this->buildRequest('status');
         $data = json_decode($res->getBody());
-
-        $queue_size = $data->result->RemainingSizeMB;
-        $current_speed = $data->result->DownloadRate;
+        //$data->result->RemainingSizeMB = '10000000';
+        //$data->result->DownloadRate = '100000000';
+        $queue_size = format_bytes($data->result->RemainingSizeMB*1000*1000, false, ' <span>', '</span>');
+        $current_speed = format_bytes($data->result->DownloadRate, false, ' <span>');
 
         $output = '
         <ul class="livestats">
-            <li><span>Remaining</span><strong>'.$queue_size.'</strong></li>
-            <li><span>Speed</span><strong>'.$current_speed.'</strong></li>
+            <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
+            <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
         </ul>
         ';
         return $output;

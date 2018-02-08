@@ -567,6 +567,10 @@ body {
   font-size: 16px;
 }
 
+.item .details {
+  width: 100%;
+}
+
 .text-center {
   text-align: center !important;
 }
@@ -1096,20 +1100,22 @@ hr {
 }
 
 .livestats-container .livestats {
-  margin: 8px -10px 0;
+  margin: 5px 0px -5px;
   padding: 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   list-style: none;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 100%;
 }
 
 .livestats-container .livestats li {
   text-align: center;
-  margin: 0 10px -10px;
+  margin: 0;
+  line-height: 1;
 }
 
 .livestats-container .livestats span {
@@ -1118,6 +1124,12 @@ hr {
   font-size: 11px;
   font-weight: 500;
   opacity: 0.5;
+  line-height: 1;
+}
+
+.livestats-container .livestats strong {
+  display: block;
+  line-height: 1;
 }
 
 /*! Huebee v2.0.0

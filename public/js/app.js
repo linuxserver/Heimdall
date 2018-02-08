@@ -21,11 +21,18 @@ $.when( $.ready ).then(function() {
         $('.livestats-container').each(function(index){
             var id = $(this).data('id');
             var container = $(this);
-            $.get('/get_stats/'+id, function(data) {
-                //alert(data);
-                container.html(data);
-    
-            })
+            (function worker() {
+                $.ajax({
+                  url: '/get_stats/'+id, 
+                  success: function(data) {
+                    container.html(data);
+                  },
+                  complete: function() {
+                    // Schedule the next request when the current one's complete
+                    setTimeout(worker, 5000);
+                  }
+                });
+              })();
         });
 
     }
