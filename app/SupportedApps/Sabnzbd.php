@@ -9,7 +9,7 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
 
     public function defaultColour()
     {
-        return '#655509';
+        return '#463b06';
     }
     public function icon()
     {
@@ -24,7 +24,12 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
         $res = $this->buildRequest('queue');
         switch($res->getStatusCode()) {
             case 200:
-                echo 'Successfully connected to the API';
+                $data = json_decode($res->getBody());
+                if(isset($data->error) && !empty($data->error)) {
+                    echo 'Failed: '.$data->error;
+                } else {
+                    echo 'Successfully connected to the API';
+                }
                 break;
             case 401:
                 echo 'Failed: Invalid credentials';
