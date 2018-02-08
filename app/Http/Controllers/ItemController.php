@@ -151,7 +151,7 @@ class ItemController extends Controller
         Item::create($request->all());
 
         return redirect()->route('dash')
-            ->with('success', __('alert.success.item_created'));
+            ->with('success', __('app.alert.success.item_created'));
     }
 
     /**
@@ -202,11 +202,18 @@ class ItemController extends Controller
             ]);
         }
         
+        $config = json_encode($request->input('config'));
+        if($config) {
+            $request->merge([
+                'description' => $config
+            ]);
+        }
+ 
 
         Item::find($id)->update($request->all());
 
         return redirect()->route('dash')
-            ->with('success',__('alert.success.item_updated'));
+            ->with('success',__('app.alert.success.item_updated'));
     }
 
     /**
@@ -228,7 +235,7 @@ class ItemController extends Controller
         }
         
         return redirect()->route('items.index')
-            ->with('success',__('alert.success.item_deleted'));
+            ->with('success',__('app.alert.success.item_deleted'));
     }
 
     /**
@@ -244,7 +251,17 @@ class ItemController extends Controller
                 ->where('id', $id)
                 ->restore();        
         return redirect()->route('items.index')
-            ->with('success',__('alert.success.item_restored'));
+            ->with('success',__('app.alert.success.item_restored'));
+    }
+
+    public function isSupportedAppByKey($app)
+    {
+        $output = false;
+        $all_supported = Item::supportedList();
+        if(array_key_exists($app, $all_supported)) {
+            $output = new $all_supported[$app];
+        }
+        return $output;
     }
 
     /**
@@ -254,15 +271,35 @@ class ItemController extends Controller
      */
     public function appload(Request $request)
     {
+        $output = [];
         $app = $request->input('app');
-        if($app) {
-            $all_supported = Item::supportedList();
-            $app_details = new $all_supported[$app];
+
+        if(($app_details = $this->isSupportedAppByKey($app)) !== false) {
+            // basic details
+            $output['icon'] = $app_details->icon();
+            $output['colour'] = $app_details->defaultColour();
+
+            // live details
+            if($app_details instanceof \App\SupportedApps\Contracts\Livestats) {
+                $output['config'] = $app_details->configDetails();
+            } else {
+                $output['config'] = null;
+            }
         }
-        $output['icon'] = $app_details->icon();
-        $output['colour'] = $app_details->defaultColour();
-        $output['config'] = $app_details->configDetails();
+        
         return json_encode($output);
+    }
+
+    public function testConfig(Request $request)
+    {
+        $data = $request->input('data');
+        //$url = $data[array_search('url', array_column($data, 'name'))]['value'];
+        
+        $app = $data['type'];
+
+        $app_details = new $app();
+        $app_details->config = (object)$data;
+        $app_details->testConfig();
     }
 
     

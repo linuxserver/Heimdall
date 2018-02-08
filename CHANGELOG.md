@@ -3,8 +3,10 @@
 ## v1.3.0 (2018-02-05)
 
 ### Added
+- guzzlehttp/guzzle as a dependency
 
 ### Changed
+- Updated composer dependencies
 
 ### Fixed
 

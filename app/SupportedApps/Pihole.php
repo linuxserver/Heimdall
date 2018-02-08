@@ -9,8 +9,4 @@ class Pihole implements Contracts\Applications {
     {
         return 'supportedapps/pihole.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }

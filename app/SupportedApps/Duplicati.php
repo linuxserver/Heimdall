@@ -9,8 +9,4 @@ class Duplicati implements Contracts\Applications {
     {
         return 'supportedapps/duplicati.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }

@@ -56,6 +56,29 @@ $.when( $.ready ).then(function() {
         var app = $('#app');
         app.removeClass('sidebar');
         
+    }).on('click', '#test_config', function(e) {
+        e.preventDefault();
+        var apiurl = $('#create input[name=url]').val();
+        
+        
+        var override_url = $('#create input[name=override_url]');
+        if(override_url.length && override_url.val() != '') {
+            apiurl = override_url;
+        }
+        var data = {};
+        data['url'] = apiurl;
+        $('input.config-item').each(function(index){
+            var config = $(this).data('config');
+            data[config] = $(this).val();
+        })
+
+        $.post(
+            '/test_config',
+            { data }, function(data) {
+                alert(data);
+            }
+        );
+
     });
     $('#pinlist').on('click', 'a', function(e) {
         e.preventDefault();

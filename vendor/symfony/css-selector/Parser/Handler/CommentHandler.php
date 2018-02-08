@@ -29,7 +29,7 @@ class CommentHandler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(Reader $reader, TokenStream $stream): bool
+    public function handle(Reader $reader, TokenStream $stream)
     {
         if ('/*' !== $reader->getSubstring(2)) {
             return false;

@@ -9,8 +9,4 @@ class Pfsense implements Contracts\Applications {
     {
         return 'supportedapps/pfsense.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }

@@ -9,8 +9,4 @@ class Portainer implements Contracts\Applications {
     {
         return 'supportedapps/portainer.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }

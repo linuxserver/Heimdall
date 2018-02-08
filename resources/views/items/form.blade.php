@@ -6,19 +6,15 @@
                 <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </header>
-        <div class="create">
+        <div id="create" class="create">
             {!! csrf_field() !!}
-            <!--<div class="input">
-                <label>Application name</label>
-                {!! Form::select('supported', \App\Item::supportedOptions(), array('placeholder' => 'Title','class' => 'form-control')) !!}
-            </div>-->
 
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
                 {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
                 <hr />
                 <label>{{ strtoupper(__('app.url')) }}</label>
-                {!! Form::text('url', null, array('placeholder' => __('app.url'),'class' => 'form-control')) !!}
+                {!! Form::text('url', null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
             </div>
             <div class="input">
                 <label>{{ __('app.apps.colour') }} *</label>

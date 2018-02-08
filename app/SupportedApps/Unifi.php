@@ -9,8 +9,4 @@ class Unifi implements Contracts\Applications {
     {
         return 'supportedapps/unifi.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }
