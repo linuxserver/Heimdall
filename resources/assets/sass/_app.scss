@@ -522,13 +522,15 @@ div.create {
   @-webkit-keyframes autofill {
 	to {
 		background:#f5f5f5;
-		color:#fff;
+		color:$app-text;
+		font-weight: bold;
 	}
 }
 	@keyframes autofill {
 		to {
 			background:#f5f5f5;
-			color:#fff;
+			color:$app-text;
+			font-weight: bold;
 		}
 	}
 
@@ -754,4 +756,21 @@ hr {
 		}
 
 	}
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus
+input:-webkit-autofill, 
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: inherit;
+  -webkit-text-fill-color: inherit;
+  -webkit-box-shadow: inherit;
+  transition: inherit;
+  color: $app-text!important;
 }

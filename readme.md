@@ -10,6 +10,24 @@ Why not use it as your browser start page?  It even has the ability to include a
 ## Video
 If you want to see a quick video of it in use, go to https://drive.google.com/file/d/1cijXgmjem_q2OfKMp36qVuXRiyOzvhWC/view
 
+## Supported applications
+You can use the app to link to any site or application, but "Supported" apps will auto fill in the icon for the app and supply a default color for the tile.  In addition *enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad.  For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size and download speed while something is downloading.
+
+**Enhanced**
+- NZBGet
+- Sabnzbd
+
+**Supported**
+- Duplicati
+- Emby
+- NZBGet
+- pFsense
+- Pihole
+- Plex
+- Portainer
+- UniFi
+- Sabnzbd
+
 ## Installing
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
 

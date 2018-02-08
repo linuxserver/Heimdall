@@ -6,13 +6,14 @@
 - guzzlehttp/guzzle as a dependency
 - Variable polling, so interval is increased when an app is idle and decreased when it's active
 - Turkish language translation
+- Added Sabnzbd supported application
 
 ### Changed
 - Updated composer dependencies
 - Added live stats to Nzbget supported application  
 
 ### Fixed
-
+- Fixed autocomplete being hard to see
 
 
 ## v1.2.0 (2018-02-07)
