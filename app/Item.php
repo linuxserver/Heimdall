@@ -61,8 +61,9 @@ class Item extends Model
                 $class = $output->type;
                 $sap = new $class();
                 $view = $sap->configDetails();
+                $output->view = $view;
             }
-            $output->view = $view;
+            
         }
         return (object)$output;
     }

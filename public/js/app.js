@@ -23,7 +23,7 @@ $.when( $.ready ).then(function() {
             var container = $(this);
             var max_timer = 30000;
             var timer = 1000;
-        (function worker() {
+            (function worker() {
                 $.ajax({
                   url: '/get_stats/'+id, 
                   success: function(data) {

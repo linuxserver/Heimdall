@@ -139,12 +139,11 @@ class ItemController extends Controller
             ]);
         }
 
-        $config = json_encode($request->input('config'));
-        if($config) {
-            $request->merge([
-                'description' => $config
-            ]);
-        }
+        $config = $request->input('config');
+        $config = (!empty($config)) ? json_encode($config) : null;
+        $request->merge([
+            'description' => $config
+        ]);
 
         //die(print_r($request->input('config')));
         
@@ -202,12 +201,11 @@ class ItemController extends Controller
             ]);
         }
         
-        $config = json_encode($request->input('config'));
-        if($config) {
-            $request->merge([
-                'description' => $config
-            ]);
-        }
+        $config = $request->input('config');
+        $config = (!empty($config)) ? json_encode($config) : null;
+        $request->merge([
+            'description' => $config
+        ]);
  
 
         Item::find($id)->update($request->all());
