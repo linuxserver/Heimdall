@@ -67,4 +67,24 @@ class Item extends Model
         }
         return (object)$output;
     }
+    public static function checkConfig($config)
+    {
+        if(empty($config)) {
+            $config = null;
+        } else {
+            $store = false;
+            foreach($config as $key => $check) {
+                if($key == 'type') continue;
+                if(!empty($check)) {
+                    $store = true;
+                    break;
+                }
+            }
+            
+            $config['enabled'] = ($store) ? true : false;
+            $config = json_encode($config);
+        }
+        return $config;
+
+    }
 }

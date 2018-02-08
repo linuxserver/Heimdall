@@ -7,7 +7,7 @@
                             @endif
                             <div class="details">
                                 <div class="title">{{ $app->title }}</div>
-                                @if(isset($app->description) && !empty($app->description))
+                                @if(isset($app->config->enabled) && ((bool)$app->config->enabled === true))
                                 <div data-id="{{ $app->id }}" class="livestats-container"></div>
                                 @endif
                             </div>

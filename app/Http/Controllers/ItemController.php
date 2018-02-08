@@ -139,8 +139,7 @@ class ItemController extends Controller
             ]);
         }
 
-        $config = $request->input('config');
-        $config = (!empty($config)) ? json_encode($config) : null;
+        $config = Item::checkConfig($request->input('config'));
         $request->merge([
             'description' => $config
         ]);
@@ -201,12 +200,10 @@ class ItemController extends Controller
             ]);
         }
         
-        $config = $request->input('config');
-        $config = (!empty($config)) ? json_encode($config) : null;
+        $config = Item::checkConfig($request->input('config'));
         $request->merge([
             'description' => $config
         ]);
- 
 
         Item::find($id)->update($request->all());
 

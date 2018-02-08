@@ -4,9 +4,12 @@
 
 ### Added
 - guzzlehttp/guzzle as a dependency
+- Variable polling, so interval is increased when an app is idle and decreased when it's active
+- Turkish language translation
 
 ### Changed
 - Updated composer dependencies
+- Added live stats to Nzbget supported application  
 
 ### Fixed
 
@@ -17,6 +20,19 @@
 ### Added
 - Translation support
 - Initial "Supported" application support
+- Finnish translation
+- Swedish translation
+- German translation
+- French translation
+- Spanish translation
+- Duplicati supported application
+- Emby supported application
+- Nzbget supported application
+- Pfsense supported application
+- Pihole supported application
+- Plex supported application
+- Portainer supported application
+- Unifi supported application
 
 ### Changed
 - button layout and behaviour
