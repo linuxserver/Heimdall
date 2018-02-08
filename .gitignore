@@ -10,3 +10,5 @@ npm-debug.log
 yarn-error.log
 
 storage/app/public/.DS_Store
+
+public/mix-manifest.json
