@@ -9,7 +9,7 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
 
     public function defaultColour()
     {
-        return '#124019';
+        return '#655509';
     }
     public function icon()
     {
@@ -65,7 +65,8 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
         $url = $config->url;
         $apikey = $config->apikey;
 
-        $api_url = $url.'sabnzbd/api?output=json&apikey='.$apikey.'&mode='.$endpoint;
+        $api_url = $url.'api?output=json&apikey='.$apikey.'&mode='.$endpoint;
+        //die( $api_url.' --- ');
 
         $client = new Client(['http_errors' => false]);
         $res = $client->request('GET', $api_url);
