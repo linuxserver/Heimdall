@@ -29,6 +29,9 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
             case 401:
                 echo 'Failed: Invalid credentials';
                 break;
+            case 404:
+                echo 'Failed: Please make sure your URL is correct and that there is a trailing slash';
+                break;
             default:
                 echo 'Something went wrong... Code: '.$res->getStatusCode();
                 break;
