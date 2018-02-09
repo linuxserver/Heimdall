@@ -192,7 +192,7 @@ class ItemController extends Controller
             'title' => 'required|max:255',
             'url' => 'required',
         ]);
-
+            //die(print_r($request->all()));
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
             $request->merge([

@@ -47,7 +47,7 @@
                     </div>
                     <div class="upload-btn-wrapper">
                         <button class="btn">{{ __('app.buttons.upload')}} </button>
-                        <input type="file" name="myfile" />
+                        <input type="file" name="file" />
                     </div>
                 </div>
             </div>
