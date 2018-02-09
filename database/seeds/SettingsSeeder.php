@@ -117,6 +117,7 @@ class SettingsSeeder extends Seeder
             'fr' => 'Français (French)',
             'sv' => 'Svenska (Swedish)',
             'es' => 'Español (Spanish)',
+            'tr' => 'Türkçe (Turkish)',
         ]);
         if($languages = Setting::find(5)) {
             $languages->options = $language_options;
