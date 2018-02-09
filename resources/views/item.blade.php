@@ -3,7 +3,7 @@
                             @if($app->icon)
                             <img class="app-icon" src="{{ asset('storage/'.$app->icon) }}" />
                             @else
-                            <i class="fas fa-app-store-ios"></i>
+                            <img class="app-icon" src="{{ asset('img/heimdall-icon-small.png') }}" />
                             @endif
                             <div class="details">
                                 <div class="title">{{ $app->title }}</div>
