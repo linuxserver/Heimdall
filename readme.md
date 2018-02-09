@@ -26,6 +26,7 @@ You can use the app to link to any site or application, but "Supported" apps wil
 - pFsense
 - Pihole
 - Plex
+- Plexpy
 - Portainer
 - UniFi
 - Sabnzbd
