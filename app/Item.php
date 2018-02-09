@@ -56,6 +56,7 @@ class Item extends Model
     public function getConfigAttribute()
     {
         $output = null;
+        $view = null;
         if(isset($this->description) && !empty($this->description)){
             $output = json_decode($this->description);
             if(isset($output->type) && !empty($output->type)) {
