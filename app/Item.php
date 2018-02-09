@@ -59,13 +59,14 @@ class Item extends Model
         $view = null;
         if(isset($this->description) && !empty($this->description)){
             $output = json_decode($this->description);
+            $output = is_object($output) ? $output : new \stdClass();
             if(isset($output->type) && !empty($output->type)) {
                 $class = $output->type;
                 $sap = new $class();
                 $view = $sap->configDetails();
                 $output->view = $view;
             }
-            if(!isset($output->dataonly)) $output->dataonly = 0;
+            if(!isset($output->dataonly)) $output->dataonly = '0';
             
         }
         return (object)$output;
