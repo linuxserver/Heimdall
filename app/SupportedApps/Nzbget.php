@@ -9,7 +9,7 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
 
     public function defaultColour()
     {
-        return '#124019';
+        return '#253827';
     }
     public function icon()
     {

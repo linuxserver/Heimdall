@@ -232,7 +232,7 @@ body {
 	padding: 15px;
 	padding-right: 55px;
 	//border: 2px solid rgba(0,0,0,0.4);
-	box-shadow: 0 0 20px 2px rgba(0,0,0,0.3);
+	//box-shadow: 0 0 15px 1px rgba(35, 35, 35, 0.44);
 	color: white;
 	overflow: hidden;
 	position: relative;
@@ -240,6 +240,11 @@ body {
 	outline: 1px solid transparent;
 	display: flex;
 	align-items: center;
+	border: 1px solid #333333;
+    border: 1px solid rgb(74, 74, 74);
+    border: 1px solid rgba(76, 76, 76, 0.4);
+    -webkit-background-clip: padding-box;
+	background-clip: padding-box;
 	&:after {
 		content: "";
 		position: absolute;

@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 class Pihole implements Contracts\Applications, Contracts\Livestats {
     public function defaultColour()
     {
-        return '#2b0909';
+        return '#352222';
     }
     public function icon()
     {

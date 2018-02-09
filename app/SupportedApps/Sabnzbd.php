@@ -9,7 +9,7 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
 
     public function defaultColour()
     {
-        return '#463b06';
+        return '#3e3924';
     }
     public function icon()
     {

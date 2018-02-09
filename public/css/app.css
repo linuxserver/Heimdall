@@ -519,8 +519,6 @@ body {
   border-radius: 6px;
   padding: 15px;
   padding-right: 55px;
-  -webkit-box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
-          box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
   color: white;
   overflow: hidden;
   position: relative;
@@ -533,6 +531,10 @@ body {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  border: 1px solid #333333;
+  border: 1px solid #4a4a4a;
+  border: 1px solid rgba(76, 76, 76, 0.4);
+  background-clip: padding-box;
 }
 
 .item:after {
