@@ -1,13 +1,13 @@
 ![alt text](https://i.imgur.com/VYMXaH7.png)
 
-![alt text](https://i.imgur.com/aUpMns5.jpg)
-
 ## About 
 Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way.
 
 Simplicity is the key to Heimdall.
 
 Why not use it as your browser start page?  It even has the ability to include a search bar using either Google, Bing or DuckDuckGo.
+
+![alt text](https://i.imgur.com/aUpMns5.jpg)
 
 ## Video
 If you want to see a quick video of it in use, go to https://drive.google.com/file/d/1cijXgmjem_q2OfKMp36qVuXRiyOzvhWC/view
