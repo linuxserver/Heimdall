@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.3.0 (2018-02-05)
+## v1.3.0 (2018-02-09)
 
 ### Added
 - guzzlehttp/guzzle as a dependency
@@ -16,6 +16,7 @@
 
 ### Fixed
 - Fixed autocomplete being hard to see
+- Fixed checkboxes not working on edge
 
 
 ## v1.2.0 (2018-02-07)
