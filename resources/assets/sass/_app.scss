@@ -706,7 +706,18 @@ hr {
 	padding: 8px 12px;
 	border-radius: 8px;
 	font-size: 16px;
-  }
+  
+	&.test {
+		font-size: 16px;
+		font-weight: 500;
+		border-top-right-radius: 5px;
+		border-bottom-right-radius: 5px;
+		color: white;
+		text-transform: uppercase;
+		padding: 8px 50px;
+		background: #207774;
+	}
+}
   
   .upload-btn-wrapper input[type=file] {
 	font-size: 100px;

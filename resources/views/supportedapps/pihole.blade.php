@@ -14,6 +14,8 @@
             <input type="checkbox" name="config[enabled]" value="1"<?php echo $set_checked;?> />
             <span class="slider round"></span>
         </label>
-</div>
-    <button id="test_config">Test</button>
+    </div>
+    <div class="input">
+        <button style="margin-top: 32px;" class="btn test" id="test_config">Test</button>
+    </div>
 </div>

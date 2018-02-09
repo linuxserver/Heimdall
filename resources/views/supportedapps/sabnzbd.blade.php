@@ -5,5 +5,7 @@
         <label>{{ __('app.apps.apikey') }}</label>
         {!! Form::text('config[apikey]', null, array('placeholder' => __('app.apps.apikey'), 'data-config' => 'apikey', 'class' => 'form-control config-item')) !!}
     </div>
-    <button id="test_config">Test</button>
+    <div class="input">
+        <button style="margin-top: 32px;" class="btn test" id="test_config">Test</button>
+    </div>
 </div>
