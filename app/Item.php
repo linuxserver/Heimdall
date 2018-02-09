@@ -34,6 +34,7 @@ class Item extends Model
             'Plex' => \App\SupportedApps\Plex::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
+            'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
         ];
     }
