@@ -14,6 +14,8 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
         'order',
-        'appload'
+        'appload',
+        'test_config',
+        //'get_stats'
     ];
 }

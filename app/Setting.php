@@ -97,8 +97,8 @@ class Setting extends Model
                 if(isset($this->value) && (bool)$this->value === true) $checked = true;
                 $set_checked = ($checked) ? ' checked="checked"' : '';
                 $value = '
+                <input type="hidden" name="value" value="0" />
                 <label class="switch">
-                    <input type="hidden" name="value" value="0" />
                     <input type="checkbox" name="value" value="1"'.$set_checked.' />
                     <span class="slider round"></span>
                 </label>';

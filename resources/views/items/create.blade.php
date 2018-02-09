@@ -2,7 +2,7 @@
 
 @section('content')
 
-    {!! Form::open(array('route' => 'items.store', 'files' => true, 'method'=>'POST')) !!}
+    {!! Form::open(array('route' => 'items.store', 'id' => 'itemform', 'files' => true, 'method'=>'POST')) !!}
     @include('items.form')
     {!! Form::close() !!}
 

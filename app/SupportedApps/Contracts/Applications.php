@@ -5,7 +5,5 @@ interface Applications {
     public function defaultColour();
 
     public function icon();
-
-    public function configDetails();
     
 }

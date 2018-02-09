@@ -26,18 +26,28 @@ class PseudoNode extends AbstractNode
     private $selector;
     private $identifier;
 
-    public function __construct(NodeInterface $selector, string $identifier)
+    /**
+     * @param NodeInterface $selector
+     * @param string        $identifier
+     */
+    public function __construct(NodeInterface $selector, $identifier)
     {
         $this->selector = $selector;
         $this->identifier = strtolower($identifier);
     }
 
-    public function getSelector(): NodeInterface
+    /**
+     * @return NodeInterface
+     */
+    public function getSelector()
     {
         return $this->selector;
     }
 
-    public function getIdentifier(): string
+    /**
+     * @return string
+     */
+    public function getIdentifier()
     {
         return $this->identifier;
     }
@@ -45,7 +55,7 @@ class PseudoNode extends AbstractNode
     /**
      * {@inheritdoc}
      */
-    public function getSpecificity(): Specificity
+    public function getSpecificity()
     {
         return $this->selector->getSpecificity()->plus(new Specificity(0, 1, 0));
     }
@@ -53,7 +63,7 @@ class PseudoNode extends AbstractNode
     /**
      * {@inheritdoc}
      */
-    public function __toString(): string
+    public function __toString()
     {
         return sprintf('%s[%s:%s]', $this->getNodeName(), $this->selector, $this->identifier);
     }

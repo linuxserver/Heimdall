@@ -41,7 +41,7 @@ class HashHandler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(Reader $reader, TokenStream $stream): bool
+    public function handle(Reader $reader, TokenStream $stream)
     {
         $match = $reader->findPattern($this->patterns->getHashPattern());
 

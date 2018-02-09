@@ -30,21 +30,36 @@ class TokenizerEscaping
         $this->patterns = $patterns;
     }
 
-    public function escapeUnicode(string $value): string
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function escapeUnicode($value)
     {
         $value = $this->replaceUnicodeSequences($value);
 
         return preg_replace($this->patterns->getSimpleEscapePattern(), '$1', $value);
     }
 
-    public function escapeUnicodeAndNewLine(string $value): string
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function escapeUnicodeAndNewLine($value)
     {
         $value = preg_replace($this->patterns->getNewLineEscapePattern(), '', $value);
 
         return $this->escapeUnicode($value);
     }
 
-    private function replaceUnicodeSequences(string $value): string
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    private function replaceUnicodeSequences($value)
     {
         return preg_replace_callback($this->patterns->getUnicodeEscapePattern(), function ($match) {
             $c = hexdec($match[1]);
