@@ -3,7 +3,7 @@
 class Nextcloud implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#2f83c6';
+        return '#0e2c3e';
     }
     public function icon()
     {

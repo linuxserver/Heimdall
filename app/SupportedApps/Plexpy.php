@@ -3,7 +3,7 @@
 class Plexpy implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#e6b453';
+        return '#2d2208';
     }
     public function icon()
     {
