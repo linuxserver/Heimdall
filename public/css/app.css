@@ -667,6 +667,10 @@ body {
   color: #2f313a;
 }
 
+.homesearch {
+  height: 51px;
+}
+
 .module-actions {
   display: -webkit-box;
   display: -ms-flexbox;
