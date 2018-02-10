@@ -90,6 +90,13 @@ If there are any other locations which might interefere with any of the folders 
 - Icons - [FonteAwesome 5](https://fontawesome.com/)
 - Javascript - [jQuery](https://jquery.com/)
 - Colour picker - [Huebee](http://huebee.buzz/)
+- IronicBadger -  for the following question
+```
+you know, i would love something like this landing page for all my servers apps
+that gives me the ability to pin favourites
+and / or search
+@Stark @Kode do either of you think you'd be able to rustle something like this up ?
+```
 
 ## License
 
