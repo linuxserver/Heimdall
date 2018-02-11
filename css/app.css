@@ -3652,8 +3652,12 @@ body {
   padding: 80px 40px 1px;
 }
 
+.section2 a {
+  padding-right: 30px;
+}
+
 .section3 {
-  background: #e8e8e8;
+  background: #79909c;
   padding: 100px 40px 30px;
 }
 
@@ -3676,4 +3680,19 @@ a {
 .video-container iframe {
   position: relative;
   top: -50px;
+}
+
+h1 {
+  font-size: 28px;
+  text-transform: uppercase;
+}
+
+h1 span {
+  font-weight: 200;
+  opacity: 0.4;
+}
+
+.section5 {
+  background: #c7cfd4;
+  padding: 80px 40px 1px;
 }

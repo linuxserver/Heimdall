@@ -15,9 +15,12 @@ body {
 .section2 {
     background: #c7cfd4;
     padding: 80px 40px 1px;
+    a {
+        padding-right: 30px;
+    }
 }
 .section3 {
-    background: #e8e8e8;
+    background: #79909c;
     padding: 100px 40px 30px;
 }
 .section4 {
@@ -37,4 +40,20 @@ a {
         position: relative;
         top: -50px;
     }
+}
+
+h1 {
+    font-size: 28px;
+    text-transform: uppercase;
+    span {
+        font-weight: 200;
+        opacity: 0.4;
+    }
+}
+.section5 {
+    background: #c7cfd4;
+    padding: 80px 40px 1px;
+    .app {
+        
+    }    
 }
