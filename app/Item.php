@@ -33,6 +33,7 @@ class Item extends Model
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
+            'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,

@@ -28,6 +28,7 @@ You can use the app to link to any site or application, but "Supported" apps wil
 - Pihole
 - Plex
 - Plexpy
+- Plexrequests
 - Portainer
 - UniFi
 - Sabnzbd
