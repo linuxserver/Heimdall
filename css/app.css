@@ -1,5 +1,4 @@
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
-
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -223,9 +222,8 @@ th {
 .section1 {
   background: #7d8080;
   height: 100vh;
-  background-image: url("/img/heimdall-logo.png");
+  background-image: url("../img/heimdall-logo.png");
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 50%;
+  background-size: 25%;
 }
-
