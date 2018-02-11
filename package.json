@@ -4,6 +4,7 @@
   "description": "Website for the app",
   "main": "webpack.mix.js",
   "dependencies": {
+    "bootstrap-4-grid": "^2.3.0",
     "cross-env": "^5.1.3",
     "laravel-mix": "^2.0.0"
   },

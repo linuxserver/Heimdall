@@ -1,8 +1,35 @@
+body {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+}
 .section1 {
-    background: #7d8080;
+    background: #4a5c67;
     height: 100vh;
     background-image: url("../img/heimdall-logo.png");
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 25%;
+}
+.section2 {
+    background: #c7cfd4;
+    padding: 80px 40px 1px;
+}
+.section3 {
+    background: #e8e8e8;
+    padding: 100px 40px 30px;
+}
+.section4 {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+.video-container {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    iframe {
+        position: relative;
+        top: -50px;
+    }
 }
