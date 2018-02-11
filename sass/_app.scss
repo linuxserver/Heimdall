@@ -10,6 +10,7 @@ body {
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 25%;
+    padding: 200px 0;
 }
 .section2 {
     background: #c7cfd4;
@@ -23,6 +24,9 @@ body {
     max-width: 100%;
     height: auto;
     display: block;
+}
+a {
+    color: #5d717b;
 }
 
 .video-container {

@@ -3644,6 +3644,7 @@ body {
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 25%;
+  padding: 200px 0;
 }
 
 .section2 {
@@ -3662,11 +3663,16 @@ body {
   display: block;
 }
 
+a {
+  color: #5d717b;
+}
+
 .video-container {
   position: relative;
   overflow: hidden;
   text-align: center;
 }
+
 .video-container iframe {
   position: relative;
   top: -50px;
