@@ -28,15 +28,16 @@ class Item extends Model
         return [
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
+            'Jdownloader' => \App\SupportedApps\Jdownloader::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
-            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
-            'UniFi' => \App\SupportedApps\Unifi::class,
-            'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
+            'UniFi' => \App\SupportedApps\Unifi::class,
+            'pFsense' => \App\SupportedApps\Pfsense::class,
         ];
     }
     public static function supportedOptions()
