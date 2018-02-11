@@ -24,13 +24,14 @@ You can use the app to link to any site or application, but "Supported" apps wil
 - Emby
 - NZBGet
 - Nextcloud
-- pFsense
 - Pihole
 - Plex
 - Plexpy
 - Portainer
-- UniFi
 - Sabnzbd
+- Traefik
+- UniFi
+- pFsense
 
 ## Installing
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
