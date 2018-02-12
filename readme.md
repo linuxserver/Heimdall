@@ -43,8 +43,11 @@ Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension,
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to it.  For simple testing you could just go to the folder and type `php artisan serve`
 
 There are also dockers and instructions on how to use them at 
+
 for x86-64: https://hub.docker.com/r/linuxserver/heimdall/
+
 for armhf: https://hub.docker.com/r/lsioarmhf/heimdall/
+
 and for arm64: https://hub.docker.com/r/lsioarmhf/heimdall-aarch64/
 
 ## Languages
