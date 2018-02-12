@@ -31,6 +31,7 @@ class Item extends Model
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
+            'Openhab' => \App\SupportedApps\Openhab::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
