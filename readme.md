@@ -17,6 +17,7 @@ You can use the app to link to any site or application, but Foundation apps will
 
 **Enhanced**
 - NZBGet
+- Pihole
 - Sabnzbd
 
 **Foundation**
@@ -27,7 +28,6 @@ You can use the app to link to any site or application, but Foundation apps will
 - NZBGet
 - Nextcloud
 - Openhab
-- Pihole
 - Plex
 - Plexpy
 - Plexrequests
