@@ -42,6 +42,8 @@ Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension,
 
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to it.  For simple testing you could just go to the folder and type `php artisan serve`
 
+There is also a docker at https://hub.docker.com/r/linuxserver/heimdall/ and instructions on how to use it at https://github.com/linuxserver/docker-heimdall/blob/master/READMETEMPLATE.md
+
 ## Languages
 The app has been translated into several languages, however the quality of the translations could do with work, if you would like to improve them or help with other translations they are stored in /resources/lang/
 
