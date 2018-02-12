@@ -1,4 +1,4 @@
-![alt text](https://i.imgur.com/VYMXaH7.png)
+![alt text](https://i.imgur.com/iuV8w3y.png)
 
 ## About 
 Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way.
@@ -54,6 +54,7 @@ Currently added languages are
 - French
 - Swedish
 - Spanish
+- Turkish
 
 ## Web Server Configuration
 
