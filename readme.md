@@ -99,6 +99,19 @@ location /webfonts {
 ```
 If there are any other locations which might interefere with any of the folders in the /public folder, you might have to do the same for those as well, but it's a super fringe case.
 
+### Reverse proxy
+If you'd like to reverse proxy this app, we recommend using our letsencrypt/nginx docker image: [Letsencrypt/Nginx](https://hub.docker.com/r/linuxserver/letsencrypt/)  
+You can either reverse proxy from the root location, or from a subdomain (subfolder method is currently not supported). For https proxy, make sure you use the https port of Heimdall webserver, otherwise some links may break. You can add security through `.htpasswd`
+
+```
+location / {
+    auth_basic "Restricted";
+    auth_basic_user_file /config/nginx/.htpasswd;
+    include /config/nginx/proxy.conf;
+    proxy_pass https://heimdall:443;
+}
+```
+
 ## Credits
 - PHP Framework - [Laravel](https://laravel.com/)
 - Icons - [FonteAwesome 5](https://fontawesome.com/)
