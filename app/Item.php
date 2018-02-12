@@ -34,8 +34,10 @@ class Item extends Model
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
+            'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
+            'Traefik' => \App\SupportedApps\Traefik::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'pFsense' => \App\SupportedApps\Pfsense::class,
         ];

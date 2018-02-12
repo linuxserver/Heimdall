@@ -1,9 +1,9 @@
-![alt text](https://i.imgur.com/VYMXaH7.png)
+![alt text](https://i.imgur.com/iuV8w3y.png)
 
 ## About 
-Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way.
+As the name suggests Heimdall Application Dashboard is a dashboard for all your web applications. It doesn't need to be limited to applications though, you can add links to anything you like.
 
-Simplicity is the key to Heimdall.
+Heimdall is an elegant solution to organise all your web applications. It’s dedicated to this purpose so you won’t lose your links in a sea of bookmarks.
 
 Why not use it as your browser start page?  It even has the ability to include a search bar using either Google, Bing or DuckDuckGo.
 
@@ -13,13 +13,13 @@ Why not use it as your browser start page?  It even has the ability to include a
 If you want to see a quick video of it in use, go to https://youtu.be/GXnnMAxPzMc
 
 ## Supported applications
-You can use the app to link to any site or application, but "Supported" apps will auto fill in the icon for the app and supply a default color for the tile.  In addition *enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad.  For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size and download speed while something is downloading.
+You can use the app to link to any site or application, but Foundation apps will auto fill in the icon for the app and supply a default color for the tile.  In addition Enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad.  For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size and download speed while something is downloading.
 
 **Enhanced**
 - NZBGet
 - Sabnzbd
 
-**Supported**
+**Foundation**
 - Duplicati
 - Emby
 - Jdownloader
@@ -28,8 +28,10 @@ You can use the app to link to any site or application, but "Supported" apps wil
 - Pihole
 - Plex
 - Plexpy
+- Plexrequests
 - Portainer
 - Sabnzbd
+- Traefik
 - UniFi
 - pFsense
 
@@ -53,6 +55,7 @@ Currently added languages are
 - French
 - Swedish
 - Spanish
+- Turkish
 
 ## Web Server Configuration
 
