@@ -117,6 +117,7 @@ location / {
 - Icons - [FonteAwesome 5](https://fontawesome.com/)
 - Javascript - [jQuery](https://jquery.com/)
 - Colour picker - [Huebee](http://huebee.buzz/)
+- Background image - [pexels](https://www.pexels.com)
 - Everyone at Linuxserver.io that has helped with the app and let's not forget IronicBadger for the following question that started it all:
 ```
 you know, i would love something like this landing page for all my servers apps
