@@ -28,6 +28,7 @@ class Item extends Model
         return [
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
+            'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
