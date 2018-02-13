@@ -41,6 +41,7 @@ class Item extends Model
             'Plexpy' => \App\SupportedApps\Plexpy::class,
             'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
+            'Proxmox' => \App\SupportedApps\Proxmox::class,
 			'Radarr' => \App\SupportedApps\Radarr::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
 			'Sonarr' => \App\SupportedApps\Sonarr::class,
