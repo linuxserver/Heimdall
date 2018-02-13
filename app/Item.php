@@ -42,6 +42,10 @@ class Item extends Model
             'Traefik' => \App\SupportedApps\Traefik::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'pFsense' => \App\SupportedApps\Pfsense::class,
+			'Sonarr' => \App\SupportedApps\Sonarr::class,
+			'Radarr' => \App\SupportedApps\Radarr::class,
+			'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
+			'Jackett' => \App\SupportedApps\Jackett::class,
         ];
     }
     public static function supportedOptions()
