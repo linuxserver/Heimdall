@@ -70,7 +70,9 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
         $url = $config->url;
         $apikey = $config->apikey;
 
-        $api_url = $url.'api?output=json&apikey='.$apikey.'&mode='.$endpoint;
+        $url = rtrim($url, '/');
+
+        $api_url = $url.'/api?output=json&apikey='.$apikey.'&mode='.$endpoint;
         //die( $api_url.' --- ');
 
         $client = new Client(['http_errors' => false]);
