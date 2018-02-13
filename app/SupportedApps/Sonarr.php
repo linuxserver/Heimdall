@@ -3,7 +3,7 @@
 class Sonarr implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#5AF';
+        return '#0CA0E0';
     }
     public function icon()
     {

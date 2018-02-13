@@ -3,7 +3,7 @@
 class HomeAssistant implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#28D';
+        return '#0CA0E0';
     }
     public function icon()
     {
