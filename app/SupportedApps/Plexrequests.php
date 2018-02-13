@@ -3,7 +3,7 @@
 class Plexrequests implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#845c2c';
+        return '#3c2d1c';
     }
     public function icon()
     {

@@ -3,7 +3,7 @@
 class Jackett implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#AA5';
+        return '#484814';
     }
     public function icon()
     {

@@ -3,7 +3,7 @@
 class Radarr implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#CE9100';
+        return '#3e3726';
     }
     public function icon()
     {
