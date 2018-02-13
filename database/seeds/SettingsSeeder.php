@@ -115,6 +115,7 @@ class SettingsSeeder extends Seeder
             'en' => 'English',
             'fi' => 'Suomi (Finnish)',
             'fr' => 'Français (French)',
+            'it' => 'Italiano (Italian)',
             'no' => 'Norsk (Norwegian)',            
             'sv' => 'Svenska (Swedish)',
             'es' => 'Español (Spanish)',
