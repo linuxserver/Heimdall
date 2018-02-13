@@ -26,7 +26,6 @@ class AppServiceProvider extends ServiceProvider
             // first time setup
             touch(database_path('app.sqlite'));
             Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));
-            Artisan::call('storage:link');
             //Cache
             //Artisan::call('config:cache');
             //Artisan::call('route:cache');
@@ -49,6 +48,9 @@ class AppServiceProvider extends ServiceProvider
             $lang = Setting::fetch('language');
             \App::setLocale($lang);
 
+        }
+        if(!is_file(public_path('storage'))) {
+            Artisan::call('storage:link');
         }
         view()->share('alt_bg', $alt_bg);
 

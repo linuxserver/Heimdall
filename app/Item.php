@@ -28,12 +28,20 @@ class Item extends Model
         return [
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
+            'Jdownloader' => \App\SupportedApps\Jdownloader::class,
+            'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
-            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'Nextcloud' => \App\SupportedApps\Nextcloud::class,
+            'Openhab' => \App\SupportedApps\Openhab::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
-            'UniFi' => \App\SupportedApps\Unifi::class,
+            'Plexpy' => \App\SupportedApps\Plexpy::class,
+            'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
+            'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
+            'Traefik' => \App\SupportedApps\Traefik::class,
+            'UniFi' => \App\SupportedApps\Unifi::class,
+            'pFsense' => \App\SupportedApps\Pfsense::class,
         ];
     }
     public static function supportedOptions()
@@ -55,15 +63,42 @@ class Item extends Model
     public function getConfigAttribute()
     {
         $output = null;
+        $view = null;
         if(isset($this->description) && !empty($this->description)){
             $output = json_decode($this->description);
+            $output = is_object($output) ? $output : new \stdClass();
             if(isset($output->type) && !empty($output->type)) {
                 $class = $output->type;
                 $sap = new $class();
                 $view = $sap->configDetails();
+                $output->view = $view;
             }
-            $output->view = $view;
+            if(!isset($output->dataonly)) $output->dataonly = '0';
+            
         }
         return (object)$output;
+    }
+    public static function checkConfig($config)
+    {
+        if(empty($config)) {
+            $config = null;
+        } else {
+            $store = false;
+            //die(var_dump($config));
+            foreach($config as $key => $check) {
+                if($key == 'type') continue;
+                if($key == 'dataonly') continue;
+                if(!empty($check) && $check != '0') {
+                    $store = true;
+                    break;
+                }
+            }
+            //die(var_dump($store))
+            
+            $config['enabled'] = ($store) ? true : false;
+            $config = json_encode($config);
+        }
+        return $config;
+
     }
 }

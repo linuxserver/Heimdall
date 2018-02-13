@@ -33,19 +33,32 @@ class Specificity
     private $b;
     private $c;
 
-    public function __construct(int $a, int $b, int $c)
+    /**
+     * @param int $a
+     * @param int $b
+     * @param int $c
+     */
+    public function __construct($a, $b, $c)
     {
         $this->a = $a;
         $this->b = $b;
         $this->c = $c;
     }
 
-    public function plus(Specificity $specificity): Specificity
+    /**
+     * @return self
+     */
+    public function plus(Specificity $specificity)
     {
         return new self($this->a + $specificity->a, $this->b + $specificity->b, $this->c + $specificity->c);
     }
 
-    public function getValue(): int
+    /**
+     * Returns global specificity value.
+     *
+     * @return int
+     */
+    public function getValue()
     {
         return $this->a * self::A_FACTOR + $this->b * self::B_FACTOR + $this->c * self::C_FACTOR;
     }

@@ -15,7 +15,33 @@ $.when( $.ready ).then(function() {
         {
             $('.message-container').fadeOut();
         }, 3500);
+    }
 
+    if($('.livestats-container').length) {
+        $('.livestats-container').each(function(index){
+            var id = $(this).data('id');
+            var dataonly = $(this).data('dataonly');
+            var increaseby = (dataonly == 1) ? 20000 : 1000;
+            var container = $(this);
+            var max_timer = 30000;
+            var timer = 5000;
+            (function worker() {
+                $.ajax({
+                  url: '/get_stats/'+id, 
+                  success: function(data) {
+                    container.html(data);
+                    if(data != '') timer = increaseby;
+                    else {
+                        if(timer < max_timer) timer += 2000;
+                    }
+                  },
+                  complete: function() {
+                    // Schedule the next request when the current one's complete
+                    setTimeout(worker, timer);
+                  }
+                });
+              })();
+        });
 
     }
 
@@ -65,6 +91,29 @@ $.when( $.ready ).then(function() {
         var app = $('#app');
         app.removeClass('sidebar');
         
+    }).on('click', '#test_config', function(e) {
+        e.preventDefault();
+        var apiurl = $('#create input[name=url]').val();
+        
+        
+        var override_url = $('#create input[name=override_url]');
+        if(override_url.length && override_url.val() != '') {
+            apiurl = override_url;
+        }
+        var data = {};
+        data['url'] = apiurl;
+        $('input.config-item').each(function(index){
+            var config = $(this).data('config');
+            data[config] = $(this).val();
+        })
+
+        $.post(
+            '/test_config',
+            { data }, function(data) {
+                alert(data);
+            }
+        );
+
     });
     $('#pinlist').on('click', 'a', function(e) {
         e.preventDefault();

@@ -9,8 +9,4 @@ class Emby implements Contracts\Applications {
     {
         return 'supportedapps/emby.png';
     }
-    public function configDetails()
-    {
-        return null;
-    }
 }

@@ -19,6 +19,7 @@
 
 namespace Doctrine\Instantiator;
 
+use Closure;
 use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Doctrine\Instantiator\Exception\UnexpectedValueException;
 use Exception;
@@ -40,14 +41,14 @@ final class Instantiator implements InstantiatorInterface
     const SERIALIZATION_FORMAT_AVOID_UNSERIALIZER = 'O';
 
     /**
-     * @var \callable[] used to instantiate specific classes, indexed by class name
+     * @var \Closure[] of {@see \Closure} instances used to instantiate specific classes
      */
-    private static $cachedInstantiators = [];
+    private static $cachedInstantiators = array();
 
     /**
-     * @var object[] of objects that can directly be cloned, indexed by class name
+     * @var object[] of objects that can directly be cloned
      */
-    private static $cachedCloneables = [];
+    private static $cachedCloneables = array();
 
     /**
      * {@inheritDoc}
@@ -70,9 +71,11 @@ final class Instantiator implements InstantiatorInterface
     /**
      * Builds the requested object and caches it in static properties for performance
      *
+     * @param string $className
+     *
      * @return object
      */
-    private function buildAndCacheFromFactory(string $className)
+    private function buildAndCacheFromFactory($className)
     {
         $factory  = self::$cachedInstantiators[$className] = $this->buildFactory($className);
         $instance = $factory();
@@ -85,24 +88,26 @@ final class Instantiator implements InstantiatorInterface
     }
 
     /**
-     * Builds a callable capable of instantiating the given $className without
+     * Builds a {@see \Closure} capable of instantiating the given $className without
      * invoking its constructor.
      *
-     * @throws InvalidArgumentException
-     * @throws UnexpectedValueException
-     * @throws \ReflectionException
+     * @param string $className
+     *
+     * @return Closure
      */
-    private function buildFactory(string $className) : callable
+    private function buildFactory($className)
     {
         $reflectionClass = $this->getReflectionClass($className);
 
         if ($this->isInstantiableViaReflection($reflectionClass)) {
-            return [$reflectionClass, 'newInstanceWithoutConstructor'];
+            return function () use ($reflectionClass) {
+                return $reflectionClass->newInstanceWithoutConstructor();
+            };
         }
 
         $serializedString = sprintf(
             '%s:%d:"%s":0:{}',
-            self::SERIALIZATION_FORMAT_AVOID_UNSERIALIZER,
+            $this->getSerializationFormat($reflectionClass),
             strlen($className),
             $className
         );
@@ -120,9 +125,8 @@ final class Instantiator implements InstantiatorInterface
      * @return ReflectionClass
      *
      * @throws InvalidArgumentException
-     * @throws \ReflectionException
      */
-    private function getReflectionClass($className) : ReflectionClass
+    private function getReflectionClass($className)
     {
         if (! class_exists($className)) {
             throw InvalidArgumentException::fromNonExistingClass($className);
@@ -145,9 +149,9 @@ final class Instantiator implements InstantiatorInterface
      *
      * @return void
      */
-    private function checkIfUnSerializationIsSupported(ReflectionClass $reflectionClass, $serializedString) : void
+    private function checkIfUnSerializationIsSupported(ReflectionClass $reflectionClass, $serializedString)
     {
-        set_error_handler(function ($code, $message, $file, $line) use ($reflectionClass, & $error) : void {
+        set_error_handler(function ($code, $message, $file, $line) use ($reflectionClass, & $error) {
             $error = UnexpectedValueException::fromUncleanUnSerialization(
                 $reflectionClass,
                 $message,
@@ -174,7 +178,7 @@ final class Instantiator implements InstantiatorInterface
      *
      * @return void
      */
-    private function attemptInstantiationViaUnSerialization(ReflectionClass $reflectionClass, $serializedString) : void
+    private function attemptInstantiationViaUnSerialization(ReflectionClass $reflectionClass, $serializedString)
     {
         try {
             unserialize($serializedString);
@@ -185,15 +189,28 @@ final class Instantiator implements InstantiatorInterface
         }
     }
 
-    private function isInstantiableViaReflection(ReflectionClass $reflectionClass) : bool
+    /**
+     * @param ReflectionClass $reflectionClass
+     *
+     * @return bool
+     */
+    private function isInstantiableViaReflection(ReflectionClass $reflectionClass)
     {
-        return ! ($this->hasInternalAncestors($reflectionClass) && $reflectionClass->isFinal());
+        if (\PHP_VERSION_ID >= 50600) {
+            return ! ($this->hasInternalAncestors($reflectionClass) && $reflectionClass->isFinal());
+        }
+
+        return \PHP_VERSION_ID >= 50400 && ! $this->hasInternalAncestors($reflectionClass);
     }
 
     /**
      * Verifies whether the given class is to be considered internal
+     *
+     * @param ReflectionClass $reflectionClass
+     *
+     * @return bool
      */
-    private function hasInternalAncestors(ReflectionClass $reflectionClass) : bool
+    private function hasInternalAncestors(ReflectionClass $reflectionClass)
     {
         do {
             if ($reflectionClass->isInternal()) {
@@ -205,12 +222,52 @@ final class Instantiator implements InstantiatorInterface
     }
 
     /**
+     * Verifies if the given PHP version implements the `Serializable` interface serialization
+     * with an incompatible serialization format. If that's the case, use serialization marker
+     * "C" instead of "O".
+     *
+     * @link http://news.php.net/php.internals/74654
+     *
+     * @param ReflectionClass $reflectionClass
+     *
+     * @return string the serialization format marker, either self::SERIALIZATION_FORMAT_USE_UNSERIALIZER
+     *                or self::SERIALIZATION_FORMAT_AVOID_UNSERIALIZER
+     */
+    private function getSerializationFormat(ReflectionClass $reflectionClass)
+    {
+        if ($this->isPhpVersionWithBrokenSerializationFormat()
+            && $reflectionClass->implementsInterface('Serializable')
+        ) {
+            return self::SERIALIZATION_FORMAT_USE_UNSERIALIZER;
+        }
+
+        return self::SERIALIZATION_FORMAT_AVOID_UNSERIALIZER;
+    }
+
+    /**
+     * Checks whether the current PHP runtime uses an incompatible serialization format
+     *
+     * @return bool
+     */
+    private function isPhpVersionWithBrokenSerializationFormat()
+    {
+        return PHP_VERSION_ID === 50429 || PHP_VERSION_ID === 50513;
+    }
+
+    /**
      * Checks if a class is cloneable
      *
-     * Classes implementing `__clone` cannot be safely cloned, as that may cause side-effects.
+     * @param ReflectionClass $reflection
+     *
+     * @return bool
      */
-    private function isSafeToClone(ReflectionClass $reflection) : bool
+    private function isSafeToClone(ReflectionClass $reflection)
     {
-        return $reflection->isCloneable() && ! $reflection->hasMethod('__clone');
+        if (method_exists($reflection, 'isCloneable') && ! $reflection->isCloneable()) {
+            return false;
+        }
+
+        // not cloneable if it implements `__clone`, as we want to avoid calling it
+        return ! $reflection->hasMethod('__clone');
     }
 }

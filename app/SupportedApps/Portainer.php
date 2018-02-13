@@ -3,14 +3,10 @@
 class Portainer implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#222';
+        return '#283f44';
     }
     public function icon()
     {
         return 'supportedapps/portainer.png';
-    }
-    public function configDetails()
-    {
-        return null;
     }
 }

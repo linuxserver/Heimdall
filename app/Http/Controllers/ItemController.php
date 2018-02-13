@@ -139,19 +139,17 @@ class ItemController extends Controller
             ]);
         }
 
-        $config = json_encode($request->input('config'));
-        if($config) {
-            $request->merge([
-                'description' => $config
-            ]);
-        }
+        $config = Item::checkConfig($request->input('config'));
+        $request->merge([
+            'description' => $config
+        ]);
 
         //die(print_r($request->input('config')));
         
         Item::create($request->all());
 
         return redirect()->route('dash')
-            ->with('success', __('alert.success.item_created'));
+            ->with('success', __('app.alert.success.item_created'));
     }
 
     /**
@@ -194,7 +192,7 @@ class ItemController extends Controller
             'title' => 'required|max:255',
             'url' => 'required',
         ]);
-
+            //die(print_r($request->all()));
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
             $request->merge([
@@ -202,11 +200,15 @@ class ItemController extends Controller
             ]);
         }
         
+        $config = Item::checkConfig($request->input('config'));
+        $request->merge([
+            'description' => $config
+        ]);
 
         Item::find($id)->update($request->all());
 
         return redirect()->route('dash')
-            ->with('success',__('alert.success.item_updated'));
+            ->with('success',__('app.alert.success.item_updated'));
     }
 
     /**
@@ -228,7 +230,7 @@ class ItemController extends Controller
         }
         
         return redirect()->route('items.index')
-            ->with('success',__('alert.success.item_deleted'));
+            ->with('success',__('app.alert.success.item_deleted'));
     }
 
     /**
@@ -244,7 +246,17 @@ class ItemController extends Controller
                 ->where('id', $id)
                 ->restore();        
         return redirect()->route('items.index')
-            ->with('success',__('alert.success.item_restored'));
+            ->with('success',__('app.alert.success.item_restored'));
+    }
+
+    public function isSupportedAppByKey($app)
+    {
+        $output = false;
+        $all_supported = Item::supportedList();
+        if(array_key_exists($app, $all_supported)) {
+            $output = new $all_supported[$app];
+        }
+        return $output;
     }
 
     /**
@@ -254,15 +266,52 @@ class ItemController extends Controller
      */
     public function appload(Request $request)
     {
+        $output = [];
         $app = $request->input('app');
-        if($app) {
-            $all_supported = Item::supportedList();
-            $app_details = new $all_supported[$app];
+
+        if(($app_details = $this->isSupportedAppByKey($app)) !== false) {
+            // basic details
+            $output['icon'] = $app_details->icon();
+            $output['colour'] = $app_details->defaultColour();
+
+            // live details
+            if($app_details instanceof \App\SupportedApps\Contracts\Livestats) {
+                $output['config'] = $app_details->configDetails();
+            } else {
+                $output['config'] = null;
+            }
         }
-        $output['icon'] = $app_details->icon();
-        $output['colour'] = $app_details->defaultColour();
-        $output['config'] = $app_details->configDetails();
+        
         return json_encode($output);
+    }
+
+    public function testConfig(Request $request)
+    {
+        $data = $request->input('data');
+        //$url = $data[array_search('url', array_column($data, 'name'))]['value'];
+        
+        $app = $data['type'];
+
+        $app_details = new $app();
+        $app_details->config = (object)$data;
+        $app_details->testConfig();
+    }
+
+    public function getStats($id)
+    {
+        $item = Item::find($id);
+
+        $config = json_decode($item->description);
+        if(isset($config->type)) {
+            $config->url = $item->url;
+            if(isset($config->override_url) && !empty($config->override_url)) {
+                $config->url = $config->override_url;
+            }
+            $app_details = new $config->type;
+            $app_details->config = $config;
+            echo $app_details->executeConfig();
+        }
+        
     }
 
     

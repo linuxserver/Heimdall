@@ -3,14 +3,10 @@
 class Duplicati implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#222';
+        return '#2c3744';
     }
     public function icon()
     {
         return 'supportedapps/duplicati.png';
-    }
-    public function configDetails()
-    {
-        return null;
     }
 }

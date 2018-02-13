@@ -27,7 +27,13 @@ class XPathExpr
     private $element;
     private $condition;
 
-    public function __construct(string $path = '', string $element = '*', string $condition = '', bool $starPrefix = false)
+    /**
+     * @param string $path
+     * @param string $element
+     * @param string $condition
+     * @param bool   $starPrefix
+     */
+    public function __construct($path = '', $element = '*', $condition = '', $starPrefix = false)
     {
         $this->path = $path;
         $this->element = $element;
@@ -38,24 +44,38 @@ class XPathExpr
         }
     }
 
-    public function getElement(): string
+    /**
+     * @return string
+     */
+    public function getElement()
     {
         return $this->element;
     }
 
-    public function addCondition(string $condition): XPathExpr
+    /**
+     * @param $condition
+     *
+     * @return $this
+     */
+    public function addCondition($condition)
     {
         $this->condition = $this->condition ? sprintf('%s and (%s)', $this->condition, $condition) : $condition;
 
         return $this;
     }
 
-    public function getCondition(): string
+    /**
+     * @return string
+     */
+    public function getCondition()
     {
         return $this->condition;
     }
 
-    public function addNameTest(): XPathExpr
+    /**
+     * @return $this
+     */
+    public function addNameTest()
     {
         if ('*' !== $this->element) {
             $this->addCondition('name() = '.Translator::getXpathLiteral($this->element));
@@ -65,7 +85,10 @@ class XPathExpr
         return $this;
     }
 
-    public function addStarPrefix(): XPathExpr
+    /**
+     * @return $this
+     */
+    public function addStarPrefix()
     {
         $this->path .= '*/';
 
@@ -75,9 +98,12 @@ class XPathExpr
     /**
      * Joins another XPathExpr with a combiner.
      *
+     * @param string    $combiner
+     * @param XPathExpr $expr
+     *
      * @return $this
      */
-    public function join(string $combiner, XPathExpr $expr): XPathExpr
+    public function join($combiner, XPathExpr $expr)
     {
         $path = $this->__toString().$combiner;
 
@@ -92,7 +118,10 @@ class XPathExpr
         return $this;
     }
 
-    public function __toString(): string
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         $path = $this->path.$this->element;
         $condition = null === $this->condition || '' === $this->condition ? '' : '['.$this->condition.']';

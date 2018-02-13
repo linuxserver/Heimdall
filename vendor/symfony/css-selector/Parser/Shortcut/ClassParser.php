@@ -31,7 +31,7 @@ class ClassParser implements ParserInterface
     /**
      * {@inheritdoc}
      */
-    public function parse(string $source): array
+    public function parse($source)
     {
         // Matches an optional namespace, optional element, and required class
         // $source = 'test|input.ab6bd_field';
