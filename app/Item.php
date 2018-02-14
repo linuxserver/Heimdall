@@ -31,6 +31,7 @@ class Item extends Model
             'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
             'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
+            'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
