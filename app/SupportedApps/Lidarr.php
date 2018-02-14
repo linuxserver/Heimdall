@@ -3,7 +3,7 @@
 class Lidarr implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#040';
+        return '#183c18';
     }
     public function icon()
     {
