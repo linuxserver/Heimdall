@@ -38,6 +38,7 @@ class Item extends Model
             'Openhab' => \App\SupportedApps\Openhab::class,
             'pFsense' => \App\SupportedApps\Pfsense::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
+            'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
