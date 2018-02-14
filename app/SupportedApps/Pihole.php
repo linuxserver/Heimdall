@@ -57,7 +57,9 @@ class Pihole implements Contracts\Applications, Contracts\Livestats {
         $config = $this->config;
         $url = $config->url;
 
-        $api_url = $url.'admin/api.php';
+        $url = rtrim($url, '/');
+
+        $api_url = $url.'/api.php';
         //die( $api_url.' --- ');
 
         $client = new Client(['http_errors' => false]);
