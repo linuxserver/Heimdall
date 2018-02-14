@@ -28,8 +28,8 @@ class Item extends Model
         return [
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
-			'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
-			'Jackett' => \App\SupportedApps\Jackett::class,
+            'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
+            'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
@@ -42,9 +42,9 @@ class Item extends Model
             'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
             'Proxmox' => \App\SupportedApps\Proxmox::class,
-			'Radarr' => \App\SupportedApps\Radarr::class,
+            'Radarr' => \App\SupportedApps\Radarr::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
-			'Sonarr' => \App\SupportedApps\Sonarr::class,
+            'Sonarr' => \App\SupportedApps\Sonarr::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
         ];
