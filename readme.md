@@ -26,8 +26,10 @@ You can use the app to link to any site or application, but Foundation apps will
 - Jdownloader
 - Mcmyadmin
 - NZBGet
+- Netdata
 - Nextcloud
 - Openhab
+- Pihole
 - Plex
 - Plexpy
 - Plexrequests
