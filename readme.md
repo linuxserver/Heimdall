@@ -21,11 +21,14 @@ You can use the app to link to any site or application, but Foundation apps will
 - Sabnzbd
 
 **Foundation**
+- Deluge
 - Duplicati
 - Emby
 - Jdownloader
 - Mcmyadmin
+- Medusa
 - NZBGet
+- NZBHydra
 - Netdata
 - Nextcloud
 - Openhab
@@ -35,6 +38,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Plexrequests
 - Portainer
 - Sabnzbd
+- TT-RSS
 - Traefik
 - UniFi
 - pFsense
