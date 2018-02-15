@@ -26,6 +26,7 @@ class Item extends Model
     public static function supportedList()
     {
         return [
+            'Deluge' => \App\SupportedApps\Deluge::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
             'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
