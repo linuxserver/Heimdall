@@ -38,6 +38,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Plexrequests
 - Portainer
 - Sabnzbd
+- TT-RSS
 - Traefik
 - UniFi
 - pFsense
