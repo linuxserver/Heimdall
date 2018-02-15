@@ -114,6 +114,9 @@ location / {
 }
 ```
 
+## Support
+https://discord.gg/CCjHKn4 or through Github issues
+
 ## Credits
 - PHP Framework - [Laravel](https://laravel.com/)
 - Icons - [FonteAwesome 5](https://fontawesome.com/)
