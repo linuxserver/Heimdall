@@ -38,6 +38,7 @@ class Item extends Model
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
+            'Nzbhydra' => \App\SupportedApps\Nzbhydra::class,
             'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Openhab' => \App\SupportedApps\Openhab::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
