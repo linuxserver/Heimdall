@@ -21,6 +21,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Sabnzbd
 
 **Foundation**
+- Deluge
 - Duplicati
 - Emby
 - Jdownloader
