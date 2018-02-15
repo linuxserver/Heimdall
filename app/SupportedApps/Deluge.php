@@ -3,7 +3,7 @@
 class Deluge implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#98b0cc';
+        return '#357';
     }
     public function icon()
     {
