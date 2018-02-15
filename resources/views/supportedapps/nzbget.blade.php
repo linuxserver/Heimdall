@@ -7,7 +7,7 @@
     </div>
     <div class="input">
         <label>{{ __('app.apps.password') }}</label>
-        <input type="password" name="config[password]" value="{{ $item->config->password }}" placeholder="{{ __('app.apps.password') }}" class="form-control config-item" data-config="password" />
+        <input type="password" name="config[password]" value="{{ $item->config->password or '' }}" placeholder="{{ __('app.apps.password') }}" class="form-control config-item" data-config="password" />
     </div>
     <div class="input">
         <button style="margin-top: 32px;" class="btn test" id="test_config">Test</button>
