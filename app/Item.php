@@ -46,6 +46,7 @@ class Item extends Model
             'Portainer' => \App\SupportedApps\Portainer::class,
             'Proxmox' => \App\SupportedApps\Proxmox::class,
             'Radarr' => \App\SupportedApps\Radarr::class,
+            'ruTorrent' => \App\SupportedApps\ruTorrent::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
             'Sonarr' => \App\SupportedApps\Sonarr::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
