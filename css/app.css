@@ -3684,13 +3684,19 @@ a {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 35px;
   text-transform: uppercase;
 }
 
 h1 span {
   font-weight: 200;
   opacity: 0.4;
+}
+
+h2 {
+  font-size: 35px;
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .section5 {
