@@ -43,11 +43,13 @@
                     ?>
                     <img src="{{ asset('storage/'.$icon) }}" />
                     {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
+                    @else
+                    <img src="/img/heimdall-icon-small.png" />
                     @endif
                     </div>
                     <div class="upload-btn-wrapper">
                         <button class="btn">{{ __('app.buttons.upload')}} </button>
-                        <input type="file" name="file" />
+                        <input type="file" id="upload" name="file" />
                     </div>
                 </div>
             </div>
