@@ -50,6 +50,17 @@ $.when( $.ready ).then(function() {
     });
     $("#sortable").sortable("disable");
 
+    $(".item-container").droppable({
+        tolerance: "pointer",
+        drop: function( event, ui ) {
+            alert($( this ).data('id'));
+            alert($( ui.draggable ).data('id'));
+          $( this )
+            .addClass( "ui-state-highlight" )
+            
+        }
+      });
+
     
     $('#app').on('click', '#config-button', function(e) {
         e.preventDefault();
