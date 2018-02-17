@@ -132,6 +132,7 @@ https://discord.gg/CCjHKn4 or through Github issues
 
 ## Donate
 If you would like to show your appreciation, feel free to use the link below.
+
 [![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/heimdall)
 
 ## Credits
