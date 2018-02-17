@@ -13,7 +13,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type'
     ];
 
     /**
@@ -114,4 +114,56 @@ class Item extends Model
         return $config;
 
     }
+
+    public function parents()
+    {
+        return $this->belongsToMany('App\Item', 'item_tag', 'item_id', 'tag_id');
+    }
+    public function children()
+    {
+        return $this->belongsToMany('App\Item', 'item_tag', 'tag_id', 'item_id');
+    }
+
+    public function getLinkAttribute()
+    {
+        if((int)$this->type === 1) {
+            return '/tag/'.$this->url;
+        } else {
+            return $this->url;
+        }
+    }
+
+    public function getDroppableAttribute()
+    {
+        if((int)$this->type === 1) {
+            return ' droppable';
+        } else {
+            return '';
+        }
+    }
+
+    public function getTargetAttribute()
+    {
+        if((int)$this->type === 1) {
+            return '';
+        } else {
+            return ' target="_blank"';
+        }
+    }
+
+    public function scopeOfType($query, $type)
+    {
+        switch($type) {
+            case 'item':
+                $typeid = 0;
+                break;
+            case 'tag':
+                $typeid = 1;
+                break;
+        }
+
+        return $query->where('type', $typeid);
+    }
+
+
 }

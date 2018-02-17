@@ -61,6 +61,10 @@ return [
     'apps.config' => 'Config',
     'apps.apikey' => 'Api Key',
     'apps.enable' => 'Enable',
+    'apps.tag_list' => 'Tags list',
+    'apps.add_tag' => 'Add tag',
+    'apps.tag_name' => 'Tag name',
+    'apps.tags' => 'Tags',
 
     'url' => 'Url',
     'title' => 'Title',
@@ -72,6 +76,11 @@ return [
     'alert.success.item_updated' => 'Item updated successfully',
     'alert.success.item_deleted' => 'Item deleted successfully',
     'alert.success.item_restored' => 'Item restored successfully',
+
+    'alert.success.tag_created' => 'Tag created successfully',
+    'alert.success.tag_updated' => 'Tag updated successfully',
+    'alert.success.tag_deleted' => 'Tag deleted successfully',
+    'alert.success.tag_restored' => 'Tag restored successfully',
 
     'alert.success.setting_updated' => 'You have successfully edited this Setting',
     'alert.error.not_exist' => 'This Setting does not exist.',

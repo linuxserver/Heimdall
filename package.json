@@ -19,6 +19,7 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
-        "node-sass": "^4.7.2"
+        "node-sass": "^4.7.2",
+        "select2": "^4.0.6-rc.1"
     }
 }

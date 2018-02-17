@@ -76,13 +76,20 @@ $.when( $.ready ).then(function() {
     });
     $("#sortable").sortable("disable");
 
-    $(".item-container").droppable({
+    $(".droppable").droppable({
         tolerance: "pointer",
+        greedy: true,
         drop: function( event, ui ) {
-            alert($( this ).data('id'));
-            alert($( ui.draggable ).data('id'));
-          $( this )
-            .addClass( "ui-state-highlight" )
+            var tag = $( this ).data('id');
+            var item = $( ui.draggable ).data('id');
+
+            $.get('tag/add/'+tag+'/'+item, function(data) {
+                if(data == 1) {
+                    $( ui.draggable ).remove();
+                } else {
+                    //alert('not added');
+                }
+            });
             
         }
       });
