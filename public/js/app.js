@@ -61,6 +61,22 @@ $.when( $.ready ).then(function() {
       $("#upload").change(function() {
         readURL(this);
       });
+      /*$(".droppable").droppable({
+        tolerance: "intersect",
+        drop: function( event, ui ) {
+            var tag = $( this ).data('id');
+            var item = $( ui.draggable ).data('id');
+
+            $.get('tag/add/'+tag+'/'+item, function(data) {
+                if(data == 1) {
+                    $( ui.draggable ).remove();
+                } else {
+                    alert('not added');
+                }
+            });
+            
+        }
+      });*/
 
     $( "#sortable" ).sortable({
         stop: function (event, ui) {
@@ -76,23 +92,6 @@ $.when( $.ready ).then(function() {
     });
     $("#sortable").sortable("disable");
 
-    $(".droppable").droppable({
-        tolerance: "pointer",
-        greedy: true,
-        drop: function( event, ui ) {
-            var tag = $( this ).data('id');
-            var item = $( ui.draggable ).data('id');
-
-            $.get('tag/add/'+tag+'/'+item, function(data) {
-                if(data == 1) {
-                    $( ui.draggable ).remove();
-                } else {
-                    //alert('not added');
-                }
-            });
-            
-        }
-      });
 
     
     $('#app').on('click', '#config-button', function(e) {
