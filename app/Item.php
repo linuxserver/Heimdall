@@ -41,6 +41,7 @@ class Item extends Model
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
             'Nzbhydra' => \App\SupportedApps\Nzbhydra::class,
             'Ttrss' => \App\SupportedApps\Ttrss::class,
+            'Ombi' => \App\SupportedApps\Ombi::class,
             'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Openhab' => \App\SupportedApps\Openhab::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
