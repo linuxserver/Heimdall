@@ -45,6 +45,39 @@ $.when( $.ready ).then(function() {
 
     }
 
+    function readURL(input) {
+
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+      
+          reader.onload = function(e) {
+            $('#appimage img').attr('src', e.target.result);
+          }
+      
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      $("#upload").change(function() {
+        readURL(this);
+      });
+      /*$(".droppable").droppable({
+        tolerance: "intersect",
+        drop: function( event, ui ) {
+            var tag = $( this ).data('id');
+            var item = $( ui.draggable ).data('id');
+
+            $.get('tag/add/'+tag+'/'+item, function(data) {
+                if(data == 1) {
+                    $( ui.draggable ).remove();
+                } else {
+                    alert('not added');
+                }
+            });
+            
+        }
+      });*/
+
     $( "#sortable" ).sortable({
         stop: function (event, ui) {
             var idsInOrder = $("#sortable").sortable('toArray', {
@@ -58,6 +91,7 @@ $.when( $.ready ).then(function() {
     
     });
     $("#sortable").sortable("disable");
+
 
     
     $('#app').on('click', '#config-button', function(e) {

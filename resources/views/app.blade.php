@@ -72,12 +72,13 @@
                     
                     @yield('content')
                     <div id="config-buttons">
-                        @if(Route::is('dash'))
+                        @if(Route::is('dash') || Route::is('tags.show'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
                         @endif
     
                         <a id="dash" class="config" href="{{ route('dash') }}"><i class="fas fa-th"></i></a>
                         <a id="items" class="config" href="{{ route('items.index') }}"><i class="fas fa-list"></i></a>
+                        <a id="folder" class="config" href="{{ route('tags.index') }}"><i class="fas fa-tag"></i></a>
                         <a id="settings" class="config" href="{{ route('settings.index') }}"><i class="fas fa-cogs"></i></a>
                     </div>
                 </main>
@@ -87,7 +88,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        <script src="{{ asset('js/app.js') }}"></script>
+        <script src="/js/app.js"></script>
         @yield('scripts')
         
     </body>
