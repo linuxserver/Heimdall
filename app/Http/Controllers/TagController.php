@@ -66,7 +66,8 @@ class TagController extends Controller
         //die(print_r($request->all()));
         Item::create($request->all());
 
-        return redirect()->route('dash', [], false)
+        $route = route('dash', [], false);
+        return redirect($route)
             ->with('success', __('app.alert.success.tag_created'));
     }
 
@@ -129,7 +130,8 @@ class TagController extends Controller
 
         Item::find($id)->update($request->all());
 
-        return redirect()->route('dash', [], false)
+        $route = route('dash', [], false);
+        return redirect($route)
         ->with('success',__('app.alert.success.tag_updated'));
     }
 
@@ -151,7 +153,8 @@ class TagController extends Controller
             Item::find($id)->delete();
         }
         
-        return redirect()->route('tags.index', [], false)
+        $route = route('tags.index', [], false);
+        return redirect($route)
             ->with('success',__('app.alert.success.item_deleted'));
     }
 
@@ -167,7 +170,8 @@ class TagController extends Controller
         Item::withTrashed()
                 ->where('id', $id)
                 ->restore();        
-        return redirect()->route('tags.index', [], false)
+        $route = route('tags.index', [], false);
+        return redirect($route)
             ->with('success',__('app.alert.success.item_restored'));
     }
 
