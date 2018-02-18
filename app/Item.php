@@ -161,6 +161,14 @@ class Item extends Model
             return 'fa-arrow-alt-to-right';
         }
     }
+    public function getLinkTypeAttribute()
+    {
+        if((int)$this->type === 1) {
+            return 'tags';
+        } else {
+            return 'items';
+        }
+    }
 
     public function scopeOfType($query, $type)
     {

@@ -33,7 +33,7 @@
                 <label>{{ __('app.apps.colour') }} *</label>
                 {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
-                <label>{{ __('app.apps.tags') }}</label>
+                <label>{{ __('app.apps.tags') }} ({{ __('app.optional') }})</label>
                 {!! Form::select('tags', $tags, $current_tags, ['class' => 'tags', 'multiple']) !!}
             </div>
             <div class="input">

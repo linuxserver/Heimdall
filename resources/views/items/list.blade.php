@@ -12,6 +12,7 @@
                 </div>
                 <div class="module-actions">
                     <a href="{{ route('items.create') }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
+                    <a href="{{ route('dash') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
                 </div>
             </header>
 
