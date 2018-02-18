@@ -88,7 +88,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        <script src="{{ asset('js/app.js') }}"></script>
+        <script src="/js/app.js"></script>
         @yield('scripts')
         
     </body>

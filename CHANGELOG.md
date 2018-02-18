@@ -1,5 +1,20 @@
 # Release Notes
 
+## v1.4.0 (2018-02-18)
+
+### Added
+- Tag(folder) support
+- Image preview for uploading icons
+- A load of supported apps, full list of apps https://github.com/linuxserver/Heimdall/projects/1
+
+### Changed
+- Edited vendor/laravelcollective/html/src/FormBuilder.php to allow relative links #3369de9
+- Changed links to use relative links for reverse proxy support
+- Links open in new tab
+
+### Fixed
+- adds all the fixes in the 1.3.x point releases and on master
+
 ## v1.3.0 (2018-02-09)
 
 ### Added
