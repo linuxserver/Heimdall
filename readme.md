@@ -5,7 +5,7 @@ ____
 [![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/heimdall.svg)](https://hub.docker.com/r/linuxserver/heimdall/)
 [![firsttimersonly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
 
-[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/heimdall)
+[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/pools/c/81ZR4dfBGo)
 
 ___
 
@@ -133,7 +133,7 @@ https://discord.gg/CCjHKn4 or through Github issues
 ## Donate
 If you would like to show your appreciation, feel free to use the link below.
 
-[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/heimdall)
+[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/pools/c/81ZR4dfBGo)
 
 ## Credits
 - PHP Framework - [Laravel](https://laravel.com/)
