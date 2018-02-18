@@ -49,7 +49,7 @@ class ItemController extends Controller
         $item = Item::findOrFail($id);
         $item->pinned = true;
         $item->save();
-        return redirect()->route('dash');
+        return redirect()->route('dash', [], false);
     }
 
      /**
@@ -62,7 +62,7 @@ class ItemController extends Controller
         $item = Item::findOrFail($id);
         $item->pinned = false;
         $item->save();
-        return redirect()->route('dash');
+        return redirect()->route('dash', [], false);
     }
 
      /**
@@ -81,7 +81,7 @@ class ItemController extends Controller
             $data['ajax'] = true;
             return view('sortable', $data);
         } else {
-            return redirect()->route('dash');           
+            return redirect()->route('dash', [], false);           
         }
     }
 
@@ -151,7 +151,7 @@ class ItemController extends Controller
 
         $item->parents()->sync($request->tags);
 
-        return redirect()->route('dash')
+        return redirect()->route('dash', [], false)
             ->with('success', __('app.alert.success.item_created'));
     }
 
@@ -214,7 +214,7 @@ class ItemController extends Controller
 
         $item->parents()->sync($request->tags);
 
-        return redirect()->route('dash')
+        return redirect()->route('dash', [], false)
             ->with('success',__('app.alert.success.item_updated'));
     }
 
@@ -236,7 +236,7 @@ class ItemController extends Controller
             Item::find($id)->delete();
         }
         
-        return redirect()->route('items.index')
+        return redirect()->route('items.index', [], false)
             ->with('success',__('app.alert.success.item_deleted'));
     }
 
@@ -252,7 +252,7 @@ class ItemController extends Controller
         Item::withTrashed()
                 ->where('id', $id)
                 ->restore();        
-        return redirect()->route('items.index')
+        return redirect()->route('items.index', [], false)
             ->with('success',__('app.alert.success.item_restored'));
     }
 
