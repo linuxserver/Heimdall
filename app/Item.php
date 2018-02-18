@@ -153,6 +153,15 @@ class Item extends Model
         }
     }
 
+    public function getLinkIconAttribute()
+    {
+        if((int)$this->type === 1) {
+            return 'fa-tag';
+        } else {
+            return 'fa-arrow-alt-to-right';
+        }
+    }
+
     public function scopeOfType($query, $type)
     {
         switch($type) {

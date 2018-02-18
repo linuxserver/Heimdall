@@ -11,7 +11,7 @@
                                 <div data-id="{{ $app->id }}" data-dataonly="{{ $app->config->dataonly or '0' }}" class="livestats-container"></div>
                                 @endif
                             </div>
-                            <a class="link"{{ $app->target }} href="{{ $app->link }}"><i class="fas fa-arrow-alt-to-right"></i></a>
+                            <a class="link"{{ $app->target }} href="{{ $app->link }}"><i class="fas {{ $app->link_icon }}"></i></a>
                         </div>
                         <a class="item-edit" href="{{ route('items.edit', $app->id) }}"><i class="fas fa-pencil"></i></a>
                         
