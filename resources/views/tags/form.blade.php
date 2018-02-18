@@ -11,7 +11,7 @@
 
             <div class="input">
                 <label>{{ __('app.apps.tag_name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'class' => 'form-control')) !!}
                 <hr />
                 <label>{{ __('app.apps.pinned') }}</label>
                 {!! Form::hidden('pinned', '0') !!}
