@@ -144,7 +144,7 @@ class Item extends Model
         }
     }
 
-    public function getTargetAttribute()
+    public function getLinkTargetAttribute()
     {
         if((int)$this->type === 1) {
             return '';
