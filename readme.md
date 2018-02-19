@@ -21,21 +21,30 @@ You can use the app to link to any site or application, but Foundation apps will
 - Sabnzbd
 
 **Foundation**
+- Deluge
 - Duplicati
 - Emby
+- Graylog
 - Jdownloader
-- Mcmyadmin
-- NZBGet
+- Lidarr
+- McMyAdmin
+- Medusa
+- Netdata
 - Nextcloud
-- Openhab
+- NZBhydra & NZBhydra2
+- Ombi
+- OpenHAB
+- pfSense
 - Plex
 - Plexpy
 - Plexrequests
 - Portainer
-- Sabnzbd
+- Radarr
+- rTorrent/ruTorrent
+- Sonarr
 - Traefik
-- UniFi
-- pFsense
+- TT-RSS
+- UniFI
 
 ## Installing
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
