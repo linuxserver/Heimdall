@@ -13,7 +13,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type'
     ];
 
     /**
@@ -26,22 +26,37 @@ class Item extends Model
     public static function supportedList()
     {
         return [
+            'Deluge' => \App\SupportedApps\Deluge::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
+            'Graylog' => \App\SupportedApps\Graylog::class,
+            'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
+            'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
+            'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
+            'Medusa' => \App\SupportedApps\Medusa::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
+            'Netdata' => \App\SupportedApps\Netdata::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
+            'Nzbhydra' => \App\SupportedApps\Nzbhydra::class,
+            'Ttrss' => \App\SupportedApps\Ttrss::class,
+            'Ombi' => \App\SupportedApps\Ombi::class,
+            'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Openhab' => \App\SupportedApps\Openhab::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
             'Plexrequests' => \App\SupportedApps\Plexrequests::class,
             'Portainer' => \App\SupportedApps\Portainer::class,
+            'Proxmox' => \App\SupportedApps\Proxmox::class,
+            'Radarr' => \App\SupportedApps\Radarr::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
+            'Sonarr' => \App\SupportedApps\Sonarr::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'pFsense' => \App\SupportedApps\Pfsense::class,
+            'ruTorrent' => \App\SupportedApps\ruTorrent::class,
         ];
     }
     public static function supportedOptions()
@@ -101,4 +116,73 @@ class Item extends Model
         return $config;
 
     }
+
+    public function parents()
+    {
+        return $this->belongsToMany('App\Item', 'item_tag', 'item_id', 'tag_id');
+    }
+    public function children()
+    {
+        return $this->belongsToMany('App\Item', 'item_tag', 'tag_id', 'item_id');
+    }
+
+    public function getLinkAttribute()
+    {
+        if((int)$this->type === 1) {
+            return '/tag/'.$this->url;
+        } else {
+            return $this->url;
+        }
+    }
+
+    public function getDroppableAttribute()
+    {
+        if((int)$this->type === 1) {
+            return ' droppable';
+        } else {
+            return '';
+        }
+    }
+
+    public function getLinkTargetAttribute()
+    {
+        if((int)$this->type === 1) {
+            return '';
+        } else {
+            return ' target="_blank"';
+        }
+    }
+
+    public function getLinkIconAttribute()
+    {
+        if((int)$this->type === 1) {
+            return 'fa-tag';
+        } else {
+            return 'fa-arrow-alt-to-right';
+        }
+    }
+    public function getLinkTypeAttribute()
+    {
+        if((int)$this->type === 1) {
+            return 'tags';
+        } else {
+            return 'items';
+        }
+    }
+
+    public function scopeOfType($query, $type)
+    {
+        switch($type) {
+            case 'item':
+                $typeid = 0;
+                break;
+            case 'tag':
+                $typeid = 1;
+                break;
+        }
+
+        return $query->where('type', $typeid);
+    }
+
+
 }

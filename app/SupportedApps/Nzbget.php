@@ -68,8 +68,10 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
 
         $rebuild_url = str_replace('http://', 'http://'.$username.':'.$password.'@', $url);
         $rebuild_url = str_replace('https://', 'https://'.$username.':'.$password.'@', $rebuild_url);
+        $rebuild_url = rtrim($rebuild_url, '/');
 
-        $api_url = $rebuild_url.'jsonrpc/'.$endpoint;
+
+        $api_url = $rebuild_url.'/jsonrpc/'.$endpoint;
 
         $client = new Client(['http_errors' => false]);
         $res = $client->request('GET', $api_url);

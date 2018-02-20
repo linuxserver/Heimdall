@@ -1,5 +1,14 @@
 ![alt text](https://i.imgur.com/iuV8w3y.png)
 
+____ 
+[![Discord](https://img.shields.io/discord/354974912613449730.svg)](https://discord.gg/CCjHKn4)
+[![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/heimdall.svg)](https://hub.docker.com/r/linuxserver/heimdall/)
+[![firsttimersonly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
+
+[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/pools/c/81ZR4dfBGo)
+
+___
+
 ## About 
 As the name suggests Heimdall Application Dashboard is a dashboard for all your web applications. It doesn't need to be limited to applications though, you can add links to anything you like.
 
@@ -120,6 +129,14 @@ location / {
     proxy_pass https://heimdall:443;
 }
 ```
+
+## Support
+https://discord.gg/CCjHKn4 or through Github issues
+
+## Donate
+If you would like to show your appreciation, feel free to use the link below.
+
+[![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/pools/c/81ZR4dfBGo)
 
 ## Credits
 - PHP Framework - [Laravel](https://laravel.com/)

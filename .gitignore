@@ -9,4 +9,18 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 
-storage/app/public/.DS_Store
+### macOS ###
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns

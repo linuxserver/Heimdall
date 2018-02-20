@@ -18,8 +18,8 @@ class ItemController extends Controller
      */
     public function dash()
     {
-        $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
-        $data['all_apps'] = Item::all();
+        $data['apps'] = Item::doesntHave('parents')->pinned()->orderBy('order', 'asc')->get();
+        $data['all_apps'] = Item::doesntHave('parents')->get();
         return view('welcome', $data);
     }
 
@@ -49,7 +49,8 @@ class ItemController extends Controller
         $item = Item::findOrFail($id);
         $item->pinned = true;
         $item->save();
-        return redirect()->route('dash');
+        $route = route('dash', [], false);
+        return redirect($route);
     }
 
      /**
@@ -62,7 +63,8 @@ class ItemController extends Controller
         $item = Item::findOrFail($id);
         $item->pinned = false;
         $item->save();
-        return redirect()->route('dash');
+        $route = route('dash', [], false);
+        return redirect($route);
     }
 
      /**
@@ -81,8 +83,9 @@ class ItemController extends Controller
             $data['ajax'] = true;
             return view('sortable', $data);
         } else {
-            return redirect()->route('dash');           
-        }
+            $route = route('dash', [], false);
+            return redirect($route);
+            }
     }
 
    
@@ -95,8 +98,8 @@ class ItemController extends Controller
     {
         $trash = (bool)$request->input('trash');
 
-        $data['apps'] = Item::orderBy('title', 'asc')->get();
-        $data['trash'] = Item::onlyTrashed()->get();
+        $data['apps'] = Item::ofType('item')->orderBy('title', 'asc')->get();
+        $data['trash'] = Item::ofType('item')->onlyTrashed()->get();
         if($trash) {
             return view('items.trash', $data);
         } else {
@@ -113,7 +116,8 @@ class ItemController extends Controller
     public function create()
     {
         //
-        $data = [];
+        $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
+        $data['current_tags'] = [];
         return view('items.create', $data);
 
     }
@@ -129,7 +133,7 @@ class ItemController extends Controller
         //
         $validatedData = $request->validate([
             'title' => 'required|max:255',
-            'url' => 'required',
+            'url' => 'required|url',
         ]);
 
         if($request->hasFile('file')) {
@@ -146,9 +150,12 @@ class ItemController extends Controller
 
         //die(print_r($request->input('config')));
         
-        Item::create($request->all());
+        $item = Item::create($request->all());
 
-        return redirect()->route('dash')
+        $item->parents()->sync($request->tags);
+
+        $route = route('dash', [], false);
+        return redirect($route)
             ->with('success', __('app.alert.success.item_created'));
     }
 
@@ -172,11 +179,12 @@ class ItemController extends Controller
     public function edit($id)
     {
         // Get the item
-        $item = Item::find($id);
+        $data['item'] = Item::find($id);
+        $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
+        $data['current_tags'] = $data['item']->parents;
 
         // show the edit form and pass the nerd
-        return view('items.edit')
-            ->with('item', $item);    
+        return view('items.edit', $data);    
     }
 
     /**
@@ -190,7 +198,7 @@ class ItemController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
-            'url' => 'required',
+            'url' => 'required|url',
         ]);
             //die(print_r($request->all()));
         if($request->hasFile('file')) {
@@ -205,9 +213,13 @@ class ItemController extends Controller
             'description' => $config
         ]);
 
-        Item::find($id)->update($request->all());
+        $item = Item::find($id);
+        $item->update($request->all());
 
-        return redirect()->route('dash')
+        $item->parents()->sync($request->tags);
+
+        $route = route('dash', [], false);
+        return redirect($route)
             ->with('success',__('app.alert.success.item_updated'));
     }
 
@@ -228,8 +240,9 @@ class ItemController extends Controller
         } else {
             Item::find($id)->delete();
         }
-        
-        return redirect()->route('items.index')
+
+        $route = route('items.index', [], false);
+        return redirect($route)       
             ->with('success',__('app.alert.success.item_deleted'));
     }
 
@@ -244,8 +257,10 @@ class ItemController extends Controller
         //
         Item::withTrashed()
                 ->where('id', $id)
-                ->restore();        
-        return redirect()->route('items.index')
+                ->restore();      
+        
+        $route = route('items.inded', [], false);
+        return redirect($route)
             ->with('success',__('app.alert.success.item_restored'));
     }
 

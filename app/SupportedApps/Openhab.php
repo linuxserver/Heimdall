@@ -3,7 +3,7 @@
 class Openhab implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#b7b7b7';
+        return '#2b2525';
     }
     public function icon()
     {

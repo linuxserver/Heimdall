@@ -1,3 +1,4 @@
+<script src="/js/select2.min.js"></script>
 <script>
         $( function() {
 
@@ -30,5 +31,8 @@
                     }, "json");
                 }
             });
+
+            $('.tags').select2();
+
         });
 </script>

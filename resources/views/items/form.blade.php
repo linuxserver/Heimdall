@@ -3,7 +3,7 @@
             <div class="section-title">{{ __('app.apps.add_application') }}</div>
             <div class="module-actions">
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
-                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                <a href="{{ route('items.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </header>
         <div id="create" class="create">
@@ -15,10 +15,6 @@
                 <hr />
                 <label>{{ strtoupper(__('app.url')) }}</label>
                 {!! Form::text('url', null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
-            </div>
-            <div class="input">
-                <label>{{ __('app.apps.colour') }} *</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
                 <label>{{ __('app.apps.pinned') }}</label>
                 {!! Form::hidden('pinned', '0') !!}
@@ -31,6 +27,14 @@
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
                     <span class="slider round"></span>
                 </label>
+
+            </div>
+            <div class="input">
+                <label>{{ __('app.apps.colour') }} *</label>
+                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
+                <hr />
+                <label>{{ __('app.apps.tags') }} ({{ __('app.optional') }})</label>
+                {!! Form::select('tags', $tags, $current_tags, ['class' => 'tags', 'multiple']) !!}
             </div>
             <div class="input">
                 <label>{{ __('app.apps.icon') }}</label>
@@ -43,11 +47,13 @@
                     ?>
                     <img src="{{ asset('storage/'.$icon) }}" />
                     {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
+                    @else
+                    <img src="/img/heimdall-icon-small.png" />
                     @endif
                     </div>
                     <div class="upload-btn-wrapper">
                         <button class="btn">{{ __('app.buttons.upload')}} </button>
-                        <input type="file" name="file" />
+                        <input type="file" id="upload" name="file" />
                     </div>
                 </div>
             </div>
@@ -67,7 +73,7 @@
             <div class="section-title">&nbsp;</div>
             <div class="module-actions">
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
-                <a href="{{ route('items.index') }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                <a href="{{ route('items.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </footer>
 

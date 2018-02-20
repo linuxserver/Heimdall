@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         if(is_file(database_path('app.sqlite'))) {
             if(Schema::hasTable('settings')) {
                 if($bg_image = Setting::fetch('background_image')) {
-                    $alt_bg = ' style="background-image: url('.asset('storage/'.$bg_image).')"';
+                    $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
                 }
 
                 // check version to see if an upgrade is needed
