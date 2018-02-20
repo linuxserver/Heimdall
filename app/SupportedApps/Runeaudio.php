@@ -3,33 +3,27 @@
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-class Plexpy implements Contracts\Applications, Contracts\Livestats {
-
-    public $config;
-
+class Runeaudio implements Contracts\Applications, Contracts\Livestats {
     public function defaultColour()
     {
-        return '#2d2208';
+        return '#05A';
     }
     public function icon()
     {
-        return 'supportedapps/plexpy.png';
+        return 'supportedapps/runeaudio.png';
     }
+
     public function configDetails()
     {
-        return 'plexpy';
+        return 'runeaudio';
     }
+
     public function testConfig()
     {
-        $res = $this->buildRequest('arnold');
+        $res = $this->buildRequest('status');
         switch($res->getStatusCode()) {
             case 200:
-                $data = json_decode($res->getBody());
-                if(isset($data->error) && !empty($data->error)) {
-                    echo 'Failed: '.$data->error;
-                } else {
-                    echo 'Successfully connected to the API';
-                }
+                echo 'Successfully connected to the API';
                 break;
             case 401:
                 echo 'Failed: Invalid credentials';
@@ -42,30 +36,47 @@ class Plexpy implements Contracts\Applications, Contracts\Livestats {
                 break;
         }
     }
+
     public function executeConfig()
     {
         $output = '';
-        $res = $this->buildRequest('get_activity');
-        $data = json_decode($res->getBody());
-        $stream_count = $data->response->data->stream_count;
+        $artist = '';
+        $song_title = '';
+        $res = $this->buildRequest('currentsong');
+        $array = explode("\n", $res->getBody());
+        foreach($array as $item) {
+            $item_array = explode(": ", $item);
+            if ($item_array[0] == 'Artist') {
+                $artist = $item_array[1];
+                if (strlen($artist) > 15) {
+                    $artist = substr($artist,0,12).'...';
+                }
+            } elseif ($item_array[0] == 'Title') {
+                $song_title = $item_array[1];
+                if (strlen($song_title) > 15) {
+                    $song_title = substr($song_title,0,12).'...';
+                }
+            }
+        }
 
         $output = '
         <ul class="livestats">
-            <li><span class="title">Stream Count</span><strong>'.$stream_count.'</strong></li>
+            <li><span class="title">Artist</span><strong>'.$artist.'</strong></li>
+            <li><span class="title">Song</span><strong>'.$song_title.'</strong></li>
         </ul>
         ';
 
         return $output;
     }
+
     public function buildRequest($endpoint)
     {
         $config = $this->config;
         $url = $config->url;
-        $apikey = $config->apikey;
 
         $url = rtrim($url, '/');
 
-        $api_url = $url.'/api/v2?apikey='.$apikey.'&cmd='.$endpoint;
+        $api_url = $url.'/command/?cmd='.$endpoint;
         //die( $api_url.' --- ');
 
         $client = new Client(['http_errors' => false]);
@@ -73,5 +84,6 @@ class Plexpy implements Contracts\Applications, Contracts\Livestats {
         return $res;
 
     }
-   
+
+
 }
