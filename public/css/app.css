@@ -1169,6 +1169,63 @@ select:-webkit-autofill:focus {
   color: #2f313a !important;
 }
 
+.title-marquee {
+  width: 125px;
+  overflow: hidden;
+}
+
+.title-marquee span {
+  white-space: nowrap;
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
+  -webkit-animation: marquee 8s linear;
+          animation: marquee 8s linear;
+}
+
+@-webkit-keyframes marquee {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  20% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  95% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+
+  100% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  20% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  95% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+
+  100% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+}
+
 /*! Huebee v2.0.0
 http://huebee.buzz
 ---------------------------------------------- */
