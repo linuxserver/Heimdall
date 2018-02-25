@@ -1,0 +1,15 @@
+.title-marquee {
+    width: 125px;
+    overflow: hidden;
+    span {
+        white-space: nowrap;
+        transform: translate(0, 0);
+        animation: marquee 8s linear;
+    }
+    @keyframes marquee {
+        0% { transform: translate(0, 0); }
+        20% { transform: translate(0, 0); }
+        95% { transform: translate(-200%, 0); }
+        100% { transform: translate(-200%, 0); }
+    }
+}

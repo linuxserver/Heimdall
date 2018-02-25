@@ -1151,24 +1151,6 @@ hr {
   line-height: 1;
 }
 
-.title-marquee {
-  width: 125px;
-  overflow: hidden;
-}
-
-.title-marquee span {
-  white-space: nowrap;
-  transform: translate(0, 0);
-  animation: marquee 8s linear;
-}
-
-@keyframes marquee {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(0, 0); }
-  95% { transform: translate(-200%, 0); }
-  100% { transform: translate(-200%, 0); }
-}
-
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus
@@ -1185,6 +1167,63 @@ select:-webkit-autofill:focus {
   -webkit-transition: inherit;
   transition: inherit;
   color: #2f313a !important;
+}
+
+.title-marquee {
+  width: 125px;
+  overflow: hidden;
+}
+
+.title-marquee span {
+  white-space: nowrap;
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
+  -webkit-animation: marquee 8s linear;
+          animation: marquee 8s linear;
+}
+
+@-webkit-keyframes marquee {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  20% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  95% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+
+  100% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  20% {
+    -webkit-transform: translate(0, 0);
+            transform: translate(0, 0);
+  }
+
+  95% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
+
+  100% {
+    -webkit-transform: translate(-200%, 0);
+            transform: translate(-200%, 0);
+  }
 }
 
 /*! Huebee v2.0.0
