@@ -1,6 +1,6 @@
 <?php namespace App\SupportedApps;
 
-class Nextcloud implements Contracts\Applications {
+class Sickrage implements Contracts\Applications {
     public function defaultColour()
     {
         return '#6185a6';

@@ -1,6 +1,6 @@
 <?php namespace App\SupportedApps;
 
-class Nextcloud implements Contracts\Applications {
+class Gitea implements Contracts\Applications {
     public function defaultColour()
     {
         return '#585e52';
