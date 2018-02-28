@@ -52,6 +52,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Plexrequests
 - Portainer
 - Radarr
+- SickRage
 - Sonarr
 - TT-RSS
 - Traefik

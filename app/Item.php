@@ -53,6 +53,7 @@ class Item extends Model
             'Radarr' => \App\SupportedApps\Radarr::class,
             'Runeaudio' => \App\SupportedApps\Runeaudio::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
+            'Sickrage' => \App\SupportedApps\Sickrage::class,
             'Sonarr' => \App\SupportedApps\Sonarr::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
             'Ttrss' => \App\SupportedApps\Ttrss::class,
