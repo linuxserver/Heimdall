@@ -27,6 +27,7 @@ class Item extends Model
     {
         return [
             'Deluge' => \App\SupportedApps\Deluge::class,
+            'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
             'Gitea' => \App\SupportedApps\Gitea::class,
