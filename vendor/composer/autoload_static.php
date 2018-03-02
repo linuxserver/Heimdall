@@ -396,6 +396,7 @@ class ComposerStaticInit4b6fb9210a1ea37c2db27b8ff53a1ecf
         'App\\SupportedApps\\Sabnzbd' => __DIR__ . '/../..' . '/app/SupportedApps/Sabnzbd.php',
         'App\\SupportedApps\\Sonarr' => __DIR__ . '/../..' . '/app/SupportedApps/Sonarr.php',
         'App\\SupportedApps\\Traefik' => __DIR__ . '/../..' . '/app/SupportedApps/Traefik.php',
+        'App\\SupportedApps\\Transmission' => __DIR__ . '/../..' . '/app/SupportedApps/Transmission.php',
         'App\\SupportedApps\\Ttrss' => __DIR__ . '/../..' . '/app/SupportedApps/Ttrss.php',
         'App\\SupportedApps\\Unifi' => __DIR__ . '/../..' . '/app/SupportedApps/Unifi.php',
         'App\\SupportedApps\\ruTorrent' => __DIR__ . '/../..' . '/app/SupportedApps/ruTorrent.php',

@@ -56,6 +56,7 @@ class Item extends Model
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
             'Sickrage' => \App\SupportedApps\Sickrage::class,
             'Sonarr' => \App\SupportedApps\Sonarr::class,
+            'Transmission' => \App\SupportedApps\Transmission::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
             'Ttrss' => \App\SupportedApps\Ttrss::class,
             'UniFi' => \App\SupportedApps\Unifi::class,

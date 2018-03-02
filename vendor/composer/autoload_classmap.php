@@ -58,6 +58,7 @@ return array(
     'App\\SupportedApps\\Sabnzbd' => $baseDir . '/app/SupportedApps/Sabnzbd.php',
     'App\\SupportedApps\\Sonarr' => $baseDir . '/app/SupportedApps/Sonarr.php',
     'App\\SupportedApps\\Traefik' => $baseDir . '/app/SupportedApps/Traefik.php',
+    'App\\SupportedApps\\Transmission' => $baseDir . '/app/SupportedApps/Transmission.php',
     'App\\SupportedApps\\Ttrss' => $baseDir . '/app/SupportedApps/Ttrss.php',
     'App\\SupportedApps\\Unifi' => $baseDir . '/app/SupportedApps/Unifi.php',
     'App\\SupportedApps\\ruTorrent' => $baseDir . '/app/SupportedApps/ruTorrent.php',
