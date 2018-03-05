@@ -44,25 +44,27 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
     }
     public function executeConfig()
     {
-        $output = '';
+        $html = '';
+        $active = 'inactive';
         $res = $this->buildRequest('queue');
         $data = json_decode($res->getBody());
         //$data->result->RemainingSizeMB = '10000000';
         //$data->result->DownloadRate = '100000000';
-        $size = $data->queue->mbleft;
-        $rate = $data->queue->kbpersec;
-        $queue_size = format_bytes($size*1000*1000, false, ' <span>', '</span>');
-        $current_speed = format_bytes($rate*1000, false, ' <span>');
+        if($data) {
+            $size = $data->queue->mbleft;
+            $rate = $data->queue->kbpersec;
+            $queue_size = format_bytes($size*1000*1000, false, ' <span>', '</span>');
+            $current_speed = format_bytes($rate*1000, false, ' <span>');
 
-        if($size > 0 || $rate > 0) {
-            $output = '
-            <ul class="livestats">
-                <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
-                <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
-            </ul>
+            $active = ($size > 0 || $rate > 0) ? 'active' : 'inactive';
+            $html = '
+                <ul class="livestats">
+                    <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
+                    <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
+                </ul>
             ';
         }
-        return $output;
+        return json_encode(['status' => $active, 'html' => $html]);
     }
     public function buildRequest($endpoint)
     {
@@ -70,12 +72,15 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
         $url = $config->url;
         $apikey = $config->apikey;
 
+        //print_r($config);
+        //die();
+
         $url = rtrim($url, '/');
 
         $api_url = $url.'/api?output=json&apikey='.$apikey.'&mode='.$endpoint;
         //die( $api_url.' --- ');
 
-        $client = new Client(['http_errors' => false]);
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
 

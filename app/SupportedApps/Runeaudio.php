@@ -40,6 +40,7 @@ class Runeaudio implements Contracts\Applications, Contracts\Livestats {
     public function executeConfig()
     {
         $output = '';
+        $active = 'active';
         $artist = '';
         $song_title = '';
         $res = $this->buildRequest('currentsong');
@@ -71,7 +72,7 @@ class Runeaudio implements Contracts\Applications, Contracts\Livestats {
 
         $output = $output.'</ul>';
 
-        return $output;
+        return json_encode(['status' => $active, 'html' => $output]);
     }
 
     public function buildRequest($endpoint)
@@ -84,7 +85,7 @@ class Runeaudio implements Contracts\Applications, Contracts\Livestats {
         $api_url = $url.'/command/?cmd='.$endpoint;
         //die( $api_url.' --- ');
 
-        $client = new Client(['http_errors' => false]);
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
 

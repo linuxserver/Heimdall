@@ -65,6 +65,7 @@ return [
     'apps.add_tag' => 'Add tag',
     'apps.tag_name' => 'Tag name',
     'apps.tags' => 'Tags',
+    'apps.override' => 'If different to main url',
 
     'url' => 'Url',
     'title' => 'Title',

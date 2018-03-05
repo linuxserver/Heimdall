@@ -44,18 +44,19 @@ class Plexpy implements Contracts\Applications, Contracts\Livestats {
     }
     public function executeConfig()
     {
-        $output = '';
+        $html = '';
+        $active = 'active';
         $res = $this->buildRequest('get_activity');
         $data = json_decode($res->getBody());
         $stream_count = $data->response->data->stream_count;
 
-        $output = '
+        $html = '
         <ul class="livestats">
             <li><span class="title">Stream Count</span><strong>'.$stream_count.'</strong></li>
         </ul>
         ';
 
-        return $output;
+        return json_encode(['status' => $active, 'html' => $html]);
     }
     public function buildRequest($endpoint)
     {
@@ -67,7 +68,7 @@ class Plexpy implements Contracts\Applications, Contracts\Livestats {
 
         $api_url = $url.'/api/v2?apikey='.$apikey.'&cmd='.$endpoint;
 
-        $client = new Client(['http_errors' => false]);
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
 

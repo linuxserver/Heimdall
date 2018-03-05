@@ -3,6 +3,11 @@
     <input type="hidden" data-config="type" class="config-item" name="config[type]" value="\App\SupportedApps\Pihole" />
     <input type="hidden" data-config="dataonly" class="config-item" name="config[dataonly]" value="1" />
     <div class="input">
+        <label>{{ strtoupper(__('app.url')) }}</label>
+        {!! Form::text('config[override_url]', null, array('placeholder' => __('app.apps.override'), 'id' => 'override_url', 'class' => 'form-control')) !!}
+    </div>
+    
+    <div class="input">
         <label>{{ __('app.apps.enable') }}</label>
         {!! Form::hidden('config[enabled]', '0') !!}
         <label class="switch">

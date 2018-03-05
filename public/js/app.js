@@ -28,9 +28,10 @@ $.when( $.ready ).then(function() {
             (function worker() {
                 $.ajax({
                   url: '/get_stats/'+id, 
+                  dataType: 'json',
                   success: function(data) {
-                    container.html(data);
-                    if(data != '') timer = increaseby;
+                    container.html(data.html);
+                    if(data.status == 'active') timer = increaseby;
                     else {
                         if(timer < max_timer) timer += 2000;
                     }
@@ -130,7 +131,7 @@ $.when( $.ready ).then(function() {
         var apiurl = $('#create input[name=url]').val();
         
         
-        var override_url = $('#create input[name=override_url]');
+        var override_url = $('#override_url');
         if(override_url.length && override_url.val() != '') {
             apiurl = override_url;
         }

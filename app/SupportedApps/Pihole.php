@@ -39,17 +39,18 @@ class Pihole implements Contracts\Applications, Contracts\Livestats {
 
     public function executeConfig()
     {
-        $output = '';
+        $html = '';
+        $active = 'active';
         $res = $this->buildRequest();
         $data = json_decode($res->getBody());
 
-            $output = '
+        $html = '
             <ul class="livestats">
                 <li><span class="title">Domains<br />Blocked</span><strong>'.$data->domains_being_blocked.'</strong></li>
                 <li><span class="title">Blocked<br />Today</span><strong>'.$data->ads_blocked_today.'</span></strong></li>
             </ul>
             ';
-        return $output;
+        return json_encode(['status' => $active, 'html' => $html]);
     }
 
     public function buildRequest()
@@ -62,7 +63,7 @@ class Pihole implements Contracts\Applications, Contracts\Livestats {
         $api_url = $url.'/api.php';
         //die( $api_url.' --- ');
 
-        $client = new Client(['http_errors' => false]);
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
 

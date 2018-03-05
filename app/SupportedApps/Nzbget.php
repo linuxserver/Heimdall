@@ -39,25 +39,27 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
     }
     public function executeConfig()
     {
-        $output = '';
+        $html = '';
+        $active = 'inactive';
         $res = $this->buildRequest('status');
         $data = json_decode($res->getBody());
         //$data->result->RemainingSizeMB = '10000000';
         //$data->result->DownloadRate = '100000000';
-        $size = $data->result->RemainingSizeMB;
-        $rate = $data->result->DownloadRate;
-        $queue_size = format_bytes($size*1000*1000, false, ' <span>', '</span>');
-        $current_speed = format_bytes($rate, false, ' <span>');
+        if($data) {
+            $size = $data->result->RemainingSizeMB;
+            $rate = $data->result->DownloadRate;
+            $queue_size = format_bytes($size*1000*1000, false, ' <span>', '</span>');
+            $current_speed = format_bytes($rate, false, ' <span>');
 
-        if($size > 0 || $rate > 0) {
-            $output = '
+            $active = ($size > 0 || $rate > 0) ? 'active' : 'inactive';
+            $html = '
             <ul class="livestats">
                 <li><span class="title">Queue</span><strong>'.$queue_size.'</strong></li>
                 <li><span class="title">Speed</span><strong>'.$current_speed.'/s</span></strong></li>
             </ul>
             ';
         }
-        return $output;
+        return json_encode(['status' => $active, 'html' => $html]);
     }
     public function buildRequest($endpoint)
     {
@@ -73,7 +75,7 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
 
         $api_url = $rebuild_url.'/jsonrpc/'.$endpoint;
 
-        $client = new Client(['http_errors' => false]);
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
 
