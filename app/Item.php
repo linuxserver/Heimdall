@@ -31,6 +31,7 @@ class Item extends Model
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
             'Gitea' => \App\SupportedApps\Gitea::class,
+            'Glances' => \App\SupportedApps\Glances::class,
             'Graylog' => \App\SupportedApps\Graylog::class,
             'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
             'Jackett' => \App\SupportedApps\Jackett::class,
