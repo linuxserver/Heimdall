@@ -132,7 +132,6 @@ class Transmission implements Contracts\Applications, Contracts\Livestats
             Log::error("Transmission connection refused");
             Log::debug($e->getMessage());
         }
-        
         return $res;
     }
 
