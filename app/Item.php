@@ -153,7 +153,7 @@ class Item extends Model
         if((int)$this->type === 1) {
             return '';
         } else {
-            return ' target="_blank"';
+            return ' target="heimdallapp"';
         }
     }
 
