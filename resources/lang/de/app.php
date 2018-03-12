@@ -44,6 +44,7 @@ return array (
   'apps.username' => 'Benutzername',
   'apps.password' => 'Passwort',
   'apps.config' => 'Konfig',
+  'apps.aggressive_polling' => 'Aggressives Polling',
   'url' => 'Url',
   'title' => 'Titel',
   'delete' => 'Löschen',

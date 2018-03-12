@@ -66,6 +66,7 @@ return [
     'apps.tag_name' => 'Tag name',
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
+    'apps.aggressive_polling' => 'Aggressive polling',
 
     'url' => 'Url',
     'title' => 'Title',

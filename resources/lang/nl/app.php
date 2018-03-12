@@ -65,6 +65,7 @@ return [
     'apps.add_tag' => 'Tag toevoegen',
     'apps.tag_name' => 'Naam van tag',
     'apps.tags' => 'Tags',
+    'apps.aggressive_polling' => 'Agressieve polling',
 
     'url' => 'URL',
     'title' => 'Titel',

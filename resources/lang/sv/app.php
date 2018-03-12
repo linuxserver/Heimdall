@@ -44,6 +44,7 @@ return array (
   'apps.username' => 'Användarnamn',
   'apps.password' => 'Lösenord',
   'apps.config' => 'Konfiguration',
+  'apps.aggressive_polling' => 'Aggressiv omröstning',
   'url' => 'Url',
   'title' => 'Titel',
   'delete' => 'Radera',
