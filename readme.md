@@ -58,6 +58,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Radarr
 - SickRage
 - Sonarr
+- Tautulli
 - TT-RSS
 - Traefik
 - UniFI
