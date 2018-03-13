@@ -30,6 +30,9 @@ You can use the app to link to any site or application, but Foundation apps will
 **Enhanced**
 - NZBGet
 - Pihole
+- PlexPy
+- Proxmox
+- Runeaudio
 - Sabnzbd
 - Transmission
 
@@ -50,7 +53,6 @@ You can use the app to link to any site or application, but Foundation apps will
 - Ombi
 - OpenHAB
 - Plex
-- Plexpy
 - Plexrequests
 - Portainer
 - Radarr
