@@ -28,7 +28,7 @@ class Transmission implements Contracts\Applications, Contracts\Livestats
     }
     public function icon()
     {
-        return 'supportedapps/Transmission.png';
+        return 'supportedapps/transmission.png';
     }
     public function configDetails()
     {
