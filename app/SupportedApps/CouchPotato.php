@@ -23,7 +23,7 @@ class CouchPotato implements Contracts\Applications, Contracts\Livestats
     }
     public function icon()
     {
-        return 'supportedapps/CouchPotato.png';
+        return 'supportedapps/couchPotato.png';
     }
     public function configDetails()
     {
