@@ -139,6 +139,20 @@ location / {
 }
 ```
 
+### Self-signed certificates and local CAs
+Per default Heimdall uses the standard certificate bundle file (ca-certificates.crt) to verify HTTPS sites and will ignore additional certificates placed in /etc/ssl/certs. If you wish to use enhanced apps with HTTPS sites that use a self-signed certificate or certs signed with your own local CA, you can override the default bundle:
+
+- Create a unified certificate .pem-file that contains all CAs and certificates that Heimdall has to verify. For example, if you use both LetsEncrypt and a local CA for your internal apps, concatenate the LetsEncrypt intermediate CA (export via browser) and your local CA cert.pem (or any number of self-signed certs) into one heimdall.pem file.
+- Place the heimdall.pem into the container (if you use Docker), for example by placing it in the path that you mapped to /config. Make sure that the Heimdall user has read access (chmod a+r).
+- Set the openssl.cafile setting in /config/php/php-local.ini to your cert bundle:
+
+```
+# /config/php/php-local.ini
+openssl.cafile = /config/heimdall.pem
+```
+
+Restart the container and the enhanced apps should now be able to access your local HTTP websites. This configuration will survive updating or recreating the Heimdall container.
+
 ## Support
 https://discord.gg/CCjHKn4 or through Github issues
 
