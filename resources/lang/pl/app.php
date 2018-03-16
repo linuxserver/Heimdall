@@ -61,7 +61,6 @@ return [
     'apps.config' => 'Ustawienia',
     'apps.apikey' => 'Klucz API',
     'apps.enable' => 'Włącz',
-    'apps.aggressive_polling' => 'Agresywny głosowanie',
 
     'url' => 'URL',
     'title' => 'Tytuł',

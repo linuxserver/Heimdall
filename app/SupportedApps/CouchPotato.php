@@ -90,11 +90,7 @@ class CouchPotato implements Contracts\Applications, Contracts\Livestats
             <li><span class="title">Available</span><sub>'.$availableMovies.'</sub></li>
         </ul>
         ';
-        $active = 'inactive';
-        if (isset($this->config->aggressive_polling) && $this->config->aggressive_polling) {
-            $active = 'active';
-        }
-        return json_encode(['status' => $active, 'html' => $html]);;
+        return json_encode(['status' => 'inactive', 'html' => $html]);;
     }
 
     private function sendRequest()

@@ -59,7 +59,6 @@ return [
     'apps.username' => 'Kullanıcı adı',
     'apps.password' => 'Şifre',
     'apps.config' => 'Yapılandırma',
-    'apps.aggressive_polling' => 'Agresif oy verme',
     
     'url' => 'Adres',
     'title' => 'Başlık',

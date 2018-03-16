@@ -44,7 +44,6 @@ return array (
   'apps.username' => 'Käyttäjätunnus',
   'apps.password' => 'Salasana',
   'apps.config' => 'Konfiguraatio',
-  'apps.aggressive_polling' => 'Agressieve polling',
   'url' => 'Url',
   'title' => 'Otsikko',
   'delete' => 'Poistaa',

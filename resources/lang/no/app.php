@@ -61,7 +61,6 @@ return [
     'apps.config' => 'Konfigurasjon',
     'apps.apikey' => 'Api nøkkel',
     'apps.enable' => 'Aktiver',
-    'apps.aggressive_polling' => 'Aggressiv avstemning',
 
     'url' => 'Url',
     'title' => 'Tittel',

@@ -61,7 +61,6 @@ return [
     'apps.config' => 'Configurazione',
     'apps.apikey' => 'Api Key',
     'apps.enable' => 'Abilitato',
-    'apps.aggressive_polling' => 'Sondaggio aggressivo',
 
     'url' => 'Url',
     'title' => 'Titolo',
