@@ -45,6 +45,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Gitea
 - Graylog
 - Jdownloader
+- Krusader
 - Lidarr
 - McMyAdmin
 - Medusa
