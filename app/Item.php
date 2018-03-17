@@ -47,6 +47,7 @@ class Item extends Model
             'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Ombi' => \App\SupportedApps\Ombi::class,
             'Openhab' => \App\SupportedApps\Openhab::class,
+            'OpenMediaVault' => \App\SupportedApps\OpenMediaVault::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
