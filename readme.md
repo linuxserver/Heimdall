@@ -54,6 +54,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Nextcloud
 - Ombi
 - OpenHAB
+- OpenMediaVault
 - Plex
 - Plexrequests
 - Portainer
