@@ -90,7 +90,7 @@ class CouchPotato implements Contracts\Applications, Contracts\Livestats
             <li><span class="title">Available</span><sub>'.$availableMovies.'</sub></li>
         </ul>
         ';
-        return json_encode(['status' => 'inactive', 'html' => $html]);;
+        return json_encode(['status' => 'inactive', 'html' => $html]);
     }
 
     private function sendRequest()
