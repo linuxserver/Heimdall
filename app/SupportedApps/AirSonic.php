@@ -3,7 +3,7 @@
 class AirSonic implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#5AF';
+        return '#08F';
     }
     public function icon()
     {
