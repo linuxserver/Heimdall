@@ -65,6 +65,7 @@ class Item extends Model
             'UniFi' => \App\SupportedApps\Unifi::class,
             'pFsense' => \App\SupportedApps\Pfsense::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
+            'WebTools' => \App\SupportedApps\WebTools::class,
         ];
     }
     public static function supportedOptions()
