@@ -62,9 +62,9 @@ class Item extends Model
             'Tautulli' => \App\SupportedApps\Tautulli::class,
             'Transmission' => \App\SupportedApps\Transmission::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
-            'Ttrss' => \App\SupportedApps\Ttrss::class,
+            'tt-rss' => \App\SupportedApps\Ttrss::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
-            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'pfSense' => \App\SupportedApps\Pfsense::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
         ];
     }
