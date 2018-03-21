@@ -27,6 +27,7 @@ class Item extends Model
     {
         return [
             'AirSonic' => \App\SupportedApps\AirSonic::class,
+            'Cardigann' => \App\SupportedApps\Cardigann::class,
             'CouchPotato' => \App\SupportedApps\CouchPotato::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
