@@ -27,6 +27,7 @@ class Item extends Model
     {
         return [
             'AirSonic' => \App\SupportedApps\AirSonic::class,
+            'CouchPotato' => \App\SupportedApps\CouchPotato::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
@@ -48,6 +49,7 @@ class Item extends Model
             'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Ombi' => \App\SupportedApps\Ombi::class,
             'Openhab' => \App\SupportedApps\Openhab::class,
+            'OpenMediaVault' => \App\SupportedApps\OpenMediaVault::class,
             'Pihole' => \App\SupportedApps\Pihole::class,
             'Plex' => \App\SupportedApps\Plex::class,
             'Plexpy' => \App\SupportedApps\Plexpy::class,
@@ -62,10 +64,11 @@ class Item extends Model
             'Tautulli' => \App\SupportedApps\Tautulli::class,
             'Transmission' => \App\SupportedApps\Transmission::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
-            'Ttrss' => \App\SupportedApps\Ttrss::class,
+            'tt-rss' => \App\SupportedApps\Ttrss::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
-            'pFsense' => \App\SupportedApps\Pfsense::class,
+            'pfSense' => \App\SupportedApps\Pfsense::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
+            'WebTools' => \App\SupportedApps\WebTools::class,
         ];
     }
     public static function supportedOptions()
