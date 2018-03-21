@@ -66,6 +66,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - UniFI
 - pfSense
 - rTorrent/ruTorrent
+- WebTools
 
 ## Installing
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
