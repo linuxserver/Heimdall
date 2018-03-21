@@ -26,6 +26,7 @@ class Item extends Model
     public static function supportedList()
     {
         return [
+            'AirSonic' => \App\SupportedApps\AirSonic::class,
             'CouchPotato' => \App\SupportedApps\CouchPotato::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,

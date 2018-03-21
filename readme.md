@@ -39,6 +39,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Transmission
 
 **Foundation**
+- AirSonic
 - Deluge
 - DokuWiki
 - Duplicati
