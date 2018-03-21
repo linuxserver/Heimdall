@@ -67,6 +67,7 @@ You can use the app to link to any site or application, but Foundation apps will
 - Traefik
 - UniFI
 - pfSense
+- pyLoad
 - rTorrent/ruTorrent
 - Watcher3
 - WebTools
