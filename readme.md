@@ -27,6 +27,8 @@ If you want to see a quick video of it in use, go to https://youtu.be/GXnnMAxPzM
 ## Supported applications
 You can use the app to link to any site or application, but Foundation apps will auto fill in the icon for the app and supply a default color for the tile.  In addition Enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad.  For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size and download speed while something is downloading.
 
+Supported applications are recognized by the title of the application as entered in the title field when adding an application. For example, to add a link to pfSense, begin by typing "p" in the title field and then select "pfSense" from the list of supported applications.
+
 **Enhanced**
 - CouchPotato
 - NZBGet
