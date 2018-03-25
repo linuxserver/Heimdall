@@ -34,6 +34,7 @@ class Item extends Model
             'Emby' => \App\SupportedApps\Emby::class,
             'Gitea' => \App\SupportedApps\Gitea::class,
             'Glances' => \App\SupportedApps\Glances::class,
+            'Grafana' => \App\SupportedApps\Grafana::class,
             'Graylog' => \App\SupportedApps\Graylog::class,
             'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
             'Jackett' => \App\SupportedApps\Jackett::class,
