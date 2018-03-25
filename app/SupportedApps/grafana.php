@@ -7,6 +7,6 @@ class Grafana implements Contracts\Applications {
     }
     public function icon()
     {
-        return 'supportedapps/grafana.png'; #icon does not exist yet
+        return 'supportedapps/grafana.png';
     }
 }
