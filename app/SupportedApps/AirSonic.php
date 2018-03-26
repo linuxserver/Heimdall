@@ -1,4 +1,3 @@
-
 <?php namespace App\SupportedApps;
 class AirSonic implements Contracts\Applications {
     public function defaultColour()
