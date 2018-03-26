@@ -67,6 +67,7 @@ class Item extends Model
             'tt-rss' => \App\SupportedApps\Ttrss::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'pfSense' => \App\SupportedApps\Pfsense::class,
+            'pyLoad' => \App\SupportedApps\pyLoad::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
             'Watcher3' => \App\SupportedApps\Watcher3::class,
             'WebTools' => \App\SupportedApps\WebTools::class,

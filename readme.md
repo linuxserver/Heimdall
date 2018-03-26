@@ -69,6 +69,7 @@ Supported applications are recognized by the title of the application as entered
 - Traefik
 - UniFI
 - pfSense
+- pyLoad
 - rTorrent/ruTorrent
 - Watcher3
 - WebTools
