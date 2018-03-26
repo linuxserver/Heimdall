@@ -48,6 +48,7 @@ Supported applications are recognized by the title of the application as entered
 - Duplicati
 - Emby
 - Gitea
+- Grafana
 - Graylog
 - Jdownloader
 - Krusader
