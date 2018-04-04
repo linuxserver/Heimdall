@@ -73,6 +73,7 @@ Supported applications are recognized by the title of the application as entered
 - pfSense
 - pyLoad
 - rTorrent/ruTorrent
+- Syncthing
 - Watcher3
 - WebTools
 
