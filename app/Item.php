@@ -63,6 +63,7 @@ class Item extends Model
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
             'Sickrage' => \App\SupportedApps\Sickrage::class,
             'Sonarr' => \App\SupportedApps\Sonarr::class,
+            'Syncthing' => \App\SupportedApps\Syncthing::class,
             'Tautulli' => \App\SupportedApps\Tautulli::class,
             'Transmission' => \App\SupportedApps\Transmission::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
