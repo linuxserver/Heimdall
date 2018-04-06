@@ -90,6 +90,11 @@ for armhf: https://hub.docker.com/r/lsioarmhf/heimdall/
 
 and for arm64: https://hub.docker.com/r/lsioarmhf/heimdall-aarch64/
 
+## Docker and enhanced apps
+If you are running the docker and the EnhancedApps you are using are also in dockers, you may need to use the docker networking addresses to communicate with them.
+
+You can do this by using `http(s)://docker_name:port` in the config section. Instead of the name you can use the internal docker ip, this usually starts with `172.`
+
 ## Languages
 The app has been translated into several languages, however the quality of the translations could do with work, if you would like to improve them or help with other translations they are stored in /resources/lang/
 
