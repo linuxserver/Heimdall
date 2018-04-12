@@ -116,6 +116,7 @@ Currently added languages are
 
 ### Apache
 A .htaccess file ships with the app, however, a lot of apache installations disallow .htaccess files by default.
+You will notice this due to some links not working like ``/settings``.
 
 #### Fixes & work around options
 ##### - Apache global allow .htaccess
