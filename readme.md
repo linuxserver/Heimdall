@@ -115,8 +115,18 @@ Currently added languages are
 ## Web Server Configuration
 
 ### Apache
-A .htaccess file ships with the app, however, if it does not work with your Apache installation, try this alternative:
+A .htaccess file ships with the app, however, a lot of apache installations disallow .htaccess files by default.
 
+#### Fixes & work around options
+##### - Apache global allow .htaccess
+Find the ``AllowOverride None`` line in your apache configuration and change this to ``AllowOverride All``
+
+##### - Apache vhost configuration allow .htaccess
+In the apache vhost configuration in the ``<Directory />`` block add ``AllowOverride All``
+
+##### - Add .htaccess content in apache configuration
+You can add the full .htaccess into your apache configuration, this way you do not need to allow .htaccess files.
+You can even shorten the content of the .htaccess when inserting it into the apache configuration to :
 ```
 Options +FollowSymLinks
 RewriteEngine On
@@ -125,6 +135,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
 ```
+#### More info
+More info about AllowOverride can be found here : 
+https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
+
+
 
 ### Nginx
 If you are using Nginx, the following directive in your site configuration will direct all requests to the index.php front controller:
