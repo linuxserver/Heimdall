@@ -91,6 +91,7 @@ class SettingsSeeder extends Seeder
             'google' => 'app.options.google',
             'ddg' => 'app.options.ddg',
             'bing' => 'app.options.bing'
+            'startpage' => 'app.options.startpage'
         ]);
 
         if(!$setting = Setting::find(4)) {
