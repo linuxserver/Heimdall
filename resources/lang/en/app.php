@@ -33,6 +33,7 @@ return [
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
+    'options.startpage' => 'StartPage',
     'options.yes' => 'Yes',
     'options.no' => 'No',
 
