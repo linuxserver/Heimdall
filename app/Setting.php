@@ -202,6 +202,9 @@ class Setting extends Model
                         $url = 'https://www.bing.com/search';
                         $var = 'q';
                         break;
+                    case 'startpage':
+                        $url = 'https://www.startpage.com/';
+                        $var = 'q';
                 }
                 $output .= '<div class="searchform">';
                 $output .= Form::open(['url' => $url, 'method' => 'get']);
