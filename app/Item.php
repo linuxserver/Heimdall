@@ -69,6 +69,7 @@ class Item extends Model
             'Traefik' => \App\SupportedApps\Traefik::class,
             'tt-rss' => \App\SupportedApps\Ttrss::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
+            'unRAID' => \App\SupportedApps\Unraid::class,
             'pfSense' => \App\SupportedApps\Pfsense::class,
             'pyLoad' => \App\SupportedApps\pyLoad::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
