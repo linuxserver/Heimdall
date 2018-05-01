@@ -47,6 +47,7 @@ class Item extends Model
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
+            'Now Showing' => \App\SupportedApps\NowShowing::class,
             'Nzbhydra' => \App\SupportedApps\Nzbhydra::class,
             'OPNSense' => \App\SupportedApps\Opnsense::class,
             'Ombi' => \App\SupportedApps\Ombi::class,
