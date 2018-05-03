@@ -70,6 +70,7 @@ Supported applications are recognized by the title of the application as entered
 - TT-RSS
 - Traefik
 - UniFI
+- unRAID
 - pfSense
 - pyLoad
 - rTorrent/ruTorrent
