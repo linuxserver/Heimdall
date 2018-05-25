@@ -81,6 +81,8 @@ Supported applications are recognized by the title of the application as entered
 ## Installing
 Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
 
+If you find you can't change the background make sure php_fileinfo is enabled in your php.ini.  I believe it should be by default, but one user came across the issue on a windows system.
+
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder.  For simple testing you could just go to the folder and type `php artisan serve`
 
 There are also dockers and instructions on how to use them at 
