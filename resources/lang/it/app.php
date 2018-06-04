@@ -16,6 +16,7 @@ return [
     'settings.version' => 'Versione',
     'settings.background_image' => 'Immagine di sfondo',
     'settings.homepage_search' => 'Ricerca in homepage',
+    'settings.trianglify' => 'Trianglify',
     'settings.search_provider' => 'Motore di ricerca',
     'settings.language' => 'Lingua',
     'settings.reset' => 'Ripristina le impostazioni di default',

@@ -16,6 +16,7 @@ return [
     'settings.version' => 'Versjon',
     'settings.background_image' => 'Bakgrunnsbilde',
     'settings.homepage_search' => 'Startside Søk',
+    'settings.trianglify' => 'Trianglify',
     'settings.search_provider' => 'Søkemotor',
     'settings.language' => 'Språk',
     'settings.reset' => 'Tilbakestill tilbake til standard',

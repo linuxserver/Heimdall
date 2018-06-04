@@ -16,6 +16,7 @@ return [
     'settings.version' => 'Wersja',
     'settings.background_image' => 'Tapeta Pulpitu',
     'settings.homepage_search' => 'Strona Domowa Wyszukiwanie',
+    'settings.trianglify' => 'Trianglify',
     'settings.search_provider' => 'Operator Wyszukiwania',
     'settings.language' => 'Język',
     'settings.reset' => 'Przywróć ustawienia domyślne',

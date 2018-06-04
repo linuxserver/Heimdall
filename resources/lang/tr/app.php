@@ -16,6 +16,7 @@ return [
     'settings.version' => 'Versiyon',
     'settings.background_image' => 'Arkaplan Resmi',
     'settings.homepage_search' => 'Anasayfa Arama',
+    'settings.trianglify' => 'Trianglify',
     'settings.search_provider' => 'Arama Motoru',
     'settings.language' => 'Dil',
     'settings.reset' => 'Varsayılana Geri Dön',

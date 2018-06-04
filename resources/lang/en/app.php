@@ -15,6 +15,7 @@ return [
 
     'settings.version' => 'Version',
     'settings.background_image' => 'Background Image',
+    'settings.trianglify' => 'Trianglify',
     'settings.homepage_search' => 'Homepage Search',
     'settings.search_provider' => 'Search Provider',
     'settings.language' => 'Language',
