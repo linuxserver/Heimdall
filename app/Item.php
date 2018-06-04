@@ -37,6 +37,7 @@ class Item extends Model
             'Glances' => \App\SupportedApps\Glances::class,
             'Grafana' => \App\SupportedApps\Grafana::class,
             'Graylog' => \App\SupportedApps\Graylog::class,
+            'Headphones' => \App\SupportedApps\Headphones::class,
             'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
             'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
