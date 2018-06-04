@@ -55,6 +55,7 @@ Supported applications are recognized by the title of the application as entered
 - Lidarr
 - McMyAdmin
 - Medusa
+- Mylar
 - NZBhydra & NZBhydra2
 - Netdata
 - Nextcloud
