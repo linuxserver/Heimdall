@@ -65,6 +65,7 @@ Supported applications are recognized by the title of the application as entered
 - Plexrequests
 - Portainer
 - Radarr
+- Rancher
 - SickRage
 - Sonarr
 - TT-RSS
