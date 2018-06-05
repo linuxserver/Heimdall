@@ -1,6 +1,6 @@
 ![alt text](https://i.imgur.com/iuV8w3y.png)
 
-____ 
+____
 [![Discord](https://img.shields.io/discord/354974912613449730.svg)](https://discord.gg/CCjHKn4)
 [![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/heimdall.svg)](https://hub.docker.com/r/linuxserver/heimdall/)
 [![firsttimersonly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
@@ -12,7 +12,7 @@ ___
 Visit the website - https://heimdall.site
 ___
 
-## About 
+## About
 As the name suggests Heimdall Application Dashboard is a dashboard for all your web applications. It doesn't need to be limited to applications though, you can add links to anything you like.
 
 Heimdall is an elegant solution to organise all your web applications. It’s dedicated to this purpose so you won’t lose your links in a sea of bookmarks.
@@ -74,6 +74,7 @@ Supported applications are recognized by the title of the application as entered
 - unRAID
 - pfSense
 - pyLoad
+- rTorrent/Flood
 - rTorrent/ruTorrent
 - Syncthing
 - Watcher3
@@ -86,7 +87,7 @@ If you find you can't change the background make sure php_fileinfo is enabled in
 
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder.  For simple testing you could just go to the folder and type `php artisan serve`
 
-There are also dockers and instructions on how to use them at 
+There are also dockers and instructions on how to use them at
 
 for x86-64: https://hub.docker.com/r/linuxserver/heimdall/
 
@@ -141,7 +142,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
 ```
 #### More info
-More info about AllowOverride can be found here : 
+More info about AllowOverride can be found here :
 https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
 
 
