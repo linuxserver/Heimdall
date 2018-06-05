@@ -51,6 +51,7 @@ Supported applications are recognized by the title of the application as entered
 - Gitea
 - Grafana
 - Graylog
+- Headphones
 - Jdownloader
 - Krusader
 - LibreNMS
