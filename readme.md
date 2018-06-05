@@ -59,6 +59,7 @@ Supported applications are recognized by the title of the application as entered
 - Lidarr
 - McMyAdmin
 - Medusa
+- Mylar
 - MusicBrainz
 - NZBhydra & NZBhydra2
 - Netdata

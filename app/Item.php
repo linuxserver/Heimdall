@@ -48,6 +48,7 @@ class Item extends Model
             'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
+            'Mylar' => \App\SupportedApps\Mylar::class,
             'MusicBrainz' => \App\SupportedApps\MusicBrainz::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
