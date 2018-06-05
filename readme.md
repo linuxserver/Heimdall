@@ -42,6 +42,7 @@ Supported applications are recognized by the title of the application as entered
 
 **Foundation**
 - AirSonic
+- Booksonic
 - Cardigann
 - Deluge
 - DokuWiki
@@ -50,12 +51,16 @@ Supported applications are recognized by the title of the application as entered
 - Gitea
 - Grafana
 - Graylog
+- Headphones
 - Jdownloader
 - Krusader
+- LibreNMS
+- LazyLibrarian
 - Lidarr
 - McMyAdmin
 - Medusa
 - Mylar
+- MusicBrainz
 - NZBhydra & NZBhydra2
 - Netdata
 - Nextcloud
