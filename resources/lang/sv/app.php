@@ -7,6 +7,7 @@ return array (
   'settings.version' => 'Version',
   'settings.background_image' => 'Bakgrundsbild',
   'settings.homepage_search' => 'Startsida Sök',
+  'settings.trianglify' => 'Trianglify',
   'settings.search_provider' => 'Sökmotor',
   'settings.language' => 'Språk',
   'settings.reset' => 'Återställ standardinställningar',

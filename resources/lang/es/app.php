@@ -6,6 +6,7 @@ return array (
   'settings.miscellaneous' => 'Miscelánea',
   'settings.version' => 'Versión',
   'settings.background_image' => 'Imagen De Fondo',
+  'settings.trianglify' => 'Trianglify',
   'settings.homepage_search' => 'Página De Inicio De Búsqueda',
   'settings.search_provider' => 'Proveedor de búsqueda',
   'settings.language' => 'Idioma',

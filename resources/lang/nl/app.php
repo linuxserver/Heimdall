@@ -16,6 +16,7 @@ return [
     'settings.version' => 'Versie',
     'settings.background_image' => 'Achtergrondafbeelding',
     'settings.homepage_search' => 'Zoeken op thuispagina',
+    'settings.trianglify' => 'Trianglify',
     'settings.search_provider' => 'Zoekaanbieder',
     'settings.language' => 'Taal',
     'settings.reset' => 'Op standaard instellen',
