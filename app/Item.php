@@ -66,6 +66,7 @@ class Item extends Model
             'Portainer' => \App\SupportedApps\Portainer::class,
             'Proxmox' => \App\SupportedApps\Proxmox::class,
             'Radarr' => \App\SupportedApps\Radarr::class,
+            'Rancher' => \App\SupportedApps\Rancher::class,
             'Runeaudio' => \App\SupportedApps\Runeaudio::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
             'Sickrage' => \App\SupportedApps\Sickrage::class,
