@@ -42,7 +42,6 @@ class Item extends Model
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
             'Krusader' => \App\SupportedApps\Krusader::class,
             'LibreNMS' => \App\SupportedApps\LibreNMS::class,
-            'LazyLibrarian' => \App\SupportedApps\LazyLibrarian::class,
             'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
