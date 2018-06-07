@@ -158,9 +158,12 @@ class Transmission implements Contracts\Applications, Contracts\Livestats
 
     private function getApiUrl()
     {
-        $url = $this->config->url;
+        $config = $this->config;
+        $url = $config->url;
+
         $url = rtrim($url, '/');
-        $apiUrl = $url.'/transmission/rpc';
-        return $apiUrl;
+        $api_url = $url.'/transmission/rpc';
+
+        return $api_url;
     }
 }
