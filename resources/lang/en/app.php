@@ -22,12 +22,12 @@ return [
     'settings.remove' => 'Remove',
     'settings.search' => 'search',
     'settings.no_items' => 'No items found',
-    
 
-    'settings.label' => 'Label',    
-    'settings.value' => 'Value',    
-    'settings.edit' => 'Edit',    
-    'settings.view' => 'View',    
+
+    'settings.label' => 'Label',
+    'settings.value' => 'Value',
+    'settings.edit' => 'Edit',
+    'settings.view' => 'View',
 
     'options.none' => '- not set -',
     'options.google' => 'Google',
@@ -60,7 +60,7 @@ return [
     'apps.username' => 'Username',
     'apps.password' => 'Password',
     'apps.config' => 'Config',
-    'apps.apikey' => 'Api Key',
+    'apps.apikey' => 'API Key',
     'apps.enable' => 'Enable',
     'apps.tag_list' => 'Tags list',
     'apps.add_tag' => 'Add tag',
@@ -68,11 +68,11 @@ return [
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
 
-    'url' => 'Url',
+    'url' => 'URL',
     'title' => 'Title',
-    'delete' => 'Delete',    
-    'optional' => 'Optional',    
-    'restore' => 'Restore',    
+    'delete' => 'Delete',
+    'optional' => 'Optional',
+    'restore' => 'Restore',
 
     'alert.success.item_created' => 'Item created successfully',
     'alert.success.item_updated' => 'Item updated successfully',
@@ -84,8 +84,8 @@ return [
     'alert.success.tag_deleted' => 'Tag deleted successfully',
     'alert.success.tag_restored' => 'Tag restored successfully',
 
-    'alert.success.setting_updated' => 'You have successfully edited this Setting',
-    'alert.error.not_exist' => 'This Setting does not exist.',
+    'alert.success.setting_updated' => 'You have successfully edited this setting',
+    'alert.error.not_exist' => 'This setting does not exist.',
 
 
 ];
