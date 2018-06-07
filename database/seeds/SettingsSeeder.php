@@ -138,18 +138,6 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if(!$setting = Setting::find(6)) {
-            $setting = new Setting;
-            $setting->id = 6;
-            $setting->group_id = 2;
-            $setting->key = 'trianglify';
-            $setting->type = 'boolean';
-            $setting->label = 'app.settings.trianglify';
-            $setting->save();
-        } else {
-            $setting->label = 'app.settings.trianglify';
-            $setting->save();
-        }
 
         $window_target_options = json_encode([
             'current' => 'app.settings.window_target.current',
