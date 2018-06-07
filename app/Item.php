@@ -165,18 +165,11 @@ class Item extends Model
 
     public function getLinkTargetAttribute()
     {
-        if((int)$this->type === 1) {
+        $target = Setting::fetch('window_target');
+
+        if((int)$this->type === 1 || $target === 'current') {
             return '';
         } else {
-            $settings = Setting::all();
-            foreach($settings as $key => $val) {
-                if($val['key'] === 'window_target') {
-                    $target = $val['value'];
-                    if($target === 'current') {
-                        $target = '';
-                    }
-                }
-            }
             return ' target="' . $target . '"';
         }
     }
