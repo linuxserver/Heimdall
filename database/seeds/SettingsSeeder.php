@@ -138,7 +138,8 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-
+        
+        
         $window_target_options = json_encode([
             'current' => 'app.settings.window_target.current',
             'heimdall' => 'app.settings.window_target.one',
