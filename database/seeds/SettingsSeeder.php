@@ -138,8 +138,6 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        
-        
         $window_target_options = json_encode([
             'current' => 'app.settings.window_target.current',
             'heimdall' => 'app.settings.window_target.one',
@@ -162,6 +160,5 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.window_target';
             $setting->save();
         }
-
     }
 }
