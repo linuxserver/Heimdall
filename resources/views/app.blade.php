@@ -91,6 +91,7 @@
         <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="/js/app.js?v=2"></script>
+        @if ($trianglify == 'true')
         <script src="/js/trianglify.min.js"></script>
         <script>
             function addTriangleTo(target) {
@@ -114,7 +115,8 @@
                }, 400);
             });
         </script>
-        {!! $trianglify !!}
+        <script>addTriangleTo(app);</script>
+        @endif
         @yield('scripts')
         
     </body>
