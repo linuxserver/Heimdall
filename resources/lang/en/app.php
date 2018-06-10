@@ -15,6 +15,10 @@ return [
 
     'settings.version' => 'Version',
     'settings.background_image' => 'Background Image',
+    'settings.window_target' => 'Link opens in',
+    'settings.window_target.current' => 'Open in this tab',
+    'settings.window_target.one' => 'Open in the same tab',
+    'settings.window_target.new' => 'Open in a new tab',
     'settings.trianglify' => 'Trianglify',
     'settings.homepage_search' => 'Homepage Search',
     'settings.search_provider' => 'Search Provider',
