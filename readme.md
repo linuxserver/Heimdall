@@ -53,6 +53,7 @@ Supported applications are recognized by the title of the application as entered
 - Graylog
 - Jdownloader
 - Krusader
+- LazyLibrarian
 - Lidarr
 - McMyAdmin
 - Medusa

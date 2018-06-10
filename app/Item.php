@@ -42,6 +42,7 @@ class Item extends Model
             'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
             'Krusader' => \App\SupportedApps\Krusader::class,
+            'LazyLibrarian' => \App\SupportedApps\LazyLibrarian::class,
             'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
