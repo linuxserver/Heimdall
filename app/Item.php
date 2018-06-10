@@ -29,6 +29,7 @@ class Item extends Model
             'AirSonic' => \App\SupportedApps\AirSonic::class,
             'Cardigann' => \App\SupportedApps\Cardigann::class,
             'CouchPotato' => \App\SupportedApps\CouchPotato::class,
+            'Booksonic' => \App\SupportedApps\Booksonic::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
@@ -41,9 +42,11 @@ class Item extends Model
             'Jackett' => \App\SupportedApps\Jackett::class,
             'Jdownloader' => \App\SupportedApps\Jdownloader::class,
             'Krusader' => \App\SupportedApps\Krusader::class,
+            'LibreNMS' => \App\SupportedApps\LibreNMS::class,
             'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
+            'MusicBrainz' => \App\SupportedApps\MusicBrainz::class,
             'Mylar' => \App\SupportedApps\Mylar::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
@@ -61,6 +64,7 @@ class Item extends Model
             'Portainer' => \App\SupportedApps\Portainer::class,
             'Proxmox' => \App\SupportedApps\Proxmox::class,
             'Radarr' => \App\SupportedApps\Radarr::class,
+            'Rancher' => \App\SupportedApps\Rancher::class,
             'Runeaudio' => \App\SupportedApps\Runeaudio::class,
             'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
             'Sickrage' => \App\SupportedApps\Sickrage::class,
@@ -166,10 +170,12 @@ class Item extends Model
 
     public function getLinkTargetAttribute()
     {
-        if((int)$this->type === 1) {
+        $target = Setting::fetch('window_target');
+
+        if((int)$this->type === 1 || $target === 'current') {
             return '';
         } else {
-            return ' target="heimdallapp"';
+            return ' target="' . $target . '"';
         }
     }
 

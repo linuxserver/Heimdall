@@ -42,6 +42,7 @@ Supported applications are recognized by the title of the application as entered
 
 **Foundation**
 - AirSonic
+- Booksonic
 - Cardigann
 - Deluge
 - DokuWiki
@@ -52,9 +53,11 @@ Supported applications are recognized by the title of the application as entered
 - Graylog
 - Jdownloader
 - Krusader
+- LibreNMS
 - Lidarr
 - McMyAdmin
 - Medusa
+- MusicBrainz
 - Mylar
 - NZBhydra & NZBhydra2
 - Netdata
@@ -66,6 +69,7 @@ Supported applications are recognized by the title of the application as entered
 - Plexrequests
 - Portainer
 - Radarr
+- Rancher
 - SickRage
 - Sonarr
 - TT-RSS
