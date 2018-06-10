@@ -17,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $alt_bg = '';
+        $trianglify = '';
 
         if(!is_file(base_path('.env'))) {
             touch(base_path('.env'));
@@ -32,7 +33,9 @@ class AppServiceProvider extends ServiceProvider
         }
         if(is_file(database_path('app.sqlite'))) {
             if(Schema::hasTable('settings')) {
-                if($bg_image = Setting::fetch('background_image')) {
+                if(Setting::fetch('trianglify')) {
+                    $trianglify = '<script>addTriangleTo(app);</script>';
+                } else if($bg_image = Setting::fetch('background_image')) {
                     $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
                 }
 
@@ -53,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('storage:link');
         }
         view()->share('alt_bg', $alt_bg);
-
+        view()->share('trianglify', $trianglify);
     }
 
     /**

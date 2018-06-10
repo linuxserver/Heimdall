@@ -6,6 +6,7 @@ return array (
   'settings.miscellaneous' => 'Sekalainen',
   'settings.version' => 'Versio',
   'settings.background_image' => 'Taustakuva',
+  'settings.trianglify' => 'Trianglify',
   'settings.homepage_search' => 'Kotisivu Haku',
   'settings.search_provider' => 'Hakupalvelu',
   'settings.language' => 'Kieli',

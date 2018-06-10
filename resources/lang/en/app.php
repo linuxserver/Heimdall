@@ -19,6 +19,7 @@ return [
     'settings.window_target.current' => 'Open in this tab',
     'settings.window_target.one' => 'Open in the same tab',
     'settings.window_target.new' => 'Open in a new tab',
+    'settings.trianglify' => 'Trianglify',
     'settings.homepage_search' => 'Homepage Search',
     'settings.search_provider' => 'Search Provider',
     'settings.language' => 'Language',
