@@ -138,6 +138,27 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        
+        $window_target_options = json_encode([
+            'current' => 'app.settings.window_target.current',
+            'heimdall' => 'app.settings.window_target.one',
+            '_blank' => 'app.settings.window_target.new',
+        ]);
+
+        if(!$setting = Setting::find(7)) {
+            
+            $setting = new Setting;
+            $setting->id = 7;
+            $setting->group_id = 3;
+            $setting->key = 'window_target';
+            $setting->type = 'select';
+            $setting->options = $window_target_options;
+            $setting->label = 'app.settings.window_target';
+            $setting->value = 'heimdall';
+            $setting->save();
+        } else {
+            $setting->options = $window_target_options;
+            $setting->label = 'app.settings.window_target';
+            $setting->save();
+        }
     }
 }
