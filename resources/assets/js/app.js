@@ -1,3 +1,16 @@
+// jQuery & jQuery UI
+import $ from 'jquery';
+window.$ = window.jQuery = $;
+import 'jquery-ui/ui/widgets/autocomplete.js';
+import 'jquery-ui/ui/widgets/sortable.js';
+import 'select2/dist/js/select2.js';
+
+// Huebee
+import Huebee from 'huebee';
+window.Huebee = Huebee;
+
+
+
 $.when( $.ready ).then(function() {
 
     if($('.message-container').length) {
@@ -83,7 +96,6 @@ $.when( $.ready ).then(function() {
 
     });
     $('#sortable').sortable('disable');
-
 
 
     $('#app').on('click', '#config-button', function(e) {

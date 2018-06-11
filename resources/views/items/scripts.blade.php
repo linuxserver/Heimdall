@@ -1,4 +1,4 @@
-<script src="/js/select2.min.js"></script>
+{{-- <script src="{{ mix('js/app.js') }}"></script> --}}
 <script>
         $( function() {
 
