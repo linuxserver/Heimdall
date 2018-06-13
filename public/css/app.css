@@ -569,6 +569,14 @@ body {
   font-size: 16px;
 }
 
+.item .title.black {
+  color: #000;
+}
+
+.item .title.white {
+  color: #fff;
+}
+
 .item .details {
   width: 100%;
 }

@@ -10,3 +10,27 @@ function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afteruni
     elseif($labels[$x] == "MB") return(round($bytes, 2).$beforeunit.$labels[$x].$afterunit);
     else return(round($bytes, 0).$beforeunit.$labels[$x].$afterunit);
 }
+
+function get_brightness($hex) {
+    // returns brightness value from 0 to 255
+    // strip off any leading #
+    $hex = str_replace('#', '', $hex);
+    if(strlen($hex) == 3) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+   
+    $c_r = hexdec(substr($hex, 0, 2));
+    $c_g = hexdec(substr($hex, 2, 2));
+    $c_b = hexdec(substr($hex, 4, 2));
+   
+    return (($c_r * 299) + ($c_g * 587) + ($c_b * 114)) / 1000;
+}
+
+function title_color($hex)
+{
+    if(get_brightness($hex) > 130) {
+        return ' black';
+    } else {
+        return ' white';
+    }
+}

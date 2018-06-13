@@ -272,6 +272,12 @@ body {
 	}
 	.title {
 		font-size: 16px;
+		&.black {
+			color: #000;
+		}
+		&.white {
+			color: #fff;
+		}
 	}
 	.details {
 		width: 100%;
