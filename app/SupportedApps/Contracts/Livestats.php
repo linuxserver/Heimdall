@@ -7,5 +7,5 @@ interface Livestats {
     public function testConfig();
 
     public function executeConfig();
-    
+
 }

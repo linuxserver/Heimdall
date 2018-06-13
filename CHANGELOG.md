@@ -25,7 +25,7 @@
 
 ### Changed
 - Updated composer dependencies
-- Added live stats to Nzbget supported application  
+- Added live stats to Nzbget supported application
 - Changed Pihole to an enhanced application
 - Changed NZBGet to an enhanced application
 

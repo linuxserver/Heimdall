@@ -22,12 +22,12 @@ return [
     'settings.remove' => 'Verwijderen',
     'settings.search' => 'zoeken',
     'settings.no_items' => 'Geen items gevonden',
-    
 
-    'settings.label' => 'Label',    
-    'settings.value' => 'Waarde',    
-    'settings.edit' => 'Bewerken',    
-    'settings.view' => 'Weergeven',    
+
+    'settings.label' => 'Label',
+    'settings.value' => 'Waarde',
+    'settings.edit' => 'Bewerken',
+    'settings.view' => 'Weergeven',
 
     'options.none' => '- niet ingesteld -',
     'options.google' => 'Google',
@@ -68,9 +68,9 @@ return [
 
     'url' => 'URL',
     'title' => 'Titel',
-    'delete' => 'Verwijderen',    
-    'optional' => 'Optioneel',    
-    'restore' => 'Herstellen',    
+    'delete' => 'Verwijderen',
+    'optional' => 'Optioneel',
+    'restore' => 'Herstellen',
 
     'alert.success.item_created' => 'Item met succes aangemaakt',
     'alert.success.item_updated' => 'Item met succes bewerkt',

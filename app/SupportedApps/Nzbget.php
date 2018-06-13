@@ -80,5 +80,5 @@ class Nzbget implements Contracts\Applications, Contracts\Livestats {
         return $res;
 
     }
-   
+
 }

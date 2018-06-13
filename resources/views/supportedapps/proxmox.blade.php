@@ -5,7 +5,7 @@
         <label>{{ strtoupper(__('app.url')) }}</label>
         {!! Form::text('config[override_url]', null, array('placeholder' => __('app.apps.override'), 'id' => 'override_url', 'class' => 'form-control')) !!}
     </div>
-    
+
     <div class="input">
         <label>{{ __('app.apps.username') }}</label>
         {!! Form::text('config[username]', null, array('placeholder' => __('app.apps.username'), 'data-config' => 'username', 'class' => 'form-control config-item')) !!}

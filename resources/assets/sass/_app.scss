@@ -106,7 +106,7 @@ body {
 
 .item-container {
 	//width: 340px;
-	//transition: width .35s ease-in-out;	
+	//transition: width .35s ease-in-out;
 	position: relative;
 	.item-edit {
 		color: white;
@@ -214,7 +214,7 @@ body {
 	box-shadow: 0 0 20px 2px rgba(0,0,0,0.3);
 	color: white;
 	overflow: hidden;
-	position: relative;	
+	position: relative;
 	display: none;
 	outline: 1px solid transparent;
 	&.active {
@@ -317,7 +317,7 @@ body {
 		width: 100%;
 		margin:0;
 		background:#fff;
-	
+
 		thead {
 			th {
     			background: #f2f3f6;
@@ -344,7 +344,7 @@ body {
 							width: 5px;
 							background: $app-green;
 						}
-				   
+
 					}
 				}
 			}
@@ -355,7 +355,7 @@ body {
 				&.form-error {
 					background: #e69191;
 					color: white;
-					text-align: center;					
+					text-align: center;
 				}
 			}
 			a {
@@ -375,9 +375,9 @@ body {
     .button {
         font-size: 18px;
         color: lighten($app-text, 15%);
-        padding: 0 10px;  
+        padding: 0 10px;
         border: none;
-        border-left: 1px solid $table-line;    
+        border-left: 1px solid $table-line;
         display: flex;
         line-height: 1;
         position:relative;
@@ -482,10 +482,10 @@ div.create {
 	width: 36px;
 	height: 20px;
   }
-  
+
   /* Hide default HTML checkbox */
   .switch input {display:none;}
-  
+
   /* The slider */
   .slider {
 	position: absolute;
@@ -498,7 +498,7 @@ div.create {
 	-webkit-transition: .4s;
 	transition: .4s;
   }
-  
+
   .slider:before {
 	position: absolute;
 	content: "";
@@ -510,30 +510,30 @@ div.create {
 	-webkit-transition: .4s;
 	transition: .4s;
   }
-  
+
   input:checked + .slider {
 	background-color: #2196F3;
   }
-  
+
   input:focus + .slider {
 	box-shadow: 0 0 1px #2196F3;
   }
-  
+
   input:checked + .slider:before {
 	-webkit-transform: translateX(16px);
 	-ms-transform: translateX(16px);
 	transform: translateX(16px);
   }
-  
+
   /* Rounded sliders */
   .slider.round {
 	border-radius: 20px;
   }
-  
+
   .slider.round:before {
 	border-radius: 50%;
   }
-  
+
   @-webkit-keyframes autofill {
 	to {
 		background:#f5f5f5;
@@ -593,15 +593,15 @@ div.create {
 	  position: relative;
 	  width: 100%;
 	  max-width: 500px;
-	  form { 
+	  form {
 		width: 100%;
 	  }
 	  .input-container {
 		background: white;
 		border-radius: 5px;
 		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
-		overflow: hidden;	
-		position: relative;	  
+		overflow: hidden;
+		position: relative;
 	  }
 	  input {
 		  padding: 17px 15px;
@@ -634,7 +634,7 @@ div.create {
     z-index: 1000;
     float: left;
     display: none;
-    min-width: 160px;   
+    min-width: 160px;
     padding: 4px 0;
     margin: 0 0 10px 25px;
     list-style: none;
@@ -670,7 +670,7 @@ div.create {
 
 .ui-state-hover, .ui-state-active {
     font-weight: 700;
-	
+
 }
 
 #appimage {
@@ -705,7 +705,7 @@ hr {
 	border-width: 0;
 	border-top: 1px solid #eaeaea;
 	border-bottom: 1px solid #fff;
-	
+
 }
 
 .upload-btn-wrapper {
@@ -713,7 +713,7 @@ hr {
 	overflow: hidden;
 	display: inline-block;
   }
-  
+
   .btn {
 	border: none;
 	color: white;
@@ -721,7 +721,7 @@ hr {
 	padding: 8px 12px;
 	border-radius: 8px;
 	font-size: 16px;
-  
+
 	&.test {
 		font-size: 16px;
 		font-weight: 500;
@@ -733,7 +733,7 @@ hr {
 		background: #207774;
 	}
 }
-  
+
   .upload-btn-wrapper input[type=file] {
 	font-size: 100px;
 	position: absolute;
@@ -785,9 +785,9 @@ hr {
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus
-input:-webkit-autofill, 
+input:-webkit-autofill,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover
 textarea:-webkit-autofill:focus,

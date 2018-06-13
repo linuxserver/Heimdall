@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Heimdall'),  
+    'name' => env('APP_NAME', 'Heimdall'),
     'version' => '1.4.14',
 
     /*

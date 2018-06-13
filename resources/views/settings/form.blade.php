@@ -17,7 +17,7 @@
                     {!! $setting->edit_value !!}
             </div>
 
-            
+
         </div>
         <footer>
             <div class="section-title">&nbsp;</div>
