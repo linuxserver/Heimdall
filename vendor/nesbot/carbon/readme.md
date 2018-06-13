@@ -6,6 +6,7 @@
 [![StyleCI](https://styleci.io/repos/5724990/shield?style=flat)](https://styleci.io/repos/5724990)
 [![codecov.io](https://codecov.io/github/briannesbitt/Carbon/coverage.svg?branch=master)](https://codecov.io/github/briannesbitt/Carbon?branch=master)
 [![PHP-Eye](https://php-eye.com/badge/nesbot/carbon/tested.svg?style=flat)](https://php-eye.com/package/nesbot/carbon)
+[![PHPStan](https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat)](https://github.com/phpstan/phpstan)
 
 A simple PHP API extension for DateTime. [http://carbon.nesbot.com](http://carbon.nesbot.com)
 
@@ -16,7 +17,7 @@ printf("Right now is %s", Carbon::now()->toDateTimeString());
 printf("Right now in Vancouver is %s", Carbon::now('America/Vancouver'));  //implicit __toString()
 $tomorrow = Carbon::now()->addDay();
 $lastWeek = Carbon::now()->subWeek();
-$nextSummerOlympics = Carbon::createFromDate(2012)->addYears(4);
+$nextSummerOlympics = Carbon::createFromDate(2016)->addYears(4);
 
 $officialDate = Carbon::now()->toRfc2822String();
 
@@ -24,13 +25,13 @@ $howOldAmI = Carbon::createFromDate(1975, 5, 21)->age;
 
 $noonTodayLondonTime = Carbon::createFromTime(12, 0, 0, 'Europe/London');
 
-$worldWillEnd = Carbon::createFromDate(2012, 12, 21, 'GMT');
+$internetWillBlowUpOn = Carbon::create(2038, 01, 19, 3, 14, 7, 'GMT');
 
-// Don't really want to die so mock now
+// Don't really want this to happen so mock now
 Carbon::setTestNow(Carbon::createFromDate(2000, 1, 1));
 
 // comparisons are always done in UTC
-if (Carbon::now()->gte($worldWillEnd)) {
+if (Carbon::now()->gte($internetWillBlowUpOn)) {
     die();
 }
 
@@ -74,6 +75,7 @@ printf("Now: %s", Carbon::now());
 ```
 
 <a name="install-nocomposer"/>
+
 ### Without Composer
 
 Why are you not using [composer](http://getcomposer.org/)? Download [Carbon.php](https://github.com/briannesbitt/Carbon/blob/master/src/Carbon/Carbon.php) from the repo and save the file into your project path somewhere.

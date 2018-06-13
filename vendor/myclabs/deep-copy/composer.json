@@ -21,12 +21,15 @@
     },
 
     "require": {
-        "php": "^5.6 || ^7.0"
+        "php": "^7.1"
     },
     "require-dev": {
         "doctrine/collections": "^1.0",
         "doctrine/common": "^2.6",
-        "phpunit/phpunit": "^4.1"
+        "phpunit/phpunit": "^7.1"
+    },
+    "replace": {
+        "myclabs/deep-copy": "self.version"
     },
 
     "config": {

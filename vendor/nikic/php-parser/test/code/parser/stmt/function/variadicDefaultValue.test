@@ -7,13 +7,17 @@ Variadic parameter cannot have a default value from 2:24 to 2:25
 array(
     0: Stmt_Function(
         byRef: false
-        name: foo
+        name: Identifier(
+            name: foo
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: true
-                name: foo
+                var: Expr_Variable(
+                    name: foo
+                )
                 default: Expr_Array(
                     items: array(
                     )

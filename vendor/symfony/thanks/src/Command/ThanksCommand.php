@@ -13,11 +13,13 @@ namespace Symfony\Thanks\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Composer;
+use Composer\Downloader\TransportException;
 use Composer\Json\JsonFile;
 use Composer\Util\RemoteFilesystem;
 use Composer\Factory;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PreFileDownloadEvent;
+use Hirak\Prestissimo\CurlRemoteFilesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -166,7 +168,8 @@ class ThanksCommand extends BaseCommand
             }
         }
 
-        $repos = $this->callGitHub($rfs, sprintf("query{\n%s}", $graphql));
+        $failures = [];
+        $repos = $this->callGitHub($rfs, sprintf("query{\n%s}", $graphql), $failures);
 
         $template = '%1$s: addStar(input:{clientMutationId:"%s",starrableId:"%s"}){clientMutationId}'."\n";
         $graphql = '';
@@ -192,17 +195,29 @@ class ThanksCommand extends BaseCommand
             }
         }
 
+        if ($failures) {
+            $output->writeln('');
+            $output->writeln('Some repositories could not be starred, please run <info>composer update</info> and try again:');
+
+            foreach ($failures as $alias => $message) {
+                $output->writeln(sprintf(' * %s - %s', $aliases[$alias][1], $message));
+            }
+        }
+
         $output->writeln(sprintf("\nThanks to you! %s", $this->love));
+        $output->writeln("Please consider contributing back in any way if you can!");
 
         return 0;
     }
 
-    private function callGitHub(RemoteFilesystem $rfs, $graphql)
+    private function callGitHub(RemoteFilesystem $rfs, $graphql, &$failures = [])
     {
         if ($eventDispatcher = $this->getComposer()->getEventDispatcher()) {
             $preFileDownloadEvent = new PreFileDownloadEvent(PluginEvents::PRE_FILE_DOWNLOAD, $rfs, 'https://api.github.com/graphql');
             $eventDispatcher->dispatch($preFileDownloadEvent->getName(), $preFileDownloadEvent);
-            $rfs = $preFileDownloadEvent->getRemoteFilesystem();
+            if (!$preFileDownloadEvent->getRemoteFilesystem() instanceof CurlRemoteFilesystem) {
+                $rfs = $preFileDownloadEvent->getRemoteFilesystem();
+            }
         }
 
         $result = $rfs->getContents('github.com', 'https://api.github.com/graphql', false, [
@@ -213,6 +228,19 @@ class ThanksCommand extends BaseCommand
             ],
         ]);
         $result = json_decode($result, true);
+
+        if (isset($result['errors'][0]['message'])) {
+            if (!$result['data']) {
+                throw new TransportException($result['errors'][0]['message']);
+            }
+
+            foreach ($result['errors'] as $error) {
+                foreach ($error['path'] as $path) {
+                    $failures += [$path => $error['message']];
+                    unset($result['data'][$path]);
+                }
+            }
+        }
 
         return $result['data'];
     }

@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+4.1.0
+-----
+
+ * The `FileDumper::setBackup()` method is deprecated.
+ * The `TranslationWriter::disableBackup()` method is deprecated.
+ * The `XliffFileDumper` will write "name" on the "unit" node when dumping XLIFF 2.0.
+
+4.0.0
+-----
+
+ * removed the backup feature of the `FileDumper` class
+ * removed `TranslationWriter::writeTranslations()` method
+ * removed support for passing `MessageSelector` instances to the constructor of the `Translator` class
+
 3.4.0
 -----
 

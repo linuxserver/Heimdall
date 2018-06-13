@@ -24,7 +24,7 @@ array(
                         0: B
                     )
                 )
-                alias: B
+                alias: null
             )
         )
     )
@@ -44,7 +44,7 @@ array(
                         1: C
                     )
                 )
-                alias: C
+                alias: null
             )
             1: Stmt_UseUse(
                 type: TYPE_NORMAL (1)
@@ -53,7 +53,7 @@ array(
                         0: D
                     )
                 )
-                alias: D
+                alias: null
             )
         )
     )
@@ -74,7 +74,7 @@ array(
                         1: D
                     )
                 )
-                alias: D
+                alias: null
             )
             1: Stmt_UseUse(
                 type: TYPE_NORMAL (1)
@@ -83,7 +83,7 @@ array(
                         0: E
                     )
                 )
-                alias: E
+                alias: null
             )
         )
     )
@@ -103,7 +103,7 @@ array(
                         1: c
                     )
                 )
-                alias: c
+                alias: null
             )
             1: Stmt_UseUse(
                 type: TYPE_UNKNOWN (0)
@@ -112,7 +112,7 @@ array(
                         0: d
                     )
                 )
-                alias: d
+                alias: null
             )
         )
     )
@@ -132,7 +132,7 @@ array(
                         1: C
                     )
                 )
-                alias: C
+                alias: null
             )
             1: Stmt_UseUse(
                 type: TYPE_UNKNOWN (0)
@@ -141,7 +141,7 @@ array(
                         0: D
                     )
                 )
-                alias: D
+                alias: null
             )
         )
     )
@@ -162,7 +162,7 @@ array(
                         1: D
                     )
                 )
-                alias: D
+                alias: null
             )
             1: Stmt_UseUse(
                 type: TYPE_FUNCTION (2)
@@ -172,7 +172,7 @@ array(
                         1: c
                     )
                 )
-                alias: c
+                alias: null
             )
             2: Stmt_UseUse(
                 type: TYPE_CONSTANT (3)
@@ -181,7 +181,7 @@ array(
                         0: D
                     )
                 )
-                alias: D
+                alias: null
             )
         )
     )

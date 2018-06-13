@@ -15,10 +15,12 @@ array(
             )
         )
     )
-    1: Expr_ConstFetch(
-        name: Name(
-            parts: array(
-                0: bar
+    1: Stmt_Expression(
+        expr: Expr_ConstFetch(
+            name: Name(
+                parts: array(
+                    0: bar
+                )
             )
         )
     )

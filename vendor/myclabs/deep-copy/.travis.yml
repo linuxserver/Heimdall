@@ -2,16 +2,19 @@ language: php
 
 sudo: false
 
+env:
+  global:
+    - COMPOSER_ROOT_VERSION=1.8.0
+
 php:
-  - '5.6'
-  - '7.0'
   - '7.1'
+  - '7.2'
   - nightly
 
 matrix:
   fast_finish: true
   include:
-    - php: '5.6'
+    - php: '7.1'
       env: COMPOSER_FLAGS="--prefer-lowest"
   allow_failures:
     - php: nightly
@@ -19,12 +22,6 @@ matrix:
 cache:
   directories:
     - $HOME/.composer/cache/files
-
-before_install:
-  - |
-    if [ "$TRAVIS_PHP_VERSION" = "nightly" ]; then
-      COMPOSER_FLAGS="$COMPOSER_FLAGS --ignore-platform-reqs"
-    fi;
 
 install:
   - composer update --no-interaction --no-progress --no-suggest --prefer-dist $COMPOSER_FLAGS
@@ -38,3 +35,6 @@ script:
 
 after_script:
   - php coveralls.phar -v
+
+notifications:
+    email: false

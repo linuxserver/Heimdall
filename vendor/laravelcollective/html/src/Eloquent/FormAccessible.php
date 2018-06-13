@@ -87,7 +87,7 @@ trait FormAccessible
 
         $mutator = collect($methods)
           ->first(function (ReflectionMethod $method) use ($key) {
-              return $method->getName() == 'form' . Str::studly($key) . 'Attribute';
+              return $method->getName() === 'form' . Str::studly($key) . 'Attribute';
           });
 
         return (bool) $mutator;

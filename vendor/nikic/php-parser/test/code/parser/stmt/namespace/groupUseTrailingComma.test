@@ -21,7 +21,7 @@ array(
                         0: B
                     )
                 )
-                alias: B
+                alias: null
             )
         )
     )
@@ -40,7 +40,7 @@ array(
                         0: b
                     )
                 )
-                alias: b
+                alias: null
             )
         )
     )

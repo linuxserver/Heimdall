@@ -9,20 +9,26 @@ function test($a, Type &... $b) {}
 array(
     0: Stmt_Function(
         byRef: false
-        name: test
+        name: Identifier(
+            name: test
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: false
-                name: a
+                var: Expr_Variable(
+                    name: a
+                )
                 default: null
             )
             1: Param(
                 type: null
                 byRef: false
                 variadic: true
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )
@@ -32,20 +38,26 @@ array(
     )
     1: Stmt_Function(
         byRef: false
-        name: test
+        name: Identifier(
+            name: test
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: false
-                name: a
+                var: Expr_Variable(
+                    name: a
+                )
                 default: null
             )
             1: Param(
                 type: null
                 byRef: true
                 variadic: true
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )
@@ -55,13 +67,17 @@ array(
     )
     2: Stmt_Function(
         byRef: false
-        name: test
+        name: Identifier(
+            name: test
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: false
-                name: a
+                var: Expr_Variable(
+                    name: a
+                )
                 default: null
             )
             1: Param(
@@ -72,7 +88,9 @@ array(
                 )
                 byRef: false
                 variadic: true
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )
@@ -82,13 +100,17 @@ array(
     )
     3: Stmt_Function(
         byRef: false
-        name: test
+        name: Identifier(
+            name: test
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: false
-                name: a
+                var: Expr_Variable(
+                    name: a
+                )
                 default: null
             )
             1: Param(
@@ -99,7 +121,9 @@ array(
                 )
                 byRef: true
                 variadic: true
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )

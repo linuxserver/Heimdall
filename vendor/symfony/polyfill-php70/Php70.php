@@ -60,12 +60,12 @@ final class Php70
         restore_error_handler();
     }
 
-    public static function intArg($value, $caller, $pos)
+    private static function intArg($value, $caller, $pos)
     {
-        if (is_int($value)) {
+        if (\is_int($value)) {
             return $value;
         }
-        if (!is_numeric($value) || PHP_INT_MAX <= ($value += 0) || ~PHP_INT_MAX >= $value) {
+        if (!\is_numeric($value) || PHP_INT_MAX <= ($value += 0) || ~PHP_INT_MAX >= $value) {
             throw new \TypeError(sprintf('%s() expects parameter %d to be integer, %s given', $caller, $pos, gettype($value)));
         }
 

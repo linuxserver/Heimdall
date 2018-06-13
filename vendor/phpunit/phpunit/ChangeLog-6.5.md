@@ -2,6 +2,18 @@
 
 All notable changes of the PHPUnit 6.5 release series are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [6.5.8] - 2018-04-10
+
+### Fixed
+
+* Fixed [#2830](https://github.com/sebastianbergmann/phpunit/issues/2830): `@runClassInSeparateProcess` does not work for tests that use `@dataProvider`
+
+## [6.5.7] - 2018-02-26
+
+### Fixed
+
+* Fixed [#2974](https://github.com/sebastianbergmann/phpunit/issues/2974): JUnit XML logfile contains invalid characters when test output contains binary data
+
 ## [6.5.6] - 2018-02-01
 
 ### Fixed
@@ -50,6 +62,8 @@ All notable changes of the PHPUnit 6.5 release series are documented in this fil
 * Fixed [#2654](https://github.com/sebastianbergmann/phpunit/issues/2654): Problems with `assertJsonStringEqualsJsonString()`
 * Fixed [#2810](https://github.com/sebastianbergmann/phpunit/pull/2810): Code Coverage for PHPT tests does not work
 
+[6.5.8]: https://github.com/sebastianbergmann/phpunit/compare/6.5.7...6.5.8
+[6.5.7]: https://github.com/sebastianbergmann/phpunit/compare/6.5.6...6.5.7
 [6.5.6]: https://github.com/sebastianbergmann/phpunit/compare/6.5.5...6.5.6
 [6.5.5]: https://github.com/sebastianbergmann/phpunit/compare/6.5.4...6.5.5
 [6.5.4]: https://github.com/sebastianbergmann/phpunit/compare/6.5.3...6.5.4

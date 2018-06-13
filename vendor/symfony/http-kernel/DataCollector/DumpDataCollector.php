@@ -67,7 +67,7 @@ class DumpDataCollector extends DataCollector implements DataDumperInterface
         if ($this->stopwatch) {
             $this->stopwatch->start('dump');
         }
-        if ($this->isCollected) {
+        if ($this->isCollected && !$this->dumper) {
             $this->isCollected = false;
         }
 
@@ -250,7 +250,7 @@ class DumpDataCollector extends DataCollector implements DataDumperInterface
                 --$i;
             }
 
-            if ('cli' !== PHP_SAPI && stripos($h[$i], 'html')) {
+            if (!\in_array(PHP_SAPI, array('cli', 'phpdbg'), true) && stripos($h[$i], 'html')) {
                 $this->dumper = new HtmlDumper('php://output', $this->charset);
                 $this->dumper->setDisplayOptions(array('fileLinkFormat' => $this->fileLinkFormat));
             } else {

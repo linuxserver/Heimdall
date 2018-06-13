@@ -41,7 +41,7 @@ Kind | Behavior
 `ParserFactory::ONLY_PHP7` | Parse code as PHP 7.
 `ParserFactory::ONLY_PHP5` | Parse code as PHP 5.
 
-Unless you have strong reason to use something else, `PREFER_PHP7` is a reasonable default.
+Unless you have a strong reason to use something else, `PREFER_PHP7` is a reasonable default.
 
 The `create()` method optionally accepts a `Lexer` instance as the second argument. Some use cases
 that require customized lexers are discussed in the [lexer documentation](component/Lexer.markdown).
@@ -50,10 +50,18 @@ Subsequently you can pass PHP code (including the opening `<?php` tag) to the `p
 create a syntax tree. If a syntax error is encountered, an `PhpParser\Error` exception will be thrown:
 
 ```php
+<?php
 use PhpParser\Error;
 use PhpParser\ParserFactory;
 
-$code = '<?php // some code';
+$code = <<<'CODE'
+<?php
+function printLine($msg) {
+    echo $msg, "\n";
+}
+printLine('Hello World!!!');
+CODE;
+
 $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 
 try {
@@ -66,27 +74,68 @@ try {
 
 A parser instance can be reused to parse multiple files.
 
-Node tree
----------
+Node dumping
+------------
 
-If you use the above code with `$code = "<?php echo 'Hi ', hi\\getTarget();"` the parser will
-generate a node tree looking like this:
+To dump the abstact syntax tree in human readable form, a `NodeDumper` can be used:
+
+```php
+<?php
+use PhpParser\NodeDumper;
+
+$nodeDumper = new NodeDumper;
+echo $nodeDumper->dump($stmts), "\n";
+```
+
+For the sample code from the previous section, this will produce the following output:
 
 ```
 array(
-    0: Stmt_Echo(
-        exprs: array(
-            0: Scalar_String(
-                value: Hi
+    0: Stmt_Function(
+        byRef: false
+        name: Identifier(
+            name: printLine
+        )
+        params: array(
+            0: Param(
+                type: null
+                byRef: false
+                variadic: false
+                var: Expr_Variable(
+                    name: msg
+                )
+                default: null
             )
-            1: Expr_FuncCall(
-                name: Name(
-                    parts: array(
-                        0: hi
-                        1: getTarget
+        )
+        returnType: null
+        stmts: array(
+            0: Stmt_Echo(
+                exprs: array(
+                    0: Expr_Variable(
+                        name: msg
+                    )
+                    1: Scalar_String(
+                        value:
+
                     )
                 )
-                args: array(
+            )
+        )
+    )
+    1: Stmt_Expression(
+        expr: Expr_FuncCall(
+            name: Name(
+                parts: array(
+                    0: printLine
+                )
+            )
+            args: array(
+                0: Arg(
+                    value: Scalar_String(
+                        value: Hello World!!!
+                    )
+                    byRef: false
+                    unpack: false
                 )
             )
         )
@@ -94,10 +143,30 @@ array(
 )
 ```
 
-Thus `$stmts` will contain an array with only one node, with this node being an instance of
-`PhpParser\Node\Stmt\Echo_`.
+You can also use the `php-parse` script to obtain such a node dump by calling it either with a file
+name or code string:
 
-As PHP is a large language there are approximately 140 different nodes. In order to make work
+```sh
+vendor/bin/php-parse file.php
+vendor/bin/php-parse "<?php foo();"
+```
+
+This can be very helpful if you want to quickly check how certain syntax is represented in the AST.
+
+Node tree structure
+-------------------
+
+Looking at the node dump above, you can see that `$stmts` for this example code is an array of two
+nodes, a `Stmt_Function` and a `Stmt_Expression`. The corresponding class names are:
+
+ * `Stmt_Function -> PhpParser\Node\Stmt\Function_`
+ * `Stmt_Expression -> PhpParser\Node\Stmt\Expression`
+
+The additional `_` at the end of the first class name is necessary, because `Function` is a
+reserved keyword. Many node class names in this library have a trailing `_` to avoid clashing with
+a keyword.
+
+As PHP is a large language there are approximately 140 different nodes. In order to make working
 with them easier they are grouped into three categories:
 
  * `PhpParser\Node\Stmt`s are statement nodes, i.e. language constructs that do not return
@@ -113,8 +182,9 @@ with them easier they are grouped into three categories:
  * There are some nodes not in either of these groups, for example names (`PhpParser\Node\Name`)
    and call arguments (`PhpParser\Node\Arg`).
 
-Some node class names have a trailing `_`. This is used whenever the class name would otherwise clash
-with a PHP keyword.
+The `Node\Stmt\Expression` node is somewhat confusing in that it contains both the terms "statement"
+and "expression". This node distinguishes `expr`, which is a `Node\Expr`, from `expr;`, which is
+an "expression statement" represented by `Node\Stmt\Expression` and containing `expr` as a sub-node.
 
 Every node has a (possibly zero) number of subnodes. You can access subnodes by writing
 `$node->subNodeName`. The `Stmt\Echo_` node has only one subnode `exprs`. So in order to access it
@@ -173,7 +243,7 @@ try {
 
 The above code will output:
 
-    <?php echo 'Hello ', hi\getTarget();
+    echo 'Hello ', hi\getTarget();
 
 As you can see the source code was first parsed using `PhpParser\Parser->parse()`, then changed and then
 again converted to code using `PhpParser\PrettyPrinter\Standard->prettyPrint()`.
@@ -183,6 +253,8 @@ single expression using `prettyPrintExpr()`.
 
 The `prettyPrintFile()` method can be used to print an entire file. This will include the opening `<?php` tag
 and handle inline HTML as the first/last statement more gracefully.
+
+> Read more: [Pretty printing documentation](component/Pretty_printing.markdown)
 
 Node traversation
 -----------------
@@ -278,10 +350,12 @@ be `array(A, X, Y, Z, C)`.
 Instead of manually implementing the `NodeVisitor` interface you can also extend the `NodeVisitorAbstract`
 class, which will define empty default implementations for all the above methods.
 
+> Read more: [Walking the AST](component/Walking_the_AST.markdown)
+
 The NameResolver node visitor
 -----------------------------
 
-One visitor is already bundled with the package: `PhpParser\NodeVisitor\NameResolver`. This visitor
+One visitor that is already bundled with the package is `PhpParser\NodeVisitor\NameResolver`. This visitor
 helps you work with namespaced code by trying to resolve most names to fully qualified ones.
 
 For example, consider the following code:
@@ -292,13 +366,15 @@ For example, consider the following code:
 In order to know that `B\C` really is `A\C` you would need to track aliases and namespaces yourself.
 The `NameResolver` takes care of that and resolves names as far as possible.
 
-After running it most names will be fully qualified. The only names that will stay unqualified are
+After running it, most names will be fully qualified. The only names that will stay unqualified are
 unqualified function and constant names. These are resolved at runtime and thus the visitor can't
 know which function they are referring to. In most cases this is a non-issue as the global functions
 are meant.
 
 Also the `NameResolver` adds a `namespacedName` subnode to class, function and constant declarations
 that contains the namespaced name instead of only the shortname that is available via `name`.
+
+> Read more: [Name resolution documentation](component/Name_resolution.markdown)
 
 Example: Converting namespaced code to pseudo namespaces
 --------------------------------------------------------
@@ -333,7 +409,7 @@ $files = new \RegexIterator($files, '/\.php$/');
 foreach ($files as $file) {
     try {
         // read the file that should be converted
-        $code = file_get_contents($file);
+        $code = file_get_contents($file->getPathName());
 
         // parse
         $stmts = $parser->parse($code);
@@ -365,7 +441,7 @@ class NamespaceConverter extends \PhpParser\NodeVisitorAbstract
 {
     public function leaveNode(Node $node) {
         if ($node instanceof Node\Name) {
-            return new Node\Name($node->toString('_'));
+            return new Node\Name(str_replace('\\', '_', $node->toString()));
         }
     }
 }
@@ -373,7 +449,7 @@ class NamespaceConverter extends \PhpParser\NodeVisitorAbstract
 
 The above code profits from the fact that the `NameResolver` already resolved all names as far as
 possible, so we don't need to do that. We only need to create a string with the name parts separated
-by underscores instead of backslashes. This is what `$node->toString('_')` does. (If you want to
+by underscores instead of backslashes. This is what `str_replace('\\', '_', $node->toString())` does. (If you want to
 create a name with backslashes either write `$node->toString()` or `(string) $node`.) Then we create
 a new name from the string and return it. Returning a new node replaces the old node.
 
@@ -389,14 +465,14 @@ class NodeVisitor_NamespaceConverter extends \PhpParser\NodeVisitorAbstract
 {
     public function leaveNode(Node $node) {
         if ($node instanceof Node\Name) {
-            return new Node\Name($node->toString('_'));
+            return new Node\Name(str_replace('\\', '_', $node->toString()));
         } elseif ($node instanceof Stmt\Class_
                   || $node instanceof Stmt\Interface_
                   || $node instanceof Stmt\Function_) {
-            $node->name = $node->namespacedName->toString('_');
+            $node->name = str_replace('\\', '_', $node->namespacedName->toString());
         } elseif ($node instanceof Stmt\Const_) {
             foreach ($node->consts as $const) {
-                $const->name = $const->namespacedName->toString('_');
+                $const->name = str_replace('\\', '_', $const->namespacedName->toString());
             }
         }
     }
@@ -410,26 +486,27 @@ The last thing we need to do is remove the `namespace` and `use` statements:
 ```php
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
+use PhpParser\NodeTraverser;
 
 class NodeVisitor_NamespaceConverter extends \PhpParser\NodeVisitorAbstract
 {
     public function leaveNode(Node $node) {
         if ($node instanceof Node\Name) {
-            return new Node\Name($node->toString('_'));
+            return new Node\Name(str_replace('\\', '_', $node->toString()));
         } elseif ($node instanceof Stmt\Class_
                   || $node instanceof Stmt\Interface_
                   || $node instanceof Stmt\Function_) {
-            $node->name = $node->namespacedName->toString('_');
+            $node->name = str_replace('\\', '_', $node->namespacedName->toString();
         } elseif ($node instanceof Stmt\Const_) {
             foreach ($node->consts as $const) {
-                $const->name = $const->namespacedName->toString('_');
+                $const->name = str_replace('\\', '_', $const->namespacedName->toString());
             }
         } elseif ($node instanceof Stmt\Namespace_) {
             // returning an array merges is into the parent array
             return $node->stmts;
         } elseif ($node instanceof Stmt\Use_) {
-            // returning false removed the node altogether
-            return false;
+            // remove use nodes altogether
+            return NodeTraverser::REMOVE_NODE;
         }
     }
 }

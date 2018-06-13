@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Stmt;
 
@@ -18,13 +18,17 @@ class Switch_ extends Node\Stmt
      * @param Case_[]   $cases      Case list
      * @param array     $attributes Additional attributes
      */
-    public function __construct(Node\Expr $cond, array $cases, array $attributes = array()) {
+    public function __construct(Node\Expr $cond, array $cases, array $attributes = []) {
         parent::__construct($attributes);
         $this->cond = $cond;
         $this->cases = $cases;
     }
 
-    public function getSubNodeNames() {
-        return array('cond', 'cases');
+    public function getSubNodeNames() : array {
+        return ['cond', 'cases'];
+    }
+    
+    public function getType() : string {
+        return 'Stmt_Switch';
     }
 }

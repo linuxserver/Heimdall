@@ -2,8 +2,8 @@
 $meta #
 #semval($) $this->semValue
 #semval($,%t) $this->semValue
-#semval(%n) $this->stackPos-(%l-%n)
-#semval(%n,%t) $this->stackPos-(%l-%n)
+#semval(%n) $stackPos-(%l-%n)
+#semval(%n,%t) $stackPos-(%l-%n)
 
 namespace PhpParser\Parser;
 
@@ -32,8 +32,8 @@ class #(-p) extends \PhpParser\ParserAbstract
     protected $defaultAction = #(YYDEFAULT);
     protected $unexpectedTokenRule = #(YYUNEXPECTED);
 
-    protected $YY2TBLSTATE  = #(YY2TBLSTATE);
-    protected $YYNLSTATES   = #(YYNLSTATES);
+    protected $YY2TBLSTATE = #(YY2TBLSTATE);
+    protected $numNonLeafStates = #(YYNLSTATES);
 
     protected $symbolToName = array(
         #listvar terminals
@@ -88,16 +88,19 @@ class #(-p) extends \PhpParser\ParserAbstract
         #production-strings;
     );
 #endif
+
+    protected function initReduceCallbacks() {
+        $this->reduceCallbacks = [
 #reduce
-
-    protected function reduceRule%n() {
-        %b
-    }
+            %n => function ($stackPos) {
+                %b
+            },
 #noact
-
-    protected function reduceRule%n() {
-        $this->semValue = $this->semStack[$this->stackPos];
-    }
+            %n => function ($stackPos) {
+                $this->semValue = $this->semStack[$stackPos];
+            },
 #endreduce
+        ];
+    }
 }
 #tailcode;

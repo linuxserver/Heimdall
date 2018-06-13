@@ -8,9 +8,12 @@
         <directory name="lib" />
     </projectFiles>
     <issueHandlers>
+        <RedundantConditionGivenDocblockType errorLevel="info" />
+        <UnresolvableInclude errorLevel="info" />
         <DuplicateClass errorLevel="info" />
         <InvalidOperand errorLevel="info" />
         <UndefinedConstant errorLevel="info" />
         <MissingReturnType errorLevel="info" />
+        <InvalidReturnType errorLevel="info" />
     </issueHandlers>
 </psalm>

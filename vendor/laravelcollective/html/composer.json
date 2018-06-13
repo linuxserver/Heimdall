@@ -2,7 +2,7 @@
     "name": "laravelcollective/html",
     "description": "HTML and Form Builders for the Laravel Framework",
     "license": "MIT",
-    "homepage": "http://laravelcollective.com",
+    "homepage": "https://laravelcollective.com",
     "support": {
         "issues": "https://github.com/LaravelCollective/html/issues",
         "source": "https://github.com/LaravelCollective/html"
@@ -39,6 +39,9 @@
         ]
     },
     "extra": {
+        "branch-alias": {
+            "dev-master": "5.5-dev"
+        },
         "laravel": {
             "providers": [
                 "Collective\\Html\\HtmlServiceProvider"

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser;
 
@@ -39,7 +39,7 @@ class NodeDumper
      *
      * @return string Dumped value
      */
-    public function dump($node, $code = null) {
+    public function dump($node, string $code = null) : string {
         $this->code = $code;
         return $this->dumpRecursive($node);
     }
@@ -65,9 +65,9 @@ class NodeDumper
                 } elseif (is_scalar($value)) {
                     if ('flags' === $key || 'newModifier' === $key) {
                         $r .= $this->dumpFlags($value);
-                    } else if ('type' === $key && $node instanceof Include_) {
+                    } elseif ('type' === $key && $node instanceof Include_) {
                         $r .= $this->dumpIncludeType($value);
-                    } else if ('type' === $key
+                    } elseif ('type' === $key
                             && ($node instanceof Use_ || $node instanceof UseUse || $node instanceof GroupUse)) {
                         $r .= $this->dumpUseType($value);
                     } else {
@@ -78,7 +78,7 @@ class NodeDumper
                 }
             }
 
-            if ($this->dumpComments && $comments = $node->getAttribute('comments')) {
+            if ($this->dumpComments && $comments = $node->getComments()) {
                 $r .= "\n    comments: " . str_replace("\n", "\n    ", $this->dumpRecursive($comments));
             }
         } elseif (is_array($node)) {
@@ -141,7 +141,7 @@ class NodeDumper
             Include_::TYPE_INCLUDE      => 'TYPE_INCLUDE',
             Include_::TYPE_INCLUDE_ONCE => 'TYPE_INCLUDE_ONCE',
             Include_::TYPE_REQUIRE      => 'TYPE_REQUIRE',
-            Include_::TYPE_REQUIRE_ONCE => 'TYPE_REQURE_ONCE',
+            Include_::TYPE_REQUIRE_ONCE => 'TYPE_REQUIRE_ONCE',
         ];
 
         if (!isset($map[$type])) {
@@ -164,18 +164,25 @@ class NodeDumper
         return $map[$type] . ' (' . $type . ')';
     }
 
+    /**
+     * Dump node position, if possible.
+     *
+     * @param Node $node Node for which to dump position
+     *
+     * @return string|null Dump of position, or null if position information not available
+     */
     protected function dumpPosition(Node $node) {
         if (!$node->hasAttribute('startLine') || !$node->hasAttribute('endLine')) {
             return null;
         }
 
-        $start = $node->getAttribute('startLine');
-        $end = $node->getAttribute('endLine');
+        $start = $node->getStartLine();
+        $end = $node->getEndLine();
         if ($node->hasAttribute('startFilePos') && $node->hasAttribute('endFilePos')
             && null !== $this->code
         ) {
-            $start .= ':' . $this->toColumn($this->code, $node->getAttribute('startFilePos'));
-            $end .= ':' . $this->toColumn($this->code, $node->getAttribute('endFilePos'));
+            $start .= ':' . $this->toColumn($this->code, $node->getStartFilePos());
+            $end .= ':' . $this->toColumn($this->code, $node->getEndFilePos());
         }
         return "[$start - $end]";
     }

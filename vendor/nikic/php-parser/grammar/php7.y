@@ -16,7 +16,7 @@ top_statement_list_ex:
 
 top_statement_list:
       top_statement_list_ex
-          { makeNop($nop, $this->lookaheadStartAttributes);
+          { makeNop($nop, $this->lookaheadStartAttributes, $this->endAttributes);
             if ($nop !== null) { $1[] = $nop; } $$ = $1; }
 ;
 
@@ -35,9 +35,17 @@ semi_reserved:
     | T_STATIC | T_ABSTRACT | T_FINAL | T_PRIVATE | T_PROTECTED | T_PUBLIC
 ;
 
+identifier_ex:
+      T_STRING                                              { $$ = Node\Identifier[$1]; }
+    | semi_reserved                                         { $$ = Node\Identifier[$1]; }
+;
+
 identifier:
-      T_STRING                                              { $$ = $1; }
-    | semi_reserved                                         { $$ = $1; }
+      T_STRING                                              { $$ = Node\Identifier[$1]; }
+;
+
+reserved_non_modifiers_identifier:
+      reserved_non_modifiers                                { $$ = Node\Identifier[$1]; }
 ;
 
 namespace_name_parts:
@@ -47,6 +55,10 @@ namespace_name_parts:
 
 namespace_name:
       namespace_name_parts                                  { $$ = Name[$1]; }
+;
+
+plain_variable:
+      T_VARIABLE                                            { $$ = Expr\Variable[parseVar($1)]; }
 ;
 
 semi:
@@ -136,7 +148,7 @@ non_empty_inline_use_declarations:
 unprefixed_use_declaration:
       namespace_name
           { $$ = Stmt\UseUse[$1, null, Stmt\Use_::TYPE_UNKNOWN]; $this->checkUseUse($$, #1); }
-    | namespace_name T_AS T_STRING
+    | namespace_name T_AS identifier
           { $$ = Stmt\UseUse[$1, $3, Stmt\Use_::TYPE_UNKNOWN]; $this->checkUseUse($$, #3); }
 ;
 
@@ -161,7 +173,7 @@ non_empty_constant_declaration_list:
 ;
 
 constant_declaration:
-    T_STRING '=' expr                                       { $$ = Node\Const_[$1, $3]; }
+    identifier '=' expr                                     { $$ = Node\Const_[$1, $3]; }
 ;
 
 class_const_list:
@@ -174,7 +186,7 @@ non_empty_class_const_list:
 ;
 
 class_const:
-    identifier '=' expr                                     { $$ = Node\Const_[$1, $3]; }
+    identifier_ex '=' expr                                  { $$ = Node\Const_[$1, $3]; }
 ;
 
 inner_statement_list_ex:
@@ -184,7 +196,7 @@ inner_statement_list_ex:
 
 inner_statement_list:
       inner_statement_list_ex
-          { makeNop($nop, $this->lookaheadStartAttributes);
+          { makeNop($nop, $this->lookaheadStartAttributes, $this->endAttributes);
             if ($nop !== null) { $1[] = $nop; } $$ = $1; }
 ;
 
@@ -202,7 +214,7 @@ non_empty_statement:
         if ($2) {
             $$ = $2; prependLeadingComments($$);
         } else {
-            makeNop($$, $this->startAttributeStack[#1]);
+            makeNop($$, $this->startAttributeStack[#1], $this->endAttributes);
             if (null === $$) { $$ = array(); }
         }
     }
@@ -222,25 +234,27 @@ non_empty_statement:
     | T_STATIC static_var_list semi                         { $$ = Stmt\Static_[$2]; }
     | T_ECHO expr_list semi                                 { $$ = Stmt\Echo_[$2]; }
     | T_INLINE_HTML                                         { $$ = Stmt\InlineHTML[$1]; }
-    | expr semi                                             { $$ = $1; }
+    | expr semi                                             { $$ = Stmt\Expression[$1]; }
     | T_UNSET '(' variables_list ')' semi                   { $$ = Stmt\Unset_[$3]; }
     | T_FOREACH '(' expr T_AS foreach_variable ')' foreach_statement
           { $$ = Stmt\Foreach_[$3, $5[0], ['keyVar' => null, 'byRef' => $5[1], 'stmts' => $7]]; }
     | T_FOREACH '(' expr T_AS variable T_DOUBLE_ARROW foreach_variable ')' foreach_statement
           { $$ = Stmt\Foreach_[$3, $7[0], ['keyVar' => $5, 'byRef' => $7[1], 'stmts' => $9]]; }
+    | T_FOREACH '(' expr error ')' foreach_statement
+          { $$ = Stmt\Foreach_[$3, new Expr\Error(stackAttributes(#4)), ['stmts' => $6]]; }
     | T_DECLARE '(' declare_list ')' declare_statement      { $$ = Stmt\Declare_[$3, $5]; }
     | T_TRY '{' inner_statement_list '}' catches optional_finally
           { $$ = Stmt\TryCatch[$3, $5, $6]; $this->checkTryCatch($$); }
     | T_THROW expr semi                                     { $$ = Stmt\Throw_[$2]; }
-    | T_GOTO T_STRING semi                                  { $$ = Stmt\Goto_[$2]; }
-    | T_STRING ':'                                          { $$ = Stmt\Label[$1]; }
+    | T_GOTO identifier semi                                { $$ = Stmt\Goto_[$2]; }
+    | identifier ':'                                        { $$ = Stmt\Label[$1]; }
     | error                                                 { $$ = array(); /* means: no statement */ }
 ;
 
 statement:
       non_empty_statement                                   { $$ = $1; }
     | ';'
-          { makeNop($$, $this->startAttributeStack[#1]);
+          { makeNop($$, $this->startAttributeStack[#1], $this->endAttributes);
             if ($$ === null) $$ = array(); /* means: no statement */ }
 ;
 
@@ -255,8 +269,8 @@ name_union:
 ;
 
 catch:
-    T_CATCH '(' name_union T_VARIABLE ')' '{' inner_statement_list '}'
-        { $$ = Stmt\Catch_[$3, parseVar($4), $7]; }
+    T_CATCH '(' name_union plain_variable ')' '{' inner_statement_list '}'
+        { $$ = Stmt\Catch_[$3, $4, $7]; }
 ;
 
 optional_finally:
@@ -265,7 +279,7 @@ optional_finally:
 ;
 
 variables_list:
-      non_empty_variables_list no_comma                     { $$ = $1; }
+      non_empty_variables_list optional_comma               { $$ = $1; }
 ;
 
 non_empty_variables_list:
@@ -283,19 +297,24 @@ optional_ellipsis:
     | T_ELLIPSIS                                            { $$ = true; }
 ;
 
+block_or_error:
+      '{' inner_statement_list '}'                          { $$ = $2; }
+    | error                                                 { $$ = []; }
+;
+
 function_declaration_statement:
-    T_FUNCTION optional_ref T_STRING '(' parameter_list ')' optional_return_type '{' inner_statement_list '}'
-        { $$ = Stmt\Function_[$3, ['byRef' => $2, 'params' => $5, 'returnType' => $7, 'stmts' => $9]]; }
+    T_FUNCTION optional_ref identifier '(' parameter_list ')' optional_return_type block_or_error
+        { $$ = Stmt\Function_[$3, ['byRef' => $2, 'params' => $5, 'returnType' => $7, 'stmts' => $8]]; }
 ;
 
 class_declaration_statement:
-      class_entry_type T_STRING extends_from implements_list '{' class_statement_list '}'
+      class_entry_type identifier extends_from implements_list '{' class_statement_list '}'
           { $$ = Stmt\Class_[$2, ['type' => $1, 'extends' => $3, 'implements' => $4, 'stmts' => $6]];
             $this->checkClass($$, #2); }
-    | T_INTERFACE T_STRING interface_extends_list '{' class_statement_list '}'
+    | T_INTERFACE identifier interface_extends_list '{' class_statement_list '}'
           { $$ = Stmt\Interface_[$2, ['extends' => $3, 'stmts' => $5]];
             $this->checkInterface($$, #2); }
-    | T_TRAIT T_STRING '{' class_statement_list '}'
+    | T_TRAIT identifier '{' class_statement_list '}'
           { $$ = Stmt\Trait_[$2, ['stmts' => $4]]; }
 ;
 
@@ -355,7 +374,7 @@ non_empty_declare_list:
 ;
 
 declare_list_element:
-      T_STRING '=' expr                                     { $$ = Stmt\DeclareDeclare[$1, $3]; }
+      identifier '=' expr                                   { $$ = Stmt\DeclareDeclare[$1, $3]; }
 ;
 
 switch_case_list:
@@ -371,8 +390,8 @@ case_list:
 ;
 
 case:
-      T_CASE expr case_separator inner_statement_list       { $$ = Stmt\Case_[$2, $4]; }
-    | T_DEFAULT case_separator inner_statement_list         { $$ = Stmt\Case_[null, $3]; }
+      T_CASE expr case_separator inner_statement_list_ex    { $$ = Stmt\Case_[$2, $4]; }
+    | T_DEFAULT case_separator inner_statement_list_ex      { $$ = Stmt\Case_[null, $3]; }
 ;
 
 case_separator:
@@ -431,10 +450,12 @@ non_empty_parameter_list:
 ;
 
 parameter:
-      optional_param_type optional_ref optional_ellipsis T_VARIABLE
-          { $$ = Node\Param[parseVar($4), null, $1, $2, $3]; $this->checkParam($$); }
-    | optional_param_type optional_ref optional_ellipsis T_VARIABLE '=' expr
-          { $$ = Node\Param[parseVar($4), $6, $1, $2, $3]; $this->checkParam($$); }
+      optional_param_type optional_ref optional_ellipsis plain_variable
+          { $$ = Node\Param[$4, null, $1, $2, $3]; $this->checkParam($$); }
+    | optional_param_type optional_ref optional_ellipsis plain_variable '=' expr
+          { $$ = Node\Param[$4, $6, $1, $2, $3]; $this->checkParam($$); }
+    | optional_param_type optional_ref optional_ellipsis error
+          { $$ = Node\Param[Expr\Error[], null, $1, $2, $3]; }
 ;
 
 type_expr:
@@ -444,8 +465,8 @@ type_expr:
 
 type:
       name                                                  { $$ = $this->handleBuiltinTypes($1); }
-    | T_ARRAY                                               { $$ = 'array'; }
-    | T_CALLABLE                                            { $$ = 'callable'; }
+    | T_ARRAY                                               { $$ = Node\Identifier['array']; }
+    | T_CALLABLE                                            { $$ = Node\Identifier['callable']; }
 ;
 
 optional_param_type:
@@ -460,7 +481,7 @@ optional_return_type:
 
 argument_list:
       '(' ')'                                               { $$ = array(); }
-    | '(' non_empty_argument_list no_comma ')'              { $$ = $2; }
+    | '(' non_empty_argument_list optional_comma ')'        { $$ = $2; }
 ;
 
 non_empty_argument_list:
@@ -497,12 +518,12 @@ non_empty_static_var_list:
 ;
 
 static_var:
-      T_VARIABLE                                            { $$ = Stmt\StaticVar[parseVar($1), null]; }
-    | T_VARIABLE '=' expr                                   { $$ = Stmt\StaticVar[parseVar($1), $3]; }
+      plain_variable                                        { $$ = Stmt\StaticVar[$1, null]; }
+    | plain_variable '=' expr                               { $$ = Stmt\StaticVar[$1, $3]; }
 ;
 
 class_statement_list:
-      class_statement_list class_statement                  { push($1, $2); }
+      class_statement_list class_statement                  { if ($2 !== null) { push($1, $2); } }
     | /* empty */                                           { init(); }
 ;
 
@@ -511,10 +532,11 @@ class_statement:
           { $$ = Stmt\Property[$1, $2]; $this->checkProperty($$, #1); }
     | method_modifiers T_CONST class_const_list ';'
           { $$ = Stmt\ClassConst[$3, $1]; $this->checkClassConst($$, #1); }
-    | method_modifiers T_FUNCTION optional_ref identifier '(' parameter_list ')' optional_return_type method_body
+    | method_modifiers T_FUNCTION optional_ref identifier_ex '(' parameter_list ')' optional_return_type method_body
           { $$ = Stmt\ClassMethod[$4, ['type' => $1, 'byRef' => $3, 'params' => $6, 'returnType' => $8, 'stmts' => $9]];
             $this->checkClassMethod($$, #1); }
     | T_USE class_name_list trait_adaptations               { $$ = Stmt\TraitUse[$2, $3]; }
+    | error                                                 { $$ = null; /* will be skipped */ }
 ;
 
 trait_adaptations:
@@ -530,27 +552,27 @@ trait_adaptation_list:
 trait_adaptation:
       trait_method_reference_fully_qualified T_INSTEADOF class_name_list ';'
           { $$ = Stmt\TraitUseAdaptation\Precedence[$1[0], $1[1], $3]; }
-    | trait_method_reference T_AS member_modifier identifier ';'
+    | trait_method_reference T_AS member_modifier identifier_ex ';'
           { $$ = Stmt\TraitUseAdaptation\Alias[$1[0], $1[1], $3, $4]; }
     | trait_method_reference T_AS member_modifier ';'
           { $$ = Stmt\TraitUseAdaptation\Alias[$1[0], $1[1], $3, null]; }
-    | trait_method_reference T_AS T_STRING ';'
+    | trait_method_reference T_AS identifier ';'
           { $$ = Stmt\TraitUseAdaptation\Alias[$1[0], $1[1], null, $3]; }
-    | trait_method_reference T_AS reserved_non_modifiers ';'
+    | trait_method_reference T_AS reserved_non_modifiers_identifier ';'
           { $$ = Stmt\TraitUseAdaptation\Alias[$1[0], $1[1], null, $3]; }
 ;
 
 trait_method_reference_fully_qualified:
-      name T_PAAMAYIM_NEKUDOTAYIM identifier                { $$ = array($1, $3); }
+      name T_PAAMAYIM_NEKUDOTAYIM identifier_ex             { $$ = array($1, $3); }
 ;
 trait_method_reference:
       trait_method_reference_fully_qualified                { $$ = $1; }
-    | identifier                                            { $$ = array(null, $1); }
+    | identifier_ex                                         { $$ = array(null, $1); }
 ;
 
 method_body:
       ';' /* abstract method */                             { $$ = null; }
-    | '{' inner_statement_list '}'                          { $$ = $2; }
+    | block_or_error                                        { $$ = $1; }
 ;
 
 variable_modifiers:
@@ -587,9 +609,13 @@ non_empty_property_declaration_list:
           { push($1, $3); }
 ;
 
+property_decl_name:
+      T_VARIABLE                                            { $$ = Node\VarLikeIdentifier[parseVar($1)]; }
+;
+
 property_declaration:
-      T_VARIABLE                                            { $$ = Stmt\PropertyProperty[parseVar($1), null]; }
-    | T_VARIABLE '=' expr                                   { $$ = Stmt\PropertyProperty[parseVar($1), $3]; }
+      property_decl_name                                    { $$ = Stmt\PropertyProperty[$1, null]; }
+    | property_decl_name '=' expr                           { $$ = Stmt\PropertyProperty[$1, $3]; }
 ;
 
 expr_list:
@@ -692,17 +718,18 @@ expr:
     | T_YIELD expr T_DOUBLE_ARROW expr                      { $$ = Expr\Yield_[$4, $2]; }
     | T_YIELD_FROM expr                                     { $$ = Expr\YieldFrom[$2]; }
     | T_FUNCTION optional_ref '(' parameter_list ')' lexical_vars optional_return_type
-      '{' inner_statement_list '}'
-          { $$ = Expr\Closure[['static' => false, 'byRef' => $2, 'params' => $4, 'uses' => $6, 'returnType' => $7, 'stmts' => $9]]; }
+      block_or_error
+          { $$ = Expr\Closure[['static' => false, 'byRef' => $2, 'params' => $4, 'uses' => $6, 'returnType' => $7, 'stmts' => $8]]; }
     | T_STATIC T_FUNCTION optional_ref '(' parameter_list ')' lexical_vars optional_return_type
-      '{' inner_statement_list '}'
-          { $$ = Expr\Closure[['static' => true, 'byRef' => $3, 'params' => $5, 'uses' => $7, 'returnType' => $8, 'stmts' => $10]]; }
+      block_or_error
+          { $$ = Expr\Closure[['static' => true, 'byRef' => $3, 'params' => $5, 'uses' => $7, 'returnType' => $8, 'stmts' => $9]]; }
 ;
 
 anonymous_class:
       T_CLASS ctor_arguments extends_from implements_list '{' class_statement_list '}'
           { $$ = array(Stmt\Class_[null, ['type' => 0, 'extends' => $3, 'implements' => $4, 'stmts' => $6]], $2);
             $this->checkClass($$[0], -1); }
+;
 
 new_expr:
       T_NEW class_name_reference ctor_arguments             { $$ = Expr\New_[$2, $3]; }
@@ -725,7 +752,7 @@ non_empty_lexical_var_list:
 ;
 
 lexical_var:
-      optional_ref T_VARIABLE                               { $$ = Expr\ClosureUse[parseVar($2), $1]; }
+      optional_ref plain_variable                           { $$ = Expr\ClosureUse[$2, $1]; }
 ;
 
 function_call:
@@ -776,7 +803,7 @@ ctor_arguments:
 
 constant:
       name                                                  { $$ = Expr\ConstFetch[$1]; }
-    | class_name_or_var T_PAAMAYIM_NEKUDOTAYIM identifier
+    | class_name_or_var T_PAAMAYIM_NEKUDOTAYIM identifier_ex
           { $$ = Expr\ClassConstFetch[$1, $3]; }
     /* We interpret and isolated FOO:: as an unfinished class constant fetch. It could also be
        an unfinished static property fetch or unfinished scoped call. */
@@ -867,8 +894,13 @@ simple_variable:
     | '$' error                                             { $$ = Expr\Error[]; $this->errorState = 2; }
 ;
 
+static_member_prop_name:
+      simple_variable
+          { $var = $1; $$ = \is_string($var) ? Node\VarLikeIdentifier[$var] : $var; }
+;
+
 static_member:
-      class_name_or_var T_PAAMAYIM_NEKUDOTAYIM simple_variable
+      class_name_or_var T_PAAMAYIM_NEKUDOTAYIM static_member_prop_name
           { $$ = Expr\StaticPropertyFetch[$1, $3]; }
 ;
 
@@ -877,18 +909,20 @@ new_variable:
     | new_variable '[' optional_expr ']'                    { $$ = Expr\ArrayDimFetch[$1, $3]; }
     | new_variable '{' expr '}'                             { $$ = Expr\ArrayDimFetch[$1, $3]; }
     | new_variable T_OBJECT_OPERATOR property_name          { $$ = Expr\PropertyFetch[$1, $3]; }
-    | class_name T_PAAMAYIM_NEKUDOTAYIM simple_variable     { $$ = Expr\StaticPropertyFetch[$1, $3]; }
-    | new_variable T_PAAMAYIM_NEKUDOTAYIM simple_variable   { $$ = Expr\StaticPropertyFetch[$1, $3]; }
+    | class_name T_PAAMAYIM_NEKUDOTAYIM static_member_prop_name
+          { $$ = Expr\StaticPropertyFetch[$1, $3]; }
+    | new_variable T_PAAMAYIM_NEKUDOTAYIM static_member_prop_name
+          { $$ = Expr\StaticPropertyFetch[$1, $3]; }
 ;
 
 member_name:
-      identifier                                            { $$ = $1; }
+      identifier_ex                                         { $$ = $1; }
     | '{' expr '}'	                                        { $$ = $2; }
     | simple_variable	                                    { $$ = Expr\Variable[$1]; }
 ;
 
 property_name:
-      T_STRING                                              { $$ = $1; }
+      identifier                                            { $$ = $1; }
     | '{' expr '}'	                                        { $$ = $2; }
     | simple_variable	                                    { $$ = Expr\Variable[$1]; }
     | error                                                 { $$ = Expr\Error[]; $this->errorState = 2; }
@@ -905,15 +939,17 @@ list_expr_elements:
 
 list_expr_element:
       variable                                              { $$ = Expr\ArrayItem[$1, null, false]; }
+    | '&' variable                                          { $$ = Expr\ArrayItem[$2, null, true]; }
     | list_expr                                             { $$ = Expr\ArrayItem[$1, null, false]; }
     | expr T_DOUBLE_ARROW variable                          { $$ = Expr\ArrayItem[$3, $1, false]; }
+    | expr T_DOUBLE_ARROW '&' variable                      { $$ = Expr\ArrayItem[$4, $1, true]; }
     | expr T_DOUBLE_ARROW list_expr                         { $$ = Expr\ArrayItem[$3, $1, false]; }
     | /* empty */                                           { $$ = null; }
 ;
 
 array_pair_list:
       inner_array_pair_list
-          { $$ = $1; $end = count($$)-1; if ($$[$end] === null) unset($$[$end]); }
+          { $$ = $1; $end = count($$)-1; if ($$[$end] === null) array_pop($$); }
 ;
 
 inner_array_pair_list:
@@ -940,18 +976,18 @@ encaps_string_part:
       T_ENCAPSED_AND_WHITESPACE                             { $$ = Scalar\EncapsedStringPart[$1]; }
 ;
 
-encaps_base_var:
-      T_VARIABLE                                            { $$ = Expr\Variable[parseVar($1)]; }
+encaps_str_varname:
+      T_STRING_VARNAME                                      { $$ = Expr\Variable[$1]; }
 ;
 
 encaps_var:
-      encaps_base_var                                       { $$ = $1; }
-    | encaps_base_var '[' encaps_var_offset ']'             { $$ = Expr\ArrayDimFetch[$1, $3]; }
-    | encaps_base_var T_OBJECT_OPERATOR T_STRING            { $$ = Expr\PropertyFetch[$1, $3]; }
+      plain_variable                                        { $$ = $1; }
+    | plain_variable '[' encaps_var_offset ']'              { $$ = Expr\ArrayDimFetch[$1, $3]; }
+    | plain_variable T_OBJECT_OPERATOR identifier           { $$ = Expr\PropertyFetch[$1, $3]; }
     | T_DOLLAR_OPEN_CURLY_BRACES expr '}'                   { $$ = Expr\Variable[$2]; }
     | T_DOLLAR_OPEN_CURLY_BRACES T_STRING_VARNAME '}'       { $$ = Expr\Variable[$2]; }
-    | T_DOLLAR_OPEN_CURLY_BRACES T_STRING_VARNAME '[' expr ']' '}'
-          { $$ = Expr\ArrayDimFetch[Expr\Variable[$2], $4]; }
+    | T_DOLLAR_OPEN_CURLY_BRACES encaps_str_varname '[' expr ']' '}'
+          { $$ = Expr\ArrayDimFetch[$2, $4]; }
     | T_CURLY_OPEN variable '}'                             { $$ = $2; }
 ;
 
@@ -959,7 +995,7 @@ encaps_var_offset:
       T_STRING                                              { $$ = Scalar\String_[$1]; }
     | T_NUM_STRING                                          { $$ = $this->parseNumString($1, attributes()); }
     | '-' T_NUM_STRING                                      { $$ = $this->parseNumString('-' . $2, attributes()); }
-    | T_VARIABLE                                            { $$ = Expr\Variable[parseVar($1)]; }
+    | plain_variable                                        { $$ = $1; }
 ;
 
 %%

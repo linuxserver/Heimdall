@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Expr;
 
@@ -16,9 +16,9 @@ class Closure extends Expr implements FunctionLike
     public $params;
     /** @var ClosureUse[] use()s */
     public $uses;
-    /** @var null|string|Node\Name|Node\NullableType Return type */
+    /** @var null|Node\Identifier|Node\Name|Node\NullableType Return type */
     public $returnType;
-    /** @var Node[] Statements */
+    /** @var Node\Stmt[] Statements */
     public $stmts;
 
     /**
@@ -33,25 +33,26 @@ class Closure extends Expr implements FunctionLike
      *                          'stmts'      => array(): Statements
      * @param array $attributes Additional attributes
      */
-    public function __construct(array $subNodes = array(), array $attributes = array()) {
+    public function __construct(array $subNodes = [], array $attributes = []) {
         parent::__construct($attributes);
-        $this->static = isset($subNodes['static']) ? $subNodes['static'] : false;
-        $this->byRef = isset($subNodes['byRef']) ? $subNodes['byRef'] : false;
-        $this->params = isset($subNodes['params']) ? $subNodes['params'] : array();
-        $this->uses = isset($subNodes['uses']) ? $subNodes['uses'] : array();
-        $this->returnType = isset($subNodes['returnType']) ? $subNodes['returnType'] : null;
-        $this->stmts = isset($subNodes['stmts']) ? $subNodes['stmts'] : array();
+        $this->static = $subNodes['static'] ?? false;
+        $this->byRef = $subNodes['byRef'] ?? false;
+        $this->params = $subNodes['params'] ?? [];
+        $this->uses = $subNodes['uses'] ?? [];
+        $returnType = $subNodes['returnType'] ?? null;
+        $this->returnType = \is_string($returnType) ? new Node\Identifier($returnType) : $returnType;
+        $this->stmts = $subNodes['stmts'] ?? [];
     }
 
-    public function getSubNodeNames() {
-        return array('static', 'byRef', 'params', 'uses', 'returnType', 'stmts');
+    public function getSubNodeNames() : array {
+        return ['static', 'byRef', 'params', 'uses', 'returnType', 'stmts'];
     }
 
-    public function returnsByRef() {
+    public function returnsByRef() : bool {
         return $this->byRef;
     }
 
-    public function getParams() {
+    public function getParams() : array {
         return $this->params;
     }
 
@@ -59,7 +60,12 @@ class Closure extends Expr implements FunctionLike
         return $this->returnType;
     }
 
-    public function getStmts() {
+    /** @return Node\Stmt[] */
+    public function getStmts() : array {
         return $this->stmts;
+    }
+    
+    public function getType() : string {
+        return 'Expr_Closure';
     }
 }

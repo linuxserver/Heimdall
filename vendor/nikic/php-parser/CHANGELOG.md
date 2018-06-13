@@ -1,7 +1,152 @@
-Version 3.1.5-dev
+Version 4.0.3-dev
 -----------------
 
 Nothing yet.
+
+Version 4.0.2 (2018-06-03)
+--------------------------
+
+### Added
+
+* Improved error recovery inside classes.
+* Support error recovery for `foreach` without `as`.
+* Support error recovery for parameters without variable (`function (Type ) {}`).
+* Support error recovery for functions without body (`function ($foo)`).
+
+Version 4.0.1 (2018-03-25)
+--------------------------
+
+### Added
+
+* [PHP 7.3] Added support for trailing commas in function calls.
+* [PHP 7.3] Added support for by-reference array destructuring. 
+* Added checks to node traverser to prevent replacing a statement with an expression or vice versa.
+  This should prevent common mistakes in the implementation of node visitors.
+* Added the following methods to `BuilderFactory`, to simplify creation of expressions:
+  * `funcCall()`
+  * `methodCall()`
+  * `staticCall()`
+  * `new()`
+  * `constFetch()`
+  * `classConstFetch()`
+
+Version 4.0.0 (2018-02-28)
+--------------------------
+
+* No significant code changes since the beta 1 release.
+
+Version 4.0.0-beta1 (2018-01-27)
+--------------------------------
+
+### Fixed
+
+* In formatting-preserving pretty printer: Fixed indentation when inserting into lists. (#466)
+
+### Added
+
+* In formatting-preserving pretty printer: Improved formatting of elements inserted into multi-line
+  arrays.
+
+### Removed
+
+* The `Autoloader` class has been removed. It is now required to use the Composer autoloader.
+
+Version 4.0.0-alpha3 (2017-12-26)
+---------------------------------
+
+### Fixed
+
+* In the formatting-preserving pretty printer:
+  * Fixed comment indentation.
+  * Fixed handling of inline HTML in the fallback case.
+  * Fixed insertion into list nodes that require creation of a code block.
+
+### Added
+
+* Added support for inserting at the start of list nodes in formatting-preserving pretty printer.
+
+Version 4.0.0-alpha2 (2017-11-10)
+---------------------------------
+
+### Added
+
+* In the formatting-preserving pretty printer:
+  * Added support for changing modifiers.
+  * Added support for anonymous classes.
+  * Added support for removing from list nodes.
+  * Improved support for changing comments.
+* Added start token offsets to comments.
+
+Version 4.0.0-alpha1 (2017-10-18)
+---------------------------------
+
+### Added
+
+* Added experimental support for format-preserving pretty-printing. In this mode formatting will be
+  preserved for parts of the code which have not been modified.
+* Added `replaceNodes` option to `NameResolver`, defaulting to true. If this option is disabled,
+  resolved names will be added as `resolvedName` attributes, instead of replacing the original
+  names.
+* Added `NodeFinder` class, which can be used to find nodes based on a callback or class name. This
+  is a utility to avoid custom node visitor implementations for simple search operations.
+* Added `ClassMethod::isMagic()` method.
+* Added `BuilderFactory` methods: `val()` method for creating an AST for a simple value, `concat()`
+  for creating concatenation trees, `args()` for preparing function arguments.
+* Added `NameContext` class, which encapsulates the `NameResolver` logic independently of the actual
+  AST traversal. This facilitates use in other context, such as class names in doc comments.
+  Additionally it provides an API for getting the shortest representation of a name.
+* Added `Node::setAttributes()` method.
+* Added `JsonDecoder`. This allows conversion JSON back into an AST.
+* Added `Name` methods `toLowerString()` and `isSpecialClassName()`.
+* Added `Identifier` and `VarLikeIdentifier` nodes, which are used in place of simple strings in
+  many places.
+* Added `getComments()`, `getStartLine()`, `getEndLine()`, `getStartTokenPos()`, `getEndTokenPos()`,
+  `getStartFilePos()` and `getEndFilePos()` methods to `Node`. These provide a more obvious access
+  point for the already existing attributes of the same name.
+* Added `ConstExprEvaluator` to evaluate constant expressions to PHP values.
+* Added `Expr\BinaryOp::getOperatorSigil()`, returning `+` for `Expr\BinaryOp\Plus`, etc.
+
+### Changed
+
+* Many subnodes that previously held simple strings now use `Identifier` (or `VarLikeIdentifier`)
+  nodes. Please see the UPGRADE-4.0 file for an exhaustive list of affected nodes and some notes on
+  possible impact.
+* Expression statements (`expr;`) are now represented using a `Stmt\Expression` node. Previously
+  these statements were directly represented as their constituent expression.
+* The `name` subnode of `Param` has been renamed to `var` and now contains a `Variable` rather than
+  a plain string.
+* The `name` subnode of `StaticVar` has been renamed to `var` and now contains a `Variable` rather
+  than a plain string.
+* The `var` subnode of `ClosureUse` now contains a `Variable` rather than a plain string.
+* The `var` subnode of `Catch` now contains a `Variable` rather than a plain string.
+* The `alias` subnode of `UseUse` is now `null` if no explicit alias is given. As such,
+  `use Foo\Bar` and `use Foo\Bar as Bar` are now represented differently. The `getAlias()` method
+  can be used to get the effective alias, even if it is not explicitly given.
+
+### Removed
+
+* Support for running on PHP 5 and HHVM has been removed. You can however still parse code of old
+  PHP versions (such as PHP 5.2), while running on PHP 7.
+* Removed `type` subnode on `Class`, `ClassMethod` and `Property` nodes. Use `flags` instead.
+* The `ClassConst::isStatic()` method has been removed. Constants cannot have a static modifier.
+* The `NodeTraverser` no longer accepts `false` as a return value from a `leaveNode()` method.
+  `NodeTraverser::REMOVE_NODE` should be returned instead.
+* The `Node::setLine()` method has been removed. If you really need to, you can use `setAttribute()`
+  instead.
+* The misspelled `Class_::VISIBILITY_MODIFER_MASK` constant has been dropped in favor of
+  `Class_::VISIBILITY_MODIFIER_MASK`.
+* The XML serializer has been removed. As such, the classes `Serializer\XML`, and
+  `Unserializer\XML`, as well as the interfaces `Serializer` and `Unserializer` no longer exist.
+* The `BuilderAbstract` class has been removed. It's functionality is moved into `BuilderHelpers`.
+  However, this is an internal class and should not be used directly.
+
+Version 3.1.5 (2018-02-28)
+--------------------------
+
+### Fixed
+
+* Fixed duplicate comment assignment in switch statements. (#469)
+* Improve compatibility with PHP-Scoper. (#477)
 
 Version 3.1.4 (2018-01-25)
 --------------------------
@@ -47,7 +192,7 @@ Version 3.1.0 (2017-07-28)
 * [PHP 7.2] Added support for trailing comma in group use statements.
 * [PHP 7.2] Added support for `object` type. This means `object` types will now be represented as a
   builtin type (a simple `"object"` string), rather than a class `Name`.
-  
+
 ### Fixed
 
 * Floating-point numbers are now printed correctly if the LC_NUMERIC locale uses a comma as decimal
@@ -167,7 +312,7 @@ This release primarily improves our support for error recovery.
   `NameResolver::__construct()`.
 * The `NameResolver` now adds a `namespacedName` attribute on name nodes that cannot be statically
   resolved (unqualified unaliased function or constant names in namespaces).
-  
+
 ### Fixed
 
 * Fixed attribute assignment for `GroupUse` prefix and variables in interpolated strings.
@@ -257,7 +402,7 @@ Additionally the following changes were made:
   takes an array of subnodes. Unlike classes/interfaces, traits can only have a `stmts` subnode.
 * The `NodeDumper` now prints class/method/property/constant modifiers, as well as the include and
   use type in a textual representation, instead of only showing the number.
-* All methods on `PrettyPrinter\Standard` are now protected. Previoulsy most of them were public.
+* All methods on `PrettyPrinter\Standard` are now protected. Previously most of them were public.
 
 ### Removed
 
@@ -295,7 +440,7 @@ Version 2.1.0 (2016-04-19)
 * Added `kind` attribute to `Expr\Exit` to distinguish between `exit` and `die`.
 * Added `kind` attribute to `Scalar\LNumber` to distinguish between decimal, binary, octal and
   hexadecimal numbers.
-* Added `kind` attribtue to `Expr\Array` to distinguish between `array()` and `[]`.
+* Added `kind` attribute to `Expr\Array` to distinguish between `array()` and `[]`.
 * Added `kind` attribute to `Scalar\String` and `Scalar\Encapsed` to distinguish between
   single-quoted, double-quoted, heredoc and nowdoc string.
 * Added `docLabel` attribute to `Scalar\String` and `Scalar\Encapsed`, if it is a heredoc or

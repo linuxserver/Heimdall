@@ -8,13 +8,17 @@ function &a($b) {}
 array(
     0: Stmt_Function(
         byRef: false
-        name: a
+        name: Identifier(
+            name: a
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: true
                 variadic: false
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )
@@ -24,13 +28,17 @@ array(
     )
     1: Stmt_Function(
         byRef: true
-        name: a
+        name: Identifier(
+            name: a
+        )
         params: array(
             0: Param(
                 type: null
                 byRef: false
                 variadic: false
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
         )

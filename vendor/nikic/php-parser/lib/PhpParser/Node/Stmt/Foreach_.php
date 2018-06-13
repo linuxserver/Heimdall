@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Stmt;
 
@@ -14,7 +14,7 @@ class Foreach_ extends Node\Stmt
     public $byRef;
     /** @var Node\Expr Variable to assign value to */
     public $valueVar;
-    /** @var Node[] Statements */
+    /** @var Node\Stmt[] Statements */
     public $stmts;
 
     /**
@@ -28,16 +28,20 @@ class Foreach_ extends Node\Stmt
      *                              'stmts'  => array(): Statements
      * @param array     $attributes Additional attributes
      */
-    public function __construct(Node\Expr $expr, Node\Expr $valueVar, array $subNodes = array(), array $attributes = array()) {
+    public function __construct(Node\Expr $expr, Node\Expr $valueVar, array $subNodes = [], array $attributes = []) {
         parent::__construct($attributes);
         $this->expr = $expr;
-        $this->keyVar = isset($subNodes['keyVar']) ? $subNodes['keyVar'] : null;
-        $this->byRef = isset($subNodes['byRef']) ? $subNodes['byRef'] : false;
+        $this->keyVar = $subNodes['keyVar'] ?? null;
+        $this->byRef = $subNodes['byRef'] ?? false;
         $this->valueVar = $valueVar;
-        $this->stmts = isset($subNodes['stmts']) ? $subNodes['stmts'] : array();
+        $this->stmts = $subNodes['stmts'] ?? [];
     }
 
-    public function getSubNodeNames() {
-        return array('expr', 'keyVar', 'byRef', 'valueVar', 'stmts');
+    public function getSubNodeNames() : array {
+        return ['expr', 'keyVar', 'byRef', 'valueVar', 'stmts'];
+    }
+    
+    public function getType() : string {
+        return 'Stmt_Foreach';
     }
 }

@@ -78,7 +78,7 @@ class HtmlBuilder
     {
         $attributes['src'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<script' . $this->attributes($attributes) . '></script>' . PHP_EOL);
+        return $this->toHtmlString('<script' . $this->attributes($attributes) . '></script>');
     }
 
     /**
@@ -94,11 +94,11 @@ class HtmlBuilder
     {
         $defaults = ['media' => 'all', 'type' => 'text/css', 'rel' => 'stylesheet'];
 
-        $attributes = $attributes + $defaults;
+        $attributes = array_merge($attributes, $defaults);
 
         $attributes['href'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -132,11 +132,11 @@ class HtmlBuilder
     {
         $defaults = ['rel' => 'shortcut icon', 'type' => 'image/x-icon'];
 
-        $attributes = $attributes + $defaults;
+        $attributes = array_merge($attributes, $defaults);
 
         $attributes['href'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -162,7 +162,7 @@ class HtmlBuilder
             $title = $this->entities($title);
         }
 
-        return $this->toHtmlString('<a href="' . $url . '"' . $this->attributes($attributes) . '>' . $title . '</a>');
+        return $this->toHtmlString('<a href="' . $this->entities($url) . '"' . $this->attributes($attributes) . '>' . $title . '</a>');
     }
 
     /**
@@ -357,7 +357,7 @@ class HtmlBuilder
     {
         $html = '';
 
-        if (count($list) == 0) {
+        if (count($list) === 0) {
             return $html;
         }
 
@@ -451,7 +451,7 @@ class HtmlBuilder
         }
 
         // Treat boolean attributes as HTML properties
-        if (is_bool($value) && $key != 'value') {
+        if (is_bool($value) && $key !== 'value') {
             return $value ? $key : '';
         }
 
@@ -511,7 +511,7 @@ class HtmlBuilder
 
         $attributes = array_merge($defaults, $attributes);
 
-        return $this->toHtmlString('<meta' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<meta' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -525,8 +525,8 @@ class HtmlBuilder
      */
     public function tag($tag, $content, array $attributes = [])
     {
-        $content = is_array($content) ? implode(PHP_EOL, $content) : $content;
-        return $this->toHtmlString('<' . $tag . $this->attributes($attributes) . '>' . PHP_EOL . $this->toHtmlString($content) . PHP_EOL . '</' . $tag . '>' . PHP_EOL);
+        $content = is_array($content) ? implode('', $content) : $content;
+        return $this->toHtmlString('<' . $tag . $this->attributes($attributes) . '>' . $this->toHtmlString($content) . '</' . $tag . '>');
     }
 
     /**

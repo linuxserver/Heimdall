@@ -7,52 +7,80 @@ function test(bool $a, Int $b, FLOAT $c, StRiNg $d, iterable $e, object $f) : vo
 array(
     0: Stmt_Function(
         byRef: false
-        name: test
+        name: Identifier(
+            name: test
+        )
         params: array(
             0: Param(
-                type: bool
+                type: Identifier(
+                    name: bool
+                )
                 byRef: false
                 variadic: false
-                name: a
+                var: Expr_Variable(
+                    name: a
+                )
                 default: null
             )
             1: Param(
-                type: int
+                type: Identifier(
+                    name: int
+                )
                 byRef: false
                 variadic: false
-                name: b
+                var: Expr_Variable(
+                    name: b
+                )
                 default: null
             )
             2: Param(
-                type: float
+                type: Identifier(
+                    name: float
+                )
                 byRef: false
                 variadic: false
-                name: c
+                var: Expr_Variable(
+                    name: c
+                )
                 default: null
             )
             3: Param(
-                type: string
+                type: Identifier(
+                    name: string
+                )
                 byRef: false
                 variadic: false
-                name: d
+                var: Expr_Variable(
+                    name: d
+                )
                 default: null
             )
             4: Param(
-                type: iterable
+                type: Identifier(
+                    name: iterable
+                )
                 byRef: false
                 variadic: false
-                name: e
+                var: Expr_Variable(
+                    name: e
+                )
                 default: null
             )
             5: Param(
-                type: object
+                type: Identifier(
+                    name: object
+                )
                 byRef: false
                 variadic: false
-                name: f
+                var: Expr_Variable(
+                    name: f
+                )
                 default: null
             )
         )
-        returnType: void
+        returnType: Identifier(
+            name: void
+        )
         stmts: array(
         )
     )

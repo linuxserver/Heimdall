@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Builder;
 
@@ -6,8 +6,9 @@ use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Node\Stmt;
+use PHPUnit\Framework\TestCase;
 
-class InterfaceTest extends \PHPUnit_Framework_TestCase
+class InterfaceTest extends TestCase
 {
     /** @var Interface_ */
     protected $builder;
@@ -18,45 +19,45 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
 
     private function dump($node) {
         $pp = new \PhpParser\PrettyPrinter\Standard;
-        return $pp->prettyPrint(array($node));
+        return $pp->prettyPrint([$node]);
     }
 
     public function testEmpty() {
         $contract = $this->builder->getNode();
-        $this->assertInstanceOf('PhpParser\Node\Stmt\Interface_', $contract);
-        $this->assertSame('Contract', $contract->name);
+        $this->assertInstanceOf(Stmt\Interface_::class, $contract);
+        $this->assertEquals(new Node\Identifier('Contract'), $contract->name);
     }
 
     public function testExtending() {
         $contract = $this->builder->extend('Space\Root1', 'Root2')->getNode();
         $this->assertEquals(
-            new Stmt\Interface_('Contract', array(
-                'extends' => array(
+            new Stmt\Interface_('Contract', [
+                'extends' => [
                     new Node\Name('Space\Root1'),
                     new Node\Name('Root2')
-                ),
-            )), $contract
+                ],
+            ]), $contract
         );
     }
 
     public function testAddMethod() {
         $method = new Stmt\ClassMethod('doSomething');
         $contract = $this->builder->addStmt($method)->getNode();
-        $this->assertSame(array($method), $contract->stmts);
+        $this->assertSame([$method], $contract->stmts);
     }
 
     public function testAddConst() {
-        $const = new Stmt\ClassConst(array(
+        $const = new Stmt\ClassConst([
             new Node\Const_('SPEED_OF_LIGHT', new DNumber(299792458.0))
-        ));
+        ]);
         $contract = $this->builder->addStmt($const)->getNode();
         $this->assertSame(299792458.0, $contract->stmts[0]->consts[0]->value->value);
     }
 
     public function testOrder() {
-        $const = new Stmt\ClassConst(array(
+        $const = new Stmt\ClassConst([
             new Node\Const_('SPEED_OF_LIGHT', new DNumber(299792458))
-        ));
+        ]);
         $method = new Stmt\ClassMethod('doSomething');
         $contract = $this->builder
             ->addStmt($method)
@@ -64,8 +65,8 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
             ->getNode()
         ;
 
-        $this->assertInstanceOf('PhpParser\Node\Stmt\ClassConst', $contract->stmts[0]);
-        $this->assertInstanceOf('PhpParser\Node\Stmt\ClassMethod', $contract->stmts[1]);
+        $this->assertInstanceOf(Stmt\ClassConst::class, $contract->stmts[0]);
+        $this->assertInstanceOf(Stmt\ClassMethod::class, $contract->stmts[1]);
     }
 
     public function testDocComment() {
@@ -73,9 +74,9 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
             ->setDocComment('/** Test */')
             ->getNode();
 
-        $this->assertEquals(new Stmt\Interface_('Contract', array(), array(
-            'comments' => array(new Comment\Doc('/** Test */'))
-        )), $node);
+        $this->assertEquals(new Stmt\Interface_('Contract', [], [
+            'comments' => [new Comment\Doc('/** Test */')]
+        ]), $node);
     }
 
     /**
@@ -87,9 +88,9 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testFullFunctional() {
-        $const = new Stmt\ClassConst(array(
+        $const = new Stmt\ClassConst([
             new Node\Const_('SPEED_OF_LIGHT', new DNumber(299792458))
-        ));
+        ]);
         $method = new Stmt\ClassMethod('doSomething');
         $contract = $this->builder
             ->addStmt($method)
@@ -102,4 +103,3 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(interface_exists('Contract', false));
     }
 }
-

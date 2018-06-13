@@ -4,23 +4,32 @@ sudo: false
 
 matrix:
   include:
-    - php: 5.3
-      dist: precise
     - php: 5.4
+    - php: 5.4
+      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
     - php: 5.5
     - php: 5.6
     - php: 7.0
     - php: 7.1
+    - php: 7.2
     - php: hhvm
       dist: trusty
   allow_failures:
+    - php: 5.4
+      env: 'COMPOSER_FLAGS="--prefer-lowest --prefer-stable"'
     - php: hhvm
+  fast_finish: true
 
-install: travis_retry composer update --no-interaction
+install: travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
-script: vendor/bin/phpunit --verbose
+script:
+ - vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+ - '[[ $TRAVIS_PHP_VERSION = 7.2* ]] && make build -j 4 || true'
 
-before_deploy: bin/package -v $TRAVIS_TAG
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+before_deploy: make dist -j 4
 
 deploy:
   provider: releases
@@ -32,4 +41,4 @@ deploy:
   on:
     tags: true
     repo: bobthecow/psysh
-    condition: ($TRAVIS_PHP_VERSION = 5.3* || $TRAVIS_PHP_VERSION = 7.0*)
+    condition: $TRAVIS_PHP_VERSION = 7.2*

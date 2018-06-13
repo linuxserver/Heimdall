@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Stmt;
 
@@ -11,9 +11,6 @@ class Property extends Node\Stmt
     /** @var PropertyProperty[] Properties */
     public $props;
 
-    /** @deprecated Use $flags instead */
-    public $type;
-
     /**
      * Constructs a class property list node.
      *
@@ -21,31 +18,54 @@ class Property extends Node\Stmt
      * @param PropertyProperty[] $props      Properties
      * @param array              $attributes Additional attributes
      */
-    public function __construct($flags, array $props, array $attributes = array()) {
+    public function __construct(int $flags, array $props, array $attributes = []) {
         parent::__construct($attributes);
         $this->flags = $flags;
-        $this->type = $flags;
         $this->props = $props;
     }
 
-    public function getSubNodeNames() {
-        return array('flags', 'props');
+    public function getSubNodeNames() : array {
+        return ['flags', 'props'];
     }
 
-    public function isPublic() {
+    /**
+     * Whether the property is explicitly or implicitly public.
+     *
+     * @return bool
+     */
+    public function isPublic() : bool {
         return ($this->flags & Class_::MODIFIER_PUBLIC) !== 0
             || ($this->flags & Class_::VISIBILITY_MODIFIER_MASK) === 0;
     }
 
-    public function isProtected() {
+    /**
+     * Whether the property is protected.
+     *
+     * @return bool
+     */
+    public function isProtected() : bool {
         return (bool) ($this->flags & Class_::MODIFIER_PROTECTED);
     }
 
-    public function isPrivate() {
+    /**
+     * Whether the property is private.
+     *
+     * @return bool
+     */
+    public function isPrivate() : bool {
         return (bool) ($this->flags & Class_::MODIFIER_PRIVATE);
     }
 
-    public function isStatic() {
+    /**
+     * Whether the property is static.
+     *
+     * @return bool
+     */
+    public function isStatic() : bool {
         return (bool) ($this->flags & Class_::MODIFIER_STATIC);
+    }
+    
+    public function getType() : string {
+        return 'Stmt_Property';
     }
 }

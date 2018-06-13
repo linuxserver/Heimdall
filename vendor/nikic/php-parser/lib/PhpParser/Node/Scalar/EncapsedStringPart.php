@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Scalar;
 
@@ -15,12 +15,16 @@ class EncapsedStringPart extends Scalar
      * @param string $value      String value
      * @param array  $attributes Additional attributes
      */
-    public function __construct($value, array $attributes = array()) {
+    public function __construct(string $value, array $attributes = []) {
         parent::__construct($attributes);
         $this->value = $value;
     }
 
-    public function getSubNodeNames() {
-        return array('value');
+    public function getSubNodeNames() : array {
+        return ['value'];
+    }
+    
+    public function getType() : string {
+        return 'Scalar_EncapsedStringPart';
     }
 }

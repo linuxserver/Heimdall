@@ -1,15 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Stmt;
 
-class ClassConstTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ClassConstTest extends TestCase
 {
     /**
      * @dataProvider provideModifiers
      */
     public function testModifiers($modifier) {
         $node = new ClassConst(
-            array(), // invalid
+            [], // invalid
             constant('PhpParser\Node\Stmt\Class_::MODIFIER_' . strtoupper($modifier))
         );
 
@@ -17,19 +19,18 @@ class ClassConstTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testNoModifiers() {
-        $node = new ClassConst(array(), 0);
+        $node = new ClassConst([], 0);
 
         $this->assertTrue($node->isPublic());
         $this->assertFalse($node->isProtected());
         $this->assertFalse($node->isPrivate());
-        $this->assertFalse($node->isStatic());
     }
 
     public function provideModifiers() {
-        return array(
-            array('public'),
-            array('protected'),
-            array('private'),
-        );
+        return [
+            ['public'],
+            ['protected'],
+            ['private'],
+        ];
     }
 }

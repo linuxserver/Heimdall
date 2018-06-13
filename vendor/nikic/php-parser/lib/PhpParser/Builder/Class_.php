@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Builder;
 
 use PhpParser;
+use PhpParser\BuilderHelpers;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt;
 
@@ -11,20 +12,20 @@ class Class_ extends Declaration
     protected $name;
 
     protected $extends = null;
-    protected $implements = array();
+    protected $implements = [];
     protected $flags = 0;
 
-    protected $uses = array();
-    protected $constants = array();
-    protected $properties = array();
-    protected $methods = array();
+    protected $uses = [];
+    protected $constants = [];
+    protected $properties = [];
+    protected $methods = [];
 
     /**
      * Creates a class builder.
      *
      * @param string $name Name of the class
      */
-    public function __construct($name) {
+    public function __construct(string $name) {
         $this->name = $name;
     }
 
@@ -36,7 +37,7 @@ class Class_ extends Declaration
      * @return $this The builder instance (for fluid interface)
      */
     public function extend($class) {
-        $this->extends = $this->normalizeName($class);
+        $this->extends = BuilderHelpers::normalizeName($class);
 
         return $this;
     }
@@ -48,9 +49,9 @@ class Class_ extends Declaration
      *
      * @return $this The builder instance (for fluid interface)
      */
-    public function implement() {
-        foreach (func_get_args() as $interface) {
-            $this->implements[] = $this->normalizeName($interface);
+    public function implement(...$interfaces) {
+        foreach ($interfaces as $interface) {
+            $this->implements[] = BuilderHelpers::normalizeName($interface);
         }
 
         return $this;
@@ -62,7 +63,7 @@ class Class_ extends Declaration
      * @return $this The builder instance (for fluid interface)
      */
     public function makeAbstract() {
-        $this->setModifier(Stmt\Class_::MODIFIER_ABSTRACT);
+        $this->flags = BuilderHelpers::addModifier($this->flags, Stmt\Class_::MODIFIER_ABSTRACT);
 
         return $this;
     }
@@ -73,7 +74,7 @@ class Class_ extends Declaration
      * @return $this The builder instance (for fluid interface)
      */
     public function makeFinal() {
-        $this->setModifier(Stmt\Class_::MODIFIER_FINAL);
+        $this->flags = BuilderHelpers::addModifier($this->flags, Stmt\Class_::MODIFIER_FINAL);
 
         return $this;
     }
@@ -86,21 +87,21 @@ class Class_ extends Declaration
      * @return $this The builder instance (for fluid interface)
      */
     public function addStmt($stmt) {
-        $stmt = $this->normalizeNode($stmt);
+        $stmt = BuilderHelpers::normalizeNode($stmt);
 
-        $targets = array(
-            'Stmt_TraitUse'    => &$this->uses,
-            'Stmt_ClassConst'  => &$this->constants,
-            'Stmt_Property'    => &$this->properties,
-            'Stmt_ClassMethod' => &$this->methods,
-        );
+        $targets = [
+            Stmt\TraitUse::class    => &$this->uses,
+            Stmt\ClassConst::class  => &$this->constants,
+            Stmt\Property::class    => &$this->properties,
+            Stmt\ClassMethod::class => &$this->methods,
+        ];
 
-        $type = $stmt->getType();
-        if (!isset($targets[$type])) {
-            throw new \LogicException(sprintf('Unexpected node of type "%s"', $type));
+        $class = \get_class($stmt);
+        if (!isset($targets[$class])) {
+            throw new \LogicException(sprintf('Unexpected node of type "%s"', $stmt->getType()));
         }
 
-        $targets[$type][] = $stmt;
+        $targets[$class][] = $stmt;
 
         return $this;
     }
@@ -110,12 +111,12 @@ class Class_ extends Declaration
      *
      * @return Stmt\Class_ The built class node
      */
-    public function getNode() {
-        return new Stmt\Class_($this->name, array(
+    public function getNode() : PhpParser\Node {
+        return new Stmt\Class_($this->name, [
             'flags' => $this->flags,
             'extends' => $this->extends,
             'implements' => $this->implements,
             'stmts' => array_merge($this->uses, $this->constants, $this->properties, $this->methods),
-        ), $this->attributes);
+        ], $this->attributes);
     }
 }

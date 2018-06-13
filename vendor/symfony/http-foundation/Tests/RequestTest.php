@@ -23,6 +23,7 @@ class RequestTest extends TestCase
     {
         // reset
         Request::setTrustedProxies(array(), -1);
+        Request::setTrustedHosts(array());
     }
 
     public function testInitialize()
@@ -2007,9 +2008,15 @@ class RequestTest extends TestCase
 
         $request->headers->set('host', 'subdomain.trusted.com');
         $this->assertEquals('subdomain.trusted.com', $request->getHost());
+    }
 
-        // reset request for following tests
-        Request::setTrustedHosts(array());
+    public function testSetTrustedHostsDoesNotBreakOnSpecialCharacters()
+    {
+        Request::setTrustedHosts(array('localhost(\.local){0,1}#,example.com', 'localhost'));
+
+        $request = Request::create('/');
+        $request->headers->set('host', 'localhost');
+        $this->assertSame('localhost', $request->getHost());
     }
 
     public function testFactory()
@@ -2148,11 +2155,11 @@ class RequestTest extends TestCase
     /**
      * @dataProvider methodCacheableProvider
      */
-    public function testMethodCacheable($method, $chacheable)
+    public function testMethodCacheable($method, $cacheable)
     {
         $request = new Request();
         $request->setMethod($method);
-        $this->assertEquals($chacheable, $request->isMethodCacheable());
+        $this->assertEquals($cacheable, $request->isMethodCacheable());
     }
 
     public function methodCacheableProvider()
@@ -2316,7 +2323,7 @@ class RequestContentProxy extends Request
 {
     public function getContent($asResource = false)
     {
-        return http_build_query(array('_method' => 'PUT', 'content' => 'mycontent'));
+        return http_build_query(array('_method' => 'PUT', 'content' => 'mycontent'), '', '&');
     }
 }
 

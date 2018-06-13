@@ -1,14 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Builder;
 
 use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Print_;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt;
+use PHPUnit\Framework\TestCase;
 
-class FunctionTest extends \PHPUnit_Framework_TestCase
+class FunctionTest extends TestCase
 {
     public function createFunctionBuilder($name) {
         return new Function_($name);
@@ -21,28 +23,28 @@ class FunctionTest extends \PHPUnit_Framework_TestCase
         ;
 
         $this->assertEquals(
-            new Stmt\Function_('test', array(
+            new Stmt\Function_('test', [
                 'byRef' => true
-            )),
+            ]),
             $node
         );
     }
 
     public function testParams() {
-        $param1 = new Node\Param('test1');
-        $param2 = new Node\Param('test2');
-        $param3 = new Node\Param('test3');
+        $param1 = new Node\Param(new Variable('test1'));
+        $param2 = new Node\Param(new Variable('test2'));
+        $param3 = new Node\Param(new Variable('test3'));
 
         $node = $this->createFunctionBuilder('test')
             ->addParam($param1)
-            ->addParams(array($param2, $param3))
+            ->addParams([$param2, $param3])
             ->getNode()
         ;
 
         $this->assertEquals(
-            new Stmt\Function_('test', array(
-                'params' => array($param1, $param2, $param3)
-            )),
+            new Stmt\Function_('test', [
+                'params' => [$param1, $param2, $param3]
+            ]),
             $node
         );
     }
@@ -54,14 +56,18 @@ class FunctionTest extends \PHPUnit_Framework_TestCase
 
         $node = $this->createFunctionBuilder('test')
             ->addStmt($stmt1)
-            ->addStmts(array($stmt2, $stmt3))
+            ->addStmts([$stmt2, $stmt3])
             ->getNode()
         ;
 
         $this->assertEquals(
-            new Stmt\Function_('test', array(
-                'stmts' => array($stmt1, $stmt2, $stmt3)
-            )),
+            new Stmt\Function_('test', [
+                'stmts' => [
+                    new Stmt\Expression($stmt1),
+                    new Stmt\Expression($stmt2),
+                    new Stmt\Expression($stmt3),
+                ]
+            ]),
             $node
         );
     }
@@ -71,9 +77,9 @@ class FunctionTest extends \PHPUnit_Framework_TestCase
             ->setDocComment('/** Test */')
             ->getNode();
 
-        $this->assertEquals(new Stmt\Function_('test', array(), array(
-            'comments' => array(new Comment\Doc('/** Test */'))
-        )), $node);
+        $this->assertEquals(new Stmt\Function_('test', [], [
+            'comments' => [new Comment\Doc('/** Test */')]
+        ]), $node);
     }
 
     public function testReturnType() {
@@ -81,9 +87,9 @@ class FunctionTest extends \PHPUnit_Framework_TestCase
             ->setReturnType('void')
             ->getNode();
 
-        $this->assertEquals(new Stmt\Function_('test', array(
+        $this->assertEquals(new Stmt\Function_('test', [
             'returnType' => 'void'
-        ), array()), $node);
+        ], []), $node);
     }
 
     /**
@@ -102,5 +108,14 @@ class FunctionTest extends \PHPUnit_Framework_TestCase
         $this->createFunctionBuilder('test')
             ->addParam(new Node\Name('foo'))
         ;
+    }
+
+    /**
+     * @expectedException \LogicException
+     * @expectedExceptionMessage Expected statement or expression node
+     */
+    public function testAddNonStmt() {
+        $this->createFunctionBuilder('test')
+            ->addStmt(new Node\Name('Test'));
     }
 }

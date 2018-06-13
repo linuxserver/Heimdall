@@ -23,7 +23,7 @@ array(
                         0: Bar
                     )
                 )
-                alias: Bar
+                alias: null
             )
         )
         comments: array(
@@ -45,7 +45,7 @@ array(
                         0: Foo
                     )
                 )
-                alias: Foo
+                alias: null
             )
         )
     )
@@ -68,24 +68,28 @@ array(
                         0: Foo
                     )
                 )
-                alias: Foo
+                alias: null
             )
         )
         comments: array(
             0: // Missing NS separator
         )
     )
-    1: Expr_ConstFetch(
-        name: Name(
-            parts: array(
-                0: Bar
+    1: Stmt_Expression(
+        expr: Expr_ConstFetch(
+            name: Name(
+                parts: array(
+                    0: Bar
+                )
             )
         )
     )
-    2: Expr_ConstFetch(
-        name: Name(
-            parts: array(
-                0: Baz
+    2: Stmt_Expression(
+        expr: Expr_ConstFetch(
+            name: Name(
+                parts: array(
+                    0: Baz
+                )
             )
         )
     )
@@ -97,10 +101,12 @@ use Foo\{\Bar};
 -----
 Syntax error, unexpected T_NS_SEPARATOR, expecting T_STRING or T_FUNCTION or T_CONST from 3:10 to 3:10
 array(
-    0: Expr_ConstFetch(
-        name: Name_FullyQualified(
-            parts: array(
-                0: Bar
+    0: Stmt_Expression(
+        expr: Expr_ConstFetch(
+            name: Name_FullyQualified(
+                parts: array(
+                    0: Bar
+                )
             )
         )
     )

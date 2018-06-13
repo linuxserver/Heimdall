@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser;
 
@@ -28,7 +28,7 @@ class NodeTraverser implements NodeTraverserInterface
      * For subsequent visitors leaveNode() will still be invoked for the
      * removed node.
      */
-    const REMOVE_NODE = false;
+    const REMOVE_NODE = 3;
 
     /** @var NodeVisitor[] Visitors */
     protected $visitors;
@@ -40,7 +40,7 @@ class NodeTraverser implements NodeTraverserInterface
      * Constructs a node traverser.
      */
     public function __construct() {
-        $this->visitors = array();
+        $this->visitors = [];
     }
 
     /**
@@ -73,7 +73,7 @@ class NodeTraverser implements NodeTraverserInterface
      *
      * @return Node[] Traversed array of nodes
      */
-    public function traverse(array $nodes) {
+    public function traverse(array $nodes) : array {
         $this->stopTraversal = false;
 
         foreach ($this->visitors as $visitor) {
@@ -93,11 +93,18 @@ class NodeTraverser implements NodeTraverserInterface
         return $nodes;
     }
 
-    protected function traverseNode(Node $node) {
+    /**
+     * Recursively traverse a node.
+     *
+     * @param Node $node Node to traverse.
+     *
+     * @return Node Result of traversal (may be original node or new one)
+     */
+    protected function traverseNode(Node $node) : Node {
         foreach ($node->getSubNodeNames() as $name) {
             $subNode =& $node->$name;
 
-            if (is_array($subNode)) {
+            if (\is_array($subNode)) {
                 $subNode = $this->traverseArray($subNode);
                 if ($this->stopTraversal) {
                     break;
@@ -106,13 +113,20 @@ class NodeTraverser implements NodeTraverserInterface
                 $traverseChildren = true;
                 foreach ($this->visitors as $visitor) {
                     $return = $visitor->enterNode($subNode);
-                    if (self::DONT_TRAVERSE_CHILDREN === $return) {
-                        $traverseChildren = false;
-                    } else if (self::STOP_TRAVERSAL === $return) {
-                        $this->stopTraversal = true;
-                        break 2;
-                    } else if (null !== $return) {
-                        $subNode = $return;
+                    if (null !== $return) {
+                        if ($return instanceof Node) {
+                            $this->ensureReplacementReasonable($subNode, $return);
+                            $subNode = $return;
+                        } elseif (self::DONT_TRAVERSE_CHILDREN === $return) {
+                            $traverseChildren = false;
+                        } elseif (self::STOP_TRAVERSAL === $return) {
+                            $this->stopTraversal = true;
+                            break 2;
+                        } else {
+                            throw new \LogicException(
+                                'enterNode() returned invalid value of type ' . gettype($return)
+                            );
+                        }
                     }
                 }
 
@@ -125,17 +139,23 @@ class NodeTraverser implements NodeTraverserInterface
 
                 foreach ($this->visitors as $visitor) {
                     $return = $visitor->leaveNode($subNode);
-                    if (self::STOP_TRAVERSAL === $return) {
-                        $this->stopTraversal = true;
-                        break 2;
-                    } else if (null !== $return) {
-                        if (is_array($return)) {
+                    if (null !== $return) {
+                        if ($return instanceof Node) {
+                            $this->ensureReplacementReasonable($subNode, $return);
+                            $subNode = $return;
+                        } elseif (self::STOP_TRAVERSAL === $return) {
+                            $this->stopTraversal = true;
+                            break 2;
+                        } elseif (\is_array($return)) {
                             throw new \LogicException(
                                 'leaveNode() may only return an array ' .
                                 'if the parent structure is an array'
                             );
+                        } else {
+                            throw new \LogicException(
+                                'leaveNode() returned invalid value of type ' . gettype($return)
+                            );
                         }
-                        $subNode = $return;
                     }
                 }
             }
@@ -144,26 +164,35 @@ class NodeTraverser implements NodeTraverserInterface
         return $node;
     }
 
-    protected function traverseArray(array $nodes) {
-        $doNodes = array();
+    /**
+     * Recursively traverse array (usually of nodes).
+     *
+     * @param array $nodes Array to traverse
+     *
+     * @return array Result of traversal (may be original array or changed one)
+     */
+    protected function traverseArray(array $nodes) : array {
+        $doNodes = [];
 
         foreach ($nodes as $i => &$node) {
-            if (is_array($node)) {
-                $node = $this->traverseArray($node);
-                if ($this->stopTraversal) {
-                    break;
-                }
-            } elseif ($node instanceof Node) {
+            if ($node instanceof Node) {
                 $traverseChildren = true;
                 foreach ($this->visitors as $visitor) {
                     $return = $visitor->enterNode($node);
-                    if (self::DONT_TRAVERSE_CHILDREN === $return) {
-                        $traverseChildren = false;
-                    } else if (self::STOP_TRAVERSAL === $return) {
-                        $this->stopTraversal = true;
-                        break 2;
-                    } else if (null !== $return) {
-                        $node = $return;
+                    if (null !== $return) {
+                        if ($return instanceof Node) {
+                            $this->ensureReplacementReasonable($node, $return);
+                            $node = $return;
+                        } elseif (self::DONT_TRAVERSE_CHILDREN === $return) {
+                            $traverseChildren = false;
+                        } elseif (self::STOP_TRAVERSAL === $return) {
+                            $this->stopTraversal = true;
+                            break 2;
+                        } else {
+                            throw new \LogicException(
+                                'enterNode() returned invalid value of type ' . gettype($return)
+                            );
+                        }
                     }
                 }
 
@@ -176,20 +205,33 @@ class NodeTraverser implements NodeTraverserInterface
 
                 foreach ($this->visitors as $visitor) {
                     $return = $visitor->leaveNode($node);
-
-                    if (self::REMOVE_NODE === $return) {
-                        $doNodes[] = array($i, array());
-                        break;
-                    } else if (self::STOP_TRAVERSAL === $return) {
-                        $this->stopTraversal = true;
-                        break 2;
-                    } elseif (is_array($return)) {
-                        $doNodes[] = array($i, $return);
-                        break;
-                    } elseif (null !== $return) {
-                        $node = $return;
+                    if (null !== $return) {
+                        if ($return instanceof Node) {
+                            $this->ensureReplacementReasonable($node, $return);
+                            $node = $return;
+                        } elseif (\is_array($return)) {
+                            $doNodes[] = [$i, $return];
+                            break;
+                        } elseif (self::REMOVE_NODE === $return) {
+                            $doNodes[] = [$i, []];
+                            break;
+                        } elseif (self::STOP_TRAVERSAL === $return) {
+                            $this->stopTraversal = true;
+                            break 2;
+                        } elseif (false === $return) {
+                            throw new \LogicException(
+                                'bool(false) return from leaveNode() no longer supported. ' .
+                                'Return NodeTraverser::REMOVE_NODE instead'
+                            );
+                        } else {
+                            throw new \LogicException(
+                                'leaveNode() returned invalid value of type ' . gettype($return)
+                            );
+                        }
                     }
                 }
+            } elseif (\is_array($node)) {
+                throw new \LogicException('Invalid node structure: Contains nested arrays');
             }
         }
 
@@ -200,5 +242,22 @@ class NodeTraverser implements NodeTraverserInterface
         }
 
         return $nodes;
+    }
+
+    private function ensureReplacementReasonable($old, $new) {
+        if ($old instanceof Node\Stmt && $new instanceof Node\Expr) {
+            throw new \LogicException(
+                "Trying to replace statement ({$old->getType()}) " .
+                "with expression ({$new->getType()}). Are you missing a " .
+                "Stmt_Expression wrapper?"
+            );
+        }
+
+        if ($old instanceof Node\Expr && $new instanceof Node\Stmt) {
+            throw new \LogicException(
+                "Trying to replace expression ({$old->getType()}) " .
+                "with statement ({$new->getType()})"
+            );
+        }
     }
 }
