@@ -396,6 +396,14 @@ body {
   display: none;
 }
 
+.black {
+  color: #000 !important;
+}
+
+.white {
+  color: #fff !important;
+}
+
 .message-container {
   width: 100%;
   padding: 10px 20px;
@@ -567,14 +575,6 @@ body {
 
 .item .title {
   font-size: 16px;
-}
-
-.item .title.black {
-  color: #000;
-}
-
-.item .title.white {
-  color: #fff;
 }
 
 .item .details {

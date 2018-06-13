@@ -122,6 +122,13 @@ body {
 		display: none;
 	}
 }
+.black {
+	color: #000!important;
+}
+.white {
+	color: #fff!important;
+}
+
 .message-container {
 	width: 100%;
 	padding: 10px 20px;
@@ -272,12 +279,6 @@ body {
 	}
 	.title {
 		font-size: 16px;
-		&.black {
-			color: #000;
-		}
-		&.white {
-			color: #fff;
-		}
 	}
 	.details {
 		width: 100%;
