@@ -31,6 +31,7 @@ Supported applications are recognized by the title of the application as entered
 
 **Enhanced**
 - CouchPotato
+- Deluge
 - NZBGet
 - Pihole
 - PlexPy
@@ -45,7 +46,6 @@ Supported applications are recognized by the title of the application as entered
 - AirSonic
 - Booksonic
 - Cardigann
-- Deluge
 - DokuWiki
 - Duplicati
 - Emby
