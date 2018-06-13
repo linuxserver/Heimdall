@@ -60,6 +60,7 @@ Supported applications are recognized by the title of the application as entered
 - McMyAdmin
 - Medusa
 - MusicBrainz
+- Mylar
 - NZBhydra & NZBhydra2
 - Netdata
 - Nextcloud

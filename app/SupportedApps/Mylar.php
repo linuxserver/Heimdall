@@ -1,12 +1,12 @@
 <?php namespace App\SupportedApps;
 
-class LibreNMS implements Contracts\Applications {
+class Mylar implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#e77';
+        return '#aa0';
     }
     public function icon()
     {
-        return 'supportedapps/librenms.png';
+        return 'supportedapps/mylar.png';
     }
 }

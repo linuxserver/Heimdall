@@ -48,6 +48,7 @@ class Item extends Model
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
             'MusicBrainz' => \App\SupportedApps\MusicBrainz::class,
+            'Mylar' => \App\SupportedApps\Mylar::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
             'Netdata' => \App\SupportedApps\Netdata::class,
             'Nextcloud' => \App\SupportedApps\Nextcloud::class,
