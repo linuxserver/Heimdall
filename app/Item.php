@@ -34,6 +34,7 @@ class Item extends Model
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
             'Emby' => \App\SupportedApps\Emby::class,
+            'Flood' => \App\SupportedApps\Flood::class,
             'Gitea' => \App\SupportedApps\Gitea::class,
             'Glances' => \App\SupportedApps\Glances::class,
             'Grafana' => \App\SupportedApps\Grafana::class,
@@ -114,7 +115,7 @@ class Item extends Model
                 $output->view = $view;
             }
             if(!isset($output->dataonly)) $output->dataonly = '0';
-            
+
         }
         return (object)$output;
     }
@@ -134,7 +135,7 @@ class Item extends Model
                 }
             }
             //die(var_dump($store))
-            
+
             $config['enabled'] = ($store) ? true : false;
             $config = json_encode($config);
         }

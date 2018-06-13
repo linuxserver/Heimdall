@@ -79,6 +79,7 @@ Supported applications are recognized by the title of the application as entered
 - unRAID
 - pfSense
 - pyLoad
+- rTorrent/Flood
 - rTorrent/ruTorrent
 - Syncthing
 - Watcher3
