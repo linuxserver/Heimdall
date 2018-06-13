@@ -2,10 +2,10 @@ $.when( $.ready ).then(function() {
 
     if($('.message-container').length) {
         setTimeout(
-        function() 
-        {
-            $('.message-container').fadeOut();
-        }, 3500);
+            function()
+            {
+                $('.message-container').fadeOut();
+            }, 3500);
     }
 
     if($('.livestats-container').length) {
@@ -18,21 +18,21 @@ $.when( $.ready ).then(function() {
             var timer = 5000;
             (function worker() {
                 $.ajax({
-                  url: '/get_stats/'+id, 
-                  dataType: 'json',
-                  success: function(data) {
-                    container.html(data.html);
-                    if(data.status == 'active') timer = increaseby;
-                    else {
-                        if(timer < max_timer) timer += 2000;
-                    }
-                  },
-                  complete: function() {
+                    url: '/get_stats/'+id,
+                    dataType: 'json',
+                    success: function(data) {
+                        container.html(data.html);
+                        if(data.status == 'active') timer = increaseby;
+                        else {
+                            if(timer < max_timer) timer += 2000;
+                        }
+                    },
+                    complete: function() {
                     // Schedule the next request when the current one's complete
-                    setTimeout(worker, timer);
-                  }
+                        setTimeout(worker, timer);
+                    }
                 });
-              })();
+            })();
         });
 
     }
@@ -40,20 +40,20 @@ $.when( $.ready ).then(function() {
     function readURL(input) {
 
         if (input.files && input.files[0]) {
-          var reader = new FileReader();
-      
-          reader.onload = function(e) {
-            $('#appimage img').attr('src', e.target.result);
-          }
-      
-          reader.readAsDataURL(input.files[0]);
-        }
-      }
+            var reader = new FileReader();
 
-      $("#upload").change(function() {
+            reader.onload = function(e) {
+                $('#appimage img').attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('#upload').change(function() {
         readURL(this);
-      });
-      /*$(".droppable").droppable({
+    });
+    /*$(".droppable").droppable({
         tolerance: "intersect",
         drop: function( event, ui ) {
             var tag = $( this ).data('id');
@@ -66,13 +66,13 @@ $.when( $.ready ).then(function() {
                     alert('not added');
                 }
             });
-            
+
         }
       });*/
 
-    $( "#sortable" ).sortable({
+    $( '#sortable' ).sortable({
         stop: function (event, ui) {
-            var idsInOrder = $("#sortable").sortable('toArray', {
+            var idsInOrder = $('#sortable').sortable('toArray', {
                 attribute: 'data-id'
             });
             $.post(
@@ -80,12 +80,12 @@ $.when( $.ready ).then(function() {
                 { order:idsInOrder }
             );
         }
-    
+
     });
-    $("#sortable").sortable("disable");
+    $('#sortable').sortable('disable');
 
 
-    
+
     $('#app').on('click', '#config-button', function(e) {
         e.preventDefault();
         var app = $('#app');
@@ -95,28 +95,26 @@ $.when( $.ready ).then(function() {
             $('.add-item').hide();
             $('.item-edit').hide();
             $('#app').removeClass('sidebar');
-            $("#sortable").sortable("disable")
+            $('#sortable').sortable('disable');
         } else {
-            $("#sortable").sortable("enable")
-            setTimeout(
-                function() 
-                {
-                  $('.add-item').fadeIn();
-                  $('.item-edit').fadeIn();
-                }, 350);
-    
+            $('#sortable').sortable('enable');
+            setTimeout(function() {
+                $('.add-item').fadeIn();
+                $('.item-edit').fadeIn();
+            }, 350);
+
         }
     }).on('click', '#add-item, #pin-item', function(e) {
         e.preventDefault();
         var app = $('#app');
         var active = (app.hasClass('sidebar'));
         app.toggleClass('sidebar');
-        
+
     }).on('click', '.close-sidenav', function(e) {
         e.preventDefault();
         var app = $('#app');
         app.removeClass('sidebar');
-        
+
     }).on('click', '#test_config', function(e) {
         e.preventDefault();
         var apiurl = $('#create input[name=url]').val();
@@ -125,19 +123,17 @@ $.when( $.ready ).then(function() {
         if(override_url.length && override_url != '') {
             apiurl = override_url;
         }
+
         var data = {};
         data['url'] = apiurl;
         $('input.config-item').each(function(index){
             var config = $(this).data('config');
             data[config] = $(this).val();
-        })
+        });
 
-        $.post(
-            '/test_config',
-            { data }, function(data) {
-                alert(data);
-            }
-        );
+        $.post('/test_config', { data }, function(data) {
+            alert(data);
+        });
 
     });
     $('#pinlist').on('click', 'a', function(e) {
@@ -150,5 +146,5 @@ $.when( $.ready ).then(function() {
             current.toggleClass('active');
         });
     });
-    
+
 });
