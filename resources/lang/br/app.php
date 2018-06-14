@@ -83,10 +83,10 @@ return [
     'alert.success.item_deleted' => 'Item apagado com sucesso',
     'alert.success.item_restored' => 'Item restaurado com sucesso',
 
-    'alert.success.tag_created' => 'Tag criado com sucesso',
-    'alert.success.tag_updated' => 'Tag atualizado com sucesso',
-    'alert.success.tag_deleted' => 'Tag apagado com sucesso',
-    'alert.success.tag_restored' => 'Tag restaurado com sucesso',
+    'alert.success.tag_created' => 'Tag criada com sucesso',
+    'alert.success.tag_updated' => 'Tag atualizada com sucesso',
+    'alert.success.tag_deleted' => 'Tag apagada com sucesso',
+    'alert.success.tag_restored' => 'Tag restaurada com sucesso',
 
     'alert.success.setting_updated' => 'Você editou com sucesso essa configuração',
     'alert.error.not_exist' => 'Essa configuração não existe.',
