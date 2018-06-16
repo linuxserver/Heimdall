@@ -11,7 +11,7 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.js([
+mix.scripts([
       //'resources/assets/js/jquery-ui.min.js',
       'resources/assets/js/huebee.js',
       'resources/assets/js/app.js'
