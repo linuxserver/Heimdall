@@ -1,6 +1,3 @@
-import Huebee from 'huebee';
-window.Huebee = Huebee;
-
 $.when( $.ready ).then(function() {
 
     if($('.message-container').length) {
