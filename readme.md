@@ -1,10 +1,10 @@
-![alt text](https://i.imgur.com/iuV8w3y.png)
+# Heimdall
 
-____
+[![Heimdall_Banner](https://i.imgur.com/iuV8w3y.png)](https://heimdall.site)
+
 [![Discord](https://img.shields.io/discord/354974912613449730.svg)](https://discord.gg/CCjHKn4)
 [![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/heimdall.svg)](https://hub.docker.com/r/linuxserver/heimdall/)
-[![firsttimersonly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
-
+[![firsttimersonly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg)](https://www.firsttimersonly.com/)
 [![Paypal](https://heimdall.site/img/paypaldonate.svg)](https://paypal.me/pools/c/81ZR4dfBGo)
 
 ___
