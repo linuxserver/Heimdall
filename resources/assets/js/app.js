@@ -1,6 +1,3 @@
-import Huebee from 'huebee';
-window.Huebee = Huebee;
-
 $.when( $.ready ).then(function() {
 
     if($('.message-container').length) {
@@ -122,7 +119,7 @@ $.when( $.ready ).then(function() {
         e.preventDefault();
         var apiurl = $('#create input[name=url]').val();
 
-        var override_url = $('#create input[name="config[override_url]"').val();
+        var override_url = $('#create input[name="config[override_url]"]').val();
         if(override_url.length && override_url != '') {
             apiurl = override_url;
         }
@@ -134,7 +131,7 @@ $.when( $.ready ).then(function() {
             data[config] = $(this).val();
         });
 
-        $.post('/test_config', { data }, function(data) {
+        $.post('/test_config', { data: data }, function(data) {
             alert(data);
         });
 
