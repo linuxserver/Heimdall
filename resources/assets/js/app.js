@@ -131,7 +131,7 @@ $.when( $.ready ).then(function() {
             data[config] = $(this).val();
         });
 
-        $.post('/test_config', { data }, function(data) {
+        $.post('/test_config', { data: data }, function(data) {
             alert(data);
         });
 
