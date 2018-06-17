@@ -119,7 +119,7 @@ $.when( $.ready ).then(function() {
         e.preventDefault();
         var apiurl = $('#create input[name=url]').val();
 
-        var override_url = $('#create input[name="config[override_url]"').val();
+        var override_url = $('#create input[name="config[override_url]"]').val();
         if(override_url.length && override_url != '') {
             apiurl = override_url;
         }
