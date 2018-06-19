@@ -7,6 +7,7 @@
     {!! Form::close() !!}
 
 @endsection
-@section('scripts')
+
+@push('scripts')
     @include('items.scripts')
-@endsection
+@endpush
