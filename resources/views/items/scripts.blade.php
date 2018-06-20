@@ -5,16 +5,10 @@
             var elem = $('.color-picker')[0];
             var hueb = new Huebee( elem, {
               // options
-            });        
+            });
 
-            var availableTags = [
-            <?php
-                $supported = App\Item::supportedOptions();
-                foreach($supported as $sapp) {
-                    echo '"'.$sapp.'",';
-                }
-            ?>
-            ];
+            var availableTags = @json(App\Item::supportedOptions());
+
             $( "#appname" ).autocomplete({
                 source: availableTags,
                 select: function( event, ui ) {
