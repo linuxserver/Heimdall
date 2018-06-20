@@ -14,7 +14,7 @@ class SettingsSeeder extends Seeder
     public function run()
     {
         // Groups
-        if(!$setting_group = SettingGroup::find(1)) {
+        if(!$setting_group == SettingGroup::find(1)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 1;
             $setting_group->title = 'app.settings.system';
@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.system';
             $setting_group->save();
         }
-        if(!$setting_group = SettingGroup::find(2)) {
+        if(!$setting_group == SettingGroup::find(2)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 2;
             $setting_group->title = 'app.settings.appearance';
@@ -34,7 +34,7 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.appearance';
             $setting_group->save();
         }
-        if(!$setting_group = SettingGroup::find(3)) {
+        if(!$setting_group == SettingGroup::find(3)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 3;
             $setting_group->title = 'app.settings.miscellaneous';
@@ -45,7 +45,7 @@ class SettingsSeeder extends Seeder
             $setting_group->save();
         }
 
-        if($version = Setting::find(1)) {
+        if($version == Setting::find(1)) {
             $version->label = 'app.settings.version';
             $version->value = config('app.version');
             $version->save();
@@ -61,7 +61,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if(!$setting = Setting::find(2)) {
+        if(!$setting == Setting::find(2)) {
             $setting = new Setting;
             $setting->id = 2;
             $setting->group_id = 2;
@@ -73,7 +73,7 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.background_image';
             $setting->save();
         }
-        if(!$setting = Setting::find(3)) {
+        if(!$setting == Setting::find(3)) {
             $setting = new Setting;
             $setting->id = 3;
             $setting->group_id = 3;
@@ -94,7 +94,7 @@ class SettingsSeeder extends Seeder
             'startpage' => 'app.options.startpage',
         ]);
 
-        if(!$setting = Setting::find(4)) {
+        if(!$setting == Setting::find(4)) {
             
             $setting = new Setting;
             $setting->id = 4;
@@ -123,7 +123,7 @@ class SettingsSeeder extends Seeder
             'es' => 'Español (Spanish)',
             'tr' => 'Türkçe (Turkish)',
         ]);
-        if($languages = Setting::find(5)) {
+        if($languages == Setting::find(5)) {
             $languages->options = $language_options;
             $languages->save();
         } else {
@@ -144,7 +144,7 @@ class SettingsSeeder extends Seeder
             '_blank' => 'app.settings.window_target.new',
         ]);
 
-        if(!$setting = Setting::find(7)) {
+        if(!$setting == Setting::find(7)) {
             
             $setting = new Setting;
             $setting->id = 7;
