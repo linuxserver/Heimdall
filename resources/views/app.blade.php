@@ -25,6 +25,7 @@
         <meta name="theme-color" content="#ffffff">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="stylesheet" href="{{ mix('css/app.css') }}" type="text/css" />
 
     </head>
@@ -40,7 +41,7 @@
                     $active = ((bool)$app->pinned === true) ? 'active' : '';
                     ?>
                     <li>{{ $app->title }}<a class="{{ $active }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id], false) }}"><i class="fas fa-thumbtack"></i></a></li>
-                    
+
                     @endforeach
                 </ul>
                 @endif
@@ -71,13 +72,13 @@
                         </div>
                     </div>
                     @endif
-                    
+
                     @yield('content')
                     <div id="config-buttons">
                         @if(Route::is('dash') || Route::is('tags.show'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
                         @endif
-    
+
                         <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
                         <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
                         <a id="folder" class="config" href="{{ route('tags.index', [], false) }}"><i class="fas fa-tag"></i></a>
@@ -87,11 +88,11 @@
 
             </div>
         </div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script>!window.jQuery && document.write('<script src="/js/jquery-3.3.1.min.js"><\/script>')</script>
-        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        <script src="/js/app.js?v=2"></script>
-        @yield('scripts')
-        
+
+        <script src="{{ mix('js/manifest.js') }}"></script>
+        <script src="{{ mix('js/vendor.js') }}"></script>
+        <script src="{{ mix('js/app.js') }}"></script>
+
+        @stack('scripts')
     </body>
 </html>

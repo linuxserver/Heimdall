@@ -14,11 +14,20 @@
         "bootstrap-sass": "^3.3.7",
         "cross-env": "^5.1",
         "jquery": "^3.2",
+        "jquery-ui": "^1.12.1",
         "laravel-mix": "^2.0",
         "lodash": "^4.17.4",
         "vue": "^2.5.7"
     },
     "dependencies": {
-        "select2": "^4.0.6-rc.1"
+        "huebee": "^2.0.0",
+        "normalize.css": "^3.0.3",
+        "select2": "^4.0.6-rc.1",
+        "select2-bootstrap-theme": "0.1.0-beta.10"
+    },
+    "standard": {
+        "globals": [
+            "$"
+        ]
     }
 }
