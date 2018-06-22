@@ -14,41 +14,44 @@ class SettingsSeeder extends Seeder
     public function run()
     {
         // Groups
-        if(!$setting_group == SettingGroup::find(1)) {
+        if(!SettingGroup::find(1)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 1;
             $setting_group->title = 'app.settings.system';
             $setting_group->order = 0;
             $setting_group->save();
         } else {
+            $setting_group = new SettingGroup;
             $setting_group->title = 'app.settings.system';
             $setting_group->save();
         }
-        if(!$setting_group == SettingGroup::find(2)) {
+        if(!SettingGroup::find(2)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 2;
             $setting_group->title = 'app.settings.appearance';
             $setting_group->order = 1;
             $setting_group->save();
         } else {
+            $setting_group = new SettingGroup;
             $setting_group->title = 'app.settings.appearance';
             $setting_group->save();
         }
-        if(!$setting_group == SettingGroup::find(3)) {
+        if(!SettingGroup::find(3)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 3;
             $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->order = 2;
             $setting_group->save();
         } else {
+            $setting_group = new SettingGroup;
             $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->save();
         }
-
-        if($version == Setting::find(1)) {
-            $version->label = 'app.settings.version';
-            $version->value = config('app.version');
-            $version->save();
+        if(Setting::find(1)) {
+            $setting = new Setting;
+            $setting->label = 'app.settings.version';
+            $setting->value = config('app.version');
+            $setting->save();
         } else {
             $setting = new Setting;
             $setting->id = 1;
@@ -60,8 +63,7 @@ class SettingsSeeder extends Seeder
             $setting->system = true;
             $setting->save();
         }
-
-        if(!$setting == Setting::find(2)) {
+        if(!Setting::find(2)) {
             $setting = new Setting;
             $setting->id = 2;
             $setting->group_id = 2;
@@ -70,10 +72,11 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.background_image';
             $setting->save();
         } else {
+            $setting = new Setting;
             $setting->label = 'app.settings.background_image';
             $setting->save();
         }
-        if(!$setting == Setting::find(3)) {
+        if(!Setting::find(3)) {
             $setting = new Setting;
             $setting->id = 3;
             $setting->group_id = 3;
@@ -82,10 +85,10 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.homepage_search';
             $setting->save();
         } else {
+            $setting = new Setting;
             $setting->label = 'app.settings.homepage_search';
             $setting->save();
         }
-
         $options = json_encode([
             'none' => 'app.options.none',
             'google' => 'app.options.google',
@@ -93,9 +96,7 @@ class SettingsSeeder extends Seeder
             'bing' => 'app.options.bing',
             'startpage' => 'app.options.startpage',
         ]);
-
-        if(!$setting == Setting::find(4)) {
-            
+        if(!Setting::find(4)) {
             $setting = new Setting;
             $setting->id = 4;
             $setting->group_id = 3;
@@ -105,25 +106,25 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.search_provider';
             $setting->save();
         } else {
+            $setting = new Setting;
             $setting->options = $options;
             $setting->label = 'app.settings.search_provider';
             $setting->save();
         }
-
-
         $language_options = json_encode([
             'de' => 'Deutsch (German)',
             'en' => 'English',
             'fi' => 'Suomi (Finnish)',
             'fr' => 'Français (French)',
             'it' => 'Italiano (Italian)',
-            'no' => 'Norsk (Norwegian)',   
-            'pl' => 'Polski (Polish)',            
+            'no' => 'Norsk (Norwegian)',
+            'pl' => 'Polski (Polish)',
             'sv' => 'Svenska (Swedish)',
             'es' => 'Español (Spanish)',
             'tr' => 'Türkçe (Turkish)',
         ]);
-        if($languages == Setting::find(5)) {
+        if(Setting::find(5)) {
+            $setting = new Setting;
             $languages->options = $language_options;
             $languages->save();
         } else {
@@ -137,15 +138,12 @@ class SettingsSeeder extends Seeder
             $setting->value = 'en';
             $setting->save();
         }
-
         $window_target_options = json_encode([
             'current' => 'app.settings.window_target.current',
             'heimdall' => 'app.settings.window_target.one',
             '_blank' => 'app.settings.window_target.new',
         ]);
-
-        if(!$setting == Setting::find(7)) {
-            
+        if(!Setting::find(7)) {
             $setting = new Setting;
             $setting->id = 7;
             $setting->group_id = 3;
@@ -156,6 +154,7 @@ class SettingsSeeder extends Seeder
             $setting->value = 'heimdall';
             $setting->save();
         } else {
+            $setting = new Setting;
             $setting->options = $window_target_options;
             $setting->label = 'app.settings.window_target';
             $setting->save();
