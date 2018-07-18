@@ -1,6 +1,6 @@
 <?php namespace App\SupportedApps;
 
-class Bookstack implements Contracts\Applications {
+class BookStack implements Contracts\Applications {
     
     public function defaultColour()
     {
