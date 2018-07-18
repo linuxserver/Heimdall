@@ -75,6 +75,7 @@ Supported applications are recognized by the title of the application as entered
 - SickRage
 - Sonarr
 - TT-RSS
+- TVheadend
 - UniFI
 - unRAID
 - pfSense
