@@ -30,6 +30,7 @@ class Item extends Model
             'Cardigann' => \App\SupportedApps\Cardigann::class,
             'CouchPotato' => \App\SupportedApps\CouchPotato::class,
             'Booksonic' => \App\SupportedApps\Booksonic::class,
+            'Bookstack' => \App\SupportedApps\Bookstack::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
