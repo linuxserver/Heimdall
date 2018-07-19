@@ -3,7 +3,7 @@
 class Pfsense implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#4e4742';
+        return '#243699';
     }
     public function icon()
     {
