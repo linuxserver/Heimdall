@@ -76,6 +76,7 @@ class Item extends Model
             'Transmission' => \App\SupportedApps\Transmission::class,
             'Traefik' => \App\SupportedApps\Traefik::class,
             'tt-rss' => \App\SupportedApps\Ttrss::class,
+            'TVheadend' => \App\SupportedApps\TVheadend::class,
             'UniFi' => \App\SupportedApps\Unifi::class,
             'unRAID' => \App\SupportedApps\Unraid::class,
             'pfSense' => \App\SupportedApps\Pfsense::class,
