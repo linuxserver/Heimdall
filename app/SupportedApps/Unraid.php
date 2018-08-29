@@ -3,7 +3,7 @@
 class Unraid implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#3B5E1F';
+        return '#BF4C23';
     }
     public function icon()
     {
