@@ -73,5 +73,5 @@ class Plexpy implements Contracts\Applications, Contracts\Livestats {
         return $res;
 
     }
-   
+
 }

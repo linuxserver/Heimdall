@@ -85,5 +85,4 @@ class Sabnzbd implements Contracts\Applications, Contracts\Livestats {
         return $res;
 
     }
-   
 }

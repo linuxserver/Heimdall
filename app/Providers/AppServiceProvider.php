@@ -40,10 +40,10 @@ class AppServiceProvider extends ServiceProvider
                 $db_version = Setting::fetch('version');
                 $app_version = config('app.version');
                 if(version_compare($app_version, $db_version) == 1) { // app is higher than db, so need to run migrations etc
-                    Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));                   
+                    Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));
                 }
             } else {
-                Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true)); 
+                Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));
             }
             $lang = Setting::fetch('language');
             \App::setLocale($lang);

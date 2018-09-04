@@ -73,5 +73,5 @@ class Tautulli implements Contracts\Applications, Contracts\Livestats {
         return $res;
 
     }
-   
+
 }

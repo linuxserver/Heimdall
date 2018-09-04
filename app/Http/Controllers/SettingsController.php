@@ -40,7 +40,7 @@ class SettingsController extends Controller
             ]);
         } else {
             $route = route('settings.list', [], false);
-            return redirect($route) 
+            return redirect($route)
             ->with([
                 'error' => __('app.alert.error.not_exist'),
             ]);
@@ -66,7 +66,7 @@ class SettingsController extends Controller
                     $path = $request->file('value')->store('backgrounds');
                     $setting->value = $path;
                 }
-            
+
 
 
             } else {
@@ -76,13 +76,13 @@ class SettingsController extends Controller
             $setting->save();
 
             $route = route('settings.index', [], false);
-            return redirect($route) 
+            return redirect($route)
             ->with([
                 'success' => __('app.alert.success.setting_updated'),
             ]);
         } else {
             $route = route('settings.index', [], false);
-            return redirect($route) 
+            return redirect($route)
             ->with([
                 'error' => __('app.alert.error.not_exist'),
             ]);
@@ -101,10 +101,10 @@ class SettingsController extends Controller
             $setting->save();
         }
         $route = route('settings.index', [], false);
-        return redirect($route) 
+        return redirect($route)
         ->with([
             'success' => __('app.alert.success.setting_updated'),
         ]);
-    
+
     }
 }

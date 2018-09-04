@@ -99,7 +99,7 @@ class TagController extends Controller
 
         // show the edit form and pass the nerd
         return view('tags.edit')
-            ->with('item', $item);    
+            ->with('item', $item);
     }
 
     /**
@@ -152,7 +152,7 @@ class TagController extends Controller
         } else {
             Item::find($id)->delete();
         }
-        
+
         $route = route('tags.index', [], false);
         return redirect($route)
             ->with('success',__('app.alert.success.item_deleted'));
@@ -169,7 +169,7 @@ class TagController extends Controller
         //
         Item::withTrashed()
                 ->where('id', $id)
-                ->restore();        
+                ->restore();
         $route = route('tags.index', [], false);
         return redirect($route)
             ->with('success',__('app.alert.success.item_restored'));

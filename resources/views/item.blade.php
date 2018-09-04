@@ -14,5 +14,5 @@
                             <a class="link{{ title_color($app->colour) }}"{!! $app->link_target !!} href="{{ $app->link }}"><i class="fas {{ $app->link_icon }}"></i></a>
                         </div>
                         <a class="item-edit" href="{{ route($app->link_type.'.edit', [ $app->id ], false) }}"><i class="fas fa-pencil"></i></a>
-                        
+
                     </section>

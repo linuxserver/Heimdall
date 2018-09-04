@@ -37,7 +37,7 @@ class ItemController extends Controller
             $item->save();
         }
     }
-    
+
 
      /**
      * Pin item on the dashboard.
@@ -88,7 +88,7 @@ class ItemController extends Controller
             }
     }
 
-   
+
     /**
      * Display a listing of the resource.
      *
@@ -149,7 +149,7 @@ class ItemController extends Controller
         ]);
 
         //die(print_r($request->input('config')));
-        
+
         $item = Item::create($request->all());
 
         $item->parents()->sync($request->tags);
@@ -184,7 +184,7 @@ class ItemController extends Controller
         $data['current_tags'] = $data['item']->parents;
 
         // show the edit form and pass the nerd
-        return view('items.edit', $data);    
+        return view('items.edit', $data);
     }
 
     /**
@@ -207,7 +207,7 @@ class ItemController extends Controller
                 'icon' => $path
             ]);
         }
-        
+
         $config = Item::checkConfig($request->input('config'));
         $request->merge([
             'description' => $config
@@ -242,7 +242,7 @@ class ItemController extends Controller
         }
 
         $route = route('items.index', [], false);
-        return redirect($route)       
+        return redirect($route)
             ->with('success',__('app.alert.success.item_deleted'));
     }
 
@@ -257,8 +257,8 @@ class ItemController extends Controller
         //
         Item::withTrashed()
                 ->where('id', $id)
-                ->restore();      
-        
+                ->restore();
+
         $route = route('items.inded', [], false);
         return redirect($route)
             ->with('success',__('app.alert.success.item_restored'));
@@ -296,7 +296,7 @@ class ItemController extends Controller
                 $output['config'] = null;
             }
         }
-        
+
         return json_encode($output);
     }
 
@@ -304,7 +304,7 @@ class ItemController extends Controller
     {
         $data = $request->input('data');
         //$url = $data[array_search('url', array_column($data, 'name'))]['value'];
-        
+
         $app = $data['type'];
 
         $app_details = new $app();
@@ -326,8 +326,8 @@ class ItemController extends Controller
             $app_details->config = $config;
             echo $app_details->executeConfig();
         }
-        
+
     }
 
-    
+
 }

@@ -52,14 +52,14 @@ class Setting extends Model
                     $value = '<a href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank">'.__('app.settings.view').'</a>';
                 } else {
                     $value = __('app.options.none');
-                }    
+                }
                 break;
             case 'boolean':
                 if((bool)$this->value === true) {
                     $value = __('app.options.yes');
                 } else {
                     $value = __('app.options.no');
-                }    
+                }
                 break;
             case 'select':
                 if(!empty($this->value) && $this->value !== 'none') {
@@ -67,7 +67,7 @@ class Setting extends Model
                     $value = __($options[$this->value]);
                 } else {
                     $value = __('app.options.none');
-                }                
+                }
                 break;
             default:
                 $value = __($this->value);
@@ -90,7 +90,7 @@ class Setting extends Model
                 if(isset($this->value) && !empty($this->value)) {
                     $value .= '<a class="settinglink" href="'.route('settings.clear', $this->id).'" title="'.__('app.settings.remove').'">'.__('app.settings.reset').'</a>';
                 }
-                
+
                 break;
             case 'boolean':
                 $checked = false;
@@ -175,7 +175,7 @@ class Setting extends Model
         $output = '';
         $homepage_search = self::fetch('homepage_search');
         $search_provider = self::where('key', '=', 'search_provider')->first();
-        
+
         //die(var_dump($search_provider->value));
         // return early if search isn't applicable
         if((bool)$homepage_search !== true) return $output;

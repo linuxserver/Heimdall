@@ -20,7 +20,7 @@
                     $checked = false;
                     if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
-                    ?>                   
+                    ?>
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
                     <span class="slider round"></span>
                 </label>
@@ -51,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            
+
             @if(isset($item) && isset($item->config->view))
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
@@ -61,7 +61,7 @@
             @else
             <div id="sapconfig"></div>
             @endif
-            
+
         </div>
         <footer>
             <div class="section-title">&nbsp;</div>

@@ -47,7 +47,7 @@
                         </tr>
                     @endif
 
-                
+
                 </tbody>
             </table>
         </section>

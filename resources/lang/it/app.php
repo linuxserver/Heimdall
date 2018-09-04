@@ -22,12 +22,12 @@ return [
     'settings.remove' => 'Rimuovi',
     'settings.search' => 'Cerca',
     'settings.no_items' => 'Nessun elemento trovato',
-    
 
-    'settings.label' => 'Etichetta',    
-    'settings.value' => 'Valore',    
-    'settings.edit' => 'Modifica',    
-    'settings.view' => 'Vista',    
+
+    'settings.label' => 'Etichetta',
+    'settings.value' => 'Valore',
+    'settings.edit' => 'Modifica',
+    'settings.view' => 'Vista',
 
     'options.none' => '- non impostato -',
     'options.google' => 'Google',
@@ -64,9 +64,9 @@ return [
 
     'url' => 'Url',
     'title' => 'Titolo',
-    'delete' => 'Elimina',    
-    'optional' => 'Opzionale',    
-    'restore' => 'Ripristina',    
+    'delete' => 'Elimina',
+    'optional' => 'Opzionale',
+    'restore' => 'Ripristina',
 
     'alert.success.item_created' => 'Elemento creato con successo',
     'alert.success.item_updated' => 'Elemento aggiornato con successo',

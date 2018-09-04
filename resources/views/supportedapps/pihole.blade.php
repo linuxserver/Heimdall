@@ -6,7 +6,7 @@
         <label>{{ strtoupper(__('app.url')) }}</label>
         {!! Form::text('config[override_url]', null, array('placeholder' => __('app.apps.override'), 'id' => 'override_url', 'class' => 'form-control')) !!}
     </div>
-    
+
     <div class="input">
         <label>{{ __('app.apps.enable') }}</label>
         {!! Form::hidden('config[enabled]', '0') !!}

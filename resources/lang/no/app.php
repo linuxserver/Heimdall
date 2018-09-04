@@ -22,12 +22,12 @@ return [
     'settings.remove' => 'Fjern',
     'settings.search' => 'søk',
     'settings.no_items' => 'Ingen funn',
-    
 
-    'settings.label' => 'Merkelapp',    
-    'settings.value' => 'Verdi',    
-    'settings.edit' => 'Endre',    
-    'settings.view' => 'Se',    
+
+    'settings.label' => 'Merkelapp',
+    'settings.value' => 'Verdi',
+    'settings.edit' => 'Endre',
+    'settings.view' => 'Se',
 
     'options.none' => '- ikke valgt -',
     'options.google' => 'Google',
@@ -64,9 +64,9 @@ return [
 
     'url' => 'Url',
     'title' => 'Tittel',
-    'delete' => 'Slett',    
-    'optional' => 'Valgfritt',    
-    'restore' => 'Tilbakestill',    
+    'delete' => 'Slett',
+    'optional' => 'Valgfritt',
+    'restore' => 'Tilbakestill',
 
     'alert.success.item_created' => 'Objektet ble opprettet',
     'alert.success.item_updated' => 'Objektet ble oppdatert',
