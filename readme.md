@@ -44,6 +44,7 @@ Supported applications are recognized by the title of the application as entered
 
 **Foundation**
 - AirSonic
+- Bazarr
 - Booksonic
 - BookStack
 - Cardigann

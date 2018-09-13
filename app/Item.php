@@ -29,6 +29,7 @@ class Item extends Model
             'AirSonic' => \App\SupportedApps\AirSonic::class,
             'Cardigann' => \App\SupportedApps\Cardigann::class,
             'CouchPotato' => \App\SupportedApps\CouchPotato::class,
+            'Bazarr' => \App\SupportedApps\Bazarr::class,
             'Booksonic' => \App\SupportedApps\Booksonic::class,
             'BookStack' => \App\SupportedApps\BookStack::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
