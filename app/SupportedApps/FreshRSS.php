@@ -1,12 +1,11 @@
 <?php namespace App\SupportedApps;
-
-class Pfsense implements Contracts\Applications {
+class FreshRSS implements Contracts\Applications {
     public function defaultColour()
     {
-        return '#243699';
+        return '#003B73';
     }
     public function icon()
     {
-        return 'supportedapps/pfsense.png';
+        return 'supportedapps/freshrss.png';
     }
 }
