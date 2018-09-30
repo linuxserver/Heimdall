@@ -54,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
         }
         view()->share('alt_bg', $alt_bg);
 
+        var_dump(env('FORCE_HTTPS'));
+
+        if (env('FORCE_HTTPS') === true) {
+            \URL::forceScheme('https');
+        }
+
     }
 
     /**
