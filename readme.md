@@ -187,6 +187,8 @@ location / {
 }
 ```
 
+If you are using https and things aren't working try adding `FORCE_HTTPS=true` to the end of your .env file
+
 ### Self-signed certificates and local CAs
 Per default Heimdall uses the standard certificate bundle file (ca-certificates.crt) to verify HTTPS sites and will ignore additional certificates placed in /etc/ssl/certs. If you wish to use enhanced apps with HTTPS sites that use a self-signed certificate or certs signed with your own local CA, you can override the default bundle:
 
