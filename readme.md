@@ -104,6 +104,11 @@ for armhf: https://hub.docker.com/r/lsioarmhf/heimdall/
 
 and for arm64: https://hub.docker.com/r/lsioarmhf/heimdall-aarch64/
 
+## New background image not being set
+If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
+
+If you are using the linuxserver.io docker image simply edit `/path/to/config/php/php-local.ini` and add `upload_max_filesize = 30M` to the end.
+
 ## Docker and enhanced apps
 If you are running the docker and the EnhancedApps you are using are also in dockers, you may need to use the docker networking addresses to communicate with them.
 
