@@ -51,7 +51,7 @@ class Item extends Model
             'Lidarr' => \App\SupportedApps\Lidarr::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
-			'Monica' => \App\SupportedApps\Monica::class,
+            'Monica' => \App\SupportedApps\Monica::class,
             'MusicBrainz' => \App\SupportedApps\MusicBrainz::class,
             'Mylar' => \App\SupportedApps\Mylar::class,
             'NZBGet' => \App\SupportedApps\Nzbget::class,
