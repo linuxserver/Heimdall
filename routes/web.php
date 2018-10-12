@@ -36,6 +36,8 @@ Route::get('view/{name_view}', function ($name_view) {
     return view('supportedapps.'.$name_view);
 });
 
+Route::resource('users', 'UserController');
+
 /**
  * Settings.
  */

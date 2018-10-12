@@ -72,6 +72,14 @@ return [
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
 
+    'user.user_list' => 'Users',
+    'user.add_user' => 'Add user',
+    'user.name' => 'Name',
+    'user.avatar' => 'Avatar',
+    'user.email' => 'Email',
+    'user.password_confirm' => 'Confirm Password',
+    'user.secure_front' => 'Allow public access to front - Only enforced if a password is set.',
+
     'url' => 'URL',
     'title' => 'Title',
     'delete' => 'Delete',

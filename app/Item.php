@@ -13,7 +13,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'user_id'
     ];
 
     /**
@@ -215,6 +215,14 @@ class Item extends Model
 
         return $query->where('type', $typeid);
     }
+
+    /**
+     * Get the user that owns the item.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }   
 
 
 }

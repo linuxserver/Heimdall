@@ -79,6 +79,7 @@
                         @endif
     
                         <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
+                        <a id="users" class="config" href="{{ route('users.index', [], false) }}"><i class="fas fa-user"></i></a>
                         <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
                         <a id="folder" class="config" href="{{ route('tags.index', [], false) }}"><i class="fas fa-tag"></i></a>
                         <a id="settings" class="config" href="{{ route('settings.index', [], false) }}"><i class="fas fa-cogs"></i></a>
