@@ -35,4 +35,12 @@ class User extends Authenticatable
         return $this->hasMany('App\Item');
     }
 
+    /**
+     * The settings that belong to the user.
+     */
+    public function settings()
+    {
+        return $this->belongsToMany('App\Setting');
+    }
+
 }
