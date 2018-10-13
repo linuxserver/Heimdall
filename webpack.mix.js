@@ -16,4 +16,6 @@ mix.scripts([
       'resources/assets/js/huebee.js',
       'resources/assets/js/app.js'
       ], 'public/js/app.js')
-   .sass('resources/assets/sass/app.scss', 'public/css').version();
+   .sass('resources/assets/sass/app.scss', 'public/css').options({
+      processCssUrls: false
+   }).version();
