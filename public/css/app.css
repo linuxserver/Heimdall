@@ -1,5 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
-
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -225,9 +224,7 @@ html {
           box-sizing: border-box;
 }
 
-*,
-*:before,
-*:after {
+*, *:before, *:after {
   -webkit-box-sizing: inherit;
           box-sizing: inherit;
 }
@@ -245,7 +242,7 @@ body {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  background-image: url("/img/bg1.jpg");
+  background-image: url("../img/bg1.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom center;
@@ -325,8 +322,7 @@ body {
           flex-direction: column;
 }
 
-#app main,
-#app #sortable {
+#app main, #app #sortable {
   padding: 10px;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -431,13 +427,11 @@ body {
           box-shadow: 0 0 15px 3px rgba(0, 0, 0, 0.3);
 }
 
-.alert.alert-success,
-.alert.alert-danger {
+.alert.alert-success, .alert.alert-danger {
   position: relative;
 }
 
-.alert.alert-success:before,
-.alert.alert-danger:before {
+.alert.alert-success:before, .alert.alert-danger:before {
   content: "\F00C";
   font-family: 'Font Awesome 5 Pro';
   font-weight: 900;
@@ -471,8 +465,7 @@ body {
   color: #91a1b3;
 }
 
-#app.header .item,
-#app.header .add-item {
+#app.header .item, #app.header .add-item {
   -webkit-transform: scale(0.9);
           transform: scale(0.9);
   opacity: 0.8;
@@ -595,8 +588,7 @@ body {
   margin: 10px 40px;
 }
 
-.module-container header,
-.module-container footer {
+.module-container header, .module-container footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -614,8 +606,7 @@ body {
   position: relative;
 }
 
-.module-container header .section-title,
-.module-container footer .section-title {
+.module-container header .section-title, .module-container footer .section-title {
   font-size: 18px;
   color: #5b5b5b;
   margin-left: 25px;
@@ -764,8 +755,7 @@ div.create .input label:not(.switch) {
   font-weight: 300;
 }
 
-div.create .input input,
-div.create .input select {
+div.create .input input, div.create .input select {
   width: 100%;
   border: 1px solid #dedfe2;
   padding: 10px;
@@ -833,13 +823,11 @@ div.create .input select {
 }
 
 /* Hide default HTML checkbox */
-
 .switch input {
   display: none;
 }
 
 /* The slider */
-
 .slider {
   position: absolute;
   cursor: pointer;
@@ -879,7 +867,6 @@ input:checked + .slider:before {
 }
 
 /* Rounded sliders */
-
 .slider.round {
   border-radius: 20px;
 }
@@ -1033,8 +1020,7 @@ a.settinglink {
   text-decoration: none;
 }
 
-.ui-state-hover,
-.ui-state-active {
+.ui-state-hover, .ui-state-active {
   font-weight: 700;
 }
 
@@ -1195,17 +1181,14 @@ select:-webkit-autofill:focus {
     -webkit-transform: translate(0, 0);
             transform: translate(0, 0);
   }
-
   20% {
     -webkit-transform: translate(0, 0);
             transform: translate(0, 0);
   }
-
   95% {
     -webkit-transform: translate(-200%, 0);
             transform: translate(-200%, 0);
   }
-
   100% {
     -webkit-transform: translate(-200%, 0);
             transform: translate(-200%, 0);
@@ -1217,17 +1200,14 @@ select:-webkit-autofill:focus {
     -webkit-transform: translate(0, 0);
             transform: translate(0, 0);
   }
-
   20% {
     -webkit-transform: translate(0, 0);
             transform: translate(0, 0);
   }
-
   95% {
     -webkit-transform: translate(-200%, 0);
             transform: translate(-200%, 0);
   }
-
   100% {
     -webkit-transform: translate(-200%, 0);
             transform: translate(-200%, 0);
@@ -1237,7 +1217,6 @@ select:-webkit-autofill:focus {
 /*! Huebee v2.0.0
 http://huebee.buzz
 ---------------------------------------------- */
-
 .huebee {
   position: absolute;
   z-index: 1;
@@ -1332,7 +1311,6 @@ http://huebee.buzz
  * Font Awesome Pro 5.0.2 by @fontawesome - http://fontawesome.com
  * License - http://fontawesome.com/license (Commercial License)
  */
-
 .fa,
 .fas,
 .far,
@@ -1469,7 +1447,6 @@ http://huebee.buzz
     -webkit-transform: rotate(0deg);
             transform: rotate(0deg);
   }
-
   100% {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg);
@@ -1481,7 +1458,6 @@ http://huebee.buzz
     -webkit-transform: rotate(0deg);
             transform: rotate(0deg);
   }
-
   100% {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg);
@@ -1564,7 +1540,6 @@ http://huebee.buzz
 
 /* Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
 readers do not read off random characters that represent icons */
-
 .fa-500px:before {
   content: "\F26E";
 }
@@ -5348,8 +5323,7 @@ readers do not read off random characters that represent icons */
   width: 1px;
 }
 
-.sr-only-focusable:active,
-.sr-only-focusable:focus {
+.sr-only-focusable:active, .sr-only-focusable:focus {
   clip: auto;
   height: auto;
   margin: 0;
@@ -5362,13 +5336,12 @@ readers do not read off random characters that represent icons */
  * Font Awesome Pro 5.0.2 by @fontawesome - http://fontawesome.com
  * License - http://fontawesome.com/license (Commercial License)
  */
-
 @font-face {
   font-family: 'Font Awesome 5 Pro';
   font-style: normal;
   font-weight: 900;
-  src: url("/webfonts/fa-solid-900.eot");
-  src: url("/webfonts/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("/webfonts/fa-solid-900.woff2") format("woff2"), url("/webfonts/fa-solid-900.woff") format("woff"), url("/webfonts/fa-solid-900.ttf") format("truetype"), url("/webfonts/fa-solid-900.svg#fontawesome") format("svg");
+  src: url("../webfonts/fa-solid-900.eot");
+  src: url("../webfonts/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("../webfonts/fa-solid-900.woff2") format("woff2"), url("../webfonts/fa-solid-900.woff") format("woff"), url("../webfonts/fa-solid-900.ttf") format("truetype"), url("../webfonts/fa-solid-900.svg#fontawesome") format("svg");
 }
 
 .fa,
@@ -5679,9 +5652,7 @@ readers do not read off random characters that represent icons */
   color: #333;
 }
 
-.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice,
-.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__placeholder,
-.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-search--inline {
+.select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice, .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__placeholder, .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-search--inline {
   float: right;
 }
 
@@ -5709,14 +5680,12 @@ readers do not read off random characters that represent icons */
   display: none;
 }
 
-.select2-container--default.select2-container--open.select2-container--above .select2-selection--single,
-.select2-container--default.select2-container--open.select2-container--above .select2-selection--multiple {
+.select2-container--default.select2-container--open.select2-container--above .select2-selection--single, .select2-container--default.select2-container--open.select2-container--above .select2-selection--multiple {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
-.select2-container--default.select2-container--open.select2-container--below .select2-selection--single,
-.select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
+.select2-container--default.select2-container--open.select2-container--below .select2-selection--single, .select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -6027,4 +5996,3 @@ readers do not read off random characters that represent icons */
 .select2-container--classic.select2-container--open .select2-dropdown {
   border-color: #5897fb;
 }
-

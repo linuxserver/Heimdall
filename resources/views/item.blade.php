@@ -1,9 +1,9 @@
                     <section class="item-container{{ $app->droppable }}" data-id="{{ $app->id }}">
                         <div class="item" style="background-color: {{ $app->colour }}">
                             @if($app->icon)
-                            <img class="app-icon" src="/storage/{{ $app->icon }}" />
+                            <img class="app-icon" src="{{ asset('/storage/'.$app->icon) }}" />
                             @else
-                            <img class="app-icon" src="/img/heimdall-icon-small.png" />
+                            <img class="app-icon" src="{{ asset('/img/heimdall-icon-small.png') }}" />
                             @endif
                             <div class="details">
                                 <div class="title{{ title_color($app->colour) }}">{{ $app->title }}</div>
