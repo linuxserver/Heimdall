@@ -43,4 +43,17 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Setting')->withPivot('value');
     }
 
+    public static function currentUser()
+    {
+        $current_user = session('current_user');
+        if ($current_user) { // if logged in, set this user
+            return $current_user;
+        } else { // not logged in, get first user
+            $user = User::first();
+            session(['current_user' => $user]);
+            return $user;
+        }
+
+    }
+
 }

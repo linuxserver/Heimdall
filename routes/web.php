@@ -11,6 +11,7 @@
 |
 */
 
+Route::get('/userselect/{user}', 'Auth\LoginController@setUser')->name('user.set');
 Route::get('/userselect', 'Auth\LoginController@index')->name('user.select');
 
 Route::get('/', 'ItemController@dash')->name('dash');
@@ -59,3 +60,6 @@ Route::group([
     Route::patch('edit/{id}', 'SettingsController@update');
 
 });
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     @endif
-                    <a href="">Switch User</a>
+                    <a href="{{ route('user.select') }}">Switch User</a>
                     @yield('content')
                     <div id="config-buttons">
 

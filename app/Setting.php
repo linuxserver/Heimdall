@@ -170,7 +170,8 @@ class Setting extends Model
                     if(isset($usersetting) && !empty($usersetting)) {
                         $value = $usersetting->pivot->value;
                     } else { // if not get default from base setting
-                        $user->settings()->save($find, ['value' => $find->value]);
+                        //$user->settings()->save($find, ['value' => $find->value]);
+                        $user->settings()->updateExistingPivot($find->id, ['value' => $find->value]);
                         $value = $find->value;
                     }
                     
@@ -267,11 +268,7 @@ class Setting extends Model
 
     public static function user()
     {
-        if (Auth::check()) { // if logged in, set this user
-            return Auth::user();
-        } else { // not logged in, get first user
-            return User::first();
-        }
+        return User::currentUser();
     }
 
 

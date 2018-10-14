@@ -5,11 +5,22 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Builder;
+use App\User;
 
 class Item extends Model
 {
     use SoftDeletes;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('user_id', function (Builder $builder) {
+            $current_user = User::currentUser();
+            $builder->where('user_id', $current_user->id);
+        });
+    }
 
     //
     protected $fillable = [

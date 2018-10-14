@@ -17,15 +17,16 @@ class Controller extends BaseController
 
     public function __construct()
     {
-        $this->user = $this->user();
+        $this->middleware(function ($request, $next) {
+            $this->user = $this->user();
+            //print_r($this->user);
+            return $next($request);
+        });
+        
     }
 
     public function user()
     {
-        if (Auth::check()) { // if logged in, set this user
-            return Auth::user();
-        } else { // not logged in, get first user
-            return User::first();
-        }
+        return User::currentUser();
     }
 }
