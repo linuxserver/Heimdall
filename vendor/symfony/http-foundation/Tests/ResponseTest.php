@@ -126,7 +126,7 @@ class ResponseTest extends ResponseTestCase
 
     public function testSetNotModified()
     {
-        $response = new Response();
+        $response = new Response('foo');
         $modified = $response->setNotModified();
         $this->assertObjectHasAttribute('headers', $modified);
         $this->assertObjectHasAttribute('content', $modified);
@@ -135,6 +135,11 @@ class ResponseTest extends ResponseTestCase
         $this->assertObjectHasAttribute('statusText', $modified);
         $this->assertObjectHasAttribute('charset', $modified);
         $this->assertEquals(304, $modified->getStatusCode());
+
+        ob_start();
+        $modified->sendContent();
+        $string = ob_get_clean();
+        $this->assertEmpty($string);
     }
 
     public function testIsSuccessful()
@@ -300,7 +305,7 @@ class ResponseTest extends ResponseTestCase
         $response = new Response();
         $response->headers->set('Cache-Control', 'must-revalidate');
         $response->headers->set('Expires', -1);
-        $this->assertEquals('Sat, 01 Jan 00 00:00:00 +0000', $response->getExpires()->format(DATE_RFC822));
+        $this->assertLessThanOrEqual(time() - 2 * 86400, $response->getExpires()->format('U'));
 
         $response = new Response();
         $this->assertNull($response->getMaxAge(), '->getMaxAge() returns null if no freshness information available');
@@ -357,6 +362,11 @@ class ResponseTest extends ResponseTestCase
         $response->headers->set('Expires', -1);
         $response->expire();
         $this->assertNull($response->headers->get('Age'), '->expire() does not set the Age when the response is expired');
+
+        $response = new Response();
+        $response->headers->set('Expires', date(DATE_RFC2822, time() + 600));
+        $response->expire();
+        $this->assertNull($response->headers->get('Expires'), '->expire() removes the Expires header when the response is fresh');
     }
 
     public function testGetTtl()
@@ -653,6 +663,22 @@ class ResponseTest extends ResponseTestCase
         $this->assertTrue($response->isImmutable());
     }
 
+    public function testSetDate()
+    {
+        $response = new Response();
+        $response->setDate(\DateTime::createFromFormat(\DateTime::ATOM, '2013-01-26T09:21:56+0100', new \DateTimeZone('Europe/Berlin')));
+
+        $this->assertEquals('2013-01-26T08:21:56+00:00', $response->getDate()->format(\DateTime::ATOM));
+    }
+
+    public function testSetDateWithImmutable()
+    {
+        $response = new Response();
+        $response->setDate(\DateTimeImmutable::createFromFormat(\DateTime::ATOM, '2013-01-26T09:21:56+0100', new \DateTimeZone('Europe/Berlin')));
+
+        $this->assertEquals('2013-01-26T08:21:56+00:00', $response->getDate()->format(\DateTime::ATOM));
+    }
+
     public function testSetExpires()
     {
         $response = new Response();
@@ -666,10 +692,30 @@ class ResponseTest extends ResponseTestCase
         $this->assertEquals($response->getExpires()->getTimestamp(), $now->getTimestamp());
     }
 
+    public function testSetExpiresWithImmutable()
+    {
+        $response = new Response();
+
+        $now = $this->createDateTimeImmutableNow();
+        $response->setExpires($now);
+
+        $this->assertEquals($response->getExpires()->getTimestamp(), $now->getTimestamp());
+    }
+
     public function testSetLastModified()
     {
         $response = new Response();
         $response->setLastModified($this->createDateTimeNow());
+        $this->assertNotNull($response->getLastModified());
+
+        $response->setLastModified(null);
+        $this->assertNull($response->getLastModified());
+    }
+
+    public function testSetLastModifiedWithImmutable()
+    {
+        $response = new Response();
+        $response->setLastModified($this->createDateTimeImmutableNow());
         $this->assertNotNull($response->getLastModified());
 
         $response->setLastModified(null);
@@ -912,6 +958,13 @@ class ResponseTest extends ResponseTestCase
         return $date->setTimestamp(time());
     }
 
+    protected function createDateTimeImmutableNow()
+    {
+        $date = new \DateTimeImmutable();
+
+        return $date->setTimestamp(time());
+    }
+
     protected function provideResponse()
     {
         return new Response();
@@ -926,7 +979,7 @@ class ResponseTest extends ResponseTestCase
      */
     public function ianaCodesReasonPhrasesProvider()
     {
-        if (!in_array('https', stream_get_wrappers(), true)) {
+        if (!\in_array('https', stream_get_wrappers(), true)) {
             $this->markTestSkipped('The "https" wrapper is not available');
         }
 
@@ -954,7 +1007,7 @@ class ResponseTest extends ResponseTestCase
             $value = $xpath->query('.//ns:value', $record)->item(0)->nodeValue;
             $description = $xpath->query('.//ns:description', $record)->item(0)->nodeValue;
 
-            if (in_array($description, array('Unassigned', '(Unused)'), true)) {
+            if (\in_array($description, array('Unassigned', '(Unused)'), true)) {
                 continue;
             }
 
@@ -989,15 +1042,4 @@ class StringableObject
 
 class DefaultResponse extends Response
 {
-}
-
-class ExtendedResponse extends Response
-{
-    public function setLastModified(\DateTime $date = null)
-    {
-    }
-
-    public function getDate()
-    {
-    }
 }

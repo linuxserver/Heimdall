@@ -79,6 +79,7 @@ return [
     'user.email' => 'Email',
     'user.password_confirm' => 'Confirm Password',
     'user.secure_front' => 'Allow public access to front - Only enforced if a password is set.',
+    'user.autologin' => 'Allow logging in from a specific URL. Anyone with the link can login.',
 
     'url' => 'URL',
     'title' => 'Title',
@@ -98,6 +99,11 @@ return [
 
     'alert.success.setting_updated' => 'You have successfully edited this setting',
     'alert.error.not_exist' => 'This setting does not exist.',
+
+    'alert.success.user_created' => 'User created successfully',
+    'alert.success.user_updated' => 'User updated successfully',
+    'alert.success.user_deleted' => 'User deleted successfully',
+    'alert.success.user_restored' => 'User restored successfully',
 
 
 ];

@@ -4,10 +4,11 @@ namespace Illuminate\Support\Testing\Fakes;
 
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Contracts\Mail\MailQueue;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MailFake implements Mailer
+class MailFake implements Mailer, MailQueue
 {
     /**
      * All of the mailables that have been sent.
@@ -36,9 +37,15 @@ class MailFake implements Mailer
             return $this->assertSentTimes($mailable, $callback);
         }
 
+        $message = "The expected [{$mailable}] mailable was not sent.";
+
+        if (count($this->queuedMailables) > 0) {
+            $message .= ' Did you mean to use assertQueued() instead?';
+        }
+
         PHPUnit::assertTrue(
             $this->sent($mailable, $callback)->count() > 0,
-            "The expected [{$mailable}] mailable was not sent."
+            $message
         );
     }
 
@@ -282,7 +289,7 @@ class MailFake implements Mailer
         }
 
         if ($view instanceof ShouldQueue) {
-            return $this->queue($view, $data, $callback);
+            return $this->queue($view, $data);
         }
 
         $this->mailables[] = $view;
@@ -302,6 +309,19 @@ class MailFake implements Mailer
         }
 
         $this->queuedMailables[] = $view;
+    }
+
+    /**
+     * Queue a new e-mail message for sending after (n) seconds.
+     *
+     * @param  \DateTimeInterface|\DateInterval|int  $delay
+     * @param  string|array|\Illuminate\Contracts\Mail\Mailable  $view
+     * @param  string  $queue
+     * @return mixed
+     */
+    public function later($delay, $view, $queue = null)
+    {
+        $this->queue($view, $queue);
     }
 
     /**

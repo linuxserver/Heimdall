@@ -29,7 +29,7 @@ class Route implements \Serializable
     private $condition = '';
 
     /**
-     * @var null|CompiledRoute
+     * @var CompiledRoute|null
      */
     private $compiled;
 
@@ -50,11 +50,11 @@ class Route implements \Serializable
      * @param string|string[] $methods      A required HTTP method or an array of restricted methods
      * @param string          $condition    A condition that should evaluate to true for the route to match
      */
-    public function __construct($path, array $defaults = array(), array $requirements = array(), array $options = array(), $host = '', $schemes = array(), $methods = array(), $condition = '')
+    public function __construct(string $path, array $defaults = array(), array $requirements = array(), array $options = array(), ?string $host = '', $schemes = array(), $methods = array(), ?string $condition = '')
     {
         $this->setPath($path);
-        $this->setDefaults($defaults);
-        $this->setRequirements($requirements);
+        $this->addDefaults($defaults);
+        $this->addRequirements($requirements);
         $this->setOptions($options);
         $this->setHost($host);
         $this->setSchemes($schemes);
@@ -123,6 +123,19 @@ class Route implements \Serializable
      */
     public function setPath($pattern)
     {
+        if (false !== strpbrk($pattern, '?<')) {
+            $pattern = preg_replace_callback('#\{(\w++)(<.*?>)?(\?[^\}]*+)?\}#', function ($m) {
+                if (isset($m[3][0])) {
+                    $this->setDefault($m[1], '?' !== $m[3] ? substr($m[3], 1) : null);
+                }
+                if (isset($m[2][0])) {
+                    $this->setRequirement($m[1], substr($m[2], 1, -1));
+                }
+
+                return '{'.$m[1].'}';
+            }, $pattern);
+        }
+
         // A pattern must start with a slash and must not have multiple slashes at the beginning because the
         // generated path for this route would be confused with a network path, e.g. '//domain.com/path'.
         $this->path = '/'.ltrim(trim($pattern), '/');
@@ -196,7 +209,7 @@ class Route implements \Serializable
      */
     public function hasScheme($scheme)
     {
-        return in_array(strtolower($scheme), $this->schemes, true);
+        return \in_array(strtolower($scheme), $this->schemes, true);
     }
 
     /**
@@ -537,7 +550,7 @@ class Route implements \Serializable
 
     private function sanitizeRequirement($key, $regex)
     {
-        if (!is_string($regex)) {
+        if (!\is_string($regex)) {
             throw new \InvalidArgumentException(sprintf('Routing requirement for "%s" must be a string.', $key));
         }
 

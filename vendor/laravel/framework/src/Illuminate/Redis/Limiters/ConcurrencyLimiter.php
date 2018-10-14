@@ -2,6 +2,7 @@
 
 namespace Illuminate\Redis\Limiters;
 
+use Exception;
 use Illuminate\Contracts\Redis\LimiterTimeoutException;
 
 class ConcurrencyLimiter
@@ -57,7 +58,9 @@ class ConcurrencyLimiter
      * @param  int  $timeout
      * @param  callable|null  $callback
      * @return bool
+     *
      * @throws \Illuminate\Contracts\Redis\LimiterTimeoutException
+     * @throws \Exception
      */
     public function block($timeout, $callback = null)
     {
@@ -72,9 +75,15 @@ class ConcurrencyLimiter
         }
 
         if (is_callable($callback)) {
-            return tap($callback(), function () use ($slot) {
+            try {
+                return tap($callback(), function () use ($slot) {
+                    $this->release($slot);
+                });
+            } catch (Exception $exception) {
                 $this->release($slot);
-            });
+
+                throw $exception;
+            }
         }
 
         return true;
@@ -91,9 +100,10 @@ class ConcurrencyLimiter
             return $this->name.$i;
         }, range(1, $this->maxLocks));
 
-        return $this->redis->eval($this->luaScript(), count($slots),
-            ...array_merge($slots, [$this->name, $this->releaseAfter])
-        );
+        return $this->redis->eval(...array_merge(
+            [$this->luaScript(), count($slots)],
+            array_merge($slots, [$this->name, $this->releaseAfter])
+        ));
     }
 
     /**
@@ -125,6 +135,6 @@ LUA;
      */
     protected function release($key)
     {
-        $this->redis->del($key);
+        $this->redis->command('del', [$key]);
     }
 }

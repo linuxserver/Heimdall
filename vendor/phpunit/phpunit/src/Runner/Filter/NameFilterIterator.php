@@ -79,7 +79,7 @@ class NameFilterIterator extends RecursiveFilterIterator
 
             // Escape delimiters in regular expression. Do NOT use preg_quote,
             // to keep magic characters.
-            $filter = \sprintf('/%s/', \str_replace(
+            $filter = \sprintf('/%s/i', \str_replace(
                 '/',
                 '\\/',
                 $filter
@@ -89,10 +89,7 @@ class NameFilterIterator extends RecursiveFilterIterator
         $this->filter = $filter;
     }
 
-    /**
-     * @return bool
-     */
-    public function accept()
+    public function accept(): bool
     {
         $test = $this->getInnerIterator()->current();
 
@@ -105,7 +102,7 @@ class NameFilterIterator extends RecursiveFilterIterator
         if ($test instanceof WarningTestCase) {
             $name = $test->getMessage();
         } else {
-            if ($tmp[0] != '') {
+            if ($tmp[0] !== '') {
                 $name = \implode('::', $tmp);
             } else {
                 $name = $tmp[1];
@@ -119,6 +116,6 @@ class NameFilterIterator extends RecursiveFilterIterator
             $accepted = $set >= $this->filterMin && $set <= $this->filterMax;
         }
 
-        return $accepted;
+        return (bool) $accepted;
     }
 }

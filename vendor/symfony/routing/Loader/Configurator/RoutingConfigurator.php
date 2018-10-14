@@ -25,7 +25,7 @@ class RoutingConfigurator
     private $path;
     private $file;
 
-    public function __construct(RouteCollection $collection, PhpFileLoader $loader, $path, $file)
+    public function __construct(RouteCollection $collection, PhpFileLoader $loader, string $path, string $file)
     {
         $this->collection = $collection;
         $this->loader = $loader;
@@ -38,9 +38,9 @@ class RoutingConfigurator
      */
     final public function import($resource, $type = null, $ignoreErrors = false)
     {
-        $this->loader->setCurrentDir(dirname($this->path));
+        $this->loader->setCurrentDir(\dirname($this->path));
         $imported = $this->loader->import($resource, $type, $ignoreErrors, $this->file);
-        if (!is_array($imported)) {
+        if (!\is_array($imported)) {
             return new ImportConfigurator($this->collection, $imported);
         }
 

@@ -60,7 +60,7 @@ class MessageSelector
     {
         preg_match('/^[\{\[]([^\[\]\{\}]*)[\}\]](.*)/s', $part, $matches);
 
-        if (count($matches) != 3) {
+        if (count($matches) !== 3) {
             return;
         }
 
@@ -69,7 +69,7 @@ class MessageSelector
         $value = $matches[2];
 
         if (Str::contains($condition, ',')) {
-            list($from, $to) = explode(',', $condition, 2);
+            [$from, $to] = explode(',', $condition, 2);
 
             if ($to == '*' && $number >= $from) {
                 return $value;

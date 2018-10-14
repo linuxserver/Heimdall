@@ -3,7 +3,7 @@
             <div class="section-title">{{ __('app.user.add_user') }}</div>
             <div class="module-actions">
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
-                <a href="{{ route('items.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                <a href="{{ route('users.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </header>
         <div id="create" class="create">
@@ -13,26 +13,19 @@
                 <label>{{ __('app.user.name') }} *</label>
                 {!! Form::text('name', null, array('placeholder' => __('app.user.name'), 'id' => 'appname', 'class' => 'form-control')) !!}
                 <hr />
-                <label>{{ __('app.user.name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
-                <hr />
-
             </div>
             <div class="input">
                 <label>{{ __('app.user.email') }} *</label>
                 {!! Form::text('email', null, array('placeholder' => 'email@test.com','class' => 'form-control')) !!}
-                <hr />
-                <label>{{ __('app.user.email') }} *</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
             </div>
             <div class="input">
             <label>{{ __('app.user.avatar') }}</label>
                 <div class="icon-container">
                     <div id="appimage">
-                    @if(isset($item->avatar) && !empty($item->avatar) || old('avatar'))
+                    @if(isset($user->avatar) && !empty($user->avatar) || old('avatar'))
                     <?php
-                        if(isset($item->avatar)) $avatar = $item->avatar;
+                        if(isset($user->avatar)) $avatar = $user->avatar;
                         else $avatar = old('avatar');
                     ?>
                     <img src="{{ asset('storage/'.$avatar) }}" />
@@ -50,46 +43,52 @@
 
         <div style="margin-top: -40px; width: 100%; padding: 0" class="create">
             <div class="input">
-                <label>{{ __('app.user.name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                <label>{{ __('app.apps.password') }} *</label>
+                {!! Form::password('password', null, array('class' => 'form-control')) !!}
                 <hr />
-                <label>{{ __('app.user.secure_front') }}</label>
-                {!! Form::hidden('pinned', '0') !!}
-                <label class="switch">
-                    <?php
-                    $checked = false;
-                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
-                    $set_checked = ($checked) ? ' checked="checked"' : '';
-                    ?>                   
-                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
-                    <span class="slider round"></span>
-                </label>
 
             </div>
             <div class="input">
-                <label>{{ __('app.apps.colour') }} *</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
+                <label>{{ __('app.user.password_confirm') }} *</label>
+                {!! Form::password('password_confirmation', null, array('class' => 'form-control')) !!}
             </div>
         </div>
 
-
-            
-            @if(isset($item) && isset($item->config->view))
-            <div id="sapconfig" style="display: block;">
-                @if(isset($item))
-                @include('supportedapps.'.$item->config->view)
-                @endif
+        <div class="input">
+                <label>{{ __('app.user.secure_front') }}</label>
+                {!! Form::hidden('public_front', '1') !!}
+                <label class="switch">
+                    <?php
+                    $checked = true;
+                    if(isset($user->public_front) && (bool)$user->public_front === false) $checked = false;
+                    $set_checked = ($checked) ? ' checked="checked"' : '';
+                    ?>                   
+                    <input type="checkbox" name="public_front" value="1"<?php echo $set_checked;?> />
+                    <span class="slider round"></span>
+                </label>
             </div>
-            @else
-            <div id="sapconfig"></div>
-            @endif
-            
+            <div class="input">
+                    <label>{{ __('app.user.autologin') }}</label>
+                    {!! Form::hidden('autologin_allow', '0') !!}
+                    <label class="switch">
+                        <?php
+                        $checked = false;
+                        if(isset($user->autologin) && !empty($user->autologin)) $checked = true;
+                        $set_checked = ($checked) ? ' checked="checked"' : '';
+                        ?>                   
+                        <input type="checkbox" name="autologin_allow" value="1"<?php echo $set_checked;?> />
+                        <span class="slider round"></span>
+                    </label>
+                    
+                </div>
+    
+                        
         </div>
         <footer>
             <div class="section-title">&nbsp;</div>
             <div class="module-actions">
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
-                <a href="{{ route('items.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                <a href="{{ route('users.index', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </footer>
 

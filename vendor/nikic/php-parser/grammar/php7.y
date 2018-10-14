@@ -522,9 +522,15 @@ static_var:
     | plain_variable '=' expr                               { $$ = Stmt\StaticVar[$1, $3]; }
 ;
 
-class_statement_list:
-      class_statement_list class_statement                  { if ($2 !== null) { push($1, $2); } }
+class_statement_list_ex:
+      class_statement_list_ex class_statement               { if ($2 !== null) { push($1, $2); } }
     | /* empty */                                           { init(); }
+;
+
+class_statement_list:
+      class_statement_list_ex
+          { makeNop($nop, $this->lookaheadStartAttributes, $this->endAttributes);
+            if ($nop !== null) { $1[] = $nop; } $$ = $1; }
 ;
 
 class_statement:
@@ -841,17 +847,14 @@ scalar:
     | dereferencable_scalar                                 { $$ = $1; }
     | constant                                              { $$ = $1; }
     | T_START_HEREDOC T_ENCAPSED_AND_WHITESPACE T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            $$ = new Scalar\String_(Scalar\String_::parseDocString($1, $2), $attrs); }
+          { $$ = $this->parseDocString($1, $2, $3, attributes(), stackAttributes(#3), true); }
     | T_START_HEREDOC T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            $$ = new Scalar\String_('', $attrs); }
+          { $$ = $this->parseDocString($1, '', $2, attributes(), stackAttributes(#2), true); }
     | '"' encaps_list '"'
           { $attrs = attributes(); $attrs['kind'] = Scalar\String_::KIND_DOUBLE_QUOTED;
             parseEncapsed($2, '"', true); $$ = new Scalar\Encapsed($2, $attrs); }
     | T_START_HEREDOC encaps_list T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            parseEncapsedDoc($2, true); $$ = new Scalar\Encapsed($2, $attrs); }
+          { $$ = $this->parseDocString($1, $2, $3, attributes(), stackAttributes(#3), true); }
 ;
 
 optional_expr:
@@ -952,8 +955,13 @@ array_pair_list:
           { $$ = $1; $end = count($$)-1; if ($$[$end] === null) array_pop($$); }
 ;
 
+comma_or_error:
+      ','
+    | error
+;
+
 inner_array_pair_list:
-      inner_array_pair_list ',' array_pair                  { push($1, $3); }
+      inner_array_pair_list comma_or_error array_pair       { push($1, $3); }
     | array_pair                                            { init($1); }
 ;
 

@@ -1,6 +1,16 @@
 # Change Log
 
-## x.y.z. (unreleased)
+## x.y.z (unreleased)
+
+## 1.2.0 (2018-10-02)
+
+* Starts counting default expectations towards count (#910)
+* Adds workaround for some HHVM return types (#909)
+* Adds PhpStorm metadata support for autocomplete etc (#904)
+* Further attempts to support multiple PHPUnit versions (#903)
+* Allows setting constructor expectations on instance mocks (#900)
+* Adds workaround for HHVM memoization decorator (#893)
+* Adds experimental support for callable spys (#712)
 
 ## 1.1.0 (2018-05-08)
 
@@ -23,6 +33,7 @@
 * Fix internal error when using --static-backup (#845)
 * Adds `andAnyOtherArgs` as an optional argument matcher (#860)
 * Fixes namespace qualifying with namespaced named mocks (#872)
+* Added possibility to add Constructor-Expections on hard dependencies, read: Mockery::mock('overload:...') (#781)
 
 ## 1.0.0 (2017-09-06)
 
@@ -50,7 +61,6 @@
 * BC BREAK - Fix Mockery not trying default expectations if there is any concrete expectation
 * BC BREAK - Mockery's PHPUnit integration will mark a test as risky if it
   thinks one it's exceptions has been swallowed in PHPUnit > 5.7.6. Use `$e->dismiss()` to dismiss.
-
  
 ## 0.9.4 (XXXX-XX-XX)
 

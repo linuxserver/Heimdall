@@ -942,6 +942,16 @@ class MockObjectTest extends TestCase
     }
 
     /**
+     * @requires extension soap
+     */
+    public function testCreateMockOfWsdlFileWithSpecialChars()
+    {
+        $mock = $this->getMockFromWsdl(__DIR__ . '/_fixture/Go ogle-Sea.rch.wsdl');
+
+        $this->assertStringStartsWith('Mock_GoogleSearch_', get_class($mock));
+    }
+
+    /**
      * @see    https://github.com/sebastianbergmann/phpunit-mock-objects/issues/156
      * @ticket 156
      */

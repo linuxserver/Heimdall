@@ -63,7 +63,7 @@ class RouteCollection implements \IteratorAggregate, \Countable
      */
     public function count()
     {
-        return count($this->routes);
+        return \count($this->routes);
     }
 
     /**
@@ -151,6 +151,23 @@ class RouteCollection implements \IteratorAggregate, \Countable
             $route->addDefaults($defaults);
             $route->addRequirements($requirements);
         }
+    }
+
+    /**
+     * Adds a prefix to the name of all the routes within in the collection.
+     */
+    public function addNamePrefix(string $prefix)
+    {
+        $prefixedRoutes = array();
+
+        foreach ($this->routes as $name => $route) {
+            $prefixedRoutes[$prefix.$name] = $route;
+            if (null !== $name = $route->getDefault('_canonical_route')) {
+                $route->setDefault('_canonical_route', $prefix.$name);
+            }
+        }
+
+        $this->routes = $prefixedRoutes;
     }
 
     /**

@@ -5,6 +5,20 @@ namespace Illuminate\Contracts\Queue;
 interface Job
 {
     /**
+     * Get the job identifier.
+     *
+     * @return string
+     */
+    public function getJobId();
+
+    /**
+     * Get the decoded body of the job.
+     *
+     * @return array
+     */
+    public function payload();
+
+    /**
      * Fire the job.
      *
      * @return void
@@ -15,7 +29,7 @@ interface Job
      * Release the job back into the queue.
      *
      * @param  int   $delay
-     * @return mixed
+     * @return void
      */
     public function release($delay = 0);
 

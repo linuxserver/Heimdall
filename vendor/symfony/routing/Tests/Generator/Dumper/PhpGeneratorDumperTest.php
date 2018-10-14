@@ -12,11 +12,11 @@
 namespace Symfony\Component\Routing\Tests\Generator\Dumper;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class PhpGeneratorDumperTest extends TestCase
 {
@@ -46,8 +46,8 @@ class PhpGeneratorDumperTest extends TestCase
 
         $this->routeCollection = new RouteCollection();
         $this->generatorDumper = new PhpGeneratorDumper($this->routeCollection);
-        $this->testTmpFilepath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'php_generator.'.$this->getName().'.php';
-        $this->largeTestTmpFilepath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'php_generator.'.$this->getName().'.large.php';
+        $this->testTmpFilepath = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'php_generator.'.$this->getName().'.php';
+        $this->largeTestTmpFilepath = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'php_generator.'.$this->getName().'.large.php';
         @unlink($this->testTmpFilepath);
         @unlink($this->largeTestTmpFilepath);
     }
@@ -84,12 +84,35 @@ class PhpGeneratorDumperTest extends TestCase
         $this->assertEquals('/app.php/testing2', $relativeUrlWithoutParameter);
     }
 
+    public function testDumpWithLocalizedRoutes()
+    {
+        $this->routeCollection->add('test.en', (new Route('/testing/is/fun'))->setDefault('_locale', 'en')->setDefault('_canonical_route', 'test'));
+        $this->routeCollection->add('test.nl', (new Route('/testen/is/leuk'))->setDefault('_locale', 'nl')->setDefault('_canonical_route', 'test'));
+
+        $code = $this->generatorDumper->dump(array(
+            'class' => 'LocalizedProjectUrlGenerator',
+        ));
+        file_put_contents($this->testTmpFilepath, $code);
+        include $this->testTmpFilepath;
+
+        $context = new RequestContext('/app.php');
+        $projectUrlGenerator = new \LocalizedProjectUrlGenerator($context, null, 'en');
+
+        $urlWithDefaultLocale = $projectUrlGenerator->generate('test');
+        $urlWithSpecifiedLocale = $projectUrlGenerator->generate('test', array('_locale' => 'nl'));
+        $context->setParameter('_locale', 'en');
+        $urlWithEnglishContext = $projectUrlGenerator->generate('test');
+        $context->setParameter('_locale', 'nl');
+        $urlWithDutchContext = $projectUrlGenerator->generate('test');
+
+        $this->assertEquals('/app.php/testing/is/fun', $urlWithDefaultLocale);
+        $this->assertEquals('/app.php/testen/is/leuk', $urlWithSpecifiedLocale);
+        $this->assertEquals('/app.php/testing/is/fun', $urlWithEnglishContext);
+        $this->assertEquals('/app.php/testen/is/leuk', $urlWithDutchContext);
+    }
+
     public function testDumpWithTooManyRoutes()
     {
-        if (defined('HHVM_VERSION_ID')) {
-            $this->markTestSkipped('HHVM consumes too much memory on this test.');
-        }
-
         $this->routeCollection->add('Test', new Route('/testing/{foo}'));
         for ($i = 0; $i < 32769; ++$i) {
             $this->routeCollection->add('route_'.$i, new Route('/route_'.$i));

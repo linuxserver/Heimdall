@@ -84,15 +84,15 @@ class RouteCollection implements Countable, IteratorAggregate
         // If the route has a name, we will add it to the name look-up table so that we
         // will quickly be able to find any route associate with a name and not have
         // to iterate through every route every time we need to perform a look-up.
-        $action = $route->getAction();
-
-        if (isset($action['as'])) {
-            $this->nameList[$action['as']] = $route;
+        if ($name = $route->getName()) {
+            $this->nameList[$name] = $route;
         }
 
         // When the route is routing to a controller we will also store the action that
         // is used by the route. This will let us reverse route to controllers while
         // processing a request and easily generate URLs to the given controllers.
+        $action = $route->getAction();
+
         if (isset($action['controller'])) {
             $this->addToActionList($action, $route);
         }
@@ -183,13 +183,13 @@ class RouteCollection implements Countable, IteratorAggregate
      * Determine if a route in the array matches the request.
      *
      * @param  array  $routes
-     * @param  \Illuminate\http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  bool  $includingMethod
      * @return \Illuminate\Routing\Route|null
      */
     protected function matchAgainstRoutes(array $routes, $request, $includingMethod = true)
     {
-        list($fallbacks, $routes) = collect($routes)->partition(function ($route) {
+        [$fallbacks, $routes] = collect($routes)->partition(function ($route) {
             return $route->isFallback;
         });
 

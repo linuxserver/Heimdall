@@ -22,7 +22,7 @@ class SparkPostTransport extends Transport
     protected $key;
 
     /**
-     * Transmission options.
+     * The SparkPost transmission options.
      *
      * @var array
      */
@@ -54,7 +54,7 @@ class SparkPostTransport extends Transport
 
         $message->setBcc([]);
 
-        $response = $this->client->post('https://api.sparkpost.com/api/v1/transmissions', [
+        $response = $this->client->request('POST', $this->getEndpoint(), [
             'headers' => [
                 'Authorization' => $this->key,
             ],
@@ -134,6 +134,16 @@ class SparkPostTransport extends Transport
     public function setKey($key)
     {
         return $this->key = $key;
+    }
+
+    /**
+     * Get the SparkPost API endpoint.
+     *
+     * @return string
+     */
+    public function getEndpoint()
+    {
+        return $this->getOptions()['endpoint'] ?? 'https://api.sparkpost.com/api/v1/transmissions';
     }
 
     /**

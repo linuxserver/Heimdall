@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\InteractsWithTime;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 
 class ThrottleRequests
 {
@@ -39,8 +39,9 @@ class ThrottleRequests
      * @param  \Closure  $next
      * @param  int|string  $maxAttempts
      * @param  float|int  $decayMinutes
-     * @return mixed
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Illuminate\Http\Exceptions\ThrottleRequestsException
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
@@ -48,7 +49,7 @@ class ThrottleRequests
 
         $maxAttempts = $this->resolveMaxAttempts($request, $maxAttempts);
 
-        if ($this->limiter->tooManyAttempts($key, $maxAttempts, $decayMinutes)) {
+        if ($this->limiter->tooManyAttempts($key, $maxAttempts)) {
             throw $this->buildException($key, $maxAttempts);
         }
 
@@ -75,6 +76,10 @@ class ThrottleRequests
             $maxAttempts = explode('|', $maxAttempts, 2)[$request->user() ? 1 : 0];
         }
 
+        if (! is_numeric($maxAttempts) && $request->user()) {
+            $maxAttempts = $request->user()->{$maxAttempts};
+        }
+
         return (int) $maxAttempts;
     }
 
@@ -83,6 +88,7 @@ class ThrottleRequests
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string
+     *
      * @throws \RuntimeException
      */
     protected function resolveRequestSignature($request)
@@ -95,9 +101,7 @@ class ThrottleRequests
             return sha1($route->getDomain().'|'.$request->ip());
         }
 
-        throw new RuntimeException(
-            'Unable to generate the request signature. Route unavailable.'
-        );
+        throw new RuntimeException('Unable to generate the request signature. Route unavailable.');
     }
 
     /**
@@ -105,7 +109,7 @@ class ThrottleRequests
      *
      * @param  string  $key
      * @param  int  $maxAttempts
-     * @return \Symfony\Component\HttpKernel\Exception\HttpException
+     * @return \Illuminate\Http\Exceptions\ThrottleRequestsException
      */
     protected function buildException($key, $maxAttempts)
     {
@@ -117,8 +121,8 @@ class ThrottleRequests
             $retryAfter
         );
 
-        return new HttpException(
-            429, 'Too Many Attempts.', null, $headers
+        return new ThrottleRequestsException(
+            'Too Many Attempts.', null, $headers
         );
     }
 

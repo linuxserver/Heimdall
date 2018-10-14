@@ -2,7 +2,6 @@
 
 namespace Illuminate\Database\Schema\Grammars;
 
-use RuntimeException;
 use Illuminate\Support\Fluent;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -28,6 +27,13 @@ class PostgresGrammar extends Grammar
      * @var array
      */
     protected $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
+
+    /**
+     * The commands to be executed outside of create or alter command.
+     *
+     * @var array
+     */
+    protected $fluentCommands = ['Comment'];
 
     /**
      * Compile the query to determine if a table exists.
@@ -199,6 +205,17 @@ class PostgresGrammar extends Grammar
     }
 
     /**
+     * Compile the SQL needed to drop all views.
+     *
+     * @param  string  $views
+     * @return string
+     */
+    public function compileDropAllViews($views)
+    {
+        return 'drop view "'.implode('","', $views).'" cascade';
+    }
+
+    /**
      * Compile the SQL needed to retrieve all table names.
      *
      * @param  string  $schema
@@ -207,6 +224,17 @@ class PostgresGrammar extends Grammar
     public function compileGetAllTables($schema)
     {
         return "select tablename from pg_catalog.pg_tables where schemaname = '{$schema}'";
+    }
+
+    /**
+     * Compile the SQL needed to retrieve all view names.
+     *
+     * @param  string  $schema
+     * @return string
+     */
+    public function compileGetAllViews($schema)
+    {
+        return "select viewname from pg_catalog.pg_views where schemaname = '{$schema}'";
     }
 
     /**
@@ -304,6 +332,21 @@ class PostgresGrammar extends Grammar
     }
 
     /**
+     * Compile a rename index command.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint $blueprint
+     * @param  \Illuminate\Support\Fluent $command
+     * @return string
+     */
+    public function compileRenameIndex(Blueprint $blueprint, Fluent $command)
+    {
+        return sprintf('alter index %s rename to %s',
+            $this->wrap($command->from),
+            $this->wrap($command->to)
+        );
+    }
+
+    /**
      * Compile the command to enable foreign key constraints.
      *
      * @return string
@@ -321,6 +364,22 @@ class PostgresGrammar extends Grammar
     public function compileDisableForeignKeyConstraints()
     {
         return 'SET CONSTRAINTS ALL DEFERRED;';
+    }
+
+    /**
+     * Compile a comment command.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $command
+     * @return string
+     */
+    public function compileComment(Blueprint $blueprint, Fluent $command)
+    {
+        return sprintf('comment on column %s.%s is %s',
+            $this->wrapTable($blueprint),
+            $this->wrap($command->column->name),
+            "'".str_replace("'", "''", $command->value)."'"
+        );
     }
 
     /**
@@ -489,18 +548,18 @@ class PostgresGrammar extends Grammar
     }
 
     /**
-     * Create the column definition for an enum type.
+     * Create the column definition for an enumeration type.
      *
      * @param  \Illuminate\Support\Fluent  $column
      * @return string
      */
     protected function typeEnum(Fluent $column)
     {
-        $allowed = array_map(function ($a) {
-            return "'{$a}'";
-        }, $column->allowed);
-
-        return "varchar(255) check (\"{$column->name}\" in (".implode(', ', $allowed).'))';
+        return sprintf(
+            'varchar(255) check ("%s" in (%s))',
+            $column->name,
+            $this->quoteString($column->allowed)
+        );
     }
 
     /**
@@ -665,11 +724,11 @@ class PostgresGrammar extends Grammar
      * Create the column definition for a spatial Geometry type.
      *
      * @param  \Illuminate\Support\Fluent  $column
-     * @throws \RuntimeException
+     * @return string
      */
     protected function typeGeometry(Fluent $column)
     {
-        throw new RuntimeException('The database driver in use does not support the Geometry spatial column type.');
+        return $this->formatPostGisType('geometry');
     }
 
     /**

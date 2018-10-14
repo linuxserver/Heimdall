@@ -2,7 +2,7 @@
 
 @section('content')
 
-    {!! Form::model($item, ['method' => 'PATCH', 'id' => 'itemform', 'files' => true, 'route' => ['users.update', $item->id]]) !!}
+    {!! Form::model($user, ['method' => 'PATCH', 'id' => 'userform', 'files' => true, 'route' => ['users.update', $user->id]]) !!}
     @include('users.form')
     {!! Form::close() !!}
 

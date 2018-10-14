@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -38,7 +39,32 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email',
+            'password' => 'nullable',
+            'password_confirmation' => 'nullable|confirmed'
+
+        ]);
+            //die(print_r($request->all()));
+        if($request->hasFile('file')) {
+            $path = $request->file('file')->store('avatars');
+            $request->merge([
+                'avatar' => $path
+            ]);
+        }
+
+        if ((bool)$request->input('autologin_allow') === true) {
+            $request->merge([
+                'autologin' => (string)Str::uuid()
+            ]);  
+        }
+
+        $user = User::create($request->all());
+        
+        $route = route('dash', [], false);
+        return redirect($route)
+            ->with('success',__('app.alert.success.user_updated'));
     }
 
     /**
@@ -58,9 +84,11 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        //
+        $data['user'] = $user;
+        return view('users.edit', $data);
+
     }
 
     /**
@@ -70,9 +98,38 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email',
+            'password' => 'nullable',
+            'password_confirmation' => 'nullable|confirmed'
+        ]);
+            //die(print_r($request->all()));
+        if($request->hasFile('file')) {
+            $path = $request->file('file')->store('avatars');
+            $request->merge([
+                'avatar' => $path
+            ]);
+        }
+        if ((bool)$request->input('autologin_allow') === true) {
+            $autologin = (is_null($user->autologin)) ? (string)Str::uuid() : $user->autologin;
+        } else {
+            $autologin = null;
+        }
+        $request->merge([
+            'autologin' => $autologin
+        ]);  
+        $input = $request->except(['password_confirmation', 'autologin_allow']);
+        //die(print_r($input));
+        
+        $user->update($input);
+
+        $route = route('dash', [], false);
+        return redirect($route)
+            ->with('success',__('app.alert.success.user_updated'));
+
     }
 
     /**

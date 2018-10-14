@@ -50,6 +50,12 @@ class FormBuilder
     protected $csrfToken;
 
     /**
+     * Consider Request variables while auto fill.
+     * @var bool
+     */
+    protected $considerRequest = false;
+
+    /**
      * The session store implementation.
      *
      * @var \Illuminate\Contracts\Session\Session
@@ -108,6 +114,7 @@ class FormBuilder
      * @param  \Illuminate\Contracts\Routing\UrlGenerator $url
      * @param  \Illuminate\Contracts\View\Factory         $view
      * @param  string                                     $csrfToken
+     * @param  Request                                    $request
      */
     public function __construct(HtmlBuilder $html, UrlGenerator $url, Factory $view, $csrfToken, Request $request = null)
     {
@@ -190,7 +197,7 @@ class FormBuilder
     {
         $this->model = $model;
     }
-    
+
     /**
      * Get the current model instance on the form builder.
      *
@@ -330,6 +337,20 @@ class FormBuilder
     }
 
     /**
+     * Create a range input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function range($name, $value = null, $options = [])
+    {
+        return $this->input('range', $name, $value, $options);
+    }
+
+    /**
      * Create a hidden input field.
      *
      * @param  string $name
@@ -464,6 +485,10 @@ class FormBuilder
      */
     public function time($name, $value = null, $options = [])
     {
+        if ($value instanceof DateTime) {
+            $value = $value->format('H:i');
+        }
+
         return $this->input('time', $name, $value, $options);
     }
 
@@ -479,6 +504,24 @@ class FormBuilder
     public function url($name, $value = null, $options = [])
     {
         return $this->input('url', $name, $value, $options);
+    }
+
+    /**
+     * Create a week input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function week($name, $value = null, $options = [])
+    {
+        if ($value instanceof DateTime) {
+            $value = $value->format('Y-\WW');
+        }
+
+        return $this->input('week', $name, $value, $options);
     }
 
     /**
@@ -527,7 +570,7 @@ class FormBuilder
         // the element. Then we'll create the final textarea elements HTML for us.
         $options = $this->html->attributes($options);
 
-        return $this->toHtmlString('<textarea' . $options . '>' . e($value). '</textarea>');
+        return $this->toHtmlString('<textarea' . $options . '>' . e($value, false). '</textarea>');
     }
 
     /**
@@ -694,7 +737,7 @@ class FormBuilder
      */
     public function getSelectOption($display, $value, $selected, array $attributes = [], array $optgroupAttributes = [])
     {
-        if (is_array($display)) {
+        if (is_iterable($display)) {
             return $this->optionGroup($display, $value, $selected, $optgroupAttributes, $attributes);
         }
 
@@ -709,20 +752,23 @@ class FormBuilder
      * @param  string $selected
      * @param  array  $attributes
      * @param  array  $optionsAttributes
+     * @param  integer  $level
      *
      * @return \Illuminate\Support\HtmlString
      */
-    protected function optionGroup($list, $label, $selected, array $attributes = [], array $optionsAttributes = [])
+    protected function optionGroup($list, $label, $selected, array $attributes = [], array $optionsAttributes = [], $level = 0)
     {
         $html = [];
-
+        $space = str_repeat("&nbsp;", $level);
         foreach ($list as $value => $display) {
             $optionAttributes = $optionsAttributes[$value] ?? [];
-
-            $html[] = $this->option($display, $value, $selected, $optionAttributes);
+            if (is_iterable($display)) {
+                $html[] = $this->optionGroup($display, $value, $selected, $attributes, $optionAttributes, $level+5);
+            } else {
+                $html[] = $this->option($space.$display, $value, $selected, $optionAttributes);
+            }
         }
-        
-        return $this->toHtmlString('<optgroup label="' . e($label) . '"' . $this->html->attributes($attributes) . '>' . implode('', $html) . '</optgroup>');
+        return $this->toHtmlString('<optgroup label="' . e($space.$label, false) . '"' . $this->html->attributes($attributes) . '>' . implode('', $html) . '</optgroup>');
     }
 
     /**
@@ -743,7 +789,7 @@ class FormBuilder
 
         $string = '<option' . $this->html->attributes($options) . '>';
         if ($display !== null) {
-            $string .= e($display) . '</option>';
+            $string .= e($display, false) . '</option>';
         }
 
         return $this->toHtmlString($string);
@@ -766,7 +812,7 @@ class FormBuilder
             'value' => '',
         ];
 
-        return $this->toHtmlString('<option' . $this->html->attributes($options) . '>' . e($display) . '</option>');
+        return $this->toHtmlString('<option' . $this->html->attributes($options) . '>' . e($display, false) . '</option>');
     }
 
     /**
@@ -868,7 +914,7 @@ class FormBuilder
                 return $this->getRadioCheckedState($name, $value, $checked);
 
             default:
-                return $this->getValueAttribute($name) === $value;
+                return $this->compareValues($name, $value);
         }
     }
 
@@ -921,7 +967,21 @@ class FormBuilder
             return $checked;
         }
 
-        return $this->getValueAttribute($name) === $value;
+        return $this->compareValues($name, $value);
+    }
+
+    /**
+     * Determine if the provide value loosely compares to the value assigned to the field.
+     * Use loose comparison because Laravel model casting may be in affect and therefore
+     * 1 == true and 0 == false.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @return bool
+     */
+    protected function compareValues($name, $value)
+    {
+        return $this->getValueAttribute($name) == $value;
     }
 
     /**
@@ -966,6 +1026,24 @@ class FormBuilder
     }
 
     /**
+     * Create a month input field.
+     *
+     * @param  string $name
+     * @param  string $value
+     * @param  array  $options
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function month($name, $value = null, $options = [])
+    {
+        if ($value instanceof DateTime) {
+            $value = $value->format('Y-m');
+        }
+
+        return $this->input('month', $name, $value, $options);
+    }
+
+    /**
      * Create a color input field.
      *
      * @param  string $name
@@ -1007,6 +1085,50 @@ class FormBuilder
         }
 
         return $this->toHtmlString('<button' . $this->html->attributes($options) . '>' . $value . '</button>');
+    }
+
+    /**
+     * Create a datalist box field.
+     *
+     * @param  string $id
+     * @param  array  $list
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function datalist($id, $list = [])
+    {
+        $this->type = 'datalist';
+
+        $attributes['id'] = $id;
+
+        $html = [];
+
+        if ($this->isAssociativeArray($list)) {
+            foreach ($list as $value => $display) {
+                $html[] = $this->option($display, $value, null, []);
+            }
+        } else {
+            foreach ($list as $value) {
+                $html[] = $this->option($value, $value, null, []);
+            }
+        }
+
+        $attributes = $this->html->attributes($attributes);
+
+        $list = implode('', $html);
+
+        return $this->toHtmlString("<datalist{$attributes}>{$list}</datalist>");
+    }
+
+    /**
+     * Determine if an array is associative.
+     *
+     * @param  array $array
+     * @return bool
+     */
+    protected function isAssociativeArray($array)
+    {
+        return (array_values($array) !== $array);
     }
 
     /**
@@ -1175,7 +1297,7 @@ class FormBuilder
             if ($hasNullMiddleware
                 && is_null($old)
                 && is_null($value)
-                && ! is_null($this->view->shared('errors'))
+                && !is_null($this->view->shared('errors'))
                 && count($this->view->shared('errors')) > 0
             ) {
                 return null;
@@ -1183,7 +1305,7 @@ class FormBuilder
         }
 
         $request = $this->request($name);
-        if (! is_null($request) && $name !== '_method') {
+        if (! is_null($request) && $name != '_method') {
             return $request;
         }
 
@@ -1197,13 +1319,26 @@ class FormBuilder
     }
 
     /**
+     * Take Request in fill process
+     * @param bool $consider
+     */
+    public function considerRequest($consider = true)
+    {
+        $this->considerRequest = $consider;
+    }
+
+    /**
      * Get value from current Request
      * @param $name
      * @return array|null|string
      */
     protected function request($name)
     {
-        if (! isset($this->request)) {
+        if (!$this->considerRequest) {
+            return null;
+        }
+
+        if (!isset($this->request)) {
             return null;
         }
 
@@ -1241,16 +1376,16 @@ class FormBuilder
             $key = $this->transformKey($name);
             $payload = $this->session->getOldInput($key);
 
-            if (! is_array($payload)) {
+            if (!is_array($payload)) {
                 return $payload;
             }
 
-            if (! in_array($this->type, ['select', 'checkbox'])) {
-                if (! isset($this->payload[$key])) {
+            if (!in_array($this->type, ['select', 'checkbox'])) {
+                if (!isset($this->payload[$key])) {
                     $this->payload[$key] = collect($payload);
                 }
 
-                if (! empty($this->payload[$key])) {
+                if (!empty($this->payload[$key])) {
                     $value = $this->payload[$key]->shift();
                     return $value;
                 }
@@ -1267,7 +1402,7 @@ class FormBuilder
      */
     public function oldInputIsEmpty()
     {
-        return (isset($this->session) && count($this->session->getOldInput()) === 0);
+        return (isset($this->session) && count((array) $this->session->getOldInput()) === 0);
     }
 
     /**

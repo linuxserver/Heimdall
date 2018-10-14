@@ -69,7 +69,7 @@ class TransportManager extends Manager
     /**
      * Create an instance of the Amazon SES Swift Transport driver.
      *
-     * @return \Swift_SendmailTransport
+     * @return \Illuminate\Mail\Transport\SesTransport
      */
     protected function createSesDriver()
     {
@@ -77,9 +77,10 @@ class TransportManager extends Manager
             'version' => 'latest', 'service' => 'email',
         ]);
 
-        return new SesTransport(new SesClient(
-            $this->addSesCredentials($config)
-        ));
+        return new SesTransport(
+            new SesClient($this->addSesCredentials($config)),
+            $config['options'] ?? []
+        );
     }
 
     /**
@@ -91,7 +92,7 @@ class TransportManager extends Manager
     protected function addSesCredentials(array $config)
     {
         if ($config['key'] && $config['secret']) {
-            $config['credentials'] = Arr::only($config, ['key', 'secret']);
+            $config['credentials'] = Arr::only($config, ['key', 'secret', 'token']);
         }
 
         return $config;
@@ -118,7 +119,9 @@ class TransportManager extends Manager
 
         return new MailgunTransport(
             $this->guzzle($config),
-            $config['secret'], $config['domain']
+            $config['secret'],
+            $config['domain'],
+            $config['endpoint'] ?? null
         );
     }
 

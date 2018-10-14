@@ -20,6 +20,16 @@ use Prophecy\Call\Call;
  */
 class StringUtil
 {
+    private $verbose;
+
+    /**
+     * @param bool $verbose
+     */
+    public function __construct($verbose = true)
+    {
+        $this->verbose = $verbose;
+    }
+
     /**
      * Stringifies any provided value.
      *
@@ -54,7 +64,7 @@ class StringUtil
         if (is_string($value)) {
             $str = sprintf('"%s"', str_replace("\n", '\\n', $value));
 
-            if (50 <= strlen($str)) {
+            if (!$this->verbose && 50 <= strlen($str)) {
                 return substr($str, 0, 50).'"...';
             }
 

@@ -16,19 +16,19 @@
 class Swift_Plugins_MessageLogger implements Swift_Events_SendListener
 {
     /**
-     * @var Swift_Mime_Message[]
+     * @var Swift_Mime_SimpleMessage[]
      */
     private $messages;
 
     public function __construct()
     {
-        $this->messages = array();
+        $this->messages = [];
     }
 
     /**
      * Get the message list.
      *
-     * @return Swift_Mime_Message[]
+     * @return Swift_Mime_SimpleMessage[]
      */
     public function getMessages()
     {
@@ -50,13 +50,11 @@ class Swift_Plugins_MessageLogger implements Swift_Events_SendListener
      */
     public function clear()
     {
-        $this->messages = array();
+        $this->messages = [];
     }
 
     /**
      * Invoked immediately before the Message is sent.
-     *
-     * @param Swift_Events_SendEvent $evt
      */
     public function beforeSendPerformed(Swift_Events_SendEvent $evt)
     {
@@ -65,8 +63,6 @@ class Swift_Plugins_MessageLogger implements Swift_Events_SendListener
 
     /**
      * Invoked immediately after the Message is sent.
-     *
-     * @param Swift_Events_SendEvent $evt
      */
     public function sendPerformed(Swift_Events_SendEvent $evt)
     {

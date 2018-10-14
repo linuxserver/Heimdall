@@ -12,10 +12,10 @@
 namespace Symfony\Component\HttpKernel\Tests\Fragment;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerReference;
 use Symfony\Component\HttpKernel\Fragment\EsiFragmentRenderer;
 use Symfony\Component\HttpKernel\HttpCache\Esi;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\UriSigner;
 
 class EsiFragmentRendererTest extends TestCase
@@ -26,19 +26,7 @@ class EsiFragmentRendererTest extends TestCase
         $strategy->render('/', Request::create('/'));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Passing non-scalar values as part of URI attributes to the ESI and SSI rendering strategies is deprecated %s.
-     */
-    public function testRenderFallbackWithObjectAttributesIsDeprecated()
-    {
-        $strategy = new EsiFragmentRenderer(new Esi(), $this->getInlineStrategy(true), new UriSigner('foo'));
-        $request = Request::create('/');
-        $reference = new ControllerReference('main_controller', array('foo' => new \stdClass()), array());
-        $strategy->render($reference, $request);
-    }
-
-    public function testRenderFallbackWithScalarIsNotDeprecated()
+    public function testRenderFallbackWithScalar()
     {
         $strategy = new EsiFragmentRenderer(new Esi(), $this->getInlineStrategy(true), new UriSigner('foo'));
         $request = Request::create('/');

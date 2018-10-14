@@ -12,60 +12,34 @@ return [
      * within TrustedProxy to trust any proxy
      * that connects directly to your server,
      * a requirement when you cannot know the address
-     * of your proxy (e.g. if using Rackspace balancers).
+     * of your proxy (e.g. if using ELB or similar).
      *
-     * The "**" character is syntactic sugar within
-     * TrustedProxy to trust not just any proxy that
-     * connects directly to your server, but also
-     * proxies that connect to those proxies, and all
-     * the way back until you reach the original source
-     * IP. It will mean that $request->getClientIp()
-     * always gets the originating client IP, no matter
-     * how many proxies that client's request has
-     * subsequently passed through.
      */
-    'proxies' => [
-        '192.168.1.10',
-    ],
+    'proxies' => null, // [<ip addresses>,], '*'
+
+    /*
+     * To trust one or more specific proxies that connect
+     * directly to your server, use an array of IP addresses:
+     */
+     # 'proxies' => ['192.168.1.1'],
 
     /*
      * Or, to trust all proxies that connect
-     * directly to your server, uncomment this:
+     * directly to your server, use a "*"
      */
      # 'proxies' => '*',
 
     /*
-     * Or, to trust ALL proxies, including those that
-     * are in a chain of forwarding, uncomment this:
-    */
-    # 'proxies' => '**',
-
-    /*
-     * Default Header Names
-     *
-     * Change these if the proxy does
-     * not send the default header names.
-     *
-     * Note that headers such as X-Forwarded-For
-     * are transformed to HTTP_X_FORWARDED_FOR format.
-     *
-     * The following are Symfony defaults, found in
-     * \Symfony\Component\HttpFoundation\Request::$trustedHeaders
-     *
-     * You may optionally set headers to 'null' here if you'd like
-     * for them to be considered untrusted instead. Ex:
-     *
-     * Illuminate\Http\Request::HEADER_CLIENT_HOST  => null,
+     * Which headers to use to detect proxy related data (For, Host, Proto, Port)
      * 
-     * WARNING: If you're using AWS Elastic Load Balancing or Heroku,
-     * the FORWARDED and X_FORWARDED_HOST headers should be set to null 
-     * as they are currently unsupported there.
+     * Options include:
+     * 
+     * - Illuminate\Http\Request::HEADER_X_FORWARDED_ALL (use all x-forwarded-* headers to establish trust)
+     * - Illuminate\Http\Request::HEADER_FORWARDED (use the FORWARDED header to establish trust)
+     * 
+     * @link https://symfony.com/doc/current/deployment/proxies.html
      */
-    'headers' => [
-        (defined('Illuminate\Http\Request::HEADER_FORWARDED') ? Illuminate\Http\Request::HEADER_FORWARDED : 'forwarded') => 'FORWARDED',
-        Illuminate\Http\Request::HEADER_CLIENT_IP    => 'X_FORWARDED_FOR',
-        Illuminate\Http\Request::HEADER_CLIENT_HOST  => 'X_FORWARDED_HOST',
-        Illuminate\Http\Request::HEADER_CLIENT_PROTO => 'X_FORWARDED_PROTO',
-        Illuminate\Http\Request::HEADER_CLIENT_PORT  => 'X_FORWARDED_PORT',
-    ]
+    'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_ALL,
+
+    
 ];

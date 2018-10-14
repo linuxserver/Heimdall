@@ -11,6 +11,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use League\Flysystem\AdapterInterface;
 use PHPUnit\Framework\Assert as PHPUnit;
+use League\Flysystem\FileExistsException;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Cached\CachedAdapter;
@@ -20,6 +21,7 @@ use League\Flysystem\Adapter\Local as LocalAdapter;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Contracts\Filesystem\Cloud as CloudFilesystemContract;
 use Illuminate\Contracts\Filesystem\Filesystem as FilesystemContract;
+use Illuminate\Contracts\Filesystem\FileExistsException as ContractFileExistsException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException as ContractFileNotFoundException;
 
 /**
@@ -132,7 +134,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
         ]);
 
         $response->setCallback(function () use ($path) {
-            $stream = $this->driver->readStream($path);
+            $stream = $this->readStream($path);
             fpassthru($stream);
             fclose($stream);
         });
@@ -204,7 +206,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      */
     public function putFileAs($path, $file, $name, $options = [])
     {
-        $stream = fopen($file->getRealPath(), 'r+');
+        $stream = fopen($file->getRealPath(), 'r');
 
         // Next, we will format the path of the file and store the file using a stream since
         // they provide better performance than alternatives. Once we write the file this
@@ -240,7 +242,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      *
      * @param  string  $path
      * @param  string  $visibility
-     * @return void
+     * @return bool
      */
     public function setVisibility($path, $visibility)
     {
@@ -253,7 +255,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      * @param  string  $path
      * @param  string  $data
      * @param  string  $separator
-     * @return int
+     * @return bool
      */
     public function prepend($path, $data, $separator = PHP_EOL)
     {
@@ -270,7 +272,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      * @param  string  $path
      * @param  string  $data
      * @param  string  $separator
-     * @return int
+     * @return bool
      */
     public function append($path, $data, $separator = PHP_EOL)
     {
@@ -368,6 +370,8 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      *
      * @param  string  $path
      * @return string
+     *
+     * @throws \RuntimeException
      */
     public function url($path)
     {
@@ -379,6 +383,8 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
 
         if (method_exists($adapter, 'getUrl')) {
             return $adapter->getUrl($path);
+        } elseif (method_exists($this->driver, 'getUrl')) {
+            return $this->driver->getUrl($path);
         } elseif ($adapter instanceof AwsS3Adapter) {
             return $this->getAwsUrl($adapter, $path);
         } elseif ($adapter instanceof RackspaceAdapter) {
@@ -387,6 +393,32 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
             return $this->getLocalUrl($path);
         } else {
             throw new RuntimeException('This driver does not support retrieving URLs.');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readStream($path)
+    {
+        try {
+            $resource = $this->driver->readStream($path);
+
+            return $resource ? $resource : null;
+        } catch (FileNotFoundException $e) {
+            throw new ContractFileNotFoundException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeStream($path, $resource, array $options = [])
+    {
+        try {
+            return $this->driver->writeStream($path, $resource, $options);
+        } catch (FileExistsException $e) {
+            throw new ContractFileExistsException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -459,6 +491,8 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
      * @param  \DateTimeInterface  $expiration
      * @param  array  $options
      * @return string
+     *
+     * @throws \RuntimeException
      */
     public function temporaryUrl($path, $expiration, array $options = [])
     {
@@ -665,7 +699,7 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
                 return AdapterInterface::VISIBILITY_PRIVATE;
         }
 
-        throw new InvalidArgumentException('Unknown visibility: '.$visibility);
+        throw new InvalidArgumentException("Unknown visibility: {$visibility}");
     }
 
     /**

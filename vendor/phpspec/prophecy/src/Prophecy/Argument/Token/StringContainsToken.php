@@ -32,7 +32,7 @@ class StringContainsToken implements TokenInterface
 
     public function scoreArgument($argument)
     {
-        return strpos($argument, $this->value) !== false ? 6 : false;
+        return is_string($argument) && strpos($argument, $this->value) !== false ? 6 : false;
     }
 
     /**

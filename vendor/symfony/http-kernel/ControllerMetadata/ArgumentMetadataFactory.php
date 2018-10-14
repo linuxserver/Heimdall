@@ -19,85 +19,25 @@ namespace Symfony\Component\HttpKernel\ControllerMetadata;
 final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
 {
     /**
-     * If the ...$arg functionality is available.
-     *
-     * Requires at least PHP 5.6.0 or HHVM 3.9.1
-     *
-     * @var bool
-     */
-    private $supportsVariadic;
-
-    /**
-     * If the reflection supports the getType() method to resolve types.
-     *
-     * Requires at least PHP 7.0.0 or HHVM 3.11.0
-     *
-     * @var bool
-     */
-    private $supportsParameterType;
-
-    public function __construct()
-    {
-        $this->supportsVariadic = method_exists('ReflectionParameter', 'isVariadic');
-        $this->supportsParameterType = method_exists('ReflectionParameter', 'getType');
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function createArgumentMetadata($controller)
     {
         $arguments = array();
 
-        if (is_array($controller)) {
+        if (\is_array($controller)) {
             $reflection = new \ReflectionMethod($controller[0], $controller[1]);
-        } elseif (is_object($controller) && !$controller instanceof \Closure) {
+        } elseif (\is_object($controller) && !$controller instanceof \Closure) {
             $reflection = (new \ReflectionObject($controller))->getMethod('__invoke');
         } else {
             $reflection = new \ReflectionFunction($controller);
         }
 
         foreach ($reflection->getParameters() as $param) {
-            $arguments[] = new ArgumentMetadata($param->getName(), $this->getType($param, $reflection), $this->isVariadic($param), $this->hasDefaultValue($param), $this->getDefaultValue($param), $param->allowsNull());
+            $arguments[] = new ArgumentMetadata($param->getName(), $this->getType($param, $reflection), $param->isVariadic(), $param->isDefaultValueAvailable(), $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null, $param->allowsNull());
         }
 
         return $arguments;
-    }
-
-    /**
-     * Returns whether an argument is variadic.
-     *
-     * @param \ReflectionParameter $parameter
-     *
-     * @return bool
-     */
-    private function isVariadic(\ReflectionParameter $parameter)
-    {
-        return $this->supportsVariadic && $parameter->isVariadic();
-    }
-
-    /**
-     * Determines whether an argument has a default value.
-     *
-     * @param \ReflectionParameter $parameter
-     *
-     * @return bool
-     */
-    private function hasDefaultValue(\ReflectionParameter $parameter)
-    {
-        return $parameter->isDefaultValueAvailable();
-    }
-
-    /**
-     * Returns a default value if available.
-     *
-     * @param \ReflectionParameter $parameter
-     *
-     * @return mixed|null
-     */
-    private function getDefaultValue(\ReflectionParameter $parameter)
-    {
-        return $this->hasDefaultValue($parameter) ? $parameter->getDefaultValue() : null;
     }
 
     /**
@@ -105,24 +45,14 @@ final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
      *
      * @param \ReflectionParameter $parameter
      *
-     * @return null|string
+     * @return string|null
      */
     private function getType(\ReflectionParameter $parameter, \ReflectionFunctionAbstract $function)
     {
-        if ($this->supportsParameterType) {
-            if (!$type = $parameter->getType()) {
-                return;
-            }
-            $name = $type instanceof \ReflectionNamedType ? $type->getName() : $type->__toString();
-            if ('array' === $name && !$type->isBuiltin()) {
-                // Special case for HHVM with variadics
-                return;
-            }
-        } elseif (preg_match('/^(?:[^ ]++ ){4}([a-zA-Z_\x7F-\xFF][^ ]++)/', $parameter, $name)) {
-            $name = $name[1];
-        } else {
+        if (!$type = $parameter->getType()) {
             return;
         }
+        $name = $type->getName();
         $lcName = strtolower($name);
 
         if ('self' !== $lcName && 'parent' !== $lcName) {

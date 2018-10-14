@@ -14,8 +14,8 @@ namespace Symfony\Component\Console\Logger;
 use Psr\Log\AbstractLogger;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * PSR-3 compliant console logger.
@@ -99,13 +99,8 @@ class ConsoleLogger extends AbstractLogger
      * Interpolates context values into the message placeholders.
      *
      * @author PHP Framework Interoperability Group
-     *
-     * @param string $message
-     * @param array  $context
-     *
-     * @return string
      */
-    private function interpolate($message, array $context)
+    private function interpolate(string $message, array $context): string
     {
         if (false === strpos($message, '{')) {
             return $message;

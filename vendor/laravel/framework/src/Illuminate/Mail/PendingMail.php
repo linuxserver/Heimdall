@@ -3,6 +3,7 @@
 namespace Illuminate\Mail;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
 class PendingMail
 {
@@ -12,6 +13,13 @@ class PendingMail
      * @var \Illuminate\Mail\Mailer
      */
     protected $mailer;
+
+    /**
+     * The locale of the message.
+     *
+     * @var string
+     */
+    protected $locale;
 
     /**
      * The "to" recipients of the message.
@@ -46,6 +54,19 @@ class PendingMail
     }
 
     /**
+     * Set the locale of the message.
+     *
+     * @param  string  $locale
+     * @return $this
+     */
+    public function locale($locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    /**
      * Set the recipients of the message.
      *
      * @param  mixed  $users
@@ -54,6 +75,10 @@ class PendingMail
     public function to($users)
     {
         $this->to = $users;
+
+        if (! $this->locale && $users instanceof HasLocalePreference) {
+            $this->locale($users->preferredLocale());
+        }
 
         return $this;
     }
@@ -149,6 +174,7 @@ class PendingMail
     {
         return $mailable->to($this->to)
                         ->cc($this->cc)
-                        ->bcc($this->bcc);
+                        ->bcc($this->bcc)
+                        ->locale($this->locale);
     }
 }

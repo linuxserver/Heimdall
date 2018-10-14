@@ -59,9 +59,24 @@ $dir = $arguments[1];
 
 switch ($testType) {
     case 'Symfony':
-        $version = 'Php5';
+        $version = 'Php7';
         $fileFilter = function($path) {
-            return preg_match('~\.php(?:\.cache)?$~', $path) && false === strpos($path, 'skeleton');
+            if (!preg_match('~\.php$~', $path)) {
+                return false;
+            }
+
+            if (preg_match('~(?:
+# invalid php code
+  dependency-injection.Tests.Fixtures.xml.xml_with_wrong_ext
+# difference in nop statement
+| framework-bundle.Resources.views.Form.choice_widget_options\.html
+# difference due to INF
+| yaml.Tests.InlineTest
+)\.php$~x', $path)) {
+                return false;
+            }
+
+            return true;
         };
         $codeExtractor = function($file, $code) {
             return $code;
@@ -77,26 +92,31 @@ switch ($testType) {
             if (preg_match('~(?:
 # skeleton files
   ext.gmp.tests.001
-| ext.skeleton.tests.001
+| ext.skeleton.tests.00\d
 # multibyte encoded files
 | ext.mbstring.tests.zend_multibyte-01
 | Zend.tests.multibyte.multibyte_encoding_001
 | Zend.tests.multibyte.multibyte_encoding_004
 | Zend.tests.multibyte.multibyte_encoding_005
+# invalid code due to missing WS after opening tag
+| tests.run-test.bug75042-3
 # pretty print difference due to INF vs 1e1000
 | ext.standard.tests.general_functions.bug27678
 | tests.lang.bug24640
+| Zend.tests.bug74947
 # pretty print differences due to negative LNumbers
 | Zend.tests.neg_num_string
 | Zend.tests.bug72918
 # pretty print difference due to nop statements
 | ext.mbstring.tests.htmlent
 | ext.standard.tests.file.fread_basic
+# its too hard to emulate these on old PHP versions
+| Zend.tests.flexible-heredoc-complex-test[1-4]
 )\.phpt$~x', $file)) {
                 return null;
             }
 
-            if (!preg_match('~--FILE--\s*(.*?)--[A-Z]+--~s', $code, $matches)) {
+            if (!preg_match('~--FILE--\s*(.*?)\n--[A-Z]+--~s', $code, $matches)) {
                 return null;
             }
             if (preg_match('~--EXPECT(?:F|REGEX)?--\s*(?:Parse|Fatal) error~', $code)) {

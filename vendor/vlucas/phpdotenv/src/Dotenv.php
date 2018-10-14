@@ -2,6 +2,8 @@
 
 namespace Dotenv;
 
+use Dotenv\Exception\InvalidPathException;
+
 /**
  * This is the dotenv class.
  *
@@ -49,6 +51,21 @@ class Dotenv
     }
 
     /**
+     * Load environment file in given directory, suppress InvalidPathException.
+     *
+     * @return array
+     */
+    public function safeLoad()
+    {
+        try {
+            return $this->loadData();
+        } catch (InvalidPathException $e) {
+            // suppressing exception
+            return array();
+        }
+    }
+
+    /**
      * Load environment file in given directory.
      *
      * @return array
@@ -86,9 +103,7 @@ class Dotenv
      */
     protected function loadData($overload = false)
     {
-        $this->loader = new Loader($this->filePath, !$overload);
-
-        return $this->loader->load();
+        return $this->loader->setImmutable(!$overload)->load();
     }
 
     /**
@@ -101,5 +116,15 @@ class Dotenv
     public function required($variable)
     {
         return new Validator((array) $variable, $this->loader);
+    }
+
+    /**
+     * Get the list of environment variables declared inside the 'env' file.
+     *
+     * @return array
+     */
+    public function getEnvironmentVariableNames()
+    {
+        return $this->loader->variableNames;
     }
 }

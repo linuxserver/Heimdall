@@ -15,7 +15,7 @@ class Preset
     {
         $filesystem = new Filesystem;
 
-        if (! $filesystem->isDirectory($directory = resource_path('assets/js/components'))) {
+        if (! $filesystem->isDirectory($directory = resource_path('js/components'))) {
             $filesystem->makeDirectory($directory, 0755, true);
         }
     }
@@ -23,21 +23,25 @@ class Preset
     /**
      * Update the "package.json" file.
      *
+     * @param  bool  $dev
      * @return void
      */
-    protected static function updatePackages()
+    protected static function updatePackages($dev = true)
     {
         if (! file_exists(base_path('package.json'))) {
             return;
         }
 
+        $configurationKey = $dev ? 'devDependencies' : 'dependencies';
+
         $packages = json_decode(file_get_contents(base_path('package.json')), true);
 
-        $packages['devDependencies'] = static::updatePackageArray(
-            $packages['devDependencies']
+        $packages[$configurationKey] = static::updatePackageArray(
+            array_key_exists($configurationKey, $packages) ? $packages[$configurationKey] : [],
+            $configurationKey
         );
 
-        ksort($packages['devDependencies']);
+        ksort($packages[$configurationKey]);
 
         file_put_contents(
             base_path('package.json'),

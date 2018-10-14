@@ -96,7 +96,7 @@ class Listener
     {
         return defined('ARTISAN_BINARY')
                         ? ProcessUtils::escapeArgument(ARTISAN_BINARY)
-                        : 'artisan';
+                        : ProcessUtils::escapeArgument('artisan');
     }
 
     /**
@@ -222,7 +222,7 @@ class Listener
      */
     public function memoryExceeded($memoryLimit)
     {
-        return (memory_get_usage() / 1024 / 1024) >= $memoryLimit;
+        return (memory_get_usage(true) / 1024 / 1024) >= $memoryLimit;
     }
 
     /**

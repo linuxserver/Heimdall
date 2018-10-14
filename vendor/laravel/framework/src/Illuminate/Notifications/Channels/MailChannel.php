@@ -8,6 +8,7 @@ use Illuminate\Mail\Markdown;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Mail\Mailable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class MailChannel
 {
@@ -49,7 +50,7 @@ class MailChannel
     {
         $message = $notification->toMail($notifiable);
 
-        if (! $notifiable->routeNotificationFor('mail') &&
+        if (! $notifiable->routeNotificationFor('mail', $notification) &&
             ! $message instanceof Mailable) {
             return;
         }
@@ -60,7 +61,7 @@ class MailChannel
 
         $this->mailer->send(
             $this->buildView($message),
-            $message->data(),
+            array_merge($message->data(), $this->additionalMessageData($notification)),
             $this->messageBuilder($notifiable, $notification, $message)
         );
     }
@@ -99,6 +100,22 @@ class MailChannel
     }
 
     /**
+     * Get additional meta-data to pass along with the view data.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return array
+     */
+    protected function additionalMessageData($notification)
+    {
+        return [
+            '__laravel_notification' => get_class($notification),
+            '__laravel_notification_queued' => in_array(
+                ShouldQueue::class, class_implements($notification)
+            ),
+        ];
+    }
+
+    /**
      * Build the mail message.
      *
      * @param  \Illuminate\Mail\Message  $mailMessage
@@ -109,7 +126,7 @@ class MailChannel
      */
     protected function buildMessage($mailMessage, $notifiable, $notification, $message)
     {
-        $this->addressMessage($mailMessage, $notifiable, $message);
+        $this->addressMessage($mailMessage, $notifiable, $notification, $message);
 
         $mailMessage->subject($message->subject ?: Str::title(
             Str::snake(class_basename($notification), ' ')
@@ -127,21 +144,26 @@ class MailChannel
      *
      * @param  \Illuminate\Mail\Message  $mailMessage
      * @param  mixed  $notifiable
+     * @param  \Illuminate\Notifications\Notification  $notification
      * @param  \Illuminate\Notifications\Messages\MailMessage  $message
      * @return void
      */
-    protected function addressMessage($mailMessage, $notifiable, $message)
+    protected function addressMessage($mailMessage, $notifiable, $notification, $message)
     {
         $this->addSender($mailMessage, $message);
 
-        $mailMessage->to($this->getRecipients($notifiable, $message));
+        $mailMessage->to($this->getRecipients($notifiable, $notification, $message));
 
-        if ($message->cc) {
-            $mailMessage->cc($message->cc[0], Arr::get($message->cc, 1));
+        if (! empty($message->cc)) {
+            foreach ($message->cc as $cc) {
+                $mailMessage->cc($cc[0], Arr::get($cc, 1));
+            }
         }
 
-        if ($message->bcc) {
-            $mailMessage->bcc($message->bcc[0], Arr::get($message->bcc, 1));
+        if (! empty($message->bcc)) {
+            foreach ($message->bcc as $bcc) {
+                $mailMessage->bcc($bcc[0], Arr::get($bcc, 1));
+            }
         }
     }
 
@@ -159,7 +181,9 @@ class MailChannel
         }
 
         if (! empty($message->replyTo)) {
-            $mailMessage->replyTo($message->replyTo[0], Arr::get($message->replyTo, 1));
+            foreach ($message->replyTo as $replyTo) {
+                $mailMessage->replyTo($replyTo[0], Arr::get($replyTo, 1));
+            }
         }
     }
 
@@ -167,17 +191,20 @@ class MailChannel
      * Get the recipients of the given message.
      *
      * @param  mixed  $notifiable
+     * @param  \Illuminate\Notifications\Notification  $notification
      * @param  \Illuminate\Notifications\Messages\MailMessage  $message
      * @return mixed
      */
-    protected function getRecipients($notifiable, $message)
+    protected function getRecipients($notifiable, $notification, $message)
     {
-        if (is_string($recipients = $notifiable->routeNotificationFor('mail'))) {
+        if (is_string($recipients = $notifiable->routeNotificationFor('mail', $notification))) {
             $recipients = [$recipients];
         }
 
-        return collect($recipients)->map(function ($recipient) {
-            return is_string($recipient) ? $recipient : $recipient->email;
+        return collect($recipients)->mapWithKeys(function ($recipient, $email) {
+            return is_numeric($email)
+                    ? [$email => (is_string($recipient) ? $recipient : $recipient->email)]
+                    : [$email => $recipient];
         })->all();
     }
 

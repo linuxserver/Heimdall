@@ -2,7 +2,9 @@
 
 namespace Illuminate\Database\Query\Grammars;
 
+use RuntimeException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Grammar as BaseGrammar;
@@ -79,7 +81,7 @@ class Grammar extends BaseGrammar
             // To compile the query, we'll spin through each component of the query and
             // see if that component exists. If it does we'll just call the compiler
             // function for the component which is responsible for making the SQL.
-            if (! is_null($query->$component)) {
+            if (isset($query->$component) && ! is_null($query->$component)) {
                 $method = 'compile'.ucfirst($component);
 
                 $sql[$component] = $this->$method($query, $query->$component);
@@ -152,10 +154,12 @@ class Grammar extends BaseGrammar
      */
     protected function compileJoins(Builder $query, $joins)
     {
-        return collect($joins)->map(function ($join) {
+        return collect($joins)->map(function ($join) use ($query) {
             $table = $this->wrapTable($join->table);
 
-            return trim("{$join->type} join {$table} {$this->compileWheres($join)}");
+            $nestedJoins = is_null($join->joins) ? '' : ' '.$this->compileJoins($query, $join->joins);
+
+            return trim("{$join->type} join {$table}{$nestedJoins} {$this->compileWheres($join)}");
         })->implode(' ');
     }
 
@@ -328,7 +332,11 @@ class Grammar extends BaseGrammar
     {
         $between = $where['not'] ? 'not between' : 'between';
 
-        return $this->wrap($where['column']).' '.$between.' ? and ?';
+        $min = $this->parameter(reset($where['values']));
+
+        $max = $this->parameter(end($where['values']));
+
+        return $this->wrap($where['column']).' '.$between.' '.$min.' and '.$max;
     }
 
     /**
@@ -471,6 +479,92 @@ class Grammar extends BaseGrammar
     protected function whereNotExists(Builder $query, $where)
     {
         return 'not exists ('.$this->compileSelect($where['query']).')';
+    }
+
+    /**
+     * Compile a where row values condition.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereRowValues(Builder $query, $where)
+    {
+        $columns = $this->columnize($where['columns']);
+
+        $values = $this->parameterize($where['values']);
+
+        return '('.$columns.') '.$where['operator'].' ('.$values.')';
+    }
+
+    /**
+     * Compile a "where JSON contains" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereJsonContains(Builder $query, $where)
+    {
+        $not = $where['not'] ? 'not ' : '';
+
+        return $not.$this->compileJsonContains(
+            $where['column'], $this->parameter($where['value'])
+        );
+    }
+
+    /**
+     * Compile a "JSON contains" statement into SQL.
+     *
+     * @param  string  $column
+     * @param  string  $value
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    protected function compileJsonContains($column, $value)
+    {
+        throw new RuntimeException('This database engine does not support JSON contains operations.');
+    }
+
+    /**
+     * Prepare the binding for a "JSON contains" statement.
+     *
+     * @param  mixed  $binding
+     * @return string
+     */
+    public function prepareBindingForJsonContains($binding)
+    {
+        return json_encode($binding);
+    }
+
+    /**
+     * Compile a "where JSON length" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereJsonLength(Builder $query, $where)
+    {
+        return $this->compileJsonLength(
+            $where['column'], $where['operator'], $this->parameter($where['value'])
+        );
+    }
+
+    /**
+     * Compile a "JSON length" statement into SQL.
+     *
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  string  $value
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    protected function compileJsonLength($column, $operator, $value)
+    {
+        throw new RuntimeException('This database engine does not support JSON length operations.');
     }
 
     /**
@@ -636,9 +730,9 @@ class Grammar extends BaseGrammar
      */
     protected function compileUnion(array $union)
     {
-        $conjuction = $union['all'] ? ' union all ' : ' union ';
+        $conjunction = $union['all'] ? ' union all ' : ' union ';
 
-        return $conjuction.$union['query']->toSql();
+        return $conjunction.$union['query']->toSql();
     }
 
     /**
@@ -825,6 +919,86 @@ class Grammar extends BaseGrammar
     public function compileSavepointRollBack($name)
     {
         return 'ROLLBACK TO SAVEPOINT '.$name;
+    }
+
+    /**
+     * Wrap a value in keyword identifiers.
+     *
+     * @param  \Illuminate\Database\Query\Expression|string  $value
+     * @param  bool    $prefixAlias
+     * @return string
+     */
+    public function wrap($value, $prefixAlias = false)
+    {
+        if ($this->isExpression($value)) {
+            return $this->getValue($value);
+        }
+
+        // If the value being wrapped has a column alias we will need to separate out
+        // the pieces so we can wrap each of the segments of the expression on its
+        // own, and then join these both back together using the "as" connector.
+        if (stripos($value, ' as ') !== false) {
+            return $this->wrapAliasedValue($value, $prefixAlias);
+        }
+
+        // If the given value is a JSON selector we will wrap it differently than a
+        // traditional value. We will need to split this path and wrap each part
+        // wrapped, etc. Otherwise, we will simply wrap the value as a string.
+        if ($this->isJsonSelector($value)) {
+            return $this->wrapJsonSelector($value);
+        }
+
+        return $this->wrapSegments(explode('.', $value));
+    }
+
+    /**
+     * Wrap the given JSON selector.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function wrapJsonSelector($value)
+    {
+        throw new RuntimeException('This database engine does not support JSON operations.');
+    }
+
+    /**
+     * Split the given JSON selector into the field and the optional path and wrap them separately.
+     *
+     * @param  string  $column
+     * @return array
+     */
+    protected function wrapJsonFieldAndPath($column)
+    {
+        $parts = explode('->', $column, 2);
+
+        $field = $this->wrap($parts[0]);
+
+        $path = count($parts) > 1 ? ', '.$this->wrapJsonPath($parts[1]) : '';
+
+        return [$field, $path];
+    }
+
+    /**
+     * Wrap the given JSON path.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function wrapJsonPath($value)
+    {
+        return '\'$."'.str_replace('->', '"."', $value).'"\'';
+    }
+
+    /**
+     * Determine if the given string is a JSON selector.
+     *
+     * @param  string  $value
+     * @return bool
+     */
+    protected function isJsonSelector($value)
+    {
+        return Str::contains($value, '->');
     }
 
     /**

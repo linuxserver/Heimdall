@@ -11,7 +11,8 @@ namespace PHPUnit\Framework\Constraint;
 
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Util\InvalidArgumentHelper;
-use SebastianBergmann;
+use SebastianBergmann\Comparator\ComparisonFailure;
+use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
 /**
  * Constraint that checks if one value is equal to another.
@@ -48,11 +49,6 @@ class IsEqual extends Constraint
      * @var bool
      */
     protected $ignoreCase = false;
-
-    /**
-     * @var SebastianBergmann\Comparator\ComparisonFailure
-     */
-    protected $lastFailure;
 
     /**
      * @param mixed $value
@@ -117,7 +113,7 @@ class IsEqual extends Constraint
             return true;
         }
 
-        $comparatorFactory = SebastianBergmann\Comparator\Factory::getInstance();
+        $comparatorFactory = ComparatorFactory::getInstance();
 
         try {
             $comparator = $comparatorFactory->getComparatorFor(
@@ -132,7 +128,7 @@ class IsEqual extends Constraint
                 $this->canonicalize,
                 $this->ignoreCase
             );
-        } catch (SebastianBergmann\Comparator\ComparisonFailure $f) {
+        } catch (ComparisonFailure $f) {
             if ($returnResult) {
                 return false;
             }

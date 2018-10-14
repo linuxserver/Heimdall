@@ -22,10 +22,13 @@
         "psr-4": { "Symfony\\Polyfill\\Ctype\\": "" },
         "files": [ "bootstrap.php" ]
     },
+    "suggest": {
+        "ext-ctype": "For best performance"
+    },
     "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
-            "dev-master": "1.8-dev"
+            "dev-master": "1.9-dev"
         }
     }
 }

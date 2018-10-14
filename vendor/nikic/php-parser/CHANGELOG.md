@@ -1,7 +1,56 @@
-Version 4.0.3-dev
+Version 4.1.1-dev
 -----------------
 
 Nothing yet.
+
+Version 4.1.0 (2018-10-10)
+--------------------------
+
+### Added
+
+* Added support for PHP 7.3 flexible heredoc/nowdoc strings, completing support for PHP 7.3. There
+  are two caveats for this feature:
+   * In some rare, pathological cases flexible heredoc/nowdoc strings change the interpretation of
+     existing doc strings. PHP-Parser will now use the new interpretation.
+   * Flexible heredoc/nowdoc strings require special support from the lexer. Because this is not
+     available on PHP versions before 7.3, support has to be emulated. This emulation is not perfect
+     and some cases which we do not expect to occur in practice (such as flexible doc strings being
+     nested within each other through abuse of variable-variable interpolation syntax) may not be
+     recognized correctly.
+* Added `DONT_TRAVERSER_CURRENT_AND_CHILDREN` to `NodeTraverser` to skip both traversal of child
+  nodes, and prevent subsequent visitors from visiting the current node.
+
+Version 4.0.4 (2018-09-18)
+--------------------------
+
+### Added
+
+* The following methods have been added to `BuilderFactory`:
+  * `useTrait()` (fluent builder)
+  * `traitUseAdaptation()` (fluent builder)
+  * `useFunction()` (fluent builder)
+  * `useConst()` (fluent builder)
+  * `var()`
+  * `propertyFetch()`
+  
+### Deprecated
+
+* `Builder\Param::setTypeHint()` has been deprecated in favor of the newly introduced
+  `Builder\Param::setType()`.
+
+Version 4.0.3 (2018-07-15)
+--------------------------
+
+### Fixed
+
+* Fixed possible undefined offset notice in formatting-preserving printer. (#513)
+
+### Added
+
+* Improved error recovery inside arrays.
+* Preserve trailing comment inside classes. **Note:** This change is possibly BC breaking if your
+  code validates that classes can only contain certain statement types. After this change, classes
+  can also contain Nop statements, while this was not previously possible. (#509)
 
 Version 4.0.2 (2018-06-03)
 --------------------------

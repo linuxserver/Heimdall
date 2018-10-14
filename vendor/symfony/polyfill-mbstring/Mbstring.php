@@ -44,7 +44,7 @@ namespace Symfony\Polyfill\Mbstring;
  * - mb_strrchr              - Finds the last occurrence of a character in a string within another
  * - mb_strrichr             - Finds the last occurrence of a character in a string within another, case insensitive
  * - mb_strripos             - Finds position of last occurrence of a string within another, case insensitive
- * - mb_strstr               - Finds first occurrence of a string within anothers
+ * - mb_strstr               - Finds first occurrence of a string within another
  * - mb_strwidth             - Return width of string
  * - mb_substr_count         - Count the number of substring occurrences
  *
@@ -281,8 +281,11 @@ final class Mbstring
         }
 
         if (MB_CASE_TITLE == $mode) {
-            $s = preg_replace_callback('/\b\p{Ll}/u', array(__CLASS__, 'title_case_upper'), $s);
-            $s = preg_replace_callback('/\B[\p{Lu}\p{Lt}]+/u', array(__CLASS__, 'title_case_lower'), $s);
+            static $titleRegexp = null;
+            if (null === $titleRegexp) {
+                $titleRegexp = self::getData('titleCaseRegexp');
+            }
+            $s = preg_replace_callback($titleRegexp, array(__CLASS__, 'title_case'), $s);
         } else {
             if (MB_CASE_UPPER == $mode) {
                 static $upper = null;
@@ -752,14 +755,9 @@ final class Mbstring
         return $entities;
     }
 
-    private static function title_case_lower(array $s)
+    private static function title_case(array $s)
     {
-        return self::mb_convert_case($s[0], MB_CASE_LOWER, 'UTF-8');
-    }
-
-    private static function title_case_upper(array $s)
-    {
-        return self::mb_convert_case($s[0], MB_CASE_UPPER, 'UTF-8');
+        return self::mb_convert_case($s[1], MB_CASE_UPPER, 'UTF-8').self::mb_convert_case($s[2], MB_CASE_LOWER, 'UTF-8');
     }
 
     private static function getData($file)
