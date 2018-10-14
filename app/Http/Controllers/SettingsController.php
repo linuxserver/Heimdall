@@ -31,6 +31,7 @@ class SettingsController extends Controller
     public function edit($id)
     {
         $setting = Setting::find($id);
+        //die("s: ".$setting->label);
 
         if((bool)$setting->system === true) return abort(404);
 
@@ -55,6 +56,7 @@ class SettingsController extends Controller
     public function update(Request $request, $id)
     {
         $setting = Setting::find($id);
+        $user = $this->user();
 
         if (!is_null($setting)) {
             $data = Setting::getInput();
@@ -64,17 +66,14 @@ class SettingsController extends Controller
 
                 if($request->hasFile('value')) {
                     $path = $request->file('value')->store('backgrounds');
-                    $setting->value = $path;
+                    $setting_value = $path;
                 }
             
-
-
             } else {
-                $setting->value = $data->value;
+                $setting_value = $data->value;
             }
 
-            $setting->save();
-
+            $user->settings()->updateExistingPivot($setting->id, ['value' => $setting_value]);
             $route = route('settings.index', [], false);
             return redirect($route) 
             ->with([

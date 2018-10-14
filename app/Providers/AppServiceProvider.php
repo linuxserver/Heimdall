@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 // check version to see if an upgrade is needed
-                $db_version = Setting::fetch('version');
+                $db_version = Setting::_fetch('version');
                 $app_version = config('app.version');
                 if(version_compare($app_version, $db_version) == 1) { // app is higher than db, so need to run migrations etc
                     Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));                   

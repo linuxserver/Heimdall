@@ -36,4 +36,9 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+    public function index()
+    {
+        $data =[];
+        return view('userselect', $data);
+    }
 }

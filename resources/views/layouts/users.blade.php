@@ -30,28 +30,7 @@
     </head>
     <body>
         <div id="app"{!! $alt_bg !!}>
-            <nav class="sidenav">
-                <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
-                @if(isset($all_apps))
-                <h2>{{ __('app.dash.pinned_items') }}</h2>
-                <ul id="pinlist">
-                    @foreach($all_apps as $app)
-                    <?php
-                    $active = ((bool)$app->pinned === true) ? 'active' : '';
-                    ?>
-                    <li>{{ $app->title }}<a class="{{ $active }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id], false) }}"><i class="fas fa-thumbtack"></i></a></li>
-                    
-                    @endforeach
-                </ul>
-                @endif
-            </nav>
             <div class="content">
-                <header class="appheader">
-                    <ul>
-                        <li><a href="{{ route('dash', [], false) }}">Dash</a></li><li>
-                            <a href="{{ route('items.index', [], false) }}">Items</a></li>
-                    </ul>
-                </header>
                 <main>
                     @if ($message = Session::get('success'))
                     <div class="message-container">
@@ -71,19 +50,7 @@
                         </div>
                     </div>
                     @endif
-                    
                     @yield('content')
-                    <div id="config-buttons">
-                        @if(Route::is('dash') || Route::is('tags.show'))
-                        <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
-                        @endif
-    
-                        <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
-                        <a id="users" class="config" href="{{ route('users.index', [], false) }}"><i class="fas fa-user"></i></a>
-                        <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
-                        <a id="folder" class="config" href="{{ route('tags.index', [], false) }}"><i class="fas fa-tag"></i></a>
-                        <a id="settings" class="config" href="{{ route('settings.index', [], false) }}"><i class="fas fa-cogs"></i></a>
-                    </div>
                 </main>
 
             </div>
