@@ -157,10 +157,10 @@ class Setting extends Model
      */
     public static function _fetch($key, $user=null)
     {
-        $cachekey = ($user === null) ? $key : $key.'-'.$user->id;
-        if (Setting::cached($cachekey)) {
-            return Setting::$cache[$cachekey];
-        } else {
+        #$cachekey = ($user === null) ? $key : $key.'-'.$user->id;
+        #if (Setting::cached($cachekey)) {
+        #    return Setting::$cache[$cachekey];
+        #} else {
             $find = self::where('key', '=', $key)->first();
 
             if (!is_null($find)) {
@@ -168,25 +168,33 @@ class Setting extends Model
                     $value = $find->value;
                 } else { // not system variable so use user specific value
                     // check if user specified value has been set
-                    $usersetting = $user->settings->where('id', $find->id)->first();
-                    //die(print_r($usersetting));
+                    //print_r($user);
+                    $usersetting = $user->settings()->where('id', $find->id)->first();
+                    //print_r($user->settings);
+                    //die(var_dump($usersetting));
                     //->pivot->value;
+                    //echo "user: ".$user->id." --- ".$usersettings;
                     if(isset($usersetting) && !empty($usersetting)) {
-                        $value = $usersetting->pivot->value;
+                        $value = $usersetting->pivot->uservalue;
                     } else { // if not get default from base setting
                         //$user->settings()->save($find, ['value' => $find->value]);
-                        $user->settings()->updateExistingPivot($find->id, ['value' => $find->value]);
+                        #$has_setting = $user->settings()->where('id', $find->id)->exists();
+                        #if($has_setting) {
+                        #    $user->settings()->updateExistingPivot($find->id, ['uservalue' => (string)$find->value]);
+                        #} else {
+                        #    $user->settings()->save($find, ['uservalue' => (string)$find->value]);
+                        #}
                         $value = $find->value;
                     }
                     
                 }
-                Setting::add($cachekey, $value);
+                #Setting::add($cachekey, $value);
 
                 return $value;
             } else {
                 return false;
             }
-        }
+        #}
     }
 
     /**
@@ -267,7 +275,7 @@ class Setting extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User')->withPivot('value');
+        return $this->belongsToMany('App\User')->using('App\SettingUser')->withPivot('uservalue');
     }
 
     public static function user()

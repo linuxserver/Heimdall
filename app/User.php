@@ -40,7 +40,7 @@ class User extends Authenticatable
      */
     public function settings()
     {
-        return $this->belongsToMany('App\Setting')->withPivot('value');
+        return $this->belongsToMany('App\Setting')->withPivot('uservalue');
     }
 
     public static function currentUser()

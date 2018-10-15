@@ -80,7 +80,9 @@ class SettingsController extends Controller
                 $setting_value = $data->value;
             }
 
-            $user->settings()->updateExistingPivot($setting->id, ['value' => $setting_value]);
+            $user->settings()->detach($setting->id);
+            $user->settings()->save($setting, ['uservalue' => $setting_value]);
+            
             $route = route('settings.index', [], false);
             return redirect($route) 
             ->with([

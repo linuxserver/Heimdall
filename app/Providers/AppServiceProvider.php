@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Artisan;
 use Schema;
 use App\Setting;
+use App\User;
+use Session;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,7 +34,9 @@ class AppServiceProvider extends ServiceProvider
         }
         if(is_file(database_path('app.sqlite'))) {
             if(Schema::hasTable('settings')) {
-                if($bg_image = Setting::fetch('background_image')) {
+                die("s: ".\Session::get('current_user'));
+                //die("c: ".User::currentUser());
+                if($bg_image = Setting::_fetch('background_image', User::currentUser())) {
                     $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
                 }
 
