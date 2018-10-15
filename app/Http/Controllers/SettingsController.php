@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\SettingGroup;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 class SettingsController extends Controller
 {
+    public function __construct()
+    {
+    }
+
     /**
      * @return \Illuminate\View\View
      */
     public function index()
     {
+        User::checkAuthOrLogin();
         $settings = SettingGroup::with([
             'settings',
         ])->orderBy('order', 'ASC')->get();

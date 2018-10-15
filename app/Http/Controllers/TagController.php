@@ -8,6 +8,10 @@ use DB;
 
 class TagController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('allowed');
+    }
     /**
      * Display a listing of the resource.
      *

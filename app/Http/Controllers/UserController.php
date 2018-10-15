@@ -6,9 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('allowed')->except(['selectUser']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -29,6 +34,14 @@ class UserController extends Controller
     {
         $data = [];
         return view('users.create', $data);
+    }
+
+    public function selectUser()
+    {
+        Auth::logout();
+        $data['users'] = User::all();
+        return view('userselect', $data);
+
     }
 
     /**
@@ -53,7 +66,7 @@ class UserController extends Controller
 
         $password = $request->input('password');
         if(!empty($password)) {
-            $user->password = bcrypt();
+            $user->password = bcrypt($password);
         }
 
         if($request->hasFile('file')) {
@@ -149,8 +162,14 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        if($user->id !== 1) {
+            $user->delete();
+            $route = route('dash', [], false);
+            return redirect($route)
+            ->with('success',__('app.alert.success.user_deleted'));
+
+        }
     }
 }

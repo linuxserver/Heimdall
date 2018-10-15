@@ -41,9 +41,11 @@
                                 </td>
                                 <td class="text-center"><a{{ $user->target }} href="{!! route('users.edit', [$user->id], false) !!}" title="{{ __('user.settings.edit') }} {!! $user->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
+                                    @if($user->id !== 1)
                                         {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
                                         <button class="link" type="submit"><i class="fa fa-trash-alt"></i></button>
                                         {!! Form::close() !!}
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

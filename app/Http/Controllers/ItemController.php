@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->middleware('allowed');
+    }
      /**
      * Display a listing of the resource on the dashboard.
      *
