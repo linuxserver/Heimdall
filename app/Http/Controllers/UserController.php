@@ -54,7 +54,7 @@ class UserController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable'
 
@@ -120,7 +120,7 @@ class UserController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable'
         ]);
