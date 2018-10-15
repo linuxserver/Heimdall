@@ -7,7 +7,16 @@ html {
 body {
 	background: $body-bg;
 }
-
+#switchuser {
+	background: rgba(0,0,0,0.6); 
+	position: absolute; 
+	padding: 5px; 
+	color: white; 
+	text-align: center; 
+	top:0; 
+	left: 0; 
+	right: 0;
+}
 #app {
 	display: flex;
 	min-height: 100vh;
@@ -70,7 +79,7 @@ body {
 		flex-direction: column;
 	}
 	main, #sortable {
-		padding: 10px;
+		padding: 30px 10px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -101,6 +110,47 @@ body {
 			height: 26px;
 			margin-top: 12px;
 		}
+	}
+}
+
+.userlist {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	.user {
+		background: rgba(0,0,0,0.5);
+		display: flex;
+		padding: 15px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		margin: 20px;
+		color: white;
+		text-decoration: none;
+		border-radius: 15px;
+    	border: 5px solid rgba(255,255,255, 0.7);
+    	box-shadow: 0 0 10px 0px rgba(0,0,0,0.4);
+	}
+	.user-img {
+		width: 130px;
+		height: 130px;
+		margin-bottom: 20px;
+		border-radius: 50%;
+		margin: 10px 10px 15px;
+	}
+	#password {
+		color: $app-text;
+		width: 100%;
+		padding: 5px 10px;
+		margin: 15px -5px;
+	}
+	.btn {
+		width: 100%;
+	}
+	.forgot {
+		color: white;
+		font-size: 12px;
+		margin-top: 25px;
 	}
 }
 

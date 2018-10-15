@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     @endif
-                    <a style="background: rgba(0,0,0,0.6); position: absolute; padding: 5px; color: white; text-align: center; top:0; left: 0; right: 0;" href="{{ route('user.select') }}">Switch User</a>
+                    <a id="switchuser" href="{{ route('user.select') }}">Switch User</a>
                     @yield('content')
                     <div id="config-buttons">
 

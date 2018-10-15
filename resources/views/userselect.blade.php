@@ -2,8 +2,17 @@
 
 @section('content')
 
+<div class="userlist">
 @foreach($users as $user)
-    <a href="{{ route('user.set', [$user->id]) }}">{{ $user->name }}</a>
+    <a class="user" href="{{ route('user.set', [$user->id]) }}">
+        @if($user->avatar)
+        <img class="user-img" src="{{ asset('/storage/'.$user->avatar) }}" />
+        @else
+        <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
+        @endif
+        {{ $user->name }}
+    </a>
 @endforeach
+</div>
 
 @endsection

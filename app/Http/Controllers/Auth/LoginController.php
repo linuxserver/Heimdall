@@ -93,7 +93,10 @@ class LoginController extends Controller
 
     public function autologin($uuid)
     {
-
+        $user = User::where('autologin', $uuid)->first();
+        Auth::login($user);
+        session(['current_user' => $user]);
+        return redirect()->route('dash');
     }
 
     /**

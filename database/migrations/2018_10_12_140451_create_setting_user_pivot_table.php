@@ -19,7 +19,7 @@ class CreateSettingUserPivotTable extends Migration
             $table->integer('user_id')->unsigned()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->primary(['setting_id', 'user_id']);
-            $table->string('value')->nullable();
+            $table->string('uservalue')->nullable();
         });
     }
 

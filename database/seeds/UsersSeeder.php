@@ -16,8 +16,8 @@ class UsersSeeder extends Seeder
         if(!$user = User::find(1)) {
             $user = new User;
             $user->id = 1;
-            $user->name = 'User';
-            $user->email = 'test@test.com';
+            $user->name = 'Admin';
+            $user->email = 'admin@test.com';
             $user->save();
         } else {
             //$user->save();

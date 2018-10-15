@@ -7,7 +7,6 @@ use Artisan;
 use Schema;
 use App\Setting;
 use App\User;
-use Session;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $alt_bg = '';
+        
 
         if(!is_file(base_path('.env'))) {
             touch(base_path('.env'));
@@ -34,11 +33,6 @@ class AppServiceProvider extends ServiceProvider
         }
         if(is_file(database_path('app.sqlite'))) {
             if(Schema::hasTable('settings')) {
-                die("s: ".\Session::get('current_user'));
-                //die("c: ".User::currentUser());
-                if($bg_image = Setting::_fetch('background_image', User::currentUser())) {
-                    $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
-                }
 
                 // check version to see if an upgrade is needed
                 $db_version = Setting::_fetch('version');
@@ -49,16 +43,25 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true)); 
             }
-            $lang = Setting::fetch('language');
-            \App::setLocale($lang);
 
         }
         if(!is_file(public_path('storage'))) {
             Artisan::call('storage:link');
         }
-        view()->share('alt_bg', $alt_bg);
 
-        //var_dump(env('FORCE_HTTPS'));
+        // User specific settings need to go here as session isn't available at this point in the app
+        view()->composer('*', function ($view) 
+        {
+            $alt_bg = '';
+            if($bg_image = Setting::fetch('background_image')) {
+                $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
+            }
+            $lang = Setting::fetch('language');
+            \App::setLocale($lang);
+
+            $view->with('alt_bg', $alt_bg );    
+        });  
+
 
         if (env('FORCE_HTTPS') === true) {
             \URL::forceScheme('https');

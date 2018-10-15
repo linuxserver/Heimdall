@@ -103,10 +103,11 @@ class SettingsController extends Controller
      */
     public function clear($id)
     {
+        $user = $this->user();
         $setting = Setting::find($id);
         if((bool)$setting->system !== true) {
-            $setting->value = '';
-            $setting->save();
+            $user->settings()->detach($setting->id);
+            $user->settings()->save($setting, ['uservalue' => '']);
         }
         $route = route('settings.index', [], false);
         return redirect($route) 

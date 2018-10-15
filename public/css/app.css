@@ -233,6 +233,17 @@ body {
   background: #cfd2d4;
 }
 
+#switchuser {
+  background: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  padding: 5px;
+  color: white;
+  text-align: center;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
 #app {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -323,7 +334,7 @@ body {
 }
 
 #app main, #app #sortable {
-  padding: 10px;
+  padding: 30px 10px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -372,6 +383,68 @@ body {
   width: 26px;
   height: 26px;
   margin-top: 12px;
+}
+
+.userlist {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.userlist .user {
+  background: rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 15px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin: 20px;
+  color: white;
+  text-decoration: none;
+  border-radius: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.7);
+  -webkit-box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+}
+
+.userlist .user-img {
+  width: 130px;
+  height: 130px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  margin: 10px 10px 15px;
+}
+
+.userlist #password {
+  color: #2f313a;
+  width: 100%;
+  padding: 5px 10px;
+  margin: 15px -5px;
+}
+
+.userlist .btn {
+  width: 100%;
+}
+
+.userlist .forgot {
+  color: white;
+  font-size: 12px;
+  margin-top: 25px;
 }
 
 .item-container {
