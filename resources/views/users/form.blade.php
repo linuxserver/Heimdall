@@ -28,10 +28,10 @@
                         if(isset($user->avatar)) $avatar = $user->avatar;
                         else $avatar = old('avatar');
                     ?>
-                    <img src="{{ asset('storage/'.$avatar) }}" />
+                    <img style="max-width: 115px" src="{{ asset('storage/'.$avatar) }}" />
                     {!! Form::hidden('avatar', $avatar, ['class' => 'form-control']) !!}
                     @else
-                    <img src="/img/heimdall-icon-small.png" />
+                    <img style="max-width: 115px" src="/img/heimdall-icon-small.png" />
                     @endif
                     </div>
                     <div class="upload-btn-wrapper">
