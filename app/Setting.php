@@ -88,8 +88,12 @@ class Setting extends Model
 
     public function getEditValueAttribute()
     {
-        $user = $this->user();
-        $this->value = $this->users()->where('id', $user->id)->first()->pivot->value;
+        if((bool)$this->system === true) {
+            $value = self::_fetch($this->key);
+        } else {
+            $value = self::fetch($this->key);
+        }
+        $this->value = $value;
         switch($this->type) {
             case 'image':
                 $value = '';

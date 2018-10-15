@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     @endif
-                    <a href="{{ route('user.select') }}">Switch User</a>
+                    <a style="background: rgba(0,0,0,0.6); position: absolute; padding: 5px; color: white; text-align: center; top:0; left: 0; right: 0;" href="{{ route('user.select') }}">Switch User</a>
                     @yield('content')
                     <div id="config-buttons">
 
@@ -81,7 +81,9 @@
                         @endif
     
                         <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
+                        @if(App\User::currentUser()->id === 1)
                         <a id="users" class="config" href="{{ route('users.index', [], false) }}"><i class="fas fa-user"></i></a>
+                        @endif
                         <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
                         <a id="folder" class="config" href="{{ route('tags.index', [], false) }}"><i class="fas fa-tag"></i></a>
                         <a id="settings" class="config" href="{{ route('settings.index', [], false) }}"><i class="fas fa-cogs"></i></a>

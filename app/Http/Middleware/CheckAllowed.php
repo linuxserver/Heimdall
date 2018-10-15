@@ -29,6 +29,8 @@ class CheckAllowed
         }
 
         if($route == 'dash') {
+            //print_r(User::all());
+            //die("here".var_dump($current_user->password));
             if((bool)$current_user->public_front === true) return $next($request);
         }
 

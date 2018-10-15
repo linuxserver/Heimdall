@@ -13,6 +13,7 @@ class SettingsController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('allowed');
     }
 
     /**
@@ -20,7 +21,6 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        User::checkAuthOrLogin();
         $settings = SettingGroup::with([
             'settings',
         ])->orderBy('order', 'ASC')->get();
