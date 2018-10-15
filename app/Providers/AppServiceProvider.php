@@ -60,6 +60,10 @@ class AppServiceProvider extends ServiceProvider
             \URL::forceScheme('https');
         }
 
+        if(env('APP_URL') != 'http://localhost') {
+            \URL::forceRootUrl(env('APP_URL'));
+        }
+
     }
 
     /**
