@@ -42,25 +42,30 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email',
-            'password' => 'nullable',
-            'password_confirmation' => 'nullable|confirmed'
+            'password' => 'nullable|confirmed',
+            'password_confirmation' => 'nullable'
 
         ]);
-            //die(print_r($request->all()));
+        $user = new User;
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->public_front = $request->input('public_front');
+
+        $password = $request->input('password');
+        if(!empty($password)) {
+            $user->password = bcrypt();
+        }
+
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('avatars');
-            $request->merge([
-                'avatar' => $path
-            ]);
+            $user->avatar = $path;
         }
 
         if ((bool)$request->input('autologin_allow') === true) {
-            $request->merge([
-                'autologin' => (string)Str::uuid()
-            ]);  
+            $user->autologin = (string)Str::uuid();
         }
 
-        $user = User::create($request->all());
+        $user->save();
         
         $route = route('dash', [], false);
         return redirect($route)
@@ -103,28 +108,34 @@ class UserController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email',
-            'password' => 'nullable',
-            'password_confirmation' => 'nullable|confirmed'
+            'password' => 'nullable|confirmed',
+            'password_confirmation' => 'nullable'
         ]);
             //die(print_r($request->all()));
+
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->public_front = $request->input('public_front');
+
+        $password = $request->input('password');
+        if(!empty($password)) {
+            $user->password = bcrypt($password);
+        } elseif($password == 'null') {
+            $user->password = null;
+        }
+    
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('avatars');
-            $request->merge([
-                'avatar' => $path
-            ]);
+            $user->avatar = $path;
         }
+
         if ((bool)$request->input('autologin_allow') === true) {
-            $autologin = (is_null($user->autologin)) ? (string)Str::uuid() : $user->autologin;
+            $user->autologin = (is_null($user->autologin)) ? (string)Str::uuid() : $user->autologin;
         } else {
-            $autologin = null;
+            $user->autologin = null;
         }
-        $request->merge([
-            'autologin' => $autologin
-        ]);  
-        $input = $request->except(['password_confirmation', 'autologin_allow']);
-        //die(print_r($input));
-        
-        $user->update($input);
+
+        $user->save();
 
         $route = route('dash', [], false);
         return redirect($route)

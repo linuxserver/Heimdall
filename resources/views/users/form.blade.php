@@ -56,7 +56,7 @@
 
         <div class="input">
                 <label>{{ __('app.user.secure_front') }}</label>
-                {!! Form::hidden('public_front', '1') !!}
+                {!! Form::hidden('public_front', '0') !!}
                 <label class="switch">
                     <?php
                     $checked = true;

@@ -21,6 +21,7 @@
                     <tr>
                         <th>{{ __('app.user.name') }}</th>
                         <th>{{ __('app.apps.password') }}</th>
+                        <th>{{ __('app.apps.autologin_url') }}</th>
                         <th class="text-center" width="100">{{ __('app.settings.edit') }}</th>
                         <th class="text-center" width="100">{{ __('app.delete') }}</th>
                     </tr>
@@ -31,6 +32,13 @@
                             <tr>
                                 <td>{{ $user->name }}</td>
                                 <td><i class="fa {{ (!is_null($user->password) ? 'fa-check' : 'fa-times') }}" /></td>
+                                <td>
+                                @if(is_null($user->autologin))
+                                    <i class="fa fa-times" />
+                                @else
+                                    <a href="{{ route('user.autologin', $user->autologin) }}">{{ route('user.autologin', $user->autologin) }}</a>
+                                @endif
+                                </td>
                                 <td class="text-center"><a{{ $user->target }} href="{!! route('users.edit', [$user->id], false) !!}" title="{{ __('user.settings.edit') }} {!! $user->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}

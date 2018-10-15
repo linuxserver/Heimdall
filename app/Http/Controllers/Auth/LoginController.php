@@ -48,4 +48,9 @@ class LoginController extends Controller
         session(['current_user' => $user]);
         return redirect()->route('dash');
     }
+
+    public function autologin($uuid)
+    {
+
+    }
 }

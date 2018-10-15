@@ -13,6 +13,7 @@
 
 Route::get('/userselect/{user}', 'Auth\LoginController@setUser')->name('user.set');
 Route::get('/userselect', 'Auth\LoginController@index')->name('user.select');
+Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.autologin');
 
 Route::get('/', 'ItemController@dash')->name('dash');
 
