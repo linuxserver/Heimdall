@@ -63,6 +63,7 @@ Supported applications are recognized by the title of the application as entered
 - Lidarr
 - McMyAdmin
 - Medusa
+- Monica
 - MusicBrainz
 - Mylar
 - NZBhydra & NZBhydra2
