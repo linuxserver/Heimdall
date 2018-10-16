@@ -75,6 +75,20 @@ class AppServiceProvider extends ServiceProvider
         if(env('APP_URL') != 'http://localhost') {
             \URL::forceRootUrl(env('APP_URL'));
         }
+        if(isset($_SERVER['HTTP_AUTHORIZATION']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
+            explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+        }
+        if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+            $credentials = ['username' => $_SERVER['PHP_AUTH_USER'], 'password' => $_SERVER['PHP_AUTH_PW']];
+            
+            if (\Auth::attempt($credentials)) {
+                // Authentication passed...
+                $user = \Auth::user();
+                session(['current_user' => $user]);                
+            }
+    
+        }
 
     }
 

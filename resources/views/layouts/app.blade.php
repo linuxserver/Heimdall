@@ -78,7 +78,7 @@
                         @else
                         <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
                         @endif
-                        {{ $current_user->name }}
+                        {{ $current_user->username }}
                         <a class="btn" href="{{ route('user.select') }}">Switch User</a>
                     </div>
                     @endif
