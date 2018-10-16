@@ -96,11 +96,9 @@ If you find you can't change the background make sure `php_fileinfo` is enabled 
 
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder. For simple testing you could just go to the folder and type `php artisan serve`
 
-There are also Dockers and instructions on how to use them at
+There is also a multi-arch Docker which supports x86-64, armhf and arm64, instructions on how to use them at
 
-- for x86-64: https://hub.docker.com/r/linuxserver/heimdall/
-- for armhf: https://hub.docker.com/r/lsioarmhf/heimdall/
-- and for arm64: https://hub.docker.com/r/lsioarmhf/heimdall-aarch64/
+- https://hub.docker.com/r/linuxserver/heimdall/
 
 ## New background image not being set
 If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
