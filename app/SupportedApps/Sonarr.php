@@ -2,7 +2,7 @@
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-class Sonarr implements Contracts\Applications {
+class Sonarr implements Contracts\Applications, Contracts\Livestats {
     public function defaultColour()
     {
         return '#163740';
