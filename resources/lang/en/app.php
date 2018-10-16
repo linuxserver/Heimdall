@@ -12,6 +12,8 @@ return [
     'settings.system' => 'System',
     'settings.appearance' => 'Appearance',
     'settings.miscellaneous' => 'Miscellaneous',
+    'settings.support' => 'Support',
+    'settings.donate' => 'Donate',
 
     'settings.version' => 'Version',
     'settings.background_image' => 'Background Image',

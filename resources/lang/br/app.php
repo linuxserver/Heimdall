@@ -12,6 +12,8 @@ return [
     'settings.system' => 'Sistema',
     'settings.appearance' => 'Aparência',
     'settings.miscellaneous' => 'Diversos',
+    'settings.support' => 'Ajuda',
+    'settings.donate' => 'Doar',
 
     'settings.version' => 'Versão',
     'settings.background_image' => 'Imagem de fundo',
@@ -72,6 +74,15 @@ return [
     'apps.tags' => 'Tags',
     'apps.override' => 'Se diferente do URL principal',
 
+    'user.user_list' => 'Comercial',
+    'user.add_user' => 'Adicionar usuários',
+    'user.name' => 'Nome',
+    'user.avatar' => 'Avatar',
+    'user.email' => 'O email',
+    'user.password_confirm' => 'Confirme a Senha',
+    'user.secure_front' => 'Permitir acesso público à frente - Aplicado apenas se uma senha for definida.',
+    'user.autologin' => 'Permitir o login a partir de um URL específico. Qualquer pessoa com o link pode fazer o login.',
+
     'url' => 'URL',
     'title' => 'Título',
     'delete' => 'Apagar',
@@ -91,5 +102,9 @@ return [
     'alert.success.setting_updated' => 'Você editou com sucesso essa configuração',
     'alert.error.not_exist' => 'Essa configuração não existe.',
 
+    'alert.success.user_created' => 'Usuário criado com sucesso',
+    'alert.success.user_updated' => 'Usuário atualizado com sucesso',
+    'alert.success.user_deleted' => 'Usuário excluído com sucesso',
+    'alert.success.user_restored' => 'Usuário restaurado com sucesso',
 
 ];
