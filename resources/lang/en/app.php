@@ -76,7 +76,7 @@ return [
 
     'user.user_list' => 'Users',
     'user.add_user' => 'Add user',
-    'user.name' => 'Name',
+    'user.username' => 'Username',
     'user.avatar' => 'Avatar',
     'user.email' => 'Email',
     'user.password_confirm' => 'Confirm Password',

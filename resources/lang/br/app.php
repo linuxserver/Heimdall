@@ -76,7 +76,7 @@ return [
 
     'user.user_list' => 'Comercial',
     'user.add_user' => 'Adicionar usuários',
-    'user.name' => 'Nome',
+    'user.username' => 'Nome de usuário',
     'user.avatar' => 'Avatar',
     'user.email' => 'O email',
     'user.password_confirm' => 'Confirme a Senha',

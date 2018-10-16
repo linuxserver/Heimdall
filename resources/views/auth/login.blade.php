@@ -14,7 +14,7 @@ $user = \App\User::currentUser();
             @else
             <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
             @endif
-            {{ $user->name }}
+            {{ $user->username }}
             <input id="password" type="password" class="form-control" name="password" required>
             <button type="submit" class="btn btn-primary">Login</button>
         </div>

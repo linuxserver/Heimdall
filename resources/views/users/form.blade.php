@@ -10,8 +10,8 @@
             {!! csrf_field() !!}
 
             <div class="input">
-                <label>{{ __('app.user.name') }} *</label>
-                {!! Form::text('name', null, array('placeholder' => __('app.user.name'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                <label>{{ __('app.user.username') }} *</label>
+                {!! Form::text('username', null, array('placeholder' => __('app.user.username'), 'id' => 'appname', 'class' => 'form-control')) !!}
                 <hr />
             </div>
             <div class="input">

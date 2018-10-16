@@ -53,14 +53,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|max:255|unique:users',
-            'email' => 'required|email|unique:users',
+            'username' => 'required|max:255|unique:users',
+            'email' => 'required|email',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable'
 
         ]);
         $user = new User;
-        $user->name = $request->input('name');
+        $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->public_front = $request->input('public_front');
 
@@ -119,14 +119,14 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validatedData = $request->validate([
-            'name' => 'required|max:255|unique:users,name,'.$user->id,
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'username' => 'required|max:255|unique:users,username,'.$user->id,
+            'email' => 'required|email',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable'
         ]);
             //die(print_r($request->all()));
 
-        $user->name = $request->input('name');
+        $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->public_front = $request->input('public_front');
 

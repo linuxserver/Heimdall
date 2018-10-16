@@ -10,7 +10,7 @@
         @else
         <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
         @endif
-        {{ $user->name }}
+        {{ $user->username }}
     </a>
 @endforeach
 </div>

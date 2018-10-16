@@ -43,6 +43,10 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    public function username()
+    {
+        return 'username';
+    }
 
     /**
      * Handle a login request to the application.
@@ -55,7 +59,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $current_user = User::currentUser();
-        $request->merge(['email' => $current_user->email]);
+        $request->merge(['username' => $current_user->username]);
         //die(print_r($request->all()));
         $this->validateLogin($request);
 
