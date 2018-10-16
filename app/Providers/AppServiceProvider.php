@@ -47,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         }
         if(!is_file(public_path('storage'))) {
             Artisan::call('storage:link');
+            \Session::put('current_user', null);
         }
 
         // User specific settings need to go here as session isn't available at this point in the app
@@ -85,7 +86,8 @@ class AppServiceProvider extends ServiceProvider
             if (\Auth::attempt($credentials)) {
                 // Authentication passed...
                 $user = \Auth::user();
-                session(['current_user' => $user]);                
+                \Session::put('current_user', $user);
+                //session(['current_user' => $user]);                
             }
     
         }
