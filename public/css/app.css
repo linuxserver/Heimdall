@@ -273,11 +273,18 @@ body {
   color: white;
   text-decoration: none;
   margin-left: -10px;
-  margin-right: -12px;
+  margin-right: -10px;
   margin-bottom: -10px;
   margin-top: 8px;
   border-radius: 0;
   width: calc(100% + 22px);
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-transition: all .35s ease-in-out;
+  transition: all .35s ease-in-out;
+}
+
+#switchuser .btn:hover {
+  background: #d64d55;
 }
 
 #app {
