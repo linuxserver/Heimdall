@@ -19,7 +19,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>{{ __('app.user.name') }}</th>
+                        <th>{{ __('app.user.username') }}</th>
                         <th>{{ __('app.apps.password') }}</th>
                         <th>{{ __('app.apps.autologin_url') }}</th>
                         <th class="text-center" width="100">{{ __('app.settings.edit') }}</th>
@@ -30,7 +30,7 @@
                     @if($users->first())
                         @foreach($users as $user)
                             <tr>
-                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->username }}</td>
                                 <td><i class="fa {{ (!is_null($user->password) ? 'fa-check' : 'fa-times') }}" /></td>
                                 <td>
                                 @if(is_null($user->autologin))
