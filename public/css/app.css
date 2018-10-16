@@ -234,14 +234,50 @@ body {
 }
 
 #switchuser {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   position: absolute;
-  padding: 5px;
+  padding: 10px;
   color: white;
   text-align: center;
-  top: 0;
+  bottom: 0;
   left: 0;
-  right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  border-right: 2px solid rgba(255, 255, 255, 0.15);
+  -webkit-box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 0 9px 0 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+#switchuser img {
+  width: 50px;
+  margin-bottom: 5px;
+}
+
+#switchuser .btn {
+  font-size: 13px;
+  color: white;
+  text-decoration: none;
+  margin-left: -10px;
+  margin-right: -12px;
+  margin-bottom: -10px;
+  margin-top: 8px;
+  border-radius: 0;
+  width: calc(100% + 22px);
 }
 
 #app {

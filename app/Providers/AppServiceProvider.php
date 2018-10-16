@@ -59,7 +59,12 @@ class AppServiceProvider extends ServiceProvider
             $lang = Setting::fetch('language');
             \App::setLocale($lang);
 
+            $allusers = User::all();
+            $current_user = User::currentUser();
+
             $view->with('alt_bg', $alt_bg );    
+            $view->with('allusers', $allusers );    
+            $view->with('current_user', $current_user );    
         });  
 
 

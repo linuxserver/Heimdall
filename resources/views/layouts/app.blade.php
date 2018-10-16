@@ -71,7 +71,17 @@
                         </div>
                     </div>
                     @endif
-                    <a id="switchuser" href="{{ route('user.select') }}">Switch User</a>
+                    @if($allusers->count() > 1)
+                    <div id="switchuser">
+                        @if($current_user->avatar)
+                        <img class="user-img" src="{{ asset('/storage/'.$current_user->avatar) }}" />
+                        @else
+                        <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
+                        @endif
+                        {{ $current_user->name }}
+                        <a class="btn" href="{{ route('user.select') }}">Switch User</a>
+                    </div>
+                    @endif
                     @yield('content')
                     <div id="config-buttons">
 
@@ -81,7 +91,7 @@
                         @endif
     
                         <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
-                        @if(App\User::currentUser()->id === 1)
+                        @if($current_user->id === 1)
                         <a id="users" class="config" href="{{ route('users.index', [], false) }}"><i class="fas fa-user"></i></a>
                         @endif
                         <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
