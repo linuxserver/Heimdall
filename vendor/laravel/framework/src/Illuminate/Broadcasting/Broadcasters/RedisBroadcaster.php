@@ -27,7 +27,7 @@ class RedisBroadcaster extends Broadcaster
      * Create a new broadcaster instance.
      *
      * @param  \Illuminate\Contracts\Redis\Factory  $redis
-     * @param  string  $connection
+     * @param  string|null  $connection
      * @return void
      */
     public function __construct(Redis $redis, $connection = null)
@@ -41,6 +41,7 @@ class RedisBroadcaster extends Broadcaster
      *
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     public function auth($request)

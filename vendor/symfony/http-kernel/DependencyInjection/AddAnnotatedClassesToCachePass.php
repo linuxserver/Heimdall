@@ -13,8 +13,8 @@ namespace Symfony\Component\HttpKernel\DependencyInjection;
 
 use Composer\Autoload\ClassLoader;
 use Symfony\Component\Debug\DebugClassLoader;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 
 /**
@@ -36,23 +36,15 @@ class AddAnnotatedClassesToCachePass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $classes = array();
-        $annotatedClasses = array();
+        $annotatedClasses = $this->kernel->getAnnotatedClassesToCompile();
         foreach ($container->getExtensions() as $extension) {
             if ($extension instanceof Extension) {
-                if (\PHP_VERSION_ID < 70000) {
-                    $classes = array_merge($classes, $extension->getClassesToCompile());
-                }
                 $annotatedClasses = array_merge($annotatedClasses, $extension->getAnnotatedClassesToCompile());
             }
         }
 
         $existingClasses = $this->getClassesInComposerClassMaps();
 
-        if (\PHP_VERSION_ID < 70000) {
-            $classes = $container->getParameterBag()->resolveValue($classes);
-            $this->kernel->setClassCache($this->expandClasses($classes, $existingClasses));
-        }
         $annotatedClasses = $container->getParameterBag()->resolveValue($annotatedClasses);
         $this->kernel->setAnnotatedClassCache($this->expandClasses($annotatedClasses, $existingClasses));
     }
@@ -96,7 +88,7 @@ class AddAnnotatedClassesToCachePass implements CompilerPassInterface
         $classes = array();
 
         foreach (spl_autoload_functions() as $function) {
-            if (!is_array($function)) {
+            if (!\is_array($function)) {
                 continue;
             }
 
@@ -104,7 +96,7 @@ class AddAnnotatedClassesToCachePass implements CompilerPassInterface
                 $function = $function[0]->getClassLoader();
             }
 
-            if (is_array($function) && $function[0] instanceof ClassLoader) {
+            if (\is_array($function) && $function[0] instanceof ClassLoader) {
                 $classes += array_filter($function[0]->getClassMap());
             }
         }

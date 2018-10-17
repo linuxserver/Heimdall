@@ -9,6 +9,7 @@ namespace PhpParser;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
 use PhpParser\Node\Param;
+use PhpParser\Node\Scalar\Encapsed;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
@@ -708,6 +709,119 @@ abstract class ParserAbstract implements Parser
         }
 
         return new LNumber($num, $attributes);
+    }
+
+    protected function stripIndentation(
+        string $string, int $indentLen, string $indentChar,
+        bool $newlineAtStart, bool $newlineAtEnd, array $attributes
+    ) {
+        if ($indentLen === 0) {
+            return $string;
+        }
+
+        $start = $newlineAtStart ? '(?:(?<=\n)|\A)' : '(?<=\n)';
+        $end = $newlineAtEnd ? '(?:(?=[\r\n])|\z)' : '(?=[\r\n])';
+        $regex = '/' . $start . '([ \t]*)(' . $end . ')?/';
+        return preg_replace_callback(
+            $regex,
+            function ($matches) use ($indentLen, $indentChar, $attributes) {
+                $prefix = substr($matches[1], 0, $indentLen);
+                if (false !== strpos($prefix, $indentChar === " " ? "\t" : " ")) {
+                    $this->emitError(new Error(
+                        'Invalid indentation - tabs and spaces cannot be mixed', $attributes
+                    ));
+                } elseif (strlen($prefix) < $indentLen && !isset($matches[2])) {
+                    $this->emitError(new Error(
+                        'Invalid body indentation level ' .
+                        '(expecting an indentation level of at least ' . $indentLen . ')',
+                        $attributes
+                    ));
+                }
+                return substr($matches[0], strlen($prefix));
+            },
+            $string
+        );
+    }
+
+    protected function parseDocString(
+        string $startToken, $contents, string $endToken,
+        array $attributes, array $endTokenAttributes, bool $parseUnicodeEscape
+    ) {
+        $kind = strpos($startToken, "'") === false
+            ? String_::KIND_HEREDOC : String_::KIND_NOWDOC;
+
+        $regex = '/\A[bB]?<<<[ \t]*[\'"]?([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)[\'"]?(?:\r\n|\n|\r)\z/';
+        $result = preg_match($regex, $startToken, $matches);
+        assert($result === 1);
+        $label = $matches[1];
+
+        $result = preg_match('/\A[ \t]*/', $endToken, $matches);
+        assert($result === 1);
+        $indentation = $matches[0];
+
+        $attributes['kind'] = $kind;
+        $attributes['docLabel'] = $label;
+        $attributes['docIndentation'] = $indentation;
+
+        $indentHasSpaces = false !== strpos($indentation, " ");
+        $indentHasTabs = false !== strpos($indentation, "\t");
+        if ($indentHasSpaces && $indentHasTabs) {
+            $this->emitError(new Error(
+                'Invalid indentation - tabs and spaces cannot be mixed',
+                $endTokenAttributes
+            ));
+
+            // Proceed processing as if this doc string is not indented
+            $indentation = '';
+        }
+
+        $indentLen = \strlen($indentation);
+        $indentChar = $indentHasSpaces ? " " : "\t";
+
+        if (\is_string($contents)) {
+            if ($contents === '') {
+                return new String_('', $attributes);
+            }
+
+            $contents = $this->stripIndentation(
+                $contents, $indentLen, $indentChar, true, true, $attributes
+            );
+            $contents = preg_replace('~(\r\n|\n|\r)\z~', '', $contents);
+
+            if ($kind === String_::KIND_HEREDOC) {
+                $contents = String_::parseEscapeSequences($contents, null, $parseUnicodeEscape);
+            }
+
+            return new String_($contents, $attributes);
+        } else {
+            assert(count($contents) > 0);
+            if (!$contents[0] instanceof Node\Scalar\EncapsedStringPart) {
+                // If there is no leading encapsed string part, pretend there is an empty one
+                $this->stripIndentation(
+                    '', $indentLen, $indentChar, true, false, $contents[0]->getAttributes()
+                );
+            }
+
+            $newContents = [];
+            foreach ($contents as $i => $part) {
+                if ($part instanceof Node\Scalar\EncapsedStringPart) {
+                    $isLast = $i === \count($contents) - 1;
+                    $part->value = $this->stripIndentation(
+                        $part->value, $indentLen, $indentChar,
+                        $i === 0, $isLast, $part->getAttributes()
+                    );
+                    $part->value = String_::parseEscapeSequences($part->value, null, $parseUnicodeEscape);
+                    if ($isLast) {
+                        $part->value = preg_replace('~(\r\n|\n|\r)\z~', '', $part->value);
+                    }
+                    if ('' === $part->value) {
+                        continue;
+                    }
+                }
+                $newContents[] = $part;
+            }
+            return new Encapsed($newContents, $attributes);
+        }
     }
 
     protected function checkModifier($a, $b, $modifierPos) {

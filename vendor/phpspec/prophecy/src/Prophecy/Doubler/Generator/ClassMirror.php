@@ -189,6 +189,8 @@ class ClassMirror
             $node->setAsPassedByReference();
         }
 
+        $node->setAsNullable($this->isNullable($parameter));
+
         $methodNode->addArgument($node);
     }
 

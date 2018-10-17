@@ -212,7 +212,7 @@ class CarbonPeriod implements Iterator, Countable
     /**
      * The cached validation result for current date.
      *
-     * @var bool|static::END_ITERATION
+     * @var bool|string|null
      */
     protected $validationResult;
 
@@ -237,8 +237,10 @@ class CarbonPeriod implements Iterator, Countable
     {
         // PHP 5.3 equivalent of new static(...$params).
         $reflection = new ReflectionClass(get_class());
+        /** @var static $instance */
+        $instance = $reflection->newInstanceArgs($params);
 
-        return $reflection->newInstanceArgs($params);
+        return $instance;
     }
 
     /**
@@ -878,7 +880,7 @@ class CarbonPeriod implements Iterator, Countable
      * @param \Carbon\Carbon $current
      * @param int            $key
      *
-     * @return bool|static::END_ITERATION
+     * @return bool|string
      */
     protected function filterRecurrences($current, $key)
     {
@@ -954,7 +956,7 @@ class CarbonPeriod implements Iterator, Countable
      *
      * @param \Carbon\Carbon $current
      *
-     * @return bool|static::END_ITERATION
+     * @return bool|string
      */
     protected function filterEndDate($current)
     {
@@ -972,7 +974,7 @@ class CarbonPeriod implements Iterator, Countable
     /**
      * End iteration filter callback.
      *
-     * @return static::END_ITERATION
+     * @return string
      */
     protected function endIteration()
     {
@@ -981,8 +983,6 @@ class CarbonPeriod implements Iterator, Countable
 
     /**
      * Handle change of the parameters.
-     *
-     * @return void
      */
     protected function handleChangedParameters()
     {
@@ -1014,7 +1014,7 @@ class CarbonPeriod implements Iterator, Countable
     /**
      * Check whether current value and key pass all the filters.
      *
-     * @return bool|static::END_ITERATION
+     * @return bool|string
      */
     protected function checkFilters()
     {
@@ -1137,6 +1137,22 @@ class CarbonPeriod implements Iterator, Countable
         if ($this->isStartExcluded() || $this->validateCurrentDate() === false) {
             $this->incrementCurrentDateUntilValid();
         }
+    }
+
+    /**
+     * Skip iterations and returns iteration state (false if ended, true if still valid).
+     *
+     * @param int $count steps number to skip (1 by default)
+     *
+     * @return bool
+     */
+    public function skip($count = 1)
+    {
+        for ($i = $count; $this->valid() && $i > 0; $i--) {
+            $this->next();
+        }
+
+        return $this->valid();
     }
 
     /**

@@ -24,3 +24,4 @@ yarn-error.log
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
+storage/app/public/avatars/*

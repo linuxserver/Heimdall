@@ -58,6 +58,34 @@ class BuilderFactory
     }
 
     /**
+     * Creates a trait use builder.
+     *
+     * @param Node\Name|string ...$traits Trait names
+     *
+     * @return Builder\TraitUse The create trait use builder
+     */
+    public function useTrait(...$traits) : Builder\TraitUse {
+        return new Builder\TraitUse(...$traits);
+    }
+
+    /**
+     * Creates a trait use adaptation builder.
+     *
+     * @param Node\Name|string|null  $trait  Trait name
+     * @param Node\Identifier|string $method Method name
+     *
+     * @return Builder\TraitUseAdaptation The create trait use adaptation builder
+     */
+    public function traitUseAdaptation($trait, $method = null) : Builder\TraitUseAdaptation {
+        if (is_null($method)) {
+            $method = $trait;
+            $trait = null;
+        }
+
+        return new Builder\TraitUseAdaptation($trait, $method);
+    }
+
+    /**
      * Creates a method builder.
      *
      * @param string $name Name of the method
@@ -104,12 +132,34 @@ class BuilderFactory
     /**
      * Creates a namespace/class use builder.
      *
-     * @param string|Node\Name $name Name to alias
+     * @param Node\Name|string $name Name of the entity (namespace or class) to alias
      *
-     * @return Builder\Use_ The create use builder
+     * @return Builder\Use_ The created use builder
      */
     public function use($name) : Builder\Use_ {
         return new Builder\Use_($name, Use_::TYPE_NORMAL);
+    }
+
+    /**
+     * Creates a function use builder.
+     *
+     * @param Node\Name|string $name Name of the function to alias
+     *
+     * @return Builder\Use_ The created use function builder
+     */
+    public function useFunction($name) : Builder\Use_ {
+        return new Builder\Use_($name, Use_::TYPE_FUNCTION);
+    }
+
+    /**
+     * Creates a constant use builder.
+     *
+     * @param Node\Name|string $name Name of the const to alias
+     *
+     * @return Builder\Use_ The created use const builder
+     */
+    public function useConst($name) : Builder\Use_ {
+        return new Builder\Use_($name, Use_::TYPE_CONSTANT);
     }
 
     /**
@@ -121,6 +171,21 @@ class BuilderFactory
      */
     public function val($value) : Expr {
         return BuilderHelpers::normalizeValue($value);
+    }
+
+    /**
+     * Creates variable node.
+     *
+     * @param string|Expr $name Name
+     *
+     * @return Expr\Variable
+     */
+    public function var($name) : Expr\Variable {
+        if (!\is_string($name) && !$name instanceof Expr) {
+            throw new \LogicException('Variable name must be string or Expr');
+        }
+
+        return new Expr\Variable($name);
     }
 
     /**
@@ -217,6 +282,18 @@ class BuilderFactory
      */
     public function constFetch($name) : Expr\ConstFetch {
         return new Expr\ConstFetch(BuilderHelpers::normalizeName($name));
+    }
+    
+    /**
+     * Creates a property fetch node.
+     *
+     * @param Expr                   $var  Variable holding object
+     * @param string|Identifier|Expr $name Property name
+     *
+     * @return Expr\PropertyFetch
+     */
+    public function propertyFetch(Expr $var, $name) : Expr\PropertyFetch {
+        return new Expr\PropertyFetch($var, BuilderHelpers::normalizeIdentifierOrExpr($name));
     }
 
     /**

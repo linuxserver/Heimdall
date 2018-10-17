@@ -160,5 +160,38 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.window_target';
             $setting->save();
         }
+
+        if($support = Setting::find(8)) {
+            $support->label = 'app.settings.support';
+            $support->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $support->save();
+        } else {
+            $setting = new Setting;
+            $setting->id = 8;
+            $setting->group_id = 1;
+            $setting->key = 'support';
+            $setting->type = 'text';
+            $setting->label = 'app.settings.support';
+            $setting->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $setting->system = true;
+            $setting->save();
+        }
+
+        if($donate = Setting::find(9)) {
+            $donate->label = 'app.settings.donate';
+            $donate->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $donate->save();
+        } else {
+            $setting = new Setting;
+            $setting->id = 9;
+            $setting->group_id = 1;
+            $setting->key = 'donate';
+            $setting->type = 'text';
+            $setting->label = 'app.settings.donate';
+            $setting->value = '<a rel="noopener" target="_blank" href="https://paypal.me/pools/c/81ZR4dfBGo">Paypal</a>';
+            $setting->system = true;
+            $setting->save();
+        }
+
     }
 }

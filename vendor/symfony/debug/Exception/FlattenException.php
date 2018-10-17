@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
- * FlattenException wraps a PHP Exception to be able to serialize it.
+ * FlattenException wraps a PHP Error or Exception to be able to serialize it.
  *
  * Basically, this class removes all objects from the trace.
  *
@@ -35,6 +35,11 @@ class FlattenException
 
     public static function create(\Exception $exception, $statusCode = null, array $headers = array())
     {
+        return static::createFromThrowable($exception, $statusCode, $headers);
+    }
+
+    public static function createFromThrowable(\Throwable $exception, ?int $statusCode = null, array $headers = array()): self
+    {
         $e = new static();
         $e->setMessage($exception->getMessage());
         $e->setCode($exception->getCode());
@@ -52,17 +57,15 @@ class FlattenException
 
         $e->setStatusCode($statusCode);
         $e->setHeaders($headers);
-        $e->setTraceFromException($exception);
-        $e->setClass(get_class($exception));
+        $e->setTraceFromThrowable($exception);
+        $e->setClass($exception instanceof FatalThrowableError ? $exception->getOriginalClassName() : \get_class($exception));
         $e->setFile($exception->getFile());
         $e->setLine($exception->getLine());
 
         $previous = $exception->getPrevious();
 
-        if ($previous instanceof \Exception) {
-            $e->setPrevious(static::create($previous));
-        } elseif ($previous instanceof \Throwable) {
-            $e->setPrevious(static::create(new FatalThrowableError($previous)));
+        if ($previous instanceof \Throwable) {
+            $e->setPrevious(static::createFromThrowable($previous));
         }
 
         return $e;
@@ -178,9 +181,19 @@ class FlattenException
         return $this->trace;
     }
 
+    /**
+     * @deprecated since 4.1, use {@see setTraceFromThrowable()} instead.
+     */
     public function setTraceFromException(\Exception $exception)
     {
-        $this->setTrace($exception->getTrace(), $exception->getFile(), $exception->getLine());
+        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.1, use "setTraceFromThrowable()" instead.', __METHOD__), E_USER_DEPRECATED);
+
+        $this->setTraceFromThrowable($exception);
+    }
+
+    public function setTraceFromThrowable(\Throwable $throwable): void
+    {
+        $this->setTrace($throwable->getTrace(), $throwable->getFile(), $throwable->getLine());
     }
 
     public function setTrace($trace, $file, $line)
@@ -228,9 +241,9 @@ class FlattenException
             if ($value instanceof \__PHP_Incomplete_Class) {
                 // is_object() returns false on PHP<=7.1
                 $result[$key] = array('incomplete-object', $this->getClassNameFromIncomplete($value));
-            } elseif (is_object($value)) {
-                $result[$key] = array('object', get_class($value));
-            } elseif (is_array($value)) {
+            } elseif (\is_object($value)) {
+                $result[$key] = array('object', \get_class($value));
+            } elseif (\is_array($value)) {
                 if ($level > 10) {
                     $result[$key] = array('array', '*DEEP NESTED ARRAY*');
                 } else {
@@ -238,13 +251,13 @@ class FlattenException
                 }
             } elseif (null === $value) {
                 $result[$key] = array('null', null);
-            } elseif (is_bool($value)) {
+            } elseif (\is_bool($value)) {
                 $result[$key] = array('boolean', $value);
-            } elseif (is_int($value)) {
+            } elseif (\is_int($value)) {
                 $result[$key] = array('integer', $value);
-            } elseif (is_float($value)) {
+            } elseif (\is_float($value)) {
                 $result[$key] = array('float', $value);
-            } elseif (is_resource($value)) {
+            } elseif (\is_resource($value)) {
                 $result[$key] = array('resource', get_resource_type($value));
             } else {
                 $result[$key] = array('string', (string) $value);

@@ -11,14 +11,14 @@
 
 namespace Symfony\Component\HttpKernel;
 
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\Config\Loader\LoaderInterface;
 
 /**
  * The Kernel is the heart of the Symfony system.
  *
- * It manages an environment made of bundles.
+ * It manages an environment made of application kernel and bundles.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
@@ -56,22 +56,18 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
     public function getBundles();
 
     /**
-     * Returns a bundle and optionally its descendants by its name.
+     * Returns a bundle.
      *
-     * The second argument is deprecated as of 3.4 and will be removed in 4.0. This method
-     * will always return an instance of BundleInterface in 4.0.
+     * @param string $name Bundle name
      *
-     * @param string $name  Bundle name
-     * @param bool   $first Whether to return the first bundle only or together with its descendants
-     *
-     * @return BundleInterface|BundleInterface[] A BundleInterface instance or an array of BundleInterface instances if $first is false
+     * @return BundleInterface A BundleInterface instance
      *
      * @throws \InvalidArgumentException when the bundle is not enabled
      */
-    public function getBundle($name, $first = true);
+    public function getBundle($name);
 
     /**
-     * Returns the file path for a given resource.
+     * Returns the file path for a given bundle resource.
      *
      * A Resource can be a file or a directory.
      *
@@ -131,7 +127,7 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
     /**
      * Gets the current container.
      *
-     * @return ContainerInterface A ContainerInterface instance
+     * @return ContainerInterface|null A ContainerInterface instance or null when the Kernel is shutdown
      */
     public function getContainer();
 

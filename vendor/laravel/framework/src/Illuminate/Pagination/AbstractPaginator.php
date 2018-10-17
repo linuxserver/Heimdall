@@ -3,15 +3,19 @@
 namespace Illuminate\Pagination;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
  * @mixin \Illuminate\Support\Collection
  */
 abstract class AbstractPaginator implements Htmlable
 {
+    use ForwardsCalls;
+
     /**
      * All of the items being paginated.
      *
@@ -62,6 +66,13 @@ abstract class AbstractPaginator implements Htmlable
     protected $pageName = 'page';
 
     /**
+     * The number of links to display on each side of current page link.
+     *
+     * @var int
+     */
+    public $onEachSide = 3;
+
+    /**
      * The current path resolver callback.
      *
      * @var \Closure
@@ -87,14 +98,14 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @var string
      */
-    public static $defaultView = 'pagination::default';
+    public static $defaultView = 'pagination::bootstrap-4';
 
     /**
      * The default "simple" pagination view.
      *
      * @var string
      */
-    public static $defaultSimpleView = 'pagination::simple-default';
+    public static $defaultSimpleView = 'pagination::simple-bootstrap-4';
 
     /**
      * Determine if the given value is a valid page number.
@@ -156,7 +167,7 @@ abstract class AbstractPaginator implements Htmlable
 
         return $this->path
                         .(Str::contains($this->path, '?') ? '&' : '?')
-                        .http_build_query($parameters, '', '&')
+                        .Arr::query($parameters)
                         .$this->buildFragment();
     }
 
@@ -232,6 +243,20 @@ abstract class AbstractPaginator implements Htmlable
     protected function buildFragment()
     {
         return $this->fragment ? '#'.$this->fragment : '';
+    }
+
+    /**
+     * Load a set of relationships onto the mixed relationship collection.
+     *
+     * @param  string $relation
+     * @param  array  $relations
+     * @return $this
+     */
+    public function loadMorph($relation, $relations)
+    {
+        $this->getCollection()->loadMorph($relation, $relations);
+
+        return $this;
     }
 
     /**
@@ -352,6 +377,19 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Set the number of links to display on each side of current page link.
+     *
+     * @param  int  $count
+     * @return $this
+     */
+    public function onEachSide($count)
+    {
+        $this->onEachSide = $count;
+
+        return $this;
+    }
+
+    /**
      * Resolve the current request path or return the default value.
      *
      * @param  string  $default
@@ -448,6 +486,17 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
+     * Indicate that Bootstrap 3 styling should be used for generated links.
+     *
+     * @return void
+     */
+    public static function useBootstrapThree()
+    {
+        static::defaultView('pagination::default');
+        static::defaultSimpleView('pagination::simple-default');
+    }
+
+    /**
      * Get an iterator for the items.
      *
      * @return \ArrayIterator
@@ -458,7 +507,7 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
-     * Determine if the list of items is empty or not.
+     * Determine if the list of items is empty.
      *
      * @return bool
      */
@@ -574,7 +623,7 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function __call($method, $parameters)
     {
-        return $this->getCollection()->$method(...$parameters);
+        return $this->forwardCallTo($this->getCollection(), $method, $parameters);
     }
 
     /**

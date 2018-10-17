@@ -30,11 +30,13 @@ trait SoftDeletes
     {
         $this->forceDeleting = true;
 
-        $deleted = $this->delete();
+        return tap($this->delete(), function ($deleted) {
+            $this->forceDeleting = false;
 
-        $this->forceDeleting = false;
-
-        return $deleted;
+            if ($deleted) {
+                $this->fireModelEvent('forceDeleted', false);
+            }
+        });
     }
 
     /**
@@ -47,7 +49,7 @@ trait SoftDeletes
         if ($this->forceDeleting) {
             $this->exists = false;
 
-            return $this->newQueryWithoutScopes()->where($this->getKeyName(), $this->getKey())->forceDelete();
+            return $this->newModelQuery()->where($this->getKeyName(), $this->getKey())->forceDelete();
         }
 
         return $this->runSoftDelete();
@@ -60,7 +62,7 @@ trait SoftDeletes
      */
     protected function runSoftDelete()
     {
-        $query = $this->newQueryWithoutScopes()->where($this->getKeyName(), $this->getKey());
+        $query = $this->newModelQuery()->where($this->getKeyName(), $this->getKey());
 
         $time = $this->freshTimestamp();
 

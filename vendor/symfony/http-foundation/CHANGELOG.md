@@ -1,6 +1,50 @@
 CHANGELOG
 =========
 
+4.1.3
+-----
+
+ * [BC BREAK] Support for the IIS-only `X_ORIGINAL_URL` and `X_REWRITE_URL`
+   HTTP headers has been dropped for security reasons.
+
+4.1.0
+-----
+
+ * Query string normalization uses `parse_str()` instead of custom parsing logic.
+ * Passing the file size to the constructor of the `UploadedFile` class is deprecated.
+ * The `getClientSize()` method of the `UploadedFile` class is deprecated. Use `getSize()` instead.
+ * added `RedisSessionHandler` to use Redis as a session storage
+ * The `get()` method of the `AcceptHeader` class now takes into account the
+   `*` and `*/*` default values (if they are present in the Accept HTTP header)
+   when looking for items.
+ * deprecated `Request::getSession()` when no session has been set. Use `Request::hasSession()` instead.
+ * added `CannotWriteFileException`, `ExtensionFileException`, `FormSizeFileException`,
+   `IniSizeFileException`, `NoFileException`, `NoTmpDirFileException`, `PartialFileException` to
+   handle failed `UploadedFile`.
+ * added `MigratingSessionHandler` for migrating between two session handlers without losing sessions
+ * added `HeaderUtils`.
+
+4.0.0
+-----
+
+ * the `Request::setTrustedHeaderName()` and `Request::getTrustedHeaderName()`
+   methods have been removed
+ * the `Request::HEADER_CLIENT_IP` constant has been removed, use
+   `Request::HEADER_X_FORWARDED_FOR` instead
+ * the `Request::HEADER_CLIENT_HOST` constant has been removed, use
+   `Request::HEADER_X_FORWARDED_HOST` instead
+ * the `Request::HEADER_CLIENT_PROTO` constant has been removed, use
+   `Request::HEADER_X_FORWARDED_PROTO` instead
+ * the `Request::HEADER_CLIENT_PORT` constant has been removed, use
+   `Request::HEADER_X_FORWARDED_PORT` instead
+ * checking for cacheable HTTP methods using the `Request::isMethodSafe()`
+   method (by not passing `false` as its argument) is not supported anymore and
+   throws a `\BadMethodCallException`
+ * the `WriteCheckSessionHandler`, `NativeSessionHandler` and `NativeProxy` classes have been removed
+ * setting session save handlers that do not implement `\SessionHandlerInterface` in
+   `NativeSessionStorage::setSaveHandler()` is not supported anymore and throws a
+   `\TypeError`
+
 3.4.0
 -----
 

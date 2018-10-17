@@ -210,13 +210,13 @@ class ResponseHeaderBag extends HeaderBag
      *
      * @param string $format
      *
-     * @return array
+     * @return Cookie[]
      *
      * @throws \InvalidArgumentException When the $format is invalid
      */
     public function getCookies($format = self::COOKIES_FLAT)
     {
-        if (!in_array($format, array(self::COOKIES_FLAT, self::COOKIES_ARRAY))) {
+        if (!\in_array($format, array(self::COOKIES_FLAT, self::COOKIES_ARRAY))) {
             throw new \InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', array(self::COOKIES_FLAT, self::COOKIES_ARRAY))));
         }
 
@@ -267,7 +267,7 @@ class ResponseHeaderBag extends HeaderBag
      */
     public function makeDisposition($disposition, $filename, $filenameFallback = '')
     {
-        if (!in_array($disposition, array(self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE))) {
+        if (!\in_array($disposition, array(self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE))) {
             throw new \InvalidArgumentException(sprintf('The disposition must be either "%s" or "%s".', self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
         }
 
@@ -290,13 +290,12 @@ class ResponseHeaderBag extends HeaderBag
             throw new \InvalidArgumentException('The filename and the fallback cannot contain the "/" and "\\" characters.');
         }
 
-        $output = sprintf('%s; filename="%s"', $disposition, str_replace('"', '\\"', $filenameFallback));
-
+        $params = array('filename' => $filenameFallback);
         if ($filename !== $filenameFallback) {
-            $output .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
+            $params['filename*'] = "utf-8''".rawurlencode($filename);
         }
 
-        return $output;
+        return $disposition.'; '.HeaderUtils::toString($params, ';');
     }
 
     /**

@@ -11,9 +11,9 @@
 
 namespace Symfony\Component\HttpKernel\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Fragment\FragmentRendererInterface;
@@ -28,11 +28,7 @@ class FragmentRendererPass implements CompilerPassInterface
     private $handlerService;
     private $rendererTag;
 
-    /**
-     * @param string $handlerService Service name of the fragment handler in the container
-     * @param string $rendererTag    Tag name used for fragments
-     */
-    public function __construct($handlerService = 'fragment.handler', $rendererTag = 'kernel.fragment_renderer')
+    public function __construct(string $handlerService = 'fragment.handler', string $rendererTag = 'kernel.fragment_renderer')
     {
         $this->handlerService = $handlerService;
         $this->rendererTag = $rendererTag;

@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -233,6 +233,61 @@ body {
   background: #cfd2d4;
 }
 
+#switchuser {
+  background: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  padding: 10px;
+  color: white;
+  text-align: center;
+  bottom: 0;
+  left: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  border-right: 2px solid rgba(255, 255, 255, 0.15);
+  -webkit-box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 0 9px 0 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+#switchuser img {
+  width: 50px;
+  margin-bottom: 5px;
+  border-radius: 50%;
+}
+
+#switchuser .btn {
+  font-size: 13px;
+  color: white;
+  text-decoration: none;
+  margin-left: -10px;
+  margin-right: -10px;
+  margin-bottom: -10px;
+  margin-top: 8px;
+  border-radius: 0;
+  width: calc(100% + 22px);
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-transition: all .35s ease-in-out;
+  transition: all .35s ease-in-out;
+}
+
+#switchuser .btn:hover {
+  background: #d64d55;
+}
+
 #app {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -323,7 +378,7 @@ body {
 }
 
 #app main, #app #sortable {
-  padding: 10px;
+  padding: 30px 10px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -372,6 +427,68 @@ body {
   width: 26px;
   height: 26px;
   margin-top: 12px;
+}
+
+.userlist {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.userlist .user {
+  background: rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 15px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin: 20px;
+  color: white;
+  text-decoration: none;
+  border-radius: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.7);
+  -webkit-box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.4);
+}
+
+.userlist .user-img {
+  width: 130px;
+  height: 130px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  margin: 10px 10px 15px;
+}
+
+.userlist #password {
+  color: #2f313a;
+  width: 100%;
+  padding: 5px 10px;
+  margin: 15px -5px;
+}
+
+.userlist .btn {
+  width: 100%;
+}
+
+.userlist .forgot {
+  color: white;
+  font-size: 12px;
+  margin-top: 25px;
 }
 
 .item-container {

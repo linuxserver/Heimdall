@@ -27,12 +27,16 @@ class JsonExpression extends Expression
      */
     protected function getJsonBindingParameter($value)
     {
+        if ($value instanceof Expression) {
+            return $value->getValue();
+        }
+
         switch ($type = gettype($value)) {
             case 'boolean':
                 return $value ? 'true' : 'false';
+            case 'NULL':
             case 'integer':
             case 'double':
-                return $value;
             case 'string':
                 return '?';
             case 'object':
@@ -40,6 +44,6 @@ class JsonExpression extends Expression
                 return '?';
         }
 
-        throw new InvalidArgumentException('JSON value is of illegal type: '.$type);
+        throw new InvalidArgumentException("JSON value is of illegal type: {$type}");
     }
 }

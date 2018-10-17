@@ -11,12 +11,12 @@
 
 namespace Symfony\Component\HttpKernel\Profiler;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Profiler.
@@ -36,14 +36,11 @@ class Profiler
     private $initiallyEnabled = true;
     private $enabled = true;
 
-    /**
-     * @param bool $enable The initial enabled state
-     */
-    public function __construct(ProfilerStorageInterface $storage, LoggerInterface $logger = null, $enable = true)
+    public function __construct(ProfilerStorageInterface $storage, LoggerInterface $logger = null, bool $enable = true)
     {
         $this->storage = $storage;
         $this->logger = $logger;
-        $this->initiallyEnabled = $this->enabled = (bool) $enable;
+        $this->initiallyEnabled = $this->enabled = $enable;
     }
 
     /**
@@ -103,7 +100,7 @@ class Profiler
         }
 
         if (!($ret = $this->storage->write($profile)) && null !== $this->logger) {
-            $this->logger->warning('Unable to store the profiler information.', array('configured_storage' => get_class($this->storage)));
+            $this->logger->warning('Unable to store the profiler information.', array('configured_storage' => \get_class($this->storage)));
         }
 
         return $ret;
@@ -159,6 +156,10 @@ class Profiler
             $profile->setIp('Unknown');
         }
 
+        if ($prevToken = $response->headers->get('X-Debug-Token')) {
+            $response->headers->set('X-Previous-Debug-Token', $prevToken);
+        }
+
         $response->headers->set('X-Debug-Token', $profile->getToken());
 
         foreach ($this->collectors as $collector) {
@@ -174,10 +175,6 @@ class Profiler
     public function reset()
     {
         foreach ($this->collectors as $collector) {
-            if (!method_exists($collector, 'reset')) {
-                continue;
-            }
-
             $collector->reset();
         }
         $this->enabled = $this->initiallyEnabled;
@@ -211,10 +208,6 @@ class Profiler
      */
     public function add(DataCollectorInterface $collector)
     {
-        if (!method_exists($collector, 'reset')) {
-            @trigger_error(sprintf('Implementing "%s" without the "reset()" method is deprecated since Symfony 3.4 and will be unsupported in 4.0 for class "%s".', DataCollectorInterface::class, \get_class($collector)), E_USER_DEPRECATED);
-        }
-
         $this->collectors[$collector->getName()] = $collector;
     }
 

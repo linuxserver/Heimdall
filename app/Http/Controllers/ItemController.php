@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Item;
 use App\Setting;
+use App\User;
 use App\SupportedApps\Nzbget;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->middleware('allowed');
+    }
      /**
      * Display a listing of the resource on the dashboard.
      *
@@ -144,9 +148,12 @@ class ItemController extends Controller
         }
 
         $config = Item::checkConfig($request->input('config'));
+        $current_user = User::currentUser();
         $request->merge([
-            'description' => $config
+            'description' => $config,
+            'user_id' => $current_user->id
         ]);
+
 
         //die(print_r($request->input('config')));
         
@@ -209,8 +216,10 @@ class ItemController extends Controller
         }
         
         $config = Item::checkConfig($request->input('config'));
+        $current_user = User::currentUser();
         $request->merge([
-            'description' => $config
+            'description' => $config,
+            'user_id' => $current_user->id
         ]);
 
         $item = Item::find($id);

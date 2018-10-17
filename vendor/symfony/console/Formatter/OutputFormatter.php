@@ -50,10 +50,10 @@ class OutputFormatter implements OutputFormatterInterface
     public static function escapeTrailingBackslash($text)
     {
         if ('\\' === substr($text, -1)) {
-            $len = strlen($text);
+            $len = \strlen($text);
             $text = rtrim($text, '\\');
             $text = str_replace("\0", '', $text);
-            $text .= str_repeat("\0", $len - strlen($text));
+            $text .= str_repeat("\0", $len - \strlen($text));
         }
 
         return $text;
@@ -65,9 +65,9 @@ class OutputFormatter implements OutputFormatterInterface
      * @param bool                            $decorated Whether this formatter should actually decorate strings
      * @param OutputFormatterStyleInterface[] $styles    Array of "name => FormatterStyle" instances
      */
-    public function __construct($decorated = false, array $styles = array())
+    public function __construct(bool $decorated = false, array $styles = array())
     {
-        $this->decorated = (bool) $decorated;
+        $this->decorated = $decorated;
 
         $this->setStyle('error', new OutputFormatterStyle('white', 'red'));
         $this->setStyle('info', new OutputFormatterStyle('green'));
@@ -145,7 +145,7 @@ class OutputFormatter implements OutputFormatterInterface
 
             // add the text up to the next tag
             $output .= $this->applyCurrentStyle(substr($message, $offset, $pos - $offset));
-            $offset = $pos + strlen($text);
+            $offset = $pos + \strlen($text);
 
             // opening tag?
             if ($open = '/' != $text[1]) {
@@ -186,11 +186,9 @@ class OutputFormatter implements OutputFormatterInterface
     /**
      * Tries to create new style instance from string.
      *
-     * @param string $string
-     *
-     * @return OutputFormatterStyle|false false if string is not format string
+     * @return OutputFormatterStyle|false False if string is not format string
      */
-    private function createStyleFromString($string)
+    private function createStyleFromString(string $string)
     {
         if (isset($this->styles[$string])) {
             return $this->styles[$string];
@@ -212,13 +210,7 @@ class OutputFormatter implements OutputFormatterInterface
                 preg_match_all('([^,;]+)', $match[1], $options);
                 $options = array_shift($options);
                 foreach ($options as $option) {
-                    try {
-                        $style->setOption($option);
-                    } catch (\InvalidArgumentException $e) {
-                        @trigger_error(sprintf('Unknown style options are deprecated since Symfony 3.2 and will be removed in 4.0. Exception "%s".', $e->getMessage()), E_USER_DEPRECATED);
-
-                        return false;
-                    }
+                    $style->setOption($option);
                 }
             } else {
                 return false;
@@ -230,13 +222,9 @@ class OutputFormatter implements OutputFormatterInterface
 
     /**
      * Applies current style from stack to text, if must be applied.
-     *
-     * @param string $text Input text
-     *
-     * @return string Styled text
      */
-    private function applyCurrentStyle($text)
+    private function applyCurrentStyle(string $text): string
     {
-        return $this->isDecorated() && strlen($text) > 0 ? $this->styleStack->getCurrent()->apply($text) : $text;
+        return $this->isDecorated() && \strlen($text) > 0 ? $this->styleStack->getCurrent()->apply($text) : $text;
     }
 }

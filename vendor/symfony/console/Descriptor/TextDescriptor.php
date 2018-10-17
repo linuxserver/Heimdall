@@ -33,14 +33,14 @@ class TextDescriptor extends Descriptor
      */
     protected function describeInputArgument(InputArgument $argument, array $options = array())
     {
-        if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
+        if (null !== $argument->getDefault() && (!\is_array($argument->getDefault()) || \count($argument->getDefault()))) {
             $default = sprintf('<comment> [default: %s]</comment>', $this->formatDefaultValue($argument->getDefault()));
         } else {
             $default = '';
         }
 
         $totalWidth = isset($options['total_width']) ? $options['total_width'] : Helper::strlen($argument->getName());
-        $spacingWidth = $totalWidth - strlen($argument->getName());
+        $spacingWidth = $totalWidth - \strlen($argument->getName());
 
         $this->writeText(sprintf('  <info>%s</info>  %s%s%s',
             $argument->getName(),
@@ -56,7 +56,7 @@ class TextDescriptor extends Descriptor
      */
     protected function describeInputOption(InputOption $option, array $options = array())
     {
-        if ($option->acceptValue() && null !== $option->getDefault() && (!is_array($option->getDefault()) || count($option->getDefault()))) {
+        if ($option->acceptValue() && null !== $option->getDefault() && (!\is_array($option->getDefault()) || \count($option->getDefault()))) {
             $default = sprintf('<comment> [default: %s]</comment>', $this->formatDefaultValue($option->getDefault()));
         } else {
             $default = '';
@@ -117,7 +117,7 @@ class TextDescriptor extends Descriptor
 
             $this->writeText('<comment>Options:</comment>', $options);
             foreach ($definition->getOptions() as $option) {
-                if (strlen($option->getShortcut()) > 1) {
+                if (\strlen($option->getShortcut()) > 1) {
                     $laterOptions[] = $option;
                     continue;
                 }
@@ -140,6 +140,13 @@ class TextDescriptor extends Descriptor
         $command->getSynopsis(false);
         $command->mergeApplicationDefinition(false);
 
+        if ($description = $command->getDescription()) {
+            $this->writeText('<comment>Description:</comment>', $options);
+            $this->writeText("\n");
+            $this->writeText('  '.$description);
+            $this->writeText("\n\n");
+        }
+
         $this->writeText('<comment>Usage:</comment>', $options);
         foreach (array_merge(array($command->getSynopsis(true)), $command->getAliases(), $command->getUsages()) as $usage) {
             $this->writeText("\n");
@@ -154,7 +161,8 @@ class TextDescriptor extends Descriptor
             $this->writeText("\n");
         }
 
-        if ($help = $command->getProcessedHelp()) {
+        $help = $command->getProcessedHelp();
+        if ($help && $help !== $description) {
             $this->writeText("\n");
             $this->writeText('<comment>Help:</comment>', $options);
             $this->writeText("\n");
@@ -202,9 +210,9 @@ class TextDescriptor extends Descriptor
             }
 
             // calculate max. width based on available commands per namespace
-            $width = $this->getColumnWidth(call_user_func_array('array_merge', array_map(function ($namespace) use ($commands) {
+            $width = $this->getColumnWidth(array_merge(...array_values(array_map(function ($namespace) use ($commands) {
                 return array_intersect($namespace['commands'], array_keys($commands));
-            }, $namespaces)));
+            }, $namespaces))));
 
             if ($describedNamespace) {
                 $this->writeText(sprintf('<comment>Available commands for the "%s" namespace:</comment>', $describedNamespace), $options);
@@ -252,10 +260,8 @@ class TextDescriptor extends Descriptor
 
     /**
      * Formats command aliases to show them in the command description.
-     *
-     * @return string
      */
-    private function getCommandAliasesText(Command $command)
+    private function getCommandAliasesText(Command $command): string
     {
         $text = '';
         $aliases = $command->getAliases();
@@ -271,20 +277,18 @@ class TextDescriptor extends Descriptor
      * Formats input option/argument default value.
      *
      * @param mixed $default
-     *
-     * @return string
      */
-    private function formatDefaultValue($default)
+    private function formatDefaultValue($default): string
     {
         if (INF === $default) {
             return 'INF';
         }
 
-        if (is_string($default)) {
+        if (\is_string($default)) {
             $default = OutputFormatter::escape($default);
-        } elseif (is_array($default)) {
+        } elseif (\is_array($default)) {
             foreach ($default as $key => $value) {
-                if (is_string($value)) {
+                if (\is_string($value)) {
                     $default[$key] = OutputFormatter::escape($value);
                 }
             }
@@ -295,10 +299,8 @@ class TextDescriptor extends Descriptor
 
     /**
      * @param (Command|string)[] $commands
-     *
-     * @return int
      */
-    private function getColumnWidth(array $commands)
+    private function getColumnWidth(array $commands): int
     {
         $widths = array();
 
@@ -318,10 +320,8 @@ class TextDescriptor extends Descriptor
 
     /**
      * @param InputOption[] $options
-     *
-     * @return int
      */
-    private function calculateTotalWidthForOptions(array $options)
+    private function calculateTotalWidthForOptions(array $options): int
     {
         $totalWidth = 0;
         foreach ($options as $option) {

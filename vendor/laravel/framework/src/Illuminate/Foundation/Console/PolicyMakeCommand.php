@@ -54,13 +54,15 @@ class PolicyMakeCommand extends GeneratorCommand
      */
     protected function replaceUserNamespace($stub)
     {
-        if (! config('auth.providers.users.model')) {
+        $model = $this->userProviderModel();
+
+        if (! $model) {
             return $stub;
         }
 
         return str_replace(
             $this->rootNamespace().'User',
-            config('auth.providers.users.model'),
+            $model,
             $stub
         );
     }
@@ -90,17 +92,19 @@ class PolicyMakeCommand extends GeneratorCommand
 
         $model = class_basename(trim($model, '\\'));
 
-        $dummyUser = class_basename(config('auth.providers.users.model'));
+        $dummyUser = class_basename($this->userProviderModel());
 
-        $dummyModel = Str::camel($model) === 'user' ? 'model' : Str::camel($model);
+        $dummyModel = Str::camel($model) === 'user' ? 'model' : $model;
+
+        $stub = str_replace('DocDummyModel', Str::snake($dummyModel, ' '), $stub);
 
         $stub = str_replace('DummyModel', $model, $stub);
 
-        $stub = str_replace('dummyModel', $dummyModel, $stub);
+        $stub = str_replace('dummyModel', Str::camel($dummyModel), $stub);
 
         $stub = str_replace('DummyUser', $dummyUser, $stub);
 
-        return str_replace('dummyPluralModel', Str::plural($dummyModel), $stub);
+        return str_replace('DocDummyPluralModel', Str::snake(Str::plural($dummyModel), ' '), $stub);
     }
 
     /**
@@ -134,7 +138,7 @@ class PolicyMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'The model that the policy applies to.'],
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'The model that the policy applies to'],
         ];
     }
 }

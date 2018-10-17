@@ -454,9 +454,15 @@ static_var:
     | plain_variable '=' static_scalar                      { $$ = Stmt\StaticVar[$1, $3]; }
 ;
 
-class_statement_list:
-      class_statement_list class_statement                  { push($1, $2); }
+class_statement_list_ex:
+      class_statement_list_ex class_statement               { if ($2 !== null) { push($1, $2); } }
     | /* empty */                                           { init(); }
+;
+
+class_statement_list:
+      class_statement_list_ex
+          { makeNop($nop, $this->lookaheadStartAttributes, $this->endAttributes);
+            if ($nop !== null) { $1[] = $nop; } $$ = $1; }
 ;
 
 class_statement:
@@ -785,11 +791,9 @@ common_scalar:
     | T_FUNC_C                                              { $$ = Scalar\MagicConst\Function_[]; }
     | T_NS_C                                                { $$ = Scalar\MagicConst\Namespace_[]; }
     | T_START_HEREDOC T_ENCAPSED_AND_WHITESPACE T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            $$ = new Scalar\String_(Scalar\String_::parseDocString($1, $2, false), $attrs); }
+          { $$ = $this->parseDocString($1, $2, $3, attributes(), stackAttributes(#3), false); }
     | T_START_HEREDOC T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            $$ = new Scalar\String_('', $attrs); }
+          { $$ = $this->parseDocString($1, '', $2, attributes(), stackAttributes(#2), false); }
 ;
 
 static_scalar:
@@ -850,8 +854,7 @@ scalar:
           { $attrs = attributes(); $attrs['kind'] = Scalar\String_::KIND_DOUBLE_QUOTED;
             parseEncapsed($2, '"', true); $$ = new Scalar\Encapsed($2, $attrs); }
     | T_START_HEREDOC encaps_list T_END_HEREDOC
-          { $attrs = attributes(); setDocStringAttrs($attrs, $1);
-            parseEncapsedDoc($2, true); $$ = new Scalar\Encapsed($2, $attrs); }
+          { $$ = $this->parseDocString($1, $2, $3, attributes(), stackAttributes(#3), true); }
 ;
 
 static_array_pair_list:

@@ -11,6 +11,10 @@
 |
 */
 
+Route::get('/userselect/{user}', 'Auth\LoginController@setUser')->name('user.set');
+Route::get('/userselect', 'UserController@selectUser')->name('user.select');
+Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.autologin');
+
 Route::get('/', 'ItemController@dash')->name('dash');
 
 Route::resources([
@@ -36,6 +40,8 @@ Route::get('view/{name_view}', function ($name_view) {
     return view('supportedapps.'.$name_view);
 });
 
+Route::resource('users', 'UserController');
+
 /**
  * Settings.
  */
@@ -55,3 +61,6 @@ Route::group([
     Route::patch('edit/{id}', 'SettingsController@update');
 
 });
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

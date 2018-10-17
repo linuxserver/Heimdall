@@ -67,13 +67,9 @@ class NativeSessionStorage implements SessionStorageInterface
      * cookie_lifetime, "0"
      * cookie_path, "/"
      * cookie_secure, ""
-     * entropy_file, ""
-     * entropy_length, "0"
      * gc_divisor, "100"
      * gc_maxlifetime, "1440"
      * gc_probability, "1"
-     * hash_bits_per_character, "4"
-     * hash_function, "0"
      * lazy_write, "1"
      * name, "PHPSESSID"
      * referer_check, ""
@@ -105,6 +101,7 @@ class NativeSessionStorage implements SessionStorageInterface
             'cache_expire' => 0,
             'use_cookies' => 1,
             'lazy_write' => 1,
+            'use_strict_mode' => 1,
         );
 
         session_register_shutdown();
@@ -230,28 +227,21 @@ class NativeSessionStorage implements SessionStorageInterface
             unset($_SESSION[$key]);
         }
 
-        // Register custom error handler to catch a possible failure warning during session write
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            throw new \ErrorException($errstr, $errno, E_WARNING, $errfile, $errline);
-        }, E_WARNING);
+        // Register error handler to add information about the current save handler
+        $previousHandler = set_error_handler(function ($type, $msg, $file, $line) use (&$previousHandler) {
+            if (E_WARNING === $type && 0 === strpos($msg, 'session_write_close():')) {
+                $handler = $this->saveHandler instanceof SessionHandlerProxy ? $this->saveHandler->getHandler() : $this->saveHandler;
+                $msg = sprintf('session_write_close(): Failed to write session data with "%s" handler', \get_class($handler));
+            }
+
+            return $previousHandler ? $previousHandler($type, $msg, $file, $line) : false;
+        });
 
         try {
-            $e = null;
             session_write_close();
-        } catch (\ErrorException $e) {
         } finally {
             restore_error_handler();
             $_SESSION = $session;
-        }
-        if (null !== $e) {
-            // The default PHP error message is not very helpful, as it does not give any information on the current save handler.
-            // Therefore, we catch this error and trigger a warning with a better error message
-            $handler = $this->getSaveHandler();
-            if ($handler instanceof SessionHandlerProxy) {
-                $handler = $handler->getHandler();
-            }
-
-            trigger_error(sprintf('session_write_close(): Failed to write session data with %s handler', get_class($handler)), E_USER_WARNING);
         }
 
         $this->closed = true;
@@ -351,9 +341,8 @@ class NativeSessionStorage implements SessionStorageInterface
         $validOptions = array_flip(array(
             'cache_expire', 'cache_limiter', 'cookie_domain', 'cookie_httponly',
             'cookie_lifetime', 'cookie_path', 'cookie_secure',
-            'entropy_file', 'entropy_length', 'gc_divisor',
-            'gc_maxlifetime', 'gc_probability', 'hash_bits_per_character',
-            'hash_function', 'lazy_write', 'name', 'referer_check',
+            'gc_divisor', 'gc_maxlifetime', 'gc_probability',
+            'lazy_write', 'name', 'referer_check',
             'serialize_handler', 'use_strict_mode', 'use_cookies',
             'use_only_cookies', 'use_trans_sid', 'upload_progress.enabled',
             'upload_progress.cleanup', 'upload_progress.prefix', 'upload_progress.name',
@@ -411,8 +400,6 @@ class NativeSessionStorage implements SessionStorageInterface
         }
 
         if ($this->saveHandler instanceof SessionHandlerProxy) {
-            session_set_save_handler($this->saveHandler->getHandler(), false);
-        } elseif ($this->saveHandler instanceof \SessionHandlerInterface) {
             session_set_save_handler($this->saveHandler, false);
         }
     }

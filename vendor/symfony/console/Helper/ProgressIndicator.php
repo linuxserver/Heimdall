@@ -39,7 +39,7 @@ class ProgressIndicator
      * @param int             $indicatorChangeInterval Change interval in milliseconds
      * @param array|null      $indicatorValues         Animated indicator characters
      */
-    public function __construct(OutputInterface $output, $format = null, $indicatorChangeInterval = 100, $indicatorValues = null)
+    public function __construct(OutputInterface $output, string $format = null, int $indicatorChangeInterval = 100, array $indicatorValues = null)
     {
         $this->output = $output;
 
@@ -53,7 +53,7 @@ class ProgressIndicator
 
         $indicatorValues = array_values($indicatorValues);
 
-        if (2 > count($indicatorValues)) {
+        if (2 > \count($indicatorValues)) {
             throw new InvalidArgumentException('Must have at least 2 indicator value characters.');
         }
 
@@ -196,7 +196,7 @@ class ProgressIndicator
 
         $this->overwrite(preg_replace_callback("{%([a-z\-_]+)(?:\:([^%]+))?%}i", function ($matches) use ($self) {
             if ($formatter = $self::getPlaceholderFormatterDefinition($matches[1])) {
-                return call_user_func($formatter, $self);
+                return \call_user_func($formatter, $self);
             }
 
             return $matches[0];
@@ -219,10 +219,8 @@ class ProgressIndicator
 
     /**
      * Overwrites a previous message to the output.
-     *
-     * @param string $message The message
      */
-    private function overwrite($message)
+    private function overwrite(string $message)
     {
         if ($this->output->isDecorated()) {
             $this->output->write("\x0D\x1B[2K");
@@ -241,7 +239,7 @@ class ProgressIndicator
     {
         return array(
             'indicator' => function (ProgressIndicator $indicator) {
-                return $indicator->indicatorValues[$indicator->indicatorCurrent % count($indicator->indicatorValues)];
+                return $indicator->indicatorValues[$indicator->indicatorCurrent % \count($indicator->indicatorValues)];
             },
             'message' => function (ProgressIndicator $indicator) {
                 return $indicator->message;

@@ -47,7 +47,7 @@ class MemcachedConnector
     {
         $memcached = $this->createMemcachedInstance($connectionId);
 
-        if (count($credentials) == 2) {
+        if (count($credentials) === 2) {
             $this->setCredentials($memcached, $credentials);
         }
 
@@ -78,7 +78,7 @@ class MemcachedConnector
      */
     protected function setCredentials($memcached, $credentials)
     {
-        list($username, $password) = $credentials;
+        [$username, $password] = $credentials;
 
         $memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
 

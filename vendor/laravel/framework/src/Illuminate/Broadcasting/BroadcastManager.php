@@ -65,7 +65,10 @@ class BroadcastManager implements FactoryContract
         $attributes = $attributes ?: ['middleware' => ['web']];
 
         $this->app['router']->group($attributes, function ($router) {
-            $router->post('/broadcasting/auth', '\\'.BroadcastController::class.'@authenticate');
+            $router->match(
+                ['get', 'post'], '/broadcasting/auth',
+                '\\'.BroadcastController::class.'@authenticate'
+            );
         });
     }
 
@@ -140,7 +143,7 @@ class BroadcastManager implements FactoryContract
     /**
      * Get a driver instance.
      *
-     * @param  string  $name
+     * @param  string|null  $name
      * @return mixed
      */
     public function driver($name = null)
@@ -209,10 +212,16 @@ class BroadcastManager implements FactoryContract
      */
     protected function createPusherDriver(array $config)
     {
-        return new PusherBroadcaster(
-            new Pusher($config['key'], $config['secret'],
-            $config['app_id'], $config['options'] ?? [])
+        $pusher = new Pusher(
+            $config['key'], $config['secret'],
+            $config['app_id'], $config['options'] ?? []
         );
+
+        if ($config['log'] ?? false) {
+            $pusher->setLogger($this->app->make(LoggerInterface::class));
+        }
+
+        return new PusherBroadcaster($pusher);
     }
 
     /**

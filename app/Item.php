@@ -5,15 +5,26 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Builder;
+use App\User;
 
 class Item extends Model
 {
     use SoftDeletes;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('user_id', function (Builder $builder) {
+            $current_user = User::currentUser();
+            $builder->where('user_id', $current_user->id);
+        });
+    }
+
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'user_id'
     ];
 
     /**
@@ -50,6 +61,7 @@ class Item extends Model
             'Krusader' => \App\SupportedApps\Krusader::class,
             'LibreNMS' => \App\SupportedApps\LibreNMS::class,
             'Lidarr' => \App\SupportedApps\Lidarr::class,
+            'Mailcow' => \App\SupportedApps\Mailcow::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
             'Monica' => \App\SupportedApps\Monica::class,
@@ -87,7 +99,9 @@ class Item extends Model
             'pfSense' => \App\SupportedApps\Pfsense::class,
             'pyLoad' => \App\SupportedApps\pyLoad::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
+            'Virtualmin' => \App\SupportedApps\Virtualmin::class,
             'Watcher3' => \App\SupportedApps\Watcher3::class,
+            'Webmin' => \App\SupportedApps\Webmin::class,
             'WebTools' => \App\SupportedApps\WebTools::class,
         ];
     }
@@ -217,6 +231,14 @@ class Item extends Model
 
         return $query->where('type', $typeid);
     }
+
+    /**
+     * Get the user that owns the item.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }   
 
 
 }

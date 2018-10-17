@@ -745,6 +745,11 @@ class Mock implements MockInterface
         return $director;
     }
 
+    public function shouldHaveBeenCalled()
+    {
+        return $this->shouldHaveReceived("__invoke");
+    }
+
     public function shouldNotHaveReceived($method = null, $args = null)
     {
         if ($method === null) {
@@ -760,6 +765,11 @@ class Mock implements MockInterface
         $this->_mockery_expectations_count++;
         $director->verify();
         return null;
+    }
+
+    public function shouldNotHaveBeenCalled(array $args = null)
+    {
+        return $this->shouldNotHaveReceived("__invoke", $args);
     }
 
     protected static function _mockery_handleStaticMethodCall($method, array $args)
@@ -780,6 +790,20 @@ class Mock implements MockInterface
     protected function _mockery_getReceivedMethodCalls()
     {
         return $this->_mockery_receivedMethodCalls ?: $this->_mockery_receivedMethodCalls = new \Mockery\ReceivedMethodCalls();
+    }
+
+    /**
+     * Called when an instance Mock was created and its constructor is getting called
+     *
+     * @see \Mockery\Generator\StringManipulation\Pass\InstanceMockPass
+     * @param array $args
+     */
+    protected function _mockery_constructorCalled(array $args)
+    {
+        if (!isset($this->_mockery_expectations['__construct']) /* _mockery_handleMethodCall runs the other checks */) {
+            return;
+        }
+        $this->_mockery_handleMethodCall('__construct', $args);
     }
 
     protected function _mockery_findExpectedMethodHandler($method)

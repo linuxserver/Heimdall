@@ -11,9 +11,9 @@
 
 namespace Symfony\Component\HttpKernel\Fragment;
 
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ControllerReference;
 
 /**
@@ -37,7 +37,7 @@ class FragmentHandler
      * @param FragmentRendererInterface[] $renderers    An array of FragmentRendererInterface instances
      * @param bool                        $debug        Whether the debug mode is enabled or not
      */
-    public function __construct(RequestStack $requestStack, array $renderers = array(), $debug = false)
+    public function __construct(RequestStack $requestStack, array $renderers = array(), bool $debug = false)
     {
         $this->requestStack = $requestStack;
         foreach ($renderers as $renderer) {

@@ -2,7 +2,7 @@
     "name": "vlucas/phpdotenv",
     "description": "Loads environment variables from `.env` to `getenv()`, `$_ENV` and `$_SERVER` automagically.",
     "keywords": ["env", "dotenv", "environment"],
-    "license" : "BSD-3-Clause-Attribution",
+    "license" : "BSD-3-Clause",
     "authors" : [
         {
             "name": "Vance Lucas",
@@ -14,7 +14,7 @@
         "php": ">=5.3.9"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8 || ^5.0"
+        "phpunit/phpunit": "^4.8.35 || ^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -23,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.4-dev"
+            "dev-master": "2.5-dev"
         }
     }
 }

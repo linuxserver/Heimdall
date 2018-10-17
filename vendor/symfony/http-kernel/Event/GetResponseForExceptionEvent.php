@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\Event;
 
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * Allows to create a response for a thrown exception.
@@ -41,7 +41,7 @@ class GetResponseForExceptionEvent extends GetResponseEvent
      */
     private $allowCustomResponseCode = false;
 
-    public function __construct(HttpKernelInterface $kernel, Request $request, $requestType, \Exception $e)
+    public function __construct(HttpKernelInterface $kernel, Request $request, int $requestType, \Exception $e)
     {
         parent::__construct($kernel, $request, $requestType);
 

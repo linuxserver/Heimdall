@@ -4,6 +4,7 @@ namespace Illuminate\Console\Scheduling;
 
 use Closure;
 use Cron\CronExpression;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use GuzzleHttp\Client as HttpClient;
 use Illuminate\Contracts\Mail\Mailer;
@@ -27,7 +28,7 @@ class Event
      *
      * @var string
      */
-    public $expression = '* * * * * *';
+    public $expression = '* * * * *';
 
     /**
      * The timezone the date should be evaluated on.
@@ -63,6 +64,13 @@ class Event
      * @var bool
      */
     public $withoutOverlapping = false;
+
+    /**
+     * Indicates if the command should only be allowed to run on one server for each cron expression.
+     *
+     * @var bool
+     */
+    public $onOneServer = false;
 
     /**
      * The amount of time the mutex should be valid.
@@ -128,20 +136,20 @@ class Event
     public $description;
 
     /**
-     * The mutex implementation.
+     * The event mutex implementation.
      *
-     * @var \Illuminate\Console\Scheduling\Mutex
+     * @var \Illuminate\Console\Scheduling\EventMutex
      */
     public $mutex;
 
     /**
      * Create a new event instance.
      *
-     * @param  \Illuminate\Console\Scheduling\Mutex  $mutex
+     * @param  \Illuminate\Console\Scheduling\EventMutex  $mutex
      * @param  string  $command
      * @return void
      */
-    public function __construct(Mutex $mutex, $command)
+    public function __construct(EventMutex $mutex, $command)
     {
         $this->mutex = $mutex;
         $this->command = $command;
@@ -331,6 +339,18 @@ class Event
     }
 
     /**
+     * Ensure that the output is stored on disk in a log file.
+     *
+     * @return $this
+     */
+    public function storeOutput()
+    {
+        $this->ensureOutputIsBeingCaptured();
+
+        return $this;
+    }
+
+    /**
      * Send the output of the command to a given location.
      *
      * @param  string  $location
@@ -370,7 +390,7 @@ class Event
     {
         $this->ensureOutputIsBeingCapturedForEmail();
 
-        $addresses = is_array($addresses) ? $addresses : [$addresses];
+        $addresses = Arr::wrap($addresses);
 
         return $this->then(function (Mailer $mailer) use ($addresses, $onlyIfOutputExists) {
             $this->emailOutput($mailer, $addresses, $onlyIfOutputExists);
@@ -394,8 +414,20 @@ class Event
      * Ensure that output is being captured for email.
      *
      * @return void
+     *
+     * @deprecated See ensureOutputIsBeingCaptured.
      */
     protected function ensureOutputIsBeingCapturedForEmail()
+    {
+        $this->ensureOutputIsBeingCaptured();
+    }
+
+    /**
+     * Ensure that the command output is being captured.
+     *
+     * @return void
+     */
+    protected function ensureOutputIsBeingCaptured()
     {
         if (is_null($this->output) || $this->output == $this->getDefaultOutput()) {
             $this->sendOutputTo(storage_path('logs/schedule-'.sha1($this->mutexName()).'.log'));
@@ -451,6 +483,18 @@ class Event
     }
 
     /**
+     * Register a callback to ping a given URL before the job runs if the given condition is true.
+     *
+     * @param  bool  $value
+     * @param  string  $url
+     * @return $this
+     */
+    public function pingBeforeIf($value, $url)
+    {
+        return $value ? $this->pingBefore($url) : $this;
+    }
+
+    /**
      * Register a callback to ping a given URL after the job runs.
      *
      * @param  string  $url
@@ -461,6 +505,18 @@ class Event
         return $this->then(function () use ($url) {
             (new HttpClient)->get($url);
         });
+    }
+
+    /**
+     * Register a callback to ping a given URL after the job runs if the given condition is true.
+     *
+     * @param  bool  $value
+     * @param  string  $url
+     * @return $this
+     */
+    public function thenPingIf($value, $url)
+    {
+        return $value ? $this->thenPing($url) : $this;
     }
 
     /**
@@ -530,6 +586,18 @@ class Event
         })->skip(function () {
             return $this->mutex->exists($this);
         });
+    }
+
+    /**
+     * Allow the event to only run on one server for each cron expression.
+     *
+     * @return $this
+     */
+    public function onOneServer()
+    {
+        $this->onOneServer = true;
+
+        return $this;
     }
 
     /**
@@ -649,7 +717,7 @@ class Event
     {
         return Carbon::instance(CronExpression::factory(
             $this->getExpression()
-        )->getNextRunDate($currentTime, $nth, $allowCurrentDate));
+        )->getNextRunDate($currentTime, $nth, $allowCurrentDate, $this->timezone));
     }
 
     /**
@@ -663,12 +731,12 @@ class Event
     }
 
     /**
-     * Set the mutex implementation to be used.
+     * Set the event mutex implementation to be used.
      *
-     * @param  \Illuminate\Console\Scheduling\Mutex  $mutex
+     * @param  \Illuminate\Console\Scheduling\EventMutex  $mutex
      * @return $this
      */
-    public function preventOverlapsUsing(Mutex $mutex)
+    public function preventOverlapsUsing(EventMutex $mutex)
     {
         $this->mutex = $mutex;
 

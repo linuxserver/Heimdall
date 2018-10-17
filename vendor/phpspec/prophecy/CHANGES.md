@@ -1,7 +1,26 @@
-1.7.5 / 2018/04/18
+1.8.0 / 2018/08/05
+==================
+
+* Support for void return types without explicit will (@crellbar)
+* Clearer error message for unexpected method calls (@meridius)
+* Clearer error message for aggregate exceptions (@meridius)
+* More verbose `shouldBeCalledOnce` expectation (@olvlvl)
+* Ability to double Throwable, or methods that extend it (@ciaranmcnulty)
+* [fixed] Doubling methods where class has additional arguments to interface (@webimpress)
+* [fixed] Doubling methods where arguments are nullable but default is not null (@webimpress)
+* [fixed] Doubling magic methods on parent class (@dsnopek)
+* [fixed] Check method predictions only once (@dontub)
+* [fixed] Argument::containingString throwing error when called with non-string (@dcabrejas)
+
+1.7.6 / 2018/04/18
 ==================
 
 * Allow sebastian/comparator ^3.0 (@sebastianbergmann)
+
+1.7.5 / 2018/02/11
+==================
+
+* Support for object return type hints (thanks @greg0ire)
 
 1.7.4 / 2018/02/11
 ==================

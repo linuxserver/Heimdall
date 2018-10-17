@@ -15,7 +15,7 @@ class TrustedProxyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $source = realpath(__DIR__.'/../config/trustedproxy.php');
+        $source = realpath($raw = __DIR__.'/../config/trustedproxy.php') ?: $raw;
 
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('trustedproxy.php')]);
@@ -23,7 +23,10 @@ class TrustedProxyServiceProvider extends ServiceProvider
             $this->app->configure('trustedproxy');
         }
 
-        $this->mergeConfigFrom($source, 'trustedproxy');
+
+        if ($this->app instanceof LaravelApplication && ! $this->app->configurationIsCached()) {
+            $this->mergeConfigFrom($source, 'trustedproxy');
+        }
     }
 
     /**

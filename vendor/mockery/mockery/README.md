@@ -25,8 +25,6 @@ version
 composer require --dev mockery/mockery
 ```
 
-⚠️️ The remainder of this README refers specifically to the master branch (1.0-dev).
-
 ## Documentation
 
 In older versions, this README file was the documentation for Mockery. Over time
@@ -237,7 +235,7 @@ $spy->shouldHaveReceived()
 
 All of the global helpers are wrapped in a `!function_exists` call to avoid
 conflicts. So if you already have a global function called `spy`, Mockery will
-silently skip the declaring it's own `spy` function.
+silently skip the declaring its own `spy` function.
 
 ### Testing Traits
 
@@ -258,6 +256,21 @@ trait Foo {
 $double = Mockery::mock(Foo::class);
 $double->allows()->doFoo()->andReturns(123);
 $double->foo(); // int(123)
+```
+
+### Testing the constructor arguments of hard Dependencies
+
+See [Mocking hard dependencies](http://docs.mockery.io/en/latest/cookbook/mocking_hard_dependencies.html)
+
+``` php
+$implementationMock = Mockery::mock('overload:\Some\Implementation');
+
+$implementationMock->shouldReceive('__construct')
+    ->once()
+    ->with(['host' => 'localhost]);
+// add other expectations as usual
+
+$implementation = new \Some\Implementation(['host' => 'localhost']);
 ```
 
 ## Versioning

@@ -79,7 +79,7 @@ class AppNameCommand extends Command
 
         $this->composer->dumpAutoloads();
 
-        $this->call('clear-compiled');
+        $this->call('optimize:clear');
     }
 
     /**
@@ -290,7 +290,7 @@ class AppNameCommand extends Command
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The desired namespace.'],
+            ['name', InputArgument::REQUIRED, 'The desired namespace'],
         ];
     }
 }

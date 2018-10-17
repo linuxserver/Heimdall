@@ -22,9 +22,9 @@ class RedisServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('redis', function ($app) {
-            $config = $app->make('config')->get('database.redis');
+            $config = $app->make('config')->get('database.redis', []);
 
-            return new RedisManager(Arr::pull($config, 'client', 'predis'), $config);
+            return new RedisManager($app, Arr::pull($config, 'client', 'predis'), $config);
         });
 
         $this->app->bind('redis.connection', function ($app) {

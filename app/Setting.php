@@ -5,6 +5,8 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Input;
 use Form;
+use Illuminate\Support\Facades\Auth;
+use App\User;
 
 class Setting extends Model
 {
@@ -46,6 +48,12 @@ class Setting extends Model
 
     public function getListValueAttribute()
     {
+        if((bool)$this->system === true) {
+            $value = self::_fetch($this->key);
+        } else {
+            $value = self::fetch($this->key);
+        }
+        $this->value = $value;
         switch($this->type) {
             case 'image':
                 if(!empty($this->value)) {
@@ -80,6 +88,12 @@ class Setting extends Model
 
     public function getEditValueAttribute()
     {
+        if((bool)$this->system === true) {
+            $value = self::_fetch($this->key);
+        } else {
+            $value = self::fetch($this->key);
+        }
+        $this->value = $value;
         switch($this->type) {
             case 'image':
                 $value = '';
@@ -125,6 +139,7 @@ class Setting extends Model
         return $this->belongsTo('App\SettingGroup', 'group_id');
     }
 
+
     /**
      * @param string $key
      *
@@ -132,20 +147,54 @@ class Setting extends Model
      */
     public static function fetch($key)
     {
-        if (Setting::cached($key)) {
-            return Setting::$cache[$key];
-        } else {
+        $user = self::user();
+        return self::_fetch($key, $user);
+    }
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public static function _fetch($key, $user=null)
+    {
+        #$cachekey = ($user === null) ? $key : $key.'-'.$user->id;
+        #if (Setting::cached($cachekey)) {
+        #    return Setting::$cache[$cachekey];
+        #} else {
             $find = self::where('key', '=', $key)->first();
 
             if (!is_null($find)) {
-                $value = $find->value;
-                Setting::add($key, $value);
+                if((bool)$find->system === true) { // if system variable use global value
+                    $value = $find->value;
+                } else { // not system variable so use user specific value
+                    // check if user specified value has been set
+                    //print_r($user);
+                    $usersetting = $user->settings()->where('id', $find->id)->first();
+                    //print_r($user->settings);
+                    //die(var_dump($usersetting));
+                    //->pivot->value;
+                    //echo "user: ".$user->id." --- ".$usersettings;
+                    if(isset($usersetting) && !empty($usersetting)) {
+                        $value = $usersetting->pivot->uservalue;
+                    } else { // if not get default from base setting
+                        //$user->settings()->save($find, ['value' => $find->value]);
+                        #$has_setting = $user->settings()->where('id', $find->id)->exists();
+                        #if($has_setting) {
+                        #    $user->settings()->updateExistingPivot($find->id, ['uservalue' => (string)$find->value]);
+                        #} else {
+                        #    $user->settings()->save($find, ['uservalue' => (string)$find->value]);
+                        #}
+                        $value = $find->value;
+                    }
+                    
+                }
+                #Setting::add($cachekey, $value);
 
                 return $value;
             } else {
                 return false;
             }
-        }
+        #}
     }
 
     /**
@@ -175,21 +224,23 @@ class Setting extends Model
         $output = '';
         $homepage_search = self::fetch('homepage_search');
         $search_provider = self::where('key', '=', 'search_provider')->first();
-        
-        //die(var_dump($search_provider->value));
+        $user_search_provider = self::fetch('search_provider');
+        //die(print_r($search_provider));
+       
+        //die(var_dump($user_search_provider));
         // return early if search isn't applicable
         if((bool)$homepage_search !== true) return $output;
-        if($search_provider->value === 'none') return $output;
-        if(empty($search_provider->value)) return $output;
-        if(is_null($search_provider->value)) return $output;
+        if($user_search_provider === 'none') return $output;
+        if(empty($user_search_provider)) return $output;
+        if(is_null($user_search_provider)) return $output;
 
 
         if((bool)$homepage_search && (bool)$search_provider) {
 
             $options = (array)json_decode($search_provider->options);
-            $name = $options[$search_provider->value];
-            if((bool)$search_provider->value) {
-                switch($search_provider->value) {
+            $name = $options[$user_search_provider];
+            if((bool)$user_search_provider) {
+                switch($user_search_provider) {
                     case 'google':
                         $url = 'https://www.google.com/search';
                         $var = 'q';
@@ -218,4 +269,19 @@ class Setting extends Model
         }
         return $output;
     }
+
+    /**
+     * The users that belong to the setting.
+     */
+    public function users()
+    {
+        return $this->belongsToMany('App\User')->using('App\SettingUser')->withPivot('uservalue');
+    }
+
+    public static function user()
+    {
+        return User::currentUser();
+    }
+
+
 }
