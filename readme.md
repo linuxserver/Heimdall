@@ -61,6 +61,7 @@ Supported applications are recognized by the title of the application as entered
 - Krusader
 - LibreNMS
 - Lidarr
+- Mailcow
 - McMyAdmin
 - Medusa
 - Monica
@@ -88,7 +89,9 @@ Supported applications are recognized by the title of the application as entered
 - rTorrent/Flood
 - rTorrent/ruTorrent
 - Syncthing
+- Virtualmin
 - Watcher3
+- Webmin
 - WebTools
 
 ## Installing

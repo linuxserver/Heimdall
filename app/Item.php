@@ -61,6 +61,7 @@ class Item extends Model
             'Krusader' => \App\SupportedApps\Krusader::class,
             'LibreNMS' => \App\SupportedApps\LibreNMS::class,
             'Lidarr' => \App\SupportedApps\Lidarr::class,
+            'Mailcow' => \App\SupportedApps\Mailcow::class,
             'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
             'Medusa' => \App\SupportedApps\Medusa::class,
             'Monica' => \App\SupportedApps\Monica::class,
@@ -98,7 +99,9 @@ class Item extends Model
             'pfSense' => \App\SupportedApps\Pfsense::class,
             'pyLoad' => \App\SupportedApps\pyLoad::class,
             'ruTorrent' => \App\SupportedApps\ruTorrent::class,
+            'Virtualmin' => \App\SupportedApps\Virtualmin::class,
             'Watcher3' => \App\SupportedApps\Watcher3::class,
+            'Webmin' => \App\SupportedApps\Webmin::class,
             'WebTools' => \App\SupportedApps\WebTools::class,
         ];
     }
