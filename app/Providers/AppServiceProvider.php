@@ -53,6 +53,25 @@ class AppServiceProvider extends ServiceProvider
         // User specific settings need to go here as session isn't available at this point in the app
         view()->composer('*', function ($view) 
         {
+
+            if(isset($_SERVER['HTTP_AUTHORIZATION']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+                list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
+                explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+            }
+            if(!\Auth::check()) {
+                if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+                    $credentials = ['username' => $_SERVER['PHP_AUTH_USER'], 'password' => $_SERVER['PHP_AUTH_PW']];
+                    
+                    if (\Auth::attempt($credentials)) {
+                        // Authentication passed...
+                        $user = \Auth::user();
+                        //\Session::put('current_user', $user);
+                        session(['current_user' => $user]);                
+                    }
+                }
+            }
+
+
             $alt_bg = '';
             if($bg_image = Setting::fetch('background_image')) {
                 $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
@@ -67,22 +86,6 @@ class AppServiceProvider extends ServiceProvider
             $view->with('allusers', $allusers );    
             $view->with('current_user', $current_user );   
 
-            if(isset($_SERVER['HTTP_AUTHORIZATION']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
-                list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
-                explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
-            }
-            if(!\Auth::check()) {
-                if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
-                    $credentials = ['username' => $_SERVER['PHP_AUTH_USER'], 'password' => $_SERVER['PHP_AUTH_PW']];
-                    
-                    if (\Auth::attempt($credentials)) {
-                        // Authentication passed...
-                        $user = \Auth::user();
-                        \Session::put('current_user', $user);
-                        //session(['current_user' => $user]);                
-                    }
-                }
-            }
     
             
             
