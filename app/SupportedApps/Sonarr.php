@@ -41,7 +41,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $wanted = json_decode($wantedRes->getBody());
         $queue = json_decode($queueRes->getBody());
         $wantedCount = $wanted->totalRecords;
-        $queueCount = $queue->totalRecords;
+        $queueCount = sizeof($queue);
         $html = '
         <ul class="livestats">
             <li><span class="title">Wanted: '.$wantedCount[1].'</span></li>
