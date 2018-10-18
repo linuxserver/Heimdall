@@ -1,0 +1,43 @@
+{
+    "name": "php-http/client-common",
+    "description": "Common HTTP Client implementations and tools for HTTPlug",
+    "license": "MIT",
+    "keywords": ["http", "client", "httplug", "common"],
+    "homepage": "http://httplug.io",
+    "authors": [
+        {
+            "name": "Márk Sági-Kazár",
+            "email": "mark.sagikazar@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.4 || ^7.0",
+        "php-http/httplug": "^1.1",
+        "php-http/message-factory": "^1.0",
+        "php-http/message": "^1.6",
+        "symfony/options-resolver": "^2.6 || ^3.0 || ^4.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.5 || ^3.4 || ^4.2",
+        "guzzlehttp/psr7": "^1.4"
+    },
+    "suggest": {
+        "php-http/logger-plugin": "PSR-3 Logger plugin",
+        "php-http/cache-plugin": "PSR-6 Cache plugin",
+        "php-http/stopwatch-plugin": "Symfony Stopwatch plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\Client\\Common\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpspec run",
+        "test-ci": "vendor/bin/phpspec run -c phpspec.ci.yml"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.8-dev"
+        }
+    }
+}

@@ -1,0 +1,49 @@
+{
+    "name": "knplabs/github-api",
+    "type": "library",
+    "description": "GitHub API v3 client",
+    "homepage": "https://github.com/KnpLabs/php-github-api",
+    "keywords": ["github", "gh", "api", "gist"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "KnpLabs Team",
+            "homepage": "http://knplabs.com"
+        },
+        {
+            "name": "Thibault Duplessis",
+            "email": "thibault.duplessis@gmail.com",
+            "homepage": "http://ornicar.github.com"
+        }
+    ],
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "psr/http-message": "^1.0",
+        "psr/cache": "^1.0",
+        "php-http/httplug": "^1.1",
+        "php-http/discovery": "^1.0",
+        "php-http/client-implementation": "^1.0",
+        "php-http/client-common": "^1.6",
+        "php-http/cache-plugin": "^1.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.5 || ^6.0",
+        "php-http/guzzle6-adapter": "^1.0",
+        "php-http/mock-client": "^1.0",
+        "guzzlehttp/psr7": "^1.2",
+        "cache/array-adapter": "^0.4"
+    },
+    "autoload": {
+        "psr-4": { "Github\\": "lib/Github/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Github\\Tests\\": "test/Github/Tests/"}
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.10.x-dev"
+        }
+    }
+}

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Application;
 use App\Item;
 use App\Setting;
 use App\User;
-use App\SupportedApps\Nzbget;
+use GrahamCampbell\GitHub\Facades\GitHub;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
@@ -41,9 +42,8 @@ class ItemController extends Controller
             $item->save();
         }
     }
-    
 
-     /**
+    /**
      * Pin item on the dashboard.
      *
      * @return \Illuminate\Http\Response
@@ -337,6 +337,26 @@ class ItemController extends Controller
         }
         
     }
+
+
+    public function checkAppList()
+    {
+        $localapps = Application::all()->pluck('name');
+        $allapps = GitHub::connection('none')->repo()->contents()->show('linuxserver', 'Heimdall-Apps');
+        $applist = collect($allapps)->pluck('name');
+        $diff = $applist->diff($localapps);
+
+        print_r($diff->all());
+        foreach($allapps as $app) {
+
+        }
+        $files = GitHub::connection('none')->gitData()->trees()->show('linuxserver', 'Heimdall-Apps', 'eaf3659bbbc25e41501f3c540fcc7fe5da3e45c2');
+        print_r($localapps);
+        //print_r($appcheck);
+    }
+
+    
+    
 
     
 }

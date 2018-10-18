@@ -16,11 +16,14 @@ Route::get('/userselect', 'UserController@selectUser')->name('user.select');
 Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.autologin');
 
 Route::get('/', 'ItemController@dash')->name('dash');
+Route::get('check_app_list', 'ItemController@checkAppList')->name('applist');
 
 Route::resources([
     'items' => 'ItemController',
     'tags' => 'TagController',
 ]);
+
+
 
 Route::get('tag/{slug}', 'TagController@show')->name('tags.show');
 Route::get('tag/add/{tag}/{item}', 'TagController@add')->name('tags.add');

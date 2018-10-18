@@ -7,10 +7,12 @@
     "require": {
         "php": ">=7.0.0",
         "fideloper/proxy": "^4.0",
+        "graham-campbell/github": "^7.5",
         "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "~1.0",
-        "laravelcollective/html": "^5.5"
+        "laravelcollective/html": "^5.5",
+        "php-http/guzzle6-adapter": "^1.1"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
