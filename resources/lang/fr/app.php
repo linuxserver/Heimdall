@@ -21,7 +21,7 @@ return array (
   'settings.search' => 'Chercher',
   'settings.no_items' => 'Aucun élement trouvé',
   
-  'settings.label' => 'Étiquette',
+  'settings.label' => 'Paramètres',
   'settings.value' => 'Valeur',
   'settings.edit' => 'Modifier',
   'settings.view' => 'Vue',
