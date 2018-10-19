@@ -94,7 +94,6 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $url = rtrim($url, '/');
         $api_url = $url.'/api/queue?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        $queue = $client->request('GET', $api_url));
         $res = $client->request('GET', $api_url);
         echo $res;
         $queue = sizeof($res);
