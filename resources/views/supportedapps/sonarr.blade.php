@@ -7,8 +7,8 @@
         {!! Form::text('config[override_url]', null, array('placeholder' => __('app.apps.override'), 'id' => 'override_url', 'class' => 'form-control')) !!}
     </div>
     <div class="input">
-        <label>{{ __('app.apps.apiKey') }}</label>
-        {!! Form::text('config[apiKey]', null, array('placeholder' => __('app.apps.apiKey'), 'data-config' => 'apiKey', 'class' => 'form-control config-item')) !!}
+        <label>{{ __('app.apps.apikey') }}</label>
+        {!! Form::text('config[apiKey]', null, array('placeholder' => __('app.apps.apikey'), 'data-config' => 'apiKey', 'class' => 'form-control config-item')) !!}
     </div>
     <div class="input">
         <label>{{ __('app.apps.enable') }}</label>
