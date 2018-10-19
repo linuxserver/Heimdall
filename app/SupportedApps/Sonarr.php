@@ -76,8 +76,10 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $url = rtrim($url, '/');
         $api_url = $url.'/api/wanted/missing?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        $res = json_decode($client->request('GET', $api_url));
-        $missing = $res->totalRecords;
+        $res = $client->request('GET', $api_url);
+        echo $res;
+        $json = json_decode($res);
+        $missing = $json->totalRecords;
         if (empty($missing))
         {
             $missing = 0;
@@ -92,7 +94,10 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $url = rtrim($url, '/');
         $api_url = $url.'/api/queue?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        $queue = sizeof($client->request('GET', $api_url));
+        $queue = $client->request('GET', $api_url));
+        $res = $client->request('GET', $api_url);
+        echo $res;
+        $queue = sizeof($res);
         return $queue;
     }
 }
