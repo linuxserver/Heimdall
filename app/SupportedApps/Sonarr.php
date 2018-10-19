@@ -4,8 +4,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
 class Sonarr implements Contracts\Applications, Contracts\Livestats {
-    
-    public $config;
 
     public function defaultColour()
     {
