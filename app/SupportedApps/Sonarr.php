@@ -51,8 +51,8 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $active = 'active';
         $html = '
         <ul class="livestats">
-            <li><span class="title">Missing: '.$this->getMissing().'</span></li>
-            <li><span class="title">Activity: '.$this->getQueue().'</span></li>
+            <li><span class="title"><i class="fas fa-exclamation-triangle"></i>: '.$this->getMissing().'</span></li>
+            <li><span class="title"><i class="fas fa-clock"></i>: '.$this->getQueue().'</span></li>
         </ul>
         ';
         return json_encode(['status' => $active, 'html' => $html]);
