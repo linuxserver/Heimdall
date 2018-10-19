@@ -23,9 +23,9 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         {
             echo 'Successfully connected to the API';
         }
-        else if(isset($wanted->error))
+        else if(isset($status->error))
         {
-            echo 'Error: '. $wanted->error;
+            echo 'Error: '. $status->error;
         }
         else
         {
