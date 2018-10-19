@@ -95,7 +95,7 @@ Supported applications are recognized by the title of the application as entered
 - WebTools
 
 ## Installing
-Apart from the Laravel dependencies, namely PHP >= 7.0.0, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension and XML PHP Extension, the only other thing Heimdall needs is sqlite support.
+Apart from the Laravel dependencies, namely PHP >= 7.1.3, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension, XML PHP Extension, Ctype PHP Extension and JSON PHP Extension, the only other thing Heimdall needs is sqlite support.
 
 If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe it should be by default, but one user came across the issue on a windows system.
 
