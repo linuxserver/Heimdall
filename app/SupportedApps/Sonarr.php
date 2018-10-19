@@ -36,16 +36,10 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
     {
         $html = '';
         $active = 'active';
-        $wantedRes = $this->getWanted();
-        $queueRes = $this->getQueue();
-        $wanted = json_decode($wantedRes->getBody());
-        $queue = json_decode($queueRes->getBody());
-        $wantedCount = $wanted->totalRecords;
-        $queueCount = sizeof($queue);
         $html = '
         <ul class="livestats">
-            <li><span class="title">Wanted: '.$wantedCount[1].'</span></li>
-            <li><span class="title">Activity: '.$queueCount[1].'</span></li>
+            <li><span class="title">Wanted: '.$this->getWanted().'</span></li>
+            <li><span class="title">Activity: '.$this->getQueue().'</span></li>
         </ul>
         ';
         return json_encode(['status' => $active, 'html' => $html]);
@@ -67,8 +61,12 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $url = rtrim($url, '/');
         $api_url = $url.'/api/wanted/missing?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        $res = $client->request('GET', $api_url);
-        return $res;
+        $res = json_decode($client->request('GET', $api_url));
+        $wanted = $res->totalRecords;
+        if (empty($wanted)) {
+            $wanted=0;
+        }
+        return $wanted;
     }
     public function getQueue()
     {
@@ -77,7 +75,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $url = rtrim($url, '/');
         $api_url = $url.'/api/queue?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        $res = $client->request('GET', $api_url);
-        return $res;
+        $queue = sizeof($client->request('GET', $api_url));
+        return $queue;
     }
 }
