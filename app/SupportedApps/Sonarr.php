@@ -1,9 +1,11 @@
 <?php namespace App\SupportedApps;
+
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-class Sonarr implements Contracts\Applications
-{
+class Sonarr implements Contracts\Applications, Contracts\Livestats {
+    
+    public $config;
 
     public function defaultColour()
     {
