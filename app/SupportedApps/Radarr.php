@@ -9,6 +9,7 @@ class Radarr implements Contracts\Applications, Contracts\Livestats {
     {
         return '#3e3726';
     }
+    
     public function icon()
     {
         return 'supportedapps/radarr.png';
