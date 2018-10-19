@@ -14,14 +14,16 @@ class CreateApplicationsTable extends Migration
     public function up()
     {
         Schema::create('applications', function (Blueprint $table) {
+            
             $table->increments('id');
             $table->string('name')->unique();
-            $table->string('sha');
+            $table->string('sha')->unique()->nullable();
             $table->string('icon')->nullable();
             $table->string('website')->nullable();
             $table->string('license')->nullable();
             $table->mediumText('description')->nullable();
             $table->boolean('enhanced')->default(false);
+            $table->string('tile_background')->default('dark');
 
             $table->timestamps();
         });

@@ -273,16 +273,6 @@ class ItemController extends Controller
             ->with('success',__('app.alert.success.item_restored'));
     }
 
-    public function isSupportedAppByKey($app)
-    {
-        $output = false;
-        $all_supported = Item::supportedList();
-        if(array_key_exists($app, $all_supported)) {
-            $output = new $all_supported[$app];
-        }
-        return $output;
-    }
-
     /**
      * Return details for supported apps
      *
@@ -291,19 +281,20 @@ class ItemController extends Controller
     public function appload(Request $request)
     {
         $output = [];
-        $app = $request->input('app');
+        $appname = $request->input('app');
 
-        if(($app_details = $this->isSupportedAppByKey($app)) !== false) {
-            // basic details
-            $output['icon'] = $app_details->icon();
-            $output['colour'] = $app_details->defaultColour();
+        $app_details = Application::where('name', $appname)->firstOrFail();
+        $app = new $appname->class();
 
-            // live details
-            if($app_details instanceof \App\SupportedApps\Contracts\Livestats) {
-                $output['config'] = $app_details->configDetails();
-            } else {
-                $output['config'] = null;
-            }
+        // basic details
+        $output['icon'] = $app_details->icon();
+        $output['colour'] = $app_details->defaultColour();
+
+        // live details
+        if($app_details instanceof \App\SupportedApps\EnhancedApps) {
+            $output['config'] = $app->configDetails();
+        } else {
+            $output['config'] = null;
         }
         
         return json_encode($output);

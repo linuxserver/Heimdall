@@ -1,4 +1,4 @@
-<script src="/js/select2.min.js"></script>
+<script src="{{ asset('js/select2.min.js') }}"></script>
 <script>
         $( function() {
 
@@ -7,7 +7,7 @@
               // options
             });
 
-            var availableTags = @json(App\Item::supportedOptions());
+            var availableTags = @json(App\Application::all()->pluck('name'));
 
             $( "#appname" ).autocomplete({
                 source: availableTags,
