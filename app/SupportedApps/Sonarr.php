@@ -17,9 +17,9 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
     }
     public function testConfig()
     {
-        $res = $this->getStatus()();
-        $wanted = json_decode($res->getBody());
-        if(isset($wanted->version))
+        $res = $this->getStatus();
+        $status = json_decode($res->getBody());
+        if(isset($status->version))
         {
             echo 'Successfully connected to the API';
         }
