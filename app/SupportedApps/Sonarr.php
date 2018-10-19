@@ -21,7 +21,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $status = json_decode($res->getBody());
         if(isset($status->version))
         {
-            echo 'Successfully connected to the API';
+            echo 'Successfully connected to Sonarr API version ' . $status->version;
         }
         else if(isset($status->error))
         {
@@ -38,8 +38,8 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $active = 'active';
         $html = '
         <ul class="livestats">
-            <li><span class="title">Wanted: '.$this->getWanted().'</span></li>
-            <li><span class="title">Activity: '.$this->getQueue().'</span></li>
+            <li><span class="title">Wanted: ' . $this->getWanted() . '</span></li>
+            <li><span class="title">Activity: ' . $this->getQueue() . '</span></li>
         </ul>
         ';
         return json_encode(['status' => $active, 'html' => $html]);
@@ -49,7 +49,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $config = $this->config;
         $url = $config->url;
         $url = rtrim($url, '/');
-        $api_url = $url.'/api/system/status?apikey='.$config->apiKey;
+        $api_url = $url . '/api/system/status?apikey=' . $config->apiKey;
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         return $res;
@@ -59,7 +59,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $config = $this->config;
         $url = $config->url;
         $url = rtrim($url, '/');
-        $api_url = $url.'/api/wanted/missing?apikey='.$config->apiKey.'&pageSize=1';
+        $api_url = $url . '/api/wanted/missing?apikey=' . $config->apiKey . '&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = json_decode($client->request('GET', $api_url));
         $wanted = $res->totalRecords;
@@ -73,7 +73,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $config = $this->config;
         $url = $config->url;
         $url = rtrim($url, '/');
-        $api_url = $url.'/api/queue?apikey='.$config->apiKey.'&pageSize=1';
+        $api_url = $url . '/api/queue?apikey=' . $config->apiKey . '&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $queue = sizeof($client->request('GET', $api_url));
         return $queue;
