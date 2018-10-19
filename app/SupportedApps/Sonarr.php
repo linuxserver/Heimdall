@@ -52,7 +52,7 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $html = '
         <ul class="livestats">
             <li><span class="title">Missing: '.$this->getMissing().'</span></li>
-
+            <li><span class="title">Activity: '.$this->getQueue().'</span></li>
         </ul>
         ';
         return json_encode(['status' => $active, 'html' => $html]);
@@ -94,7 +94,11 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         $api_url = $url.'/api/queue?apikey='.$config->apiKey.'&pageSize=1';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
-        $queue = sizeof($res->getBody());
+        $queue = 0;
+        if (empty($res->getBody()))
+        {
+            $queue = sizeof($res->getBody());
+        }
         return $queue;
     }
 }
