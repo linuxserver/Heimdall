@@ -97,7 +97,7 @@ class Radarr implements Contracts\Applications, Contracts\Livestats {
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         $res = $client->request('GET', $api_url);
         $queue = 0;
-        if (empty($res->getBody()))
+        if (!empty($res->getBody()))
         {
             $queue = sizeof($res->getBody());
         }
