@@ -25,7 +25,14 @@ class Sonarr implements Contracts\Applications, Contracts\Livestats {
         }
         else if(isset($status->error))
         {
-            echo 'Error: '. $status->error;
+            if($status->error == "Unauthorized")
+            {
+                echo 'Incorrect API Key. You can find it in Settings > General';
+            }
+            else
+            {
+                echo 'Error: '. $status->error;
+            }
         }
         else
         {
