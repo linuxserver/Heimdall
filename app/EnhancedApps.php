@@ -3,9 +3,8 @@
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-interface EnhancedApps {
+interface EnhancedApps
 {
-    public $config;
 
 
 }

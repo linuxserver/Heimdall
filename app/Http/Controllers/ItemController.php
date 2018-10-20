@@ -9,6 +9,7 @@ use App\User;
 use GrahamCampbell\GitHub\Facades\GitHub;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\SupportedApps;
 
 class ItemController extends Controller
 {
@@ -282,17 +283,19 @@ class ItemController extends Controller
     {
         $output = [];
         $appname = $request->input('app');
+        //die($appname);
 
         $app_details = Application::where('name', $appname)->firstOrFail();
-        $app = new $appname->class();
+        $appclass = $app_details->class();
+        $app = new $appclass;
 
         // basic details
         $output['icon'] = $app_details->icon();
         $output['colour'] = $app_details->defaultColour();
 
         // live details
-        if($app_details instanceof \App\SupportedApps\EnhancedApps) {
-            $output['config'] = $app->configDetails();
+        if($app instanceof \App\EnhancedApps) {
+            $output['config'] = $app_details->name.'.config';
         } else {
             $output['config'] = null;
         }
@@ -332,18 +335,22 @@ class ItemController extends Controller
 
     public function checkAppList()
     {
-        $localapps = Application::all()->pluck('name');
-        $allapps = GitHub::connection('none')->repo()->contents()->show('linuxserver', 'Heimdall-Apps');
-        $applist = collect($allapps)->pluck('name');
-        $diff = $applist->diff($localapps);
-
-        print_r($diff->all());
-        foreach($allapps as $app) {
-
+        $localapps = Application::all();
+        $list = json_decode(SupportedApps::getList()->getBody());
+        foreach($list->apps as $app) {
+            if(!file_exists(app_path('SupportedApps/'.$app->name))) {
+                SupportedApps::getFiles($app);
+                $application = new Application;
+                SupportedApps::saveApp($app, $application);
+            } else {
+                // check if there has been an update for this app
+                $localapp = $localapps->where('name', $app->name)->first();
+                if($localapp->sha !== $app->sha) {
+                    SupportedApps::getFiles($app);
+                    SupportedApps::saveApp($app, $localapp);
+                }
+            }
         }
-        $files = GitHub::connection('none')->gitData()->trees()->show('linuxserver', 'Heimdall-Apps', 'eaf3659bbbc25e41501f3c540fcc7fe5da3e45c2');
-        print_r($localapps);
-        //print_r($appcheck);
     }
 
     

@@ -9,11 +9,7 @@ class Application extends Model
     //
     public function icon()
     {
-        $path = public_path('storage/apps/'.$this->icon);
-        if(!file_exists($path)) {
-            Storage::putFileAs('apps', new File(app_path('Apps/'.$this->name.'/'.$this->icon)), $this->icon);
-        }
-        return asset('storage/apps/'.$this->icon);
+        return asset($this->icon);
     }
 
     public function defaultColour()
@@ -25,7 +21,7 @@ class Application extends Model
 
     public function class()
     {
-        $class = '\App\SupportedApps\\'.$this->name;
+        $class = '\App\SupportedApps\\'.$this->name.'\\'.$this->name;
         return $class;
     }
 }
