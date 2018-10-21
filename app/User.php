@@ -49,7 +49,10 @@ class User extends Authenticatable
         if ($current_user) { // if logged in, set this user
             return $current_user;
         } else { // not logged in, get first user
-            $user = User::first();
+            $user = User::where('public_front',true)->first();
+            if(!$user) {
+                $user = User::first();
+            }
             session(['current_user' => $user]);
             return $user;
         }
