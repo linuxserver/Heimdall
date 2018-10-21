@@ -5,6 +5,8 @@ use GuzzleHttp\Client;
 
 interface EnhancedApps
 {
+    public function test();
     public function livestats();
+    public function apiUrl($endpoint);
 
 }
