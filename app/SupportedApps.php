@@ -6,9 +6,23 @@ use GuzzleHttp\Client;
 abstract class SupportedApps
 {
 
-    public function test($url, $requiresLoginFirst=false)
+    public function appTest($url, $requiresLoginFirst=false)
     {
-
+        $res = $this->execute($url, $requiresLoginFirst);
+        switch($res->getStatusCode()) {
+            case 200:
+                echo 'Successfully connected to the API';
+                break;
+            case 401:
+                echo 'Failed: Invalid credentials';
+                break;
+            case 404:
+                echo 'Failed: Please make sure your URL is correct and that there is a trailing slash';
+                break;
+            default:
+                echo 'Something went wrong... Code: '.$res->getStatusCode();
+                break;
+        }
     }
 
     public function execute($url, $requiresLoginFirst=false)

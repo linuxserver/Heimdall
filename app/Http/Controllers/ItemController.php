@@ -313,14 +313,14 @@ class ItemController extends Controller
 
         $app_details = new $app();
         $app_details->config = (object)$data;
-        $app_details->testConfig();
+        $app_details->test();
     }
 
     public function getStats($id)
     {
         $item = Item::find($id);
 
-        $config = $item->config();
+        $config = $item->getconfig();
         if(isset($config->type)) {
             $application = new $config->type;
             $application->config = $config;

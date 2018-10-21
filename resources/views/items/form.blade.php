@@ -58,10 +58,10 @@
                 </div>
             </div>
             
-            @if(isset($item) && isset($item->config->view))
+            @if($item->enhanced())
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
-                @include('supportedapps.'.$item->config->view)
+                @include('SupportedApps::'.$item->getconfig()->name.'.config')
                 @endif
             </div>
             @else

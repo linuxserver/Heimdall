@@ -140,15 +140,19 @@ class Item extends Model
 
     public function enhanced()
     {
-        $details = $this->config();
+        $details = $this->getconfig();
         $class = $details->type;
         $app = new $class;
         return (bool)($app instanceof \App\EnhancedApps);
     }
 
-    public function config()
+    public function getconfig()
     {
         $config = json_decode($this->description);
+
+        $explode = explode('\\', $config->type);
+        $config->name = end($explode);
+
         
         $config->url = $this->url;
         if(isset($config->override_url) && !empty($config->override_url)) {
