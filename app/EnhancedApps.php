@@ -5,6 +5,6 @@ use GuzzleHttp\Client;
 
 interface EnhancedApps
 {
-
+    public function livestats();
 
 }

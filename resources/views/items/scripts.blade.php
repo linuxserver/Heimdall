@@ -13,7 +13,7 @@
                 source: availableTags,
                 select: function( event, ui ) {
                     $.post('/appload', { app: ui.item.value }, function(data) {
-                        $('#appimage').html("<img src='"+data.icon+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
+                        $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
                         $('input[name=colour]').val(data.colour);
                         hueb.setColor( data.colour );
                         $('input[name=pinned]').prop('checked', true);

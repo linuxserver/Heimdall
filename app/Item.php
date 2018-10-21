@@ -45,24 +45,6 @@ class Item extends Model
         return $query->where('pinned', 1);
     }
 
-    public function getConfigAttribute()
-    {
-        $output = null;
-        $view = null;
-        if(isset($this->description) && !empty($this->description)){
-            $output = json_decode($this->description);
-            $output = is_object($output) ? $output : new \stdClass();
-            if(isset($output->type) && !empty($output->type)) {
-                $class = $output->type;
-                $sap = new $class();
-                $view = $sap->configDetails();
-                $output->view = $view;
-            }
-            if(!isset($output->dataonly)) $output->dataonly = '0';
-
-        }
-        return (object)$output;
-    }
     public static function checkConfig($config)
     {
         if(empty($config)) {
@@ -155,6 +137,28 @@ class Item extends Model
 
         return $query->where('type', $typeid);
     }
+
+    public function enhanced()
+    {
+        $details = $this->config();
+        $class = $details->type;
+        $app = new $class;
+        return (bool)($app instanceof \App\EnhancedApps);
+    }
+
+    public function config()
+    {
+        $config = json_decode($this->description);
+        
+        $config->url = $this->url;
+        if(isset($config->override_url) && !empty($config->override_url)) {
+            $config->url = $config->override_url;
+        }
+    
+        return $config;
+    }
+
+
 
     /**
      * Get the user that owns the item.

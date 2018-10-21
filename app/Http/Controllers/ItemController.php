@@ -291,6 +291,7 @@ class ItemController extends Controller
 
         // basic details
         $output['icon'] = $app_details->icon();
+        $output['iconview'] = $app_details->iconView();
         $output['colour'] = $app_details->defaultColour();
 
         // live details
@@ -319,15 +320,11 @@ class ItemController extends Controller
     {
         $item = Item::find($id);
 
-        $config = json_decode($item->description);
+        $config = $item->config();
         if(isset($config->type)) {
-            $config->url = $item->url;
-            if(isset($config->override_url) && !empty($config->override_url)) {
-                $config->url = $config->override_url;
-            }
-            $app_details = new $config->type;
-            $app_details->config = $config;
-            echo $app_details->executeConfig();
+            $application = new $config->type;
+            $application->config = $config;
+            echo $application->livestats();
         }
         
     }
@@ -345,9 +342,14 @@ class ItemController extends Controller
             } else {
                 // check if there has been an update for this app
                 $localapp = $localapps->where('name', $app->name)->first();
-                if($localapp->sha !== $app->sha) {
-                    SupportedApps::getFiles($app);
-                    SupportedApps::saveApp($app, $localapp);
+                if($localapp) {
+                    if($localapp->sha !== $app->sha) {
+                        SupportedApps::getFiles($app);
+                        SupportedApps::saveApp($app, $localapp);
+                    }
+                } else { // local folder, add to database
+                    $application = new Application;
+                    SupportedApps::saveApp($app, $application);
                 }
             }
         }

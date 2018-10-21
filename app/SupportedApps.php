@@ -5,7 +5,6 @@ use GuzzleHttp\Client;
 
 abstract class SupportedApps
 {
-    public $config;
 
     public function test($url, $requiresLoginFirst=false)
     {
@@ -14,7 +13,12 @@ abstract class SupportedApps
 
     public function execute($url, $requiresLoginFirst=false)
     {
-        
+        if($requiresLoginFirst) {
+
+        }
+
+        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
+        return $client->request('GET', $url);
     }
 
     public function login()
@@ -25,6 +29,18 @@ abstract class SupportedApps
     public function apiRequest($url)
     {
 
+    }
+
+
+    public function getLiveStats($status, $data)
+    {
+        $className = get_class($this);
+        $explode = explode('\\', $className);
+        $name = end($explode);
+
+        $html = view('SupportedApps::'.$name.'.livestats', $data)->with('data', $data)->render();
+        return json_encode(['status' => $status, 'html' => $html]);
+        //return 
     }
 
     public static function getList()
@@ -60,11 +76,16 @@ abstract class SupportedApps
         
         $app->name = $details->name;
         $app->sha = $details->sha;
-        $app->icon = 'storage/supportedapps/'.$details->icon;
+        $app->icon = 'supportedapps/'.$details->icon;
         $app->website = $details->website;
         $app->license = $details->license;
         $app->description = $details->description;
-        $app->enhanced = $details->enhanced;
+
+        $appclass = $app->class();
+        $application = new $appclass;
+        $enhanced = (bool)($application instanceof \App\EnhancedApps);
+
+        $app->enhanced = $enhanced;
         $app->tile_background = $details->tile_background;
         $app->save();
     }

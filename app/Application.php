@@ -9,7 +9,12 @@ class Application extends Model
     //
     public function icon()
     {
-        return asset($this->icon);
+        return $this->icon;
+    }
+
+    public function iconView()
+    {
+        return asset('storage/'.$this->icon);
     }
 
     public function defaultColour()
@@ -24,4 +29,6 @@ class Application extends Model
         $class = '\App\SupportedApps\\'.$this->name.'\\'.$this->name;
         return $class;
     }
+
+
 }
