@@ -15,6 +15,7 @@
                     $.post('/appload', { app: ui.item.value }, function(data) {
                         $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
                         $('input[name=colour]').val(data.colour);
+                        $('select[name=class]').val(data.class);
                         hueb.setColor( data.colour );
                         $('input[name=pinned]').prop('checked', true);
                         if(data.config != null) {

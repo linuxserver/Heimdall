@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'App\\Application' => $baseDir . '/app/Application.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
+    'App\\EnhancedApps' => $baseDir . '/app/EnhancedApps.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => $baseDir . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
     'App\\Http\\Controllers\\Auth\\LoginController' => $baseDir . '/app/Http/Controllers/Auth/LoginController.php',
@@ -36,6 +37,9 @@ return array(
     'App\\SettingGroup' => $baseDir . '/app/SettingGroup.php',
     'App\\SettingUser' => $baseDir . '/app/SettingUser.php',
     'App\\SupportedApps' => $baseDir . '/app/SupportedApps.php',
+    'App\\SupportedApps\\Bookstack\\Bookstack' => $baseDir . '/app/SupportedApps/Bookstack/Bookstack.php',
+    'App\\SupportedApps\\Deluge\\Deluge' => $baseDir . '/app/SupportedApps/Deluge/Deluge.php',
+    'App\\SupportedApps\\Nzbget\\Nzbget' => $baseDir . '/app/SupportedApps/Nzbget/Nzbget.php',
     'App\\User' => $baseDir . '/app/User.php',
     'Carbon\\Carbon' => $vendorDir . '/nesbot/carbon/src/Carbon/Carbon.php',
     'Carbon\\CarbonInterval' => $vendorDir . '/nesbot/carbon/src/Carbon/CarbonInterval.php',

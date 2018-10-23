@@ -8,7 +8,7 @@
         </header>
         <div id="create" class="create">
             {!! csrf_field() !!}
-
+            {!! Form::hidden('class', '') !!}
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
                 {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
@@ -30,6 +30,9 @@
 
             </div>
             <div class="input">
+                <label>{{ __('app.apps.apptype') }} *</label>
+                {!! Form::select('class', App\Application::applist(), null, array('class' => 'form-control')) !!}
+                <hr />
                 <label>{{ __('app.apps.colour') }} *</label>
                 {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
@@ -58,7 +61,7 @@
                 </div>
             </div>
             
-            @if($item->enhanced())
+            @if(isset($item) && $item->enhanced())
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
                 @include('SupportedApps::'.$item->getconfig()->name.'.config')

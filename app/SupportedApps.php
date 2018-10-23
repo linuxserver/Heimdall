@@ -70,6 +70,10 @@ abstract class SupportedApps
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
         $res = $client->request('GET', $zipurl);
 
+        if(!file_exists(app_path('SupportedApps')))  {
+            mkdir(app_path('SupportedApps'), 0777, true);
+        }
+
         $src = app_path('SupportedApps/'.$app->name.'.zip');
         file_put_contents($src, $res->getBody());
 
@@ -86,6 +90,7 @@ abstract class SupportedApps
     {
         $img_src = app_path('SupportedApps/'.$details->name.'/'.$details->icon);
         $img_dest = public_path('storage/supportedapps/'.$details->icon);
+        //die("i: ".$img_src);
         copy($img_src, $img_dest);
         
         $app->name = $details->name;

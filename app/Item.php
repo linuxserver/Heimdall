@@ -24,7 +24,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'user_id'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'class', 'user_id'
     ];
 
     /**
@@ -140,18 +140,28 @@ class Item extends Model
 
     public function enhanced()
     {
-        $details = $this->getconfig();
-        $class = $details->type;
-        $app = new $class;
+        if(isset($this->class) && !empty($this->class)) {
+            $app = new $this->class;
+        } else {
+            $details = $this->getconfig();
+            if($details === false) return false;
+
+            $class = $details->type;
+            $app = new $class;
+    
+        }
         return (bool)($app instanceof \App\EnhancedApps);
     }
 
     public function getconfig()
     {
+        if(!isset($this->description) || empty($this->description)) return false;
+
         $config = json_decode($this->description);
 
         $explode = explode('\\', $config->type);
         $config->name = end($explode);
+    
 
         
         $config->url = $this->url;

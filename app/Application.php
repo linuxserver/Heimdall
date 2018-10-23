@@ -30,5 +30,16 @@ class Application extends Model
         return $class;
     }
 
+    public static function applist()
+    {
+        $list = [];
+        $all = self::all();
+        $list['null'] = 'None';
+        foreach($all as $app) {
+            $list['\App\SupportedApps\\'.$app->name.'\\'.$app->name] = $app->name;
+        }
+        return $list;
+    }
+
 
 }

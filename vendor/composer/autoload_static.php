@@ -437,6 +437,7 @@ class ComposerStaticInit4b6fb9210a1ea37c2db27b8ff53a1ecf
     public static $classMap = array (
         'App\\Application' => __DIR__ . '/../..' . '/app/Application.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
+        'App\\EnhancedApps' => __DIR__ . '/../..' . '/app/EnhancedApps.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
@@ -465,6 +466,9 @@ class ComposerStaticInit4b6fb9210a1ea37c2db27b8ff53a1ecf
         'App\\SettingGroup' => __DIR__ . '/../..' . '/app/SettingGroup.php',
         'App\\SettingUser' => __DIR__ . '/../..' . '/app/SettingUser.php',
         'App\\SupportedApps' => __DIR__ . '/../..' . '/app/SupportedApps.php',
+        'App\\SupportedApps\\Bookstack\\Bookstack' => __DIR__ . '/../..' . '/app/SupportedApps/Bookstack/Bookstack.php',
+        'App\\SupportedApps\\Deluge\\Deluge' => __DIR__ . '/../..' . '/app/SupportedApps/Deluge/Deluge.php',
+        'App\\SupportedApps\\Nzbget\\Nzbget' => __DIR__ . '/../..' . '/app/SupportedApps/Nzbget/Nzbget.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Carbon\\Carbon' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Carbon.php',
         'Carbon\\CarbonInterval' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/CarbonInterval.php',

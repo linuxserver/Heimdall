@@ -155,6 +155,12 @@ class ItemController extends Controller
             'user_id' => $current_user->id
         ]);
 
+        if($request->input('class') === 'null') {
+            $request->merge([
+                'class' => null,
+            ]);
+        }
+
 
         //die(print_r($request->input('config')));
         
@@ -222,6 +228,13 @@ class ItemController extends Controller
             'description' => $config,
             'user_id' => $current_user->id
         ]);
+
+        if($request->input('class') === 'null') {
+            $request->merge([
+                'class' => null,
+            ]);
+        }
+
 
         $item = Item::find($id);
         $item->update($request->all());
@@ -293,6 +306,7 @@ class ItemController extends Controller
         $output['icon'] = $app_details->icon();
         $output['iconview'] = $app_details->iconView();
         $output['colour'] = $app_details->defaultColour();
+        $output['class'] = $appclass;
 
         // live details
         if($app instanceof \App\EnhancedApps) {
