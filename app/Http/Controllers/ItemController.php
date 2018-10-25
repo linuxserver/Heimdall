@@ -348,7 +348,9 @@ class ItemController extends Controller
     {
         $localapps = Application::all();
         $list = json_decode(SupportedApps::getList()->getBody());
+        $validapps = [];
         foreach($list->apps as $app) {
+            $validapps[] = $app->appid;
             if(!file_exists(app_path('SupportedApps/'.$app->name))) {
                 SupportedApps::getFiles($app);
                 $application = new Application;
@@ -361,12 +363,11 @@ class ItemController extends Controller
                         SupportedApps::getFiles($app);
                         SupportedApps::saveApp($app, $localapp);
                     }
-                } else { // local folder, add to database
-                    $application = new Application;
-                    SupportedApps::saveApp($app, $application);
-                }
+                } 
             }
         }
+        //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list
+        // removed the delete so local apps can be added
     }
 
     

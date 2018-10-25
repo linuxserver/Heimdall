@@ -93,8 +93,9 @@ abstract class SupportedApps
         //die("i: ".$img_src);
         copy($img_src, $img_dest);
         
+        $app->appid = $details->appid;
         $app->name = $details->name;
-        $app->sha = $details->sha;
+        $app->sha = $details->sha ?? null;
         $app->icon = 'supportedapps/'.$details->icon;
         $app->website = $details->website;
         $app->license = $details->license;

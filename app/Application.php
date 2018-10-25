@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
+    public $incrementing = false;
+
+    protected $primaryKey = 'appid';
+
     //
     public function icon()
     {
