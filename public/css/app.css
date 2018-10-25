@@ -799,6 +799,26 @@ body {
           align-items: center;
 }
 
+.module-actions .input {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: column-reverse;
+          flex-direction: column-reverse;
+  line-height: 1;
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #ababab;
+  padding: 0 10px;
+}
+
+.module-actions .input label {
+  margin-top: 3px;
+}
+
 .module-actions .button {
   font-size: 18px;
   color: #515564;
@@ -1142,15 +1162,15 @@ a.settinglink {
 }
 
 #appimage img {
-  max-width: 150px;
+  max-width: 95px;
 }
 
-#sapconfig {
+#sapconfig, .newblock {
   display: none;
   width: 100%;
 }
 
-#sapconfig h2 {
+#sapconfig h2, .newblock h2 {
   background: #f2f3f6;
   padding: 18px 25px;
   margin-left: -15px;
@@ -1163,7 +1183,7 @@ a.settinglink {
   font-weight: 500;
 }
 
-#sapconfig .items {
+#sapconfig .items, .newblock .items {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

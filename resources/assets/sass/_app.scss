@@ -450,7 +450,21 @@ body {
 .module-actions {
     display: flex;
     justify-content:space-between;
-    align-items: center;
+	align-items: center;
+	
+	.input {
+		display: flex;
+		flex-direction: column-reverse;
+		line-height: 1;
+		font-size: 9px;
+		font-weight: 400;
+		text-transform: uppercase;
+		color: #ababab;
+        padding: 0 10px;  
+		label {
+			margin-top: 3px;
+		}
+	}
 
     .button {
         font-size: 18px;
@@ -755,11 +769,11 @@ div.create {
 
 #appimage {
 	img {
-		max-width: 150px;
+		max-width: 95px;
 	}
 }
 
-#sapconfig {
+#sapconfig, .newblock {
 	display: none;
 	width: 100%;
 	h2 {
