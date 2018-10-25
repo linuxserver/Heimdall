@@ -812,11 +812,11 @@ body {
   font-weight: 400;
   text-transform: uppercase;
   color: #ababab;
-  padding: 0 10px;
+  padding: 0 20px;
 }
 
-.module-actions .input label {
-  margin-top: 3px;
+.module-actions .input label.name {
+  margin-top: 6px;
 }
 
 .module-actions .button {

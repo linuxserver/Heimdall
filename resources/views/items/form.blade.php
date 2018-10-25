@@ -3,7 +3,7 @@
             <div class="section-title">{{ __('app.apps.add_application') }}</div>
             <div class="module-actions">
             <div class="input">
-                <label>{{ __('app.apps.pinned') }}</label>
+                <label class="name">{{ __('app.apps.pinned') }}</label>
                 {!! Form::hidden('pinned', '0') !!}
                 <label class="switch">
                     <?php
