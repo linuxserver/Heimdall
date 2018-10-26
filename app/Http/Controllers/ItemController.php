@@ -363,7 +363,12 @@ class ItemController extends Controller
                         SupportedApps::getFiles($app);
                         SupportedApps::saveApp($app, $localapp);
                     }
-                } 
+                }  else {
+                    SupportedApps::getFiles($app);
+                    $application = new Application;
+                    SupportedApps::saveApp($app, $application);
+      
+                }
             }
         }
         //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list

@@ -703,6 +703,8 @@ body {
   max-width: 1000px;
   width: 100%;
   margin: 10px 40px;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 .module-container header, .module-container footer {
