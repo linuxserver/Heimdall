@@ -6,33 +6,47 @@ use GuzzleHttp\Client;
 abstract class SupportedApps
 {
 
-    public function appTest($url, $requiresLoginFirst=false)
+    protected $jar = false;
+    protected $method = 'GET';
+
+    public function appTest($url, $attrs = [])
     {
-        $res = $this->execute($url, $requiresLoginFirst);
+        $res = $this->execute($url, $attrs);
         switch($res->getStatusCode()) {
             case 200:
-                echo 'Successfully connected to the API';
+                $status = 'Successfully communicated with the API';
                 break;
             case 401:
-                echo 'Failed: Invalid credentials';
+                $status = 'Failed: Invalid credentials';
                 break;
             case 404:
-                echo 'Failed: Please make sure your URL is correct and that there is a trailing slash';
+                $status = 'Failed: Please make sure your URL is correct and that there is a trailing slash';
                 break;
             default:
-                echo 'Something went wrong... Code: '.$res->getStatusCode();
+                $status = 'Something went wrong... Code: '.$res->getStatusCode();
                 break;
         }
+        return (object)[
+            'code' => $res->getStatusCode(),
+            'status' => $status,
+            'response' => $res->getBody(),
+        ];
     }
 
-    public function execute($url, $requiresLoginFirst=false)
+    public function execute($url, $attrs = [])
     {
-        if($requiresLoginFirst) {
+        $vars = [
+            'http_errors' => false, 
+            'timeout' => 15, 
+            'connect_timeout' => 15,
+        ];
+        $client = new Client($vars);
 
-        }
-
-        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        return $client->request('GET', $url);
+        try {
+            return $client->request($this->method, $url, $attrs);  
+         } catch (\GuzzleHttp\Exception\ServerException $e) {
+             echo (string) $e->getResponse()->getBody();
+         }
     }
 
     public function login()
@@ -61,14 +75,14 @@ abstract class SupportedApps
     {
         $list_url = 'https://apps.heimdall.site/list';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        return $client->request('GET', $list_url);
+        return $client->request($this->method, $list_url);
     }
 
     public static function getFiles($app)
     {
         $zipurl = $app->files;
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
-        $res = $client->request('GET', $zipurl);
+        $res = $client->request($this->method, $zipurl);
 
         if(!file_exists(app_path('SupportedApps')))  {
             mkdir(app_path('SupportedApps'), 0777, true);

@@ -7,6 +7,6 @@ interface EnhancedApps
 {
     public function test();
     public function livestats();
-    public function apiUrl($endpoint);
+    public function url($endpoint);
 
 }

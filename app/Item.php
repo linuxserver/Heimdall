@@ -159,7 +159,7 @@ class Item extends Model
 
         $config = json_decode($this->description);
 
-        $explode = explode('\\', $config->type);
+        $explode = explode('\\', $this->class);
         $config->name = end($explode);
     
 

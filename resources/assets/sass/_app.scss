@@ -852,7 +852,7 @@ hr {
 
 .livestats-container {
 	.livestats {
-		margin: 5px 0px -5px;
+		margin: 5px 0px 0px;
 		padding: 0;
 		display: flex;
 		list-style: none;
@@ -871,10 +871,16 @@ hr {
 			font-weight: 500;
 			opacity: 0.5;
 			line-height: 1;
+			display: flex;
 		}
 		strong {
 			display: block;
 			line-height: 1;
+			display: flex;
+			align-items: center;
+			span {
+				margin-left: 4px;
+			}
 		}
 
 	}

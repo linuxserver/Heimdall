@@ -126,7 +126,7 @@ $.when( $.ready ).then(function() {
 
         var data = {};
         data['url'] = apiurl;
-        $('input.config-item').each(function(index){
+        $('.config-item').each(function(index){
             var config = $(this).data('config');
             data[config] = $(this).val();
         });

@@ -22,14 +22,13 @@
         </header>
         <div id="create" class="create">
             {!! csrf_field() !!}
-            {!! Form::hidden('class', '') !!}
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
                 {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
             </div>
             <div class="input">
                 <label>{{ __('app.apps.apptype') }} *</label>
-                {!! Form::select('class', App\Application::applist(), null, array('class' => 'form-control')) !!}
+                {!! Form::select('class', App\Application::applist(), null, array('class' => 'form-control config-item', 'data-config' => 'type')) !!}
             </div>
 
             <div class="input">

@@ -11,7 +11,7 @@
                             <div class="details">
                                 <div class="title{{ title_color($item->colour) ?? 'white' }}">{{ $item->title ?? '' }}</div>
                                 @if($item->enhanced())
-                                <div data-id="{{ $item->id }}" data-dataonly="{{ $item->getconfig()->dataonly ?? '0' }}" class="livestats-container"></div>
+                                <div data-id="{{ $item->id }}" data-dataonly="{{ $item->getconfig()->dataonly ?? '0' }}" class="no-livestats-container"></div>
                                 @endif
                             </div>
                             <a class="link{{ title_color($item->colour) }}"{!! $item->link_target !!} href="{{ $item->link }}"><i class="fas {{ $item->link_icon }}"></i></a>

@@ -335,8 +335,8 @@ class ItemController extends Controller
         $item = Item::find($id);
 
         $config = $item->getconfig();
-        if(isset($config->type)) {
-            $application = new $config->type;
+        if(isset($item->class)) {
+            $application = new $item->class;
             $application->config = $config;
             echo $application->livestats();
         }

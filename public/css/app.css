@@ -1252,7 +1252,7 @@ hr {
 }
 
 .livestats-container .livestats {
-  margin: 5px 0px -5px;
+  margin: 5px 0px 0px;
   padding: 0;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1277,11 +1277,24 @@ hr {
   font-weight: 500;
   opacity: 0.5;
   line-height: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .livestats-container .livestats strong {
   display: block;
   line-height: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.livestats-container .livestats strong span {
+  margin-left: 4px;
 }
 
 input:-webkit-autofill,
