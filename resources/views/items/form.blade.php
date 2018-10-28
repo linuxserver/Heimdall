@@ -33,7 +33,7 @@
 
             <div class="input">
                 <label>{{ __('app.apps.colour') }} *</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
+                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'), 'id' => 'appcolour', 'class' => 'form-control color-picker set-bg-elem')) !!}
             </div>
 
             <div class="input">
@@ -74,7 +74,7 @@
             </div>
 
 
-            <div class="input">
+            <div id="tile-preview" class="input">
                 @include('items.preview')
             </div>
 

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -42,6 +44,14 @@ Route::get('/get_stats/{id}', 'ItemController@getStats')->name('get_stats');
 Route::get('view/{name_view}', function ($name_view) {
     return view('SupportedApps::'.$name_view);
 });
+
+Route::get('titlecolour', function (Request $request) {
+    $color = $request->input('color');
+    if($color) {
+        return title_color($color);
+    };
+    
+})->name('titlecolour');   
 
 Route::resource('users', 'UserController');
 

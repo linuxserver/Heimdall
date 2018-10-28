@@ -304,6 +304,7 @@ class ItemController extends Controller
 
         // basic details
         $output['icon'] = $app_details->icon();
+        $output['name'] = $app_details->name;
         $output['iconview'] = $app_details->iconView();
         $output['colour'] = $app_details->defaultColour();
         $output['class'] = $appclass;
@@ -357,7 +358,7 @@ class ItemController extends Controller
                 SupportedApps::saveApp($app, $application);
             } else {
                 // check if there has been an update for this app
-                $localapp = $localapps->where('name', $app->name)->first();
+                $localapp = $localapps->where('appid', $app->appid)->first();
                 if($localapp) {
                     if($localapp->sha !== $app->sha) {
                         SupportedApps::getFiles($app);

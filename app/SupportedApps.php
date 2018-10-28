@@ -75,14 +75,14 @@ abstract class SupportedApps
     {
         $list_url = 'https://apps.heimdall.site/list';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
-        return $client->request($this->method, $list_url);
+        return $client->request('GET', $list_url);
     }
 
     public static function getFiles($app)
     {
         $zipurl = $app->files;
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
-        $res = $client->request($this->method, $zipurl);
+        $res = $client->request('GET', $zipurl);
 
         if(!file_exists(app_path('SupportedApps')))  {
             mkdir(app_path('SupportedApps'), 0777, true);

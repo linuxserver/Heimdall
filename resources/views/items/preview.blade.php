@@ -2,7 +2,7 @@
                     $item = $item ?? new App\Item;
                     ?>
                     <section class="item-container" data-id="">
-                        <div class="item" style="background-color: {{ $item->colour ?? '#222' }}">
+                        <div class="item set-bg-elem" style="background-color: {{ $item->colour ?? '#222' }}">
                             @if(isset($item->icon) && !empty($item->icon))
                             <img class="app-icon" src="{{ asset('/storage/'.$item->icon) }}" />
                             @else
