@@ -42,7 +42,7 @@ Route::post('test_config', 'ItemController@testConfig')->name('test_config');
 Route::get('/get_stats/{id}', 'ItemController@getStats')->name('get_stats');
 
 Route::get('view/{name_view}', function ($name_view) {
-    return view('SupportedApps::'.$name_view);
+    return view('SupportedApps::'.$name_view)->render();
 });
 
 Route::get('titlecolour', function (Request $request) {

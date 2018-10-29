@@ -1290,6 +1290,7 @@ hr {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  text-align: left;
 }
 
 .livestats-container .livestats strong {

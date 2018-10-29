@@ -311,7 +311,7 @@ class ItemController extends Controller
 
         // live details
         if($app instanceof \App\EnhancedApps) {
-            $output['config'] = $app_details->name.'.config';
+            $output['config'] = className($app_details->name).'.config';
         } else {
             $output['config'] = null;
         }
