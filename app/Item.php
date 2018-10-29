@@ -143,14 +143,20 @@ class Item extends Model
         if(isset($this->class) && !empty($this->class)) {
             $app = new $this->class;
         } else {
-            $details = $this->getconfig();
-            if($details === false) return false;
-
-            $class = $details->type;
-            $app = new $class;
-    
+            return false;
         }
         return (bool)($app instanceof \App\EnhancedApps);
+    }
+
+    public function enabled()
+    {
+        if($this->enhanced()) {
+            $config = $this->getconfig();
+            if($config) {
+                return (bool) $config->enabled;
+            }
+        }
+        return false;
     }
 
     public function getconfig()

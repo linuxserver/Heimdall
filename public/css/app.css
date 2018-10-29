@@ -789,19 +789,7 @@ body {
   height: 51px;
 }
 
-.module-actions {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-}
-
-.module-actions .input {
+.toggleinput {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -817,8 +805,20 @@ body {
   padding: 0 20px;
 }
 
-.module-actions .input label.name {
+.toggleinput label.name {
   margin-top: 6px;
+}
+
+.module-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .module-actions .button {
@@ -1174,7 +1174,8 @@ a.settinglink {
 
 #sapconfig h2, .newblock h2 {
   background: #f2f3f6;
-  padding: 18px 25px;
+  padding: 2px 25px;
+  height: 60px;
   margin-left: -15px;
   width: calc(100% + 30px);
   /* margin-right: -30px; */
@@ -1183,6 +1184,15 @@ a.settinglink {
   font-size: 18px;
   color: #5b5b5b;
   font-weight: 500;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 #sapconfig .items, .newblock .items {

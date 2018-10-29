@@ -449,24 +449,27 @@ body {
 .homesearch {
 	height: 51px;
 }
+
+.toggleinput {
+	display: flex;
+	flex-direction: column-reverse;
+	line-height: 1;
+	font-size: 9px;
+	font-weight: 400;
+	text-transform: uppercase;
+	color: #ababab;
+	padding: 0 20px;  
+	label.name {
+		margin-top: 6px;
+	}
+}
+
+
 .module-actions {
     display: flex;
     justify-content:space-between;
 	align-items: center;
 	
-	.input {
-		display: flex;
-		flex-direction: column-reverse;
-		line-height: 1;
-		font-size: 9px;
-		font-weight: 400;
-		text-transform: uppercase;
-		color: #ababab;
-        padding: 0 20px;  
-		label.name {
-			margin-top: 6px;
-		}
-	}
 
     .button {
         font-size: 18px;
@@ -780,7 +783,8 @@ div.create {
 	width: 100%;
 	h2 {
 		background: #f2f3f6;
-		padding: 18px 25px;
+		padding: 2px 25px;
+		height: 60px;
 		margin-left: -15px;
 		width: calc(100% + 30px);
 		/* margin-right: -30px; */
@@ -789,6 +793,9 @@ div.create {
 		font-size: 18px;
 		color: #5b5b5b;
 		font-weight: 500;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 	.items {
 		display: flex;
