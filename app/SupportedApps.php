@@ -88,7 +88,7 @@ abstract class SupportedApps
             mkdir(app_path('SupportedApps'), 0777, true);
         }
 
-        $src = app_path('SupportedApps/'.$app->name.'.zip');
+        $src = app_path('SupportedApps/'.className($app->name).'.zip');
         file_put_contents($src, $res->getBody());
 
         $zip = new \ZipArchive();
@@ -102,8 +102,8 @@ abstract class SupportedApps
 
     public static function saveApp($details, $app)
     {
-        $img_src = app_path('SupportedApps/'.$details->name.'/'.$details->icon);
-        $img_dest = public_path('storage/supportedapps/'.$details->icon);
+        $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
+        $img_dest = public_path('storage/supportedapps/'.className($details->icon));
         //die("i: ".$img_src);
         copy($img_src, $img_dest);
         

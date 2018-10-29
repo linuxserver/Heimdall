@@ -30,7 +30,10 @@ class Application extends Model
 
     public function class()
     {
-        $class = '\App\SupportedApps\\'.$this->name.'\\'.$this->name;
+        $name = $this->name;
+        $name = preg_replace('/\PL/u', '', $name);    
+
+        $class = '\App\SupportedApps\\'.$name.'\\'.$name;
         return $class;
     }
 
@@ -40,7 +43,10 @@ class Application extends Model
         $all = self::all();
         $list['null'] = 'None';
         foreach($all as $app) {
-            $list['\App\SupportedApps\\'.$app->name.'\\'.$app->name] = $app->name;
+            $name = $app->name;
+            $name = preg_replace('/\PL/u', '', $name);
+        
+            $list['\App\SupportedApps\\'.$name.'\\'.$name] = $app->name;
         }
         return $list;
     }

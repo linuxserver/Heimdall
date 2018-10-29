@@ -352,7 +352,7 @@ class ItemController extends Controller
         $validapps = [];
         foreach($list->apps as $app) {
             $validapps[] = $app->appid;
-            if(!file_exists(app_path('SupportedApps/'.$app->name))) {
+            if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
                 SupportedApps::getFiles($app);
                 $application = new Application;
                 SupportedApps::saveApp($app, $application);
