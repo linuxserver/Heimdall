@@ -103,7 +103,7 @@ abstract class SupportedApps
     public static function saveApp($details, $app)
     {
         $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
-        $img_dest = public_path('storage/supportedapps/'.className($details->icon));
+        $img_dest = public_path('storage/supportedapps/'.$details->icon);
         //die("i: ".$img_src);
         copy($img_src, $img_dest);
         
