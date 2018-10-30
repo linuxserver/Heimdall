@@ -161,13 +161,21 @@ class Item extends Model
 
     public function getconfig()
     {
-        if(!isset($this->description) || empty($this->description)) return false;
+        $explode = explode('\\', $this->class);
+        
+
+        if(!isset($this->description) || empty($this->description)) {
+            $config = new \stdClass;
+            $config->name = end($explode);
+            $config->enabled = false;
+            return $config;
+        }
+
+        
 
         $config = json_decode($this->description);
 
-        $explode = explode('\\', $this->class);
         $config->name = end($explode);
-    
 
         
         $config->url = $this->url;

@@ -1302,10 +1302,20 @@ hr {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  color: white;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .livestats-container .livestats strong span {
   margin-left: 4px;
+}
+
+.livestats-container .livestats.flexcolumn {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 input:-webkit-autofill,
@@ -1329,14 +1339,29 @@ select:-webkit-autofill:focus {
 .title-marquee {
   width: 125px;
   overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  margin-top: 2px;
 }
 
-.title-marquee span {
+.title-marquee > span, .title-marquee > strong {
   white-space: nowrap;
   -webkit-transform: translate(0, 0);
           transform: translate(0, 0);
   -webkit-animation: marquee 8s linear;
           animation: marquee 8s linear;
+}
+
+.title-marquee .title {
+  margin-right: 4px;
+}
+
+.no-marquee .title {
+  margin-right: 4px;
 }
 
 @-webkit-keyframes marquee {

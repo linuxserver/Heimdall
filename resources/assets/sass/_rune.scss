@@ -3,10 +3,21 @@
 .title-marquee {
     width: 125px;
     overflow: hidden;
-    span {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 2px;
+    > span, > strong {
         white-space: nowrap;
         transform: translate(0, 0);
         animation: marquee 8s linear;
+    }
+    .title {
+        margin-right: 4px;
+    }
+}
+.no-marquee {
+    .title {
+        margin-right: 4px;
     }
 }
 
