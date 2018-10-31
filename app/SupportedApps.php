@@ -8,10 +8,18 @@ abstract class SupportedApps
 
     protected $jar = false;
     protected $method = 'GET';
+    protected $error;
 
-    public function appTest($url, $attrs = [])
+    public function appTest($url, $attrs = [], $overridevars=false)
     {
         $res = $this->execute($url, $attrs);
+        if($res == null) {
+            return (object)[
+                'code' => null,
+                'status' => $this->error,
+                'response' => 'Connection failed',
+            ];
+        }
         switch($res->getStatusCode()) {
             case 200:
                 $status = 'Successfully communicated with the API';
@@ -33,20 +41,33 @@ abstract class SupportedApps
         ];
     }
 
-    public function execute($url, $attrs = [])
+    public function execute($url, $attrs = [], $overridevars=false, $overridemethod=false)
     {
-        $vars = [
+        $res = null;
+
+        $vars = ($overridemethod !== false) ?
+        $overridevars : [
             'http_errors' => false, 
             'timeout' => 15, 
             'connect_timeout' => 15,
         ];
+
         $client = new Client($vars);
 
+        $method = ($overridemethod !== false) ? $overridemethod : $this->method;
+
         try {
-            return $client->request($this->method, $url, $attrs);  
-         } catch (\GuzzleHttp\Exception\ServerException $e) {
-             echo (string) $e->getResponse()->getBody();
-         }
+            return $client->request($method, $url, $attrs);  
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error("Connection refused");
+            Log::debug($e->getMessage());
+            $this->error = "Connection refused - ".(string) $e->getMessage();
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            Log::debug($e->getMessage());
+            $this->error = (string) $e->getResponse()->getBody();
+        }
+        $this->error = 'General error connecting with API';
+        return $res;
     }
 
     public function login()
@@ -54,8 +75,13 @@ abstract class SupportedApps
 
     }
 
-    public function apiRequest($url)
+    public function normaliseurl($url, $addslash=true)
     {
+
+        $url = rtrim($url, '/');
+        if($addslash) $url .= '/';
+
+        return $url;
 
     }
 
