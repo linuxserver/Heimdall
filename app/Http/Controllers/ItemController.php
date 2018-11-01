@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Artisan;
 use App\Application;
 use App\Item;
 use App\Setting;
@@ -10,6 +11,7 @@ use GrahamCampbell\GitHub\Facades\GitHub;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\SupportedApps;
+use App\Jobs\ProcessApps;
 
 class ItemController extends Controller
 {
@@ -347,33 +349,11 @@ class ItemController extends Controller
 
     public function checkAppList()
     {
-        $localapps = Application::all();
-        $list = json_decode(SupportedApps::getList()->getBody());
-        $validapps = [];
-        foreach($list->apps as $app) {
-            $validapps[] = $app->appid;
-            if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
-                SupportedApps::getFiles($app);
-                $application = new Application;
-                SupportedApps::saveApp($app, $application);
-            } else {
-                // check if there has been an update for this app
-                $localapp = $localapps->where('appid', $app->appid)->first();
-                if($localapp) {
-                    if($localapp->sha !== $app->sha) {
-                        SupportedApps::getFiles($app);
-                        SupportedApps::saveApp($app, $localapp);
-                    }
-                }  else {
-                    SupportedApps::getFiles($app);
-                    $application = new Application;
-                    SupportedApps::saveApp($app, $application);
-      
-                }
-            }
-        }
-        //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list
-        // removed the delete so local apps can be added
+        ProcessApps::dispatch();
+        $route = route('items.index');
+        return redirect($route)
+            ->with('success', __('app.alert.success.updating'));
+
     }
 
     

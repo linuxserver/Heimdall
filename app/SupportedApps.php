@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 abstract class SupportedApps
 {
@@ -45,7 +46,7 @@ abstract class SupportedApps
     {
         $res = null;
 
-        $vars = ($overridemethod !== false) ?
+        $vars = ($overridevars !== false) ?
         $overridevars : [
             'http_errors' => false, 
             'timeout' => 15, 
