@@ -40,7 +40,7 @@ class Application extends Model
     public static function applist()
     {
         $list = [];
-        $all = self::all();
+        $all = self::orderBy('name')->get();
         $list['null'] = 'None';
         foreach($all as $app) {
             $name = $app->name;
