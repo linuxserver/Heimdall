@@ -44,6 +44,7 @@ class Item extends Model
             'Bitwarden' => \App\SupportedApps\Bitwarden::class,
             'Booksonic' => \App\SupportedApps\Booksonic::class,
             'BookStack' => \App\SupportedApps\BookStack::class,
+            'CalibreWeb' => \App\SupportedApps\CalibreWeb::class,
             'Deluge' => \App\SupportedApps\Deluge::class,
             'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
             'Duplicati' => \App\SupportedApps\Duplicati::class,
@@ -238,7 +239,7 @@ class Item extends Model
     public function user()
     {
         return $this->belongsTo('App\User');
-    }   
+    }
 
 
 }
