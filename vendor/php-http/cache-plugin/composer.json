@@ -1,0 +1,43 @@
+{
+    "name": "php-http/cache-plugin",
+    "description": "PSR-6 Cache plugin for HTTPlug",
+    "license": "MIT",
+    "keywords": ["cache", "http", "httplug", "plugin"],
+    "homepage": "http://httplug.io",
+    "authors": [
+        {
+            "name": "Márk Sági-Kazár",
+            "email": "mark.sagikazar@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.4 || ^7.0",
+        "psr/cache": "^1.0",
+        "php-http/client-common": "^1.1",
+        "php-http/message-factory": "^1.0",
+        "symfony/options-resolver": "^2.6 || ^3.0 || ^4.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.5",
+        "henrikbjorn/phpspec-code-coverage" : "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\Client\\Common\\Plugin\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\Http\\Client\\Common\\Plugin\\": "spec/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpspec run",
+        "test-ci": "vendor/bin/phpspec run -c phpspec.ci.yml"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.5-dev"
+        }
+    }
+}

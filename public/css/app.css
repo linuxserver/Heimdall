@@ -703,6 +703,8 @@ body {
   max-width: 1000px;
   width: 100%;
   margin: 10px 40px;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 .module-container header, .module-container footer {
@@ -785,6 +787,26 @@ body {
 
 .homesearch {
   height: 51px;
+}
+
+.toggleinput {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: column-reverse;
+          flex-direction: column-reverse;
+  line-height: 1;
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #ababab;
+  padding: 0 20px;
+}
+
+.toggleinput label.name {
+  margin-top: 6px;
 }
 
 .module-actions {
@@ -1142,17 +1164,18 @@ a.settinglink {
 }
 
 #appimage img {
-  max-width: 150px;
+  max-width: 95px;
 }
 
-#sapconfig {
+#sapconfig, .newblock {
   display: none;
   width: 100%;
 }
 
-#sapconfig h2 {
+#sapconfig h2, .newblock h2 {
   background: #f2f3f6;
-  padding: 18px 25px;
+  padding: 2px 25px;
+  height: 60px;
   margin-left: -15px;
   width: calc(100% + 30px);
   /* margin-right: -30px; */
@@ -1161,9 +1184,18 @@ a.settinglink {
   font-size: 18px;
   color: #5b5b5b;
   font-weight: 500;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
-#sapconfig .items {
+#sapconfig .items, .newblock .items {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -1230,7 +1262,7 @@ hr {
 }
 
 .livestats-container .livestats {
-  margin: 5px 0px -5px;
+  margin: 5px 0px 0px;
   padding: 0;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1255,11 +1287,35 @@ hr {
   font-weight: 500;
   opacity: 0.5;
   line-height: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  text-align: left;
 }
 
 .livestats-container .livestats strong {
   display: block;
   line-height: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  color: white;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.livestats-container .livestats strong span {
+  margin-left: 4px;
+}
+
+.livestats-container .livestats.flexcolumn {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 input:-webkit-autofill,
@@ -1283,14 +1339,29 @@ select:-webkit-autofill:focus {
 .title-marquee {
   width: 125px;
   overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  margin-top: 2px;
 }
 
-.title-marquee span {
+.title-marquee > span, .title-marquee > strong {
   white-space: nowrap;
   -webkit-transform: translate(0, 0);
           transform: translate(0, 0);
   -webkit-animation: marquee 8s linear;
           animation: marquee 8s linear;
+}
+
+.title-marquee .title {
+  margin-right: 4px;
+}
+
+.no-marquee .title {
+  margin-right: 4px;
 }
 
 @-webkit-keyframes marquee {

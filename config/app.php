@@ -14,7 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Heimdall'),  
-    'version' => '2.0.2',
+    'version' => '2.0.101',
 
     /*
     |--------------------------------------------------------------------------
@@ -228,6 +228,9 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+
+        'SupportedApps' => App\SupportedApps::class,
+        'EnhancedApps' => App\EnhancedApps::class,
 
     ],
 

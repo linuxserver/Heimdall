@@ -34,3 +34,11 @@ function title_color($hex)
         return ' white';
     }
 }
+
+
+function className($name)
+{
+    $name = preg_replace('/\PL/u', '', $name);
+    return $name;
+}
+

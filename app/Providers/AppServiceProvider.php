@@ -91,6 +91,8 @@ class AppServiceProvider extends ServiceProvider
             
         });  
 
+        $this->app['view']->addNamespace('SupportedApps', app_path('SupportedApps'));
+
 
         if (env('FORCE_HTTPS') === true) {
             \URL::forceScheme('https');

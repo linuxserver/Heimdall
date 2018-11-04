@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,11 +18,14 @@ Route::get('/userselect', 'UserController@selectUser')->name('user.select');
 Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.autologin');
 
 Route::get('/', 'ItemController@dash')->name('dash');
+Route::get('check_app_list', 'ItemController@checkAppList')->name('applist');
 
 Route::resources([
     'items' => 'ItemController',
     'tags' => 'TagController',
 ]);
+
+
 
 Route::get('tag/{slug}', 'TagController@show')->name('tags.show');
 Route::get('tag/add/{tag}/{item}', 'TagController@add')->name('tags.add');
@@ -37,8 +42,16 @@ Route::post('test_config', 'ItemController@testConfig')->name('test_config');
 Route::get('/get_stats/{id}', 'ItemController@getStats')->name('get_stats');
 
 Route::get('view/{name_view}', function ($name_view) {
-    return view('supportedapps.'.$name_view);
+    return view('SupportedApps::'.$name_view)->render();
 });
+
+Route::get('titlecolour', function (Request $request) {
+    $color = $request->input('color');
+    if($color) {
+        return title_color($color);
+    };
+    
+})->name('titlecolour');   
 
 Route::resource('users', 'UserController');
 

@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Artisan;
+use App\Application;
 use App\Item;
 use App\Setting;
 use App\User;
-use App\SupportedApps\Nzbget;
+use GrahamCampbell\GitHub\Facades\GitHub;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\SupportedApps;
+use App\Jobs\ProcessApps;
 
 class ItemController extends Controller
 {
@@ -41,9 +45,8 @@ class ItemController extends Controller
             $item->save();
         }
     }
-    
 
-     /**
+    /**
      * Pin item on the dashboard.
      *
      * @return \Illuminate\Http\Response
@@ -154,6 +157,12 @@ class ItemController extends Controller
             'user_id' => $current_user->id
         ]);
 
+        if($request->input('class') === 'null') {
+            $request->merge([
+                'class' => null,
+            ]);
+        }
+
 
         //die(print_r($request->input('config')));
         
@@ -222,6 +231,13 @@ class ItemController extends Controller
             'user_id' => $current_user->id
         ]);
 
+        if($request->input('class') === 'null') {
+            $request->merge([
+                'class' => null,
+            ]);
+        }
+
+
         $item = Item::find($id);
         $item->update($request->all());
 
@@ -273,16 +289,6 @@ class ItemController extends Controller
             ->with('success',__('app.alert.success.item_restored'));
     }
 
-    public function isSupportedAppByKey($app)
-    {
-        $output = false;
-        $all_supported = Item::supportedList();
-        if(array_key_exists($app, $all_supported)) {
-            $output = new $all_supported[$app];
-        }
-        return $output;
-    }
-
     /**
      * Return details for supported apps
      *
@@ -291,19 +297,25 @@ class ItemController extends Controller
     public function appload(Request $request)
     {
         $output = [];
-        $app = $request->input('app');
+        $appname = $request->input('app');
+        //die($appname);
 
-        if(($app_details = $this->isSupportedAppByKey($app)) !== false) {
-            // basic details
-            $output['icon'] = $app_details->icon();
-            $output['colour'] = $app_details->defaultColour();
+        $app_details = Application::where('name', $appname)->firstOrFail();
+        $appclass = $app_details->class();
+        $app = new $appclass;
 
-            // live details
-            if($app_details instanceof \App\SupportedApps\Contracts\Livestats) {
-                $output['config'] = $app_details->configDetails();
-            } else {
-                $output['config'] = null;
-            }
+        // basic details
+        $output['icon'] = $app_details->icon();
+        $output['name'] = $app_details->name;
+        $output['iconview'] = $app_details->iconView();
+        $output['colour'] = $app_details->defaultColour();
+        $output['class'] = $appclass;
+
+        // live details
+        if($app instanceof \App\EnhancedApps) {
+            $output['config'] = className($app_details->name).'.config';
+        } else {
+            $output['config'] = null;
         }
         
         return json_encode($output);
@@ -318,25 +330,34 @@ class ItemController extends Controller
 
         $app_details = new $app();
         $app_details->config = (object)$data;
-        $app_details->testConfig();
+        $app_details->test();
     }
 
     public function getStats($id)
     {
         $item = Item::find($id);
 
-        $config = json_decode($item->description);
-        if(isset($config->type)) {
-            $config->url = $item->url;
-            if(isset($config->override_url) && !empty($config->override_url)) {
-                $config->url = $config->override_url;
-            }
-            $app_details = new $config->type;
-            $app_details->config = $config;
-            echo $app_details->executeConfig();
+        $config = $item->getconfig();
+        if(isset($item->class)) {
+            $application = new $item->class;
+            $application->config = $config;
+            echo $application->livestats();
         }
         
     }
+
+
+    public function checkAppList()
+    {
+        ProcessApps::dispatch();
+        $route = route('items.index');
+        return redirect($route)
+            ->with('success', __('app.alert.success.updating'));
+
+    }
+
+    
+    
 
     
 }

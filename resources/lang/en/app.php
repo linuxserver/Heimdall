@@ -47,6 +47,7 @@ return [
     'buttons.cancel' => 'Cancel',
     'buttons.add' => 'Add',
     'buttons.upload' => 'Upload a file',
+    'buttons.downloadapps' => 'Update Apps List',
 
     'dash.pin_item' => 'Pin item to dashboard',
     'dash.no_apps' => 'There are currently no pinned applications, :link1 or :link2',
@@ -73,6 +74,8 @@ return [
     'apps.tag_name' => 'Tag name',
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
+    'apps.preview' => 'Preview',
+    'apps.apptype' => 'Application Type',
 
     'user.user_list' => 'Users',
     'user.add_user' => 'Add user',
@@ -93,6 +96,7 @@ return [
     'alert.success.item_updated' => 'Item updated successfully',
     'alert.success.item_deleted' => 'Item deleted successfully',
     'alert.success.item_restored' => 'Item restored successfully',
+    'alert.success.updating' => 'Updating apps list',
 
     'alert.success.tag_created' => 'Tag created successfully',
     'alert.success.tag_updated' => 'Tag updated successfully',

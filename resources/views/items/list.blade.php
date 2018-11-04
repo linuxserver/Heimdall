@@ -11,6 +11,7 @@
 
                 </div>
                 <div class="module-actions">
+                    <a href="{{ route('applist', [], false) }}" class="button"><i class="fa fa-cloud-download"></i><span>{{ __('app.buttons.downloadapps') }}</span></a>
                     <a href="{{ route('items.create', [], false) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
                     <a href="{{ route('dash', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
                 </div>

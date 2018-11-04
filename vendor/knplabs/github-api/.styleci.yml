@@ -1,0 +1,5 @@
+preset: recommended
+
+disabled:
+  - align_double_arrow
+  - no_multiline_whitespace_before_semicolons

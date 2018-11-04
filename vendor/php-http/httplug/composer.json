@@ -1,0 +1,40 @@
+{
+    "name": "php-http/httplug",
+    "description": "HTTPlug, the HTTP client abstraction for PHP",
+    "license": "MIT",
+    "keywords": ["http", "client"],
+    "homepage": "http://httplug.io",
+    "authors": [
+        {
+            "name": "Eric GELOEN",
+            "email": "geloen.eric@gmail.com"
+        },
+        {
+            "name": "Márk Sági-Kazár",
+            "email": "mark.sagikazar@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "psr/http-message": "^1.0",
+        "php-http/promise": "^1.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.4",
+        "henrikbjorn/phpspec-code-coverage" : "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\Client\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpspec run",
+        "test-ci": "vendor/bin/phpspec run -c phpspec.ci.yml"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1-dev"
+        }
+    }
+}
