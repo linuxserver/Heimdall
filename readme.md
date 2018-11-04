@@ -29,73 +29,12 @@ You can use the app to link to any site or application, but Foundation apps will
 
 Supported applications are recognized by the title of the application as entered in the title field when adding an application. For example, to add a link to pfSense, begin by typing "p" in the title field and then select "pfSense" from the list of supported applications.
 
-**Enhanced**
-- CouchPotato
-- Deluge
-- NZBGet
-- Pihole
-- PlexPy
-- Proxmox
-- Runeaudio
-- Sabnzbd
-- Tautulli
-- Traefik
-- Transmission
+[![enhancedapps](https://img.shields.io/badge/dynamic/json.svg?label=Enhanced%20Apps&url=https%3A%2F%2Fapps.heimdall.site%2Fstats&query=enhanced_apps&colorB=3f8483&style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAjCAMAAACw/5reAAAAnFBMVEUAAADu7u7u7u7u7u7u7u7x8fHu7u7u7u7u7u7u7u7u7u7u7u7r6+vu7u7v7+/u7u7t7e3v7+/v7+/u7u7u7u7u7u7u7u7u7u7u7u7u7u7v7+/u7u7p6ent7e3v7+/v7+/v7+/u7u7u7u7u7u7u7u7t7e3////u7u7u7u7u7u7u7u7w8PDw8PDt7e3u7u7t7e3s7Ozu7u7t7e3u7u4TnCP6AAAAM3RSTlMA+9n3phHw3czC088M5Y5zG6mflWdJFumyfj4sB2NeTi7hiWlDOQPGt5lsMiG9hFQntpFqxQJtAAABnElEQVQoz2WRh3KrQAxFtYWO6ZhucItrynv6/3/LFnA24c6wurpnYBkJZvXduNix6+GXTo8qWnxUPU4m2w0O1ktTozPsftiZpejGlm7C2MWUnRcWOohIo36+PaKyDZdLUOgDXvqQfaT9kwkfvP3AN18E7Kl8hkJHMHSXSSadxaTtTNjJhMkfjFHKMqGlolg4T7mtCbcq8gBCotxkwklFLIQSlQoTHnVWQqzNxYQuzpfmqGVMc5ijHK5yAuIhxbZ5p/S92RZkjv5BKs6aosSIr0JrcXBo1FtICVINKRKK6u0GnraoN84O5KbhjRwYzxCJnQCMtotkdNxjq2F7dJ2RoGuXIBTvc3ROthdmat6hZ7cOyfcxKGV+wTxBkxQxTQTzWOFny/7qS2nzx37T7nbtZj9xu7zUr/323nVy0sQnhwMJktSZrl5v7CjgSQmWi+haUCY8sH4tyc/FGSKGouS+WqBJm8U2NIE/+nLu2tzpF/xVNGy02QzRClafC/ysVpDzQJuA8xXsKl8bv+pgpXz57H9Yy3J1lQNY62wUrW+mdzrylWS0QwAAAABJRU5ErkJggg==)](https://apps.heimdall.site/applications/enhanced)
 
-**Foundation**
-- AirSonic
-- Bazarr
-- Bitwarden
-- Booksonic
-- BookStack
-- Cardigann
-- DokuWiki
-- Duplicati
-- Emby
-- FreshRSS
-- Gitea
-- Grafana
-- Graylog
-- Headphones
-- Jdownloader
-- Krusader
-- LibreNMS
-- Lidarr
-- Mailcow
-- McMyAdmin
-- Medusa
-- Monica
-- MusicBrainz
-- Mylar
-- NZBhydra & NZBhydra2
-- Netdata
-- Nextcloud
-- Ombi
-- OpenHAB
-- OpenMediaVault
-- Plex
-- Plexrequests
-- Portainer
-- Radarr
-- Rancher
-- SickRage
-- Sonarr
-- TT-RSS
-- TVheadend
-- UniFI
-- unRAID
-- pfSense
-- pyLoad
-- rTorrent/Flood
-- rTorrent/ruTorrent
-- Syncthing
-- Virtualmin
-- Watcher3
-- Webmin
-- WebTools
+[![foundationapps](https://img.shields.io/badge/dynamic/json.svg?label=Foundation%20Apps&url=https%3A%2F%2Fapps.heimdall.site%2Fstats&query=foundation_apps&colorB=3f8483&style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAjCAMAAACw/5reAAAAnFBMVEUAAADu7u7u7u7u7u7u7u7x8fHu7u7u7u7u7u7u7u7u7u7u7u7r6+vu7u7v7+/u7u7t7e3v7+/v7+/u7u7u7u7u7u7u7u7u7u7u7u7u7u7v7+/u7u7p6ent7e3v7+/v7+/v7+/u7u7u7u7u7u7u7u7t7e3////u7u7u7u7u7u7u7u7w8PDw8PDt7e3u7u7t7e3s7Ozu7u7t7e3u7u4TnCP6AAAAM3RSTlMA+9n3phHw3czC088M5Y5zG6mflWdJFumyfj4sB2NeTi7hiWlDOQPGt5lsMiG9hFQntpFqxQJtAAABnElEQVQoz2WRh3KrQAxFtYWO6ZhucItrynv6/3/LFnA24c6wurpnYBkJZvXduNix6+GXTo8qWnxUPU4m2w0O1ktTozPsftiZpejGlm7C2MWUnRcWOohIo36+PaKyDZdLUOgDXvqQfaT9kwkfvP3AN18E7Kl8hkJHMHSXSSadxaTtTNjJhMkfjFHKMqGlolg4T7mtCbcq8gBCotxkwklFLIQSlQoTHnVWQqzNxYQuzpfmqGVMc5ijHK5yAuIhxbZ5p/S92RZkjv5BKs6aosSIr0JrcXBo1FtICVINKRKK6u0GnraoN84O5KbhjRwYzxCJnQCMtotkdNxjq2F7dJ2RoGuXIBTvc3ROthdmat6hZ7cOyfcxKGV+wTxBkxQxTQTzWOFny/7qS2nzx37T7nbtZj9xu7zUr/323nVy0sQnhwMJktSZrl5v7CjgSQmWi+haUCY8sH4tyc/FGSKGouS+WqBJm8U2NIE/+nLu2tzpF/xVNGy02QzRClafC/ysVpDzQJuA8xXsKl8bv+pgpXz57H9Yy3J1lQNY62wUrW+mdzrylWS0QwAAAABJRU5ErkJggg==)](https://apps.heimdall.site/applications/foundation)
 
 ## Installing
-Apart from the Laravel dependencies, namely PHP >= 7.1.3, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension, XML PHP Extension, Ctype PHP Extension and JSON PHP Extension, the only other thing Heimdall needs is sqlite support.
+Apart from the Laravel dependencies, namely PHP >= 7.1.3, OpenSSL PHP Extension, PDO PHP Extension, Mbstring PHP Extension, Tokenizer PHP Extension, XML PHP Extension, Ctype PHP Extension and JSON PHP Extension, the only other thing Heimdall needs is sqlite support and zip support (php-zip).
 
 If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe it should be by default, but one user came across the issue on a windows system.
 
