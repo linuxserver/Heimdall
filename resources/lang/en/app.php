@@ -75,6 +75,7 @@ return [
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
     'apps.preview' => 'Preview',
+    'apps.apptype' => 'Application Type',
 
     'user.user_list' => 'Users',
     'user.add_user' => 'Add user',

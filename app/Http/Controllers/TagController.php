@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Item;
+use App\User;
 use DB;
 
 class TagController extends Controller
@@ -62,10 +63,13 @@ class TagController extends Controller
 
         $slug = str_slug($request->title, '-');
 
+        $current_user = User::currentUser();
+
         // set item type to tag
         $request->merge([
             'type' => '1',
-            'url' => $slug
+            'url' => $slug,
+            'user_id' => $current_user->id
         ]);
         //die(print_r($request->all()));
         Item::create($request->all());
