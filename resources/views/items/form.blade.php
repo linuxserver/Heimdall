@@ -27,7 +27,7 @@
             </div>
             <div class="input">
                 <label>{{ __('app.apps.apptype') }} *</label>
-                {!! Form::select('class', App\Application::applist(), null, array('class' => 'form-control config-item', 'data-config' => 'type')) !!}
+                {!! Form::select('class', App\Application::applist(), null, array('class' => 'form-control config-item', 'id' => 'apptype', 'data-config' => 'type')) !!}
             </div>
 
             <div class="input">

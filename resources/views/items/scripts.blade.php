@@ -22,7 +22,24 @@
             $( "#appname" ).autocomplete({
                 source: availableTags,
                 select: function( event, ui ) {
-                    $.post('{{ route('appload') }}', { app: ui.item.value }, function(data) {
+                    var appvalue = ui.item.value;
+                    appload(appvalue);
+                }
+            });
+            $('#appname').on('keyup change', function(e) {
+                $('#tile-preview .title').html($(this).val());
+            })
+            $('#apptype').on('change', function(e) {
+                appload($(this).find('option:selected').text());
+            });
+            $('#appcolour').on('change', function(e) {
+                $('#tile-preview .item').css('backgroundColor', $(this).val());
+            })
+
+            $('.tags').select2();
+
+            function appload(appvalue) {
+                $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
                         // Main details
                         $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
                         $('input[name=colour]').val(data.colour);
@@ -38,16 +55,8 @@
                             });
                         }
                     }, "json");
-                }
-            });
-            $('#appname').on('keyup change', function(e) {
-                $('#tile-preview .title').html($(this).val());
-            })
-            $('#appcolour').on('change', function(e) {
-                $('#tile-preview .item').css('backgroundColor', $(this).val());
-            })
 
-            $('.tags').select2();
+            }
 
         });
 </script>
