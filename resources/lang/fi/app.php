@@ -41,6 +41,7 @@ return array (
   'buttons.cancel' => 'Peruuta',
   'buttons.add' => 'Lisää',
   'buttons.upload' => 'Lataa tiedosto',
+  'buttons.downloadapps' => 'Päivitä sovelluslistaa',
 
 
   'dash.pin_item' => 'Kiinnitä kohde hallintapaneliin',
@@ -69,6 +70,7 @@ return array (
   'apps.tag_name' => 'Tagin nimi',
   'apps.tags' => 'Tagit',
   'apps.override' => 'Jos eri kuin pää-osoite',
+  'apps.preview' => 'Esikatsele',
 
 
   'user.user_list' => 'KÄyttäjät',
@@ -98,6 +100,7 @@ return array (
   'alert.success.tag_updated' => 'Tagi päivitetty onnistuneesti',
   'alert.success.tag_deleted' => 'Tagi poistettu onnistuneesti',
   'alert.success.tag_restored' => 'Tagi palautettu onnistuneesti',
+  'alert.success.updating' => 'Päivitetään sovelluslistaa',
 
 
   'alert.success.setting_updated' => 'Asetus muokattu onnistuneesti',
