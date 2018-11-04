@@ -40,6 +40,7 @@ return array (
   'buttons.cancel' => 'Avbryt',
   'buttons.add' => 'Lägg till',
   'buttons.upload' => 'Ladda upp en fil',
+  'buttons.downloadapps' => 'Uppdatera app lista',
 
 
   'dash.pin_item' => 'Fäst på instrumentpanelen',
@@ -68,6 +69,7 @@ return array (
   'apps.tag_name' => 'Tagg namn',
   'apps.tags' => 'Taggar',
   'apps.override' => 'Om annan än huvudlänk',
+  'apps.preview' => 'Förhandsvisa',
 
 
   'user.user_list' => 'Avnändare',
@@ -91,6 +93,7 @@ return array (
   'alert.success.item_updated' => 'Artickeln uppdaterad',
   'alert.success.item_deleted' => 'Artickeln borttagen',
   'alert.success.item_restored' => 'Artikeln återställd',
+  'alert.success.updating' => 'Uppdaterar app lista',
 
 
   'alert.success.tag_created' => 'Tagg skapad',
