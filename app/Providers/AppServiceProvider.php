@@ -50,7 +50,12 @@ class AppServiceProvider extends ServiceProvider
         
         $applications = Application::all();
         if($applications->count() <= 0) {
-            ProcessApps::dispatch();
+            if (class_exists('ZipArchive')) {
+                ProcessApps::dispatch();
+            } else {
+                die("You are missing php-zip");
+            }
+            
         }
 
         if(!is_file(public_path('storage'))) {
