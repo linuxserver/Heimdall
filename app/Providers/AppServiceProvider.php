@@ -7,6 +7,8 @@ use Artisan;
 use Schema;
 use App\Setting;
 use App\User;
+use App\Application;
+use App\Jobs\ProcessApps;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        
 
         if(!is_file(base_path('.env'))) {
             touch(base_path('.env'));
@@ -40,11 +41,18 @@ class AppServiceProvider extends ServiceProvider
                 if(version_compare($app_version, $db_version) == 1) { // app is higher than db, so need to run migrations etc
                     Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true));                   
                 }
+
             } else {
                 Artisan::call('migrate', array('--path' => 'database/migrations', '--force' => true, '--seed' => true)); 
             }
 
         }
+        
+        $applications = Application::all();
+        if($applications->count() <= 0) {
+            ProcessApps::dispatch();
+        }
+
         if(!is_file(public_path('storage'))) {
             Artisan::call('storage:link');
             \Session::put('current_user', null);
