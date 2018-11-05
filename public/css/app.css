@@ -1318,6 +1318,10 @@ hr {
           flex-direction: column;
 }
 
+.livestats-container.black .livestats strong {
+  color: #000;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus

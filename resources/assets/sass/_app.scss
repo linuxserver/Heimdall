@@ -898,6 +898,13 @@ hr {
 		}
 
 	}
+	&.black {
+		.livestats {
+			strong {
+				color: #000;
+			}
+		}
+	}
 }
 
 input:-webkit-autofill,
