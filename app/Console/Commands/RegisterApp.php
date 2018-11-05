@@ -40,22 +40,40 @@ class RegisterApp extends Command
     public function handle()
     {
         $folder = $this->argument('folder');
+        if($folder == 'all') {
+            $apps = scandir(app_path('SupportedApps'));
+            foreach($apps as $folder) {
+                if($folder == '.' || $folder == '..') continue;
+                $this->addApp($folder);
+            }
+
+        } else {
+            $this->addApp($folder);
+        }
+        
+    }
+
+    public function addApp($folder)
+    {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
         if(file_exists($json)) {
             $app = json_decode(file_get_contents($json));
-            $exists = Application::find($app->appid);
-            if($exists) {
-                $this->error('This app is already registered');
-                exit;
+            if(isset($app->appid)) {
+                $exists = Application::find($app->appid);
+                if($exists) {
+                    $this->error('Application already registered - '.$exists->name." - ".$exists->appid);
+                } else {
+                    // Doesn't exist so add it
+                    SupportedApps::saveApp($app, new Application);
+                    $this->info("Application Added - ".$app->name." - ".$app->appid);
+                }
+            } else {
+                $this->error('No App ID for - '.$folder);
             }
-            // Doesn't exist so add it
-            SupportedApps::saveApp($app, new Application);
-            $this->info("Application Added - ".$app->name." - ".$app->appid);
             
         } else {
             $this->error('Could not find '.$json);
         }
-        
-        
+
     }
 }
