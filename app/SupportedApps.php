@@ -105,6 +105,13 @@ abstract class SupportedApps
         return $client->request('GET', $list_url);
     }
 
+    public static function configValue($item=null, $key=null)
+    {
+        if(isset($item) && !empty($item)) {
+            return $item->getconfig()->$key;
+        } else return null;
+    }
+
     public static function getFiles($app)
     {
         $zipurl = $app->files;
@@ -134,7 +141,7 @@ abstract class SupportedApps
         }
 
         $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
-        $img_dest = public_path('storage/icons/'.$details->icon);
+        $img_dest = storage_path('app/public/icons/'.$details->icon);
         //die("i: ".$img_src);
         copy($img_src, $img_dest);
         
