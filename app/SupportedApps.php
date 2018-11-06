@@ -143,7 +143,7 @@ abstract class SupportedApps
         $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
         $img_dest = storage_path('app/public/icons/'.$details->icon);
         //die("i: ".$img_src);
-        copy($img_src, $img_dest);
+        @copy($img_src, $img_dest);
         
         $app->appid = $details->appid;
         $app->name = $details->name;
