@@ -1,7 +1,7 @@
                     <section class="item-container{{ $app->droppable }}" data-id="{{ $app->id }}">
                         <div class="item" style="background-color: {{ $app->colour }}">
                             @if($app->icon)
-                            <img class="app-icon" src="{{ asset('/storage/'.$app->icon) }}" />
+                            <img class="app-icon" src="{{ asset('/storage/'.str_replace('supportedapps', 'icons', $app->icon)) }}" />
                             @else
                             <img class="app-icon" src="{{ asset('/img/heimdall-icon-small.png') }}" />
                             @endif
