@@ -81,13 +81,23 @@
 
             
             @if(isset($item) && $item->enhanced())
+
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
                 @include('SupportedApps::'.$item->getconfig()->name.'.config')
                 @endif
             </div>
+
+            @elseif(old('class') && App\Item::isEnhanced(old('class')))
+
+            <div id="sapconfig" style="display: block;">
+                @include('SupportedApps::'.App\Item::nameFromClass(old('class')).'.config')
+            </div>
+
             @else
+
             <div id="sapconfig"></div>
+            
             @endif
             
         </div>

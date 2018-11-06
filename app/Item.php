@@ -124,6 +124,14 @@ class Item extends Model
         }
     }
 
+    public static function nameFromClass($class)
+    {
+        $explode = explode('\\', $class);
+        $name = end($explode);
+        
+        return $name;
+    }
+
     public function scopeOfType($query, $type)
     {
         switch($type) {
@@ -145,6 +153,12 @@ class Item extends Model
         } else {
             return false;
         }
+        return (bool)($app instanceof \App\EnhancedApps);
+    }
+
+    public static function isEnhanced($class)
+    {
+        $app = new $class;
         return (bool)($app instanceof \App\EnhancedApps);
     }
 

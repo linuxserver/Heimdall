@@ -26,6 +26,12 @@
                     appload(appvalue);
                 }
             });
+            // initial load
+            $('#tile-preview .title').html($('#appname').val());
+            $('#tile-preview .item').css('backgroundColor', $('#appcolour').val());
+            $('#tile-preview .app-icon').attr('src', $('#appimage img').attr('src'));
+
+            // Updates
             $('#appname').on('keyup change', function(e) {
                 $('#tile-preview .title').html($(this).val());
             })
@@ -39,7 +45,10 @@
             $('.tags').select2();
 
             function appload(appvalue) {
-                $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
+                if(appvalue == 'None') {
+                    $('#sapconfig').html('').hide();
+                } else {
+                    $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
                         // Main details
                         $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
                         $('input[name=colour]').val(data.colour);
@@ -53,8 +62,11 @@
                             $.get('/view/'+data.config, function(getdata) {
                                 $('#sapconfig').html(getdata).show();
                             });
+                        } else {
+                            $('#sapconfig').html('').hide();
                         }
                     }, "json");
+                }
 
             }
 
