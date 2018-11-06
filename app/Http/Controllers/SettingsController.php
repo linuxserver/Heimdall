@@ -68,6 +68,8 @@ class SettingsController extends Controller
         if (!is_null($setting)) {
             $data = Setting::getInput();
 
+            $setting_value = null;
+
             if ($setting->type == 'image') {
 
 
