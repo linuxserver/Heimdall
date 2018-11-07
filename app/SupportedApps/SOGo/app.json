@@ -1,0 +1,10 @@
+{
+    "appid": "d143b3a76b72591495655c5257c7523456bdd736",
+    "name": "SOGo",
+    "website": "https://sogo.nu/",
+    "license": "GNU GPL/LGPL v2 and above",
+    "description": "SOGo is a fully supported and trusted groupware server with a focus on scalability and open standards.",
+    "enhanced": false,
+    "tile_background": "light",
+    "icon": "sogo.svg"
+}

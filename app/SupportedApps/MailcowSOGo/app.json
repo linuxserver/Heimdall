@@ -1,0 +1,10 @@
+{
+    "appid": "1ec48781d2c87a9e6dc9ee99e5eff0ab5958df09",
+    "name": "Mailcow - SOGo",
+    "website": "https://sogo.nu/",
+    "license": "GNU GPL/LGPL v2 and above",
+    "description": "SOGo is a fully supported and trusted groupware server with a focus on scalability and open standards.\r\n\r\nPart of the Mailcow stack.",
+    "enhanced": false,
+    "tile_background": "dark",
+    "icon": "mailcowsogo.svg"
+}

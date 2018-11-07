@@ -1,0 +1,10 @@
+{
+    "appid": "5876529d5d47f91c435d9230576044bc4cad8547",
+    "name": "Rspamd",
+    "website": "https://rspamd.com/",
+    "license": "Apache 2.0",
+    "description": "Fast, free and open-source spam filtering system.",
+    "enhanced": false,
+    "tile_background": "dark",
+    "icon": "rspamd.png"
+}

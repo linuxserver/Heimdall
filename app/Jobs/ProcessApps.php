@@ -34,11 +34,15 @@ class ProcessApps implements ShouldQueue
         $localapps = Application::all();
         $list = json_decode(SupportedApps::getList()->getBody());
         $validapps = [];
+        
         foreach($list->apps as $app) {
             $validapps[] = $app->appid;
+            $localapp = $localapps->where('appid', $app->appid)->first();
+
+            $application = ($localapp) ? $localapp : new Application;
+
             if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
                 SupportedApps::getFiles($app);
-                $application = new Application;
                 SupportedApps::saveApp($app, $application);
             } else {
                 // check if there has been an update for this app
@@ -46,11 +50,10 @@ class ProcessApps implements ShouldQueue
                 if($localapp) {
                     if($localapp->sha !== $app->sha) {
                         SupportedApps::getFiles($app);
-                        SupportedApps::saveApp($app, $localapp);
+                        SupportedApps::saveApp($app, $application);
                     }
                 }  else {
                     SupportedApps::getFiles($app);
-                    $application = new Application;
                     SupportedApps::saveApp($app, $application);
       
                 }

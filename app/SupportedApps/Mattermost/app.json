@@ -1,0 +1,10 @@
+{
+    "appid": "b3e1424fb69ca08481b03ad9d81e95488421997f",
+    "name": "Mattermost",
+    "website": "https://mattermost.com/",
+    "license": "MIT License",
+    "description": "Mattermost provides high trust collaboration and messaging solutions through an open source, community-powered approach. Enjoy all the productivity benefits of workplace messaging across web, mobile and PC, with unlimited archiving, search and integrations within IT-controlled private environments in public clouds, including AWS and Azure, as well as on-premise in private clouds and virtual or physical servers.",
+    "enhanced": false,
+    "tile_background": "light",
+    "icon": "mattermost.png"
+}

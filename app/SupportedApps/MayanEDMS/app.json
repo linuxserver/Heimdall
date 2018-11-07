@@ -1,0 +1,10 @@
+{
+    "appid": "6b9e062ff02ea610df64e9b0eca1c973faf1b51d",
+    "name": "Mayan EDMS",
+    "website": "https://github.com/tryghost/ghost",
+    "license": "Apache License 2.0",
+    "description": "Mayan EDMS is an open-source document management system. Its main purpose is to store, introspect, and categorize files, with a strong emphasis on preserving the contextual and business information of documents. It can also OCR, preview, label, sign, send, and receive thoses files. Other features of interest are its workflow system, role based access control, and REST API.",
+    "enhanced": false,
+    "tile_background": "light",
+    "icon": "mayanedms.png"
+}

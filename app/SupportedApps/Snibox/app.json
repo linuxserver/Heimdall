@@ -1,0 +1,10 @@
+{
+    "appid": "6c050d5bdf522fa20599560ff0f6b74e7dcd97a8",
+    "name": "Snibox",
+    "website": "https://github.com/snibox/snibox",
+    "license": "MIT License",
+    "description": "Snibox is a self-hosted, single-user (for now) snippet manager. Developed to collect and organize code snippets. Supports various programming languages, markdown, plain text.",
+    "enhanced": false,
+    "tile_background": "dark",
+    "icon": "snibox.png"
+}
