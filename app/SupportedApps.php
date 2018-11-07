@@ -13,6 +13,13 @@ abstract class SupportedApps
 
     public function appTest($url, $attrs = [], $overridevars=false)
     {
+        if(empty($this->config->url)) {
+            return (object)[
+                'code' => 404,
+                'status' => 'No URL has been specified',
+                'response' => 'No URL has been specified',
+            ];    
+        }
         $res = $this->execute($url, $attrs);
         if($res == null) {
             return (object)[
