@@ -47,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
             }
 
         }
+
+        if(!is_file(public_path('storage'))) {
+            Artisan::call('storage:link');
+            \Session::put('current_user', null);
+        }
         
         $applications = Application::all();
         if($applications->count() <= 0) {
@@ -56,11 +61,6 @@ class AppServiceProvider extends ServiceProvider
                 die("You are missing php-zip");
             }
             
-        }
-
-        if(!is_file(public_path('storage'))) {
-            Artisan::call('storage:link');
-            \Session::put('current_user', null);
         }
 
         // User specific settings need to go here as session isn't available at this point in the app

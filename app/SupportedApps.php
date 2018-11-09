@@ -143,8 +143,8 @@ abstract class SupportedApps
 
     public static function saveApp($details, $app)
     {
-        if(!file_exists(public_path('storage/icons')))  {
-            mkdir(public_path('storage/icons'), 0777, true);
+        if(!file_exists(storage_path('app/public/icons')))  {
+            mkdir(storage_path('app/public/icons'), 0777, true);
         }
 
         $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);

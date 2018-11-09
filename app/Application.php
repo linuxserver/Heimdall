@@ -13,6 +13,14 @@ class Application extends Model
     //
     public function icon()
     {
+        if(!file_exists(storage_path('app/public/'.$this->icon)))  {
+            $img_src = app_path('SupportedApps/'.$this->name.'/'.str_replace('icons/', '', $this->icon));
+            $img_dest = storage_path('app/public/'.$this->icon);
+            //die("i: ".$img_src);
+            @copy($img_src, $img_dest);
+        }
+
+
         return $this->icon;
     }
 
