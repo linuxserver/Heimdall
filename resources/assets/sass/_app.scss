@@ -866,11 +866,6 @@ hr {
 		justify-content: space-between;
 		width: 100%;
 
-		li {
-			text-align: center;
-			margin: 0;
-			line-height: 1;
-		}
 		span {
 			display: block;
 			text-transform: uppercase;
@@ -893,6 +888,18 @@ hr {
 				margin-left: 4px;
 			}
 		}
+		li {
+			text-align: center;
+			margin: 0;
+			line-height: 1;
+			&.right {
+				text-align: right;
+				span {
+					justify-content: flex-end;
+				}
+			}
+		}
+
 		&.flexcolumn {
 			flex-direction: column;
 		}

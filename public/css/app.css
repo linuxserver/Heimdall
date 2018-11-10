@@ -1274,12 +1274,6 @@ hr {
   width: 100%;
 }
 
-.livestats-container .livestats li {
-  text-align: center;
-  margin: 0;
-  line-height: 1;
-}
-
 .livestats-container .livestats span {
   display: block;
   text-transform: uppercase;
@@ -1309,6 +1303,22 @@ hr {
 
 .livestats-container .livestats strong span {
   margin-left: 4px;
+}
+
+.livestats-container .livestats li {
+  text-align: center;
+  margin: 0;
+  line-height: 1;
+}
+
+.livestats-container .livestats li.right {
+  text-align: right;
+}
+
+.livestats-container .livestats li.right span {
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
 }
 
 .livestats-container .livestats.flexcolumn {
