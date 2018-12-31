@@ -209,7 +209,12 @@ class BelongsToMany extends Relation
      */
     public function addEagerConstraints(array $models)
     {
-        $this->query->whereIn($this->getQualifiedForeignPivotKeyName(), $this->getKeys($models, $this->parentKey));
+        $whereIn = $this->whereInMethod($this->parent, $this->parentKey);
+
+        $this->query->{$whereIn}(
+            $this->getQualifiedForeignPivotKeyName(),
+            $this->getKeys($models, $this->parentKey)
+        );
     }
 
     /**
@@ -360,7 +365,7 @@ class BelongsToMany extends Relation
      *
      * In addition, new pivot records will receive this value.
      *
-     * @param  string  $column
+     * @param  string|array  $column
      * @param  mixed  $value
      * @return $this
      */
@@ -514,7 +519,7 @@ class BelongsToMany extends Relation
             return $result;
         }
 
-        throw (new ModelNotFoundException)->setModel(get_class($this->related));
+        throw (new ModelNotFoundException)->setModel(get_class($this->related), $id);
     }
 
     /**
@@ -788,7 +793,7 @@ class BelongsToMany extends Relation
         // the related model's timestamps, to make sure these all reflect the changes
         // to the parent models. This will help us keep any caching synced up here.
         if (count($ids = $this->allRelatedIds()) > 0) {
-            $this->getRelated()->newQuery()->whereIn($key, $ids)->update($columns);
+            $this->getRelated()->newModelQuery()->whereIn($key, $ids)->update($columns);
         }
     }
 
@@ -1017,6 +1022,16 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * Get the parent key for the relationship.
+     *
+     * @return string
+     */
+    public function getParentKeyName()
+    {
+        return $this->parentKey;
+    }
+
+    /**
      * Get the fully qualified parent key name for the relation.
      *
      * @return string
@@ -1024,6 +1039,16 @@ class BelongsToMany extends Relation
     public function getQualifiedParentKeyName()
     {
         return $this->parent->qualifyColumn($this->parentKey);
+    }
+
+    /**
+     * Get the related key for the relationship.
+     *
+     * @return string
+     */
+    public function getRelatedKeyName()
+    {
+        return $this->relatedKey;
     }
 
     /**

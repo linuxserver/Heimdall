@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    backupGlobals="false" 
+    backupStaticAttributes="false" 
+    bootstrap="vendor/autoload.php"
+    colors="true" 
+    verbose="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTestSize="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutTodoAnnotatedTests="true"
+    checkForUnintentionallyCoveredCode="true"
+    forceCoversAnnotation="true">
+	<testsuites>
+		<testsuite name="Unit Test Suite">
+			<directory>test/unit</directory>
+		</testsuite>
+		<testsuite name="Integration Test Suite">
+			<directory>test/functional</directory>
+		</testsuite>
+	</testsuites>
+    
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+        
+        <blacklist>
+            <directory suffix=".php">vendor</directory>
+        </blacklist>
+    </filter>
+</phpunit>

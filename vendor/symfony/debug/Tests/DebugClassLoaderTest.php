@@ -273,6 +273,24 @@ class DebugClassLoaderTest extends TestCase
         ));
     }
 
+    public function testExtendedMethodDefinesNewParameters()
+    {
+        $deprecations = array();
+        set_error_handler(function ($type, $msg) use (&$deprecations) { $deprecations[] = $msg; });
+        $e = error_reporting(E_USER_DEPRECATED);
+
+        class_exists(__NAMESPACE__.'\\Fixtures\SubClassWithAnnotatedParameters', true);
+
+        error_reporting($e);
+        restore_error_handler();
+
+        $this->assertSame(array(
+            'The "Symfony\Component\Debug\Tests\Fixtures\SubClassWithAnnotatedParameters::quzMethod()" method will require a new "Quz $quz" argument in the next major version of its parent class "Symfony\Component\Debug\Tests\Fixtures\ClassWithAnnotatedParameters", not defining it is deprecated.',
+            'The "Symfony\Component\Debug\Tests\Fixtures\SubClassWithAnnotatedParameters::whereAmI()" method will require a new "bool $matrix" argument in the next major version of its parent class "Symfony\Component\Debug\Tests\Fixtures\InterfaceWithAnnotatedParameters", not defining it is deprecated.',
+            'The "Symfony\Component\Debug\Tests\Fixtures\SubClassWithAnnotatedParameters::isSymfony()" method will require a new "true $yes" argument in the next major version of its parent class "Symfony\Component\Debug\Tests\Fixtures\ClassWithAnnotatedParameters", not defining it is deprecated.',
+        ), $deprecations);
+    }
+
     public function testUseTraitWithInternalMethod()
     {
         $deprecations = array();

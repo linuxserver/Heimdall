@@ -490,14 +490,27 @@ class CarbonInterval extends DateInterval
      * DateInterval objects created from DateTime::diff() as you can't externally
      * set the $days field.
      *
+     * Pass false as second argument to get a microseconds-precise interval. Else
+     * microseconds in the original interval will not be kept.
+     *
      * @param DateInterval $di
+     * @param bool         $trimMicroseconds (true by default)
      *
      * @return static
      */
-    public static function instance(DateInterval $di)
+    public static function instance(DateInterval $di, $trimMicroseconds = true)
     {
+        $microseconds = $trimMicroseconds || version_compare(PHP_VERSION, '7.1.0-dev', '<') ? 0 : $di->f;
         $instance = new static(static::getDateIntervalSpec($di));
+        if ($microseconds) {
+            $instance->f = $microseconds;
+        }
         $instance->invert = $di->invert;
+        foreach (array('y', 'm', 'd', 'h', 'i', 's') as $unit) {
+            if ($di->$unit < 0) {
+                $instance->$unit *= -1;
+            }
+        }
 
         return $instance;
     }
@@ -911,7 +924,7 @@ class CarbonInterval extends DateInterval
      */
     public function add(DateInterval $interval)
     {
-        $sign = $interval->invert === 1 ? -1 : 1;
+        $sign = ($this->invert === 1) !== ($interval->invert === 1) ? -1 : 1;
 
         if (static::wasCreatedFromDiff($interval)) {
             $this->dayz += $interval->days * $sign;
@@ -922,6 +935,18 @@ class CarbonInterval extends DateInterval
             $this->hours += $interval->h * $sign;
             $this->minutes += $interval->i * $sign;
             $this->seconds += $interval->s * $sign;
+        }
+
+        if (($this->years || $this->months || $this->dayz || $this->hours || $this->minutes || $this->seconds) &&
+            $this->years <= 0 && $this->months <= 0 && $this->dayz <= 0 && $this->hours <= 0 && $this->minutes <= 0 && $this->seconds <= 0
+        ) {
+            $this->years *= -1;
+            $this->months *= -1;
+            $this->dayz *= -1;
+            $this->hours *= -1;
+            $this->minutes *= -1;
+            $this->seconds *= -1;
+            $this->invert();
         }
 
         return $this;
@@ -961,15 +986,15 @@ class CarbonInterval extends DateInterval
     public static function getDateIntervalSpec(DateInterval $interval)
     {
         $date = array_filter(array(
-            static::PERIOD_YEARS => $interval->y,
-            static::PERIOD_MONTHS => $interval->m,
-            static::PERIOD_DAYS => $interval->d,
+            static::PERIOD_YEARS => abs($interval->y),
+            static::PERIOD_MONTHS => abs($interval->m),
+            static::PERIOD_DAYS => abs($interval->d),
         ));
 
         $time = array_filter(array(
-            static::PERIOD_HOURS => $interval->h,
-            static::PERIOD_MINUTES => $interval->i,
-            static::PERIOD_SECONDS => $interval->s,
+            static::PERIOD_HOURS => abs($interval->h),
+            static::PERIOD_MINUTES => abs($interval->i),
+            static::PERIOD_SECONDS => abs($interval->s),
         ));
 
         $specString = static::PERIOD_PREFIX;

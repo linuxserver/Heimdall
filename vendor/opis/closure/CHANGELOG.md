@@ -1,6 +1,10 @@
 CHANGELOG
 ---------
 
+### v3.1.2, 2018.12.16
+
+* Fixed a bug regarding comma trail in group-use statements. See [issue 23](https://github.com/opis/closure/issues/23)
+
 ### v3.1.1, 2018.10.02
 
 * Fixed a bug where `parent` keyword was treated like a class-name and scope was not added to the

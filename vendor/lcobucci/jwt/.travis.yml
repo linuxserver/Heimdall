@@ -1,0 +1,22 @@
+language: php
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+  - nightly
+  - hhvm
+  - hhvm-nightly
+
+matrix:
+  allow_failures:
+    - php: 7.1
+    - php: 7.2
+    - php: nightly
+    - php: hhvm
+    - php: hhvm-nightly
+
+before_script:
+  - composer selfupdate
+  - composer install --prefer-dist -o

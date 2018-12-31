@@ -46,6 +46,10 @@ class SQLiteGrammar extends Grammar
      */
     public function compileSelect(Builder $query)
     {
+        if ($query->unions && $query->aggregate) {
+            return $this->compileUnionAggregate($query);
+        }
+
         $sql = parent::compileSelect($query);
 
         if ($query->unions) {
@@ -303,8 +307,6 @@ class SQLiteGrammar extends Grammar
 
         $path = count($parts) > 1 ? ', '.$this->wrapJsonPath($parts[1]) : '';
 
-        $selector = 'json_extract('.$field.$path.')';
-
-        return $selector;
+        return 'json_extract('.$field.$path.')';
     }
 }

@@ -33,7 +33,7 @@ class PdoSessionHandlerTest extends TestCase
 
     protected function getPersistentSqliteDsn()
     {
-        $this->dbFile = tempnam(sys_get_temp_dir(), 'sf2_sqlite_sessions');
+        $this->dbFile = tempnam(sys_get_temp_dir(), 'sf_sqlite_sessions');
 
         return 'sqlite:'.$this->dbFile;
     }
@@ -153,7 +153,7 @@ class PdoSessionHandlerTest extends TestCase
 
     public function testReadLockedConvertsStreamToString()
     {
-        if (ini_get('session.use_strict_mode')) {
+        if (filter_var(ini_get('session.use_strict_mode'), FILTER_VALIDATE_BOOLEAN)) {
             $this->markTestSkipped('Strict mode needs no locking for new sessions.');
         }
 

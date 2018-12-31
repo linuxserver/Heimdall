@@ -215,7 +215,7 @@ once you found it:
 private $class = null;
 public function enterNode(Node $node) {
     if ($node instanceof Node\Stmt\Class_ &&
-        $node->namespaceName->toString() === 'Foo\Bar\Baz'
+        $node->namespacedName->toString() === 'Foo\Bar\Baz'
     ) {
         $this->class = $node;
         return NodeTraverser::STOP_TRAVERSAL;
@@ -235,7 +235,7 @@ A single traverser can be used with multiple visitors:
 $traverser = new NodeTraverser;
 $traverser->addVisitor($visitorA);
 $traverser->addVisitor($visitorB);
-$stmts = $traverser->traverser($stmts);
+$stmts = $traverser->traverse($stmts);
 ```
 
 It is important to understand that if a traverser is run with multiple visitors, the visitors will
@@ -281,6 +281,8 @@ special enterNode/leaveNode return values:
 
  * If *any* visitor returns `DONT_TRAVERSE_CHILDREN`, the children will be skipped for *all*
    visitors.
+ * If *any* visitor returns `DONT_TRAVERSE_CURRENT_AND_CHILDREN`, the children will be skipped for *all*
+   visitors, and all *subsequent* visitors will not visit the current node.
  * If *any* visitor returns `STOP_TRAVERSAL`, traversal is stopped for *all* visitors.
  * If a visitor returns a replacement node, subsequent visitors will be passed the replacement node,
    not the original one.
@@ -305,7 +307,7 @@ $nodeFinder = new NodeFinder;
 $classes = $nodeFinder->findInstanceOf($stmts, Node\Stmt\Class_::class);
 
 // Find all classes that extend another class
-$extendingClasses = $nodeFinder->findInstanceOf($stmts, function(Node $node) {
+$extendingClasses = $nodeFinder->find($stmts, function(Node $node) {
     return $node instanceof Node\Stmt\Class_
         && $node->extends !== null;
 });

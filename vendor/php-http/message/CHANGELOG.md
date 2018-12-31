@@ -1,9 +1,31 @@
 # Change Log
 
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+
 ## Unreleased
 
-## 1.7.0 - 2018-08-15
+## [1.7.2] - 2018-10-30
+
+### Fixed
+
+- FilteredStream uses `@trigger_error` instead of throwing exceptions to not
+  break careless users. You still need to fix your stream code to respect
+  `isSeekable`. Seeking does not work as expected, and we will add exceptions
+  in version 2.
+
+## [1.7.1] - 2018-10-29
+
+### Fixed
+
+- FilteredStream is not actually seekable
+
+
+## [1.7.0] - 2018-08-15
 
 ### Fixed
 
@@ -15,7 +37,8 @@
 
 - Dropped tests on HHVM
 
-## 1.6.0 - 2017-07-05
+
+## [1.6.0] - 2017-07-05
 
 ### Added
 
@@ -23,9 +46,10 @@
 
 ### Fixed
 
-- Fix curl command of CurlFormatter when there is an user-agent header   
+- Fix curl command of CurlFormatter when there is an user-agent header
 
-## 1.5.0 - 2017-02-14
+
+## [1.5.0] - 2017-02-14
 
 ### Added
 
@@ -36,7 +60,7 @@
 ### Fixed
 
 - FilteredStream::getSize returns null because the contents size is unknown.
-- Stream factories does not rewinds streams. The previous behavior was not coherent between factories and inputs. 
+- Stream factories does not rewinds streams. The previous behavior was not coherent between factories and inputs.
 
 ### Deprecated
 
@@ -44,14 +68,14 @@
 - FilteredStream::getWriteFilter We did not implement writing to the streams at all. And if we do, the filter is an internal information and should not be used by consuming code.
 
 
-## 1.4.1 - 2016-12-16
+## [1.4.1] - 2016-12-16
 
 ### Fixed
 
 - Cookie::matchPath Cookie with root path (`/`) will not match sub path (e.g. `/cookie`).
 
 
-## 1.4.0 - 2016-10-20
+## [1.4.0] - 2016-10-20
 
 ### Added
 
@@ -60,7 +84,7 @@
 - cUrlFormatter to be able to redo the request with a cURL command
 
 
-## 1.3.1 - 2016-07-15
+## [1.3.1] - 2016-07-15
 
 ### Fixed
 
@@ -69,7 +93,7 @@
 - FullHttpMessageFormatter rewinds streams after they are read
 
 
-## 1.3.0 - 2016-07-14
+## [1.3.0] - 2016-07-14
 
 ### Added
 
@@ -80,7 +104,7 @@
 - #41: Response builder broke header value
 
 
-## 1.2.0 - 2016-03-29
+## [1.2.0] - 2016-03-29
 
 ### Added
 
@@ -100,7 +124,7 @@
 - Matching authenitcation method, use RequestConditional instead
 
 
-## 1.1.0 - 2016-02-25
+## [1.1.0] - 2016-02-25
 
 ### Added
 
@@ -113,10 +137,10 @@
  - Fix casting string on a FilteredStream not filtering the output
 
 
-## 1.0.0 - 2016-01-27
+## [1.0.0] - 2016-01-27
 
 
-## 0.2.0 - 2015-12-29
+## [0.2.0] - 2015-12-29
 
 ### Added
 
@@ -125,7 +149,7 @@
 - [Apigen](http://www.apigen.org/) configuration
 
 
-## 0.1.2 - 2015-12-26
+## [0.1.2] - 2015-12-26
 
 ### Added
 
@@ -136,7 +160,7 @@
 - Chunk filter namespace in Dechunk stream
 
 
-## 0.1.1 - 2015-12-25
+## [0.1.1] - 2015-12-25
 
 ### Added
 
@@ -151,3 +175,20 @@
 - Encoding
 - Message decorator
 - Message factory (Guzzle, Diactoros)
+
+
+[Unreleased]: https://github.com/php-http/message/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/php-http/message/compare/1.7.0...v1.7.1
+[1.7.0]: https://github.com/php-http/message/compare/1.6.0...1.7.0
+[1.6.0]: https://github.com/php-http/message/compare/1.5.0...1.6.0
+[1.5.0]: https://github.com/php-http/message/compare/v1.4.1...1.5.0
+[1.4.1]: https://github.com/php-http/message/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/php-http/message/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/php-http/message/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/php-http/message/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/php-http/message/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/php-http/message/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/php-http/message/compare/0.2.0...v1.0.0
+[0.2.0]: https://github.com/php-http/message/compare/v0.1.2...0.2.0
+[0.1.2]: https://github.com/php-http/message/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/php-http/message/compare/v0.1.0...v0.1.1

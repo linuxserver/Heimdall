@@ -857,11 +857,7 @@ class Builder
         // Finally we'll add a binding for each values unless that value is an expression
         // in which case we will just skip over it since it will be the query as a raw
         // string and not as a parameterized place-holder to be replaced by the PDO.
-        foreach ($values as $value) {
-            if (! $value instanceof Expression) {
-                $this->addBinding($value, 'where');
-            }
-        }
+        $this->addBinding($this->cleanBindings($values), 'where');
 
         return $this;
     }
@@ -946,6 +942,45 @@ class Builder
         $this->addBinding($query->getBindings(), 'where');
 
         return $this;
+    }
+
+    /**
+     * Add a "where in raw" clause for integer values to the query.
+     *
+     * @param  string  $column
+     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  string  $boolean
+     * @param  bool  $not
+     * @return $this
+     */
+    public function whereIntegerInRaw($column, $values, $boolean = 'and', $not = false)
+    {
+        $type = $not ? 'NotInRaw' : 'InRaw';
+
+        if ($values instanceof Arrayable) {
+            $values = $values->toArray();
+        }
+
+        foreach ($values as &$value) {
+            $value = (int) $value;
+        }
+
+        $this->wheres[] = compact('type', 'column', 'values', 'boolean');
+
+        return $this;
+    }
+
+    /**
+     * Add a "where not in raw" clause for integer values to the query.
+     *
+     * @param  string  $column
+     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  string  $boolean
+     * @return $this
+     */
+    public function whereIntegerNotInRaw($column, $values, $boolean = 'and')
+    {
+        return $this->whereIntegerInRaw($column, $values, $boolean, true);
     }
 
     /**
@@ -1690,6 +1725,26 @@ class Builder
     }
 
     /**
+     * Add a "having between " clause to the query.
+     *
+     * @param  string  $column
+     * @param  array  $values
+     * @param  string  $boolean
+     * @param  bool  $not
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function havingBetween($column, array $values, $boolean = 'and', $not = false)
+    {
+        $type = 'between';
+
+        $this->havings[] = compact('type', 'column', 'values', 'boolean', 'not');
+
+        $this->addBinding($this->cleanBindings($values), 'having');
+
+        return $this;
+    }
+
+    /**
      * Add a raw having clause to the query.
      *
      * @param  string  $sql
@@ -1731,7 +1786,7 @@ class Builder
     {
         $this->{$this->unions ? 'unionOrders' : 'orders'}[] = [
             'column' => $column,
-            'direction' => strtolower($direction) == 'asc' ? 'asc' : 'desc',
+            'direction' => strtolower($direction) === 'asc' ? 'asc' : 'desc',
         ];
 
         return $this;
@@ -2106,8 +2161,10 @@ class Builder
      */
     protected function runPaginationCountQuery($columns = ['*'])
     {
-        return $this->cloneWithout(['columns', 'orders', 'limit', 'offset'])
-                    ->cloneWithoutBindings(['select', 'order'])
+        $without = $this->unions ? ['orders', 'limit', 'offset'] : ['columns', 'orders', 'limit', 'offset'];
+
+        return $this->cloneWithout($without)
+                    ->cloneWithoutBindings($this->unions ? ['order'] : ['select', 'order'])
                     ->setAggregate('count', $this->withoutSelectAliases($columns))
                     ->get()->all();
     }
@@ -2420,8 +2477,8 @@ class Builder
      */
     public function aggregate($function, $columns = ['*'])
     {
-        $results = $this->cloneWithout(['columns'])
-                        ->cloneWithoutBindings(['select'])
+        $results = $this->cloneWithout($this->unions ? [] : ['columns'])
+                        ->cloneWithoutBindings($this->unions ? [] : ['select'])
                         ->setAggregate($function, $columns)
                         ->get($columns);
 
@@ -2545,7 +2602,7 @@ class Builder
     /**
      * Insert a new record and get the value of the primary key.
      *
-     * @param  array   $values
+     * @param  array  $values
      * @param  string|null  $sequence
      * @return int
      */
@@ -2556,6 +2613,23 @@ class Builder
         $values = $this->cleanBindings($values);
 
         return $this->processor->processInsertGetId($this, $sql, $values, $sequence);
+    }
+
+    /**
+     * Insert new records into the table using a subquery.
+     *
+     * @param  array  $columns
+     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
+     * @return bool
+     */
+    public function insertUsing(array $columns, $query)
+    {
+        [$sql, $bindings] = $this->createSub($query);
+
+        return $this->connection->insert(
+            $this->grammar->compileInsertUsing($this, $columns, $sql),
+            $this->cleanBindings($bindings)
+        );
     }
 
     /**
@@ -2594,7 +2668,7 @@ class Builder
      *
      * @param  string  $column
      * @param  float|int  $amount
-     * @param  array   $extra
+     * @param  array  $extra
      * @return int
      */
     public function increment($column, $amount = 1, array $extra = [])
@@ -2615,7 +2689,7 @@ class Builder
      *
      * @param  string  $column
      * @param  float|int  $amount
-     * @param  array   $extra
+     * @param  array  $extra
      * @return int
      */
     public function decrement($column, $amount = 1, array $extra = [])

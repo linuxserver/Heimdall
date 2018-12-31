@@ -488,7 +488,7 @@ trait ValidatesAttributes
      */
     public function validateDimensions($attribute, $value, $parameters)
     {
-        if ($this->isValidFileInstance($value) && $value->getClientMimeType() == 'image/svg+xml') {
+        if ($this->isValidFileInstance($value) && $value->getClientMimeType() === 'image/svg+xml') {
             return true;
         }
 
@@ -561,23 +561,53 @@ trait ValidatesAttributes
      */
     public function validateDistinct($attribute, $value, $parameters)
     {
-        $attributeName = $this->getPrimaryAttribute($attribute);
-
-        $attributeData = ValidationData::extractDataFromPath(
-            ValidationData::getLeadingExplicitAttributePath($attributeName), $this->data
-        );
-
-        $pattern = str_replace('\*', '[^.]+', preg_quote($attributeName, '#'));
-
-        $data = Arr::where(Arr::dot($attributeData), function ($value, $key) use ($attribute, $pattern) {
-            return $key != $attribute && (bool) preg_match('#^'.$pattern.'\z#u', $key);
-        });
+        $data = Arr::except($this->getDistinctValues($attribute), $attribute);
 
         if (in_array('ignore_case', $parameters)) {
             return empty(preg_grep('/^'.preg_quote($value, '/').'$/iu', $data));
         }
 
         return ! in_array($value, array_values($data));
+    }
+
+    /**
+     * Get the values to distinct between.
+     *
+     * @param  string  $attribute
+     * @return array
+     */
+    protected function getDistinctValues($attribute)
+    {
+        $attributeName = $this->getPrimaryAttribute($attribute);
+
+        if (! property_exists($this, 'distinctValues')) {
+            return $this->extractDistinctValues($attributeName);
+        }
+
+        if (! array_key_exists($attributeName, $this->distinctValues)) {
+            $this->distinctValues[$attributeName] = $this->extractDistinctValues($attributeName);
+        }
+
+        return $this->distinctValues[$attributeName];
+    }
+
+    /**
+     * Extract the distinct values from the data.
+     *
+     * @param  string  $attribute
+     * @return array
+     */
+    protected function extractDistinctValues($attribute)
+    {
+        $attributeData = ValidationData::extractDataFromPath(
+            ValidationData::getLeadingExplicitAttributePath($attribute), $this->data
+        );
+
+        $pattern = str_replace('\*', '[^.]+', preg_quote($attribute, '#'));
+
+        return Arr::where(Arr::dot($attributeData), function ($value, $key) use ($pattern) {
+            return (bool) preg_match('#^'.$pattern.'\z#u', $key);
+        });
     }
 
     /**
@@ -713,7 +743,7 @@ trait ValidatesAttributes
             $id = $this->getValue($matches[1]);
         }
 
-        if (strtolower($id) == 'null') {
+        if (strtolower($id) === 'null') {
             $id = null;
         }
 
@@ -955,7 +985,7 @@ trait ValidatesAttributes
                 }
             }
 
-            return count(array_diff($value, $parameters)) == 0;
+            return count(array_diff($value, $parameters)) === 0;
         }
 
         return ! is_array($value) && in_array((string) $value, $parameters);
@@ -1475,6 +1505,19 @@ trait ValidatesAttributes
     }
 
     /**
+     * Validate the attribute starts with a given substring.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @param  array   $parameters
+     * @return bool
+     */
+    public function validateStartsWith($attribute, $value, $parameters)
+    {
+        return Str::startsWith($value, $parameters);
+    }
+
+    /**
      * Validate that an attribute is a string.
      *
      * @param  string  $attribute
@@ -1541,6 +1584,22 @@ trait ValidatesAttributes
         $~ixu';
 
         return preg_match($pattern, $value) > 0;
+    }
+
+    /**
+     * Validate that an attribute is a valid UUID.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function validateUuid($attribute, $value)
+    {
+        if (! is_string($value)) {
+            return false;
+        }
+
+        return preg_match('/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iD', $value) > 0;
     }
 
     /**

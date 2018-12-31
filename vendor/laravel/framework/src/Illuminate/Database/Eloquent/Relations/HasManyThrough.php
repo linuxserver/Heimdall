@@ -146,7 +146,9 @@ class HasManyThrough extends Relation
      */
     public function addEagerConstraints(array $models)
     {
-        $this->query->whereIn(
+        $whereIn = $this->whereInMethod($this->farParent, $this->localKey);
+
+        $this->query->{$whereIn}(
             $this->getQualifiedFirstKeyName(), $this->getKeys($models, $this->localKey)
         );
     }
@@ -331,7 +333,7 @@ class HasManyThrough extends Relation
             return $result;
         }
 
-        throw (new ModelNotFoundException)->setModel(get_class($this->related));
+        throw (new ModelNotFoundException)->setModel(get_class($this->related), $id);
     }
 
     /**
@@ -478,8 +480,12 @@ class HasManyThrough extends Relation
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
-        if ($parentQuery->getQuery()->from == $query->getQuery()->from) {
+        if ($parentQuery->getQuery()->from === $query->getQuery()->from) {
             return $this->getRelationExistenceQueryForSelfRelation($query, $parentQuery, $columns);
+        }
+
+        if ($parentQuery->getQuery()->from === $this->throughParent->getTable()) {
+            return $this->getRelationExistenceQueryForThroughSelfRelation($query, $parentQuery, $columns);
         }
 
         $this->performJoin($query);
@@ -501,7 +507,7 @@ class HasManyThrough extends Relation
     {
         $query->from($query->getModel()->getTable().' as '.$hash = $this->getRelationCountHash());
 
-        $query->join($this->throughParent->getTable(), $this->getQualifiedParentKeyName(), '=', $hash.'.'.$this->secondLocalKey);
+        $query->join($this->throughParent->getTable(), $this->getQualifiedParentKeyName(), '=', $hash.'.'.$this->secondKey);
 
         if ($this->throughParentSoftDeletes()) {
             $query->whereNull($this->throughParent->getQualifiedDeletedAtColumn());
@@ -511,6 +517,29 @@ class HasManyThrough extends Relation
 
         return $query->select($columns)->whereColumn(
             $parentQuery->getQuery()->from.'.'.$this->localKey, '=', $this->getQualifiedFirstKeyName()
+        );
+    }
+
+    /**
+     * Add the constraints for a relationship query on the same table as the through parent.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getRelationExistenceQueryForThroughSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
+    {
+        $table = $this->throughParent->getTable().' as '.$hash = $this->getRelationCountHash();
+
+        $query->join($table, $hash.'.'.$this->secondLocalKey, '=', $this->getQualifiedFarKeyName());
+
+        if ($this->throughParentSoftDeletes()) {
+            $query->whereNull($hash.'.'.$this->throughParent->getDeletedAtColumn());
+        }
+
+        return $query->select($columns)->whereColumn(
+            $parentQuery->getQuery()->from.'.'.$this->localKey, '=', $hash.'.'.$this->firstKey
         );
     }
 
@@ -535,6 +564,16 @@ class HasManyThrough extends Relation
     }
 
     /**
+     * Get the foreign key on the "through" model.
+     *
+     * @return string
+     */
+    public function getFirstKeyName()
+    {
+        return $this->firstKey;
+    }
+
+    /**
      * Get the qualified foreign key on the "through" model.
      *
      * @return string
@@ -542,6 +581,16 @@ class HasManyThrough extends Relation
     public function getQualifiedFirstKeyName()
     {
         return $this->throughParent->qualifyColumn($this->firstKey);
+    }
+
+    /**
+     * Get the foreign key on the related model.
+     *
+     * @return string
+     */
+    public function getForeignKeyName()
+    {
+        return $this->secondKey;
     }
 
     /**
@@ -555,6 +604,16 @@ class HasManyThrough extends Relation
     }
 
     /**
+     * Get the local key on the far parent model.
+     *
+     * @return string
+     */
+    public function getLocalKeyName()
+    {
+        return $this->localKey;
+    }
+
+    /**
      * Get the qualified local key on the far parent model.
      *
      * @return string
@@ -562,5 +621,15 @@ class HasManyThrough extends Relation
     public function getQualifiedLocalKeyName()
     {
         return $this->farParent->qualifyColumn($this->localKey);
+    }
+
+    /**
+     * Get the local key on the intermediary model.
+     *
+     * @return string
+     */
+    public function getSecondLocalKeyName()
+    {
+        return $this->secondLocalKey;
     }
 }
