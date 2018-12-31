@@ -5,19 +5,14 @@
 // Variables
 @import "variables";
 
-// Bootstrap
+// Plugins
+@import "rune";
+@import "huebee";
+@import "select2";
 @import "normalise";
 
-// Bootstrap
-@import "app";
-@import "rune";
-
-// Huebee
-@import "huebee";
-
-// fontawesome
+// FontAwesome
 @import "fontawesome/fontawesome";
 @import "fontawesome/fa-solid";
 
-@import "select2";
-
+@import "app"
