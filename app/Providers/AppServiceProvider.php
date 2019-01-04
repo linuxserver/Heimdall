@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     {
 
         if(!is_file(base_path('.env'))) {
-            touch(base_path('.env'));
+            copy(base_path('.env.example'), base_path('.env'));
             Artisan::call('key:generate');
         }
         if(!is_file(database_path('app.sqlite'))) {
