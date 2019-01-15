@@ -25,3 +25,4 @@ yarn-error.log
 .Trashes
 .VolumeIcon.icns
 storage/app/public/avatars/*
+.env
