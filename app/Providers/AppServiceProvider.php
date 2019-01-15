@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
 
         }
 
-        if(!is_file(public_path('storage'))) {
+        if(!is_file(public_path('storage/.gitignore'))) {
             Artisan::call('storage:link');
             \Session::put('current_user', null);
         }
