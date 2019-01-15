@@ -22,8 +22,8 @@ class AppServiceProvider extends ServiceProvider
 
         if(!is_file(base_path('.env'))) {
             copy(base_path('.env.example'), base_path('.env'));
-            Artisan::call('key:generate');
         }
+        $this->genKey();
         if(!is_file(database_path('app.sqlite'))) {
             // first time setup
             touch(database_path('app.sqlite'));
@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
 
         }
 
-        if(!is_file(public_path('storage'))) {
+        if(!is_file(public_path('storage/.gitignore'))) {
             Artisan::call('storage:link');
             \Session::put('current_user', null);
         }
@@ -116,6 +116,21 @@ class AppServiceProvider extends ServiceProvider
         }
 
     }
+
+     /**
+     * Generate app key if missing and .env exists
+     *
+     * @return void
+     */
+    public function genKey()
+    {
+        if(is_file(base_path('.env'))) {
+            if(empty(env('APP_KEY'))) {
+                Artisan::call('key:generate', array('--force' => true, '--no-interaction' => true));
+            }
+        }
+    }
+
 
     /**
      * Register any application services.
