@@ -7,6 +7,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use App\User;
+use App\Application;
 
 class Item extends Model
 {
@@ -200,7 +201,26 @@ class Item extends Model
         return $config;
     }
 
+    public static function applicationDetails($class)
+    {
+        if(!empty($class)) {
+            $name = self::nameFromClass($class);
+            $application = Application::where('name', $name)->first();
+            if($application) return $application;
+        }
 
+        return false;
+
+    }
+
+    public static function getApplicationDescription($class)
+    {
+        $details = self::applicationDetails($class);
+        if($details !== false) {
+            return $details->description.' - '.$details->license;
+        }
+        return '';
+    }
 
     /**
      * Get the user that owns the item.
