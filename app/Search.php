@@ -52,7 +52,7 @@ abstract class Search
                 $search = new $class;
 
                 $providers[strtolower($name)] = [
-                    'method' => $search->method;
+                    'method' => $search->method,
                 ];
             }
         }
