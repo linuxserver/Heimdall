@@ -30,7 +30,7 @@
                         @foreach($apps as $app)
                             <tr>
                                 <td>{{ $app->title }}</td>
-                                <td><a{{ $app->target }} href="{{ $app->url }}">{{ $app->link }}</a></td>
+                                <td><a{{ $app->target }} href="/tag/{{ $app->url }}">{{ $app->link }}</a></td>
                                 <td class="text-center"><a href="{!! route('tags.edit', [$app->id], false) !!}" title="{{ __('app.settings.edit') }} {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['tags.destroy', $app->id],'style'=>'display:inline']) !!}
