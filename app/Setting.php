@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Input;
 use Form;
 use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\Search;
 
 class Setting extends Model
 {
@@ -237,30 +238,14 @@ class Setting extends Model
 
         if((bool)$homepage_search && (bool)$search_provider) {
 
-            $options = (array)json_decode($search_provider->options);
-            $name = $options[$user_search_provider];
             if((bool)$user_search_provider) {
-                switch($user_search_provider) {
-                    case 'google':
-                        $url = 'https://www.google.com/search';
-                        $var = 'q';
-                        break;
-                    case 'ddg':
-                        $url = 'https://duckduckgo.com/';
-                        $var = 'q';
-                        break;
-                    case 'bing':
-                        $url = 'https://www.bing.com/search';
-                        $var = 'q';
-                        break;
-                    case 'startpage':
-                        $url = 'https://www.startpage.com/';
-                        $var = 'q';
-                }
+                $name = 'app.options.'.$user_search_provider;
+                $provider = Search::providerDetails($user_search_provider);
+
                 $output .= '<div class="searchform">';
-                $output .= Form::open(['url' => $url, 'method' => 'get']);
+                $output .= Form::open(['url' => $provider->url, 'method' => $provider->method]);
                 $output .= '<div class="input-container">';
-                $output .= Form::text($var, null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
+                $output .= Form::text($provider->var, null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
                 $output .= Form::close();

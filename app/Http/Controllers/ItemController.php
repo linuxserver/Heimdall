@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\SupportedApps;
 use App\Jobs\ProcessApps;
+use App\Search;
 
 class ItemController extends Controller
 {
@@ -168,6 +169,8 @@ class ItemController extends Controller
         
         $item = Item::create($request->all());
 
+        Search::storeSearchProvider($request->input('class'), $item);
+
         $item->parents()->sync($request->tags);
 
         $route = route('dash', [], false);
@@ -240,6 +243,8 @@ class ItemController extends Controller
 
         $item = Item::find($id);
         $item->update($request->all());
+
+        Search::storeSearchProvider($request->input('class'), $item);
 
         $item->parents()->sync($request->tags);
 
