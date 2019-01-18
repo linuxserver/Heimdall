@@ -4,6 +4,7 @@ namespace Http\Client\Common;
 
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 
 /**
  * Factory to create PluginClient instances. Using this factory instead of calling PluginClient constructor will enable
@@ -35,9 +36,9 @@ final class PluginClientFactory
     }
 
     /**
-     * @param HttpClient|HttpAsyncClient $client
-     * @param Plugin[]                   $plugins
-     * @param array                      $options {
+     * @param HttpClient|HttpAsyncClient|ClientInterface $client
+     * @param Plugin[]                                   $plugins
+     * @param array                                      $options {
      *
      *     @var string $client_name to give client a name which may be used when displaying client information  like in
      *         the HTTPlugBundle profiler.

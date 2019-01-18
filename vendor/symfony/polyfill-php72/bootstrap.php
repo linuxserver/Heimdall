@@ -28,4 +28,9 @@ if (PHP_VERSION_ID < 70200) {
     if (!defined('PHP_OS_FAMILY')) {
         define('PHP_OS_FAMILY', p\Php72::php_os_family());
     }
+    if (!function_exists('mb_chr')) {
+        function mb_ord($s, $enc = null) { return p\Php72::mb_ord($s, $enc); }
+        function mb_chr($code, $enc = null) { return p\Php72::mb_chr($code, $enc); }
+        function mb_scrub($s, $enc = null) { $enc = null === $enc ? mb_internal_encoding() : $enc; return mb_convert_encoding($s, $enc, $enc); }
+    }
 }

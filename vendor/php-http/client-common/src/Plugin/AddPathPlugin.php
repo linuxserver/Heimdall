@@ -35,7 +35,7 @@ final class AddPathPlugin implements Plugin
         }
 
         if ('/' === substr($uri->getPath(), -1)) {
-            throw new \LogicException('URI path cannot end with a slash.');
+            $uri = $uri->withPath(rtrim($uri->getPath(), '/'));
         }
 
         $this->uri = $uri;

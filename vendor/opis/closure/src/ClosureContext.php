@@ -9,6 +9,7 @@ namespace Opis\Closure;
 
 /**
  * Closure context class
+ * @internal
  */
 class ClosureContext
 {

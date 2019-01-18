@@ -34,7 +34,6 @@ class WrappedListener
     public function __construct($listener, $name, Stopwatch $stopwatch, EventDispatcherInterface $dispatcher = null)
     {
         $this->listener = $listener;
-        $this->name = $name;
         $this->stopwatch = $stopwatch;
         $this->dispatcher = $dispatcher;
         $this->called = false;
@@ -44,7 +43,15 @@ class WrappedListener
             $this->name = \is_object($listener[0]) ? \get_class($listener[0]) : $listener[0];
             $this->pretty = $this->name.'::'.$listener[1];
         } elseif ($listener instanceof \Closure) {
-            $this->pretty = $this->name = 'closure';
+            $r = new \ReflectionFunction($listener);
+            if (false !== strpos($r->name, '{closure}')) {
+                $this->pretty = $this->name = 'closure';
+            } elseif ($class = $r->getClosureScopeClass()) {
+                $this->name = $class->name;
+                $this->pretty = $this->name.'::'.$r->name;
+            } else {
+                $this->pretty = $this->name = $r->name;
+            }
         } elseif (\is_string($listener)) {
             $this->pretty = $this->name = $listener;
         } else {
@@ -101,7 +108,7 @@ class WrappedListener
 
         $e = $this->stopwatch->start($this->name, 'event_listener');
 
-        \call_user_func($this->listener, $event, $eventName, $this->dispatcher ?: $dispatcher);
+        ($this->listener)($event, $eventName, $this->dispatcher ?: $dispatcher);
 
         if ($e->isStarted()) {
             $e->stop();

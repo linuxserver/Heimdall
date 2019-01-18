@@ -5,6 +5,7 @@ namespace Http\Client\Common;
 use Http\Client\Exception;
 use Http\Client\HttpClient;
 use Http\Client\Common\Exception\BatchException;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -17,15 +18,19 @@ use Psr\Http\Message\RequestInterface;
 class BatchClient implements HttpClient
 {
     /**
-     * @var HttpClient
+     * @var HttpClient|ClientInterface
      */
     private $client;
 
     /**
-     * @param HttpClient $client
+     * @param HttpClient|ClientInterface  $client
      */
-    public function __construct(HttpClient $client)
+    public function __construct($client)
     {
+        if (!($client instanceof HttpClient) && !($client instanceof ClientInterface)) {
+            throw new \LogicException('Client must be an instance of Http\\Client\\HttpClient or Psr\\Http\\Client\\ClientInterface');
+        }
+
         $this->client = $client;
     }
 

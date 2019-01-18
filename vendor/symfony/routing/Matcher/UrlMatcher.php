@@ -84,7 +84,7 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
     {
         $this->allow = $this->allowSchemes = array();
 
-        if ($ret = $this->matchCollection(rawurldecode($pathinfo), $this->routes)) {
+        if ($ret = $this->matchCollection(rawurldecode($pathinfo) ?: '/', $this->routes)) {
             return $ret;
         }
 
@@ -130,16 +130,47 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
      */
     protected function matchCollection($pathinfo, RouteCollection $routes)
     {
+        // HEAD and GET are equivalent as per RFC
+        if ('HEAD' === $method = $this->context->getMethod()) {
+            $method = 'GET';
+        }
+        $supportsTrailingSlash = 'GET' === $method && $this instanceof RedirectableUrlMatcherInterface;
+        $trimmedPathinfo = rtrim($pathinfo, '/') ?: '/';
+
         foreach ($routes as $name => $route) {
             $compiledRoute = $route->compile();
+            $staticPrefix = rtrim($compiledRoute->getStaticPrefix(), '/');
+            $requiredMethods = $route->getMethods();
 
             // check the static prefix of the URL first. Only use the more expensive preg_match when it matches
-            if ('' !== $compiledRoute->getStaticPrefix() && 0 !== strpos($pathinfo, $compiledRoute->getStaticPrefix())) {
+            if ('' !== $staticPrefix && 0 !== strpos($trimmedPathinfo, $staticPrefix)) {
+                continue;
+            }
+            $regex = $compiledRoute->getRegex();
+
+            $pos = strrpos($regex, '$');
+            $hasTrailingSlash = '/' === $regex[$pos - 1];
+            $regex = substr_replace($regex, '/?$', $pos - $hasTrailingSlash, 1 + $hasTrailingSlash);
+
+            if (!preg_match($regex, $pathinfo, $matches)) {
                 continue;
             }
 
-            if (!preg_match($compiledRoute->getRegex(), $pathinfo, $matches)) {
-                continue;
+            if ($trimmedPathinfo === $pathinfo || !$hasTrailingVar = preg_match('#\{\w+\}/?$#', $route->getPath())) {
+                // no-op
+            } elseif (preg_match($regex, $trimmedPathinfo, $m)) {
+                $matches = $m;
+            } else {
+                $hasTrailingSlash = true;
+            }
+
+            if ('/' !== $pathinfo && $hasTrailingSlash === ($trimmedPathinfo === $pathinfo)) {
+                if ($supportsTrailingSlash && (!$requiredMethods || \in_array('GET', $requiredMethods))) {
+                    return $this->allow = $this->allowSchemes = array();
+                }
+                if ($trimmedPathinfo === $pathinfo || !$hasTrailingVar) {
+                    continue;
+                }
             }
 
             $hostMatches = array();
@@ -154,12 +185,7 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
             }
 
             $hasRequiredScheme = !$route->getSchemes() || $route->hasScheme($this->context->getScheme());
-            if ($requiredMethods = $route->getMethods()) {
-                // HEAD and GET are equivalent as per RFC
-                if ('HEAD' === $method = $this->context->getMethod()) {
-                    $method = 'GET';
-                }
-
+            if ($requiredMethods) {
                 if (!\in_array($method, $requiredMethods)) {
                     if ($hasRequiredScheme) {
                         $this->allow = array_merge($this->allow, $requiredMethods);
@@ -177,6 +203,8 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
 
             return $this->getAttributes($route, $name, array_replace($matches, $hostMatches, isset($status[1]) ? $status[1] : array()));
         }
+
+        return array();
     }
 
     /**
@@ -246,7 +274,7 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
     {
         if (null === $this->expressionLanguage) {
             if (!class_exists('Symfony\Component\ExpressionLanguage\ExpressionLanguage')) {
-                throw new \RuntimeException('Unable to use expressions as the Symfony ExpressionLanguage component is not installed.');
+                throw new \LogicException('Unable to use expressions as the Symfony ExpressionLanguage component is not installed.');
             }
             $this->expressionLanguage = new ExpressionLanguage(null, $this->expressionLanguageProviders);
         }

@@ -3,6 +3,7 @@
 namespace Http\Client\Common;
 
 use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -13,7 +14,7 @@ use Psr\Http\Message\RequestInterface;
 trait HttpClientDecorator
 {
     /**
-     * @var HttpClient
+     * @var HttpClient|ClientInterface
      */
     protected $httpClient;
 

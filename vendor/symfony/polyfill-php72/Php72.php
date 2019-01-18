@@ -50,7 +50,10 @@ final class Php72
                     $s[$j] = $c < 256 ? \chr($c) : '?';
                     break;
 
-                case "\xF0": ++$i;
+                case "\xF0":
+                    ++$i;
+                    // no break
+
                 case "\xE0":
                     $s[$j] = '?';
                     $i += 2;
@@ -66,7 +69,7 @@ final class Php72
 
     public static function php_os_family()
     {
-        if ('\\' === DIRECTORY_SEPARATOR) {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
             return 'Windows';
         }
 
@@ -98,7 +101,8 @@ final class Php72
     public static function sapi_windows_vt100_support($stream, $enable = null)
     {
         if (!\is_resource($stream)) {
-            trigger_error('sapi_windows_vt100_support() expects parameter 1 to be resource, '.gettype($stream).' given', E_USER_WARNING);
+            trigger_error('sapi_windows_vt100_support() expects parameter 1 to be resource, '.\gettype($stream).' given', E_USER_WARNING);
+
             return false;
         }
 
@@ -106,6 +110,7 @@ final class Php72
 
         if ('STDIO' !== $meta['stream_type']) {
             trigger_error('sapi_windows_vt100_support() was not able to analyze the specified stream', E_USER_WARNING);
+
             return false;
         }
 
@@ -128,17 +133,18 @@ final class Php72
     public static function stream_isatty($stream)
     {
         if (!\is_resource($stream)) {
-            trigger_error('stream_isatty() expects parameter 1 to be resource, '.gettype($stream).' given', E_USER_WARNING);
+            trigger_error('stream_isatty() expects parameter 1 to be resource, '.\gettype($stream).' given', E_USER_WARNING);
+
             return false;
         }
 
-        if ('\\' === DIRECTORY_SEPARATOR) {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
             $stat = @fstat($stream);
             // Check if formatted mode is S_IFCHR
             return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
         }
 
-        return function_exists('posix_isatty') && @posix_isatty($stream);
+        return \function_exists('posix_isatty') && @posix_isatty($stream);
     }
 
     private static function initHashMask()
@@ -161,5 +167,50 @@ final class Php72
         }
 
         self::$hashMask ^= hexdec(substr(spl_object_hash($obj), 16 - \PHP_INT_SIZE, \PHP_INT_SIZE));
+    }
+
+    public static function mb_chr($code, $encoding = null)
+    {
+        if (0x80 > $code %= 0x200000) {
+            $s = \chr($code);
+        } elseif (0x800 > $code) {
+            $s = \chr(0xC0 | $code >> 6).\chr(0x80 | $code & 0x3F);
+        } elseif (0x10000 > $code) {
+            $s = \chr(0xE0 | $code >> 12).\chr(0x80 | $code >> 6 & 0x3F).\chr(0x80 | $code & 0x3F);
+        } else {
+            $s = \chr(0xF0 | $code >> 18).\chr(0x80 | $code >> 12 & 0x3F).\chr(0x80 | $code >> 6 & 0x3F).\chr(0x80 | $code & 0x3F);
+        }
+
+        if ('UTF-8' !== $encoding) {
+            $s = mb_convert_encoding($s, $encoding, 'UTF-8');
+        }
+
+        return $s;
+    }
+
+    public static function mb_ord($s, $encoding = null)
+    {
+        if (null == $encoding) {
+            $s = mb_convert_encoding($s, 'UTF-8');
+        } elseif ('UTF-8' !== $encoding) {
+            $s = mb_convert_encoding($s, 'UTF-8', $encoding);
+        }
+
+        if (1 === \strlen($s)) {
+            return \ord($s);
+        }
+
+        $code = ($s = unpack('C*', substr($s, 0, 4))) ? $s[1] : 0;
+        if (0xF0 <= $code) {
+            return (($code - 0xF0) << 18) + (($s[2] - 0x80) << 12) + (($s[3] - 0x80) << 6) + $s[4] - 0x80;
+        }
+        if (0xE0 <= $code) {
+            return (($code - 0xE0) << 12) + (($s[2] - 0x80) << 6) + $s[3] - 0x80;
+        }
+        if (0xC0 <= $code) {
+            return (($code - 0xC0) << 6) + $s[2] - 0x80;
+        }
+
+        return $code;
     }
 }

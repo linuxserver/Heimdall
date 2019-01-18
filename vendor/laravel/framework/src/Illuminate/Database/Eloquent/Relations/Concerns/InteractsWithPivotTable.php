@@ -64,7 +64,7 @@ trait InteractsWithPivotTable
     /**
      * Sync the intermediate tables with a list of IDs without detaching.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array  $ids
+     * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
      * @return array
      */
     public function syncWithoutDetaching($ids)
@@ -75,7 +75,7 @@ trait InteractsWithPivotTable
     /**
      * Sync the intermediate tables with a list of IDs or collection of models.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array  $ids
+     * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
      * @param  bool   $detaching
      * @return array
      */
@@ -427,7 +427,7 @@ trait InteractsWithPivotTable
      */
     public function newPivotStatementForId($id)
     {
-        return $this->newPivotQuery()->where($this->relatedPivotKey, $id);
+        return $this->newPivotQuery()->whereIn($this->relatedPivotKey, $this->parseIds($id));
     }
 
     /**
@@ -507,7 +507,7 @@ trait InteractsWithPivotTable
      */
     protected function castKeys(array $keys)
     {
-        return (array) array_map(function ($v) {
+        return array_map(function ($v) {
             return $this->castKey($v);
         }, $keys);
     }

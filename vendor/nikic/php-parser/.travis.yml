@@ -1,5 +1,5 @@
 language: php
-dist: trusty
+dist: xenial
 sudo: false
 
 cache:
@@ -10,6 +10,7 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
   - nightly
 
 install:

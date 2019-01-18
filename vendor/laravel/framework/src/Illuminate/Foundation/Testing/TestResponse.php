@@ -901,6 +901,12 @@ class TestResponse
             return $this->assertSessionMissing('errors');
         }
 
+        if (is_null($this->session()->get('errors'))) {
+            PHPUnit::assertTrue(true);
+
+            return $this;
+        }
+
         $errors = $this->session()->get('errors')->getBag($errorBag);
 
         foreach ($keys as $key => $value) {
@@ -921,7 +927,17 @@ class TestResponse
      */
     public function assertSessionHasNoErrors()
     {
-        return $this->assertSessionMissing('errors');
+        $hasErrors = $this->session()->has('errors');
+
+        $errors = $hasErrors ? $this->session()->get('errors')->all() : [];
+
+        PHPUnit::assertFalse(
+            $hasErrors,
+            'Session has unexpected errors: '.PHP_EOL.PHP_EOL.
+            json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        return $this;
     }
 
     /**

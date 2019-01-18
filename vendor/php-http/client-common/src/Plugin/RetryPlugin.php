@@ -27,12 +27,12 @@ final class RetryPlugin implements Plugin
     /**
      * @var callable
      */
-    private $delay;
+    private $exceptionDelay;
 
     /**
      * @var callable
      */
-    private $decider;
+    private $exceptionDecider;
 
     /**
      * Store the retry counter for each request.
@@ -45,28 +45,45 @@ final class RetryPlugin implements Plugin
      * @param array $config {
      *
      *     @var int $retries Number of retries to attempt if an exception occurs before letting the exception bubble up.
-     *     @var callable $decider A callback that gets a request and an exception to decide after a failure whether the request should be retried.
-     *     @var callable $delay A callback that gets a request, an exception and the number of retries and returns how many microseconds we should wait before trying again.
+     *     @var callable $exception_decider A callback that gets a request and an exception to decide after a failure whether the request should be retried.
+     *     @var callable $exception_delay A callback that gets a request, an exception and the number of retries and returns how many microseconds we should wait before trying again.
      * }
      */
     public function __construct(array $config = [])
     {
+        if (array_key_exists('decider', $config)) {
+            if (array_key_exists('exception_decider', $config)) {
+                throw new \InvalidArgumentException('Do not set both the old "decider" and new "exception_decider" options');
+            }
+            trigger_error('The "decider" option has been deprecated in favour of "exception_decider"', E_USER_DEPRECATED);
+            $config['exception_decider'] = $config['decider'];
+            unset($config['decider']);
+        }
+        if (array_key_exists('delay', $config)) {
+            if (array_key_exists('exception_delay', $config)) {
+                throw new \InvalidArgumentException('Do not set both the old "delay" and new "exception_delay" options');
+            }
+            trigger_error('The "delay" option has been deprecated in favour of "exception_delay"', E_USER_DEPRECATED);
+            $config['exception_delay'] = $config['delay'];
+            unset($config['delay']);
+        }
+
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'retries' => 1,
-            'decider' => function (RequestInterface $request, Exception $e) {
+            'exception_decider' => function (RequestInterface $request, Exception $e) {
                 return true;
             },
-            'delay' => __CLASS__.'::defaultDelay',
+            'exception_delay' => __CLASS__.'::defaultDelay',
         ]);
         $resolver->setAllowedTypes('retries', 'int');
-        $resolver->setAllowedTypes('decider', 'callable');
-        $resolver->setAllowedTypes('delay', 'callable');
+        $resolver->setAllowedTypes('exception_decider', 'callable');
+        $resolver->setAllowedTypes('exception_delay', 'callable');
         $options = $resolver->resolve($config);
 
         $this->retry = $options['retries'];
-        $this->decider = $options['decider'];
-        $this->delay = $options['delay'];
+        $this->exceptionDecider = $options['exception_decider'];
+        $this->exceptionDelay = $options['exception_delay'];
     }
 
     /**
@@ -93,11 +110,11 @@ final class RetryPlugin implements Plugin
                 throw $exception;
             }
 
-            if (!call_user_func($this->decider, $request, $exception)) {
+            if (!call_user_func($this->exceptionDecider, $request, $exception)) {
                 throw $exception;
             }
 
-            $time = call_user_func($this->delay, $request, $exception, $this->retryStorage[$chainIdentifier]);
+            $time = call_user_func($this->exceptionDelay, $request, $exception, $this->retryStorage[$chainIdentifier]);
             usleep($time);
 
             // Retry in synchrone

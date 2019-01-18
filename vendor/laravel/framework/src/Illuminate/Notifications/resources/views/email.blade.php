@@ -3,7 +3,7 @@
 @if (! empty($greeting))
 # {{ $greeting }}
 @else
-@if ($level == 'error')
+@if ($level === 'error')
 # @lang('Whoops!')
 @else
 # @lang('Hello!')
@@ -54,7 +54,7 @@
     'into your web browser: [:actionURL](:actionURL)',
     [
         'actionText' => $actionText,
-        'actionUrl' => $actionUrl
+        'actionURL' => $actionUrl,
     ]
 )
 @endcomponent

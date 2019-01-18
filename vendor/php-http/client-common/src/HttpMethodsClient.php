@@ -5,6 +5,7 @@ namespace Http\Client\Common;
 use Http\Client\Exception;
 use Http\Client\HttpClient;
 use Http\Message\RequestFactory;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -27,7 +28,7 @@ use Psr\Http\Message\UriInterface;
 class HttpMethodsClient implements HttpClient
 {
     /**
-     * @var HttpClient
+     * @var HttpClient|ClientInterface
      */
     private $httpClient;
 
@@ -37,11 +38,15 @@ class HttpMethodsClient implements HttpClient
     private $requestFactory;
 
     /**
-     * @param HttpClient     $httpClient     The client to send requests with
-     * @param RequestFactory $requestFactory The message factory to create requests
+     * @param HttpClient|ClientInterface $httpClient     The client to send requests with
+     * @param RequestFactory             $requestFactory The message factory to create requests
      */
-    public function __construct(HttpClient $httpClient, RequestFactory $requestFactory)
+    public function __construct($httpClient, RequestFactory $requestFactory)
     {
+        if (!($httpClient instanceof HttpClient) && !($httpClient instanceof ClientInterface)) {
+            throw new \LogicException('Client must be an instance of Http\\Client\\HttpClient or Psr\\Http\\Client\\ClientInterface');
+        }
+
         $this->httpClient = $httpClient;
         $this->requestFactory = $requestFactory;
     }

@@ -1,0 +1,52 @@
+{
+    "name": "lcobucci/jwt",
+    "description": "A simple library to work with JSON Web Token and JSON Web Signature",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Luís Otávio Cobucci Oblonczyk",
+            "email": "lcobucci@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "keywords": [
+        "JWT",
+        "JWS"
+    ],
+    "license": [
+        "BSD-3-Clause"
+    ],
+    "require": {
+        "php": ">=5.5",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.5",
+        "squizlabs/php_codesniffer": "~2.3",
+        "phpmd/phpmd": "~2.2",
+        "phpunit/php-invoker": "~1.1",
+        "mikey179/vfsStream": "~1.5",
+        "mdanter/ecc": "~0.3.1"
+    },
+    "suggest":{
+        "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
+    },
+    "autoload": {
+        "psr-4": {
+            "Lcobucci\\JWT\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lcobucci\\JWT\\": [
+                "test/unit", 
+                "test/functional"
+            ]
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.1-dev"
+        }
+    }
+}

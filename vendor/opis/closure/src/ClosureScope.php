@@ -7,9 +7,9 @@
 
 namespace Opis\Closure;
 
-
 /**
  * Closure scope class
+ * @internal
  */
 class ClosureScope extends \SplObjectStorage
 {

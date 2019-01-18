@@ -1,5 +1,25 @@
 # Change Log
 
+## 1.9.0 - 2019-01-03
+
+### Added
+
+- Support for PSR-18 clients
+- Added traits `VersionBridgePlugin` and `VersionBridgeClient` to help plugins and clients to support both
+  1.x and 2.x version of `php-http/client-common` and `php-http/httplug`.
+
+### Changed
+
+- [RetryPlugin] Renamed the configuration options for the exception retry callback from `decider` to `exception_decider`
+  and `delay` to `exception_delay`. The old names still work but are deprecated.
+
+## 1.8.2 - 2018-12-14
+
+### Changed
+
+- When multiple cookies exist, a single header with all cookies is sent as per RFC 6265 Section 5.4
+- AddPathPlugin will now trim of ending slashes in paths
+
 ## 1.8.1 - 2018-10-09
 
 ### Fixed

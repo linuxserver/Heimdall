@@ -134,6 +134,8 @@ class Blueprint
      *
      * @param  \Illuminate\Database\Connection  $connection
      * @return void
+     *
+     * @throws \BadMethodCallException
      */
     protected function ensureCommandsAreValid(Connection $connection)
     {
@@ -249,7 +251,7 @@ class Blueprint
     protected function creating()
     {
         return collect($this->commands)->contains(function ($command) {
-            return $command->name == 'create';
+            return $command->name === 'create';
         });
     }
 
@@ -1282,7 +1284,7 @@ class Blueprint
     public function removeColumn($name)
     {
         $this->columns = array_values(array_filter($this->columns, function ($c) use ($name) {
-            return $c['attributes']['name'] != $name;
+            return $c['name'] != $name;
         }));
 
         return $this;

@@ -4,6 +4,7 @@ namespace Http\Discovery;
 
 use Http\Discovery\Exception\ClassInstantiationFailedException;
 use Http\Discovery\Exception\DiscoveryFailedException;
+use Http\Discovery\Exception\NoCandidateFoundException;
 use Http\Discovery\Exception\StrategyUnavailableException;
 
 /**
@@ -70,6 +71,8 @@ abstract class ClassDiscovery
 
                 return $candidate['class'];
             }
+
+            $exceptions[] = new NoCandidateFoundException($strategy, $candidates);
         }
 
         throw DiscoveryFailedException::create($exceptions);
@@ -161,20 +164,23 @@ abstract class ClassDiscovery
     {
         if (is_string($condition)) {
             // Should be extended for functions, extensions???
-            return class_exists($condition);
-        } elseif (is_callable($condition)) {
-            return $condition();
-        } elseif (is_bool($condition)) {
+            return self::safeClassExists($condition);
+        }
+        if (is_callable($condition)) {
+            return (bool) $condition();
+        }
+        if (is_bool($condition)) {
             return $condition;
-        } elseif (is_array($condition)) {
-            $evaluatedCondition = true;
-
-            // Immediately stop execution if the condition is false
-            for ($i = 0; $i < count($condition) && false !== $evaluatedCondition; ++$i) {
-                $evaluatedCondition &= static::evaluateCondition($condition[$i]);
+        }
+        if (is_array($condition)) {
+            foreach ($condition as $c) {
+                if (false === static::evaluateCondition($c)) {
+                    // Immediately stop execution if the condition is false
+                    return false;
+                }
             }
 
-            return $evaluatedCondition;
+            return true;
         }
 
         return false;
@@ -204,5 +210,26 @@ abstract class ClassDiscovery
         }
 
         throw new ClassInstantiationFailedException('Could not instantiate class because parameter is neither a callable nor a string');
+    }
+
+    /**
+     * We want to do a "safe" version of PHP's "class_exists" because Magento has a bug
+     * (or they call it a "feature"). Magento is throwing an exception if you do class_exists()
+     * on a class that ends with "Factory" and if that file does not exits.
+     *
+     * This function will catch all potential exceptions and make sure it returns a boolean.
+     *
+     * @param string $class
+     * @param bool   $autoload
+     *
+     * @return bool
+     */
+    public static function safeClassExists($class)
+    {
+        try {
+            return class_exists($class);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

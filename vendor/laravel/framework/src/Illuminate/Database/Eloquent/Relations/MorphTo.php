@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
-/**
- * @mixin \Illuminate\Database\Eloquent\Builder
- */
 class MorphTo extends BelongsTo
 {
     /**
@@ -82,16 +79,6 @@ class MorphTo extends BelongsTo
                 $this->dictionary[$model->{$this->morphType}][$model->{$this->foreignKey}][] = $model;
             }
         }
-    }
-
-    /**
-     * Get the results of the relationship.
-     *
-     * @return mixed
-     */
-    public function getResults()
-    {
-        return $this->ownerKey ? parent::getResults() : null;
     }
 
     /**
@@ -230,7 +217,7 @@ class MorphTo extends BelongsTo
      */
     public function touch()
     {
-        if (! is_null($this->ownerKey)) {
+        if (! is_null($this->child->{$this->foreignKey})) {
             parent::touch();
         }
     }

@@ -112,6 +112,31 @@ class CommandTesterTest extends TestCase
         $this->assertEquals(implode('', $questions), $tester->getDisplay(true));
     }
 
+    public function testCommandWithDefaultInputs()
+    {
+        $questions = array(
+            'What\'s your name?',
+            'How are you?',
+            'Where do you come from?',
+        );
+
+        $command = new Command('foo');
+        $command->setHelperSet(new HelperSet(array(new QuestionHelper())));
+        $command->setCode(function ($input, $output) use ($questions, $command) {
+            $helper = $command->getHelper('question');
+            $helper->ask($input, $output, new Question($questions[0], 'Bobby'));
+            $helper->ask($input, $output, new Question($questions[1], 'Fine'));
+            $helper->ask($input, $output, new Question($questions[2], 'France'));
+        });
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(array('', '', ''));
+        $tester->execute(array());
+
+        $this->assertEquals(0, $tester->getStatusCode());
+        $this->assertEquals(implode('', $questions), $tester->getDisplay(true));
+    }
+
     /**
      * @expectedException \RuntimeException
      * @expectedMessage   Aborted
@@ -159,5 +184,24 @@ class CommandTesterTest extends TestCase
         $tester->execute(array());
 
         $this->assertEquals(0, $tester->getStatusCode());
+    }
+
+    public function testErrorOutput()
+    {
+        $command = new Command('foo');
+        $command->addArgument('command');
+        $command->addArgument('foo');
+        $command->setCode(function ($input, $output) {
+            $output->getErrorOutput()->write('foo');
+        }
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute(
+            array('foo' => 'bar'),
+            array('capture_stderr_separately' => true)
+        );
+
+        $this->assertSame('foo', $tester->getErrorOutput());
     }
 }
