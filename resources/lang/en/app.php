@@ -42,6 +42,7 @@ return [
     'options.startpage' => 'StartPage',
     'options.yes' => 'Yes',
     'options.no' => 'No',
+    'options.nzbhydra' => 'NZBHydra',
 
     'buttons.save' => 'Save',
     'buttons.cancel' => 'Cancel',

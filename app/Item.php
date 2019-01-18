@@ -166,7 +166,7 @@ class Item extends Model
     public static function isSearchProvider($class)
     {
         $app = new $class;
-        return ((bool)($app instanceof \App\EnhancedApps)) ? $app : false;
+        return ((bool)($app instanceof \App\SearchInterface)) ? $app : false;
     }
 
     public function enabled()

@@ -217,43 +217,6 @@ class Setting extends Model
         return array_key_exists($key, Setting::$cache);
     }
 
-    /**
-     * @return html
-     */
-    public static function search()
-    {
-        $output = '';
-        $homepage_search = self::fetch('homepage_search');
-        $search_provider = self::where('key', '=', 'search_provider')->first();
-        $user_search_provider = self::fetch('search_provider');
-        //die(print_r($search_provider));
-       
-        //die(var_dump($user_search_provider));
-        // return early if search isn't applicable
-        if((bool)$homepage_search !== true) return $output;
-        if($user_search_provider === 'none') return $output;
-        if(empty($user_search_provider)) return $output;
-        if(is_null($user_search_provider)) return $output;
-
-
-        if((bool)$homepage_search && (bool)$search_provider) {
-
-            if((bool)$user_search_provider) {
-                $name = 'app.options.'.$user_search_provider;
-                $provider = Search::providerDetails($user_search_provider);
-
-                $output .= '<div class="searchform">';
-                $output .= Form::open(['url' => $provider->url, 'method' => $provider->method]);
-                $output .= '<div class="input-container">';
-                $output .= Form::text($provider->var, null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
-                $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
-                $output .= '</div>';
-                $output .= Form::close();
-                $output .= '</div>';
-            }
-        }
-        return $output;
-    }
 
     /**
      * The users that belong to the setting.

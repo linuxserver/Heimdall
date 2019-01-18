@@ -1,1 +1,1 @@
-{!! App\Setting::search() !!}
+{!! App\Search::form() !!}
