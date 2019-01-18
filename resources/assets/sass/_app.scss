@@ -693,7 +693,7 @@ div.create {
 	  border-bottom: 1px solid rgba(255,255,255,0.35);
 	  position: relative;
 	  width: 100%;
-	  max-width: 500px;
+	  max-width: 620px;
 	  form { 
 		width: 100%;
 	  }
@@ -703,6 +703,8 @@ div.create {
 		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
 		overflow: hidden;	
 		position: relative;	  
+		display: flex;
+		
 	  }
 	  input {
 		  padding: 17px 15px;
@@ -725,6 +727,12 @@ div.create {
 		  color: white;
 		  text-transform: uppercase;
 		  background: $app-red;
+	  }
+	  select {
+		padding: 0 10px;
+		background: #f5f5f5;
+		border: none;
+		border-right: 1px solid #ddd;
 	  }
   }
 

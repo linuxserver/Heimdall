@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Input;
 use Form;
 use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\Search;
 
 class Setting extends Model
 {
@@ -216,59 +217,6 @@ class Setting extends Model
         return array_key_exists($key, Setting::$cache);
     }
 
-    /**
-     * @return html
-     */
-    public static function search()
-    {
-        $output = '';
-        $homepage_search = self::fetch('homepage_search');
-        $search_provider = self::where('key', '=', 'search_provider')->first();
-        $user_search_provider = self::fetch('search_provider');
-        //die(print_r($search_provider));
-       
-        //die(var_dump($user_search_provider));
-        // return early if search isn't applicable
-        if((bool)$homepage_search !== true) return $output;
-        if($user_search_provider === 'none') return $output;
-        if(empty($user_search_provider)) return $output;
-        if(is_null($user_search_provider)) return $output;
-
-
-        if((bool)$homepage_search && (bool)$search_provider) {
-
-            $options = (array)json_decode($search_provider->options);
-            $name = $options[$user_search_provider];
-            if((bool)$user_search_provider) {
-                switch($user_search_provider) {
-                    case 'google':
-                        $url = 'https://www.google.com/search';
-                        $var = 'q';
-                        break;
-                    case 'ddg':
-                        $url = 'https://duckduckgo.com/';
-                        $var = 'q';
-                        break;
-                    case 'bing':
-                        $url = 'https://www.bing.com/search';
-                        $var = 'q';
-                        break;
-                    case 'startpage':
-                        $url = 'https://www.startpage.com/';
-                        $var = 'q';
-                }
-                $output .= '<div class="searchform">';
-                $output .= Form::open(['url' => $url, 'method' => 'get']);
-                $output .= '<div class="input-container">';
-                $output .= Form::text($var, null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __($name).' '.__('app.settings.search').'...']);
-                $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
-                $output .= '</div>';
-                $output .= Form::close();
-                $output .= '</div>';
-            }
-        }
-        return $output;
-    }
 
     /**
      * The users that belong to the setting.
