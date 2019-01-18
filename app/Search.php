@@ -10,21 +10,35 @@ use Cache;
 abstract class Search
 {
 
+    /**
+     * List of all search providers
+     * 
+     * @return Array
+     */
     public static function providers()
     {
         $providers = self::standardProviders();
         $providers = $providers + self::appProviders();
-        // Need something to add in none standard providers
-        //die(print_r($providers));
         return $providers;
     }
 
+    /**
+     * Gets details for a single provider
+     * 
+     * @return Object
+     */
     public static function providerDetails($provider)
     {
         $providers = self::providers();
+        if(!isset($providers[$provider])) return false;
         return (object)$providers[$provider] ?? false;
     }
 
+    /**
+     * Array of the standard providers
+     * 
+     * @return Array
+     */
     public static function standardProviders()
     {
         return [
@@ -32,23 +46,29 @@ abstract class Search
                 'url' => 'https://www.google.com/search',
                 'var' => 'q',
                 'method' => 'get',
-                'type' => 'external',
+                'type' => 'standard',
             ],
             'ddg' => [
                 'url' => 'https://duckduckgo.com/',
                 'var' => 'q',
                 'method' => 'get',
-                'type' => 'external',
+                'type' => 'standard',
             ],
             'bing' => [
                 'url' => 'https://www.bing.com/search',
                 'var' => 'q',
                 'method' => 'get',
-                'type' => 'external',
+                'type' => 'standard',
             ],
         ];
     }
 
+    /**
+     * Loops through users apps to see if app is a search provider, might be worth
+     * looking into caching this at some point
+     * 
+     * @return Array
+     */
     public static function appProviders()
     {
         $providers = [];
@@ -59,6 +79,8 @@ abstract class Search
                 $name = Item::nameFromClass($app->class);
                 $providers[strtolower($name)] = [
                     'type' => $provider->type,
+                    'class' => $app->class,
+                    'url' => $app->url,
                 ];
 
             }
@@ -66,27 +88,9 @@ abstract class Search
         return $providers;
     }
 
-    public static function storeSearchProvider($class, $app)
-    {
-        if(!empty($class)) {
-            if(($provider = Item::isSearchProvider($class)) !== false) {
-                $providers = Cache::get('search_providers', []);
-                $name = Item::nameFromClass($class);
-
-                $search = new $class;
-
-                $providers[strtolower($name)] = [
-                    'url' => '',
-                    'var' => '',
-                    'type' => $search->type,
-                    
-                ];
-            }
-        }
-    }
-
-
-        /**
+    /**
+     * Outputs the search form
+     * 
      * @return html
      */
     public static function form()
@@ -100,10 +104,7 @@ abstract class Search
         //die(var_dump($user_search_provider));
         // return early if search isn't applicable
         if((bool)$homepage_search !== true) return $output;
-        if($user_search_provider === 'none') return $output;
-        if(empty($user_search_provider)) return $output;
-        if(is_null($user_search_provider)) return $output;
-
+        $user_search_provider = $user_search_provider ?? 'none';
 
         if((bool)$homepage_search && (bool)$search_provider) {
 

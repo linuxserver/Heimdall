@@ -5,6 +5,6 @@ use GuzzleHttp\Client;
 
 interface SearchInterface
 {
-    public function getResults();
+    public function getResults($query, $providerdetails);
 
 }
