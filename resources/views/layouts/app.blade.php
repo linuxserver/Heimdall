@@ -27,7 +27,7 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}" type="text/css" />
-
+        <script src="{{ asset('js/fontawesome.js') }}"></script>
     </head>
     <body>
         <div id="app"{!! $alt_bg !!}>
