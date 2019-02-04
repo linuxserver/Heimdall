@@ -169,7 +169,7 @@ class ItemController extends Controller
         
         $item = Item::create($request->all());
 
-        Search::storeSearchProvider($request->input('class'), $item);
+        //Search::storeSearchProvider($request->input('class'), $item);
 
         $item->parents()->sync($request->tags);
 
@@ -244,7 +244,7 @@ class ItemController extends Controller
         $item = Item::find($id);
         $item->update($request->all());
 
-        Search::storeSearchProvider($request->input('class'), $item);
+        //Search::storeSearchProvider($request->input('class'), $item);
 
         $item->parents()->sync($request->tags);
 
