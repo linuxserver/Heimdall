@@ -59,7 +59,14 @@ abstract class Search
                 'var' => 'q',
                 'method' => 'get',
                 'type' => 'standard',
+            ],            
+            'startpage' => [
+                'url' => 'https://www.startpage.com/do/search',
+                'var' => 'q',
+                'method' => 'get',
+                'type' => 'standard',
             ],
+
         ];
     }
 
