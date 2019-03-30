@@ -159,6 +159,7 @@ class Item extends Model
 
     public static function isEnhanced($class)
     {
+        if($class === null || $class === 'null') return false;
         $app = new $class;
         return (bool)($app instanceof \App\EnhancedApps);
     }
