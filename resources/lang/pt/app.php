@@ -39,6 +39,7 @@ return [
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
+    'options.qwant' => 'Qwant',
     'options.startpage' => 'StartPage',
     'options.yes' => 'Sim',
     'options.no' => 'Não',

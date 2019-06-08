@@ -90,6 +90,7 @@ class SettingsSeeder extends Seeder
             'none' => 'app.options.none',
             'google' => 'app.options.google',
             'ddg' => 'app.options.ddg',
+            'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
             'startpage' => 'app.options.startpage',
         ]);
