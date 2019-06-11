@@ -33,7 +33,6 @@ return array (
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
-  'options.startpage' => 'Etusivu',
   'options.yes' => 'Kyllä',
   'options.no' => 'Ei',
 
