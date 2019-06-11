@@ -49,7 +49,7 @@ return [
     'ip'                   => ':attribute moet een geldig IP-adres zijn.',
     'ipv4'                 => ':attribute moet een geldig IPv4-adres zijn.',
     'ipv6'                 => ':attribute moet een geldig IPv6-adres zijn.',
-    'json'                 => ':attribute moet een geldige JSON-reeks zijn.',
+    'json'                 => ':attribute moet een geldige JSON-tekenreekswaarde zijn.',
     'max'                  => [
         'numeric' => ':attribute mag niet groter dan :max zijn.',
         'file'    => ':attribute mag niet groter dan :max kilobyte in omvang zijn.',
@@ -82,7 +82,7 @@ return [
         'string'  => ':attribute moet :size karakters bevatten.',
         'array'   => ':attribute moet :size items bevatten.',
     ],
-    'string'               => ':attribute moet een reekswaarde zijn.',
+    'string'               => ':attribute moet een tekenreekswaarde zijn.',
     'timezone'             => ':attribute moet een geldige zone bevatten.',
     'unique'               => ':attribute is reeds in gebruik.',
     'uploaded'             => 'Het uploaden van :attribute is niet gelukt.',
