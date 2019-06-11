@@ -39,7 +39,8 @@ return [
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
-    'options.startpage' => 'StartPage',
+    'options.qwant' => 'Qwant',
+
     'options.yes' => 'Ja',
     'options.no' => 'Nee',
     'options.nzbhydra' => 'NZBHydra',

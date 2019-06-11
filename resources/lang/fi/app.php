@@ -32,7 +32,7 @@ return array (
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
-  'options.startpage' => 'Etusivu',
+  'options.qwant' => 'Qwant',
   'options.yes' => 'Kyllä',
   'options.no' => 'Ei',
 

@@ -30,7 +30,7 @@ return array (
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
-  'options.startpage' => 'Page d\'accueil',
+  'options.qwant' => 'Qwant',
   'options.yes' => 'Oui',
   'options.no' => 'Non',
   
