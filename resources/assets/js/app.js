@@ -8,15 +8,55 @@ $.when( $.ready ).then(function() {
             }, 3500);
     }
 
-    if($('.livestats-container').length) {
-        $('.livestats-container').each(function(index){
+    // from https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+    // Set the name of the hidden property and the change event for visibility
+    var hidden, visibilityChange;
+    if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+        hidden = "hidden";
+        visibilityChange = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+        hidden = "msHidden";
+        visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+        hidden = "webkitHidden";
+        visibilityChange = "webkitvisibilitychange";
+    }
+
+    var livestatsRefreshTimeouts = [];
+    var livestatsFuncs = [];
+    var livestatsContainers = $('.livestats-container');
+    function stopLivestatsRefresh() {
+        for (var timeoutId of livestatsRefreshTimeouts) {
+            window.clearTimeout(timeoutId);
+        }
+    }
+    function startLivestatsRefresh() {
+        for (var fun of livestatsFuncs) {
+            fun();
+        }
+    }
+
+    if (livestatsContainers.length > 0) {
+        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+            console.log("This browser does not support visibilityChange");
+        } else {
+            document.addEventListener(visibilityChange, function() {
+                if (document[hidden]) {
+                    stopLivestatsRefresh();
+                } else {
+                    startLivestatsRefresh();
+                }
+            }, false);
+        }
+
+        livestatsContainers.each(function(index){
             var id = $(this).data('id');
             var dataonly = $(this).data('dataonly');
             var increaseby = (dataonly == 1) ? 20000 : 1000;
             var container = $(this);
             var max_timer = 30000;
             var timer = 5000;
-            (function worker() {
+            var fun = function worker() {
                 $.ajax({
                     url: '/get_stats/'+id,
                     dataType: 'json',
@@ -29,10 +69,12 @@ $.when( $.ready ).then(function() {
                     },
                     complete: function() {
                     // Schedule the next request when the current one's complete
-                        setTimeout(worker, timer);
+                        livestatsRefreshTimeouts[index] = window.setTimeout(worker, timer);
                     }
                 });
-            })();
+            };
+            livestatsFuncs[index] = fun;
+            fun();
         });
 
     }
