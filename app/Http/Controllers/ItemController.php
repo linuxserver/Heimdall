@@ -141,7 +141,7 @@ class ItemController extends Controller
         //
         $validatedData = $request->validate([
             'title' => 'required|max:255',
-            'url' => 'required|url',
+            'url' => 'required',
         ]);
 
         if($request->hasFile('file')) {
@@ -217,7 +217,7 @@ class ItemController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
-            'url' => 'required|url',
+            'url' => 'required',
         ]);
             //die(print_r($request->all()));
         if($request->hasFile('file')) {
