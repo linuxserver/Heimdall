@@ -31,7 +31,6 @@ return array (
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
-  'options.startpage' => 'Page d\'accueil',
   'options.yes' => 'Oui',
   'options.no' => 'Non',
   
