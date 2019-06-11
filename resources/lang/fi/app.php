@@ -74,7 +74,7 @@ return array (
   'apps.preview' => 'Esikatsele',
 
 
-  'user.user_list' => 'KÄyttäjät',
+  'user.user_list' => 'Käyttäjät',
   'user.add_user' => 'Lisää käyttäjä',
   'user.username' => 'Käyttäjänimi',
   'user.avatar' => 'Avatar',
