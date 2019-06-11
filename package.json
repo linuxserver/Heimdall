@@ -12,10 +12,10 @@
     "devDependencies": {
         "bootstrap-sass": "^3.4.0",
         "cross-env": "^5.2.0",
-        "jquery": "^3.2",
-        "laravel-mix": "^4.0.14"
+        "jquery": "^3.4.1",
+        "laravel-mix": "^4.0.16"
     },
     "dependencies": {
-        "select2": "^4.0.6-rc.1"
+        "select2": "^4.0.7"
     }
 }
