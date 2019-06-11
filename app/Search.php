@@ -66,6 +66,12 @@ abstract class Search
                 'method' => 'get',
                 'type' => 'standard',
             ],
+            'startpage' => [
+                'url' => 'https://www.startpage.com/do/dsearch',
+                'var' => 'query',
+                'method' => 'get',
+                'type' => 'standard',
+            ],
         ];
     }
 
