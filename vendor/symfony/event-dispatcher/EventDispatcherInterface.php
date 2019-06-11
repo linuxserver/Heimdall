@@ -11,6 +11,8 @@
 
 namespace Symfony\Component\EventDispatcher;
 
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
+
 /**
  * The EventDispatcherInterface is the central point of Symfony's event listener system.
  * Listeners are registered on the manager and events are dispatched through the
@@ -18,21 +20,8 @@ namespace Symfony\Component\EventDispatcher;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface EventDispatcherInterface
+interface EventDispatcherInterface extends ContractsEventDispatcherInterface
 {
-    /**
-     * Dispatches an event to all registered listeners.
-     *
-     * @param string     $eventName The name of the event to dispatch. The name of
-     *                              the event is the name of the method that is
-     *                              invoked on listeners.
-     * @param Event|null $event     The event to pass to the event handlers/listeners
-     *                              If not supplied, an empty Event instance is created
-     *
-     * @return Event
-     */
-    public function dispatch($eventName, Event $event = null);
-
     /**
      * Adds an event listener that listens on the specified events.
      *

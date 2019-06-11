@@ -187,6 +187,7 @@ class Repo extends AbstractApi
      * @param bool        $hasDownloads `true` to enable downloads for this repository, `false` to disable them
      * @param int         $teamId       The id of the team that will be granted access to this repository. This is only valid when creating a repo in an organization.
      * @param bool        $autoInit     `true` to create an initial commit with empty README, `false` for no initial commit
+     * @param bool        $hasProjects  `true` to enable projects for this repository or false to disable them.
      *
      * @return array returns repository data
      */
@@ -200,7 +201,8 @@ class Repo extends AbstractApi
         $hasWiki = false,
         $hasDownloads = false,
         $teamId = null,
-        $autoInit = false
+        $autoInit = false,
+        $hasProjects = true
     ) {
         $path = null !== $organization ? '/orgs/'.$organization.'/repos' : '/user/repos';
 
@@ -213,6 +215,7 @@ class Repo extends AbstractApi
             'has_wiki'      => $hasWiki,
             'has_downloads' => $hasDownloads,
             'auto_init'     => $autoInit,
+            'has_projects' => $hasProjects,
         ];
 
         if ($organization && $teamId) {

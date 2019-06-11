@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Validates Requests.
  *
  * @author Magnus Nordlander <magnus@fervo.se>
+ *
+ * @final since Symfony 4.3
  */
 class ValidateRequestListener implements EventSubscriberInterface
 {
@@ -44,10 +46,10 @@ class ValidateRequestListener implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            KernelEvents::REQUEST => array(
-                array('onKernelRequest', 256),
-            ),
-        );
+        return [
+            KernelEvents::REQUEST => [
+                ['onKernelRequest', 256],
+            ],
+        ];
     }
 }

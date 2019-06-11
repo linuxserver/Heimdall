@@ -5,6 +5,8 @@
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
 
+declare(strict_types=1);
+
 namespace Zend\Diactoros;
 
 use function is_callable;
@@ -16,13 +18,12 @@ use function is_callable;
  * attempts to detect the Authorization header, which is often not aggregated
  * correctly under various SAPI/httpd combinations.
  *
- * @param array $server
  * @param null|callable $apacheRequestHeaderCallback Callback that can be used to
  *     retrieve Apache request headers. This defaults to
  *     `apache_request_headers` under the Apache mod_php.
  * @return array Either $server verbatim, or with an added HTTP_AUTHORIZATION header.
  */
-function normalizeServer(array $server, callable $apacheRequestHeaderCallback = null)
+function normalizeServer(array $server, callable $apacheRequestHeaderCallback = null) : array
 {
     if (null === $apacheRequestHeaderCallback && is_callable('apache_request_headers')) {
         $apacheRequestHeaderCallback = 'apache_request_headers';

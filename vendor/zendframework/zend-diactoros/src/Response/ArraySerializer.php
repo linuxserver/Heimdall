@@ -1,14 +1,17 @@
 <?php
 /**
  * @see       http://github.com/zendframework/zend-diactoros for the canonical source repository
- * @copyright Copyright (c) 2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2017-2018 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
+
+declare(strict_types=1);
 
 namespace Zend\Diactoros\Response;
 
 use Psr\Http\Message\ResponseInterface;
-use UnexpectedValueException;
+use Throwable;
+use Zend\Diactoros\Exception;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Stream;
 
@@ -25,11 +28,8 @@ final class ArraySerializer
 {
     /**
      * Serialize a response message to an array.
-     *
-     * @param ResponseInterface $response
-     * @return array
      */
-    public static function toArray(ResponseInterface $response)
+    public static function toArray(ResponseInterface $response) : array
     {
         return [
             'status_code'      => $response->getStatusCode(),
@@ -43,11 +43,9 @@ final class ArraySerializer
     /**
      * Deserialize a response array to a response instance.
      *
-     * @param array $serializedResponse
-     * @return Response
-     * @throws UnexpectedValueException when cannot deserialize response
+     * @throws Exception\DeserializationException when cannot deserialize response
      */
-    public static function fromArray(array $serializedResponse)
+    public static function fromArray(array $serializedResponse) : Response
     {
         try {
             $body = new Stream('php://memory', 'wb+');
@@ -61,8 +59,8 @@ final class ArraySerializer
             return (new Response($body, $statusCode, $headers))
                 ->withProtocolVersion($protocolVersion)
                 ->withStatus($statusCode, $reasonPhrase);
-        } catch (\Exception $exception) {
-            throw new UnexpectedValueException('Cannot deserialize response', null, $exception);
+        } catch (Throwable $exception) {
+            throw Exception\DeserializationException::forResponseFromArray($exception);
         }
     }
 
@@ -73,14 +71,14 @@ final class ArraySerializer
      * @return mixed
      * @throws UnexpectedValueException
      */
-    private static function getValueFromKey(array $data, $key, $message = null)
+    private static function getValueFromKey(array $data, string $key, string $message = null)
     {
         if (isset($data[$key])) {
             return $data[$key];
         }
         if ($message === null) {
-            $message = sprintf('Missing "%s" key in serialized request', $key);
+            $message = sprintf('Missing "%s" key in serialized response', $key);
         }
-        throw new UnexpectedValueException($message);
+        throw new Exception\DeserializationException($message);
     }
 }

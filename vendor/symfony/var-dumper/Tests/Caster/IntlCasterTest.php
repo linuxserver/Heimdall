@@ -54,12 +54,12 @@ EOTXT;
         $expectedAttribute11 = $var->getAttribute(\NumberFormatter::GROUPING_SIZE);
         $expectedAttribute12 = $var->getAttribute(\NumberFormatter::ROUNDING_MODE);
         $expectedAttribute13 = number_format($var->getAttribute(\NumberFormatter::ROUNDING_INCREMENT), 1);
-        $expectedAttribute14 = $var->getAttribute(\NumberFormatter::FORMAT_WIDTH);
+        $expectedAttribute14 = $this->getDump($var->getAttribute(\NumberFormatter::FORMAT_WIDTH));
         $expectedAttribute15 = $var->getAttribute(\NumberFormatter::PADDING_POSITION);
         $expectedAttribute16 = $var->getAttribute(\NumberFormatter::SECONDARY_GROUPING_SIZE);
         $expectedAttribute17 = $var->getAttribute(\NumberFormatter::SIGNIFICANT_DIGITS_USED);
-        $expectedAttribute18 = $var->getAttribute(\NumberFormatter::MIN_SIGNIFICANT_DIGITS);
-        $expectedAttribute19 = $var->getAttribute(\NumberFormatter::MAX_SIGNIFICANT_DIGITS);
+        $expectedAttribute18 = $this->getDump($var->getAttribute(\NumberFormatter::MIN_SIGNIFICANT_DIGITS));
+        $expectedAttribute19 = $this->getDump($var->getAttribute(\NumberFormatter::MAX_SIGNIFICANT_DIGITS));
         $expectedAttribute20 = $var->getAttribute(\NumberFormatter::LENIENT_PARSE);
 
         $expectedTextAttribute1 = $var->getTextAttribute(\NumberFormatter::POSITIVE_PREFIX);
@@ -240,6 +240,12 @@ EOTXT;
         $expectedTimeType = $var->getTimeType();
         $expectedDateType = $var->getDateType();
 
+        $expectedTimeZone = $var->getTimeZone();
+        $expectedTimeZoneDisplayName = $expectedTimeZone->getDisplayName();
+        $expectedTimeZoneID = $expectedTimeZone->getID();
+        $expectedTimeZoneRawOffset = $expectedTimeZone->getRawOffset();
+        $expectedTimeZoneDSTSavings = $expectedTimeZone->useDaylightTime() ? "\n    dst_savings: ".$expectedTimeZone->getDSTSavings() : '';
+
         $expectedCalendarObject = $var->getCalendarObject();
         $expectedCalendarObjectType = $expectedCalendarObject->getType();
         $expectedCalendarObjectFirstDayOfWeek = $expectedCalendarObject->getFirstDayOfWeek();
@@ -254,13 +260,7 @@ EOTXT;
         $expectedCalendarObjectTimeZoneDisplayName = $expectedCalendarObjectTimeZone->getDisplayName();
         $expectedCalendarObjectTimeZoneID = $expectedCalendarObjectTimeZone->getID();
         $expectedCalendarObjectTimeZoneRawOffset = $expectedCalendarObjectTimeZone->getRawOffset();
-        $expectedCalendarObjectTimeZoneDSTSavings = $expectedCalendarObjectTimeZone->getDSTSavings();
-
-        $expectedTimeZone = $var->getTimeZone();
-        $expectedTimeZoneDisplayName = $expectedTimeZone->getDisplayName();
-        $expectedTimeZoneID = $expectedTimeZone->getID();
-        $expectedTimeZoneRawOffset = $expectedTimeZone->getRawOffset();
-        $expectedTimeZoneDSTSavings = $expectedTimeZone->getDSTSavings();
+        $expectedCalendarObjectTimeZoneDSTSavings = $expectedTimeZone->useDaylightTime() ? "\n      dst_savings: ".$expectedCalendarObjectTimeZone->getDSTSavings() : '';
 
         $expected = <<<EOTXT
 IntlDateFormatter {
@@ -282,15 +282,13 @@ IntlDateFormatter {
     time_zone: IntlTimeZone {
       display_name: "$expectedCalendarObjectTimeZoneDisplayName"
       id: "$expectedCalendarObjectTimeZoneID"
-      raw_offset: $expectedCalendarObjectTimeZoneRawOffset
-      dst_savings: $expectedCalendarObjectTimeZoneDSTSavings
+      raw_offset: $expectedCalendarObjectTimeZoneRawOffset$expectedCalendarObjectTimeZoneDSTSavings
     }
   }
   time_zone: IntlTimeZone {
     display_name: "$expectedTimeZoneDisplayName"
     id: "$expectedTimeZoneID"
-    raw_offset: $expectedTimeZoneRawOffset
-    dst_savings: $expectedTimeZoneDSTSavings
+    raw_offset: $expectedTimeZoneRawOffset$expectedTimeZoneDSTSavings
   }
 }
 EOTXT;

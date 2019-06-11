@@ -28,7 +28,7 @@ class ResponseMediator
     /**
      * @param ResponseInterface $response
      *
-     * @return array|null
+     * @return array|void
      */
     public static function getPagination(ResponseInterface $response)
     {

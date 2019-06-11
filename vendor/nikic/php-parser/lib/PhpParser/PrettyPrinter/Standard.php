@@ -260,6 +260,10 @@ class Standard extends PrettyPrinterAbstract
         return $this->pInfixOp(AssignOp\Pow::class, $node->var, ' **= ', $node->expr);
     }
 
+    protected function pExpr_AssignOp_Coalesce(AssignOp\Coalesce $node) {
+        return $this->pInfixOp(AssignOp\Coalesce::class, $node->var, ' ??= ', $node->expr);
+    }
+
     // Binary expressions
 
     protected function pExpr_BinaryOp_Plus(BinaryOp\Plus $node) {
@@ -541,7 +545,9 @@ class Standard extends PrettyPrinterAbstract
 
     protected function pExpr_ArrayItem(Expr\ArrayItem $node) {
         return (null !== $node->key ? $this->p($node->key) . ' => ' : '')
-             . ($node->byRef ? '&' : '') . $this->p($node->value);
+             . ($node->byRef ? '&' : '')
+             . ($node->unpack ? '...' : '')
+             . $this->p($node->value);
     }
 
     protected function pExpr_ArrayDimFetch(Expr\ArrayDimFetch $node) {
@@ -576,6 +582,15 @@ class Standard extends PrettyPrinterAbstract
              . (!empty($node->uses) ? ' use(' . $this->pCommaSeparated($node->uses) . ')' : '')
              . (null !== $node->returnType ? ' : ' . $this->p($node->returnType) : '')
              . ' {' . $this->pStmts($node->stmts) . $this->nl . '}';
+    }
+
+    protected function pExpr_ArrowFunction(Expr\ArrowFunction $node) {
+        return ($node->static ? 'static ' : '')
+            . 'fn' . ($node->byRef ? '&' : '')
+            . '(' . $this->pCommaSeparated($node->params) . ')'
+            . (null !== $node->returnType ? ': ' . $this->p($node->returnType) : '')
+            . ' => '
+            . $this->p($node->expr);
     }
 
     protected function pExpr_ClosureUse(Expr\ClosureUse $node) {

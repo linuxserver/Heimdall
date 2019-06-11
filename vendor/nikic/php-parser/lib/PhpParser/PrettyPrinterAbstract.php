@@ -9,7 +9,6 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\AssignOp;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\Cast;
-use PhpParser\Node\Name;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 
@@ -83,6 +82,7 @@ abstract class PrettyPrinterAbstract
         AssignOp\ShiftLeft::class      => [160,  1],
         AssignOp\ShiftRight::class     => [160,  1],
         AssignOp\Pow::class            => [160,  1],
+        AssignOp\Coalesce::class       => [160,  1],
         Expr\YieldFrom::class          => [165,  1],
         Expr\Print_::class             => [168,  1],
         BinaryOp\LogicalAnd::class     => [170, -1],
@@ -120,7 +120,7 @@ abstract class PrettyPrinterAbstract
      */
     protected $removalMap;
     /**
-     * @var mixed[] Map from "{$node->getType()}->{$subNode}" to [$find, $extraLeft, $extraRight].
+     * @var mixed[] Map from "{$node->getType()}->{$subNode}" to [$find, $beforeToken, $extraLeft, $extraRight].
      *              $find is an optional token after which the insertion occurs. $extraLeft/Right
      *              are optionally added before/after the main insertions.
      */
@@ -130,6 +130,7 @@ abstract class PrettyPrinterAbstract
      *               between elements of this list subnode.
      */
     protected $listInsertionMap;
+    protected $emptyListInsertionMap;
     /** @var int[] Map from "{$node->getType()}->{$subNode}" to token before which the modifiers
      *             should be reprinted. */
     protected $modifierChangeMap;
@@ -479,6 +480,7 @@ abstract class PrettyPrinterAbstract
         $this->initializeRemovalMap();
         $this->initializeInsertionMap();
         $this->initializeListInsertionMap();
+        $this->initializeEmptyListInsertionMap();
         $this->initializeModifierChangeMap();
 
         $this->resetState();
@@ -487,7 +489,7 @@ abstract class PrettyPrinterAbstract
         $this->preprocessNodes($stmts);
 
         $pos = 0;
-        $result = $this->pArray($stmts, $origStmts, $pos, 0, 'stmts', null, "\n");
+        $result = $this->pArray($stmts, $origStmts, $pos, 0, 'File', 'stmts', null);
         if (null !== $result) {
             $result .= $this->origTokens->getTokenCode($pos, count($origTokens), 0);
         } else {
@@ -568,9 +570,8 @@ abstract class PrettyPrinterAbstract
                 if (is_array($subNode) && is_array($origSubNode)) {
                     // Array subnode changed, we might be able to reconstruct it
                     $listResult = $this->pArray(
-                        $subNode, $origSubNode, $pos, $indentAdjustment, $subNodeName,
-                        $fixupInfo[$subNodeName] ?? null,
-                        $this->listInsertionMap[$type . '->' . $subNodeName] ?? null
+                        $subNode, $origSubNode, $pos, $indentAdjustment, $type, $subNodeName,
+                        $fixupInfo[$subNodeName] ?? null
                     );
                     if (null === $listResult) {
                         return $this->pFallback($fallbackNode);
@@ -689,17 +690,20 @@ abstract class PrettyPrinterAbstract
      * @param array       $origNodes        Original nodes
      * @param int         $pos              Current token position (updated by reference)
      * @param int         $indentAdjustment Adjustment for indentation
+     * @param string      $parentNodeType   Type of the containing node.
      * @param string      $subNodeName      Name of array subnode.
      * @param null|int    $fixup            Fixup information for array item nodes
-     * @param null|string $insertStr        Separator string to use for insertions
      *
      * @return null|string Result of pretty print or null if cannot preserve formatting
      */
     protected function pArray(
         array $nodes, array $origNodes, int &$pos, int $indentAdjustment,
-        string $subNodeName, $fixup, $insertStr
+        string $parentNodeType, string $subNodeName, $fixup
     ) {
         $diff = $this->nodeListDiffer->diffWithReplacements($origNodes, $nodes);
+
+        $mapKey = $parentNodeType . '->' . $subNodeName;
+        $insertStr = $this->listInsertionMap[$mapKey] ?? null;
 
         $beforeFirstKeepOrReplace = true;
         $delayedAdd = [];
@@ -873,8 +877,27 @@ abstract class PrettyPrinterAbstract
         }
 
         if (!empty($delayedAdd)) {
-            // TODO Handle insertion into empty list
-            return null;
+            if (!isset($this->emptyListInsertionMap[$mapKey])) {
+                return null;
+            }
+
+            list($findToken, $extraLeft, $extraRight) = $this->emptyListInsertionMap[$mapKey];
+            if (null !== $findToken) {
+                $insertPos = $this->origTokens->findRight($pos, $findToken) + 1;
+                $result .= $this->origTokens->getTokenCode($pos, $insertPos, $indentAdjustment);
+                $pos = $insertPos;
+            }
+
+            $first = true;
+            $result .= $extraLeft;
+            foreach ($delayedAdd as $delayedAddNode) {
+                if (!$first) {
+                    $result .= $insertStr;
+                }
+                $result .= $this->p($delayedAddNode, true);
+                $first = false;
+            }
+            $result .= $extraRight;
         }
 
         return $result;
@@ -1157,7 +1180,7 @@ abstract class PrettyPrinterAbstract
             Expr\Assign::class, Expr\AssignRef::class, AssignOp\Plus::class, AssignOp\Minus::class,
             AssignOp\Mul::class, AssignOp\Div::class, AssignOp\Concat::class, AssignOp\Mod::class,
             AssignOp\BitwiseAnd::class, AssignOp\BitwiseOr::class, AssignOp\BitwiseXor::class,
-            AssignOp\ShiftLeft::class, AssignOp\ShiftRight::class, AssignOp\Pow::class,
+            AssignOp\ShiftLeft::class, AssignOp\ShiftRight::class, AssignOp\Pow::class, AssignOp\Coalesce::class
         ];
         foreach ($assignOps as $assignOp) {
             $this->fixupMap[$assignOp] = [
@@ -1195,6 +1218,7 @@ abstract class PrettyPrinterAbstract
         $this->removalMap = [
             'Expr_ArrayDimFetch->dim' => $stripBoth,
             'Expr_ArrayItem->key' => $stripDoubleArrow,
+            'Expr_ArrowFunction->returnType' => $stripColon,
             'Expr_Closure->returnType' => $stripColon,
             'Expr_Exit->expr' => $stripBoth,
             'Expr_Ternary->if' => $stripBoth,
@@ -1228,9 +1252,11 @@ abstract class PrettyPrinterAbstract
         if ($this->insertionMap) return;
 
         // TODO: "yield" where both key and value are inserted doesn't work
+        // [$find, $beforeToken, $extraLeft, $extraRight]
         $this->insertionMap = [
             'Expr_ArrayDimFetch->dim' => ['[', false, null, null],
             'Expr_ArrayItem->key' => [null, false, null, ' => '],
+            'Expr_ArrowFunction->returnType' => [')', false, ' : ', null],
             'Expr_Closure->returnType' => [')', false, ' : ', null],
             'Expr_Ternary->if' => ['?', false, ' ', ' '],
             'Expr_Yield->key' => [\T_YIELD, false, null, ' => '],
@@ -1274,6 +1300,7 @@ abstract class PrettyPrinterAbstract
 
             // comma-separated lists
             'Expr_Array->items' => ', ',
+            'Expr_ArrowFunction->params' => ', ',
             'Expr_Closure->params' => ', ',
             'Expr_Closure->uses' => ', ',
             'Expr_FuncCall->args' => ', ',
@@ -1327,6 +1354,59 @@ abstract class PrettyPrinterAbstract
             'Stmt_TraitUse->adaptations' => "\n",
             'Stmt_TryCatch->stmts' => "\n",
             'Stmt_While->stmts' => "\n",
+
+            // dummy for top-level context
+            'File->stmts' => "\n",
+        ];
+    }
+
+    protected function initializeEmptyListInsertionMap() {
+        if ($this->emptyListInsertionMap) return;
+
+        // TODO Insertion into empty statement lists.
+
+        // [$find, $extraLeft, $extraRight]
+        $this->emptyListInsertionMap = [
+            'Expr_ArrowFunction->params' => ['(', '', ''],
+            'Expr_Closure->uses' => [')', ' use(', ')'],
+            'Expr_Closure->params' => ['(', '', ''],
+            'Expr_FuncCall->args' => ['(', '', ''],
+            'Expr_MethodCall->args' => ['(', '', ''],
+            'Expr_New->args' => ['(', '', ''],
+            'Expr_PrintableNewAnonClass->args' => ['(', '', ''],
+            'Expr_PrintableNewAnonClass->implements' => [null, ' implements ', ''],
+            'Expr_StaticCall->args' => ['(', '', ''],
+            'Stmt_Class->implements' => [null, ' implements ', ''],
+            'Stmt_ClassMethod->params' => ['(', '', ''],
+            'Stmt_Interface->extends' => [null, ' extends ', ''],
+            'Stmt_Function->params' => ['(', '', ''],
+
+            /* These cannot be empty to start with:
+             * Expr_Isset->vars
+             * Stmt_Catch->types
+             * Stmt_Const->consts
+             * Stmt_ClassConst->consts
+             * Stmt_Declare->declares
+             * Stmt_Echo->exprs
+             * Stmt_Global->vars
+             * Stmt_GroupUse->uses
+             * Stmt_Property->props
+             * Stmt_StaticVar->vars
+             * Stmt_TraitUse->traits
+             * Stmt_TraitUseAdaptation_Precedence->insteadof
+             * Stmt_Unset->vars
+             * Stmt_Use->uses
+             */
+
+            /* TODO
+             * Stmt_If->elseifs
+             * Stmt_TryCatch->catches
+             * Expr_Array->items
+             * Expr_List->items
+             * Stmt_For->init
+             * Stmt_For->cond
+             * Stmt_For->loop
+             */
         ];
     }
 

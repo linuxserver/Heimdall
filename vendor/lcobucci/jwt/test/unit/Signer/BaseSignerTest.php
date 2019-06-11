@@ -13,7 +13,7 @@ use Lcobucci\JWT\Signature;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
-class BaseSignerTest extends \PHPUnit_Framework_TestCase
+class BaseSignerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var BaseSigner|\PHPUnit_Framework_MockObject_MockObject

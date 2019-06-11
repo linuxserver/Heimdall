@@ -11,17 +11,23 @@
 
 namespace Symfony\Component\EventDispatcher\Debug;
 
+use Psr\EventDispatcher\StoppableEventInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\LegacyEventProxy;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\VarDumper\Caster\ClassStub;
+use Symfony\Contracts\EventDispatcher\Event as ContractsEvent;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.3: the "Event" type-hint on __invoke() will be replaced by "object" in 5.0
  */
 class WrappedListener
 {
     private $listener;
+    private $optimizedListener;
     private $name;
     private $called;
     private $stoppedPropagation;
@@ -29,11 +35,13 @@ class WrappedListener
     private $dispatcher;
     private $pretty;
     private $stub;
+    private $priority;
     private static $hasClassStub;
 
-    public function __construct($listener, $name, Stopwatch $stopwatch, EventDispatcherInterface $dispatcher = null)
+    public function __construct($listener, ?string $name, Stopwatch $stopwatch, EventDispatcherInterface $dispatcher = null)
     {
         $this->listener = $listener;
+        $this->optimizedListener = $listener instanceof \Closure ? $listener : (\is_callable($listener) ? \Closure::fromCallable($listener) : null);
         $this->stopwatch = $stopwatch;
         $this->dispatcher = $dispatcher;
         $this->called = false;
@@ -94,27 +102,34 @@ class WrappedListener
             $this->stub = self::$hasClassStub ? new ClassStub($this->pretty.'()', $this->listener) : $this->pretty.'()';
         }
 
-        return array(
+        return [
             'event' => $eventName,
-            'priority' => null !== $this->dispatcher ? $this->dispatcher->getListenerPriority($eventName, $this->listener) : null,
+            'priority' => null !== $this->priority ? $this->priority : (null !== $this->dispatcher ? $this->dispatcher->getListenerPriority($eventName, $this->listener) : null),
             'pretty' => $this->pretty,
             'stub' => $this->stub,
-        );
+        ];
     }
 
     public function __invoke(Event $event, $eventName, EventDispatcherInterface $dispatcher)
     {
+        if ($event instanceof LegacyEventProxy) {
+            $event = $event->getEvent();
+        }
+
+        $dispatcher = $this->dispatcher ?: $dispatcher;
+
         $this->called = true;
+        $this->priority = $dispatcher->getListenerPriority($eventName, $this->listener);
 
         $e = $this->stopwatch->start($this->name, 'event_listener');
 
-        ($this->listener)($event, $eventName, $this->dispatcher ?: $dispatcher);
+        ($this->optimizedListener ?? $this->listener)($event, $eventName, $dispatcher);
 
         if ($e->isStarted()) {
             $e->stop();
         }
 
-        if ($event->isPropagationStopped()) {
+        if (($event instanceof Event || $event instanceof ContractsEvent || $event instanceof StoppableEventInterface) && $event->isPropagationStopped()) {
             $this->stoppedPropagation = true;
         }
     }

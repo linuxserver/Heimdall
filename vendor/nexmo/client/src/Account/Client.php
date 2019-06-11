@@ -137,6 +137,78 @@ class Client implements ClientAwareInterface
         }
     }
 
+    public function getConfig()
+    {
+
+        $request = new Request(
+            $this->getClient()->getRestUrl() . '/account/settings',
+            'POST',
+            'php://temp'
+        );
+
+        $response = $this->client->send($request);
+        $rawBody = $response->getBody()->getContents();
+
+        if ($rawBody === '') {
+            throw new Exception\Server('Response was empty');
+        }
+
+        $body = json_decode($rawBody, true);
+
+        $config = new Config(
+            $body['mo-callback-url'],
+            $body['dr-callback-url'],
+            $body['max-outbound-request'],
+            $body['max-inbound-request'],
+            $body['max-calls-per-second']
+        );
+        return $config;
+    }
+
+    public function updateConfig($options)
+    {
+        // supported options are SMS Callback and DR Callback
+        $params = [];
+        if(isset($options['sms_callback_url'])) {
+            $params['moCallBackUrl'] = $options['sms_callback_url'];
+        }
+
+        if(isset($options['dr_callback_url'])) {
+            $params['drCallBackUrl'] = $options['dr_callback_url'];
+        }
+
+        $request = new Request(
+            $this->getClient()->getRestUrl() . '/account/settings',
+            'POST',
+            'php://temp',
+            ['content-type' => 'application/x-www-form-urlencoded']
+        );
+
+        $request->getBody()->write(http_build_query($params));
+        $response = $this->client->send($request);
+
+        if($response->getStatusCode() != '200'){
+            throw $this->getException($response);
+        }
+
+        $rawBody = $response->getBody()->getContents();
+
+        if ($rawBody === '') {
+            throw new Exception\Server('Response was empty');
+        }
+
+        $body = json_decode($rawBody, true);
+
+        $config = new Config(
+            $body['mo-callback-url'],
+            $body['dr-callback-url'],
+            $body['max-outbound-request'],
+            $body['max-inbound-request'],
+            $body['max-calls-per-second']
+        );
+        return $config;
+    }
+
     public function listSecrets($apiKey)
     {
         $body = $this->get( $this->getClient()->getApiUrl() . '/accounts/'.$apiKey.'/secrets');

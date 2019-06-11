@@ -28,7 +28,7 @@ class Gists extends AbstractApi
      */
     public function configure($bodyType = null)
     {
-        if (!in_array($bodyType, ['base64'])) {
+        if ('base64' !== $bodyType) {
             $bodyType = 'raw';
         }
 

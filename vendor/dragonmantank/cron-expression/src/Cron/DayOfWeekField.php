@@ -3,8 +3,8 @@
 namespace Cron;
 
 use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
-
 
 /**
  * Day of week field.  Allows: * / , - ? L #
@@ -21,20 +21,41 @@ use InvalidArgumentException;
  */
 class DayOfWeekField extends AbstractField
 {
+    /**
+     * @inheritDoc
+     */
     protected $rangeStart = 0;
+
+    /**
+     * @inheritDoc
+     */
     protected $rangeEnd = 7;
 
+    /**
+     * @var array Weekday range
+     */
     protected $nthRange;
 
+    /**
+     * @inheritDoc
+     */
     protected $literals = [1 => 'MON', 2 => 'TUE', 3 => 'WED', 4 => 'THU', 5 => 'FRI', 6 => 'SAT', 7 => 'SUN'];
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->nthRange = range(1, 5);
         parent::__construct();
     }
 
-    public function isSatisfiedBy(DateTime $date, $value)
+    /**
+     * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable $date
+     */
+    public function isSatisfiedBy(DateTimeInterface $date, $value)
     {
         if ($value == '?') {
             return true;
@@ -49,9 +70,11 @@ class DayOfWeekField extends AbstractField
 
         // Find out if this is the last specific weekday of the month
         if (strpos($value, 'L')) {
-            $weekday = str_replace('7', '0', substr($value, 0, strpos($value, 'L')));
+            $weekday = $this->convertLiterals(substr($value, 0, strpos($value, 'L')));
+            $weekday = str_replace('7', '0', $weekday);
+
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
+            $tdate = $tdate->setDate($currentYear, $currentMonth, $lastDayOfMonth);
             while ($tdate->format('w') != $weekday) {
                 $tdateClone = new DateTime();
                 $tdate = $tdateClone
@@ -94,7 +117,7 @@ class DayOfWeekField extends AbstractField
             }
 
             $tdate = clone $date;
-            $tdate->setDate($currentYear, $currentMonth, 1);
+            $tdate = $tdate->setDate($currentYear, $currentMonth, 1);
             $dayCount = 0;
             $currentDay = 1;
             while ($currentDay < $lastDayOfMonth + 1) {
@@ -103,7 +126,7 @@ class DayOfWeekField extends AbstractField
                         break;
                     }
                 }
-                $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
+                $tdate = $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
             }
 
             return $date->format('j') == $currentDay;
@@ -127,14 +150,17 @@ class DayOfWeekField extends AbstractField
         return $this->isSatisfied($fieldValue, $value);
     }
 
-    public function increment(DateTime $date, $invert = false)
+    /**
+     * @inheritDoc
+     *
+     * @param \DateTime|\DateTimeImmutable &$date
+     */
+    public function increment(DateTimeInterface &$date, $invert = false)
     {
         if ($invert) {
-            $date->modify('-1 day');
-            $date->setTime(23, 59, 0);
+            $date = $date->modify('-1 day')->setTime(23, 59, 0);
         } else {
-            $date->modify('+1 day');
-            $date->setTime(0, 0, 0);
+            $date = $date->modify('+1 day')->setTime(0, 0, 0);
         }
 
         return $this;

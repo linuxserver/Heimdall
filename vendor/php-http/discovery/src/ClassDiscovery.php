@@ -24,6 +24,7 @@ abstract class ClassDiscovery
     private static $strategies = [
         Strategy\PuliBetaStrategy::class,
         Strategy\CommonClassesStrategy::class,
+        Strategy\CommonPsr17ClassesStrategy::class,
     ];
 
     /**

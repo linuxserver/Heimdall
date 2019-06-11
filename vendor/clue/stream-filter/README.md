@@ -27,13 +27,13 @@ These filters can be used to easily and efficiently perform various transformati
 * and much more.
 
 But let's face it:
-Its API is [*difficult to work with*](http://php.net/manual/en/php-user-filter.filter.php)
-and its documentation is [*subpar*](http://stackoverflow.com/questions/27103269/what-is-a-bucket-brigade).
+Its API is [*difficult to work with*](https://www.php.net/manual/en/php-user-filter.filter.php)
+and its documentation is [*subpar*](https://stackoverflow.com/questions/27103269/what-is-a-bucket-brigade).
 This combined means its powerful features are often neglected.
 
 This project aims to make these features more accessible to a broader audience.
 * **Lightweight, SOLID design** -
-  Provides a thin abstraction that is [*just good enough*](http://en.wikipedia.org/wiki/Principle_of_good_enough)
+  Provides a thin abstraction that is [*just good enough*](https://en.wikipedia.org/wiki/Principle_of_good_enough)
   and does not get in your way.
   Custom filters require trivial effort.
 * **Good test coverage** -
@@ -141,7 +141,7 @@ Filter\append($stream, function ($chunk) {
 ```
 
 > Note that once a filter has been added to stream, the stream can no longer be passed to
-> [`stream_select()`](http://php.net/manual/en/function.stream-select.php)
+> [`stream_select()`](https://www.php.net/manual/en/function.stream-select.php)
 > (and family).
 >
 > > Warning: stream_select(): cannot cast a filtered stream on this system in {file} on line {line}
@@ -178,7 +178,7 @@ For more details about its behavior, see also the [`append()`](#append) function
 The `fun($filter, $parameters = null)` function can be used to
 create a filter function which uses the given built-in `$filter`.
 
-PHP comes with a useful set of [built-in filters](http://php.net/manual/en/filters.php).
+PHP comes with a useful set of [built-in filters](https://www.php.net/manual/en/filters.php).
 Using `fun()` makes accessing these as easy as passing an input string to filter
 and getting the filtered output string.
 
@@ -191,7 +191,7 @@ assert('test' === $fun($fun('test'));
 
 Please note that not all filter functions may be available depending on installed
 PHP extensions and the PHP version in use.
-In particular, [HHVM](http://hhvm.com/) may not offer the same filter functions
+In particular, [HHVM](https://hhvm.com/) may not offer the same filter functions
 or parameters as Zend PHP.
 Accessing an unknown filter function will result in a `RuntimeException`:
 
@@ -218,7 +218,7 @@ assert('<b>hi</b>' === $ret);
 Under the hood, this function allocates a temporary memory stream, so it's
 recommended to clean up the filter function after use.
 Also, some filter functions (in particular the
-[zlib compression filters](http://php.net/manual/en/filters.compression.php))
+[zlib compression filters](https://www.php.net/manual/en/filters.compression.php))
 may use internal buffers and may emit a final data chunk on close.
 The filter function can be closed by invoking without any arguments:
 
@@ -263,10 +263,11 @@ Filter\remove($filter);
 The recommended way to install this library is [through Composer](https://getcomposer.org).
 [New to Composer?](https://getcomposer.org/doc/00-intro.md)
 
+This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/stream-filter:^1.4
+$ composer require clue/stream-filter:^1.4.1
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
@@ -280,7 +281,7 @@ Older PHP versions may suffer from a number of inconsistencies documented above.
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all
-dependencies [through Composer](http://getcomposer.org):
+dependencies [through Composer](https://getcomposer.org):
 
 ```bash
 $ composer install
@@ -294,4 +295,7 @@ $ php vendor/bin/phpunit
 
 ## License
 
-MIT
+This project is released under the permissive [MIT license](LICENSE).
+
+> Did you know that I offer custom development services and issuing invoices for
+  sponsorships of releases and for contributions? Contact me (@clue) for details.

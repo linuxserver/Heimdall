@@ -81,6 +81,37 @@ class Client implements ClientAwareInterface
         return $message;
     }
 
+    public function sendShortcode($message) {
+        if(!($message instanceof Shortcode)){
+            $message = Shortcode::createMessageFromArray($message);
+        }
+
+        $params = $message->getRequestData();
+
+        $request = new Request(
+            $this->getClient()->getRestUrl() . '/sc/us/'.$message->getType().'/json'
+            ,'POST',
+            'php://temp',
+            ['content-type' => 'application/json']
+        );
+
+        $request->getBody()->write(json_encode($params));
+        $response = $this->client->send($request);
+
+        $body = json_decode($response->getBody(), true);
+
+        foreach ($body['messages'] as $m) {
+            if ($m['status'] != '0') {
+                $e = new Exception\Request($m['error-text'], $m['status']);
+                $e->setEntity($message);
+                throw $e;
+            }
+        }
+
+        return $body;
+
+    }
+
     /**
      * @param $query
      * @return MessageInterface[]

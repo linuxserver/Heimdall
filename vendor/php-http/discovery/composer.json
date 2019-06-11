@@ -14,11 +14,10 @@
         "php": "^5.5 || ^7.0"
     },
     "require-dev": {
-        "php-http/httplug": "^1.0|^2.0",
+        "php-http/httplug": "^1.0 || ^2.0",
         "php-http/message-factory": "^1.0",
         "puli/composer-plugin": "1.0.0-beta10",
-        "phpspec/phpspec": "^2.4",
-        "henrikbjorn/phpspec-code-coverage" : "^2.0.2"
+        "phpspec/phpspec": "^2.4"
     },
     "suggest": {
         "puli/composer-plugin": "Sets up Puli which is recommended for Discovery to work. Check http://docs.php-http.org/en/latest/discovery.html for more details.",

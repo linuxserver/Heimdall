@@ -33,7 +33,7 @@ class UploadedFileTest extends TestCase
 
     public function testConstructWhenFileNotExists()
     {
-        $this->{method_exists($this, $_ = 'expectException') ? $_ : 'setExpectedException'}('Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException');
+        $this->expectException('Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException');
 
         new UploadedFile(
             __DIR__.'/Fixtures/not_here',
@@ -94,6 +94,18 @@ class UploadedFileTest extends TestCase
         $this->assertEquals('jpeg', $file->guessClientExtension());
     }
 
+    public function testCaseSensitiveMimeType()
+    {
+        $file = new UploadedFile(
+            __DIR__.'/Fixtures/case-sensitive-mime-type.xlsm',
+            'test.xlsm',
+            'application/vnd.ms-excel.sheet.macroEnabled.12',
+            null
+        );
+
+        $this->assertEquals('xlsm', $file->guessClientExtension());
+    }
+
     public function testErrorIsOkByDefault()
     {
         $file = new UploadedFile(
@@ -147,13 +159,13 @@ class UploadedFileTest extends TestCase
 
     public function failedUploadedFile()
     {
-        foreach (array(UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE, UPLOAD_ERR_PARTIAL, UPLOAD_ERR_NO_FILE, UPLOAD_ERR_CANT_WRITE, UPLOAD_ERR_NO_TMP_DIR, UPLOAD_ERR_EXTENSION, -1) as $error) {
-            yield array(new UploadedFile(
+        foreach ([UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE, UPLOAD_ERR_PARTIAL, UPLOAD_ERR_NO_FILE, UPLOAD_ERR_CANT_WRITE, UPLOAD_ERR_NO_TMP_DIR, UPLOAD_ERR_EXTENSION, -1] as $error) {
+            yield [new UploadedFile(
                 __DIR__.'/Fixtures/test.gif',
                 'original.gif',
                 'image/gif',
                 $error
-            ));
+            )];
         }
     }
 
@@ -323,13 +335,13 @@ class UploadedFileTest extends TestCase
 
     public function uploadedFileErrorProvider()
     {
-        return array(
-            array(UPLOAD_ERR_INI_SIZE),
-            array(UPLOAD_ERR_FORM_SIZE),
-            array(UPLOAD_ERR_PARTIAL),
-            array(UPLOAD_ERR_NO_TMP_DIR),
-            array(UPLOAD_ERR_EXTENSION),
-        );
+        return [
+            [UPLOAD_ERR_INI_SIZE],
+            [UPLOAD_ERR_FORM_SIZE],
+            [UPLOAD_ERR_PARTIAL],
+            [UPLOAD_ERR_NO_TMP_DIR],
+            [UPLOAD_ERR_EXTENSION],
+        ];
     }
 
     public function testIsInvalidIfNotHttpUpload()

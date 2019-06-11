@@ -106,6 +106,7 @@ class Local extends AbstractAdapter
             }
 
             umask($umask);
+            clearstatcache(false, $root);
 
             if ( ! is_dir($root)) {
                 $errorMessage = isset($mkdirError['message']) ? $mkdirError['message'] : '';
@@ -219,7 +220,7 @@ class Local extends AbstractAdapter
     public function read($path)
     {
         $location = $this->applyPathPrefix($path);
-        $contents = file_get_contents($location);
+        $contents = @file_get_contents($location);
 
         if ($contents === false) {
             return false;

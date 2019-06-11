@@ -10,7 +10,6 @@ use Http\Client\HttpClient;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\StreamFactoryDiscovery;
-use Http\Message\MessageFactory;
 use Http\Message\RequestFactory;
 use Http\Message\StreamFactory;
 use Psr\Cache\CacheItemPoolInterface;
@@ -38,7 +37,7 @@ class Builder
     private $pluginClient;
 
     /**
-     * @var MessageFactory
+     * @var RequestFactory
      */
     private $requestFactory;
 
@@ -62,7 +61,7 @@ class Builder
     /**
      * This plugin is special treated because it has to be the very last plugin.
      *
-     * @var Plugin\CachePlugin
+     * @var Plugin\CachePlugin|null
      */
     private $cachePlugin;
 

@@ -16,14 +16,14 @@ use Symfony\Component\VarDumper\Cloner\Stub;
 
 class SymfonyCaster
 {
-    private static $requestGetters = array(
+    private static $requestGetters = [
         'pathInfo' => 'getPathInfo',
         'requestUri' => 'getRequestUri',
         'baseUrl' => 'getBaseUrl',
         'basePath' => 'getBasePath',
         'method' => 'getMethod',
         'format' => 'getRequestFormat',
-    );
+    ];
 
     public static function castRequest(Request $request, array $a, Stub $stub, $isNested)
     {
@@ -37,6 +37,14 @@ class SymfonyCaster
                 $a[Caster::PREFIX_VIRTUAL.$prop] = $clone->{$getter}();
             }
         }
+
+        return $a;
+    }
+
+    public static function castHttpClient($client, array $a, Stub $stub, $isNested)
+    {
+        $multiKey = sprintf("\0%s\0multi", \get_class($client));
+        $a[$multiKey] = new CutStub($a[$multiKey]);
 
         return $a;
     }

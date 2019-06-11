@@ -2,6 +2,28 @@
 
 The change log describes what is "Added", "Removed", "Changed" or "Fixed" between each release.
 
+## 2.11.0
+
+### Added
+
+- Support for Miscellaneous Licenses (#744)
+- Structured Limit objects for rate limiting API (#733)
+- Support for getting star creation timestamps in activity/starring endpoint (#729)
+
+### Fixed
+
+- Added missing has_projects parameter to repo create (#752)
+- Proper type hinting for magic methods (#758)
+- Allow symlink to files to be downloaded (#751)
+
+### Changed
+
+- Fix of PHP version in readme (#747)
+- Fix documentation to get release for a tag (#755)
+- Declare all used properties in RateLimitResource class (#762)
+- Set correct property and return types (#764)
+- Fixed install docs broken after 2.0 release of httplug lib (#767)
+
 ## 2.10.1
 
 ### Fixed

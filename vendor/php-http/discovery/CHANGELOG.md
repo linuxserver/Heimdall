@@ -1,9 +1,24 @@
 # Change Log
 
+## 1.6.1 - 2019-02-23
+
+### Fixed
+
+- MockClientStrategy also provides the mock client when requesting an async client
+
+## 1.6.0 - 2019-01-23
+
+### Added
+
+- Support for PSR-17 factories
+- Support for PSR-18 clients
+
 ## 1.5.2 - 2018-12-31
 
 Corrected mistakes in 1.5.1. The different between 1.5.2 and 1.5.0 is that
 we removed some PHP 7 code. 
+
+https://github.com/php-http/discovery/compare/1.5.0...1.5.2
 
 ## 1.5.1 - 2018-12-31
 

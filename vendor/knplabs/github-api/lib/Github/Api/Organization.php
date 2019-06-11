@@ -91,9 +91,9 @@ class Organization extends AbstractApi
     /**
      * @link http://developer.github.com/v3/issues/#list-issues
      *
-     * @param $organization
-     * @param array $params
-     * @param int   $page
+     * @param string $organization
+     * @param array  $params
+     * @param int    $page
      *
      * @return array
      */

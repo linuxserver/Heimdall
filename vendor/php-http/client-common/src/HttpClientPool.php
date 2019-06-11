@@ -5,6 +5,7 @@ namespace Http\Client\Common;
 use Http\Client\Common\Exception\HttpClientNotFoundException;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -21,7 +22,7 @@ abstract class HttpClientPool implements HttpAsyncClient, HttpClient
     /**
      * Add a client to the pool.
      *
-     * @param HttpClient|HttpAsyncClient|HttpClientPoolItem $client
+     * @param HttpClient|HttpAsyncClient|HttpClientPoolItem|ClientInterface $client
      */
     public function addHttpClient($client)
     {

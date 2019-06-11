@@ -312,6 +312,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Dump the collection and end the script.
      *
+     * @param  mixed  ...$args
      * @return void
      */
     public function dd(...$args)
@@ -1345,7 +1346,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Push all of the given items onto the collection.
      *
-     * @param  \Traversable|array  $source
+     * @param  iterable  $source
      * @return static
      */
     public function concat($source)

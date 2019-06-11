@@ -61,7 +61,7 @@ Or you could directly reference it into your `composer.json` file as a dependenc
 ```json
 {
     "require": {
-        "opis/closure": "^3.1"
+        "opis/closure": "^3.3"
     }
 }
 ```

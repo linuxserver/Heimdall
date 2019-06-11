@@ -36,11 +36,8 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
     {
         $messages = $this->sanitizeCollectedMessages($this->translator->getCollectedMessages());
 
-        $this->data = $this->computeCount($messages);
+        $this->data += $this->computeCount($messages);
         $this->data['messages'] = $messages;
-
-        $this->data['locale'] = $this->translator->getLocale();
-        $this->data['fallback_locales'] = $this->translator->getFallbackLocales();
 
         $this->data = $this->cloneVar($this->data);
     }
@@ -50,6 +47,8 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
      */
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
+        $this->data['locale'] = $this->translator->getLocale();
+        $this->data['fallback_locales'] = $this->translator->getFallbackLocales();
     }
 
     /**
@@ -57,7 +56,7 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
      */
     public function reset()
     {
-        $this->data = array();
+        $this->data = [];
     }
 
     /**
@@ -65,7 +64,7 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
      */
     public function getMessages()
     {
-        return isset($this->data['messages']) ? $this->data['messages'] : array();
+        return isset($this->data['messages']) ? $this->data['messages'] : [];
     }
 
     /**
@@ -102,7 +101,7 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
      */
     public function getFallbackLocales()
     {
-        return (isset($this->data['fallback_locales']) && \count($this->data['fallback_locales']) > 0) ? $this->data['fallback_locales'] : array();
+        return (isset($this->data['fallback_locales']) && \count($this->data['fallback_locales']) > 0) ? $this->data['fallback_locales'] : [];
     }
 
     /**
@@ -115,13 +114,13 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
 
     private function sanitizeCollectedMessages($messages)
     {
-        $result = array();
+        $result = [];
         foreach ($messages as $key => $message) {
             $messageId = $message['locale'].$message['domain'].$message['id'];
 
             if (!isset($result[$messageId])) {
                 $message['count'] = 1;
-                $message['parameters'] = !empty($message['parameters']) ? array($message['parameters']) : array();
+                $message['parameters'] = !empty($message['parameters']) ? [$message['parameters']] : [];
                 $messages[$key]['translation'] = $this->sanitizeString($message['translation']);
                 $result[$messageId] = $message;
             } else {
@@ -140,11 +139,11 @@ class TranslationDataCollector extends DataCollector implements LateDataCollecto
 
     private function computeCount($messages)
     {
-        $count = array(
+        $count = [
             DataCollectorTranslator::MESSAGE_DEFINED => 0,
             DataCollectorTranslator::MESSAGE_MISSING => 0,
             DataCollectorTranslator::MESSAGE_EQUALS_FALLBACK => 0,
-        );
+        ];
 
         foreach ($messages as $message) {
             ++$count[$message['state']];

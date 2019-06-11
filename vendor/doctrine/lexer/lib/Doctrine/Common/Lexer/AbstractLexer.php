@@ -132,7 +132,7 @@ abstract class AbstractLexer
     }
 
     /**
-     * Retrieve the original lexer's input until a given position. 
+     * Retrieve the original lexer's input until a given position.
      *
      * @param integer $position
      *
@@ -257,6 +257,11 @@ abstract class AbstractLexer
 
         $flags = PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_OFFSET_CAPTURE;
         $matches = preg_split($regex, $input, -1, $flags);
+
+        if (false === $matches) {
+            // Work around https://bugs.php.net/78122
+            $matches = array(array($input, 0));
+        }
 
         foreach ($matches as $match) {
             // Must remain before 'value' assignment since it can change content

@@ -143,7 +143,7 @@ class Contents extends AbstractApi
                 'ref' => $reference,
             ]);
 
-            if ($response->getStatusCode() != 200) {
+            if ($response->getStatusCode() !== 200) {
                 return false;
             }
         } catch (TwoFactorAuthenticationRequiredException $ex) {
@@ -276,8 +276,8 @@ class Contents extends AbstractApi
     {
         $file = $this->show($username, $repository, $path, $reference);
 
-        if (!isset($file['type']) || 'file' !== $file['type']) {
-            throw new InvalidArgumentException(sprintf('Path "%s" is not a file.', $path));
+        if (!isset($file['type']) || !in_array($file['type'], ['file', 'symlink'], true)) {
+            throw new InvalidArgumentException(sprintf('Path "%s" is not a file or a symlink to a file.', $path));
         }
 
         if (!isset($file['content'])) {

@@ -67,7 +67,7 @@ class Signature
             case 'sha1':
             case 'sha256':
             case 'sha512':
-                return hash_hmac($signatureMethod, $data, $secret);
+                return strtoupper(hash_hmac($signatureMethod, $data, $secret));
                 break;
             default:
                 throw new Exception('Unknown signature algorithm: '.$signatureMethod.'. Expected: md5hash, md5, sha1, sha256, or sha512');
@@ -107,7 +107,12 @@ class Signature
     /**
      * Check that a signature (or set of parameters) is valid.
      *
-     * @param array| string $signature
+     * First instantiate a Signature object: this will drop any supplied
+     * signature parameter and calculate the correct one. Then call this
+     * method and supply the signature that came in with the request.
+     *
+     * @param array| string $signature The incoming sig parameter to check 
+     *      (or all incoming params)
      * @return bool
      * @throws \InvalidArgumentException
      */
@@ -121,7 +126,7 @@ class Signature
             throw new \InvalidArgumentException('signature must be string, or present in array or parameters');
         }
 
-        return $signature == $this->signed['sig'];
+        return strtolower($signature) == strtolower($this->signed['sig']);
     }
 
     /**

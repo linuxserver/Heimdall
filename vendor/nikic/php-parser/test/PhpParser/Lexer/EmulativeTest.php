@@ -6,8 +6,6 @@ use PhpParser\ErrorHandler;
 use PhpParser\LexerTest;
 use PhpParser\Parser\Tokens;
 
-require_once __DIR__ . '/../LexerTest.php';
-
 class EmulativeTest extends LexerTest
 {
     protected function getLexer(array $options = []) {
@@ -28,7 +26,7 @@ class EmulativeTest extends LexerTest
     /**
      * @dataProvider provideTestReplaceKeywords
      */
-    public function testNoReplaceKeywordsAfterObjectOperator($keyword) {
+    public function testNoReplaceKeywordsAfterObjectOperator(string $keyword) {
         $lexer = $this->getLexer();
         $lexer->startLexing('<?php ->' . $keyword);
 
@@ -37,8 +35,23 @@ class EmulativeTest extends LexerTest
         $this->assertSame(0, $lexer->getNextToken());
     }
 
+    /**
+     * @dataProvider provideTestReplaceKeywords
+     */
+    public function testNoReplaceKeywordsAfterObjectOperatorWithSpaces(string $keyword) {
+        $lexer = $this->getLexer();
+        $lexer->startLexing('<?php ->    ' . $keyword);
+
+        $this->assertSame(Tokens::T_OBJECT_OPERATOR, $lexer->getNextToken());
+        $this->assertSame(Tokens::T_STRING, $lexer->getNextToken());
+        $this->assertSame(0, $lexer->getNextToken());
+    }
+
     public function provideTestReplaceKeywords() {
         return [
+            // PHP 7.4
+            ['fn',            Tokens::T_FN],
+
             // PHP 5.5
             ['finally',       Tokens::T_FINALLY],
             ['yield',         Tokens::T_YIELD],
@@ -90,7 +103,7 @@ class EmulativeTest extends LexerTest
      */
     public function testErrorAfterEmulation($code) {
         $errorHandler = new ErrorHandler\Collecting;
-        $lexer = $this->getLexer([]);
+        $lexer = $this->getLexer();
         $lexer->startLexing('<?php ' . $code . "\0", $errorHandler);
 
         $errors = $errorHandler->getErrors();
@@ -110,6 +123,10 @@ class EmulativeTest extends LexerTest
 
     public function provideTestLexNewFeatures() {
         return [
+            // PHP 7.4
+            ['??=', [
+                [Tokens::T_COALESCE_EQUAL, '??='],
+            ]],
             ['yield from', [
                 [Tokens::T_YIELD_FROM, 'yield from'],
             ]],

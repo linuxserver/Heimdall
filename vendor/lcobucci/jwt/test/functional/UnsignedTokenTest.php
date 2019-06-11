@@ -16,7 +16,7 @@ use Lcobucci\JWT\ValidationData;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 2.1.0
  */
-class UnsignedTokenTest extends \PHPUnit_Framework_TestCase
+class UnsignedTokenTest extends \PHPUnit\Framework\TestCase
 {
     const CURRENT_TIME = 100000;
 
@@ -116,6 +116,30 @@ class UnsignedTokenTest extends \PHPUnit_Framework_TestCase
     public function tokenValidationShouldReturnFalseWhenExpectedDataDontMatch(ValidationData $data, Token $generated)
     {
         $this->assertFalse($generated->validate($data));
+    }
+
+    /**
+     * @test
+     *
+     * @depends builderCanGenerateAToken
+     *
+     * @covers Lcobucci\JWT\Builder
+     * @covers Lcobucci\JWT\Parser
+     * @covers Lcobucci\JWT\Token
+     * @covers Lcobucci\JWT\ValidationData
+     * @covers Lcobucci\JWT\Claim\Factory
+     * @covers Lcobucci\JWT\Claim\Basic
+     * @covers Lcobucci\JWT\Claim\EqualsTo
+     * @covers Lcobucci\JWT\Claim\GreaterOrEqualsTo
+     * @covers Lcobucci\JWT\Parsing\Encoder
+     * @covers Lcobucci\JWT\Parsing\Decoder
+     */
+    public function tokenValidationShouldReturnTrueWhenExpectedDataMatchBecauseOfLeeway(Token $generated)
+    {
+        $notExpiredDueToLeeway = new ValidationData(self::CURRENT_TIME + 3020, 50);
+        $notExpiredDueToLeeway->setAudience('http://client.abc.com');
+        $notExpiredDueToLeeway->setIssuer('http://api.abc.com');
+        $this->assertTrue($generated->validate($notExpiredDueToLeeway));
     }
 
     public function invalidValidationData()

@@ -11,7 +11,7 @@ namespace Lcobucci\JWT\Claim;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 2.0.0
  */
-class BasicTest extends \PHPUnit_Framework_TestCase
+class BasicTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test

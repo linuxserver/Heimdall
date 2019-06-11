@@ -1,40 +1,45 @@
 {
   "name": "zendframework/zend-diactoros",
   "description": "PSR HTTP Message implementations",
-  "type": "library",
-  "license": "BSD-2-Clause",
+  "license": "BSD-3-Clause",
   "keywords": [
     "http",
     "psr",
     "psr-7"
   ],
-  "homepage": "https://github.com/zendframework/zend-diactoros",
   "support": {
+    "docs": "https://docs.zendframework.com/zend-diactoros/",
     "issues": "https://github.com/zendframework/zend-diactoros/issues",
-    "source": "https://github.com/zendframework/zend-diactoros"
+    "source": "https://github.com/zendframework/zend-diactoros",
+    "rss": "https://github.com/zendframework/zend-diactoros/releases.atom",
+    "slack": "https://zendframework-slack.herokuapp.com",
+    "forum": "https://discourse.zendframework.com/c/questions/exprssive"
   },
   "config": {
       "sort-packages": true
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "1.8.x-dev",
-      "dev-develop": "1.9.x-dev",
-      "dev-release-2.0": "2.0.x-dev"
+      "dev-master": "2.1.x-dev",
+      "dev-develop": "2.2.x-dev",
+      "dev-release-1.8": "1.8.x-dev"
     }
   },
   "require": {
-    "php": "^5.6 || ^7.0",
+    "php": "^7.1",
+    "psr/http-factory": "^1.0",
     "psr/http-message": "^1.0"
   },
   "require-dev": {
     "ext-dom": "*",
     "ext-libxml": "*",
+    "http-interop/http-factory-tests": "^0.5.0",
     "php-http/psr7-integration-tests": "dev-master",
-    "phpunit/phpunit": "^5.7.16 || ^6.0.8 || ^7.2.7",
-    "zendframework/zend-coding-standard": "~1.0"
+    "phpunit/phpunit": "^7.0.2",
+    "zendframework/zend-coding-standard": "~1.0.0"
   },
   "provide": {
+    "psr/http-factory-implementation": "1.0",
     "psr/http-message-implementation": "1.0"
   },
   "autoload": {
@@ -55,11 +60,7 @@
   "autoload-dev": {
     "psr-4": {
       "ZendTest\\Diactoros\\": "test/"
-    },
-    "files": [
-      "test/TestAsset/Functions.php",
-      "test/TestAsset/SapiResponse.php"
-    ]
+    }
   },
   "scripts": {
     "check": [

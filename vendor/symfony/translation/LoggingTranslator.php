@@ -49,7 +49,7 @@ class LoggingTranslator implements TranslatorInterface, LegacyTranslatorInterfac
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = array(), $domain = null, $locale = null)
+    public function trans($id, array $parameters = [], $domain = null, $locale = null)
     {
         $trans = $this->translator->trans($id, $parameters, $domain, $locale);
         $this->log($id, $domain, $locale);
@@ -62,12 +62,12 @@ class LoggingTranslator implements TranslatorInterface, LegacyTranslatorInterfac
      *
      * @deprecated since Symfony 4.2, use the trans() method instead with a %count% parameter
      */
-    public function transChoice($id, $number, array $parameters = array(), $domain = null, $locale = null)
+    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
     {
-        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.2, use the trans() one instead with a "%count%" parameter.', __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.2, use the trans() one instead with a "%%count%%" parameter.', __METHOD__), E_USER_DEPRECATED);
 
         if ($this->translator instanceof TranslatorInterface) {
-            $trans = $this->translator->trans($id, array('%count%' => $number) + $parameters, $domain, $locale);
+            $trans = $this->translator->trans($id, ['%count%' => $number] + $parameters, $domain, $locale);
         } else {
             $trans = $this->translator->transChoice($id, $number, $parameters, $domain, $locale);
         }
@@ -82,7 +82,9 @@ class LoggingTranslator implements TranslatorInterface, LegacyTranslatorInterfac
      */
     public function setLocale($locale)
     {
+        $prev = $this->translator->getLocale();
         $this->translator->setLocale($locale);
+        $this->logger->debug(sprintf('The locale of the translator has changed from "%s" to "%s".', $prev, $locale));
     }
 
     /**
@@ -112,7 +114,7 @@ class LoggingTranslator implements TranslatorInterface, LegacyTranslatorInterfac
             return $this->translator->getFallbackLocales();
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -143,9 +145,9 @@ class LoggingTranslator implements TranslatorInterface, LegacyTranslatorInterfac
         }
 
         if ($catalogue->has($id, $domain)) {
-            $this->logger->debug('Translation use fallback catalogue.', array('id' => $id, 'domain' => $domain, 'locale' => $catalogue->getLocale()));
+            $this->logger->debug('Translation use fallback catalogue.', ['id' => $id, 'domain' => $domain, 'locale' => $catalogue->getLocale()]);
         } else {
-            $this->logger->warning('Translation not found.', array('id' => $id, 'domain' => $domain, 'locale' => $catalogue->getLocale()));
+            $this->logger->warning('Translation not found.', ['id' => $id, 'domain' => $domain, 'locale' => $catalogue->getLocale()]);
         }
     }
 }

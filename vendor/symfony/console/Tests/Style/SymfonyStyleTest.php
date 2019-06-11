@@ -26,9 +26,11 @@ class SymfonyStyleTest extends TestCase
     protected $command;
     /** @var CommandTester */
     protected $tester;
+    private $colSize;
 
     protected function setUp()
     {
+        $this->colSize = getenv('COLUMNS');
         putenv('COLUMNS=121');
         $this->command = new Command('sfstyle');
         $this->tester = new CommandTester($this->command);
@@ -36,7 +38,7 @@ class SymfonyStyleTest extends TestCase
 
     protected function tearDown()
     {
-        putenv('COLUMNS');
+        putenv($this->colSize ? 'COLUMNS='.$this->colSize : 'COLUMNS');
         $this->command = null;
         $this->tester = null;
     }
@@ -48,7 +50,7 @@ class SymfonyStyleTest extends TestCase
     {
         $code = require $inputCommandFilepath;
         $this->command->setCode($code);
-        $this->tester->execute(array(), array('interactive' => false, 'decorated' => false));
+        $this->tester->execute([], ['interactive' => false, 'decorated' => false]);
         $this->assertStringEqualsFile($outputFilepath, $this->tester->getDisplay(true));
     }
 
@@ -59,7 +61,7 @@ class SymfonyStyleTest extends TestCase
     {
         $code = require $inputCommandFilepath;
         $this->command->setCode($code);
-        $this->tester->execute(array(), array('interactive' => true, 'decorated' => false));
+        $this->tester->execute([], ['interactive' => true, 'decorated' => false]);
         $this->assertStringEqualsFile($outputFilepath, $this->tester->getDisplay(true));
     }
 

@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+4.3.0
+-----
+
+ * The signature of the `EventDispatcherInterface::dispatch()` method should be updated to `dispatch($event, string $eventName = null)`, not doing so is deprecated
+ * deprecated the `Event` class, use `Symfony\Contracts\EventDispatcher\Event` instead
+
 4.1.0
 -----
 

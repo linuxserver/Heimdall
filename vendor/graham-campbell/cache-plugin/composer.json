@@ -12,12 +12,12 @@
     "require": {
         "php": "^7.0",
         "psr/cache": "^1.0",
-        "php-http/cache-plugin": "^1.5",
-        "php-http/client-common": "^1.7",
+        "php-http/cache-plugin": "^1.6",
+        "php-http/client-common": "^1.9|^2.0",
         "php-http/message-factory": "^1.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^2.0",
+        "graham-campbell/analyzer": "^2.1",
         "phpunit/phpunit": "^6.5|^7.0"
     },
     "autoload": {
@@ -35,7 +35,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.1-dev"
         }
     },
     "minimum-stability": "dev",

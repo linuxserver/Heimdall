@@ -5,6 +5,8 @@
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
 
+declare(strict_types=1);
+
 namespace Zend\Diactoros;
 
 use function preg_match_all;
@@ -19,7 +21,7 @@ use function urldecode;
  * @param string $cookieHeader A string cookie header value.
  * @return array key/value cookie pairs.
  */
-function parseCookieHeader($cookieHeader)
+function parseCookieHeader($cookieHeader) : array
 {
     preg_match_all('(
         (?:^\\n?[ \t]*|;[ ])

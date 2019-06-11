@@ -195,6 +195,11 @@ class Call implements EntityInterface, \JsonSerializable, JsonUnserializableInte
         $this->data[$type . '_timeout'] = $length;
     }
 
+    public function setNcco($ncco) {
+        $this->data['ncco'] = $ncco;
+        return $this;
+    }
+
     public function getStatus()
     {
         if($this->lazyLoad()){

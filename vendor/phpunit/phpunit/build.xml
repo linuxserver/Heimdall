@@ -26,10 +26,9 @@
         <property name="prepare.done" value="true"/>
     </target>
 
-    <target name="validate-composer-json" unless="validate-composer-json.done" description="Validate composer.json">
+    <target name="validate-composer-json" depends="clean" unless="validate-composer-json.done" description="Validate composer.json">
         <exec executable="${basedir}/build/tools/composer" failonerror="true" taskname="composer">
             <arg value="validate"/>
-            <arg value="--no-check-lock"/>
             <arg value="--strict"/>
             <arg value="${basedir}/composer.json"/>
         </exec>
@@ -48,6 +47,17 @@
             <arg value="--no-progress"/>
             <arg value="--no-ansi"/>
             <arg value="--no-suggest"/>
+        </exec>
+    </target>
+
+    <target name="check-dependencies" description="Performs check for outdated dependencies">
+        <exec executable="${basedir}/build/tools/composer" taskname="composer">
+            <arg value="show"/>
+            <arg value="--minor-only"/>
+            <arg value="--latest"/>
+            <arg value="--direct"/>
+            <arg value="--outdated"/>
+            <arg value="--strict"/>
         </exec>
     </target>
 
@@ -100,7 +110,7 @@
         </exec>
     </target>
 
-    <target name="phar" depends="-phar-determine-version,-phar-prepare" description="Create PHAR archive of PHPUnit and all its dependencies">
+    <target name="phar" depends="-phar-prepare,-phar-determine-version" description="Create PHAR archive of PHPUnit and all its dependencies">
         <antcall target="-phar-build">
             <param name="type" value="release"/>
         </antcall>

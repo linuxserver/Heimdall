@@ -11,7 +11,7 @@ namespace Lcobucci\JWT\Signer;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 2.1.0
  */
-class KeychainTest extends \PHPUnit_Framework_TestCase
+class KeychainTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test

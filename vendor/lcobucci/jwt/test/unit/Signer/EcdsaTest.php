@@ -7,70 +7,43 @@
 
 namespace Lcobucci\JWT\Signer;
 
-use Lcobucci\JWT\Signer\Ecdsa\KeyParser;
-use Mdanter\Ecc\Crypto\Signature\Signature;
-use Mdanter\Ecc\Crypto\Signature\Signer;
-use Mdanter\Ecc\Crypto\Key\PrivateKeyInterface;
-use Mdanter\Ecc\Crypto\Key\PublicKeyInterface;
-use Mdanter\Ecc\Math\MathAdapterInterface as Adapter;
-use Mdanter\Ecc\Primitives\PointInterface;
-use Mdanter\Ecc\Random\RandomNumberGeneratorInterface;
+use Lcobucci\JWT\Keys;
+use Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter;
+use const OPENSSL_ALGO_SHA256;
+use function openssl_pkey_get_private;
+use function openssl_pkey_get_public;
+use function openssl_sign;
+use function openssl_verify;
 
-/**
- * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
- * @since 2.1.0
- */
-class EcdsaTest extends \PHPUnit_Framework_TestCase
+class EcdsaTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var Adapter|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $adapter;
+    use Keys;
 
     /**
-     * @var Signer|\PHPUnit_Framework_MockObject_MockObject
+     * @var MultibyteStringConverter
      */
-    private $signer;
-
-    /**
-     * @var RandomNumberGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $randomGenerator;
-
-    /**
-     * @var KeyParser|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $parser;
+    private $pointsManipulator;
 
     /**
      * @before
      */
     public function createDependencies()
     {
-        $this->adapter = $this->getMock(Adapter::class);
-        $this->signer = $this->getMock(Signer::class, [], [$this->adapter]);
-        $this->randomGenerator = $this->getMock(RandomNumberGeneratorInterface::class);
-        $this->parser = $this->getMock(KeyParser::class, [], [], '', false);
+        $this->pointsManipulator = new MultibyteStringConverter();
     }
 
-    /**
-     * @return Ecdsa
-     */
     private function getSigner()
     {
-        $signer = $this->getMockForAbstractClass(
-            Ecdsa::class,
-            [$this->adapter, $this->signer, $this->parser]
-        );
-
-        $signer->method('getSignatureLength')
-               ->willReturn(64);
+        $signer = $this->getMockForAbstractClass(Ecdsa::class, [$this->pointsManipulator]);
 
         $signer->method('getAlgorithm')
-               ->willReturn('sha256');
+            ->willReturn(OPENSSL_ALGO_SHA256);
 
         $signer->method('getAlgorithmId')
-               ->willReturn('ES256');
+            ->willReturn('ES256');
+
+        $signer->method('getKeyLength')
+            ->willReturn(64);
 
         return $signer;
     }
@@ -78,96 +51,67 @@ class EcdsaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * @covers Lcobucci\JWT\Signer\Ecdsa::__construct
+     * @covers \Lcobucci\JWT\Signer\Ecdsa::createHash
+     * @covers \Lcobucci\JWT\Signer\Ecdsa::getKeyType
+     * @covers \Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter
+     * @covers \Lcobucci\JWT\Signer\OpenSSL
+     * @covers \Lcobucci\JWT\Signer\BaseSigner
+     *
+     * @uses \Lcobucci\JWT\Signer\Ecdsa::__construct
+     * @uses \Lcobucci\JWT\Signer\Key
+     * @uses \Lcobucci\JWT\Signature
      */
-    public function constructShouldConfigureDependencies()
+    public function createHashShouldReturnTheAHashBasedOnTheOpenSslSignature()
     {
-        $signer = $this->getSigner();
+        $payload = 'testing';
 
-        $this->assertAttributeSame($this->adapter, 'adapter', $signer);
-        $this->assertAttributeSame($this->signer, 'signer', $signer);
-        $this->assertAttributeSame($this->parser, 'parser', $signer);
+        $signer    = $this->getSigner();
+        $signature = $signer->sign($payload, self::$ecdsaKeys['private']);
+
+        $publicKey = openssl_pkey_get_public(self::$ecdsaKeys['public1']->getContent());
+
+        self::assertInternalType('resource', $publicKey);
+        self::assertSame(
+            1,
+            openssl_verify(
+                $payload,
+                $this->pointsManipulator->toAsn1($signature, $signer->getKeyLength()),
+                $publicKey,
+                OPENSSL_ALGO_SHA256
+            )
+        );
     }
 
     /**
      * @test
      *
-     * @uses Lcobucci\JWT\Signer\Ecdsa::__construct
-     * @uses Lcobucci\JWT\Signer\Key
+     * @covers \Lcobucci\JWT\Signer\Ecdsa::doVerify
+     * @covers \Lcobucci\JWT\Signer\Ecdsa::getKeyType
+     * @covers \Lcobucci\JWT\Signer\Ecdsa\MultibyteStringConverter
+     * @covers \Lcobucci\JWT\Signer\OpenSSL
+     * @covers \Lcobucci\JWT\Signer\BaseSigner
      *
-     * @covers Lcobucci\JWT\Signer\Ecdsa::createHash
-     * @covers Lcobucci\JWT\Signer\Ecdsa::createSigningHash
-     * @covers Lcobucci\JWT\Signer\Ecdsa::createSignatureHash
-     */
-    public function createHashShouldReturnAHashUsingPrivateKey()
-    {
-        $signer = $this->getSigner();
-        $key = new Key('testing');
-        $privateKey = $this->getMock(PrivateKeyInterface::class);
-        $point = $this->getMock(PointInterface::class);
-
-        $privateKey->method('getPoint')
-                   ->willReturn($point);
-
-        $point->method('getOrder')
-              ->willReturn('1');
-
-        $this->parser->expects($this->once())
-                     ->method('getPrivateKey')
-                     ->with($key)
-                     ->willReturn($privateKey);
-
-        $this->randomGenerator->expects($this->once())
-                              ->method('generate')
-                              ->with('1')
-                              ->willReturn('123');
-
-        $this->adapter->expects($this->once())
-                      ->method('hexDec')
-                      ->willReturn('123');
-
-        $this->adapter->expects($this->exactly(2))
-                      ->method('decHex')
-                      ->willReturn('123');
-
-        $this->signer->expects($this->once())
-                     ->method('sign')
-                     ->with($privateKey, $this->isType('string'), $this->isType('string'))
-                     ->willReturn(new Signature('1234', '456'));
-
-        $this->assertInternalType('string', $signer->createHash('testing', $key, $this->randomGenerator));
-    }
-
-    /**
-     * @test
-     *
-     * @uses Lcobucci\JWT\Signer\Ecdsa::__construct
-     * @uses Lcobucci\JWT\Signer\Key
-     *
-     * @covers Lcobucci\JWT\Signer\Ecdsa::doVerify
-     * @covers Lcobucci\JWT\Signer\Ecdsa::createSigningHash
-     * @covers Lcobucci\JWT\Signer\Ecdsa::extractSignature
+     * @uses \Lcobucci\JWT\Signer\Ecdsa::__construct
+     * @uses \Lcobucci\JWT\Signer\Key
      */
     public function doVerifyShouldDelegateToEcdsaSignerUsingPublicKey()
     {
+        $payload    = 'testing';
+        $privateKey = openssl_pkey_get_private(self::$ecdsaKeys['private']->getContent());
+
+        self::assertInternalType('resource', $privateKey);
+
+        $signature = '';
+        openssl_sign($payload, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+
         $signer = $this->getSigner();
-        $key = new Key('testing');
-        $publicKey = $this->getMock(PublicKeyInterface::class);
 
-        $this->parser->expects($this->once())
-                     ->method('getPublicKey')
-                     ->with($key)
-                     ->willReturn($publicKey);
-
-        $this->adapter->expects($this->exactly(3))
-                      ->method('hexDec')
-                      ->willReturn('123');
-
-        $this->signer->expects($this->once())
-                     ->method('verify')
-                     ->with($publicKey, $this->isInstanceOf(Signature::class), $this->isType('string'))
-                     ->willReturn(true);
-
-        $this->assertTrue($signer->doVerify('testing', 'testing2', $key));
+        self::assertTrue(
+            $signer->verify(
+                $this->pointsManipulator->fromAsn1($signature, $signer->getKeyLength()),
+                $payload,
+                self::$ecdsaKeys['public1']
+            )
+        );
     }
 }

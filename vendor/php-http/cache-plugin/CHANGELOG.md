@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.6.0 - 2019-01-23
+
+### Added
+
+* Support for HTTPlug 2 / PSR-18
+* Added `cache_listeners` option, which takes an array of `CacheListener`s, who get notified and can optionally act on a Response based on a cache hit or miss event. An implementation, `AddHeaderCacheListener`, is provided which will add an `X-Cache` header to the response with this information.
+
 ## 1.5.0 - 2017-11-29
 
 ### Added

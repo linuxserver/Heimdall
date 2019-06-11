@@ -36,7 +36,7 @@ class Sha512 extends Ecdsa
     /**
      * {@inheritdoc}
      */
-    public function getSignatureLength()
+    public function getKeyLength()
     {
         return 132;
     }

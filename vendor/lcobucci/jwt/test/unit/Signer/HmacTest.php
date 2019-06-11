@@ -11,7 +11,7 @@ namespace Lcobucci\JWT\Signer;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
-class HmacTest extends \PHPUnit_Framework_TestCase
+class HmacTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Hmac|\PHPUnit_Framework_MockObject_MockObject

@@ -41,9 +41,9 @@ class Events extends AbstractApi
      *
      * @link https://developer.github.com/v3/issues/events/#get-a-single-event
      *
-     * @param $username
-     * @param $repository
-     * @param $event
+     * @param string $username
+     * @param string $repository
+     * @param string $event
      *
      * @return array
      */

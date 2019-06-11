@@ -16,8 +16,8 @@ class Releases extends AbstractApi
     /**
      * Get the latest release.
      *
-     * @param $username
-     * @param $repository
+     * @param string $username
+     * @param string $repository
      *
      * @return array
      */
@@ -29,9 +29,9 @@ class Releases extends AbstractApi
     /**
      * List releases for a tag.
      *
-     * @param $username
-     * @param $repository
-     * @param $tag
+     * @param string $username
+     * @param string $repository
+     * @param string $tag
      *
      * @return array
      */

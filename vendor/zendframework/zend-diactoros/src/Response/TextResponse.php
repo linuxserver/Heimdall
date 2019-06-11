@@ -1,16 +1,16 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @see       http://github.com/zendframework/zend-diactoros for the canonical source repository
- * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-diactoros for the canonical source repository
+ * @copyright Copyright (c) 2015-2018 Zend Technologies USA Inc. (https://www.zend.com)
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
 
+declare(strict_types=1);
+
 namespace Zend\Diactoros\Response;
 
-use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
+use Zend\Diactoros\Exception;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Stream;
 
@@ -40,9 +40,9 @@ class TextResponse extends Response
      * @param string|StreamInterface $text String or stream for the message body.
      * @param int $status Integer status code for the response; 200 by default.
      * @param array $headers Array of headers to use at initialization.
-     * @throws InvalidArgumentException if $text is neither a string or stream.
+     * @throws Exception\InvalidArgumentException if $text is neither a string or stream.
      */
-    public function __construct($text, $status = 200, array $headers = [])
+    public function __construct($text, int $status = 200, array $headers = [])
     {
         parent::__construct(
             $this->createBody($text),
@@ -55,17 +55,16 @@ class TextResponse extends Response
      * Create the message body.
      *
      * @param string|StreamInterface $text
-     * @return StreamInterface
-     * @throws InvalidArgumentException if $html is neither a string or stream.
+     * @throws Exception\InvalidArgumentException if $text is neither a string or stream.
      */
-    private function createBody($text)
+    private function createBody($text) : StreamInterface
     {
         if ($text instanceof StreamInterface) {
             return $text;
         }
 
         if (! is_string($text)) {
-            throw new InvalidArgumentException(sprintf(
+            throw new Exception\InvalidArgumentException(sprintf(
                 'Invalid content (%s) provided to %s',
                 (is_object($text) ? get_class($text) : gettype($text)),
                 __CLASS__

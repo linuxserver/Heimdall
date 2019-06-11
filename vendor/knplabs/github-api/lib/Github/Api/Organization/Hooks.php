@@ -87,7 +87,7 @@ class Hooks extends AbstractApi
      * @param string $organization
      * @param int    $id
      *
-     * @return null
+     * @return array|string
      */
     public function ping($organization, $id)
     {
@@ -102,7 +102,7 @@ class Hooks extends AbstractApi
      * @param string $organization
      * @param int    $id
      *
-     * @return null
+     * @return array|string
      */
     public function remove($organization, $id)
     {

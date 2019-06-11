@@ -4,6 +4,7 @@ namespace Cron\Tests;
 
 use Cron\MinutesField;
 use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,6 +24,16 @@ class MinutesFieldTest extends TestCase
     }
 
     /**
+     * @covers \Cron\MinutesField::isSatisfiedBy
+     */
+    public function testChecksIfSatisfied()
+    {
+        $f = new MinutesField();
+        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?'));
+        $this->assertTrue($f->isSatisfiedBy(new DateTimeImmutable(), '?'));
+    }
+
+    /**
      * @covers \Cron\MinutesField::increment
      */
     public function testIncrementsDate()
@@ -33,6 +44,17 @@ class MinutesFieldTest extends TestCase
         $this->assertSame('2011-03-15 11:16:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
         $this->assertSame('2011-03-15 11:15:00', $d->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * @covers \Cron\MinutesField::increment
+     */
+    public function testIncrementsDateTimeImmutable()
+    {
+        $d = new DateTimeImmutable('2011-03-15 11:15:00');
+        $f = new MinutesField();
+        $f->increment($d);
+        $this->assertSame('2011-03-15 11:16:00', $d->format('Y-m-d H:i:s'));
     }
 
     /**

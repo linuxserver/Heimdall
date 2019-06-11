@@ -12,6 +12,8 @@ use Lcobucci\JWT\ValidationData;
 /**
  * Basic interface for validatable token claims
  *
+ * @deprecated This interface will be removed on v4
+ *
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 2.0.0
  */

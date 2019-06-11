@@ -13,7 +13,7 @@ use org\bovigo\vfs\vfsStream;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 3.0.4
  */
-class KeyTest extends \PHPUnit_Framework_TestCase
+class KeyTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @before

@@ -4,8 +4,8 @@ namespace Illuminate\Queue\Connectors;
 
 use Pheanstalk\Connection;
 use Pheanstalk\Pheanstalk;
-use Pheanstalk\PheanstalkInterface;
 use Illuminate\Queue\BeanstalkdQueue;
+use Pheanstalk\Contract\PheanstalkInterface;
 
 class BeanstalkdConnector implements ConnectorInterface
 {
@@ -30,9 +30,17 @@ class BeanstalkdConnector implements ConnectorInterface
      */
     protected function pheanstalk(array $config)
     {
+        if (interface_exists(PheanstalkInterface::class)) {
+            return Pheanstalk::create(
+                $config['host'],
+                $config['port'] ?? Pheanstalk::DEFAULT_PORT,
+                $config['timeout'] ?? Connection::DEFAULT_CONNECT_TIMEOUT
+            );
+        }
+
         return new Pheanstalk(
             $config['host'],
-            $config['port'] ?? PheanstalkInterface::DEFAULT_PORT,
+            $config['port'] ?? Pheanstalk::DEFAULT_PORT,
             $config['timeout'] ?? Connection::DEFAULT_CONNECT_TIMEOUT,
             $config['persistent'] ?? false
         );

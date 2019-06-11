@@ -13,7 +13,7 @@ use Lcobucci\JWT\ValidationData;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 2.0.0
  */
-class GreaterOrEqualsToTest extends \PHPUnit_Framework_TestCase
+class GreaterOrEqualsToTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test
@@ -22,6 +22,7 @@ class GreaterOrEqualsToTest extends \PHPUnit_Framework_TestCase
      * @uses Lcobucci\JWT\Claim\Basic::getName
      * @uses Lcobucci\JWT\ValidationData::__construct
      * @uses Lcobucci\JWT\ValidationData::has
+     * @uses Lcobucci\JWT\ValidationData::setCurrentTime
      *
      * @covers Lcobucci\JWT\Claim\GreaterOrEqualsTo::validate
      */
@@ -42,6 +43,7 @@ class GreaterOrEqualsToTest extends \PHPUnit_Framework_TestCase
      * @uses Lcobucci\JWT\ValidationData::setIssuer
      * @uses Lcobucci\JWT\ValidationData::has
      * @uses Lcobucci\JWT\ValidationData::get
+     * @uses Lcobucci\JWT\ValidationData::setCurrentTime
      *
      * @covers Lcobucci\JWT\Claim\GreaterOrEqualsTo::validate
      */
@@ -65,6 +67,7 @@ class GreaterOrEqualsToTest extends \PHPUnit_Framework_TestCase
      * @uses Lcobucci\JWT\ValidationData::setIssuer
      * @uses Lcobucci\JWT\ValidationData::has
      * @uses Lcobucci\JWT\ValidationData::get
+     * @uses Lcobucci\JWT\ValidationData::setCurrentTime
      *
      * @covers Lcobucci\JWT\Claim\GreaterOrEqualsTo::validate
      */
@@ -88,6 +91,7 @@ class GreaterOrEqualsToTest extends \PHPUnit_Framework_TestCase
      * @uses Lcobucci\JWT\ValidationData::setIssuer
      * @uses Lcobucci\JWT\ValidationData::has
      * @uses Lcobucci\JWT\ValidationData::get
+     * @uses Lcobucci\JWT\ValidationData::setCurrentTime
      *
      * @covers Lcobucci\JWT\Claim\GreaterOrEqualsTo::validate
      */

@@ -11,7 +11,7 @@ namespace Lcobucci\JWT\Signer\Hmac;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
-class Sha384Test extends \PHPUnit_Framework_TestCase
+class Sha384Test extends \PHPUnit\Framework\TestCase
 {
     /**
      * @test

@@ -1,6 +1,25 @@
 CHANGELOG
 ---------
 
+### v3.3.0, 2019.05.31
+
+- Fixed a bug that prevented signed closures to properly work when the serialized string
+contains invalid UTF-8 chars. Starting with this version `json_encode` is no longer used
+when signing a closure. Backward compatibility is maintained and all closures that were 
+previously signed using the old method will continue to work.
+
+### v3.2.0, 2019.05.05
+
+- Since an unsigned closure can be unserialized when no security provider is set, 
+there is no reason to treat differently a signed closure in the same situation.
+Therefore, the `Opis\Closure\SecurityException` exception  is no longer thrown when 
+unserializing a signed closure, if no security provider is set.
+
+### v3.1.6, 2019.02.22
+
+- Fixed a bug that occurred when trying to set properties of classes that were not defined in user-land.
+Those properties are now ignored.
+
 ### v3.1.5, 2019.01.14
 
 - Improved parser

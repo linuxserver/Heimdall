@@ -18,6 +18,7 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\Cache\Generator\CacheKeyGenerator;
 use Http\Client\Common\Plugin\Cache\Generator\HeaderCacheKeyGenerator;
 use Http\Client\Common\Plugin\Exception\RewindStreamException;
+use Http\Client\Common\Plugin\VersionBridgePlugin;
 use Http\Message\StreamFactory;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -32,6 +33,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class CachePlugin implements Plugin
 {
+    use VersionBridgePlugin;
+
     /**
      * The cache item pool instance.
      *
@@ -87,7 +90,7 @@ class CachePlugin implements Plugin
      *
      * @return \Http\Promise\Promise
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    protected function doHandleRequest(RequestInterface $request, callable $next, callable $first)
     {
         $method = strtoupper($request->getMethod());
         // If the request not is cachable, move to $next

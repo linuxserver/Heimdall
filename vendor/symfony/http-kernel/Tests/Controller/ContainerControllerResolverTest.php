@@ -27,11 +27,11 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with('foo')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $container->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue($service))
+            ->willReturn($service)
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
@@ -52,11 +52,11 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with('foo')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $container->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue($service))
+            ->willReturn($service)
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
@@ -77,12 +77,12 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with('foo')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
         $container->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue($service))
+            ->willReturn($service)
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
@@ -102,12 +102,12 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with(InvokableControllerService::class)
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
         $container->expects($this->once())
             ->method('get')
             ->with(InvokableControllerService::class)
-            ->will($this->returnValue($service))
+            ->willReturn($service)
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
@@ -131,18 +131,18 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with(ControllerTestService::class)
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $container->expects($this->atLeastOnce())
             ->method('getRemovedIds')
             ->with()
-            ->will($this->returnValue(array(ControllerTestService::class => true)))
+            ->willReturn([ControllerTestService::class => true])
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
         $request = Request::create('/');
-        $request->attributes->set('_controller', array(ControllerTestService::class, 'action'));
+        $request->attributes->set('_controller', [ControllerTestService::class, 'action']);
 
         $resolver->getController($request);
     }
@@ -159,13 +159,13 @@ class ContainerControllerResolverTest extends ControllerResolverTest
         $container->expects($this->once())
             ->method('has')
             ->with('app.my_controller')
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $container->expects($this->atLeastOnce())
             ->method('getRemovedIds')
             ->with()
-            ->will($this->returnValue(array('app.my_controller' => true)))
+            ->willReturn(['app.my_controller' => true])
         ;
 
         $resolver = $this->createControllerResolver(null, $container);
@@ -178,23 +178,23 @@ class ContainerControllerResolverTest extends ControllerResolverTest
     public function getUndefinedControllers()
     {
         $tests = parent::getUndefinedControllers();
-        $tests[0] = array('foo', \InvalidArgumentException::class, 'Controller "foo" does neither exist as service nor as class');
-        $tests[1] = array('oof::bar', \InvalidArgumentException::class, 'Controller "oof" does neither exist as service nor as class');
-        $tests[2] = array(array('oof', 'bar'), \InvalidArgumentException::class, 'Controller "oof" does neither exist as service nor as class');
-        $tests[] = array(
-            array(ControllerTestService::class, 'action'),
+        $tests[0] = ['foo', \InvalidArgumentException::class, 'Controller "foo" does neither exist as service nor as class'];
+        $tests[1] = ['oof::bar', \InvalidArgumentException::class, 'Controller "oof" does neither exist as service nor as class'];
+        $tests[2] = [['oof', 'bar'], \InvalidArgumentException::class, 'Controller "oof" does neither exist as service nor as class'];
+        $tests[] = [
+            [ControllerTestService::class, 'action'],
             \InvalidArgumentException::class,
             'Controller "Symfony\Component\HttpKernel\Tests\Controller\ControllerTestService" has required constructor arguments and does not exist in the container. Did you forget to define such a service?',
-        );
-        $tests[] = array(
+        ];
+        $tests[] = [
             ControllerTestService::class.'::action',
             \InvalidArgumentException::class, 'Controller "Symfony\Component\HttpKernel\Tests\Controller\ControllerTestService" has required constructor arguments and does not exist in the container. Did you forget to define such a service?',
-        );
-        $tests[] = array(
+        ];
+        $tests[] = [
             InvokableControllerService::class,
             \InvalidArgumentException::class,
             'Controller "Symfony\Component\HttpKernel\Tests\Controller\InvokableControllerService" has required constructor arguments and does not exist in the container. Did you forget to define such a service?',
-        );
+        ];
 
         return $tests;
     }

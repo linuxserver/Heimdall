@@ -14,9 +14,9 @@ class Collaborators extends AbstractApi
     /**
      * @link https://developer.github.com/v3/repos/collaborators/#list-collaborators
      *
-     * @param $username
-     * @param $repository
-     * @param array $params
+     * @param string $username
+     * @param string $repository
+     * @param array  $params
      *
      * @return array|string
      */
@@ -28,9 +28,9 @@ class Collaborators extends AbstractApi
     /**
      * @link https://developer.github.com/v3/repos/collaborators/#check-if-a-user-is-a-collaborator
      *
-     * @param $username
-     * @param $repository
-     * @param $collaborator
+     * @param string $username
+     * @param string $repository
+     * @param string $collaborator
      *
      * @return array|string
      */
@@ -42,10 +42,10 @@ class Collaborators extends AbstractApi
     /**
      * @link https://developer.github.com/v3/repos/collaborators/#add-user-as-a-collaborator
      *
-     * @param $username
-     * @param $repository
-     * @param $collaborator
-     * @param array $params
+     * @param string $username
+     * @param string $repository
+     * @param string $collaborator
+     * @param array  $params
      *
      * @return array|string
      */
@@ -57,9 +57,9 @@ class Collaborators extends AbstractApi
     /**
      * @link https://developer.github.com/v3/repos/collaborators/#remove-user-as-a-collaborator
      *
-     * @param $username
-     * @param $repository
-     * @param $collaborator
+     * @param string $username
+     * @param string $repository
+     * @param string $collaborator
      *
      * @return array|string
      */
@@ -71,9 +71,9 @@ class Collaborators extends AbstractApi
     /**
      * @link https://developer.github.com/v3/repos/collaborators/#review-a-users-permission-level
      *
-     * @param $username
-     * @param $repository
-     * @param $collaborator
+     * @param string $username
+     * @param string $repository
+     * @param string $collaborator
      *
      * @return array|string
      */

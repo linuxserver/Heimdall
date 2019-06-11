@@ -187,16 +187,16 @@ class SsiTest extends TestCase
         $response1 = new Response('foo');
         $response1->setStatusCode(404);
         $response2 = new Response('bar');
-        $cache = $this->getCache(Request::create('/'), array($response1, $response2));
+        $cache = $this->getCache(Request::create('/'), [$response1, $response2]);
         $this->assertEquals('bar', $ssi->handle($cache, '/', '/alt', false));
     }
 
     protected function getCache($request, $response)
     {
-        $cache = $this->getMockBuilder('Symfony\Component\HttpKernel\HttpCache\HttpCache')->setMethods(array('getRequest', 'handle'))->disableOriginalConstructor()->getMock();
+        $cache = $this->getMockBuilder('Symfony\Component\HttpKernel\HttpCache\HttpCache')->setMethods(['getRequest', 'handle'])->disableOriginalConstructor()->getMock();
         $cache->expects($this->any())
               ->method('getRequest')
-              ->will($this->returnValue($request))
+              ->willReturn($request)
         ;
         if (\is_array($response)) {
             $cache->expects($this->any())
@@ -206,7 +206,7 @@ class SsiTest extends TestCase
         } else {
             $cache->expects($this->any())
                   ->method('handle')
-                  ->will($this->returnValue($response))
+                  ->willReturn($response)
             ;
         }
 

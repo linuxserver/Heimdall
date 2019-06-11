@@ -3,6 +3,7 @@
 namespace Github\Api\CurrentUser;
 
 use Github\Api\AbstractApi;
+use Github\Api\AcceptHeaderTrait;
 
 /**
  * @link   https://developer.github.com/v3/activity/starring/
@@ -11,6 +12,26 @@ use Github\Api\AbstractApi;
  */
 class Starring extends AbstractApi
 {
+    use AcceptHeaderTrait;
+
+    /**
+     * Configure the body type.
+     *
+     * @see https://developer.github.com/v3/activity/starring/#list-stargazers
+     *
+     * @param string $bodyType
+     *
+     * @return self
+     */
+    public function configure($bodyType = null)
+    {
+        if ('star' === $bodyType) {
+            $this->acceptHeaderValue = sprintf('application/vnd.github.%s.star+json', $this->client->getApiVersion());
+        }
+
+        return $this;
+    }
+
     /**
      * List repositories starred by the authenticated user.
      *

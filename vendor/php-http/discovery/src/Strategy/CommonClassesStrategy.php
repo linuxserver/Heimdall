@@ -15,6 +15,7 @@ use Http\Message\UriFactory\GuzzleUriFactory;
 use Http\Message\MessageFactory\DiactorosMessageFactory;
 use Http\Message\StreamFactory\DiactorosStreamFactory;
 use Http\Message\UriFactory\DiactorosUriFactory;
+use Psr\Http\Client\ClientInterface as Psr18Client;
 use Zend\Diactoros\Request as DiactorosRequest;
 use Http\Message\MessageFactory\SlimMessageFactory;
 use Http\Message\StreamFactory\SlimStreamFactory;
@@ -80,6 +81,12 @@ final class CommonClassesStrategy implements DiscoveryStrategy
                 'condition' => [\Buzz\Client\FileGetContents::class, \Buzz\Message\ResponseBuilder::class],
             ],
         ],
+        Psr18Client::class => [
+            [
+                'class' => [self::class, 'buzzInstantiate'],
+                'condition' => [\Buzz\Client\FileGetContents::class, \Buzz\Message\ResponseBuilder::class],
+            ],
+        ],
     ];
 
     /**
@@ -87,6 +94,19 @@ final class CommonClassesStrategy implements DiscoveryStrategy
      */
     public static function getCandidates($type)
     {
+        if (Psr18Client::class === $type) {
+            $candidates = self::$classes[PSR18Client::class];
+
+            // HTTPlug 2.0 clients implements PSR18Client too.
+            foreach (self::$classes[HttpClient::class] as $c) {
+                if (is_subclass_of($c['class'], Psr18Client::class)) {
+                    $candidates[] = $c;
+                }
+            }
+
+            return $candidates;
+        }
+
         if (isset(self::$classes[$type])) {
             return self::$classes[$type];
         }

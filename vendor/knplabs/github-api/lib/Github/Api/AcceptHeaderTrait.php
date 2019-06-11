@@ -9,7 +9,7 @@ namespace Github\Api;
  */
 trait AcceptHeaderTrait
 {
-    protected $acceptHeaderValue = null;
+    protected $acceptHeaderValue;
 
     protected function get($path, array $parameters = [], array $requestHeaders = [])
     {

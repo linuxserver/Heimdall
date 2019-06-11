@@ -32,7 +32,7 @@ class FragmentHandlerTest extends TestCase
         $this->requestStack
             ->expects($this->any())
             ->method('getCurrentRequest')
-            ->will($this->returnValue(Request::create('/')))
+            ->willReturn(Request::create('/'))
         ;
     }
 
@@ -68,18 +68,18 @@ class FragmentHandlerTest extends TestCase
 
     public function testRender()
     {
-        $handler = $this->getHandler($this->returnValue(new Response('foo')), array('/', Request::create('/'), array('foo' => 'foo', 'ignore_errors' => true)));
+        $handler = $this->getHandler($this->returnValue(new Response('foo')), ['/', Request::create('/'), ['foo' => 'foo', 'ignore_errors' => true]]);
 
-        $this->assertEquals('foo', $handler->render('/', 'foo', array('foo' => 'foo')));
+        $this->assertEquals('foo', $handler->render('/', 'foo', ['foo' => 'foo']));
     }
 
-    protected function getHandler($returnValue, $arguments = array())
+    protected function getHandler($returnValue, $arguments = [])
     {
         $renderer = $this->getMockBuilder('Symfony\Component\HttpKernel\Fragment\FragmentRendererInterface')->getMock();
         $renderer
             ->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('foo'))
+            ->willReturn('foo')
         ;
         $e = $renderer
             ->expects($this->any())

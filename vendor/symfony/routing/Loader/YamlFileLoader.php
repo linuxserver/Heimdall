@@ -27,9 +27,9 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlFileLoader extends FileLoader
 {
-    private static $availableKeys = array(
-        'resource', 'type', 'prefix', 'path', 'host', 'schemes', 'methods', 'defaults', 'requirements', 'options', 'condition', 'controller', 'name_prefix', 'trailing_slash_on_root',
-    );
+    private static $availableKeys = [
+        'resource', 'type', 'prefix', 'path', 'host', 'schemes', 'methods', 'defaults', 'requirements', 'options', 'condition', 'controller', 'name_prefix', 'trailing_slash_on_root', 'locale', 'format', 'utf8',
+    ];
     private $yamlParser;
 
     /**
@@ -95,7 +95,7 @@ class YamlFileLoader extends FileLoader
      */
     public function supports($resource, $type = null)
     {
-        return \is_string($resource) && \in_array(pathinfo($resource, PATHINFO_EXTENSION), array('yml', 'yaml'), true) && (!$type || 'yaml' === $type);
+        return \is_string($resource) && \in_array(pathinfo($resource, PATHINFO_EXTENSION), ['yml', 'yaml'], true) && (!$type || 'yaml' === $type);
     }
 
     /**
@@ -108,12 +108,12 @@ class YamlFileLoader extends FileLoader
      */
     protected function parseRoute(RouteCollection $collection, $name, array $config, $path)
     {
-        $defaults = isset($config['defaults']) ? $config['defaults'] : array();
-        $requirements = isset($config['requirements']) ? $config['requirements'] : array();
-        $options = isset($config['options']) ? $config['options'] : array();
+        $defaults = isset($config['defaults']) ? $config['defaults'] : [];
+        $requirements = isset($config['requirements']) ? $config['requirements'] : [];
+        $options = isset($config['options']) ? $config['options'] : [];
         $host = isset($config['host']) ? $config['host'] : '';
-        $schemes = isset($config['schemes']) ? $config['schemes'] : array();
-        $methods = isset($config['methods']) ? $config['methods'] : array();
+        $schemes = isset($config['schemes']) ? $config['schemes'] : [];
+        $methods = isset($config['methods']) ? $config['methods'] : [];
         $condition = isset($config['condition']) ? $config['condition'] : null;
 
         foreach ($requirements as $placeholder => $requirement) {
@@ -124,6 +124,15 @@ class YamlFileLoader extends FileLoader
 
         if (isset($config['controller'])) {
             $defaults['_controller'] = $config['controller'];
+        }
+        if (isset($config['locale'])) {
+            $defaults['_locale'] = $config['locale'];
+        }
+        if (isset($config['format'])) {
+            $defaults['_format'] = $config['format'];
+        }
+        if (isset($config['utf8'])) {
+            $options['utf8'] = $config['utf8'];
         }
 
         if (\is_array($config['path'])) {
@@ -154,9 +163,9 @@ class YamlFileLoader extends FileLoader
     {
         $type = isset($config['type']) ? $config['type'] : null;
         $prefix = isset($config['prefix']) ? $config['prefix'] : '';
-        $defaults = isset($config['defaults']) ? $config['defaults'] : array();
-        $requirements = isset($config['requirements']) ? $config['requirements'] : array();
-        $options = isset($config['options']) ? $config['options'] : array();
+        $defaults = isset($config['defaults']) ? $config['defaults'] : [];
+        $requirements = isset($config['requirements']) ? $config['requirements'] : [];
+        $options = isset($config['options']) ? $config['options'] : [];
         $host = isset($config['host']) ? $config['host'] : null;
         $condition = isset($config['condition']) ? $config['condition'] : null;
         $schemes = isset($config['schemes']) ? $config['schemes'] : null;
@@ -166,13 +175,22 @@ class YamlFileLoader extends FileLoader
         if (isset($config['controller'])) {
             $defaults['_controller'] = $config['controller'];
         }
+        if (isset($config['locale'])) {
+            $defaults['_locale'] = $config['locale'];
+        }
+        if (isset($config['format'])) {
+            $defaults['_format'] = $config['format'];
+        }
+        if (isset($config['utf8'])) {
+            $options['utf8'] = $config['utf8'];
+        }
 
         $this->setCurrentDir(\dirname($path));
 
         $imported = $this->import($config['resource'], $type, false, $file);
 
         if (!\is_array($imported)) {
-            $imported = array($imported);
+            $imported = [$imported];
         }
 
         foreach ($imported as $subCollection) {

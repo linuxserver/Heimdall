@@ -52,7 +52,7 @@ class Emails extends AbstractApi
         if (is_string($emails)) {
             $emails = [$emails];
         } elseif (0 === count($emails)) {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException('The user emails parameter should be a single email or an array of emails');
         }
 
         return $this->post('/user/emails', $emails);
@@ -74,7 +74,7 @@ class Emails extends AbstractApi
         if (is_string($emails)) {
             $emails = [$emails];
         } elseif (0 === count($emails)) {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException('The user emails parameter should be a single email or an array of emails');
         }
 
         return $this->delete('/user/emails', $emails);

@@ -5,3 +5,4 @@
 /tools
 /vendor
 /build
+/.phpunit.result.cache

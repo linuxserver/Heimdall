@@ -1,16 +1,15 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @see       http://github.com/zendframework/zend-diactoros for the canonical source repository
- * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-diactoros for the canonical source repository
+ * @copyright Copyright (c) 2015-2018 Zend Technologies USA Inc. (https://www.zend.com)
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
+
+declare(strict_types=1);
 
 namespace Zend\Diactoros;
 
 use Psr\Http\Message\StreamInterface;
-use UnexpectedValueException;
 
 use function array_pop;
 use function implode;
@@ -37,12 +36,10 @@ abstract class AbstractSerializer
      * Retrieves a line from the stream; a line is defined as a sequence of
      * characters ending in a CRLF sequence.
      *
-     * @param StreamInterface $stream
-     * @return string
-     * @throws UnexpectedValueException if the sequence contains a CR or LF in
-     *     isolation, or ends in a CR.
+     * @throws Exception\DeserializationException if the sequence contains a CR
+     *     or LF in isolation, or ends in a CR.
      */
-    protected static function getLine(StreamInterface $stream)
+    protected static function getLine(StreamInterface $stream) : string
     {
         $line    = '';
         $crFound = false;
@@ -56,12 +53,12 @@ abstract class AbstractSerializer
 
             // CR NOT followed by LF
             if ($crFound && $char !== self::LF) {
-                throw new UnexpectedValueException('Unexpected carriage return detected');
+                throw Exception\DeserializationException::forUnexpectedCarriageReturn();
             }
 
             // LF in isolation
             if (! $crFound && $char === self::LF) {
-                throw new UnexpectedValueException('Unexpected line feed detected');
+                throw Exception\DeserializationException::forUnexpectedLineFeed();
             }
 
             // CR found; do not append
@@ -76,7 +73,7 @@ abstract class AbstractSerializer
 
         // CR found at end of stream
         if ($crFound) {
-            throw new UnexpectedValueException("Unexpected end of headers");
+            throw Exception\DeserializationException::forUnexpectedEndOfHeaders();
         }
 
         return $line;
@@ -90,11 +87,9 @@ abstract class AbstractSerializer
      * - The first is an array of headers
      * - The second is a StreamInterface containing the body content
      *
-     * @param StreamInterface $stream
-     * @return array
-     * @throws UnexpectedValueException For invalid headers.
+     * @throws Exception\DeserializationException For invalid headers.
      */
-    protected static function splitStream(StreamInterface $stream)
+    protected static function splitStream(StreamInterface $stream) : array
     {
         $headers       = [];
         $currentHeader = false;
@@ -110,11 +105,11 @@ abstract class AbstractSerializer
             }
 
             if (! $currentHeader) {
-                throw new UnexpectedValueException('Invalid header detected');
+                throw Exception\DeserializationException::forInvalidHeader();
             }
 
             if (! preg_match('#^[ \t]#', $line)) {
-                throw new UnexpectedValueException('Invalid header continuation');
+                throw Exception\DeserializationException::forInvalidHeaderContinuation();
             }
 
             // Append continuation to last header value found
@@ -128,11 +123,8 @@ abstract class AbstractSerializer
 
     /**
      * Serialize headers to string values.
-     *
-     * @param array $headers
-     * @return string
      */
-    protected static function serializeHeaders(array $headers)
+    protected static function serializeHeaders(array $headers) : string
     {
         $lines = [];
         foreach ($headers as $header => $values) {
@@ -147,11 +139,8 @@ abstract class AbstractSerializer
 
     /**
      * Filter a header name to wordcase
-     *
-     * @param string $header
-     * @return string
      */
-    protected static function filterHeader($header)
+    protected static function filterHeader($header) : string
     {
         $filtered = str_replace('-', ' ', $header);
         $filtered = ucwords($filtered);

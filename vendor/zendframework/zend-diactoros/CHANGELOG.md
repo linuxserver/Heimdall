@@ -2,6 +2,216 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.1.2 - 2019-04-29
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#355](https://github.com/zendframework/zend-diactoros/pull/355) adds `phpdbg` to the list of accepted non-SAPI enviornments for purposes
+  of calling `UploadedFile::moveTo()`.
+
+## 2.1.1 - 2019-01-05
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#349](https://github.com/zendframework/zend-diactoros/pull/349) fixes an issue when marshaling headers with values of `0` or `0` from the SAPI, ensuring they are detected and injected into the ServerRequest properly.
+
+## 2.1.0 - 2018-12-20
+
+### Added
+
+- [#345](https://github.com/zendframework/zend-diactoros/pull/345) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.0.3 - 2019-01-05
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#349](https://github.com/zendframework/zend-diactoros/pull/349) fixes an issue when marshaling headers with values of `0` or `0` from the
+  SAPI, ensuring they are detected and injected into the ServerRequest properly.
+
+## 2.0.2 - 2018-12-20
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#344](https://github.com/zendframework/zend-diactoros/pull/344) provides a fix to ensure that headers with a value of "0" are retained.
+
+## 2.0.1 - 2018-12-03
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#337](https://github.com/zendframework/zend-diactoros/pull/337) ensures that the `ServerRequestFactory::createServerRequest()` method
+  creates a `php://temp` stream instead of a `php::input` stream, in compliance
+  with the PSR-17 specification.
+
+## 2.0.0 - 2018-09-27
+
+### Added
+
+- [#326](https://github.com/zendframework/zend-diactoros/pull/326) adds [PSR-17](https://www.php-fig.org/psr/psr-17/) HTTP Message Factory implementations, including:
+
+  - `Zend\Diactoros\RequestFactory`
+  - `Zend\Diactoros\ResponseFactory`
+  - `Zend\Diactoros\ServerRequestFactory`
+  - `Zend\Diactoros\StreamFactory`
+  - `Zend\Diactoros\UploadedFileFactory`
+  - `Zend\Diactoros\UriFactory`
+
+  These factories may be used to produce the associated instances; we encourage
+  users to rely on the PSR-17 factory interfaces to allow exchanging PSR-7
+  implementations within their applications.
+
+- [#328](https://github.com/zendframework/zend-diactoros/pull/328) adds a package-level exception interface, `Zend\Diactoros\Exception\ExceptionInterface`,
+  and several implementations for specific exceptions raised within the package.
+  These include:
+
+  - `Zend\Diactoros\Exception\DeserializationException` (extends `UnexpectedValueException`)
+  - `Zend\Diactoros\Exception\InvalidArgumentException` (extends `InvalidArgumentException`)
+  - `Zend\Diactoros\Exception\InvalidStreamPointerPositionException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\SerializationException` (extends `UnexpectedValueException`)
+  - `Zend\Diactoros\Exception\UnreadableStreamException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UnrecognizedProtocolVersionException` (extends `UnexpectedValueException`)
+  - `Zend\Diactoros\Exception\UnrewindableStreamException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UnseekableStreamException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UntellableStreamException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UnwritableStreamException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UploadedFileAlreadyMovedException` (extends `RuntimeException`)
+  - `Zend\Diactoros\Exception\UploadedFileErrorException` (extends `RuntimeException`)
+
+### Changed
+
+- [#329](https://github.com/zendframework/zend-diactoros/pull/329) adds return type hints and scalar parameter type hints wherever possible.
+  The changes were done to help improve code quality, in part by reducing manual
+  type checking. If you are extending any classes, you may need to update your
+  signatures; check the signatures of the class(es) you are extending for changes.
+
+- [#162](https://github.com/zendframework/zend-diactoros/pull/162) modifies `Serializer\Request` such that it now no longer raises an `UnexpectedValueException` via its `toString()` method
+  when an unexpected HTTP method is encountered; this can be done safely, as the value can never
+  be invalid due to other changes in the same patch.
+
+- [#162](https://github.com/zendframework/zend-diactoros/pull/162) modifies `RequestTrait` such that it now invalidates non-string method arguments to either
+  the constructor or `withMethod()`, raising an `InvalidArgumentException` for any that do not validate.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#308](https://github.com/zendframework/zend-diactoros/pull/308) removes the following methods from the `ServerRequestFactory` class:
+  - `normalizeServer()` (use `Zend\Diactoros\normalizeServer()` instead)
+  - `marshalHeaders()` (use `Zend\Diactoros\marshalHeadersFromSapi()` instead)
+  - `marshalUriFromServer()` (use `Zend\Diactoros\marshalUriFromSapi()` instead)
+  - `marshalRequestUri()` (use `Uri::getPath()` from the `Uri` instance returned by `marshalUriFromSapi()` instead)
+  - `marshalHostAndPortFromHeaders()` (use `Uri::getHost()` and `Uri::getPort()` from the `Uri` instances returned by `marshalUriFromSapi()` instead)
+  - `stripQueryString()` (use `explode("?", $path, 2)[0]` instead)
+  - `normalizeFiles()` (use `Zend\Diactoros\normalizeUploadedFiles()` instead)
+
+- [#295](https://github.com/zendframework/zend-diactoros/pull/295) removes `Zend\Diactoros\Server`. You can use the `RequestHandlerRunner` class from
+  [zendframework/zend-httphandlerrunner](https://docs.zendframework.com/zend-httphandlerrunner) to provide these capabilities instead.
+
+- [#295](https://github.com/zendframework/zend-diactoros/pull/295) removes `Zend\Diactoros\Response\EmitterInterface` and the various emitter implementations.
+  These can now be found in the package [zendframework/zend-httphandlerrunner](https://docs.zendframework.com/zend-httphandlerrunner/), which also provides
+  a PSR-7-implementation agnostic way of using them.
+
+### Fixed
+
+- Nothing.
+
 ## 1.8.6 - 2018-09-05
 
 ### Added

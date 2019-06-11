@@ -225,6 +225,7 @@ class Client
                 $body->rewind();
                 $content = $body->getContents();
                 $params = json_decode($content, true);
+                if (!$params) { $params = []; }
                 $params = array_merge($params, $credentials->asArray());
                 $body->rewind();
                 $body->write(json_encode($params));
@@ -485,8 +486,9 @@ class Client
     {
         $path = $request->getUri()->getPath();
         $isSecretManagementEndpoint = strpos($path, '/accounts') === 0 && strpos($path, '/secrets') !== false;
+        $isApplicationV2 = strpos($path, '/v2/applications') === 0;
 
-        return $isSecretManagementEndpoint;
+        return $isSecretManagementEndpoint || $isApplicationV2;
     }
 
     protected static function requiresAuthInUrlNotBody(\Psr\Http\Message\RequestInterface $request)

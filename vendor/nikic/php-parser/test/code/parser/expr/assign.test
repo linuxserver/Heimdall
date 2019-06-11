@@ -17,6 +17,7 @@ $a += $b;
 $a <<= $b;
 $a >>= $b;
 $a **= $b;
+$a ??= $b;
 
 // chained assign
 $a = $b *= $c **= $d;
@@ -185,6 +186,16 @@ array(
         )
     )
     13: Stmt_Expression(
+        expr: Expr_AssignOp_Coalesce(
+            var: Expr_Variable(
+                name: a
+            )
+            expr: Expr_Variable(
+                name: b
+            )
+        )
+    )
+    14: Stmt_Expression(
         expr: Expr_Assign(
             var: Expr_Variable(
                 name: a
@@ -213,7 +224,7 @@ array(
             0: // chained assign
         )
     )
-    14: Stmt_Expression(
+    15: Stmt_Expression(
         expr: Expr_AssignRef(
             var: Expr_Variable(
                 name: a
@@ -232,7 +243,7 @@ array(
             0: // by ref assign
         )
     )
-    15: Stmt_Expression(
+    16: Stmt_Expression(
         expr: Expr_Assign(
             var: Expr_List(
                 items: array(
@@ -242,6 +253,7 @@ array(
                             name: a
                         )
                         byRef: false
+                        unpack: false
                     )
                 )
                 comments: array(
@@ -259,32 +271,6 @@ array(
             0: // list() assign
         )
     )
-    16: Stmt_Expression(
-        expr: Expr_Assign(
-            var: Expr_List(
-                items: array(
-                    0: Expr_ArrayItem(
-                        key: null
-                        value: Expr_Variable(
-                            name: a
-                        )
-                        byRef: false
-                    )
-                    1: null
-                    2: Expr_ArrayItem(
-                        key: null
-                        value: Expr_Variable(
-                            name: b
-                        )
-                        byRef: false
-                    )
-                )
-            )
-            expr: Expr_Variable(
-                name: c
-            )
-        )
-    )
     17: Stmt_Expression(
         expr: Expr_Assign(
             var: Expr_List(
@@ -295,6 +281,35 @@ array(
                             name: a
                         )
                         byRef: false
+                        unpack: false
+                    )
+                    1: null
+                    2: Expr_ArrayItem(
+                        key: null
+                        value: Expr_Variable(
+                            name: b
+                        )
+                        byRef: false
+                        unpack: false
+                    )
+                )
+            )
+            expr: Expr_Variable(
+                name: c
+            )
+        )
+    )
+    18: Stmt_Expression(
+        expr: Expr_Assign(
+            var: Expr_List(
+                items: array(
+                    0: Expr_ArrayItem(
+                        key: null
+                        value: Expr_Variable(
+                            name: a
+                        )
+                        byRef: false
+                        unpack: false
                     )
                     1: Expr_ArrayItem(
                         key: null
@@ -307,10 +322,12 @@ array(
                                         name: c
                                     )
                                     byRef: false
+                                    unpack: false
                                 )
                             )
                         )
                         byRef: false
+                        unpack: false
                     )
                     2: Expr_ArrayItem(
                         key: null
@@ -318,6 +335,7 @@ array(
                             name: d
                         )
                         byRef: false
+                        unpack: false
                     )
                 )
             )
@@ -326,7 +344,7 @@ array(
             )
         )
     )
-    18: Stmt_Expression(
+    19: Stmt_Expression(
         expr: Expr_PreInc(
             var: Expr_Variable(
                 name: a
@@ -339,21 +357,21 @@ array(
             0: // inc/dec
         )
     )
-    19: Stmt_Expression(
+    20: Stmt_Expression(
         expr: Expr_PostInc(
             var: Expr_Variable(
                 name: a
             )
         )
     )
-    20: Stmt_Expression(
+    21: Stmt_Expression(
         expr: Expr_PreDec(
             var: Expr_Variable(
                 name: a
             )
         )
     )
-    21: Stmt_Expression(
+    22: Stmt_Expression(
         expr: Expr_PostDec(
             var: Expr_Variable(
                 name: a

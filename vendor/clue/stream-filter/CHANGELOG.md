@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1 (2019-04-09)
+
+*   Fix: Check if the function is declared before declaring it.
+    (#23 by @Niko9911)
+
+*   Improve test suite to also test against PHP 7.2 and
+    add test for base64 encoding and decoding filters.
+    (#22 by @arubacao and #25 by @Nyholm and @clue)
+
 ## 1.4.0 (2017-08-18)
 
 *   Feature / Fix: The `fun()` function does not pass filter parameter `null`

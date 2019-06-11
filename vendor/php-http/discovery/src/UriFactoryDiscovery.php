@@ -9,6 +9,8 @@ use Http\Message\UriFactory;
  * Finds a URI Factory.
  *
  * @author David de Boer <david@ddeboer.nl>
+ *
+ * @deprecated This will be removed in 2.0. Consider using Psr17FactoryDiscovery.
  */
 final class UriFactoryDiscovery extends ClassDiscovery
 {

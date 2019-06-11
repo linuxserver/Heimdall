@@ -11,7 +11,7 @@ namespace Lcobucci\JWT;
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
-class SignatureTest extends \PHPUnit_Framework_TestCase
+class SignatureTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Signer|\PHPUnit_Framework_MockObject_MockObject
@@ -23,7 +23,7 @@ class SignatureTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->signer = $this->getMock(Signer::class);
+        $this->signer = $this->createMock(Signer::class);
     }
 
     /**

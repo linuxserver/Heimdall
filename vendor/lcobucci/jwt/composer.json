@@ -17,19 +17,16 @@
         "BSD-3-Clause"
     ],
     "require": {
-        "php": ">=5.5",
+        "php": "^5.6 || ^7.0",
+        "ext-mbstring": "*",
         "ext-openssl": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.5",
+        "phpunit/phpunit": "^5.7 || ^7.3",
         "squizlabs/php_codesniffer": "~2.3",
         "phpmd/phpmd": "~2.2",
         "phpunit/php-invoker": "~1.1",
-        "mikey179/vfsStream": "~1.5",
-        "mdanter/ecc": "~0.3.1"
-    },
-    "suggest":{
-        "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
+        "mikey179/vfsstream": "~1.5"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +36,7 @@
     "autoload-dev": {
         "psr-4": {
             "Lcobucci\\JWT\\": [
-                "test/unit", 
+                "test/unit",
                 "test/functional"
             ]
         }

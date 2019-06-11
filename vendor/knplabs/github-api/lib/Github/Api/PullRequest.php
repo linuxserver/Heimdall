@@ -31,7 +31,7 @@ class PullRequest extends AbstractApi
      */
     public function configure($bodyType = null, $apiVersion = null)
     {
-        if (!in_array($apiVersion, [])) {
+        if (null === $apiVersion) {
             $apiVersion = $this->client->getApiVersion();
         }
 

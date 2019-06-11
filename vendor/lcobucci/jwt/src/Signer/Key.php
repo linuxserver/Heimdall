@@ -70,7 +70,7 @@ final class Key
 
             return $content;
         } catch (Exception $exception) {
-            throw new InvalidArgumentException('You must inform a valid key file', 0, $exception);
+            throw new InvalidArgumentException('You must provide a valid key file', 0, $exception);
         }
     }
 

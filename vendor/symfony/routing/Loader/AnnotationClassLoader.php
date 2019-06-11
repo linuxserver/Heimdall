@@ -165,7 +165,7 @@ abstract class AnnotationClassLoader implements LoaderInterface
 
         $path = $annot->getLocalizedPaths() ?: $annot->getPath();
         $prefix = $globals['localized_paths'] ?: $globals['path'];
-        $paths = array();
+        $paths = [];
 
         if (\is_array($path)) {
             if (!\is_array($prefix)) {
@@ -196,7 +196,7 @@ abstract class AnnotationClassLoader implements LoaderInterface
                 continue;
             }
             foreach ($paths as $locale => $path) {
-                if (false !== strpos($path, sprintf('{%s}', $param->name))) {
+                if (preg_match(sprintf('/\{%s(?:<.*?>)?\}/', preg_quote($param->name)), $path)) {
                     $defaults[$param->name] = $param->getDefaultValue();
                     break;
                 }
@@ -248,7 +248,8 @@ abstract class AnnotationClassLoader implements LoaderInterface
      */
     protected function getDefaultRouteName(\ReflectionClass $class, \ReflectionMethod $method)
     {
-        $name = strtolower(str_replace('\\', '_', $class->name).'_'.$method->name);
+        $name = str_replace('\\', '_', $class->name).'_'.$method->name;
+        $name = \function_exists('mb_strtolower') && preg_match('//u', $name) ? mb_strtolower($name, 'UTF-8') : strtolower($name);
         if ($this->defaultRouteIndex > 0) {
             $name .= '_'.$this->defaultRouteIndex;
         }
@@ -312,18 +313,18 @@ abstract class AnnotationClassLoader implements LoaderInterface
 
     private function resetGlobals()
     {
-        return array(
+        return [
             'path' => null,
-            'localized_paths' => array(),
-            'requirements' => array(),
-            'options' => array(),
-            'defaults' => array(),
-            'schemes' => array(),
-            'methods' => array(),
+            'localized_paths' => [],
+            'requirements' => [],
+            'options' => [],
+            'defaults' => [],
+            'schemes' => [],
+            'methods' => [],
             'host' => '',
             'condition' => '',
             'name' => '',
-        );
+        ];
     }
 
     protected function createRoute($path, $defaults, $requirements, $options, $host, $schemes, $methods, $condition)

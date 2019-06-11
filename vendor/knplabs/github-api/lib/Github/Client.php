@@ -25,6 +25,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Api\Enterprise enterprise()
  * @method Api\Miscellaneous\CodeOfConduct codeOfConduct()
  * @method Api\Miscellaneous\Emojis emojis()
+ * @method Api\Miscellaneous\Licenses licenses()
  * @method Api\GitData git()
  * @method Api\GitData gitData()
  * @method Api\Gists gist()
@@ -53,8 +54,8 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Api\Repo repository()
  * @method Api\Repo repositories()
  * @method Api\Search search()
- * @method Api\Organization team()
- * @method Api\Organization teams()
+ * @method Api\Organization\Teams team()
+ * @method Api\Organization\Teams teams()
  * @method Api\User user()
  * @method Api\User users()
  * @method Api\Authorizations authorization()
@@ -221,6 +222,10 @@ class Client
                 $api = new Api\Markdown($this);
                 break;
 
+            case 'licenses':
+                $api = new Api\Miscellaneous\Licenses($this);
+                break;
+
             case 'notification':
             case 'notifications':
                 $api = new Api\Notification($this);
@@ -317,7 +322,7 @@ class Client
             throw new InvalidArgumentException('You need to specify authentication method!');
         }
 
-        if (null === $authMethod && in_array($password, [self::AUTH_URL_TOKEN, self::AUTH_URL_CLIENT_ID, self::AUTH_HTTP_PASSWORD, self::AUTH_HTTP_TOKEN, self::AUTH_JWT])) {
+        if (null === $authMethod && in_array($password, [self::AUTH_URL_TOKEN, self::AUTH_URL_CLIENT_ID, self::AUTH_HTTP_PASSWORD, self::AUTH_HTTP_TOKEN, self::AUTH_JWT], true)) {
             $authMethod = $password;
             $password = null;
         }
@@ -356,7 +361,7 @@ class Client
     /**
      * Add a cache plugin to cache responses locally.
      *
-     * @param CacheItemPoolInterface $cache
+     * @param CacheItemPoolInterface $cachePool
      * @param array                  $config
      */
     public function addCache(CacheItemPoolInterface $cachePool, array $config = [])

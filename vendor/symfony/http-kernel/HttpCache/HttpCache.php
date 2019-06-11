@@ -32,15 +32,22 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
     private $request;
     private $surrogate;
     private $surrogateCacheStrategy;
-    private $options = array();
-    private $traces = array();
+    private $options = [];
+    private $traces = [];
 
     /**
      * Constructor.
      *
      * The available options are:
      *
-     *   * debug:                 If true, the traces are added as a HTTP header to ease debugging
+     *   * debug                  If true, exceptions are thrown when things go wrong. Otherwise, the cache
+     *                            will try to carry on and deliver a meaningful response.
+     *
+     *   * trace_level            May be one of 'none', 'short' and 'full'. For 'short', a concise trace of the
+     *                            master request will be added as an HTTP header. 'full' will add traces for all
+     *                            requests (including ESI subrequests). (default: 'full' if in debug; 'none' otherwise)
+     *
+     *   * trace_header           Header name to use for traces. (default: X-Symfony-Cache)
      *
      *   * default_ttl            The number of seconds that a cache entry should be considered
      *                            fresh when no explicit freshness information is provided in
@@ -70,24 +77,30 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      *                            This setting is overridden by the stale-if-error HTTP Cache-Control extension
      *                            (see RFC 5861).
      */
-    public function __construct(HttpKernelInterface $kernel, StoreInterface $store, SurrogateInterface $surrogate = null, array $options = array())
+    public function __construct(HttpKernelInterface $kernel, StoreInterface $store, SurrogateInterface $surrogate = null, array $options = [])
     {
         $this->store = $store;
         $this->kernel = $kernel;
         $this->surrogate = $surrogate;
 
         // needed in case there is a fatal error because the backend is too slow to respond
-        register_shutdown_function(array($this->store, 'cleanup'));
+        register_shutdown_function([$this->store, 'cleanup']);
 
-        $this->options = array_merge(array(
+        $this->options = array_merge([
             'debug' => false,
             'default_ttl' => 0,
-            'private_headers' => array('Authorization', 'Cookie'),
+            'private_headers' => ['Authorization', 'Cookie'],
             'allow_reload' => false,
             'allow_revalidate' => false,
             'stale_while_revalidate' => 2,
             'stale_if_error' => 60,
-        ), $options);
+            'trace_level' => 'none',
+            'trace_header' => 'X-Symfony-Cache',
+        ], $options);
+
+        if (!isset($options['trace_level']) && $this->options['debug']) {
+            $this->options['trace_level'] = 'full';
+        }
     }
 
     /**
@@ -110,6 +123,23 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         return $this->traces;
     }
 
+    private function addTraces(Response $response)
+    {
+        $traceString = null;
+
+        if ('full' === $this->options['trace_level']) {
+            $traceString = $this->getLog();
+        }
+
+        if ('short' === $this->options['trace_level'] && $masterId = array_key_first($this->traces)) {
+            $traceString = implode('/', $this->traces[$masterId]);
+        }
+
+        if (null !== $traceString) {
+            $response->headers->add([$this->options['trace_header'] => $traceString]);
+        }
+    }
+
     /**
      * Returns a log message for the events of the last request processing.
      *
@@ -117,7 +147,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
      */
     public function getLog()
     {
-        $log = array();
+        $log = [];
         foreach ($this->traces as $request => $traces) {
             $log[] = sprintf('%s: %s', $request, implode(', ', $traces));
         }
@@ -164,7 +194,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
     {
         // FIXME: catch exceptions and implement a 500 error page here? -> in Varnish, there is a built-in error page mechanism
         if (HttpKernelInterface::MASTER_REQUEST === $type) {
-            $this->traces = array();
+            $this->traces = [];
             // Keep a clone of the original request for surrogates so they can access it.
             // We must clone here to get a separate instance because the application will modify the request during
             // the application flow (we know it always does because we do ourselves by setting REMOTE_ADDR to 127.0.0.1
@@ -175,7 +205,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
             }
         }
 
-        $this->traces[$this->getTraceKey($request)] = array();
+        $this->traces[$this->getTraceKey($request)] = [];
 
         if (!$request->isMethodSafe(false)) {
             $response = $this->invalidate($request, $catch);
@@ -194,8 +224,8 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
 
         $this->restoreResponseBody($request, $response);
 
-        if (HttpKernelInterface::MASTER_REQUEST === $type && $this->options['debug']) {
-            $response->headers->set('X-Symfony-Cache', $this->getLog());
+        if (HttpKernelInterface::MASTER_REQUEST === $type) {
+            $this->addTraces($response);
         }
 
         if (null !== $this->surrogate) {
@@ -260,9 +290,9 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
                 $this->store->invalidate($request);
 
                 // As per the RFC, invalidate Location and Content-Location URLs if present
-                foreach (array('Location', 'Content-Location') as $header) {
+                foreach (['Location', 'Content-Location'] as $header) {
                     if ($uri = $response->headers->get($header)) {
-                        $subRequest = Request::create($uri, 'get', array(), array(), array(), $request->server->all());
+                        $subRequest = Request::create($uri, 'get', [], [], [], $request->server->all());
 
                         $this->store->invalidate($subRequest);
                     }
@@ -357,7 +387,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         // Add our cached etag validator to the environment.
         // We keep the etags from the client to handle the case when the client
         // has a different private valid entry which is not cached here.
-        $cachedEtags = $entry->getEtag() ? array($entry->getEtag()) : array();
+        $cachedEtags = $entry->getEtag() ? [$entry->getEtag()] : [];
         $requestEtags = $request->getETags();
         if ($etags = array_unique(array_merge($cachedEtags, $requestEtags))) {
             $subRequest->headers->set('if_none_match', implode(', ', $etags));
@@ -377,7 +407,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
             $entry = clone $entry;
             $entry->headers->remove('Date');
 
-            foreach (array('Date', 'Expires', 'Cache-Control', 'ETag', 'Last-Modified') as $name) {
+            foreach (['Date', 'Expires', 'Cache-Control', 'ETag', 'Last-Modified'] as $name) {
                 if ($response->headers->has($name)) {
                     $entry->headers->set($name, $response->headers->get($name));
                 }
@@ -448,7 +478,7 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         $response = SubRequestHandler::handle($this->kernel, $request, HttpKernelInterface::MASTER_REQUEST, $catch);
 
         // we don't implement the stale-if-error on Requests, which is nonetheless part of the RFC
-        if (null !== $entry && \in_array($response->getStatusCode(), array(500, 502, 503, 504))) {
+        if (null !== $entry && \in_array($response->getStatusCode(), [500, 502, 503, 504])) {
             if (null === $age = $entry->headers->getCacheControlDirective('stale-if-error')) {
                 $age = $this->options['stale_if_error'];
             }

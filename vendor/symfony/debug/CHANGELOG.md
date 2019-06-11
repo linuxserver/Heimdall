@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+4.3.0
+-----
+
+* made the `ErrorHandler` and `ExceptionHandler` classes final
+* added `Exception\FlattenException::getAsString` and
+`Exception\FlattenException::getTraceAsString` to increase compatibility to php
+exception objects
+
 4.0.0
 -----
 

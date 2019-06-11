@@ -638,12 +638,22 @@ class TestResponse
      */
     public function assertJsonValidationErrors($keys)
     {
-        $errors = $this->json()['errors'];
+        $keys = Arr::wrap($keys);
 
-        foreach (Arr::wrap($keys) as $key) {
-            PHPUnit::assertTrue(
-                isset($errors[$key]),
-                "Failed to find a validation error in the response for key: '{$key}'"
+        PHPUnit::assertNotEmpty($keys, 'No keys were provided.');
+
+        $errors = $this->json()['errors'] ?? [];
+
+        $errorMessage = $errors
+                ? 'Response has the following JSON validation errors:'.
+                        PHP_EOL.PHP_EOL.json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).PHP_EOL
+                : 'Response does not have JSON validation errors.';
+
+        foreach ($keys as $key) {
+            PHPUnit::assertArrayHasKey(
+                $key,
+                $errors,
+                "Failed to find a validation error in the response for key: '{$key}'".PHP_EOL.PHP_EOL.$errorMessage
             );
         }
 
@@ -656,7 +666,7 @@ class TestResponse
      * @param  string|array  $keys
      * @return $this
      */
-    public function assertJsonMissingValidationErrors($keys)
+    public function assertJsonMissingValidationErrors($keys = null)
     {
         $json = $this->json();
 
@@ -667,6 +677,13 @@ class TestResponse
         }
 
         $errors = $json['errors'];
+
+        if (is_null($keys) && count($errors) > 0) {
+            PHPUnit::fail(
+                'Response has unexpected validation errors: '.PHP_EOL.PHP_EOL.
+                json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            );
+        }
 
         foreach (Arr::wrap($keys) as $key) {
             PHPUnit::assertFalse(
@@ -934,7 +951,7 @@ class TestResponse
         PHPUnit::assertFalse(
             $hasErrors,
             'Session has unexpected errors: '.PHP_EOL.PHP_EOL.
-            json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            json_encode($errors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
 
         return $this;

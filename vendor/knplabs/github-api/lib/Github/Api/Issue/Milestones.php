@@ -114,7 +114,7 @@ class Milestones extends AbstractApi
      * @param string $repository
      * @param int    $id
      *
-     * @return null
+     * @return array|string
      */
     public function remove($username, $repository, $id)
     {

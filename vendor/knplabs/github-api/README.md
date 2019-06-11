@@ -8,7 +8,7 @@
 [![Monthly Downloads](https://poser.pugx.org/knplabs/github-api/d/monthly)](https://packagist.org/packages/knplabs/github-api)
 [![Daily Downloads](https://poser.pugx.org/knplabs/github-api/d/daily)](https://packagist.org/packages/knplabs/github-api)
 
-A simple Object Oriented wrapper for GitHub API, written with PHP5.
+A simple Object Oriented wrapper for GitHub API, written with PHP.
 
 Uses [GitHub API v3](http://developer.github.com/v3/) & supports [GitHub API v4](http://developer.github.com/v4). The object API (v3) is very similar to the RESTful API.
 
@@ -29,7 +29,7 @@ Uses [GitHub API v3](http://developer.github.com/v3/) & supports [GitHub API v4]
 Via Composer:
 
 ```bash
-$ composer require knplabs/github-api php-http/guzzle6-adapter
+$ composer require knplabs/github-api php-http/guzzle6-adapter "^1.1"
 ```
 
 Why `php-http/guzzle6-adapter`? We are decoupled from any HTTP messaging client with help by [HTTPlug](http://httplug.io/). Read about clients in our [docs](doc/customize.md).

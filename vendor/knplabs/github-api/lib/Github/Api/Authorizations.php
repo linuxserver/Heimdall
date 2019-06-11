@@ -24,7 +24,7 @@ class Authorizations extends AbstractApi
     /**
      * Show a single authorization.
      *
-     * @param $clientId
+     * @param string $clientId
      *
      * @return array
      */
@@ -51,8 +51,8 @@ class Authorizations extends AbstractApi
     /**
      * Update an authorization.
      *
-     * @param $clientId
-     * @param array $params
+     * @param string $clientId
+     * @param array  $params
      *
      * @return array
      */
@@ -64,7 +64,7 @@ class Authorizations extends AbstractApi
     /**
      * Remove an authorization.
      *
-     * @param $clientId
+     * @param string $clientId
      *
      * @return array
      */
@@ -76,8 +76,8 @@ class Authorizations extends AbstractApi
     /**
      * Check an authorization.
      *
-     * @param $clientId
-     * @param $token
+     * @param string $clientId
+     * @param string $token
      *
      * @return array
      */
@@ -89,8 +89,8 @@ class Authorizations extends AbstractApi
     /**
      * Reset an authorization.
      *
-     * @param $clientId
-     * @param $token
+     * @param string $clientId
+     * @param string $token
      *
      * @return array
      */
@@ -102,8 +102,8 @@ class Authorizations extends AbstractApi
     /**
      * Remove an authorization.
      *
-     * @param $clientId
-     * @param $token
+     * @param string $clientId
+     * @param string $token
      */
     public function revoke($clientId, $token)
     {
@@ -113,7 +113,7 @@ class Authorizations extends AbstractApi
     /**
      * Revoke all authorizations.
      *
-     * @param $clientId
+     * @param string $clientId
      */
     public function revokeAll($clientId)
     {

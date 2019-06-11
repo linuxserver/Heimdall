@@ -16,11 +16,14 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "egulias/email-validator": "~2.0"
+        "egulias/email-validator": "~2.0",
+        "symfony/polyfill-iconv": "^1.0",
+        "symfony/polyfill-mbstring": "^1.0",
+        "symfony/polyfill-intl-idn": "^1.10"
     },
     "require-dev": {
         "mockery/mockery": "~0.9.1",
-        "symfony/phpunit-bridge": "~3.3@dev"
+        "symfony/phpunit-bridge": "^3.4.19|^4.1.8"
     },
     "suggest": {
         "ext-intl": "Needed to support internationalized email addresses",
@@ -34,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.1-dev"
+            "dev-master": "6.2-dev"
         }
     }
 }

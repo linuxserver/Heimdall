@@ -23,23 +23,30 @@ class ValidationData
     private $items;
 
     /**
+     * The leeway (in seconds) to use when validating time claims
+     * @var int
+     */
+    private $leeway;
+
+    /**
      * Initializes the object
      *
      * @param int $currentTime
+     * @param int $leeway
      */
-    public function __construct($currentTime = null)
+    public function __construct($currentTime = null, $leeway = 0)
     {
-        $currentTime = $currentTime ?: time();
+        $currentTime  = $currentTime ?: time();
+        $this->leeway = (int) $leeway;
 
         $this->items = [
             'jti' => null,
             'iss' => null,
             'aud' => null,
-            'sub' => null,
-            'iat' => $currentTime,
-            'nbf' => $currentTime,
-            'exp' => $currentTime
+            'sub' => null
         ];
+
+        $this->setCurrentTime($currentTime);
     }
 
     /**
@@ -89,9 +96,11 @@ class ValidationData
      */
     public function setCurrentTime($currentTime)
     {
-        $this->items['iat'] = (int) $currentTime;
-        $this->items['nbf'] = (int) $currentTime;
-        $this->items['exp'] = (int) $currentTime;
+        $currentTime  = (int) $currentTime;
+
+        $this->items['iat'] = $currentTime + $this->leeway;
+        $this->items['nbf'] = $currentTime + $this->leeway;
+        $this->items['exp'] = $currentTime - $this->leeway;
     }
 
     /**

@@ -6,6 +6,7 @@ use Http\Client\Exception\RequestException;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
 use Http\Message\RequestMatcher;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -43,7 +44,7 @@ final class HttpClientRouter implements HttpClient, HttpAsyncClient
     /**
      * Add a client to the router.
      *
-     * @param HttpClient|HttpAsyncClient $client
+     * @param HttpClient|HttpAsyncClient|ClientInterface $client
      * @param RequestMatcher             $requestMatcher
      */
     public function addClient($client, RequestMatcher $requestMatcher)
@@ -59,7 +60,7 @@ final class HttpClientRouter implements HttpClient, HttpAsyncClient
      *
      * @param RequestInterface $request
      *
-     * @return HttpClient|HttpAsyncClient
+     * @return HttpClient|HttpAsyncClient|ClientInterface
      */
     protected function chooseHttpClient(RequestInterface $request)
     {

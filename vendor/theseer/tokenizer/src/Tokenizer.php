@@ -41,6 +41,11 @@ class Tokenizer {
 
     public function parse(string $source): TokenCollection {
         $result = new TokenCollection();
+
+        if ($source === '') {
+            return $result;
+        }
+
         $tokens = token_get_all($source);
 
         $lastToken = new Token(

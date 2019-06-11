@@ -13,6 +13,8 @@ use Lcobucci\JWT\Signer;
 /**
  * Base class for signers
  *
+ * @deprecated This class will be removed on v4
+ *
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @since 0.1.0
  */
