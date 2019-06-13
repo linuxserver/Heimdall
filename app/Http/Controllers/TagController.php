@@ -22,8 +22,8 @@ class TagController extends Controller
     {
         $trash = (bool)$request->input('trash');
 
-        $data['apps'] = Item::ofType('tag')->orderBy('title', 'asc')->get();
-        $data['trash'] = Item::ofType('tag')->onlyTrashed()->get();
+        $data['apps'] = Item::ofType('tag')->where('id', '>', 0)->orderBy('title', 'asc')->get();
+        $data['trash'] = Item::ofType('tag')->where('id', '>', 0)->onlyTrashed()->get();
         if($trash) {
             return view('tags.trash', $data);
         } else {

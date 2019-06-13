@@ -79,6 +79,8 @@ return [
     'apps.preview' => 'Preview',
     'apps.apptype' => 'Application Type',
 
+    'dashboard' => 'Home dashboard',
+
     'user.user_list' => 'Users',
     'user.add_user' => 'Add user',
     'user.username' => 'Username',

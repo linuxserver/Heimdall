@@ -81,9 +81,9 @@ class Item extends Model
         if(in_array(0, $tags)) {
             $details = new Item([
                 "id" => 0,
-                "title" => 'Home dashboard',
+                "title" => __('app.dashboard'),
                 "url" => '',
-                "pinned" => 1
+                "pinned" => 0
             ]);
             $tagdetails->prepend($details);
         }
