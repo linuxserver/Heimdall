@@ -90,6 +90,7 @@ class TagController extends Controller
         $item = Item::whereUrl($slug)->first();
         //print_r($item);
         $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
+        $data['tag'] = $item->id;
         $data['all_apps'] = $item->children;
         return view('welcome', $data);
     }

@@ -198,9 +198,17 @@ class SettingsSeeder extends Seeder
             $home_tag = new \App\Item;
             $home_tag->id = 0;
             $home_tag->title = 'app.dashboard';
-            $home_tag->pinned = 1;
+            $home_tag->pinned = 0;
+            $home_tag->url = '';
             $home_tag->type = 1;
+            $home_tag->user_id = 0;
             $home_tag->save();
+
+            $homeapps = \App\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
+            foreach($homeapps as $app) {
+                if($app->id === 0) continue;
+                $app->parents()->attach(0);
+            }
         }
 
     }

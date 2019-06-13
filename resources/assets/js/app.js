@@ -182,7 +182,8 @@ $.when( $.ready ).then(function() {
         e.preventDefault();
         var current = $(this);
         var id = current.data('id');
-        $.get('items/pintoggle/'+id+'/true', function(data) {
+        var tag = current.data('tag');
+        $.get('/items/pintoggle/'+id+'/true/'+tag, function(data) {
             var inner = $(data).filter('#sortable').html();
             $('#sortable').html(inner);
             current.toggleClass('active');

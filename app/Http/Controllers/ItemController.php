@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use App\SupportedApps;
 use App\Jobs\ProcessApps;
 use App\Search;
+use Illuminate\Support\Facades\Route;
 
 class ItemController extends Controller
 {
@@ -88,20 +89,25 @@ class ItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function pinToggle($id, $ajax=false)
+    public function pinToggle($id, $ajax=false, $tag=false)
     {
         $item = Item::findOrFail($id);
         $new = ((bool)$item->pinned === true) ? false : true;
         $item->pinned = $new;
         $item->save();
         if($ajax) {
-            $data['apps'] = Item::pinned()->get();
+            if(is_numeric($tag) && $tag > 0) {
+                $item = Item::whereId($tag)->first();
+                $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
+            } else {
+                $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
+            }
             $data['ajax'] = true;
             return view('sortable', $data);
         } else {
             $route = route('dash', [], false);
             return redirect($route);
-            }
+        }
     }
 
    

@@ -26,7 +26,7 @@
         <meta name="theme-color" content="#ffffff">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}" type="text/css" />
+        <link rel="stylesheet" href="{{ asset('css/app.css?v=2') }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
     </head>
     <body>
@@ -40,7 +40,7 @@
                     <?php
                     $active = ((bool)$app->pinned === true) ? 'active' : '';
                     ?>
-                    <li>{{ $app->title }}<a class="{{ $active }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id], false) }}"><i class="fas fa-thumbtack"></i></a></li>
+                    <li>{{ $app->title }}<a class="{{ $active }}" data-tag="{{ $tag ?? 0 }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id], false, false) }}"><i class="fas fa-thumbtack"></i></a></li>
                     
                     @endforeach
                 </ul>
@@ -105,7 +105,7 @@
         </div>
         <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
-        <script src="{{ asset('js/app.js?v=2') }}"></script>
+        <script src="{{ asset('js/app.js?v=4') }}"></script>
         @yield('scripts')
         
     </body>
