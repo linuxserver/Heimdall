@@ -27,8 +27,16 @@ class ItemController extends Controller
      */
     public function dash()
     {
-        $data['apps'] = Item::doesntHave('parents')->pinned()->orderBy('order', 'asc')->get();
-        $data['all_apps'] = Item::doesntHave('parents')->get();
+        $data['apps'] = Item::whereHas('parents', function ($query) {
+            $query->where('id', 0);
+        })->pinned()->orderBy('order', 'asc')->get();
+
+        $data['all_apps'] = Item::whereHas('parents', function ($query) {
+            $query->where('id', 0);
+        })->orderBy('order', 'asc')->get();
+
+        //$data['all_apps'] = Item::doesntHave('parents')->get();
+        //die(print_r($data['apps']));
         return view('welcome', $data);
     }
 

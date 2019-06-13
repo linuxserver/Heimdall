@@ -194,5 +194,14 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
+        if(!$home_tag = \App\Item::find(0)) {
+            $home_tag = new \App\Item;
+            $home_tag->id = 0;
+            $home_tag->title = 'app.dashboard';
+            $home_tag->pinned = 1;
+            $home_tag->type = 1;
+            $home_tag->save();
+        }
+
     }
 }
