@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use App\SupportedApps;
 use App\Jobs\ProcessApps;
 use App\Search;
+use Illuminate\Support\Facades\Route;
 
 class ItemController extends Controller
 {
@@ -27,8 +28,16 @@ class ItemController extends Controller
      */
     public function dash()
     {
-        $data['apps'] = Item::doesntHave('parents')->pinned()->orderBy('order', 'asc')->get();
-        $data['all_apps'] = Item::doesntHave('parents')->get();
+        $data['apps'] = Item::whereHas('parents', function ($query) {
+            $query->where('id', 0);
+        })->pinned()->orderBy('order', 'asc')->get();
+
+        $data['all_apps'] = Item::whereHas('parents', function ($query) {
+            $query->where('id', 0);
+        })->orderBy('order', 'asc')->get();
+
+        //$data['all_apps'] = Item::doesntHave('parents')->get();
+        //die(print_r($data['apps']));
         return view('welcome', $data);
     }
 
@@ -80,20 +89,25 @@ class ItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function pinToggle($id, $ajax=false)
+    public function pinToggle($id, $ajax=false, $tag=false)
     {
         $item = Item::findOrFail($id);
         $new = ((bool)$item->pinned === true) ? false : true;
         $item->pinned = $new;
         $item->save();
         if($ajax) {
-            $data['apps'] = Item::pinned()->get();
+            if(is_numeric($tag) && $tag > 0) {
+                $item = Item::whereId($tag)->first();
+                $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
+            } else {
+                $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
+            }
             $data['ajax'] = true;
             return view('sortable', $data);
         } else {
             $route = route('dash', [], false);
             return redirect($route);
-            }
+        }
     }
 
    
@@ -125,6 +139,7 @@ class ItemController extends Controller
     {
         //
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
+        $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = [];
         return view('items.create', $data);
 
@@ -200,8 +215,10 @@ class ItemController extends Controller
         // Get the item
         $data['item'] = Item::find($id);
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
-        $data['current_tags'] = $data['item']->parents;
-
+        $data['tags']->prepend(__('app.dashboard'), 0);
+        $data['current_tags'] = $data['item']->tags();
+        //$data['current_tags'] = $data['item']->parent;
+        //die(print_r($data['current_tags']));
         // show the edit form and pass the nerd
         return view('items.edit', $data);    
     }

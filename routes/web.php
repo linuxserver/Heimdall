@@ -35,7 +35,7 @@ Route::get('tag/restore/{id}', 'TagController@restore')->name('tags.restore');
 Route::get('items/pin/{id}', 'ItemController@pin')->name('items.pin');
 Route::get('items/restore/{id}', 'ItemController@restore')->name('items.restore');
 Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');
-Route::get('items/pintoggle/{id}/{ajax?}', 'ItemController@pinToggle')->name('items.pintoggle');
+Route::get('items/pintoggle/{id}/{ajax?}/{tag?}', 'ItemController@pinToggle')->name('items.pintoggle');
 Route::post('order', 'ItemController@setOrder')->name('items.order');
 
 Route::post('appload', 'ItemController@appload')->name('appload');
