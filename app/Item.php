@@ -7,6 +7,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use App\User;
+use App\ItemTag;
 use App\Application;
 
 class Item extends Model
@@ -68,6 +69,25 @@ class Item extends Model
         }
         return $config;
 
+    }
+
+
+    public function tags()
+    {
+        $id = $this->id;
+        $tags = ItemTag::select('tag_id')->where('item_id', $id)->pluck('tag_id')->toArray();
+        $tagdetails = Item::select('id', 'title', 'url', 'pinned')->whereIn('id', $tags)->get();
+        //print_r($tags);
+        if(in_array(0, $tags)) {
+            $details = new Item([
+                "id" => 0,
+                "title" => 'Home dashboard',
+                "url" => '',
+                "pinned" => 1
+            ]);
+            $tagdetails->prepend($details);
+        }
+        return $tagdetails;
     }
 
     public function parents()
