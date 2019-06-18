@@ -6,13 +6,13 @@
                 <div class="section-title">
                     {{ __('app.user.user_list') }}
                     @if( isset($trash) && $trash->count() > 0 )
-                        <a class="trashed" href="{{ route('users.index', ['trash' => true], false) }}">{{ __('app.apps.view_trash') }} ({{ $trash->count() }})</a>
+                        <a class="trashed" href="{{ route('users.index', ['trash' => true]) }}">{{ __('app.apps.view_trash') }} ({{ $trash->count() }})</a>
                     @endif
 
                 </div>
                 <div class="module-actions">
-                    <a href="{{ route('users.create', [], false) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
-                    <a href="{{ route('dash', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                    <a href="{{ route('users.create', []) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
+                    <a href="{{ route('dash', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
                 </div>
             </header>
 
@@ -39,7 +39,7 @@
                                     <a href="{{ route('user.autologin', $user->autologin) }}">{{ route('user.autologin', $user->autologin) }}</a>
                                 @endif
                                 </td>
-                                <td class="text-center"><a{{ $user->target }} href="{!! route('users.edit', [$user->id], false) !!}" title="{{ __('user.settings.edit') }} {!! $user->title !!}"><i class="fas fa-edit"></i></a></td>
+                                <td class="text-center"><a{{ $user->target }} href="{!! route('users.edit', [$user->id]) !!}" title="{{ __('user.settings.edit') }} {!! $user->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                     @if($user->id !== 1)
                                         {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}

@@ -7,7 +7,7 @@
                     Showing Deleted Applications
                 </div>
                 <div class="module-actions">
-                    <a href="{{ route('items.index', [], false) }}" title="" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                    <a href="{{ route('items.index', []) }}" title="" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
                 </div>
             </header>
 
@@ -26,7 +26,7 @@
                             <tr>
                                 <td>{{ $app->title }}</td>
                                 <td>{{ __('app.url') }}</td>
-                                <td class="text-center"><a href="{!! route('items.restore', [$app->id], false) !!}" title="{{ __('app.restore') }} {!! $app->title !!}"><i class="fas fa-undo"></i></a></td>
+                                <td class="text-center"><a href="{!! route('items.restore', [$app->id]) !!}" title="{{ __('app.restore') }} {!! $app->title !!}"><i class="fas fa-undo"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
                                         <input type="hidden" name="force" value="1" />

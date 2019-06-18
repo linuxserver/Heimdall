@@ -45,7 +45,7 @@
                     <?php
                     $active = ((bool)$app->pinned === true) ? 'active' : '';
                     ?>
-                    <li>{{ $app->title }}<a class="{{ $active }}" data-tag="{{ $tag ?? 0 }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id], false, false) }}"><i class="fas fa-thumbtack"></i></a></li>
+                    <li>{{ $app->title }}<a class="{{ $active }}" data-tag="{{ $tag ?? 0 }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id]) }}"><i class="fas fa-thumbtack"></i></a></li>
                     
                     @endforeach
                 </ul>
@@ -54,8 +54,8 @@
             <div class="content">
                 <header class="appheader">
                     <ul>
-                        <li><a href="{{ route('dash', [], false) }}">Dash</a></li><li>
-                            <a href="{{ route('items.index', [], false) }}">Items</a></li>
+                        <li><a href="{{ route('dash', []) }}">Dash</a></li><li>
+                            <a href="{{ route('items.index', []) }}">Items</a></li>
                     </ul>
                 </header>
                 <main>
@@ -96,13 +96,13 @@
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
                         @endif
     
-                        <a id="dash" class="config" href="{{ route('dash', [], false) }}"><i class="fas fa-th"></i></a>
+                        <a id="dash" class="config" href="{{ route('dash', []) }}"><i class="fas fa-th"></i></a>
                         @if($current_user->id === 1)
-                        <a id="users" class="config" href="{{ route('users.index', [], false) }}"><i class="fas fa-user"></i></a>
+                        <a id="users" class="config" href="{{ route('users.index', []) }}"><i class="fas fa-user"></i></a>
                         @endif
-                        <a id="items" class="config" href="{{ route('items.index', [], false) }}"><i class="fas fa-list"></i></a>
-                        <a id="folder" class="config" href="{{ route('tags.index', [], false) }}"><i class="fas fa-tag"></i></a>
-                        <a id="settings" class="config" href="{{ route('settings.index', [], false) }}"><i class="fas fa-cogs"></i></a>
+                        <a id="items" class="config" href="{{ route('items.index', []) }}"><i class="fas fa-list"></i></a>
+                        <a id="folder" class="config" href="{{ route('tags.index', []) }}"><i class="fas fa-tag"></i></a>
+                        <a id="settings" class="config" href="{{ route('settings.index', []) }}"><i class="fas fa-cogs"></i></a>
                     </div>
                 </main>
 

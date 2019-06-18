@@ -6,13 +6,13 @@
                 <div class="section-title">
                     {{ __('app.apps.tag_list') }}
                     @if( isset($trash) && $trash->count() > 0 )
-                        <a class="trashed" href="{{ route('tags.index', ['trash' => true], false) }}">{{ __('app.apps.view_trash') }} ({{ $trash->count() }})</a>
+                        <a class="trashed" href="{{ route('tags.index', ['trash' => true]) }}">{{ __('app.apps.view_trash') }} ({{ $trash->count() }})</a>
                     @endif
 
                 </div>
                 <div class="module-actions">
-                    <a href="{{ route('tags.create', [], false) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
-                    <a href="{{ route('dash', [], false) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
+                    <a href="{{ route('tags.create', []) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
+                    <a href="{{ route('dash', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
                 </div>
             </header>
 
@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{ $app->title }}</td>
                                 <td><a{{ $app->target }} href="/tag/{{ $app->url }}">{{ $app->link }}</a></td>
-                                <td class="text-center"><a href="{!! route('tags.edit', [$app->id], false) !!}" title="{{ __('app.settings.edit') }} {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
+                                <td class="text-center"><a href="{!! route('tags.edit', [$app->id]) !!}" title="{{ __('app.settings.edit') }} {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['tags.destroy', $app->id],'style'=>'display:inline']) !!}
                                         <button class="link" type="submit"><i class="fa fa-trash-alt"></i></button>

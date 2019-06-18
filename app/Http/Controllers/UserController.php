@@ -80,7 +80,7 @@ class UserController extends Controller
 
         $user->save();
         
-        $route = route('dash', [], false);
+        $route = route('dash', []);
         return redirect($route)
             ->with('success',__('app.alert.success.user_updated'));
     }
@@ -150,7 +150,7 @@ class UserController extends Controller
 
         $user->save();
 
-        $route = route('dash', [], false);
+        $route = route('dash', []);
         return redirect($route)
             ->with('success',__('app.alert.success.user_updated'));
 
@@ -166,7 +166,7 @@ class UserController extends Controller
     {
         if($user->id !== 1) {
             $user->delete();
-            $route = route('dash', [], false);
+            $route = route('dash', []);
             return redirect($route)
             ->with('success',__('app.alert.success.user_deleted'));
 
