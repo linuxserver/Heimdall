@@ -38,7 +38,15 @@ Apart from the Laravel dependencies, namely PHP >= 7.1.3, OpenSSL PHP Extension,
 
 If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe it should be by default, but one user came across the issue on a windows system.
 
-Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder. For simple testing you could just go to the folder and type `php artisan serve`
+Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder. 
+
+```
+cd /path/to/heimdall
+cp .env.example .env
+php artisan key:generate
+```
+
+For simple testing you could just go to the folder and type `php artisan serve`
 
 There is also a multi-arch Docker which supports x86-64, armhf and arm64, instructions on how to use them at
 
