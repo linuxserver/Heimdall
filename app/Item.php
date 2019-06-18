@@ -20,7 +20,11 @@ class Item extends Model
 
         static::addGlobalScope('user_id', function (Builder $builder) {
             $current_user = User::currentUser();
-            $builder->where('user_id', $current_user->id)->orWhere('user_id', 0);
+            if($current_user) {
+                $builder->where('user_id', $current_user->id)->orWhere('user_id', 0);
+            } else {
+                $builder->where('user_id', 0);
+            }
         });
     }
 
