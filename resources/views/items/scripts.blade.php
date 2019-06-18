@@ -2,6 +2,8 @@
 <script>
         $( function() {
 
+            var base = (document.querySelector('base') || {}).href;
+
             var elem = $('.color-picker')[0];
             var hueb = new Huebee( elem, {
               // options
@@ -59,7 +61,7 @@
                         $('#tile-preview .app-icon').attr('src', data.iconview);
                         $('#tile-preview .title').html(data.name);
                         if(data.config != null) {
-                            $.get('/view/'+data.config, function(getdata) {
+                            $.get(base+'/view/'+data.config, function(getdata) {
                                 $('#sapconfig').html(getdata).show();
                             });
                         } else {

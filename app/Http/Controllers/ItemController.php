@@ -140,7 +140,7 @@ class ItemController extends Controller
         //
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
-        $data['current_tags'] = [];
+        $data['current_tags'] = collect([0 => __('app.dashboard')]);
         return view('items.create', $data);
 
     }

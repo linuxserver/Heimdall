@@ -1,5 +1,7 @@
 $.when( $.ready ).then(function() {
 
+    var base = (document.querySelector('base') || {}).href;
+
     if($('.message-container').length) {
         setTimeout(
             function()
@@ -58,7 +60,7 @@ $.when( $.ready ).then(function() {
             var timer = 5000;
             var fun = function worker() {
                 $.ajax({
-                    url: '/get_stats/'+id,
+                    url: base+'/get_stats/'+id,
                     dataType: 'json',
                     success: function(data) {
                         container.html(data.html);
@@ -118,7 +120,7 @@ $.when( $.ready ).then(function() {
                 attribute: 'data-id'
             });
             $.post(
-                '/order',
+                base+'/order',
                 { order:idsInOrder }
             );
         }
@@ -173,7 +175,7 @@ $.when( $.ready ).then(function() {
             data[config] = $(this).val();
         });
 
-        $.post('/test_config', { data: data }, function(data) {
+        $.post(base+'/test_config', { data: data }, function(data) {
             alert(data);
         });
 
@@ -183,7 +185,7 @@ $.when( $.ready ).then(function() {
         var current = $(this);
         var id = current.data('id');
         var tag = current.data('tag');
-        $.get('/items/pintoggle/'+id+'/true/'+tag, function(data) {
+        $.get(base+'/items/pintoggle/'+id+'/true/'+tag, function(data) {
             var inner = $(data).filter('#sortable').html();
             $('#sortable').html(inner);
             current.toggleClass('active');

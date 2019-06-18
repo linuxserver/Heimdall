@@ -56,7 +56,7 @@
                     <img src="{{ asset('storage/'.$icon) }}" />
                     {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
                     @else
-                    <img src="/img/heimdall-icon-small.png" />
+                    <img src="{{ asset('/img/heimdall-icon-small.png') }}" />
                     @endif
                     </div>
                     <div class="upload-btn-wrapper">
