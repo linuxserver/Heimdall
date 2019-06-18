@@ -28,6 +28,11 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="{{ asset('css/app.css?v=2') }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
+        @if(config('app.url') !== 'http://localhost')
+        <base href="{{ config('app.url') }}">
+        @else
+        <base href="{{ url('') }}">
+        @endif
     </head>
     <body>
         <div id="app"{!! $alt_bg !!}>
