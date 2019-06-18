@@ -125,7 +125,7 @@ abstract class Search
                 $provider = self::providerDetails($user_search_provider);
 
                 $output .= '<div class="searchform">';
-                $output .= Form::open(['url' => 'search', 'method' => 'get']);
+                $output .= '<form action="'.url('search').'"'.getLinkTargetAttribute().' method="get">';
                 $output .= '<div id="search-container" class="input-container">';
                 $output .= '<select name="provider">';
                 foreach(self::providers() as $key => $searchprovider) {
@@ -136,7 +136,7 @@ abstract class Search
                 $output .= Form::text('q', null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __('app.settings.search').'...']);
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
-                $output .= Form::close();
+                $output .= '</form>';
                 $output .= '</div>';
             }
         }

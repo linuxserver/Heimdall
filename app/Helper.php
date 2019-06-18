@@ -35,6 +35,18 @@ function title_color($hex)
     }
 }
 
+function getLinkTargetAttribute()
+{
+    $target = \App\Setting::fetch('window_target');
+
+    if($target === 'current') {
+        return '';
+    } else {
+        return ' target="' . $target . '"';
+    }
+}
+
+
 
 function className($name)
 {
