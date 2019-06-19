@@ -59,7 +59,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $current_user = User::currentUser();
-        $request->merge(['username' => $current_user->username]);
+        $request->merge(['username' => $current_user->username, 'remember' => true]);
         //die(print_r($request->all()));
         $this->validateLogin($request);
 
@@ -98,7 +98,7 @@ class LoginController extends Controller
     public function autologin($uuid)
     {
         $user = User::where('autologin', $uuid)->first();
-        Auth::login($user);
+        Auth::login($user, true);
         session(['current_user' => $user]);
         return redirect()->route('dash');
     }
