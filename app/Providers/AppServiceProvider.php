@@ -75,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
                 if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
                     $credentials = ['username' => $_SERVER['PHP_AUTH_USER'], 'password' => $_SERVER['PHP_AUTH_PW']];
                     
-                    if (\Auth::attempt($credentials)) {
+                    if (\Auth::attempt($credentials, true)) {
                         // Authentication passed...
                         $user = \Auth::user();
                         //\Session::put('current_user', $user);
@@ -84,7 +84,8 @@ class AppServiceProvider extends ServiceProvider
                 }
                 elseif(isset($_SERVER['REMOTE_USER']) && !empty($_SERVER['REMOTE_USER'])) {
                     $user = User::where('username', $_SERVER['REMOTE_USER'])->first();
-                    \Auth::loginUsingId($user->id);
+                    \Auth::login($user, true);
+                    session(['current_user' => $user]);   
                 }
             }
 
