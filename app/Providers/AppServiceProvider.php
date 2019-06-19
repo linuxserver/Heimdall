@@ -82,6 +82,10 @@ class AppServiceProvider extends ServiceProvider
                         session(['current_user' => $user]);                
                     }
                 }
+                elseif(isset($_SERVER['REMOTE_USER']) && !empty($_SERVER['REMOTE_USER'])) {
+                    $user = User::where('username', $_SERVER['REMOTE_USER'])->first();
+                    \Auth::loginUsingId($user->id);
+                }
             }
 
 
