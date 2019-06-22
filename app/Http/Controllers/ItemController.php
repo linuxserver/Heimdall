@@ -30,11 +30,11 @@ class ItemController extends Controller
     {
         $data['apps'] = Item::whereHas('parents', function ($query) {
             $query->where('id', 0);
-        })->pinned()->orderBy('order', 'asc')->get();
+        })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
 
         $data['all_apps'] = Item::whereHas('parents', function ($query) {
             $query->where('id', 0);
-        })->orderBy('order', 'asc')->get();
+        })->orWhere('type', 1)->orderBy('order', 'asc')->get();
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
         //die(print_r($data['apps']));
