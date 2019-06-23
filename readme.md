@@ -38,7 +38,7 @@ Apart from the Laravel dependencies, namely PHP >= 7.1.3, OpenSSL PHP Extension,
 
 If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe it should be by default, but one user came across the issue on a windows system.
 
-Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder. 
+Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder then creating the .env file and generating an encryption key (this is all taken care of for you with the docker). 
 
 ```
 cd /path/to/heimdall
