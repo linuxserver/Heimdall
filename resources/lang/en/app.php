@@ -44,6 +44,7 @@ return [
     'options.yes' => 'Yes',
     'options.no' => 'No',
     'options.nzbhydra' => 'NZBHydra',
+    'options.jackett' => 'Jackett',
 
     'buttons.save' => 'Save',
     'buttons.cancel' => 'Cancel',
