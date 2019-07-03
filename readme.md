@@ -137,11 +137,10 @@ location / {
     auth_basic "Restricted";
     auth_basic_user_file /config/nginx/.htpasswd;
     include /config/nginx/proxy.conf;
-    proxy_pass https://heimdall:443;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_pass http://heimdall;
 }
 ```
-
-If you are using HTTPS and things aren't working try adding `FORCE_HTTPS=true` to the end of your `.env` file or proxy to the https version of the app.
 
 ### Self-signed certificates and local CAs
 Per default Heimdall uses the standard certificate bundle file (`ca-certificates.crt`) to verify HTTPS sites and will ignore additional certificates placed in `/etc/ssl/certs`. If you wish to use enhanced apps with HTTPS sites that use a self-signed certificate or certs signed with your own local CA, you can override the default bundle:
