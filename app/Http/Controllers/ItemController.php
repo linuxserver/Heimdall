@@ -306,7 +306,7 @@ class ItemController extends Controller
                 ->where('id', $id)
                 ->restore();      
         
-        $route = route('items.inded', []);
+        $route = route('items.index', []);
         return redirect($route)
             ->with('success',__('app.alert.success.item_restored'));
     }
