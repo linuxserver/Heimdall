@@ -89,10 +89,14 @@ abstract class Search
             if(empty($app->class)) continue;
             if(($provider = Item::isSearchProvider($app->class)) !== false) {
                 $name = Item::nameFromClass($app->class);
-                $providers[strtolower($name)] = [
+                $providers[$app->id] = [
                     'type' => $provider->type,
                     'class' => $app->class,
                     'url' => $app->url,
+                    'title' => $app->title,
+                    'colour' => $app->colour,
+                    'icon' => $app->icon,
+                    'description' => $app->description
                 ];
 
             }
@@ -130,7 +134,11 @@ abstract class Search
                 $output .= '<select name="provider">';
                 foreach(self::providers() as $key => $searchprovider) {
                     $selected = ($key === $user_search_provider) ? ' selected="selected"' : '';
-                    $output .= '<option value="'.$key.'"'.$selected.'>'.__('app.options.'.$key).'</option>';
+                    if (is_numeric($key)) {
+                      $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['title'].'</option>';
+                    } else {
+                      $output .= '<option value="'.$key.'"'.$selected.'>'.__('app.options.'.$key).'</option>';
+                    }
                 }
                 $output .= '</select>';
                 $output .= Form::text('q', null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __('app.settings.search').'...']);
