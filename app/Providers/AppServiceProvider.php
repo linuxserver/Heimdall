@@ -85,8 +85,10 @@ class AppServiceProvider extends ServiceProvider
                 }
                 elseif(isset($_SERVER['REMOTE_USER']) && !empty($_SERVER['REMOTE_USER'])) {
                     $user = User::where('username', $_SERVER['REMOTE_USER'])->first();
-                    \Auth::login($user, true);
-                    session(['current_user' => $user]);   
+                    if ($user) {
+                        \Auth::login($user, true);
+                        session(['current_user' => $user]);
+                    }
                 }
             }
 
