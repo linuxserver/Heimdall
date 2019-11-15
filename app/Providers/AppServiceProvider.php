@@ -72,7 +72,8 @@ class AppServiceProvider extends ServiceProvider
                 explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
             }
             if(!\Auth::check()) {
-                if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+                if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])
+                        && !empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
                     $credentials = ['username' => $_SERVER['PHP_AUTH_USER'], 'password' => $_SERVER['PHP_AUTH_PW']];
                     
                     if (\Auth::attempt($credentials, true)) {
