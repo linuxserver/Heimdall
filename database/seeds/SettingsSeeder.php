@@ -96,7 +96,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         if(!$setting = Setting::find(4)) {
-            
+
             $setting = new Setting;
             $setting->id = 4;
             $setting->group_id = 3;
@@ -117,9 +117,10 @@ class SettingsSeeder extends Seeder
             'en' => 'English',
             'fi' => 'Suomi (Finnish)',
             'fr' => 'Français (French)',
+            'el' => 'Ελληνικά (Greek)',
             'it' => 'Italiano (Italian)',
-            'no' => 'Norsk (Norwegian)',   
-            'pl' => 'Polski (Polish)',            
+            'no' => 'Norsk (Norwegian)',
+            'pl' => 'Polski (Polish)',
             'sv' => 'Svenska (Swedish)',
             'es' => 'Español (Spanish)',
             'tr' => 'Türkçe (Turkish)',
@@ -146,7 +147,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         if(!$setting = Setting::find(7)) {
-            
+
             $setting = new Setting;
             $setting->id = 7;
             $setting->group_id = 3;
