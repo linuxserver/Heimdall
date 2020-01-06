@@ -49,7 +49,7 @@ return [
     'buttons.save' => 'Save',
     'buttons.cancel' => 'Cancel',
     'buttons.add' => 'Add',
-    'buttons.upload' => 'Upload a file',
+    'buttons.upload' => 'Upload an icon',
     'buttons.downloadapps' => 'Update Apps List',
 
     'dash.pin_item' => 'Pin item to dashboard',
