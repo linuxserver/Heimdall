@@ -95,7 +95,7 @@ class AppServiceProvider extends ServiceProvider
 
             $alt_bg = '';
             if($bg_image = Setting::fetch('background_image')) {
-                $alt_bg = ' style="background-image: url(/storage/'.$bg_image.')"';
+                $alt_bg = ' style="background-image: url(storage/'.$bg_image.')"';
             }
             $lang = Setting::fetch('language');
             \App::setLocale($lang);
