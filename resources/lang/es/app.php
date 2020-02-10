@@ -22,6 +22,7 @@ return array (
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
+  'options.jackett' => 'Jackett',
   'options.yes' => 'Sí',
   'options.no' => 'No',
   'buttons.save' => 'Guardar',
