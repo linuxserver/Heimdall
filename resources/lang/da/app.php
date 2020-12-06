@@ -27,7 +27,7 @@ return [
     'settings.reset' => 'Nulstil tilbage til standard',
     'settings.remove' => 'Fjern',
     'settings.search' => 'søg',
-    'settings.no_items' => 'No items found',
+    'settings.no_items' => 'Intet fundet',
 
 
     'settings.label' => 'Etiket',
