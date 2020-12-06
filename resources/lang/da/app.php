@@ -53,7 +53,7 @@ return [
     'buttons.downloadapps' => 'Opdater apps-listen',
 
     'dash.pin_item' => 'Fastgør element til dashboard',
-    'dash.no_apps' => 'There are currently no pinned applications, :link1 or :link2',
+    'dash.no_apps' => 'Der er i øjeblikket ingen fastgjorte applikationer, :link1 eller :link2',
     'dash.link1' => 'Add an application here',
     'dash.link2' => 'Pin an item to the dash',
     'dash.pinned_items' => 'Fastgjorte elementer',
