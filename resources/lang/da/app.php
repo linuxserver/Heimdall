@@ -35,7 +35,7 @@ return [
     'settings.edit' => 'Rediger',
     'settings.view' => 'Vis',
 
-    'options.none' => '- not set -',
+    'options.none' => '- ikke indstillet -',
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
