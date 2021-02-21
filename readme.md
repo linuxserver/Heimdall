@@ -129,7 +129,7 @@ location /webfonts {
 If there are any other locations which might interfere with any of the folders in the `/public` folder, you might have to do the same for those as well, but it's a super fringe case.
 
 ### Reverse proxy
-If you'd like to reverse proxy this app, we recommend using our letsencrypt/nginx docker image: [Letsencrypt/Nginx](https://hub.docker.com/r/linuxserver/letsencrypt/)
+If you'd like to reverse proxy this app, we recommend using our letsencrypt/nginx docker image: [SWAG - Secure Web Application Gateway](https://hub.docker.com/r/linuxserver/swag)
 You can either reverse proxy from the root location, or from a subdomain (subfolder method is currently not supported). For HTTPS proxy, make sure you use the HTTPS port of Heimdall webserver, otherwise some links may break. You can add security through `.htpasswd`
 
 ```
