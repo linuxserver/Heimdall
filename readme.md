@@ -78,6 +78,7 @@ Currently added languages are
 - Swedish
 - Spanish
 - Turkish
+- Simplified Chinese
 
 ## Web Server Configuration
 
