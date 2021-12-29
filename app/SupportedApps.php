@@ -58,6 +58,7 @@ abstract class SupportedApps
             'http_errors' => false, 
             'timeout' => 15, 
             'connect_timeout' => 15,
+            'verify' => false,
         ];
 
         $client = new Client($vars);
