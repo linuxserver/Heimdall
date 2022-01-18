@@ -126,6 +126,9 @@ class Setting extends Model
                 }
                 $value = Form::select('value', $options, null, ['class' => 'form-control']);
                 break;
+            case 'textarea':
+                $value = Form::textarea('value', null, ['class' => 'form-control', 'cols' => '44', 'rows' => '15']);
+                break;
             default:
                 $value = Form::text('value', null, ['class' => 'form-control']);
                 break;
