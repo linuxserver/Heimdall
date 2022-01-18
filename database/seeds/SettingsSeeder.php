@@ -44,6 +44,16 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->save();
         }
+        if(!$setting_group = SettingGroup::find(4)) {
+            $setting_group = new SettingGroup;
+            $setting_group->id = 4;
+            $setting_group->title = 'app.settings.advanced';
+            $setting_group->order = 3;
+            $setting_group->save();
+        } else {
+            $setting_group->title = 'app.settings.advanced';
+            $setting_group->save();
+        }
 
         if($version = Setting::find(1)) {
             $version->label = 'app.settings.version';
@@ -192,6 +202,38 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.donate';
             $setting->value = '<a rel="noopener" target="_blank" href="https://www.paypal.me/heimdall">Paypal</a>';
             $setting->system = true;
+            $setting->save();
+        }
+        
+        if(!$setting = Setting::find(10)) {
+            $setting = new Setting;
+            $setting->id = 10;
+            $setting->group_id = 4;
+            $setting->key = 'custom_css';
+            $setting->type = 'textarea';
+            $setting->label = 'app.settings.custom_css';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->type = 'textarea';
+            $setting->group_id = 4;
+            $setting->label = 'app.settings.custom_css';
+            $setting->save();
+        }
+
+        if(!$setting = Setting::find(11)) {
+            $setting = new Setting;
+            $setting->id = 11;
+            $setting->group_id = 4;
+            $setting->key = 'custom_js';
+            $setting->type = 'textarea';
+            $setting->label = 'app.settings.custom_js';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->type = 'textarea';
+            $setting->group_id = 4;
+            $setting->label = 'app.settings.custom_js';
             $setting->save();
         }
 
