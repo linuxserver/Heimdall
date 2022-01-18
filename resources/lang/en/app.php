@@ -12,6 +12,8 @@ return [
     'settings.system' => 'System',
     'settings.appearance' => 'Appearance',
     'settings.miscellaneous' => 'Miscellaneous',
+    'settings.advanced' => 'Advanced',
+    
     'settings.support' => 'Support',
     'settings.donate' => 'Donate',
 
@@ -29,11 +31,13 @@ return [
     'settings.search' => 'search',
     'settings.no_items' => 'No items found',
 
-
     'settings.label' => 'Label',
     'settings.value' => 'Value',
     'settings.edit' => 'Edit',
     'settings.view' => 'View',
+    
+    'settings.custom_css' => 'Custom CSS',
+    'settings.custom_js' => 'Custom JavaScript',
 
     'options.none' => '- not set -',
     'options.google' => 'Google',
