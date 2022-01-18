@@ -33,6 +33,10 @@
         @else
         <base href="{{ url('') }}">
         @endif
+        <style id="custom_css">
+        /* editable using the 'Settings > Advanced > Custom CSS' option */
+        {!! \App\Setting::fetch('custom_css') !!}
+        </style>
     </head>
     <body>
         <div id="app"{!! $alt_bg !!}>
@@ -113,5 +117,9 @@
         <script src="{{ asset('js/app.js?v=4') }}"></script>
         @yield('scripts')
         
+        <script id="custom_js">
+        /* editable using the 'Settings > Advanced > Custom JavaScript' option */
+        {!! \App\Setting::fetch('custom_js') !!}
+        </script>
     </body>
 </html>
