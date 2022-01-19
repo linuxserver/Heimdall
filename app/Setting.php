@@ -61,22 +61,35 @@ class Setting extends Model
                     $value = '<a href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank">'.__('app.settings.view').'</a>';
                 } else {
                     $value = __('app.options.none');
-                }    
+                }
                 break;
             case 'boolean':
                 if((bool)$this->value === true) {
                     $value = __('app.options.yes');
                 } else {
                     $value = __('app.options.no');
-                }    
+                }
                 break;
             case 'select':
-                if(!empty($this->value) && $this->value !== 'none') {
-                    $options =  (array)json_decode($this->options);
-                    $value = __($options[$this->value]);
+                if ($this->key == 'search_provider') {
+                    $options = Search::providers();
+                    if (array_key_exists($this->value, $options)) {
+                        if (is_numeric($this->value)) {
+                            $value = $options[$this->value]['title'];
+                        } else {
+                            $value = __('app.options.'.$this->value);
+                        }
+                    } else {
+                        $value = __('app.options.none');
+                    }
                 } else {
-                    $value = __('app.options.none');
-                }                
+                    if(!empty($this->value) && $this->value !== 'none') {
+                        $options =  (array)json_decode($this->options);
+                        $value = __($options[$this->value]);
+                    } else {
+                        $value = __('app.options.none');
+                    }
+                }
                 break;
             default:
                 $value = __($this->value);
@@ -105,7 +118,7 @@ class Setting extends Model
                 if(isset($this->value) && !empty($this->value)) {
                     $value .= '<a class="settinglink" href="'.route('settings.clear', $this->id).'" title="'.__('app.settings.remove').'">'.__('app.settings.reset').'</a>';
                 }
-                
+
                 break;
             case 'boolean':
                 $checked = false;
@@ -120,9 +133,20 @@ class Setting extends Model
 
                 break;
             case 'select':
-                $options = json_decode($this->options);
-                foreach($options as $key => $opt) {
-                    $options->$key = __($opt);
+                if ($this->key == 'search_provider') {
+                    $options = ['none'=>'none']+Search::providers();
+                    foreach($options as $key => $searchprovider) {
+                        if (is_numeric($key)) {
+                            $options[$key] = $searchprovider['title'];
+                        } else {
+                            $options[$key] = __('app.options.'.$key);
+                        }
+                    }
+                } else {
+                    $options = json_decode($this->options);
+                    foreach($options as $key => $opt) {
+                        $options->$key = __($opt);
+                    }
                 }
                 $value = Form::select('value', $options, null, ['class' => 'form-control']);
                 break;
@@ -187,7 +211,7 @@ class Setting extends Model
                         #}
                         $value = $find->value;
                     }
-                    
+
                 }
                 #Setting::add($cachekey, $value);
 

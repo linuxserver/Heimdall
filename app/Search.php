@@ -12,7 +12,7 @@ abstract class Search
 
     /**
      * List of all search providers
-     * 
+     *
      * @return Array
      */
     public static function providers()
@@ -24,7 +24,7 @@ abstract class Search
 
     /**
      * Gets details for a single provider
-     * 
+     *
      * @return Object
      */
     public static function providerDetails($provider)
@@ -36,7 +36,7 @@ abstract class Search
 
     /**
      * Array of the standard providers
-     * 
+     *
      * @return Array
      */
     public static function standardProviders()
@@ -78,7 +78,7 @@ abstract class Search
     /**
      * Loops through users apps to see if app is a search provider, might be worth
      * looking into caching this at some point
-     * 
+     *
      * @return Array
      */
     public static function appProviders()
@@ -106,7 +106,7 @@ abstract class Search
 
     /**
      * Outputs the search form
-     * 
+     *
      * @return html
      */
     public static function form()
@@ -116,7 +116,7 @@ abstract class Search
         $search_provider = Setting::where('key', '=', 'search_provider')->first();
         $user_search_provider = Setting::fetch('search_provider');
         //die(print_r($search_provider));
-       
+
         //die(var_dump($user_search_provider));
         // return early if search isn't applicable
         if((bool)$homepage_search !== true) return $output;
@@ -133,7 +133,7 @@ abstract class Search
                 $output .= '<div id="search-container" class="input-container">';
                 $output .= '<select name="provider">';
                 foreach(self::providers() as $key => $searchprovider) {
-                    $selected = ($key === $user_search_provider) ? ' selected="selected"' : '';
+                    $selected = ($key == $user_search_provider) ? ' selected="selected"' : '';
                     if (is_numeric($key)) {
                       $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['title'].'</option>';
                     } else {

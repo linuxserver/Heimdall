@@ -86,31 +86,19 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        $options = json_encode([
-            'none' => 'app.options.none',
-            'google' => 'app.options.google',
-            'ddg' => 'app.options.ddg',
-            'qwant' => 'app.options.qwant',
-            'bing' => 'app.options.bing',
-            'startpage' => 'app.options.startpage',
-        ]);
-
         if(!$setting = Setting::find(4)) {
-
             $setting = new Setting;
             $setting->id = 4;
             $setting->group_id = 3;
             $setting->key = 'search_provider';
             $setting->type = 'select';
-            $setting->options = $options;
             $setting->label = 'app.settings.search_provider';
             $setting->save();
         } else {
-            $setting->options = $options;
+            $setting->options = false;
             $setting->label = 'app.settings.search_provider';
             $setting->save();
         }
-
 
         $language_options = json_encode([
             'de' => 'Deutsch (German)',
