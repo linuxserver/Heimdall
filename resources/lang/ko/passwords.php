@@ -13,10 +13,10 @@ return [
     |
     */
 
-    'password' => 'Passwords must be at least six characters and match the confirmation.',
-    'reset' => 'Your password has been reset!',
-    'sent' => 'We have e-mailed your password reset link!',
-    'token' => 'This password reset token is invalid.',
-    'user' => "We can't find a user with that e-mail address.",
+    'password' => '암호는 6자 이상이어야 하며 확인란과 서로 일치해야 합니다.',
+    'reset' => '암호가 재설정되었습니다!',
+    'sent' => '암호 재설정 링크를 전자 메일로 전송했습니다!',
+    'token' => '이 암호 재설정 토큰은 잘못되었습니다.',
+    'user' => "해당 이메일 주소를 가진 사용자를 찾을 수 없습니다.",
 
 ];
