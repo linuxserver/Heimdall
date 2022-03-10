@@ -11,11 +11,6 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.babel([
-      //'resources/assets/js/jquery-ui.min.js',
-      'resources/assets/js/huebee.js',
-      'resources/assets/js/app.js'
-      ], 'public/js/app.js')
-   .sass('resources/assets/sass/app.scss', 'public/css').options({
-      processCssUrls: false
-   }).version();
+mix.js('resources/assets/js/app.js', 'public/js').vue({ version: 2 })
+
+

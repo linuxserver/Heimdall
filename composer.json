@@ -9,6 +9,7 @@
         "fideloper/proxy": "^4.0",
         "graham-campbell/github": "^10.5",
         "guzzlehttp/guzzle": "^7.4",
+        "inertiajs/inertia-laravel": "^0.5.4",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.4",

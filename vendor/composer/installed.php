@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '61a5a1a8b023771e0ff7c056add5537d20737e51',
+        'reference' => 'f9a19fce91446a34aa433bb1426491fbb2005611',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -349,6 +349,15 @@
                 0 => 'v7.30.6',
             ),
         ),
+        'inertiajs/inertia-laravel' => array(
+            'pretty_version' => 'v0.5.4',
+            'version' => '0.5.4.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../inertiajs/inertia-laravel',
+            'aliases' => array(),
+            'reference' => '6a050ce04a710ac4809161558ac09fe49f13075e',
+            'dev_requirement' => false,
+        ),
         'knplabs/github-api' => array(
             'pretty_version' => 'v3.5.1',
             'version' => '3.5.1.0',
@@ -379,7 +388,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '61a5a1a8b023771e0ff7c056add5537d20737e51',
+            'reference' => 'f9a19fce91446a34aa433bb1426491fbb2005611',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(

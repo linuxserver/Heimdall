@@ -14,6 +14,8 @@ use App\SupportedApps;
 use App\Jobs\ProcessApps;
 use App\Search;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
 
 class ItemController extends Controller
 {
@@ -38,7 +40,9 @@ class ItemController extends Controller
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
         //die(print_r($data['apps']));
-        return view('welcome', $data);
+        // return view('welcome', $data);
+        return Inertia::render('index', [
+        ]);
     }
 
      /**
