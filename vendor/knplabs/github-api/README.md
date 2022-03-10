@@ -1,10 +1,9 @@
 # PHP GitHub API
 
-[![Build Status](https://travis-ci.org/KnpLabs/php-github-api.svg?branch=master)](https://travis-ci.org/KnpLabs/php-github-api)
+![Build Status](https://github.com/KnpLabs/php-github-api/actions/workflows/ci.yml/badge.svg)
 [![StyleCI](https://styleci.io/repos/3948501/shield?style=flat)](https://styleci.io/repos/3948501)
 [![Latest Stable Version](https://poser.pugx.org/knplabs/github-api/v/stable)](https://packagist.org/packages/knplabs/github-api)
 [![Total Downloads](https://poser.pugx.org/knplabs/github-api/downloads)](https://packagist.org/packages/knplabs/github-api)
-[![Latest Unstable Version](https://poser.pugx.org/knplabs/github-api/v/unstable)](https://packagist.org/packages/knplabs/github-api)
 [![Monthly Downloads](https://poser.pugx.org/knplabs/github-api/d/monthly)](https://packagist.org/packages/knplabs/github-api)
 [![Daily Downloads](https://poser.pugx.org/knplabs/github-api/d/daily)](https://packagist.org/packages/knplabs/github-api)
 
@@ -19,25 +18,46 @@ Uses [GitHub API v3](http://developer.github.com/v3/) & supports [GitHub API v4]
 
 ## Requirements
 
-* PHP >= 5.6
-* A [HTTP client](https://packagist.org/providers/php-http/client-implementation)
-* A [PSR-7 implementation](https://packagist.org/providers/psr/http-message-implementation)
-* (optional) PHPUnit to run tests.
+* PHP >= 7.2
+* A [PSR-17 implementation](https://packagist.org/providers/psr/http-factory-implementation)
+* A [PSR-18 implementation](https://packagist.org/providers/psr/http-client-implementation)
 
-## Install
+## Quick install
 
-Via Composer:
+Via [Composer](https://getcomposer.org).
+
+This command will get you up and running quickly with a Guzzle HTTP client.
 
 ```bash
-$ composer require knplabs/github-api php-http/guzzle6-adapter "^1.1"
+composer require knplabs/github-api:^3.0 guzzlehttp/guzzle:^7.0.1 http-interop/http-factory-guzzle:^1.0
 ```
 
-Why `php-http/guzzle6-adapter`? We are decoupled from any HTTP messaging client with help by [HTTPlug](http://httplug.io/). Read about clients in our [docs](doc/customize.md).
+## Advanced install
 
+We are decoupled from any HTTP messaging client with help by [HTTPlug](https://httplug.io). 
 
-## Using Laravel?
+### Using a different http client
 
-[Laravel GitHub](https://github.com/GrahamCampbell/Laravel-GitHub) by [Graham Campbell](https://github.com/GrahamCampbell) might interest you.
+```bash
+composer require knplabs/github-api:^3.0 symfony/http-client nyholm/psr7
+```
+
+To set up the Github client with this HTTP client
+
+```php
+use Github\Client;
+use Symfony\Component\HttpClient\HttplugClient;
+
+$client = Client::createWithHttpClient(new HttplugClient());
+```
+
+Read more about [using different clients in our docs](doc/customize.md).
+
+## Framework integrations
+
+### Laravel
+
+To integrate this library in laravel [Graham Campbell](https://github.com/GrahamCampbell) created [graham-campbell/github](https://github.com/GrahamCampbell/Laravel-GitHub). See the [installation instructions](https://github.com/GrahamCampbell/Laravel-GitHub#installation) to get started in laravel.
 
 ## Basic usage of `php-github-api` client
 
@@ -51,7 +71,7 @@ $client = new \Github\Client();
 $repositories = $client->api('user')->repositories('ornicar');
 ```
 
-From `$client` object, you can access to all GitHub.
+From `$client` object, you have access to all available GitHub api endpoints.
 
 ## Cache usage
 
@@ -91,21 +111,24 @@ See the [`doc` directory](doc/) for more detailed documentation.
 
 `php-github-api` is licensed under the MIT License - see the LICENSE file for details
 
-## Credits
+## Maintainers
 
-### Sponsored by
+Please read [this post](https://knplabs.com/en/blog/news-for-our-foss-projects-maintenance) first.
 
-[![KnpLabs Team](http://knplabs.com/front/images/knp-labs-logo.png)](http://knplabs.com)
+This library is maintained by the following people (alphabetically sorted) :
+- [@acrobat](https://github.com/acrobat)
+- [@Nyholm](https://github.com/Nyholm)
 
-### Contributors
+## Contributors
 
-- Thanks to [Thibault Duplessis aka. ornicar](http://github.com/ornicar) for his first version of this library.
-- Thanks to [Joseph Bielawski aka. stloyd](http://github.com/stloyd) for his contributions and support.
-- Thanks to [noloh](http://github.com/noloh) for his contribution on the Object API.
-- Thanks to [bshaffer](http://github.com/bshaffer) for his contribution on the Repo API.
-- Thanks to [Rolf van de Krol](http://github.com/rolfvandekrol) for his countless contributions.
-- Thanks to [Nicolas Pastorino](http://github.com/jeanvoye) for his contribution on the Pull Request API.
-- Thanks to [Edoardo Rivello](http://github.com/erivello) for his contribution on the Gists API.
+- Thanks to [Thibault Duplessis aka. ornicar](https://github.com/ornicar) for his first version of this library.
+- Thanks to [Joseph Bielawski aka. stloyd](https://github.com/stloyd) for his contributions and support.
+- Thanks to [noloh](https://github.com/noloh) for his contribution on the Object API.
+- Thanks to [bshaffer](https://github.com/bshaffer) for his contribution on the Repo API.
+- Thanks to [Rolf van de Krol](https://github.com/rolfvandekrol) for his countless contributions.
+- Thanks to [Nicolas Pastorino](https://github.com/jeanvoye) for his contribution on the Pull Request API.
+- Thanks to [Edoardo Rivello](https://github.com/erivello) for his contribution on the Gists API.
 - Thanks to [Miguel Piedrafita](https://github.com/m1guelpf) for his contribution to the v4 & Apps API.
+- Thanks to [Emre DEGER](https://github.com/lexor) for his contribution to the Actions API.
 
 Thanks to GitHub for the high quality API and documentation.

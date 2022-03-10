@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.6.0 (2022-02-21)
+
+*   Feature: Support PHP 8.1 release.
+    (#45 by @clue)
+
+*   Improve documentation to use fully-qualified function names.
+    (#43 by @SimonFrings and #42 by @PaulRotmann)
+
+*   Improve test suite and use GitHub actions for continuous integration (CI).
+    (#39 and #40 by @SimonFrings)
+
+## 1.5.0 (2020-10-02)
+
+*   Feature: Improve performance by using global imports.
+    (#38 by @clue)
+
+*   Improve API documentation and add support / sponsorship info.
+    (#30 by @clue and #35 by @SimonFrings)
+
+*   Improve test suite and add `.gitattributes` to exclude dev files from exports.
+    Prepare PHP 8 support, update to PHPUnit 9 and simplify test matrix.
+    (#32 and #37 by @clue and #34 and #36 by @SimonFrings)
+
 ## 1.4.1 (2019-04-09)
 
 *   Fix: Check if the function is declared before declaring it.

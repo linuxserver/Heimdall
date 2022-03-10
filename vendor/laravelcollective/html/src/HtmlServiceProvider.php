@@ -2,12 +2,12 @@
 
 namespace Collective\Html;
 
-use Illuminate\Support\Facades\Blade;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\View\Compilers\BladeCompiler;
 
-class HtmlServiceProvider extends ServiceProvider
+class HtmlServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * Supported Blade Directives
@@ -16,13 +16,6 @@ class HtmlServiceProvider extends ServiceProvider
      */
     protected $directives = ['entities','decode','script','style','image','favicon','link','secureLink','linkAsset','linkSecureAsset','linkRoute','linkAction','mailto','email','ol','ul','dl','meta','tag','open','model','close','token','label','input','text','password','hidden','email','tel','number','date','datetime','datetimeLocal','time','url','file','textarea','select','selectRange','selectYear','selectMonth','getSelectOption','checkbox','radio','reset','image','color','submit','button','old'
     ];
-
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
 
     /**
      * Register the service provider.

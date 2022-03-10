@@ -16,6 +16,7 @@
                             </div>
                             <a class="link{{ title_color($item->colour) }}"{!! $item->link_target !!} href="{{ $item->link }}"><i class="fas {{ $item->link_icon }}"></i></a>
                         </div>
+                        @if(isset($item->id))
                         <a class="item-edit" href="{{ route($item->link_type.'.edit', [ $item->id ]) }}"><i class="fas fa-pencil"></i></a>
-                        
+                        @endif
                     </section>

@@ -1,5 +1,13 @@
-The ReflectionDocBlock Component [![Build Status](https://secure.travis-ci.org/phpDocumentor/ReflectionDocBlock.png)](https://travis-ci.org/phpDocumentor/ReflectionDocBlock)
-================================
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Qa workflow](https://github.com/phpDocumentor/ReflectionDocBlock/workflows/Qa%20workflow/badge.svg)
+[![Coveralls Coverage](https://img.shields.io/coveralls/github/phpDocumentor/ReflectionDocBlock.svg)](https://coveralls.io/github/phpDocumentor/ReflectionDocBlock?branch=master)
+[![Scrutinizer Code Coverage](https://img.shields.io/scrutinizer/coverage/g/phpDocumentor/ReflectionDocBlock.svg)](https://scrutinizer-ci.com/g/phpDocumentor/ReflectionDocBlock/?branch=master)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/phpDocumentor/ReflectionDocBlock.svg)](https://scrutinizer-ci.com/g/phpDocumentor/ReflectionDocBlock/?branch=master)
+[![Stable Version](https://img.shields.io/packagist/v/phpdocumentor/reflection-docblock.svg)](https://packagist.org/packages/phpdocumentor/reflection-docblock)
+[![Unstable Version](https://img.shields.io/packagist/vpre/phpdocumentor/reflection-docblock.svg)](https://packagist.org/packages/phpdocumentor/reflection-docblock)
+
+ReflectionDocBlock 
+==================
 
 Introduction
 ------------
@@ -27,8 +35,8 @@ instantiated using its `createInstance` factory method like this:
 $factory  = \phpDocumentor\Reflection\DocBlockFactory::createInstance();
 ```
 
-Then we can use the `create` method of the factory to interpret the DocBlock. 
-Please note that it is also possible to provide a class that has the 
+Then we can use the `create` method of the factory to interpret the DocBlock.
+Please note that it is also possible to provide a class that has the
 `getDocComment()` method, such as an object of type `ReflectionClass`, the
 create method will read that if it exists.
 

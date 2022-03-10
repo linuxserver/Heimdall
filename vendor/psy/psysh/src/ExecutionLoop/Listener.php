@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +23,7 @@ interface Listener
      *
      * @return bool
      */
-    public static function isSupported();
+    public static function isSupported(): bool;
 
     /**
      * Called once before the REPL session starts.
@@ -49,7 +49,7 @@ interface Listener
      *
      * @return string|null User input override
      */
-    public function onInput(Shell $shell, $input);
+    public function onInput(Shell $shell, string $input);
 
     /**
      * Called before executing user code.
@@ -65,7 +65,7 @@ interface Listener
      *
      * @return string|null User code override
      */
-    public function onExecute(Shell $shell, $code);
+    public function onExecute(Shell $shell, string $code);
 
     /**
      * Called at the end of each loop.

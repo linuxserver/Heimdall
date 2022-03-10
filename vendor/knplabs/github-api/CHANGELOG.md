@@ -1,6 +1,173 @@
-# Change Log
+# Changelog
 
-The change log describes what is "Added", "Removed", "Changed" or "Fixed" between each release.
+## 2.20.0
+
+### Added
+- Deployments: added missing 'delete deployment' endpoint ([clxmstaab](https://github.com/clxmstaab)) [#991](https://github.com/KnpLabs/php-github-api/issues/991)
+
+### Changed
+- phpdoc: fix typo ([clxmstaab](https://github.com/clxmstaab)) [#993](https://github.com/KnpLabs/php-github-api/issues/993)
+
+### Fixed
+- fixed php warning in GithubExceptionThrower ([clxmstaab](https://github.com/clxmstaab), [acrobat](https://github.com/acrobat)) [#992](https://github.com/KnpLabs/php-github-api/issues/992)
+
+## 2.19.2
+
+### Changed
+- Improved bc check ([acrobat](https://github.com/acrobat)) [#982](https://github.com/KnpLabs/php-github-api/issues/982)
+- Correctly link to github actions docs and fix backlinks ([acrobat](https://github.com/acrobat)) [#983](https://github.com/KnpLabs/php-github-api/issues/983)
+- Add missing repo hooks documentation ([acrobat](https://github.com/acrobat)) [#987](https://github.com/KnpLabs/php-github-api/issues/987)
+- Fix incorrect public key documentation ([acrobat](https://github.com/acrobat)) [#988](https://github.com/KnpLabs/php-github-api/issues/988)
+- Fixed incorrect parameters in apps docs ([acrobat](https://github.com/acrobat)) [#989](https://github.com/KnpLabs/php-github-api/issues/989)
+
+### Fixed
+- Deployments: use proper media-type for in_progress/queued, inactive state ([staabm](https://github.com/staabm)) [#979](https://github.com/KnpLabs/php-github-api/issues/979)
+- backported #979 into 2.x ([staabm](https://github.com/staabm)) [#981](https://github.com/KnpLabs/php-github-api/issues/981)
+- [952] doc - Specify lcobucci/jwt version, fix deprecation ([amacrobert-meq](https://github.com/amacrobert-meq), [acrobat](https://github.com/acrobat)) [#953](https://github.com/KnpLabs/php-github-api/issues/953)
+- Replace deprecated organization team repository add/remove urls ([acrobat](https://github.com/acrobat)) [#985](https://github.com/KnpLabs/php-github-api/issues/985)
+
+## 2.19.1
+
+### Fixed
+- ExceptionThrower: adjust rate limit detection ([glaubinix](https://github.com/glaubinix)) [#959](https://github.com/KnpLabs/php-github-api/issues/959)
+
+## 2.19.0
+
+### Added
+- Mark some classes as final ([acrobat](https://github.com/acrobat)) [#954](https://github.com/KnpLabs/php-github-api/issues/954)
+
+## 2.18.0
+
+### Added
+- Add parameters to PullRequest commits method ([seanmtaylor](https://github.com/seanmtaylor)) [#938](https://github.com/KnpLabs/php-github-api/issues/938)
+- Actions (#872) ([lexor](https://github.com/lexor)) [#939](https://github.com/KnpLabs/php-github-api/issues/939)
+- automated security endpoints (#868) ([lexor](https://github.com/lexor)) [#944](https://github.com/KnpLabs/php-github-api/issues/944)
+
+### Changed
+- Update apps.md ([clarkeash](https://github.com/clarkeash)) [#936](https://github.com/KnpLabs/php-github-api/issues/936)
+
+### Fixed
+- Throw exception for graphql errors ([acrobat](https://github.com/acrobat)) [#941](https://github.com/KnpLabs/php-github-api/issues/941)
+
+## 2.17.0
+
+### Added
+
+- Improve checks api implementation ([acrobat](https://github.com/acrobat)) [#932](https://github.com/KnpLabs/php-github-api/issues/932)
+
+### Changed
+- Missing auth method in list of omitted passwords. ([tobyS](https://github.com/tobyS)) [#933](https://github.com/KnpLabs/php-github-api/issues/933)
+- Improve github actions setup ([acrobat](https://github.com/acrobat)) [#935](https://github.com/KnpLabs/php-github-api/issues/935)
+
+## 2.16.0
+
+### Added
+- Add support for SSO errors coming from the API ([eiriksm](https://github.com/eiriksm)) [#913](https://github.com/KnpLabs/php-github-api/issues/913)
+- Add OutsideCollaborators api ([Matth--](https://github.com/Matth--)) [#925](https://github.com/KnpLabs/php-github-api/issues/925)
+- Add support for creating a repo dispatch event ([Nyholm](https://github.com/Nyholm)) [#931](https://github.com/KnpLabs/php-github-api/issues/931)
+
+### Changed
+- Fix: Wrong PHPDoc description ([OskarStark](https://github.com/OskarStark)) [#922](https://github.com/KnpLabs/php-github-api/issues/922)
+- Adding GitHub authentication to GraphQL documentation ([legionth](https://github.com/legionth)) [#927](https://github.com/KnpLabs/php-github-api/issues/927)
+
+### Fixed
+- Use RFC3986 for building URI query strings ([GrahamCampbell](https://github.com/GrahamCampbell)) [#908](https://github.com/KnpLabs/php-github-api/issues/908)
+- Fix call to test a webhook method ([morrislaptop](https://github.com/morrislaptop)) [#915](https://github.com/KnpLabs/php-github-api/issues/915)
+
+## 2.15.0
+
+### Added
+- Prepare deprecation of authentication methods ([acrobat](https://github.com/acrobat)) [#870](https://github.com/KnpLabs/php-github-api/issues/870)
+- Add Support For GitData Reference Matching Methods ([nickpoulos](https://github.com/nickpoulos)) [#875](https://github.com/KnpLabs/php-github-api/issues/875)
+- Make invalid request error more clear ([acrobat](https://github.com/acrobat)) [#880](https://github.com/KnpLabs/php-github-api/issues/880)
+- Show user by ID ([genintho](https://github.com/genintho)) [#894](https://github.com/KnpLabs/php-github-api/issues/894)
+- add additional check run methods ([bobeagan](https://github.com/bobeagan), [acrobat](https://github.com/acrobat)) [#865](https://github.com/KnpLabs/php-github-api/issues/865)
+
+### Changed
+- Added phpstan ([clxkoders](https://github.com/clxkoders)) [#871](https://github.com/KnpLabs/php-github-api/issues/871)
+- Increase phpstan to level 4 ([acrobat](https://github.com/acrobat)) [#874](https://github.com/KnpLabs/php-github-api/issues/874)
+- [Documentation] Add Missing Children to Pull Request Index ([jimlind](https://github.com/jimlind)) [#877](https://github.com/KnpLabs/php-github-api/issues/877)
+- [Documentation] Include links to Pull Request Children on Pull Request Doc. ([jimlind](https://github.com/jimlind)) [#878](https://github.com/KnpLabs/php-github-api/issues/878)
+- Fix typo in /lib/Github/Api/RateLimit.php ([yoonper](https://github.com/yoonper)) [#886](https://github.com/KnpLabs/php-github-api/issues/886)
+- Don't use deprecated auth in examples ([GrahamCampbell](https://github.com/GrahamCampbell)) [#892](https://github.com/KnpLabs/php-github-api/issues/892)
+- Removed shadow-cat ([GrahamCampbell](https://github.com/GrahamCampbell)) [#893](https://github.com/KnpLabs/php-github-api/issues/893)
+- Don't urlencode integer values ([acrobat](https://github.com/acrobat)) [#895](https://github.com/KnpLabs/php-github-api/issues/895)
+- phpstan level 6 fixes ([acrobat](https://github.com/acrobat), [GrahamCampbell](https://github.com/GrahamCampbell)) [#897](https://github.com/KnpLabs/php-github-api/issues/897)
+
+### Fixed
+- fix: use new media type for branch protections ([iBotPeaches](https://github.com/iBotPeaches)) [#881](https://github.com/KnpLabs/php-github-api/issues/881)
+- Added missing 'machine-man-preview' accept headers ([vovayatsyuk](https://github.com/vovayatsyuk)) [#883](https://github.com/KnpLabs/php-github-api/issues/883)
+- Fix broken roave/bc-check test ([acrobat](https://github.com/acrobat)) [#890](https://github.com/KnpLabs/php-github-api/issues/890)
+- Fixed incorrect MissingArgumentException parent constructor values ([acrobat](https://github.com/acrobat)) [#896](https://github.com/KnpLabs/php-github-api/issues/896)
+- Added AUTH_ACCESS_TOKEN to allowed methods ([GrahamCampbell](https://github.com/GrahamCampbell)) [#899](https://github.com/KnpLabs/php-github-api/issues/899)
+
+## 2.14.0
+
+### Added
+- Replace deprecated Organization\Teams api calls ([lolos](https://github.com/lolos)) [#860](https://github.com/KnpLabs/php-github-api/issues/860)
+- Add sort and direction for fetching organizations repos ([pgrimaud](https://github.com/pgrimaud)) [#863](https://github.com/KnpLabs/php-github-api/issues/863)
+- Added parameters to Repo/milestones() method ([dereuromark](https://github.com/dereuromark)) [#856](https://github.com/KnpLabs/php-github-api/issues/856)
+
+### Fixed 
+
+- Remove incorrect MissingArgumentException in Labels api ([bobeagan](https://github.com/bobeagan)) [#861](https://github.com/KnpLabs/php-github-api/issues/861)
+
+### Changed
+- Fix typos in test/Github/Tests/Api/RepoTest.php ([pgrimaud](https://github.com/pgrimaud)) [#862](https://github.com/KnpLabs/php-github-api/issues/862)
+- further detail on ResultPager parameters ([sepiariver](https://github.com/sepiariver)) [#843](https://github.com/KnpLabs/php-github-api/issues/843)
+- fix phpdoc in labels api ([staabm](https://github.com/staabm)) [#854](https://github.com/KnpLabs/php-github-api/issues/854)
+- fix api link in Issue\Labels::add() phpdoc ([staabm](https://github.com/staabm)) [#853](https://github.com/KnpLabs/php-github-api/issues/853)
+
+## 2.13.0
+
+### Added
+
+- Support the new authorizations API
+- Repo community profile API endpoint
+- Support for draft PRs
+- Missing Apps endpoints
+- Test against php 7.4
+
+### Changed
+
+- Allow create & remove to set and remove requests for teams
+
+## 2.12.1
+
+### Fixed
+
+- Fixed bug in handling of validation errors
+- Updated docs to not use deprected string parameter in issue assignee call
+
+## 2.12.0
+
+### Added
+
+- Support for HTTPlug 2.0 and PSR-18
+- Add support for GitHub Checks
+- Add support for GitHub Pages
+- Add support to update a Pull Request Review
+- Add support to get specific revision of a gist
+- Added a 4th argument `$parameters` to `PullRequest::files()`
+- Added `Accept` headers to Github Apps 
+
+### Removed
+
+- Active support for HHVM
+- Support for PHP <7.1
+
+### Changed
+
+- Allow tags to be created without the `Tagger` object
+- When updating DeployKeys we will first remove existing then add a new DeployKey
+
+### Fixed
+
+- In `Trees` we should check if `array_key_exists('sha', $tree)` instead of `isset` to avoid issues with `null`.  (#822)
+
+### Deprecated
+
+- Passing an integer (`$page`) as 4th arugment in `Comments::all()` is deprecated. It should be an array.
 
 ## 2.11.0
 

@@ -23,7 +23,7 @@ class Comments extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -31,7 +31,7 @@ class Comments extends AbstractApi
             $bodyType = 'full';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->getApiVersion(), $bodyType);
 
         return $this;
     }
@@ -44,15 +44,13 @@ class Comments extends AbstractApi
      * @param string $username
      * @param string $repository
      * @param int    $issue
-     * @param int    $page
+     * @param array  $params
      *
      * @return array
      */
-    public function all($username, $repository, $issue, $page = 1)
+    public function all($username, $repository, $issue, array $params = [])
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/comments', [
-            'page' => $page,
-        ]);
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/comments', $params);
     }
 
     /**
@@ -68,7 +66,7 @@ class Comments extends AbstractApi
      */
     public function show($username, $repository, $comment)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.rawurlencode($comment));
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.$comment);
     }
 
     /**
@@ -91,7 +89,7 @@ class Comments extends AbstractApi
             throw new MissingArgumentException('body');
         }
 
-        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/comments', $params);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/comments', $params);
     }
 
     /**
@@ -114,7 +112,7 @@ class Comments extends AbstractApi
             throw new MissingArgumentException('body');
         }
 
-        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.rawurlencode($comment), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.$comment, $params);
     }
 
     /**
@@ -130,6 +128,6 @@ class Comments extends AbstractApi
      */
     public function remove($username, $repository, $comment)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.rawurlencode($comment));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/comments/'.$comment);
     }
 }

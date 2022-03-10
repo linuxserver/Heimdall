@@ -15,7 +15,7 @@ class Cards extends AbstractApi
      *
      * @see https://developer.github.com/v3/repos/projects/#projects
      *
-     * @return self
+     * @return $this
      */
     public function configure()
     {

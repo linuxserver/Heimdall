@@ -2,9 +2,11 @@
 
 namespace Illuminate\Queue;
 
+use Closure;
 use DateTimeInterface;
 use Illuminate\Container\Container;
 use Illuminate\Support\InteractsWithTime;
+use Illuminate\Support\Str;
 
 abstract class Queue
 {
@@ -36,7 +38,7 @@ abstract class Queue
      *
      * @param  string  $queue
      * @param  string  $job
-     * @param  mixed   $data
+     * @param  mixed  $data
      * @return mixed
      */
     public function pushOn($queue, $job, $data = '')
@@ -50,7 +52,7 @@ abstract class Queue
      * @param  string  $queue
      * @param  \DateTimeInterface|\DateInterval|int  $delay
      * @param  string  $job
-     * @param  mixed   $data
+     * @param  mixed  $data
      * @return mixed
      */
     public function laterOn($queue, $delay, $job, $data = '')
@@ -61,9 +63,9 @@ abstract class Queue
     /**
      * Push an array of jobs onto the queue.
      *
-     * @param  array   $jobs
-     * @param  mixed   $data
-     * @param  string  $queue
+     * @param  array  $jobs
+     * @param  mixed  $data
+     * @param  string|null  $queue
      * @return void
      */
     public function bulk($jobs, $data = '', $queue = null)
@@ -76,15 +78,19 @@ abstract class Queue
     /**
      * Create a payload string from the given job and data.
      *
-     * @param  string  $job
+     * @param  \Closure|string|object  $job
      * @param  string  $queue
-     * @param  mixed   $data
+     * @param  mixed  $data
      * @return string
      *
      * @throws \Illuminate\Queue\InvalidPayloadException
      */
     protected function createPayload($job, $queue, $data = '')
     {
+        if ($job instanceof Closure) {
+            $job = CallQueuedClosure::create($job);
+        }
+
         $payload = json_encode($this->createPayloadArray($job, $queue, $data));
 
         if (JSON_ERROR_NONE !== json_last_error()) {
@@ -99,7 +105,7 @@ abstract class Queue
     /**
      * Create a payload array from the given job and data.
      *
-     * @param  mixed  $job
+     * @param  string|object  $job
      * @param  string  $queue
      * @param  mixed  $data
      * @return array
@@ -114,16 +120,19 @@ abstract class Queue
     /**
      * Create a payload for an object-based queue handler.
      *
-     * @param  mixed  $job
+     * @param  object  $job
      * @param  string  $queue
      * @return array
      */
     protected function createObjectPayload($job, $queue)
     {
         $payload = $this->withCreatePayloadHooks($queue, [
+            'uuid' => (string) Str::uuid(),
             'displayName' => $this->getDisplayName($job),
             'job' => 'Illuminate\Queue\CallQueuedHandler@call',
             'maxTries' => $job->tries ?? null,
+            'maxExceptions' => $job->maxExceptions ?? null,
+            'delay' => $this->getJobRetryDelay($job),
             'timeout' => $job->timeout ?? null,
             'timeoutAt' => $this->getJobExpiration($job),
             'data' => [
@@ -143,13 +152,31 @@ abstract class Queue
     /**
      * Get the display name for the given job.
      *
-     * @param  mixed  $job
+     * @param  object  $job
      * @return string
      */
     protected function getDisplayName($job)
     {
         return method_exists($job, 'displayName')
                         ? $job->displayName() : get_class($job);
+    }
+
+    /**
+     * Get the retry delay for an object-based queue handler.
+     *
+     * @param  mixed  $job
+     * @return mixed
+     */
+    public function getJobRetryDelay($job)
+    {
+        if (! method_exists($job, 'retryAfter') && ! isset($job->retryAfter)) {
+            return;
+        }
+
+        $delay = $job->retryAfter ?? $job->retryAfter();
+
+        return $delay instanceof DateTimeInterface
+                        ? $this->secondsUntil($delay) : $delay;
     }
 
     /**
@@ -181,9 +208,12 @@ abstract class Queue
     protected function createStringPayload($job, $queue, $data)
     {
         return $this->withCreatePayloadHooks($queue, [
+            'uuid' => (string) Str::uuid(),
             'displayName' => is_string($job) ? explode('@', $job)[0] : null,
             'job' => $job,
             'maxTries' => null,
+            'maxExceptions' => null,
+            'delay' => null,
             'timeout' => null,
             'data' => $data,
         ]);

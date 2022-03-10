@@ -46,7 +46,7 @@ class Tokenizer {
             return $result;
         }
 
-        $tokens = token_get_all($source);
+        $tokens = \token_get_all($source);
 
         $lastToken = new Token(
             $tokens[0][2],
@@ -55,7 +55,7 @@ class Tokenizer {
         );
 
         foreach ($tokens as $pos => $tok) {
-            if (is_string($tok)) {
+            if (\is_string($tok)) {
                 $token = new Token(
                     $lastToken->getLine(),
                     $this->map[$tok],
@@ -63,25 +63,80 @@ class Tokenizer {
                 );
                 $result->addToken($token);
                 $lastToken = $token;
+
                 continue;
             }
 
             $line   = $tok[2];
-            $values = preg_split('/\R+/Uu', $tok[1]);
+            $values = \preg_split('/\R+/Uu', $tok[1]);
 
             foreach ($values as $v) {
                 $token = new Token(
                     $line,
-                    token_name($tok[0]),
+                    \token_name($tok[0]),
                     $v
                 );
-                $result->addToken($token);
-                $line++;
                 $lastToken = $token;
+                $line++;
+
+                if ($v === '') {
+                    continue;
+                }
+
+                $result->addToken($token);
             }
         }
 
-        return $result;
+        return $this->fillBlanks($result, $lastToken->getLine());
     }
 
+    private function fillBlanks(TokenCollection $tokens, int $maxLine): TokenCollection {
+        $prev = new Token(
+            0,
+            'Placeholder',
+            ''
+        );
+
+        $final = new TokenCollection();
+
+        foreach ($tokens as $token) {
+            if ($prev === null) {
+                $final->addToken($token);
+                $prev = $token;
+
+                continue;
+            }
+
+            $gap = $token->getLine() - $prev->getLine();
+
+            while ($gap > 1) {
+                $linebreak = new Token(
+                    $prev->getLine() + 1,
+                    'T_WHITESPACE',
+                    ''
+                );
+                $final->addToken($linebreak);
+                $prev = $linebreak;
+                $gap--;
+            }
+
+            $final->addToken($token);
+            $prev = $token;
+        }
+
+        $gap = $maxLine - $prev->getLine();
+
+        while ($gap > 0) {
+            $linebreak = new Token(
+                $prev->getLine() + 1,
+                'T_WHITESPACE',
+                ''
+            );
+            $final->addToken($linebreak);
+            $prev = $linebreak;
+            $gap--;
+        }
+
+        return $final;
+    }
 }

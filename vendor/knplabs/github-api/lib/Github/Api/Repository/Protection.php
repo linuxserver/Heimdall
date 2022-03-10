@@ -14,13 +14,6 @@ class Protection extends AbstractApi
 {
     use AcceptHeaderTrait;
 
-    public function configure()
-    {
-        $this->acceptHeaderValue = 'application/vnd.github.loki-preview+json';
-
-        return $this;
-    }
-
     /**
      * Retrieves configured protection for the provided branch.
      *
@@ -34,6 +27,9 @@ class Protection extends AbstractApi
      */
     public function show($username, $repository, $branch)
     {
+        // Preview endpoint
+        $this->acceptHeaderValue = 'application/vnd.github.luke-cage-preview+json';
+
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/branches/'.rawurlencode($branch).'/protection');
     }
 
@@ -51,6 +47,9 @@ class Protection extends AbstractApi
      */
     public function update($username, $repository, $branch, array $params = [])
     {
+        // Preview endpoint
+        $this->acceptHeaderValue = 'application/vnd.github.luke-cage-preview+json';
+
         return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/branches/'.rawurlencode($branch).'/protection', $params);
     }
 

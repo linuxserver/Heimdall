@@ -2,6 +2,7 @@
 
 A small library for converting tokenized PHP source code into XML.
 
+[![Test](https://github.com/theseer/tokenizer/actions/workflows/ci.yml/badge.svg)](https://github.com/theseer/tokenizer/actions/workflows/ci.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/theseer/tokenizer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/theseer/tokenizer/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/theseer/tokenizer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/theseer/tokenizer/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/theseer/tokenizer/badges/build.png?b=master)](https://scrutinizer-ci.com/g/theseer/tokenizer/build-status/master)

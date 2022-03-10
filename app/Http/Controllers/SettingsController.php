@@ -66,7 +66,7 @@ class SettingsController extends Controller
         $user = $this->user();
 
         if (!is_null($setting)) {
-            $data = Setting::getInput();
+            $data = Setting::getInput($request);
 
             $setting_value = null;
 

@@ -24,15 +24,16 @@ class ThanksCommand extends BaseCommand
 {
     private $star = '★ ';
     private $love = '💖 ';
+    private $cash = '💵 ';
 
     protected function configure()
     {
         if ('Hyper' === getenv('TERM_PROGRAM')) {
             $this->star = '⭐ ';
-            $this->love = '💖 ';
         } elseif ('\\' === \DIRECTORY_SEPARATOR) {
             $this->star = '*';
             $this->love = '<3';
+            $this->cash = '$$$';
         }
 
         $this->setName('thanks')
@@ -79,14 +80,15 @@ class ThanksCommand extends BaseCommand
             $output->writeln('Some repositories could not be starred, please run <info>composer update</info> and try again:');
 
             foreach ($failures as $alias => $failure) {
-                foreach ($failure['messages'] as $message) {
+                foreach ((array) $failure['messages'] as $message) {
                     $output->writeln(sprintf(' * %s - %s', $failure['url'], $message));
                 }
             }
         }
 
-        $output->writeln(sprintf("\nThanks to you! %s", $this->love));
-        $output->writeln('Please consider contributing back in any way if you can!');
+        $output->writeln("\nPlease consider contributing back in any way if you can!");
+        $output->writeln(sprintf("\nRun <comment>composer fund</> to discover how you can sponsor your fellow PHP package maintainers %s", $this->cash));
+        $output->writeln(sprintf("\nThank you! %s", $this->love));
 
         return 0;
     }

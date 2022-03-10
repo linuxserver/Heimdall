@@ -68,6 +68,6 @@ class Columns extends AbstractApi
 
     public function cards()
     {
-        return new Cards($this->client);
+        return new Cards($this->getClient());
     }
 }

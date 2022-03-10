@@ -2,6 +2,12 @@
 
 All notable changes to `sebastianbergmann/object-enumerator` are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [3.0.4] - 2020-11-30
+
+### Changed
+
+* Changed PHP version constraint in `composer.json` from `^7.0` to `>=7.0`
+
 ## [3.0.3] - 2017-08-03
 
 ### Changed
@@ -44,6 +50,7 @@ All notable changes to `sebastianbergmann/object-enumerator` are documented in t
 
 * Initial release
 
+[3.0.4]: https://github.com/sebastianbergmann/object-enumerator/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/sebastianbergmann/object-enumerator/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/sebastianbergmann/object-enumerator/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/sebastianbergmann/object-enumerator/compare/3.0.0...3.0.1

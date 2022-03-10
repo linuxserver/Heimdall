@@ -1,6 +1,54 @@
 Changelog
 =========
 
+**Swiftmailer will stop being maintained at the end of November 2021.**
+
+Please, move to Symfony Mailer at your earliest convenience.
+Symfony Mailer is the next evolution of Swiftmailer.
+It provides the same features with support for modern PHP code and support for third-party providers.
+See https://symfony.com/doc/current/mailer.html for more information.
+
+6.3.0 (2021-10-18)
+------------------
+
+ * Fix support for PHP 8.1
+
+6.2.7 (2021-03-09)
+------------------
+
+ * Allow egulias/email-validator 3.1+
+
+6.2.6 (2021-03-05)
+------------------
+
+ * Fix Bcc support
+
+6.2.5 (2021-01-12)
+------------------
+
+ * Don't trust properties at destruct time
+ * Remove invalid PHPDocs param in EventDispatcher interface
+ * Bump license year
+ * Removes PHP version from README
+
+6.2.4 (2020-12-08)
+------------------
+
+ * Prevent flushing of the bubble queue when event handler raises another event
+ * Add support for PHP 8
+ * Code cleanups
+
+6.2.3 (2019-11-12)
+------------------
+
+ * no changes
+
+6.2.2 (2019-11-12)
+------------------
+
+ * fixed compat with PHP 7.4
+ * fixed error message when connecting to a stream raises an error before connect()
+
 6.2.1 (2019-04-21)
 ------------------
 

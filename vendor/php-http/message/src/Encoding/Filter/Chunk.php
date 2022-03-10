@@ -12,6 +12,7 @@ class Chunk extends \php_user_filter
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function filter($in, $out, &$consumed, $closing)
     {
         while ($bucket = stream_bucket_make_writeable($in)) {

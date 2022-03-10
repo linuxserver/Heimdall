@@ -13,6 +13,11 @@ class Person extends \Faker\Provider\Person
         '{{firstNameFemale}} {{lastNameFemale}}',
     );
 
+    protected static $lastNameFormat = array(
+        '{{firstNameMale}}',
+        '{{firstNameFemale}}',
+    );
+
     protected static $titleMale = array('p.', 'ponas');
 
     protected static $titleFemale = array('p.', 'ponia', 'panelė');
@@ -248,6 +253,22 @@ class Person extends \Faker\Provider\Person
     );
 
     /**
+     * @param string|null $gender 'male', 'female' or null for any
+     * @example 'Doe'
+     * @return string
+     */
+    public function lastName($gender = null)
+    {
+        if ($gender === static::GENDER_MALE) {
+            return static::lastNameMale();
+        } elseif ($gender === static::GENDER_FEMALE) {
+            return static::lastNameFemale();
+        }
+
+        return $this->generator->parse(static::randomElement(static::$lastNameFormat));
+    }
+
+    /**
      * Return male last name
      * @return string
      * @example 'Vasiliauskas'
@@ -302,11 +323,11 @@ class Person extends \Faker\Provider\Person
             $birthdate = \Faker\Provider\DateTime::dateTimeThisCentury();
         }
 
-        $genderNumber = ($gender == 'male') ? (int) 1 : (int) 0;
+        $genderNumber = ($gender == 'male') ? 1 : 0;
         $firstNumber = (int) floor($birthdate->format('Y') / 100) * 2 - 34 - $genderNumber;
 
         $datePart = $birthdate->format('ymd');
-        $randomDigits = (string) ( ! $randomNumber || strlen($randomNumber < 3)) ?  static::numerify('###') : substr($randomNumber, 0, 3);
+        $randomDigits = (string) ( ! $randomNumber || strlen($randomNumber) < 3) ?  static::numerify('###') : substr($randomNumber, 0, 3);
         $partOfPerosnalCode = $firstNumber . $datePart . $randomDigits;
 
         $sum = self::calculateSum($partOfPerosnalCode, 1);
@@ -318,7 +339,7 @@ class Person extends \Faker\Provider\Person
         }
 
         $sum = self::calculateSum($partOfPerosnalCode, 2);
-        $liekana = (int) $sum % 11;
+        $liekana = $sum % 11;
 
         $lastNumber = ($liekana !== 10) ? $liekana : 0;
         return $firstNumber . $datePart . $randomDigits . $lastNumber;

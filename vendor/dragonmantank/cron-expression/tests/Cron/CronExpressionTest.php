@@ -48,11 +48,12 @@ class CronExpressionTest extends TestCase
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::getExpression
      * @covers \Cron\CronExpression::__toString
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid CRON field value A at position 0
      */
     public function testParsesCronScheduleThrowsAnException()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid CRON field value A at position 0');
+
         CronExpression::factory('A 1 2 3 4');
     }
 
@@ -90,20 +91,22 @@ class CronExpressionTest extends TestCase
      * @covers \Cron\CronExpression::__construct
      * @covers \Cron\CronExpression::setExpression
      * @covers \Cron\CronExpression::setPart
-     * @expectedException InvalidArgumentException
      */
     public function testInvalidCronsWillFail()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         // Only four values
         $cron = CronExpression::factory('* * * 1');
     }
 
     /**
      * @covers \Cron\CronExpression::setPart
-     * @expectedException InvalidArgumentException
      */
     public function testInvalidPartsWillFail()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         // Only four values
         $cron = CronExpression::factory('* * * * *');
         $cron->setPart(1, 'abc');

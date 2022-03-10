@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -39,7 +39,7 @@ class CodeArgument extends InputArgument
      *
      * @throws \InvalidArgumentException When argument mode is not valid
      */
-    public function __construct($name, $mode = null, $description = '', $default = null)
+    public function __construct(string $name, int $mode = null, string $description = '', $default = null)
     {
         if ($mode & InputArgument::IS_ARRAY) {
             throw new \InvalidArgumentException('Argument mode IS_ARRAY is not valid');

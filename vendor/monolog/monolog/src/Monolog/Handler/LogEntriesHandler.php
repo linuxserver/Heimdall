@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the Monolog package.
@@ -24,14 +24,13 @@ class LogEntriesHandler extends SocketHandler
     protected $logToken;
 
     /**
-     * @param string $token  Log token supplied by LogEntries
-     * @param bool   $useSSL Whether or not SSL encryption should be used.
-     * @param int    $level  The minimum logging level to trigger this handler
-     * @param bool   $bubble Whether or not messages that are handled should bubble up the stack.
+     * @param string     $token  Log token supplied by LogEntries
+     * @param bool       $useSSL Whether or not SSL encryption should be used.
+     * @param string     $host   Custom hostname to send the data to if needed
      *
      * @throws MissingExtensionException If SSL encryption is set to true and OpenSSL is missing
      */
-    public function __construct($token, $useSSL = true, $level = Logger::DEBUG, $bubble = true, $host = 'data.logentries.com')
+    public function __construct(string $token, bool $useSSL = true, $level = Logger::DEBUG, bool $bubble = true, string $host = 'data.logentries.com')
     {
         if ($useSSL && !extension_loaded('openssl')) {
             throw new MissingExtensionException('The OpenSSL PHP plugin is required to use SSL encrypted connection for LogEntriesHandler');
@@ -43,12 +42,9 @@ class LogEntriesHandler extends SocketHandler
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param  array  $record
-     * @return string
+     * {@inheritDoc}
      */
-    protected function generateDataStream($record)
+    protected function generateDataStream(array $record): string
     {
         return $this->logToken . ' ' . $record['formatted'];
     }

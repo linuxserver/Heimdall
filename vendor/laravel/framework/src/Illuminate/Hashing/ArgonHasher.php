@@ -2,8 +2,8 @@
 
 namespace Illuminate\Hashing;
 
-use RuntimeException;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use RuntimeException;
 
 class ArgonHasher extends AbstractHasher implements HasherContract
 {
@@ -60,13 +60,13 @@ class ArgonHasher extends AbstractHasher implements HasherContract
      */
     public function make($value, array $options = [])
     {
-        $hash = password_hash($value, $this->algorithm(), [
+        $hash = @password_hash($value, $this->algorithm(), [
             'memory_cost' => $this->memory($options),
             'time_cost' => $this->time($options),
             'threads' => $this->threads($options),
         ]);
 
-        if ($hash === false) {
+        if (! is_string($hash)) {
             throw new RuntimeException('Argon2 hashing not supported.');
         }
 
@@ -90,6 +90,8 @@ class ArgonHasher extends AbstractHasher implements HasherContract
      * @param  string  $hashedValue
      * @param  array  $options
      * @return bool
+     *
+     * @throws \RuntimeException
      */
     public function check($value, $hashedValue, array $options = [])
     {

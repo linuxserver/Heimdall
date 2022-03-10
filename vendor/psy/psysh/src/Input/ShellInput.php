@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -33,7 +33,7 @@ class ShellInput extends StringInput
      *
      * @param string $input An array of parameters from the CLI (in the argv format)
      */
-    public function __construct($input)
+    public function __construct(string $input)
     {
         parent::__construct($input);
 
@@ -50,7 +50,7 @@ class ShellInput extends StringInput
         $hasCodeArgument = false;
 
         if ($definition->getArgumentCount() > 0) {
-            $args    = $definition->getArguments();
+            $args = $definition->getArguments();
             $lastArg = \array_pop($args);
             foreach ($args as $arg) {
                 if ($arg instanceof CodeArgument) {
@@ -81,24 +81,24 @@ class ShellInput extends StringInput
      *
      * @throws \InvalidArgumentException When unable to parse input (should never happen)
      */
-    private function tokenize($input)
+    private function tokenize(string $input): array
     {
         $tokens = [];
         $length = \strlen($input);
         $cursor = 0;
         while ($cursor < $length) {
-            if (\preg_match('/\s+/A', $input, $match, null, $cursor)) {
-            } elseif (\preg_match('/([^="\'\s]+?)(=?)(' . StringInput::REGEX_QUOTED_STRING . '+)/A', $input, $match, null, $cursor)) {
+            if (\preg_match('/\s+/A', $input, $match, 0, $cursor)) {
+            } elseif (\preg_match('/([^="\'\s]+?)(=?)('.StringInput::REGEX_QUOTED_STRING.'+)/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
-                    $match[1] . $match[2] . \stripcslashes(\str_replace(['"\'', '\'"', '\'\'', '""'], '', \substr($match[3], 1, \strlen($match[3]) - 2))),
+                    $match[1].$match[2].\stripcslashes(\str_replace(['"\'', '\'"', '\'\'', '""'], '', \substr($match[3], 1, \strlen($match[3]) - 2))),
                     \stripcslashes(\substr($input, $cursor)),
                 ];
-            } elseif (\preg_match('/' . StringInput::REGEX_QUOTED_STRING . '/A', $input, $match, null, $cursor)) {
+            } elseif (\preg_match('/'.StringInput::REGEX_QUOTED_STRING.'/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
                     \stripcslashes(\substr($match[0], 1, \strlen($match[0]) - 2)),
                     \stripcslashes(\substr($input, $cursor)),
                 ];
-            } elseif (\preg_match('/' . StringInput::REGEX_STRING . '/A', $input, $match, null, $cursor)) {
+            } elseif (\preg_match('/'.StringInput::REGEX_STRING.'/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
                     \stripcslashes($match[1]),
                     \stripcslashes(\substr($input, $cursor)),
@@ -150,7 +150,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When too many arguments are given
      */
-    private function parseShellArgument($token, $rest)
+    private function parseShellArgument(string $token, string $rest)
     {
         $c = \count($this->arguments);
 
@@ -200,7 +200,7 @@ class ShellInput extends StringInput
      *
      * @param string $token The current token
      */
-    private function parseShortOption($token)
+    private function parseShortOption(string $token)
     {
         $name = \substr($token, 1);
 
@@ -223,7 +223,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function parseShortOptionSet($name)
+    private function parseShortOptionSet(string $name)
     {
         $len = \strlen($name);
         for ($i = 0; $i < $len; $i++) {
@@ -247,17 +247,12 @@ class ShellInput extends StringInput
      *
      * @param string $token The current token
      */
-    private function parseLongOption($token)
+    private function parseLongOption(string $token)
     {
         $name = \substr($token, 2);
 
         if (false !== $pos = \strpos($name, '=')) {
-            if (0 === \strlen($value = \substr($name, $pos + 1))) {
-                // if no value after "=" then substr() returns "" since php7 only, false before
-                // see http://php.net/manual/fr/migration70.incompatible.php#119151
-                if (PHP_VERSION_ID < 70000 && false === $value) {
-                    $value = '';
-                }
+            if (($value = \substr($name, $pos + 1)) === '') {
                 \array_unshift($this->parsed, [$value, null]);
             }
             $this->addLongOption(\substr($name, 0, $pos), $value);
@@ -274,7 +269,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function addShortOption($shortcut, $value)
+    private function addShortOption(string $shortcut, $value)
     {
         if (!$this->definition->hasShortcut($shortcut)) {
             throw new \RuntimeException(\sprintf('The "-%s" option does not exist.', $shortcut));
@@ -291,7 +286,7 @@ class ShellInput extends StringInput
      *
      * @throws \RuntimeException When option given doesn't exist
      */
-    private function addLongOption($name, $value)
+    private function addLongOption(string $name, $value)
     {
         if (!$this->definition->hasOption($name)) {
             throw new \RuntimeException(\sprintf('The "--%s" option does not exist.', $name));
@@ -315,7 +310,7 @@ class ShellInput extends StringInput
             }
         }
 
-        if (null === $value) {
+        if ($value === null) {
             if ($option->isValueRequired()) {
                 throw new \RuntimeException(\sprintf('The "--%s" option requires a value.', $name));
             }

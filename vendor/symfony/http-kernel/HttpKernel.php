@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\HttpKernel;
 
-use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -33,6 +32,17 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+// Help opcache.preload discover always-needed symbols
+class_exists(ControllerArgumentsEvent::class);
+class_exists(ControllerEvent::class);
+class_exists(ExceptionEvent::class);
+class_exists(FinishRequestEvent::class);
+class_exists(RequestEvent::class);
+class_exists(ResponseEvent::class);
+class_exists(TerminateEvent::class);
+class_exists(ViewEvent::class);
+class_exists(KernelEvents::class);
+
 /**
  * HttpKernel notifies events to convert a Request object to a Response one.
  *
@@ -47,22 +57,18 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
 
     public function __construct(EventDispatcherInterface $dispatcher, ControllerResolverInterface $resolver, RequestStack $requestStack = null, ArgumentResolverInterface $argumentResolver = null)
     {
-        $this->dispatcher = LegacyEventDispatcherProxy::decorate($dispatcher);
+        $this->dispatcher = $dispatcher;
         $this->resolver = $resolver;
-        $this->requestStack = $requestStack ?: new RequestStack();
-        $this->argumentResolver = $argumentResolver;
-
-        if (null === $this->argumentResolver) {
-            $this->argumentResolver = new ArgumentResolver();
-        }
+        $this->requestStack = $requestStack ?? new RequestStack();
+        $this->argumentResolver = $argumentResolver ?? new ArgumentResolver();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true)
     {
-        $request->headers->set('X-Php-Ob-Level', ob_get_level());
+        $request->headers->set('X-Php-Ob-Level', (string) ob_get_level());
 
         try {
             return $this->handleRaw($request, $type);
@@ -76,7 +82,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
                 throw $e;
             }
 
-            return $this->handleException($e, $request, $type);
+            return $this->handleThrowable($e, $request, $type);
         }
     }
 
@@ -91,13 +97,13 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     /**
      * @internal
      */
-    public function terminateWithException(\Exception $exception, Request $request = null)
+    public function terminateWithException(\Throwable $exception, Request $request = null)
     {
-        if (!$request = $request ?: $this->requestStack->getMasterRequest()) {
+        if (!$request = $request ?: $this->requestStack->getMainRequest()) {
             throw $exception;
         }
 
-        $response = $this->handleException($exception, $request, self::MASTER_REQUEST);
+        $response = $this->handleThrowable($exception, $request, self::MAIN_REQUEST);
 
         $response->sendHeaders();
         $response->sendContent();
@@ -110,15 +116,10 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      *
      * Exceptions are not caught.
      *
-     * @param Request $request A Request instance
-     * @param int     $type    The type of the request (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
-     *
-     * @return Response A Response instance
-     *
      * @throws \LogicException       If one of the listener does not behave as expected
      * @throws NotFoundHttpException When controller cannot be found
      */
-    private function handleRaw(Request $request, int $type = self::MASTER_REQUEST)
+    private function handleRaw(Request $request, int $type = self::MAIN_REQUEST): Response
     {
         $this->requestStack->push($request);
 
@@ -175,15 +176,9 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     /**
      * Filters a response object.
      *
-     * @param Response $response A Response instance
-     * @param Request  $request  An error message in case the response is not a Response object
-     * @param int      $type     The type of the request (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
-     *
-     * @return Response The filtered Response instance
-     *
      * @throws \RuntimeException if the passed object is not a Response instance
      */
-    private function filterResponse(Response $response, Request $request, int $type)
+    private function filterResponse(Response $response, Request $request, int $type): Response
     {
         $event = new ResponseEvent($this, $request, $type, $response);
 
@@ -208,21 +203,17 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     }
 
     /**
-     * Handles an exception by trying to convert it to a Response.
-     *
-     * @param \Exception $e       An \Exception instance
-     * @param Request    $request A Request instance
-     * @param int        $type    The type of the request (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
+     * Handles a throwable by trying to convert it to a Response.
      *
      * @throws \Exception
      */
-    private function handleException(\Exception $e, Request $request, int $type): Response
+    private function handleThrowable(\Throwable $e, Request $request, int $type): Response
     {
         $event = new ExceptionEvent($this, $request, $type, $e);
         $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
 
         // a listener might have replaced the exception
-        $e = $event->getException();
+        $e = $event->getThrowable();
 
         if (!$event->hasResponse()) {
             $this->finishRequest($request, $type);

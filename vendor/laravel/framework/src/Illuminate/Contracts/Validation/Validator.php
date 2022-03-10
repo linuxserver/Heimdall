@@ -10,8 +10,19 @@ interface Validator extends MessageProvider
      * Run the validator's rules against its data.
      *
      * @return array
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function validate();
+
+    /**
+     * Get the attributes and values that were validated.
+     *
+     * @return array
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function validated();
 
     /**
      * Determine if the data fails the validation rules.

@@ -16,8 +16,6 @@ trait ResponseDecorator
     /**
      * Exchanges the underlying response with another.
      *
-     * @param ResponseInterface $response
-     *
      * @return self
      */
     public function withResponse(ResponseInterface $response)

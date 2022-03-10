@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,8 @@ class Dumper extends CliDumper
     private $forceArrayIndexes;
 
     protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
-    protected static $controlCharsRx     = '/([\x00-\x1F\x7F]+)/';
-    protected static $controlCharsMap    = [
+    protected static $controlCharsRx = '/([\x00-\x1F\x7F]+)/';
+    protected static $controlCharsMap = [
         "\0"   => '\0',
         "\t"   => '\t',
         "\n"   => '\n',
@@ -64,7 +64,7 @@ class Dumper extends CliDumper
         }
     }
 
-    protected function style($style, $value, $attr = [])
+    protected function style($style, $value, $attr = []): string
     {
         if ('ref' === $style) {
             $value = \strtr($value, '@', '#');
@@ -74,7 +74,7 @@ class Dumper extends CliDumper
         $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
 
-        $chunks = \preg_split(self::$controlCharsRx, $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = \preg_split(self::$controlCharsRx, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {
             if (\preg_match(self::$onlyControlCharsRx, $chunk)) {
                 $chars = '';

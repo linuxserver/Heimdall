@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -82,10 +82,10 @@ class Docblock
      *
      * @param string $comment The docblock
      */
-    protected function setComment($comment)
+    protected function setComment(string $comment)
     {
-        $this->desc    = '';
-        $this->tags    = [];
+        $this->desc = '';
+        $this->tags = [];
         $this->comment = $comment;
 
         $this->parseComment($comment);
@@ -98,7 +98,7 @@ class Docblock
      *
      * @return int Prefix length
      */
-    protected static function prefixLength(array $lines)
+    protected static function prefixLength(array $lines): int
     {
         // find only lines with interesting things
         $lines = \array_filter($lines, function ($line) {
@@ -109,7 +109,12 @@ class Docblock
         \sort($lines);
 
         $first = \reset($lines);
-        $last  = \end($lines);
+        $last = \end($lines);
+
+        // Special case for single-line comments
+        if (\count($lines) === 1) {
+            return \strspn($first, "* \t\n\r\0\x0B");
+        }
 
         // find the longest common substring
         $count = \min(\strlen($first), \strlen($last));
@@ -127,7 +132,7 @@ class Docblock
      *
      * @param string $comment The docblock
      */
-    protected function parseComment($comment)
+    protected function parseComment(string $comment)
     {
         // Strip the opening and closing tags of the docblock
         $comment = \substr($comment, 3, -2);
@@ -164,7 +169,7 @@ class Docblock
                 $this->desc = $body;
             } else {
                 // This block is tagged
-                $tag  = \substr(self::strTag($body), 1);
+                $tag = \substr(self::strTag($body), 1);
                 $body = \ltrim(\substr($body, \strlen($tag) + 2));
 
                 if (isset(self::$vectors[$tag])) {
@@ -196,7 +201,7 @@ class Docblock
      *
      * @return bool
      */
-    public function hasTag($tag)
+    public function hasTag(string $tag): bool
     {
         return \is_array($this->tags) && \array_key_exists($tag, $this->tags);
     }
@@ -208,7 +213,7 @@ class Docblock
      *
      * @return array
      */
-    public function tag($tag)
+    public function tag(string $tag): array
     {
         return $this->hasTag($tag) ? $this->tags[$tag] : null;
     }
@@ -220,7 +225,7 @@ class Docblock
      *
      * @return bool
      */
-    public static function isTagged($str)
+    public static function isTagged(string $str): bool
     {
         return isset($str[1]) && $str[0] === '@' && !\preg_match('/[^A-Za-z]/', $str[1]);
     }
@@ -232,7 +237,7 @@ class Docblock
      *
      * @return string|null
      */
-    public static function strTag($str)
+    public static function strTag(string $str)
     {
         if (\preg_match('/^@[a-z0-9_]+/', $str, $matches)) {
             return $matches[0];

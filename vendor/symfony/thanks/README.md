@@ -24,7 +24,7 @@ Usage
 $ composer thanks
 ```
 
-This will find all of your Composer dependencies, find their github.com repository, and star their GitHub repositories. This was inspired by `cargo thanks`, which was inspired in part by Medium's clapping button as a way to show thanks for someone elses work you've found enjoyment in.
+This will find all of your Composer dependencies, find their github.com repository, and star their GitHub repositories. This was inspired by `cargo thanks`, which was inspired in part by Medium's clapping button as a way to show thanks for someone else's work you've found enjoyment in.
 
 If you're wondering why did some dependencies get thanked and not others, the answer is that this plugin only supports github.com at the moment. Pull requests are welcome to add support for thanking packages hosted on other services.
 

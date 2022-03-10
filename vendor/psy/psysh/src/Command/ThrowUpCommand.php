@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,7 @@ use PhpParser\Node\Stmt\Throw_;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
 use Psy\ParserFactory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,17 +32,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ThrowUpCommand extends Command implements ContextAware
 {
-    const THROW_CLASS = 'Psy\Exception\ThrowUpException';
-
     private $parser;
     private $printer;
-
-    /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
 
     /**
      * {@inheritdoc}
@@ -50,20 +42,20 @@ class ThrowUpCommand extends Command implements ContextAware
     {
         $parserFactory = new ParserFactory();
 
-        $this->parser  = $parserFactory->createParser();
+        $this->parser = $parserFactory->createParser();
         $this->printer = new Printer();
 
         parent::__construct($name);
     }
 
     /**
-     * ContextAware interface.
+     * @deprecated throwUp no longer needs to be ContextAware
      *
      * @param Context $context
      */
     public function setContext(Context $context)
     {
-        $this->context = $context;
+        // Do nothing
     }
 
     /**
@@ -95,16 +87,18 @@ HELP
     /**
      * {@inheritdoc}
      *
-     * @throws InvalidArgumentException if there is no exception to throw
+     * @throws \InvalidArgumentException if there is no exception to throw
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
-        $throwStmt = new Throw_(new StaticCall(new FullyQualifiedName(self::THROW_CLASS), 'fromThrowable', $args));
+        $throwStmt = new Throw_(new StaticCall(new FullyQualifiedName(ThrowUpException::class), 'fromThrowable', $args));
         $throwCode = $this->printer->prettyPrint([$throwStmt]);
 
         $shell = $this->getApplication();
         $shell->addCode($throwCode, !$shell->hasCode());
+
+        return 0;
     }
 
     /**
@@ -112,21 +106,21 @@ HELP
      *
      * If no argument was given, this falls back to `$_e`
      *
-     * @throws InvalidArgumentException if there is no exception to throw
+     * @throws \InvalidArgumentException if there is no exception to throw
      *
      * @param string $code
      *
      * @return Arg[]
      */
-    private function prepareArgs($code = null)
+    private function prepareArgs(string $code = null): array
     {
         if (!$code) {
             // Default to last exception if nothing else was supplied
             return [new Arg(new Variable('_e'))];
         }
 
-        if (\strpos('<?', $code) === false) {
-            $code = '<?php ' . $code;
+        if (\strpos($code, '<?') === false) {
+            $code = '<?php '.$code;
         }
 
         $nodes = $this->parse($code);
@@ -143,7 +137,7 @@ HELP
 
         // Allow throwing via a string, e.g. `throw-up "SUP"`
         if ($expr instanceof String_) {
-            return [new New_(new FullyQualifiedName('Exception'), $args)];
+            return [new New_(new FullyQualifiedName(\Exception::class), $args)];
         }
 
         return $args;
@@ -156,7 +150,7 @@ HELP
      *
      * @return array Statements
      */
-    private function parse($code)
+    private function parse(string $code): array
     {
         try {
             return $this->parser->parse($code);
@@ -166,7 +160,7 @@ HELP
             }
 
             // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code . ';');
+            return $this->parser->parse($code.';');
         }
     }
 }

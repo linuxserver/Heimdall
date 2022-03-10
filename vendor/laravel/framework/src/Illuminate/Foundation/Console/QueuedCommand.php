@@ -3,9 +3,9 @@
 namespace Illuminate\Foundation\Console;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Console\Kernel as KernelContract;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Console\Kernel as KernelContract;
 
 class QueuedCommand implements ShouldQueue
 {
@@ -37,6 +37,6 @@ class QueuedCommand implements ShouldQueue
      */
     public function handle(KernelContract $kernel)
     {
-        call_user_func_array([$kernel, 'call'], $this->data);
+        $kernel->call(...array_values($this->data));
     }
 }

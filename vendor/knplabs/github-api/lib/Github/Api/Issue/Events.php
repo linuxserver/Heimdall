@@ -26,7 +26,7 @@ class Events extends AbstractApi
     public function all($username, $repository, $issue = null, $page = 1)
     {
         if (null !== $issue) {
-            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/events';
+            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/events';
         } else {
             $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/events';
         }

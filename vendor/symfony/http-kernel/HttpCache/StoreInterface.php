@@ -27,7 +27,7 @@ interface StoreInterface
     /**
      * Locates a cached Response for the Request provided.
      *
-     * @return Response|null A Response instance, or null if no cache entry was found
+     * @return Response|null
      */
     public function lookup(Request $request);
 
@@ -70,11 +70,9 @@ interface StoreInterface
     /**
      * Purges data for the given URL.
      *
-     * @param string $url A URL
-     *
      * @return bool true if the URL exists and has been purged, false otherwise
      */
-    public function purge($url);
+    public function purge(string $url);
 
     /**
      * Cleanups storage.

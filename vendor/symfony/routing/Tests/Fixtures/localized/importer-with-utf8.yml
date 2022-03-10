@@ -1,3 +1,0 @@
-utf8_routes:
-    resource: imported-with-utf8.yml
-    utf8: true

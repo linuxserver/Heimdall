@@ -18,15 +18,17 @@
  * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
  */
 
+use Mockery\ClosureWrapper;
 use Mockery\ExpectationInterface;
 use Mockery\Generator\CachingGenerator;
 use Mockery\Generator\Generator;
 use Mockery\Generator\MockConfigurationBuilder;
+use Mockery\Generator\MockNameBuilder;
 use Mockery\Generator\StringManipulationGenerator;
 use Mockery\Loader\EvalLoader;
 use Mockery\Loader\Loader;
 use Mockery\Matcher\MatcherAbstract;
-use Mockery\ClosureWrapper;
+use Mockery\Reflector;
 
 class Mockery
 {
@@ -68,11 +70,13 @@ class Mockery
      */
     public static function globalHelpers()
     {
-        require_once __DIR__.'/helpers.php';
+        require_once __DIR__ . '/helpers.php';
     }
 
     /**
      * @return array
+     *
+     * @deprecated since 1.3.2 and will be removed in 2.0.
      */
     public static function builtInTypes()
     {
@@ -89,7 +93,7 @@ class Mockery
             'void',
         );
 
-        if (version_compare(PHP_VERSION, '7.2.0-dev') >= 0) {
+        if (\PHP_VERSION_ID >= 70200) {
             $builtInTypes[] = 'object';
         }
 
@@ -99,6 +103,8 @@ class Mockery
     /**
      * @param string $type
      * @return bool
+     *
+     * @deprecated since 1.3.2 and will be removed in 2.0.
      */
     public static function isBuiltInType($type)
     {
@@ -110,7 +116,7 @@ class Mockery
      *
      * @param mixed ...$args
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public static function mock(...$args)
     {
@@ -123,7 +129,7 @@ class Mockery
      *
      * @param mixed ...$args
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public static function spy(...$args)
     {
@@ -139,7 +145,7 @@ class Mockery
      *
      * @param mixed ...$args
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public static function instanceMock(...$args)
     {
@@ -151,7 +157,7 @@ class Mockery
      *
      * @param mixed ...$args
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public static function namedMock(...$args)
     {
@@ -170,7 +176,7 @@ class Mockery
      *
      * @throws LogicException
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public static function self()
     {
@@ -214,7 +220,7 @@ class Mockery
      */
     public static function fetchMock($name)
     {
-        return self::$_container->fetchMock($name);
+        return self::getContainer()->fetchMock($name);
     }
 
     /**
@@ -233,7 +239,7 @@ class Mockery
     }
 
     /**
-     * Setter for the $_generator static propery.
+     * Setter for the $_generator static property.
      *
      * @param \Mockery\Generator\Generator $generator
      */
@@ -434,6 +440,23 @@ class Mockery
     /**
      * Return instance of CLOSURE matcher.
      *
+     * @param $reference
+     *
+     * @return \Mockery\Matcher\Closure
+     */
+    public static function capture(&$reference)
+    {
+        $closure = function ($argument) use (&$reference) {
+            $reference = $argument;
+            return true;
+        };
+
+        return new \Mockery\Matcher\Closure($closure);
+    }
+
+    /**
+     * Return instance of CLOSURE matcher.
+     *
      * @param mixed $closure
      *
      * @return \Mockery\Matcher\Closure
@@ -574,10 +597,10 @@ class Mockery
                     $sample[] = "$key => $value";
                 }
 
-                $argument = "[".implode(", ", $sample)."]";
+                $argument = "[" . implode(", ", $sample) . "]";
             }
 
-            return ((strlen($argument) > 1000) ? substr($argument, 0, 1000).'...]' : $argument);
+            return ((strlen($argument) > 1000) ? substr($argument, 0, 1000) . '...]' : $argument);
         }
 
         if (is_bool($argument)) {
@@ -592,7 +615,7 @@ class Mockery
             return 'NULL';
         }
 
-        return "'".(string) $argument."'";
+        return "'" . (string) $argument . "'";
     }
 
     /**
@@ -731,12 +754,12 @@ class Mockery
      * Utility function to parse shouldReceive() arguments and generate
      * expectations from such as needed.
      *
-     * @param Mockery\MockInterface $mock
+     * @param Mockery\LegacyMockInterface $mock
      * @param array ...$args
      * @param callable $add
      * @return \Mockery\CompositeExpectation
      */
-    public static function parseShouldReturnArgs(\Mockery\MockInterface $mock, $args, $add)
+    public static function parseShouldReturnArgs(\Mockery\LegacyMockInterface $mock, $args, $add)
     {
         $composite = new \Mockery\CompositeExpectation();
 
@@ -759,13 +782,13 @@ class Mockery
      * Sets up expectations on the members of the CompositeExpectation and
      * builds up any demeter chain that was passed to shouldReceive.
      *
-     * @param \Mockery\MockInterface $mock
+     * @param \Mockery\LegacyMockInterface $mock
      * @param string $arg
      * @param callable $add
      * @throws Mockery\Exception
      * @return \Mockery\ExpectationInterface
      */
-    protected static function buildDemeterChain(\Mockery\MockInterface $mock, $arg, $add)
+    protected static function buildDemeterChain(\Mockery\LegacyMockInterface $mock, $arg, $add)
     {
         /** @var Mockery\Container $container */
         $container = $mock->mockery_getContainer();
@@ -840,7 +863,7 @@ class Mockery
     ) {
         $newMockName = 'demeter_' . md5($parent) . '_' . $method;
 
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+        if (\PHP_VERSION_ID >= 70000) {
             $parRef = null;
             $parRefMethod = null;
             $parRefMethodRetType = null;
@@ -852,10 +875,12 @@ class Mockery
 
             if ($parRef !== null && $parRef->hasMethod($method)) {
                 $parRefMethod = $parRef->getMethod($method);
-                $parRefMethodRetType = $parRefMethod->getReturnType();
+                $parRefMethodRetType = Reflector::getReturnType($parRefMethod, true);
 
                 if ($parRefMethodRetType !== null) {
-                    $mock = self::namedMock($newMockName, (string) $parRefMethodRetType);
+                    $nameBuilder = new MockNameBuilder();
+                    $nameBuilder->addPart('\\' . $newMockName);
+                    $mock = self::namedMock($nameBuilder->build(), $parRefMethodRetType);
                     $exp->andReturn($mock);
 
                     return $mock;

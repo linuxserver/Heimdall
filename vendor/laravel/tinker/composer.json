@@ -10,15 +10,19 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "illuminate/console": "~5.1",
-        "illuminate/contracts": "~5.1",
-        "illuminate/support": "~5.1",
-        "psy/psysh": "0.7.*|0.8.*|0.9.*",
-        "symfony/var-dumper": "~3.0|~4.0"
+        "php": "^7.2.5|^8.0",
+        "illuminate/console": "^6.0|^7.0|^8.0|^9.0",
+        "illuminate/contracts": "^6.0|^7.0|^8.0|^9.0",
+        "illuminate/support": "^6.0|^7.0|^8.0|^9.0",
+        "psy/psysh": "^0.10.4|^0.11.1",
+        "symfony/var-dumper": "^4.3.4|^5.0|^6.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.0|~5.0"
+        "mockery/mockery": "~1.3.3|^1.4.2",
+        "phpunit/phpunit": "^8.5.8|^9.3.3"
+    },
+    "suggest": {
+        "illuminate/database": "The Illuminate Database package (^6.0|^7.0|^8.0|^9.0)."
     },
     "autoload": {
         "psr-4": {
@@ -27,12 +31,14 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Laravel\\Tinker\\Tests\\": "tests/",
+            "App\\": "tests/fixtures/app",
+            "One\\Two\\": "tests/fixtures/vendor/one/two"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "2.x-dev"
         },
         "laravel": {
             "providers": [
@@ -43,7 +49,6 @@
     "config": {
         "sort-packages": true
     },
-    "suggest": {
-        "illuminate/database": "The Illuminate Database package (~5.1)."
-    }
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

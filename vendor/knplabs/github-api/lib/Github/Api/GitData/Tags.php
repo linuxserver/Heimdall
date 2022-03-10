@@ -56,11 +56,7 @@ class Tags extends AbstractApi
             throw new MissingArgumentException(['tag', 'message', 'object', 'type']);
         }
 
-        if (!isset($params['tagger'])) {
-            throw new MissingArgumentException('tagger');
-        }
-
-        if (!isset($params['tagger']['name'], $params['tagger']['email'], $params['tagger']['date'])) {
+        if (isset($params['tagger']) && !isset($params['tagger']['name'], $params['tagger']['email'], $params['tagger']['date'])) {
             throw new MissingArgumentException(['tagger.name', 'tagger.email', 'tagger.date']);
         }
 

@@ -20,8 +20,6 @@ use Symfony\Component\Mime\Part\TextPart;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 final class MessageConverter
 {
@@ -57,13 +55,13 @@ final class MessageConverter
             } elseif ($parts[0] instanceof TextPart) {
                 $email = self::createEmailFromTextPart($message, $parts[0]);
             } else {
-                throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($message)));
+                throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($message)));
             }
 
             return self::attachParts($email, \array_slice($parts, 1));
         }
 
-        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($message)));
+        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($message)));
     }
 
     private static function createEmailFromTextPart(Message $message, TextPart $part): Email
@@ -75,7 +73,7 @@ final class MessageConverter
             return (new Email(clone $message->getHeaders()))->html($part->getBody(), $part->getPreparedHeaders()->getHeaderParameter('Content-Type', 'charset') ?: 'utf-8');
         }
 
-        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($message)));
+        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($message)));
     }
 
     private static function createEmailFromAlternativePart(Message $message, AlternativePart $part): Email
@@ -92,7 +90,7 @@ final class MessageConverter
             ;
         }
 
-        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($message)));
+        throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($message)));
     }
 
     private static function createEmailFromRelatedPart(Message $message, RelatedPart $part): Email
@@ -103,7 +101,7 @@ final class MessageConverter
         } elseif ($parts[0] instanceof TextPart) {
             $email = self::createEmailFromTextPart($message, $parts[0]);
         } else {
-            throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($message)));
+            throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($message)));
         }
 
         return self::attachParts($email, \array_slice($parts, 1));
@@ -113,7 +111,7 @@ final class MessageConverter
     {
         foreach ($parts as $part) {
             if (!$part instanceof DataPart) {
-                throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', \get_class($email)));
+                throw new RuntimeException(sprintf('Unable to create an Email from an instance of "%s" as the body is too complex.', get_debug_type($email)));
             }
 
             $headers = $part->getPreparedHeaders();

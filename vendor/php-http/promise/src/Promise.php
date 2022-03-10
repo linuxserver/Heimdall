@@ -36,10 +36,10 @@ interface Promise
      * If you do not care about one of the cases, you can set the corresponding callable to null
      * The callback will be called when the value arrived and never more than once.
      *
-     * @param callable $onFulfilled Called when a response will be available.
-     * @param callable $onRejected  Called when an exception occurs.
+     * @param callable|null $onFulfilled called when a response will be available
+     * @param callable|null $onRejected  called when an exception occurs
      *
-     * @return Promise A new resolved promise with value of the executed callback (onFulfilled / onRejected).
+     * @return Promise a new resolved promise with value of the executed callback (onFulfilled / onRejected)
      */
     public function then(callable $onFulfilled = null, callable $onRejected = null);
 
@@ -63,7 +63,7 @@ interface Promise
      *
      * @return mixed Resolved value, null if $unwrap is set to false
      *
-     * @throws \Exception The rejection reason if $unwrap is set to true and the request failed.
+     * @throws \Exception the rejection reason if $unwrap is set to true and the request failed
      */
     public function wait($unwrap = true);
 }

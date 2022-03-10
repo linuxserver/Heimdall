@@ -2,16 +2,21 @@
 
 namespace Illuminate\Http;
 
-use Closure;
 use ArrayAccess;
-use RuntimeException;
+use Closure;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Support\Arrayable;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
+/**
+ * @method array validate(array $rules, ...$params)
+ * @method array validateWithBag(string $errorBag, array $rules, ...$params)
+ * @method bool hasValidSignature(bool $absolute = true)
+ */
 class Request extends SymfonyRequest implements Arrayable, ArrayAccess
 {
     use Concerns\InteractsWithContentTypes,
@@ -184,8 +189,10 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      */
     public function is(...$patterns)
     {
+        $path = $this->decodedPath();
+
         foreach ($patterns as $pattern) {
-            if (Str::is($pattern, $this->decodedPath())) {
+            if (Str::is($pattern, $path)) {
                 return true;
             }
         }
@@ -267,7 +274,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Get the client IP address.
      *
-     * @return string
+     * @return string|null
      */
     public function ip()
     {
@@ -287,7 +294,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Get the client user agent.
      *
-     * @return string
+     * @return string|null
      */
     public function userAgent()
     {
@@ -298,7 +305,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Merge new input into the current request's input array.
      *
      * @param  array  $input
-     * @return \Illuminate\Http\Request
+     * @return $this
      */
     public function merge(array $input)
     {
@@ -311,7 +318,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Replace the input for the current request.
      *
      * @param  array  $input
-     * @return \Illuminate\Http\Request
+     * @return $this
      */
     public function replace(array $input)
     {
@@ -329,7 +336,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * @param  mixed  $default
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get(string $key, $default = null)
     {
         return parent::get($key, $default);
     }
@@ -337,8 +344,8 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Get the JSON payload for the request.
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param  string|null  $key
+     * @param  mixed  $default
      * @return \Symfony\Component\HttpFoundation\ParameterBag|mixed
      */
     public function json($key = null, $default = null)
@@ -393,6 +400,8 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
             $from->getContent()
         );
 
+        $request->headers->replace($from->headers->all());
+
         $request->setJson($from->json());
 
         if ($session = $from->getSession()) {
@@ -410,26 +419,22 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Create an Illuminate request from a Symfony instance.
      *
      * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @return \Illuminate\Http\Request
+     * @return static
      */
     public static function createFromBase(SymfonyRequest $request)
     {
-        if ($request instanceof static) {
-            return $request;
-        }
-
-        $content = $request->content;
-
-        $request = (new static)->duplicate(
+        $newRequest = (new static)->duplicate(
             $request->query->all(), $request->request->all(), $request->attributes->all(),
             $request->cookies->all(), $request->files->all(), $request->server->all()
         );
 
-        $request->content = $content;
+        $newRequest->headers->replace($request->headers->all());
 
-        $request->request = $request->getInputSource();
+        $newRequest->content = $request->content;
 
-        return $request;
+        $newRequest->request = $newRequest->getInputSource();
+
+        return $newRequest;
     }
 
     /**
@@ -517,8 +522,8 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Get the route handling the request.
      *
      * @param  string|null  $param
-     * @param  mixed   $default
-     * @return \Illuminate\Routing\Route|object|string
+     * @param  mixed  $default
+     * @return \Illuminate\Routing\Route|object|string|null
      */
     public function route($param = null, $default = null)
     {

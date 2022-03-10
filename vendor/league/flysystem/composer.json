@@ -1,10 +1,17 @@
 {
     "name": "league/flysystem",
+    "type": "library",
     "description": "Filesystem abstraction: Many filesystems, one API.",
     "keywords": [
         "filesystem", "filesystems", "files", "storage", "dropbox", "aws",
         "abstraction", "s3", "ftp", "sftp", "remote", "webdav",
         "file systems", "cloud", "cloud files", "rackspace", "copy.com"
+    ],
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://offset.earth/frankdejonge"
+        }
     ],
     "license": "MIT",
     "authors": [
@@ -14,12 +21,13 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "ext-fileinfo": "*"
+        "php": "^7.2.5 || ^8.0",
+        "ext-fileinfo": "*",
+        "league/mime-type-detection": "^1.3"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.4",
-        "phpunit/phpunit": "^5.7.10"
+        "phpspec/prophecy": "^1.11.1",
+        "phpunit/phpunit": "^8.5.8"
     },
     "autoload": {
         "psr-4": {
@@ -29,13 +37,9 @@
     "autoload-dev": {
         "psr-4": {
             "League\\Flysystem\\Stub\\": "stub/"
-        },
-        "files": [
-          "tests/PHPUnitHacks.php"
-        ]
+        }
     },
     "suggest": {
-        "ext-fileinfo": "Required for MimeType",
         "league/flysystem-eventable-filesystem": "Allows you to use EventableFilesystem",
         "league/flysystem-rackspace": "Allows you to use Rackspace Cloud Files",
         "league/flysystem-azure": "Allows you to use Windows Azure Blob storage",
@@ -53,12 +57,12 @@
     "conflict": {
         "league/flysystem-sftp": "<1.0.6"
     },
-    "config": {
-        "bin-dir": "bin"
-    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.1-dev"
         }
+    },
+    "scripts": {
+        "phpstan": "php phpstan.php"
     }
 }

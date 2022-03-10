@@ -30,9 +30,13 @@ trait CompiledUrlMatcherTrait
     private $staticRoutes = [];
     private $regexpList = [];
     private $dynamicRoutes = [];
+
+    /**
+     * @var callable|null
+     */
     private $checkCondition;
 
-    public function match($pathinfo)
+    public function match(string $pathinfo): array
     {
         $allow = $allowSchemes = [];
         if ($ret = $this->doMatch($pathinfo, $allow, $allowSchemes)) {
@@ -87,16 +91,16 @@ trait CompiledUrlMatcherTrait
         }
         $supportsRedirections = 'GET' === $canonicalMethod && $this instanceof RedirectableUrlMatcherInterface;
 
-        foreach ($this->staticRoutes[$trimmedPathinfo] ?? [] as list($ret, $requiredHost, $requiredMethods, $requiredSchemes, $hasTrailingSlash, , $condition)) {
+        foreach ($this->staticRoutes[$trimmedPathinfo] ?? [] as [$ret, $requiredHost, $requiredMethods, $requiredSchemes, $hasTrailingSlash, , $condition]) {
             if ($condition && !($this->checkCondition)($condition, $context, 0 < $condition ? $request ?? $request = $this->request ?: $this->createRequest($pathinfo) : null)) {
                 continue;
             }
 
             if ($requiredHost) {
-                if ('#' !== $requiredHost[0] ? $requiredHost !== $host : !preg_match($requiredHost, $host, $hostMatches)) {
+                if ('{' !== $requiredHost[0] ? $requiredHost !== $host : !preg_match($requiredHost, $host, $hostMatches)) {
                     continue;
                 }
-                if ('#' === $requiredHost[0] && $hostMatches) {
+                if ('{' === $requiredHost[0] && $hostMatches) {
                     $hostMatches['_route'] = $ret['_route'];
                     $ret = $this->mergeDefaults($hostMatches, $ret);
                 }
@@ -127,7 +131,7 @@ trait CompiledUrlMatcherTrait
 
         foreach ($this->regexpList as $offset => $regex) {
             while (preg_match($regex, $matchedPathinfo, $matches)) {
-                foreach ($this->dynamicRoutes[$m = (int) $matches['MARK']] as list($ret, $vars, $requiredMethods, $requiredSchemes, $hasTrailingSlash, $hasTrailingVar, $condition)) {
+                foreach ($this->dynamicRoutes[$m = (int) $matches['MARK']] as [$ret, $vars, $requiredMethods, $requiredSchemes, $hasTrailingSlash, $hasTrailingVar, $condition]) {
                     if (null !== $condition) {
                         if (0 === $condition) { // marks the last route in the regexp
                             continue 3;

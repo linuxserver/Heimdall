@@ -14,7 +14,7 @@ abstract class AbstractProjectApi extends AbstractApi
      *
      * @see https://developer.github.com/v3/repos/projects/#projects
      *
-     * @return self
+     * @return $this
      */
     public function configure()
     {
@@ -40,6 +40,6 @@ abstract class AbstractProjectApi extends AbstractApi
 
     public function columns()
     {
-        return new Columns($this->client);
+        return new Columns($this->getClient());
     }
 }

@@ -77,7 +77,7 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
     protected $safeStorage;
 
     /**
-     * True to enable timestamps for FTP servers that return unix-style listings
+     * True to enable timestamps for FTP servers that return unix-style listings.
      *
      * @var bool
      */
@@ -317,12 +317,14 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
     }
 
     /**
-     * True to enable timestamps for FTP servers that return unix-style listings
+     * True to enable timestamps for FTP servers that return unix-style listings.
      *
      * @param bool $bool
+     *
      * @return $this
      */
-    public function setEnableTimestampsOnUnixListings($bool = false) {
+    public function setEnableTimestampsOnUnixListings($bool = false)
+    {
         $this->enableTimestampsOnUnixListings = $bool;
 
         return $this;
@@ -438,7 +440,13 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
         $path = $base === '' ? $name : $base . $this->separator . $name;
 
         if ($type === 'dir') {
-            return compact('type', 'path');
+            $result = compact('type', 'path');
+            if ($this->enableTimestampsOnUnixListings) {
+                $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
+                $result += compact('timestamp');
+            }
+
+            return $result;
         }
 
         $permissions = $this->normalizePermissions($permissions);
@@ -450,35 +458,38 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
             $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
             $result += compact('timestamp');
         }
+
         return $result;
     }
 
     /**
-     * Only accurate to the minute (current year), or to the day
+     * Only accurate to the minute (current year), or to the day.
      *
      * Inadequacies in timestamp accuracy are due to limitations of the FTP 'LIST' command
      *
      * Note: The 'MLSD' command is a machine-readable replacement for 'LIST'
      * but many FTP servers do not support it :(
      *
-     * @param string $month e.g. 'Aug'
-     * @param string $day e.g. '19'
+     * @param string $month      e.g. 'Aug'
+     * @param string $day        e.g. '19'
      * @param string $timeOrYear e.g. '09:01' OR '2015'
+     *
      * @return int
      */
-    protected function normalizeUnixTimestamp($month, $day, $timeOrYear) {
+    protected function normalizeUnixTimestamp($month, $day, $timeOrYear)
+    {
         if (is_numeric($timeOrYear)) {
             $year = $timeOrYear;
             $hour = '00';
             $minute = '00';
             $seconds = '00';
-        }
-        else {
+        } else {
             $year = date('Y');
             list($hour, $minute) = explode(':', $timeOrYear);
             $seconds = '00';
         }
         $dateTime = DateTime::createFromFormat('Y-M-j-G:i:s', "{$year}-{$month}-{$day}-{$hour}:{$minute}:{$seconds}");
+
         return $dateTime->getTimestamp();
     }
 
@@ -528,7 +539,7 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
      */
     protected function detectSystemType($item)
     {
-        return preg_match('/^[0-9]{2,4}-[0-9]{2}-[0-9]{2}/', $item) ? 'windows' : 'unix';
+        return preg_match('/^[0-9]{2,4}-[0-9]{2}-[0-9]{2}/', trim($item)) ? 'windows' : 'unix';
     }
 
     /**
@@ -552,6 +563,10 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
      */
     protected function normalizePermissions($permissions)
     {
+        if (is_numeric($permissions)) {
+            return ((int) $permissions) & 0777;
+        }
+
         // remove the type identifier
         $permissions = substr($permissions, 1);
 
@@ -630,10 +645,7 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
      */
     public function getConnection()
     {
-        $tries = 0;
-
-        while ( ! $this->isConnected() && $tries < 3) {
-            $tries++;
+        if ( ! $this->isConnected()) {
             $this->disconnect();
             $this->connect();
         }
@@ -685,4 +697,9 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
      * @return bool
      */
     abstract public function isConnected();
+
+    protected function escapePath($path)
+    {
+        return str_replace(['*', '[', ']'], ['\\*', '\\[', '\\]'], $path);
+    }
 }

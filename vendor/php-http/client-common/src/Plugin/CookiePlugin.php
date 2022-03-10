@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
 use Http\Client\Common\Plugin;
@@ -8,6 +10,7 @@ use Http\Message\Cookie;
 use Http\Message\CookieJar;
 use Http\Message\CookieUtil;
 use Http\Message\Exception\UnexpectedValueException;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -25,9 +28,6 @@ final class CookiePlugin implements Plugin
      */
     private $cookieJar;
 
-    /**
-     * @param CookieJar $cookieJar
-     */
     public function __construct(CookieJar $cookieJar)
     {
         $this->cookieJar = $cookieJar;
@@ -36,7 +36,7 @@ final class CookiePlugin implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $cookies = [];
         foreach ($this->cookieJar->getCookies() as $cookie) {
@@ -91,19 +91,14 @@ final class CookiePlugin implements Plugin
     /**
      * Creates a cookie from a string.
      *
-     * @param RequestInterface $request
-     * @param $setCookie
-     *
-     * @return Cookie|null
-     *
      * @throws TransferException
      */
-    private function createCookie(RequestInterface $request, $setCookie)
+    private function createCookie(RequestInterface $request, string $setCookieHeader): ?Cookie
     {
-        $parts = array_map('trim', explode(';', $setCookie));
+        $parts = array_map('trim', explode(';', $setCookieHeader));
 
-        if (empty($parts) || !strpos($parts[0], '=')) {
-            return;
+        if ('' === $parts[0] || false === strpos($parts[0], '=')) {
+            return null;
         }
 
         list($name, $cookieValue) = $this->createValueKey(array_shift($parts));
@@ -122,7 +117,7 @@ final class CookiePlugin implements Plugin
             switch (strtolower($key)) {
                 case 'expires':
                     try {
-                        $expires = CookieUtil::parseDate($value);
+                        $expires = CookieUtil::parseDate((string) $value);
                     } catch (UnexpectedValueException $e) {
                         throw new TransferException(
                             sprintf(
@@ -170,15 +165,15 @@ final class CookiePlugin implements Plugin
     /**
      * Separates key/value pair from cookie.
      *
-     * @param $part
+     * @param string $part A single cookie value in format key=value
      *
-     * @return array
+     * @return array{0:string, 1:?string}
      */
-    private function createValueKey($part)
+    private function createValueKey(string $part): array
     {
         $parts = explode('=', $part, 2);
         $key = trim($parts[0]);
-        $value = isset($parts[1]) ? trim($parts[1]) : true;
+        $value = isset($parts[1]) ? trim($parts[1]) : null;
 
         return [$key, $value];
     }

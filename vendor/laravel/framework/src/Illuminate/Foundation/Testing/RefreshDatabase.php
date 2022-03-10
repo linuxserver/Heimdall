@@ -37,9 +37,19 @@ trait RefreshDatabase
      */
     protected function refreshInMemoryDatabase()
     {
-        $this->artisan('migrate');
+        $this->artisan('migrate', $this->migrateUsing());
 
         $this->app[Kernel::class]->setArtisan(null);
+    }
+
+    /**
+     * The parameters that should be used when running "migrate".
+     *
+     * @return array
+     */
+    protected function migrateUsing()
+    {
+        return [];
     }
 
     /**
@@ -50,9 +60,7 @@ trait RefreshDatabase
     protected function refreshTestDatabase()
     {
         if (! RefreshDatabaseState::$migrated) {
-            $this->artisan('migrate:fresh', $this->shouldDropViews() ? [
-                '--drop-views' => true,
-            ] : []);
+            $this->artisan('migrate:fresh', $this->migrateFreshUsing());
 
             $this->app[Kernel::class]->setArtisan(null);
 
@@ -60,6 +68,19 @@ trait RefreshDatabase
         }
 
         $this->beginDatabaseTransaction();
+    }
+
+    /**
+     * The parameters that should be used when running "migrate:fresh".
+     *
+     * @return array
+     */
+    protected function migrateFreshUsing()
+    {
+        return [
+            '--drop-views' => $this->shouldDropViews(),
+            '--drop-types' => $this->shouldDropTypes(),
+        ];
     }
 
     /**
@@ -113,5 +134,16 @@ trait RefreshDatabase
     {
         return property_exists($this, 'dropViews')
                             ? $this->dropViews : false;
+    }
+
+    /**
+     * Determine if types should be dropped when refreshing the database.
+     *
+     * @return bool
+     */
+    protected function shouldDropTypes()
+    {
+        return property_exists($this, 'dropTypes')
+                            ? $this->dropTypes : false;
     }
 }

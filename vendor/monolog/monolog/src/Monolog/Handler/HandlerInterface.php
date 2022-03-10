@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the Monolog package.
@@ -11,12 +11,13 @@
 
 namespace Monolog\Handler;
 
-use Monolog\Formatter\FormatterInterface;
-
 /**
  * Interface that all Monolog Handlers must implement
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
+ *
+ * @phpstan-import-type Record from \Monolog\Logger
+ * @phpstan-import-type Level from \Monolog\Logger
  */
 interface HandlerInterface
 {
@@ -32,8 +33,10 @@ interface HandlerInterface
      * @param array $record Partial log record containing only a level key
      *
      * @return bool
+     *
+     * @phpstan-param array{level: Level} $record
      */
-    public function isHandling(array $record);
+    public function isHandling(array $record): bool;
 
     /**
      * Handles a record.
@@ -45,46 +48,38 @@ interface HandlerInterface
      * Unless the bubbling is interrupted (by returning true), the Logger class will keep on
      * calling further handlers in the stack with a given log record.
      *
-     * @param  array   $record The record to handle
-     * @return bool true means that this handler handled the record, and that bubbling is not permitted.
-     *                        false means the record was either not processed or that this handler allows bubbling.
+     * @param  array $record The record to handle
+     * @return bool  true means that this handler handled the record, and that bubbling is not permitted.
+     *                      false means the record was either not processed or that this handler allows bubbling.
+     *
+     * @phpstan-param Record $record
      */
-    public function handle(array $record);
+    public function handle(array $record): bool;
 
     /**
      * Handles a set of records at once.
      *
      * @param array $records The records to handle (an array of record arrays)
+     *
+     * @phpstan-param Record[] $records
      */
-    public function handleBatch(array $records);
+    public function handleBatch(array $records): void;
 
     /**
-     * Adds a processor in the stack.
+     * Closes the handler.
      *
-     * @param  callable $callback
-     * @return self
-     */
-    public function pushProcessor($callback);
-
-    /**
-     * Removes the processor on top of the stack and returns it.
+     * Ends a log cycle and frees all resources used by the handler.
      *
-     * @return callable
-     */
-    public function popProcessor();
-
-    /**
-     * Sets the formatter.
+     * Closing a Handler means flushing all buffers and freeing any open resources/handles.
      *
-     * @param  FormatterInterface $formatter
-     * @return self
-     */
-    public function setFormatter(FormatterInterface $formatter);
-
-    /**
-     * Gets the formatter.
+     * Implementations have to be idempotent (i.e. it should be possible to call close several times without breakage)
+     * and ideally handlers should be able to reopen themselves on handle() after they have been closed.
      *
-     * @return FormatterInterface
+     * This is useful at the end of a request and will be called automatically when the object
+     * is destroyed if you extend Monolog\Handler\Handler.
+     *
+     * If you are thinking of calling this method yourself, most likely you should be
+     * calling ResettableInterface::reset instead. Have a look.
      */
-    public function getFormatter();
+    public function close(): void;
 }

@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\HttpClientPool;
 
 use Http\Client\Common\Exception\HttpClientNotFoundException;
-use Http\Client\Common\HttpClientPool;
-use Http\Client\Common\HttpClientPoolItem;
 
 /**
  * LeastUsedClientPool will choose the client with the less current request in the pool.
@@ -18,7 +18,7 @@ final class LeastUsedClientPool extends HttpClientPool
     /**
      * {@inheritdoc}
      */
-    protected function chooseHttpClient()
+    protected function chooseHttpClient(): HttpClientPoolItem
     {
         $clientPool = array_filter($this->clientPool, function (HttpClientPoolItem $clientPoolItem) {
             return !$clientPoolItem->isDisabled();

@@ -17,9 +17,6 @@ final class CallbackRequestMatcher implements RequestMatcher
      */
     private $callback;
 
-    /**
-     * @param callable $callback
-     */
     public function __construct(callable $callback)
     {
         $this->callback = $callback;

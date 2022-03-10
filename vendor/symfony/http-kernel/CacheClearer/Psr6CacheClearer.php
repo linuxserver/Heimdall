@@ -11,6 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\CacheClearer;
 
+use Psr\Cache\CacheItemPoolInterface;
+
 /**
  * @author Nicolas Grekas <p@tchwork.com>
  */
@@ -18,29 +20,45 @@ class Psr6CacheClearer implements CacheClearerInterface
 {
     private $pools = [];
 
+    /**
+     * @param array<string, CacheItemPoolInterface> $pools
+     */
     public function __construct(array $pools = [])
     {
         $this->pools = $pools;
     }
 
-    public function hasPool($name)
+    /**
+     * @return bool
+     */
+    public function hasPool(string $name)
     {
         return isset($this->pools[$name]);
     }
 
-    public function getPool($name)
+    /**
+     * @return CacheItemPoolInterface
+     *
+     * @throws \InvalidArgumentException If the cache pool with the given name does not exist
+     */
+    public function getPool(string $name)
     {
         if (!$this->hasPool($name)) {
-            throw new \InvalidArgumentException(sprintf('Cache pool not found: %s.', $name));
+            throw new \InvalidArgumentException(sprintf('Cache pool not found: "%s".', $name));
         }
 
         return $this->pools[$name];
     }
 
-    public function clearPool($name)
+    /**
+     * @return bool
+     *
+     * @throws \InvalidArgumentException If the cache pool with the given name does not exist
+     */
+    public function clearPool(string $name)
     {
         if (!isset($this->pools[$name])) {
-            throw new \InvalidArgumentException(sprintf('Cache pool not found: %s.', $name));
+            throw new \InvalidArgumentException(sprintf('Cache pool not found: "%s".', $name));
         }
 
         return $this->pools[$name]->clear();
@@ -49,7 +67,7 @@ class Psr6CacheClearer implements CacheClearerInterface
     /**
      * {@inheritdoc}
      */
-    public function clear($cacheDir)
+    public function clear(string $cacheDir)
     {
         foreach ($this->pools as $pool) {
             $pool->clear();

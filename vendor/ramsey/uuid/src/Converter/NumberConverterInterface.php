@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -7,40 +8,50 @@
  *
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
- * @link https://benramsey.com/projects/ramsey-uuid/ Documentation
- * @link https://packagist.org/packages/ramsey/uuid Packagist
- * @link https://github.com/ramsey/uuid GitHub
  */
+
+declare(strict_types=1);
 
 namespace Ramsey\Uuid\Converter;
 
 /**
- * NumberConverterInterface converts UUIDs from hexadecimal characters into
+ * A number converter converts UUIDs from hexadecimal characters into
  * representations of integers and vice versa
+ *
+ * @psalm-immutable
  */
 interface NumberConverterInterface
 {
     /**
-     * Converts a hexadecimal number into an integer representation of the number
+     * Converts a hexadecimal number into an string integer representation of
+     * the number
      *
-     * The integer representation returned may be an object or a string
-     * representation of the integer, depending on the implementation.
+     * The integer representation returned is a string representation of the
+     * integer, to accommodate unsigned integers greater than PHP_INT_MAX.
      *
      * @param string $hex The hexadecimal string representation to convert
-     * @return mixed
-     * @throws \Ramsey\Uuid\Exception\UnsatisfiedDependencyException if `Moontoast\Math\BigNumber` is not present
+     *
+     * @return string String representation of an integer
+     *
+     * @psalm-return numeric-string
+     *
+     * @psalm-pure
      */
-    public function fromHex($hex);
+    public function fromHex(string $hex): string;
 
     /**
-     * Converts an integer representation into a hexadecimal string representation
-     * of the number
+     * Converts a string integer representation into a hexadecimal string
+     * representation of the number
      *
-     * @param mixed $integer An integer representation to convert; this may be
-     *     a true integer, a string integer, or a object representation that
-     *     this converter can understand
+     * @param string $number A string integer representation to convert; this
+     *     must be a numeric string to accommodate unsigned integers greater
+     *     than PHP_INT_MAX.
+     *
      * @return string Hexadecimal string
-     * @throws \Ramsey\Uuid\Exception\UnsatisfiedDependencyException if `Moontoast\Math\BigNumber` is not present
+     *
+     * @psalm-return non-empty-string
+     *
+     * @psalm-pure
      */
-    public function toHex($integer);
+    public function toHex(string $number): string;
 }

@@ -1,6 +1,6 @@
 <?php
 /* ===========================================================================
- * Copyright (c) 2018-2019 Zindex Software
+ * Copyright (c) 2018-2021 Zindex Software
  *
  * Licensed under the MIT License
  * =========================================================================== */
@@ -39,6 +39,11 @@ class ClosureStream
     public function stream_eof()
     {
         return $this->pointer >= $this->length;
+    }
+
+    public function stream_set_option($option, $arg1, $arg2)
+    {
+        return false;
     }
 
     public function stream_stat()

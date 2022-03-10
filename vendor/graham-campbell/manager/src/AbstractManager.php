@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of Laravel Manager.
  *
- * (c) Graham Campbell <graham@alt-three.com>
+ * (c) Graham Campbell <hello@gjcampbell.co.uk>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,12 +15,13 @@ namespace GrahamCampbell\Manager;
 
 use Closure;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
 /**
  * This is the abstract manager class.
  *
- * @author Graham Campbell <graham@alt-three.com>
+ * @author Graham Campbell <hello@gjcampbell.co.uk>
  */
 abstract class AbstractManager implements ManagerInterface
 {
@@ -34,14 +35,14 @@ abstract class AbstractManager implements ManagerInterface
     /**
      * The active connection instances.
      *
-     * @var object[]
+     * @var array<string,object>
      */
     protected $connections = [];
 
     /**
      * The custom connection resolvers.
      *
-     * @var callable[]
+     * @var array<string,callable>
      */
     protected $extensions = [];
 
@@ -62,6 +63,8 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @param string|null $name
      *
+     * @throws \InvalidArgumentException
+     *
      * @return object
      */
     public function connection(string $name = null)
@@ -79,6 +82,8 @@ abstract class AbstractManager implements ManagerInterface
      * Reconnect to the given connection.
      *
      * @param string|null $name
+     *
+     * @throws \InvalidArgumentException
      *
      * @return object
      */
@@ -110,6 +115,8 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @param array $config
      *
+     * @throws \InvalidArgumentException
+     *
      * @return object
      */
     abstract protected function createConnection(array $config);
@@ -118,6 +125,8 @@ abstract class AbstractManager implements ManagerInterface
      * Make the connection instance.
      *
      * @param string $name
+     *
+     * @throws \InvalidArgumentException
      *
      * @return object
      */
@@ -129,7 +138,7 @@ abstract class AbstractManager implements ManagerInterface
             return $this->extensions[$name]($config);
         }
 
-        if ($driver = array_get($config, 'driver')) {
+        if ($driver = Arr::get($config, 'driver')) {
             if (isset($this->extensions[$driver])) {
                 return $this->extensions[$driver]($config);
             }
@@ -158,10 +167,26 @@ abstract class AbstractManager implements ManagerInterface
     {
         $name = $name ?: $this->getDefaultConnection();
 
-        $connections = $this->config->get($this->getConfigName().'.connections');
+        return $this->getNamedConfig('connections', 'Connection', $name);
+    }
 
-        if (!is_array($config = array_get($connections, $name)) && !$config) {
-            throw new InvalidArgumentException("Connection [$name] not configured.");
+    /**
+     * Get the given named configuration.
+     *
+     * @param string $type
+     * @param string $desc
+     * @param string $name
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    protected function getNamedConfig(string $type, string $desc, string $name)
+    {
+        $data = $this->config->get($this->getConfigName().'.'.$type);
+
+        if (!is_array($config = Arr::get($data, $name)) && !$config) {
+            throw new InvalidArgumentException("$desc [$name] not configured.");
         }
 
         $config['name'] = $name;
@@ -211,7 +236,7 @@ abstract class AbstractManager implements ManagerInterface
     /**
      * Return all of the created connections.
      *
-     * @return object[]
+     * @return array<string,object>
      */
     public function getConnections()
     {

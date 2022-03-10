@@ -111,7 +111,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
      *
      * @throws Exception\NotFoundException
      */
-    public static function findUrlFactory()
+    public static function findUriFactory()
     {
         try {
             $messageFactory = static::findOneByType(UriFactoryInterface::class);
@@ -120,5 +120,17 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
         }
 
         return static::instantiateClass($messageFactory);
+    }
+
+    /**
+     * @return UriFactoryInterface
+     *
+     * @throws Exception\NotFoundException
+     *
+     * @deprecated This will be removed in 2.0. Consider using the findUriFactory() method.
+     */
+    public static function findUrlFactory()
+    {
+        return static::findUriFactory();
     }
 }

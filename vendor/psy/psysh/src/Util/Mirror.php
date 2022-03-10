@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,16 +14,17 @@ namespace Psy\Util;
 use Psy\Exception\RuntimeException;
 use Psy\Reflection\ReflectionClassConstant;
 use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionNamespace;
 
 /**
  * A utility class for getting Reflectors.
  */
 class Mirror
 {
-    const CONSTANT        = 1;
-    const METHOD          = 2;
+    const CONSTANT = 1;
+    const METHOD = 2;
     const STATIC_PROPERTY = 4;
-    const PROPERTY        = 8;
+    const PROPERTY = 8;
 
     /**
      * Get a Reflector for a function, class or instance, constant, method or property.
@@ -42,7 +43,7 @@ class Mirror
      *
      * @return \Reflector
      */
-    public static function get($value, $member = null, $filter = 15)
+    public static function get($value, string $member = null, int $filter = 15): \Reflector
     {
         if ($member === null && \is_string($value)) {
             if (\function_exists($value)) {
@@ -65,22 +66,18 @@ class Mirror
         } elseif ($filter & self::STATIC_PROPERTY && $class->hasProperty($member) && $class->getProperty($member)->isStatic()) {
             return $class->getProperty($member);
         } else {
-            throw new RuntimeException(\sprintf(
-                'Unknown member %s on class %s',
-                $member,
-                \is_object($value) ? \get_class($value) : $value
-            ));
+            throw new RuntimeException(\sprintf('Unknown member %s on class %s', $member, \is_object($value) ? \get_class($value) : $value));
         }
     }
 
     /**
-     * Get a ReflectionClass (or ReflectionObject) if possible.
+     * Get a ReflectionClass (or ReflectionObject, or ReflectionNamespace) if possible.
      *
-     * @throws \InvalidArgumentException if $value is not a class name or instance
+     * @throws \InvalidArgumentException if $value is not a namespace or class name or instance
      *
      * @param mixed $value
      *
-     * @return \ReflectionClass
+     * @return \ReflectionClass|ReflectionNamespace
      */
     private static function getClass($value)
     {
@@ -90,10 +87,64 @@ class Mirror
 
         if (!\is_string($value)) {
             throw new \InvalidArgumentException('Mirror expects an object or class');
-        } elseif (!\class_exists($value) && !\interface_exists($value) && !\trait_exists($value)) {
-            throw new \InvalidArgumentException('Unknown class or function: ' . $value);
         }
 
-        return new \ReflectionClass($value);
+        if (\class_exists($value) || \interface_exists($value) || \trait_exists($value)) {
+            return new \ReflectionClass($value);
+        }
+
+        $namespace = \preg_replace('/(^\\\\|\\\\$)/', '', $value);
+        if (self::namespaceExists($namespace)) {
+            return new ReflectionNamespace($namespace);
+        }
+
+        throw new \InvalidArgumentException('Unknown namespace, class or function: '.$value);
+    }
+
+    /**
+     * Check declared namespaces for a given namespace.
+     */
+    private static function namespaceExists(string $value): bool
+    {
+        return \in_array(\strtolower($value), self::getDeclaredNamespaces());
+    }
+
+    /**
+     * Get an array of all currently declared namespaces.
+     *
+     * Note that this relies on at least one function, class, interface, trait
+     * or constant to have been declared in that namespace.
+     */
+    private static function getDeclaredNamespaces(): array
+    {
+        $functions = \get_defined_functions();
+
+        $allNames = \array_merge(
+            $functions['internal'],
+            $functions['user'],
+            \get_declared_classes(),
+            \get_declared_interfaces(),
+            \get_declared_traits(),
+            \array_keys(\get_defined_constants())
+        );
+
+        $namespaces = [];
+        foreach ($allNames as $name) {
+            $chunks = \explode('\\', \strtolower($name));
+
+            // the last one is the function or class or whatever...
+            \array_pop($chunks);
+
+            while (!empty($chunks)) {
+                $namespaces[\implode('\\', $chunks)] = true;
+                \array_pop($chunks);
+            }
+        }
+
+        $namespaceNames = \array_keys($namespaces);
+
+        \sort($namespaceNames);
+
+        return $namespaceNames;
     }
 }

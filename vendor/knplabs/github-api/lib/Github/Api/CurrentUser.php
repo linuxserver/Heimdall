@@ -18,6 +18,8 @@ use Github\Api\CurrentUser\Watchers;
  */
 class CurrentUser extends AbstractApi
 {
+    use AcceptHeaderTrait;
+
     public function show()
     {
         return $this->get('/user');
@@ -33,7 +35,7 @@ class CurrentUser extends AbstractApi
      */
     public function emails()
     {
-        return new Emails($this->client);
+        return new Emails($this->getClient());
     }
 
     /**
@@ -41,7 +43,7 @@ class CurrentUser extends AbstractApi
      */
     public function follow()
     {
-        return new Followers($this->client);
+        return new Followers($this->getClient());
     }
 
     public function followers($page = 1)
@@ -52,7 +54,7 @@ class CurrentUser extends AbstractApi
     }
 
     /**
-     * @link http://developer.github.com/v3/issues/#list-issues
+     * @link https://docs.github.com/en/rest/reference/issues#list-user-account-issues-assigned-to-the-authenticated-user
      *
      * @param array $params
      * @param bool  $includeOrgIssues
@@ -69,7 +71,7 @@ class CurrentUser extends AbstractApi
      */
     public function keys()
     {
-        return new PublicKeys($this->client);
+        return new PublicKeys($this->getClient());
     }
 
     /**
@@ -77,7 +79,7 @@ class CurrentUser extends AbstractApi
      */
     public function notifications()
     {
-        return new Notifications($this->client);
+        return new Notifications($this->getClient());
     }
 
     /**
@@ -85,11 +87,11 @@ class CurrentUser extends AbstractApi
      */
     public function memberships()
     {
-        return new Memberships($this->client);
+        return new Memberships($this->getClient());
     }
 
     /**
-     * @link http://developer.github.com/v3/orgs/#list-user-organizations
+     * @link https://docs.github.com/en/rest/reference/orgs#list-organizations-for-the-authenticated-user
      *
      * @return array
      */
@@ -109,7 +111,7 @@ class CurrentUser extends AbstractApi
     }
 
     /**
-     * @link http://developer.github.com/v3/repos/#list-your-repositories
+     * @link https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
      *
      * @param string $type        role in the repository
      * @param string $sort        sort by
@@ -145,17 +147,7 @@ class CurrentUser extends AbstractApi
      */
     public function watchers()
     {
-        return new Watchers($this->client);
-    }
-
-    /**
-     * @deprecated Use watchers() instead
-     */
-    public function watched($page = 1)
-    {
-        return $this->get('/user/watched', [
-            'page' => $page,
-        ]);
+        return new Watchers($this->getClient());
     }
 
     /**
@@ -163,21 +155,11 @@ class CurrentUser extends AbstractApi
      */
     public function starring()
     {
-        return new Starring($this->client);
+        return new Starring($this->getClient());
     }
 
     /**
-     * @deprecated Use starring() instead
-     */
-    public function starred($page = 1)
-    {
-        return $this->get('/user/starred', [
-            'page' => $page,
-        ]);
-    }
-
-    /**
-     *  @link https://developer.github.com/v3/activity/watching/#list-repositories-being-watched
+     *  @link https://docs.github.com/en/rest/reference/activity#list-repositories-watched-by-the-authenticated-user
      */
     public function subscriptions()
     {
@@ -185,23 +167,27 @@ class CurrentUser extends AbstractApi
     }
 
     /**
-     * @link https://developer.github.com/v3/integrations/#list-installations-for-user
+     * @link https://docs.github.com/en/rest/reference/apps#list-app-installations-accessible-to-the-user-access-token
      *
      * @param array $params
      */
     public function installations(array $params = [])
     {
+        $this->acceptHeaderValue = 'application/vnd.github.machine-man-preview+json';
+
         return $this->get('/user/installations', array_merge(['page' => 1], $params));
     }
 
     /**
-     * @link https://developer.github.com/v3/integrations/installations/#list-repositories-accessible-to-the-user-for-an-installation
+     * @link https://developer.github.com/v3/apps/installations/#list-repositories-accessible-to-the-user-access-token
      *
      * @param string $installationId the ID of the Installation
      * @param array  $params
      */
     public function repositoriesByInstallation($installationId, array $params = [])
     {
+        $this->acceptHeaderValue = 'application/vnd.github.machine-man-preview+json';
+
         return $this->get(sprintf('/user/installations/%s/repositories', $installationId), array_merge(['page' => 1], $params));
     }
 }

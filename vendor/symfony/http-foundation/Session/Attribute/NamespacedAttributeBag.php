@@ -11,11 +11,15 @@
 
 namespace Symfony\Component\HttpFoundation\Session\Attribute;
 
+trigger_deprecation('symfony/http-foundation', '5.3', 'The "%s" class is deprecated.', NamespacedAttributeBag::class);
+
 /**
  * This class provides structured storage of session attributes using
  * a name spacing character in the key.
  *
  * @author Drak <drak@zikula.org>
+ *
+ * @deprecated since Symfony 5.3
  */
 class NamespacedAttributeBag extends AttributeBag
 {
@@ -34,7 +38,7 @@ class NamespacedAttributeBag extends AttributeBag
     /**
      * {@inheritdoc}
      */
-    public function has($name)
+    public function has(string $name)
     {
         // reference mismatch: if fixed, re-introduced in array_key_exists; keep as it is
         $attributes = $this->resolveAttributePath($name);
@@ -50,7 +54,7 @@ class NamespacedAttributeBag extends AttributeBag
     /**
      * {@inheritdoc}
      */
-    public function get($name, $default = null)
+    public function get(string $name, $default = null)
     {
         // reference mismatch: if fixed, re-introduced in array_key_exists; keep as it is
         $attributes = $this->resolveAttributePath($name);
@@ -66,7 +70,7 @@ class NamespacedAttributeBag extends AttributeBag
     /**
      * {@inheritdoc}
      */
-    public function set($name, $value)
+    public function set(string $name, $value)
     {
         $attributes = &$this->resolveAttributePath($name, true);
         $name = $this->resolveKey($name);
@@ -76,7 +80,7 @@ class NamespacedAttributeBag extends AttributeBag
     /**
      * {@inheritdoc}
      */
-    public function remove($name)
+    public function remove(string $name)
     {
         $retval = null;
         $attributes = &$this->resolveAttributePath($name);
@@ -97,12 +101,12 @@ class NamespacedAttributeBag extends AttributeBag
      * @param string $name         Key name
      * @param bool   $writeContext Write context, default false
      *
-     * @return array
+     * @return array|null
      */
-    protected function &resolveAttributePath($name, $writeContext = false)
+    protected function &resolveAttributePath(string $name, bool $writeContext = false)
     {
         $array = &$this->attributes;
-        $name = (0 === strpos($name, $this->namespaceCharacter)) ? substr($name, 1) : $name;
+        $name = (str_starts_with($name, $this->namespaceCharacter)) ? substr($name, 1) : $name;
 
         // Check if there is anything to do, else return
         if (!$name) {
@@ -144,11 +148,9 @@ class NamespacedAttributeBag extends AttributeBag
      *
      * This is the last part in a dot separated string.
      *
-     * @param string $name
-     *
      * @return string
      */
-    protected function resolveKey($name)
+    protected function resolveKey(string $name)
     {
         if (false !== $pos = strrpos($name, $this->namespaceCharacter)) {
             $name = substr($name, $pos + 1);

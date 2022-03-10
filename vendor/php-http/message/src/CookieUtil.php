@@ -30,7 +30,7 @@ final class CookieUtil
      *
      * @return \DateTime
      *
-     * @throws UnexpectedValueException if we cannot parse the cookie date string.
+     * @throws UnexpectedValueException if we cannot parse the cookie date string
      */
     public static function parseDate($dateValue)
     {

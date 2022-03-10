@@ -20,34 +20,42 @@ use Symfony\Component\Mime\Header\Headers;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 class TextPart extends AbstractPart
 {
+    /** @internal */
+    protected $_headers;
+
     private static $encoders = [];
 
     private $body;
     private $charset;
     private $subtype;
+    /**
+     * @var ?string
+     */
     private $disposition;
     private $name;
     private $encoding;
+    private $seekable;
 
     /**
      * @param resource|string $body
      */
-    public function __construct($body, ?string $charset = 'utf-8', $subtype = 'plain', string $encoding = null)
+    public function __construct($body, ?string $charset = 'utf-8', string $subtype = 'plain', string $encoding = null)
     {
+        unset($this->_headers);
+
         parent::__construct();
 
         if (!\is_string($body) && !\is_resource($body)) {
-            throw new \TypeError(sprintf('The body of "%s" must be a string or a resource (got "%s").', self::class, \is_object($body) ? \get_class($body) : \gettype($body)));
+            throw new \TypeError(sprintf('The body of "%s" must be a string or a resource (got "%s").', self::class, get_debug_type($body)));
         }
 
         $this->body = $body;
         $this->charset = $charset;
         $this->subtype = $subtype;
+        $this->seekable = \is_resource($body) ? stream_get_meta_data($body)['seekable'] && 0 === fseek($body, 0, \SEEK_CUR) : null;
 
         if (null === $encoding) {
             $this->encoding = $this->chooseEncoding();
@@ -86,7 +94,7 @@ class TextPart extends AbstractPart
      *
      * @return $this
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -95,11 +103,11 @@ class TextPart extends AbstractPart
 
     public function getBody(): string
     {
-        if (!\is_resource($this->body)) {
+        if (null === $this->seekable) {
             return $this->body;
         }
 
-        if (stream_get_meta_data($this->body)['seekable'] ?? false) {
+        if ($this->seekable) {
             rewind($this->body);
         }
 
@@ -113,8 +121,8 @@ class TextPart extends AbstractPart
 
     public function bodyToIterable(): iterable
     {
-        if (\is_resource($this->body)) {
-            if (stream_get_meta_data($this->body)['seekable'] ?? false) {
+        if (null !== $this->seekable) {
+            if ($this->seekable) {
                 rewind($this->body);
             }
             yield from $this->getEncoder()->encodeByteStream($this->body);
@@ -131,7 +139,7 @@ class TextPart extends AbstractPart
         if ($this->charset) {
             $headers->setHeaderParameter('Content-Type', 'charset', $this->charset);
         }
-        if ($this->name) {
+        if ($this->name && 'form-data' !== $this->disposition) {
             $headers->setHeaderParameter('Content-Type', 'name', $this->name);
         }
         $headers->setHeaderBody('Text', 'Content-Transfer-Encoding', $this->encoding);
@@ -144,6 +152,19 @@ class TextPart extends AbstractPart
         }
 
         return $headers;
+    }
+
+    public function asDebugString(): string
+    {
+        $str = parent::asDebugString();
+        if (null !== $this->charset) {
+            $str .= ' charset: '.$this->charset;
+        }
+        if (null !== $this->disposition) {
+            $str .= ' disposition: '.$this->disposition;
+        }
+
+        return $str;
     }
 
     private function getEncoder(): ContentEncoderInterface
@@ -168,10 +189,13 @@ class TextPart extends AbstractPart
         return 'quoted-printable';
     }
 
+    /**
+     * @return array
+     */
     public function __sleep()
     {
         // convert resources to strings for serialization
-        if (\is_resource($this->body)) {
+        if (null !== $this->seekable) {
             $this->body = $this->getBody();
         }
 

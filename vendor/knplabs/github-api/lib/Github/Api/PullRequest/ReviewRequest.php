@@ -14,6 +14,8 @@ class ReviewRequest extends AbstractApi
 
     public function configure()
     {
+        trigger_deprecation('KnpLabs/php-github-api', '3.2', 'The "%s" is deprecated and will be removed.', __METHOD__);
+
         return $this;
     }
 
@@ -29,6 +31,10 @@ class ReviewRequest extends AbstractApi
      */
     public function all($username, $repository, $pullRequest, array $params = [])
     {
+        if (!empty($params)) {
+            trigger_deprecation('KnpLabs/php-github-api', '3.2', 'The "$params" parameter is deprecated, to paginate the results use the "ResultPager" instead.');
+        }
+
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/requested_reviewers', $params);
     }
 
@@ -39,12 +45,13 @@ class ReviewRequest extends AbstractApi
      * @param string $repository
      * @param int    $pullRequest
      * @param array  $reviewers
+     * @param array  $teamReviewers
      *
      * @return string
      */
-    public function create($username, $repository, $pullRequest, array $reviewers)
+    public function create($username, $repository, $pullRequest, array $reviewers = [], array $teamReviewers = [])
     {
-        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/requested_reviewers', ['reviewers' => $reviewers]);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/requested_reviewers', ['reviewers' => $reviewers, 'team_reviewers' => $teamReviewers]);
     }
 
     /**
@@ -54,11 +61,12 @@ class ReviewRequest extends AbstractApi
      * @param string $repository
      * @param int    $pullRequest
      * @param array  $reviewers
+     * @param array  $teamReviewers
      *
      * @return string
      */
-    public function remove($username, $repository, $pullRequest, array $reviewers)
+    public function remove($username, $repository, $pullRequest, array $reviewers = [], array $teamReviewers = [])
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/requested_reviewers', ['reviewers' => $reviewers]);
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/requested_reviewers', ['reviewers' => $reviewers, 'team_reviewers' => $teamReviewers]);
     }
 }

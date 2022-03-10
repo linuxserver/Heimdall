@@ -1,6 +1,6 @@
 <?php
 /* ===========================================================================
- * Copyright (c) 2018-2019 Zindex Software
+ * Copyright (c) 2018-2021 Zindex Software
  *
  * Licensed under the MIT License
  * =========================================================================== */
@@ -10,6 +10,9 @@ namespace Opis\Closure;
 use Closure;
 use SuperClosure\Analyzer\ClosureAnalyzer;
 
+/**
+ * @deprecated We'll remove this class
+ */
 class Analyzer extends ClosureAnalyzer
 {
     /**

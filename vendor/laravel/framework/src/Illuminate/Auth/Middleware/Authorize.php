@@ -3,8 +3,8 @@
 namespace Illuminate\Auth\Middleware;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Database\Eloquent\Model;
 
 class Authorize
 {
@@ -50,7 +50,7 @@ class Authorize
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  array|null  $models
-     * @return array|string|\Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|array|string
      */
     protected function getGateArguments($request, $models)
     {
@@ -72,7 +72,12 @@ class Authorize
      */
     protected function getModel($request, $model)
     {
-        return $this->isClassName($model) ? trim($model) : $request->route($model, $model);
+        if ($this->isClassName($model)) {
+            return trim($model);
+        } else {
+            return $request->route($model, null) ?:
+                ((preg_match("/^['\"](.*)['\"]$/", trim($model), $matches)) ? $matches[1] : null);
+        }
     }
 
     /**

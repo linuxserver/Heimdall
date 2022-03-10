@@ -14,7 +14,7 @@ namespace Symfony\Component\HttpKernel\DataCollector;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 class RouterDataCollector extends DataCollector
 {
     /**
-     * @var \SplObjectStorage
+     * @var \SplObjectStorage<Request, callable>
      */
     protected $controllers;
 
@@ -33,8 +33,10 @@ class RouterDataCollector extends DataCollector
 
     /**
      * {@inheritdoc}
+     *
+     * @final
      */
-    public function collect(Request $request, Response $response, \Exception $exception = null)
+    public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
         if ($response instanceof RedirectResponse) {
             $this->data['redirect'] = true;
@@ -66,10 +68,8 @@ class RouterDataCollector extends DataCollector
 
     /**
      * Remembers the controller associated to each request.
-     *
-     * @final since Symfony 4.3
      */
-    public function onKernelController(FilterControllerEvent $event)
+    public function onKernelController(ControllerEvent $event)
     {
         $this->controllers[$event->getRequest()] = $event->getController();
     }
@@ -83,7 +83,7 @@ class RouterDataCollector extends DataCollector
     }
 
     /**
-     * @return string|null The target URL
+     * @return string|null
      */
     public function getTargetUrl()
     {
@@ -91,7 +91,7 @@ class RouterDataCollector extends DataCollector
     }
 
     /**
-     * @return string|null The target route
+     * @return string|null
      */
     public function getTargetRoute()
     {

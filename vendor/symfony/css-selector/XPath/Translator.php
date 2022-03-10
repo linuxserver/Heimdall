@@ -50,7 +50,7 @@ class Translator implements TranslatorInterface
 
     public function __construct(ParserInterface $parser = null)
     {
-        $this->mainParser = $parser ?: new Parser();
+        $this->mainParser = $parser ?? new Parser();
 
         $this
             ->registerExtension(new Extension\NodeExtension())
@@ -63,11 +63,11 @@ class Translator implements TranslatorInterface
 
     public static function getXpathLiteral(string $element): string
     {
-        if (false === strpos($element, "'")) {
+        if (!str_contains($element, "'")) {
             return "'".$element."'";
         }
 
-        if (false === strpos($element, '"')) {
+        if (!str_contains($element, '"')) {
             return '"'.$element.'"';
         }
 
@@ -114,6 +114,9 @@ class Translator implements TranslatorInterface
         return ($prefix ?: '').$this->nodeToXPath($selector);
     }
 
+    /**
+     * @return $this
+     */
     public function registerExtension(Extension\ExtensionInterface $extension): self
     {
         $this->extensions[$extension->getName()] = $extension;
@@ -139,6 +142,9 @@ class Translator implements TranslatorInterface
         return $this->extensions[$name];
     }
 
+    /**
+     * @return $this
+     */
     public function registerParserShortcut(ParserInterface $shortcut): self
     {
         $this->shortcutParsers[] = $shortcut;
@@ -197,7 +203,7 @@ class Translator implements TranslatorInterface
     /**
      * @throws ExpressionErrorException
      */
-    public function addAttributeMatching(XPathExpr $xpath, string $operator, string $attribute, $value): XPathExpr
+    public function addAttributeMatching(XPathExpr $xpath, string $operator, string $attribute, ?string $value): XPathExpr
     {
         if (!isset($this->attributeMatchingTranslators[$operator])) {
             throw new ExpressionErrorException(sprintf('Attribute matcher operator "%s" not supported.', $operator));
@@ -209,7 +215,7 @@ class Translator implements TranslatorInterface
     /**
      * @return SelectorNode[]
      */
-    private function parseSelectors(string $css)
+    private function parseSelectors(string $css): array
     {
         foreach ($this->shortcutParsers as $shortcut) {
             $tokens = $shortcut->parse($css);

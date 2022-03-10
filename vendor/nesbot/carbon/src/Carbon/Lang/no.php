@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the Carbon package.
  *
  * (c) Brian Nesbitt <brian@nesbot.com>
@@ -9,28 +9,20 @@
  * file that was distributed with this source code.
  */
 
-return array(
-    'year' => ':count år|:count år',
-    'y' => ':count år|:count år',
-    'month' => ':count måned|:count måneder',
-    'm' => ':count måned|:count måneder',
-    'week' => ':count uke|:count uker',
-    'w' => ':count uke|:count uker',
-    'day' => ':count dag|:count dager',
-    'd' => ':count dag|:count dager',
-    'hour' => ':count time|:count timer',
-    'h' => ':count time|:count timer',
-    'minute' => ':count minutt|:count minutter',
-    'min' => ':count minutt|:count minutter',
-    'second' => ':count sekund|:count sekunder',
-    's' => ':count sekund|:count sekunder',
-    'ago' => ':time siden',
-    'from_now' => 'om :time',
-    'after' => ':time etter',
-    'before' => ':time før',
-    'diff_now' => 'akkurat nå',
-    'diff_yesterday' => 'i går',
-    'diff_tomorrow' => 'i morgen',
-    'diff_before_yesterday' => 'i forgårs',
-    'diff_after_tomorrow' => 'i overmorgen',
-);
+/*
+ * Authors:
+ * - Daniel S. Billing
+ * - Paul
+ * - Jimmie Johansson
+ * - Jens Herlevsen
+ */
+return array_replace_recursive(require __DIR__.'/nb.php', [
+    'formats' => [
+        'LLL' => 'D. MMMM YYYY HH:mm',
+        'LLLL' => 'dddd, D. MMMM YYYY [kl.] HH:mm',
+    ],
+    'calendar' => [
+        'nextWeek' => 'på dddd [kl.] LT',
+        'lastWeek' => '[i] dddd[s kl.] LT',
+    ],
+]);

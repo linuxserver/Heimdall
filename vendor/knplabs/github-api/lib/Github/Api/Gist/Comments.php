@@ -21,7 +21,7 @@ class Comments extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -29,7 +29,7 @@ class Comments extends AbstractApi
             $bodyType = 'raw';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->getApiVersion(), $bodyType);
 
         return $this;
     }
@@ -56,7 +56,7 @@ class Comments extends AbstractApi
      */
     public function show($gist, $comment)
     {
-        return $this->get('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
+        return $this->get('/gists/'.rawurlencode($gist).'/comments/'.$comment);
     }
 
     /**
@@ -83,7 +83,7 @@ class Comments extends AbstractApi
      */
     public function update($gist, $comment_id, $body)
     {
-        return $this->patch('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment_id), ['body' => $body]);
+        return $this->patch('/gists/'.rawurlencode($gist).'/comments/'.$comment_id, ['body' => $body]);
     }
 
     /**
@@ -96,6 +96,6 @@ class Comments extends AbstractApi
      */
     public function remove($gist, $comment)
     {
-        return $this->delete('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
+        return $this->delete('/gists/'.rawurlencode($gist).'/comments/'.$comment);
     }
 }

@@ -1,0 +1,36 @@
+{
+    "name": "laravel/ui",
+    "description": "Laravel UI utilities and presets.",
+    "keywords": ["laravel", "ui"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Taylor Otwell",
+            "email": "taylor@laravel.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2.5|^8.0",
+        "illuminate/console": "^7.0",
+        "illuminate/filesystem": "^7.0",
+        "illuminate/support": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laravel\\Ui\\": "src/",
+            "Illuminate\\Foundation\\Auth\\": "auth-backend/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Laravel\\Ui\\UiServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

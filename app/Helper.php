@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afterunit = '')
 {
 	$btype = ($is_drive_size === true) ? 1000 : 1024;
@@ -9,6 +11,27 @@ function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afteruni
     elseif($labels[$x] == "GB") return(round($bytes, 2).$beforeunit.$labels[$x].$afterunit);
     elseif($labels[$x] == "MB") return(round($bytes, 2).$beforeunit.$labels[$x].$afterunit);
     else return(round($bytes, 0).$beforeunit.$labels[$x].$afterunit);
+}
+
+function str_slug($title, $separator = '-', $language = 'en')
+{
+    return Str::slug($title, $separator, $language);
+}
+
+if (! function_exists('str_is')) {
+    /**
+     * Determine if a given string matches a given pattern.
+     *
+     * @param  string|array  $pattern
+     * @param  string  $value
+     * @return bool
+     *
+     * @deprecated Str::is() should be used directly instead. Will be removed in Laravel 6.0.
+     */
+    function str_is($pattern, $value)
+    {
+        return Str::is($pattern, $value);
+    }
 }
 
 function get_brightness($hex) {

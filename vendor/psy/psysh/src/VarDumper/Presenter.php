@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -33,6 +33,8 @@ class Presenter
     ];
     private $styles = [
         'num'       => 'number',
+        'integer'   => 'integer',
+        'float'     => 'float',
         'const'     => 'const',
         'str'       => 'string',
         'cchr'      => 'default',
@@ -49,14 +51,14 @@ class Presenter
     public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
     {
         // Work around https://github.com/symfony/symfony/issues/23572
-        $oldLocale = \setlocale(LC_NUMERIC, 0);
-        \setlocale(LC_NUMERIC, 'C');
+        $oldLocale = \setlocale(\LC_NUMERIC, 0);
+        \setlocale(\LC_NUMERIC, 'C');
 
         $this->dumper = new Dumper($formatter, $forceArrayIndexes);
         $this->dumper->setStyles($this->styles);
 
         // Now put the locale back
-        \setlocale(LC_NUMERIC, $oldLocale);
+        \setlocale(\LC_NUMERIC, $oldLocale);
 
         $this->cloner = new Cloner();
         $this->cloner->addCasters(['*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) {
@@ -91,7 +93,7 @@ class Presenter
      *
      * @return string
      */
-    public function presentRef($value)
+    public function presentRef($value): string
     {
         return $this->present($value, 0);
     }
@@ -107,7 +109,7 @@ class Presenter
      *
      * @return string
      */
-    public function present($value, $depth = null, $options = 0)
+    public function present($value, int $depth = null, int $options = 0): string
     {
         $data = $this->cloner->cloneVar($value, !($options & self::VERBOSE) ? Caster::EXCLUDE_VERBOSE : 0);
 
@@ -116,21 +118,21 @@ class Presenter
         }
 
         // Work around https://github.com/symfony/symfony/issues/23572
-        $oldLocale = \setlocale(LC_NUMERIC, 0);
-        \setlocale(LC_NUMERIC, 'C');
+        $oldLocale = \setlocale(\LC_NUMERIC, 0);
+        \setlocale(\LC_NUMERIC, 'C');
 
         $output = '';
         $this->dumper->dump($data, function ($line, $depth) use (&$output) {
             if ($depth >= 0) {
                 if ('' !== $output) {
-                    $output .= PHP_EOL;
+                    $output .= \PHP_EOL;
                 }
-                $output .= \str_repeat('  ', $depth) . $line;
+                $output .= \str_repeat('  ', $depth).$line;
             }
         });
 
         // Now put the locale back
-        \setlocale(LC_NUMERIC, $oldLocale);
+        \setlocale(\LC_NUMERIC, $oldLocale);
 
         return OutputFormatter::escape($output);
     }

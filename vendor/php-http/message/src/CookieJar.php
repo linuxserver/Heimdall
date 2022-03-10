@@ -10,9 +10,9 @@ namespace Http\Message;
 final class CookieJar implements \Countable, \IteratorAggregate
 {
     /**
-     * @var \SplObjectStorage
+     * @var \SplObjectStorage<object, mixed>
      */
-    protected $cookies;
+    private $cookies;
 
     public function __construct()
     {
@@ -21,8 +21,6 @@ final class CookieJar implements \Countable, \IteratorAggregate
 
     /**
      * Checks if there is a cookie.
-     *
-     * @param Cookie $cookie
      *
      * @return bool
      */
@@ -33,8 +31,6 @@ final class CookieJar implements \Countable, \IteratorAggregate
 
     /**
      * Adds a cookie.
-     *
-     * @param Cookie $cookie
      */
     public function addCookie(Cookie $cookie)
     {
@@ -57,8 +53,6 @@ final class CookieJar implements \Countable, \IteratorAggregate
 
     /**
      * Removes a cookie.
-     *
-     * @param Cookie $cookie
      */
     public function removeCookie(Cookie $cookie)
     {
@@ -82,8 +76,6 @@ final class CookieJar implements \Countable, \IteratorAggregate
     /**
      * Returns all matching cookies.
      *
-     * @param Cookie $cookie
-     *
      * @return Cookie[]
      */
     public function getMatchingCookies(Cookie $cookie)
@@ -98,11 +90,9 @@ final class CookieJar implements \Countable, \IteratorAggregate
     /**
      * Finds matching cookies based on a callable.
      *
-     * @param callable $match
-     *
      * @return Cookie[]
      */
-    protected function findMatchingCookies(callable $match)
+    private function findMatchingCookies(callable $match)
     {
         $cookies = [];
 
@@ -205,6 +195,7 @@ final class CookieJar implements \Countable, \IteratorAggregate
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return $this->cookies->count();
@@ -213,6 +204,7 @@ final class CookieJar implements \Countable, \IteratorAggregate
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return clone $this->cookies;

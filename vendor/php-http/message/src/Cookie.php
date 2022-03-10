@@ -63,7 +63,7 @@ final class Cookie
      * @param bool           $httpOnly
      * @param \DateTime|null $expires  Expires attribute is HTTP 1.0 only and should be avoided.
      *
-     * @throws \InvalidArgumentException If name, value or max age is not valid.
+     * @throws \InvalidArgumentException if name, value or max age is not valid
      */
     public function __construct(
         $name,
@@ -225,8 +225,6 @@ final class Cookie
 
     /**
      * Sets the expires.
-     *
-     * @param \DateTime|null $expires
      *
      * @return Cookie
      */
@@ -435,7 +433,7 @@ final class Cookie
      *
      * @param string $name
      *
-     * @throws \InvalidArgumentException If the name is empty or contains invalid characters.
+     * @throws \InvalidArgumentException if the name is empty or contains invalid characters
      */
     private function validateName($name)
     {
@@ -456,7 +454,7 @@ final class Cookie
      *
      * @param string|null $value
      *
-     * @throws \InvalidArgumentException If the value contains invalid characters.
+     * @throws \InvalidArgumentException if the value contains invalid characters
      */
     private function validateValue($value)
     {
@@ -472,7 +470,7 @@ final class Cookie
      *
      * @param int|null $maxAge
      *
-     * @throws \InvalidArgumentException If the Max-Age is not an empty or integer value.
+     * @throws \InvalidArgumentException if the Max-Age is not an empty or integer value
      */
     private function validateMaxAge($maxAge)
     {

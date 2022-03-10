@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,11 +25,9 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function fetchProperty($object, $property)
+    public static function fetchProperty($object, string $property)
     {
-        $refl = new \ReflectionObject($object);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionObject($object), $property);
 
         return $prop->getValue($object);
     }
@@ -43,11 +41,9 @@ class Sudo
      *
      * @return mixed Value of $object->property
      */
-    public static function assignProperty($object, $property, $value)
+    public static function assignProperty($object, string $property, $value)
     {
-        $refl = new \ReflectionObject($object);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionObject($object), $property);
         $prop->setValue($object, $value);
 
         return $value;
@@ -62,9 +58,9 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callMethod($object, $method, $args = null)
+    public static function callMethod($object, string $method, $args = null)
     {
-        $args   = \func_get_args();
+        $args = \func_get_args();
         $object = \array_shift($args);
         $method = \array_shift($args);
 
@@ -83,10 +79,9 @@ class Sudo
      *
      * @return mixed Value of $class::$property
      */
-    public static function fetchStaticProperty($class, $property)
+    public static function fetchStaticProperty($class, string $property)
     {
-        $refl = new \ReflectionClass($class);
-        $prop = $refl->getProperty($property);
+        $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setAccessible(true);
 
         return $prop->getValue();
@@ -101,11 +96,9 @@ class Sudo
      *
      * @return mixed Value of $class::$property
      */
-    public static function assignStaticProperty($class, $property, $value)
+    public static function assignStaticProperty($class, string $property, $value)
     {
-        $refl = new \ReflectionClass($class);
-        $prop = $refl->getProperty($property);
-        $prop->setAccessible(true);
+        $prop = static::getProperty(new \ReflectionClass($class), $property);
         $prop->setValue($value);
 
         return $value;
@@ -120,10 +113,10 @@ class Sudo
      *
      * @return mixed
      */
-    public static function callStatic($class, $method, $args = null)
+    public static function callStatic($class, string $method, $args = null)
     {
-        $args   = \func_get_args();
-        $class  = \array_shift($args);
+        $args = \func_get_args();
+        $class = \array_shift($args);
         $method = \array_shift($args);
 
         $refl = new \ReflectionClass($class);
@@ -141,10 +134,49 @@ class Sudo
      *
      * @return mixed
      */
-    public static function fetchClassConst($class, $const)
+    public static function fetchClassConst($class, string $const)
     {
         $refl = new \ReflectionClass($class);
 
-        return $refl->getConstant($const);
+        do {
+            if ($refl->hasConstant($const)) {
+                return $refl->getConstant($const);
+            }
+
+            $refl = $refl->getParentClass();
+        } while ($refl !== false);
+
+        return false;
+    }
+
+    /**
+     * Get a ReflectionProperty from an object (or its parent classes).
+     *
+     * @throws \ReflectionException if neither the object nor any of its parents has this property
+     *
+     * @param \ReflectionClass $refl
+     * @param string           $property property name
+     *
+     * @return \ReflectionProperty
+     */
+    private static function getProperty(\ReflectionClass $refl, string $property): \ReflectionProperty
+    {
+        $firstException = null;
+        do {
+            try {
+                $prop = $refl->getProperty($property);
+                $prop->setAccessible(true);
+
+                return $prop;
+            } catch (\ReflectionException $e) {
+                if ($firstException === null) {
+                    $firstException = $e;
+                }
+
+                $refl = $refl->getParentClass();
+            }
+        } while ($refl !== false);
+
+        throw $firstException;
     }
 }

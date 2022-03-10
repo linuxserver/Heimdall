@@ -26,6 +26,22 @@ class References extends AbstractApi
     }
 
     /**
+     * Get all matching references for the supplied reference name.
+     *
+     * @param string $username
+     * @param string $repository
+     * @param string $reference
+     *
+     * @return array
+     */
+    public function matching(string $username, string $repository, string $reference): array
+    {
+        $reference = $this->encodeReference($reference);
+
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/matching-refs/'.$reference);
+    }
+
+    /**
      * Get all branches of a repository.
      *
      * @param string $username

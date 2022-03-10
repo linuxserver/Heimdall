@@ -15,8 +15,6 @@ use Symfony\Component\Mime\Header\Headers;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 abstract class AbstractPart
 {
@@ -50,6 +48,11 @@ abstract class AbstractPart
         yield $this->getPreparedHeaders()->toString();
         yield "\r\n";
         yield from $this->bodyToIterable();
+    }
+
+    public function asDebugString(): string
+    {
+        return $this->getMediaType().'/'.$this->getMediaSubtype();
     }
 
     abstract public function bodyToString(): string;

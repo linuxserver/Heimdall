@@ -27,9 +27,9 @@ use Symfony\Component\CssSelector\XPath\XPathExpr;
  */
 class NodeExtension extends AbstractExtension
 {
-    const ELEMENT_NAME_IN_LOWER_CASE = 1;
-    const ATTRIBUTE_NAME_IN_LOWER_CASE = 2;
-    const ATTRIBUTE_VALUE_IN_LOWER_CASE = 4;
+    public const ELEMENT_NAME_IN_LOWER_CASE = 1;
+    public const ATTRIBUTE_NAME_IN_LOWER_CASE = 2;
+    public const ATTRIBUTE_VALUE_IN_LOWER_CASE = 4;
 
     private $flags;
 
@@ -41,7 +41,7 @@ class NodeExtension extends AbstractExtension
     /**
      * @return $this
      */
-    public function setFlag(int $flag, bool $on)
+    public function setFlag(int $flag, bool $on): self
     {
         if ($on && !$this->hasFlag($flag)) {
             $this->flags += $flag;
@@ -62,7 +62,7 @@ class NodeExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getNodeTranslators()
+    public function getNodeTranslators(): array
     {
         return [
             'Selector' => [$this, 'translateSelector'],
@@ -157,7 +157,7 @@ class NodeExtension extends AbstractExtension
     {
         $element = $node->getElement();
 
-        if ($this->hasFlag(self::ELEMENT_NAME_IN_LOWER_CASE)) {
+        if ($element && $this->hasFlag(self::ELEMENT_NAME_IN_LOWER_CASE)) {
             $element = strtolower($element);
         }
 
@@ -185,7 +185,7 @@ class NodeExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'node';
     }

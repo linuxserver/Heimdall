@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -7,62 +8,106 @@
  *
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
- * @link https://benramsey.com/projects/ramsey-uuid/ Documentation
- * @link https://packagist.org/packages/ramsey/uuid Packagist
- * @link https://github.com/ramsey/uuid GitHub
  */
+
+declare(strict_types=1);
+
 namespace Ramsey\Uuid\Codec;
 
-use InvalidArgumentException;
+use Ramsey\Uuid\Exception\InvalidArgumentException;
+use Ramsey\Uuid\Exception\UnsupportedOperationException;
+use Ramsey\Uuid\Rfc4122\FieldsInterface as Rfc4122FieldsInterface;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
+use function strlen;
+use function substr;
+
 /**
- * OrderedTimeCodec optimizes the bytes to increment UUIDs when time goes by, to improve database INSERTs.
- * The string value will be unchanged from StringCodec. Only works for UUID type 1.
+ * OrderedTimeCodec encodes and decodes a UUID, optimizing the byte order for
+ * more efficient storage
+ *
+ * For binary representations of version 1 UUID, this codec may be used to
+ * reorganize the time fields, making the UUID closer to sequential when storing
+ * the bytes. According to Percona, this optimization can improve database
+ * INSERTs and SELECTs using the UUID column as a key.
+ *
+ * The string representation of the UUID will remain unchanged. Only the binary
+ * representation is reordered.
+ *
+ * **PLEASE NOTE:** Binary representations of UUIDs encoded with this codec must
+ * be decoded with this codec. Decoding using another codec can result in
+ * malformed UUIDs.
+ *
+ * @link https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/ Storing UUID Values in MySQL
+ *
+ * @psalm-immutable
  */
 class OrderedTimeCodec extends StringCodec
 {
-
     /**
-     * Encodes a UuidInterface as an optimized binary representation of a UUID
+     * Returns a binary string representation of a UUID, with the timestamp
+     * fields rearranged for optimized storage
      *
-     * @param UuidInterface $uuid
-     * @return string Binary string representation of a UUID
+     * @inheritDoc
+     * @psalm-return non-empty-string
+     * @psalm-suppress MoreSpecificReturnType we know that the retrieved `string` is never empty
+     * @psalm-suppress LessSpecificReturnStatement we know that the retrieved `string` is never empty
      */
-    public function encodeBinary(UuidInterface $uuid)
+    public function encodeBinary(UuidInterface $uuid): string
     {
-        $fields = $uuid->getFieldsHex();
+        if (
+            !($uuid->getFields() instanceof Rfc4122FieldsInterface)
+            || $uuid->getFields()->getVersion() !== Uuid::UUID_TYPE_TIME
+        ) {
+            throw new InvalidArgumentException(
+                'Expected RFC 4122 version 1 (time-based) UUID'
+            );
+        }
 
-        $optimized = [
-            $fields['time_hi_and_version'],
-            $fields['time_mid'],
-            $fields['time_low'],
-            $fields['clock_seq_hi_and_reserved'],
-            $fields['clock_seq_low'],
-            $fields['node'],
-        ];
+        $bytes = $uuid->getFields()->getBytes();
 
-        return hex2bin(implode('', $optimized));
+        /** @phpstan-ignore-next-line PHPStan complains that this is not a non-empty-string. */
+        return $bytes[6] . $bytes[7]
+            . $bytes[4] . $bytes[5]
+            . $bytes[0] . $bytes[1] . $bytes[2] . $bytes[3]
+            . substr($bytes, 8);
     }
 
     /**
-     * Decodes an optimized binary representation of a UUID into a UuidInterface object instance
+     * Returns a UuidInterface derived from an ordered-time binary string
+     * representation
      *
-     * @param string $bytes
-     * @return UuidInterface
-     * @throws \InvalidArgumentException if string has not 16 characters
+     * @throws InvalidArgumentException if $bytes is an invalid length
+     *
+     * @inheritDoc
      */
-    public function decodeBytes($bytes)
+    public function decodeBytes(string $bytes): UuidInterface
     {
         if (strlen($bytes) !== 16) {
-            throw new InvalidArgumentException('$bytes string should contain 16 characters.');
+            throw new InvalidArgumentException(
+                '$bytes string should contain 16 characters.'
+            );
         }
 
-        $hex = unpack('H*', $bytes)[1];
+        // Rearrange the bytes to their original order.
+        $rearrangedBytes = $bytes[4] . $bytes[5] . $bytes[6] . $bytes[7]
+            . $bytes[2] . $bytes[3]
+            . $bytes[0] . $bytes[1]
+            . substr($bytes, 8);
 
-        // Rearrange the fields to their original order
-        $hex = substr($hex, 8, 4) . substr($hex, 12, 4) . substr($hex, 4, 4) . substr($hex, 0, 4) . substr($hex, 16);
+        $uuid = parent::decodeBytes($rearrangedBytes);
 
-        return $this->decode($hex);
+        if (
+            !($uuid->getFields() instanceof Rfc4122FieldsInterface)
+            || $uuid->getFields()->getVersion() !== Uuid::UUID_TYPE_TIME
+        ) {
+            throw new UnsupportedOperationException(
+                'Attempting to decode a non-time-based UUID using '
+                . 'OrderedTimeCodec'
+            );
+        }
+
+        return $uuid;
     }
 }

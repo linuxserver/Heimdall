@@ -80,7 +80,7 @@ class Swift_Signers_SMimeSigner implements Swift_Signers_BodySigner
         $this->signCertificate = 'file://'.str_replace('\\', '/', realpath($certificate));
 
         if (null !== $privateKey) {
-            if (is_array($privateKey)) {
+            if (\is_array($privateKey)) {
                 $this->signPrivateKey = $privateKey;
                 $this->signPrivateKey[0] = 'file://'.str_replace('\\', '/', realpath($privateKey[0]));
             } else {
@@ -107,7 +107,7 @@ class Swift_Signers_SMimeSigner implements Swift_Signers_BodySigner
      */
     public function setEncryptCertificate($recipientCerts, $cipher = null)
     {
-        if (is_array($recipientCerts)) {
+        if (\is_array($recipientCerts)) {
             $this->encryptCert = [];
 
             foreach ($recipientCerts as $cert) {
@@ -496,20 +496,20 @@ class Swift_Signers_SMimeSigner implements Swift_Signers_BodySigner
         foreach ($headerLines as $headerLine) {
             // Handle headers that span multiple lines
             if (false === strpos($headerLine, ':')) {
-                $headers[$currentHeaderName] .= ' '.trim($headerLine);
+                $headers[$currentHeaderName] .= ' '.trim($headerLine ?? '');
                 continue;
             }
 
             $header = explode(':', $headerLine, 2);
-            $currentHeaderName = strtolower($header[0]);
-            $headers[$currentHeaderName] = trim($header[1]);
+            $currentHeaderName = strtolower($header[0] ?? '');
+            $headers[$currentHeaderName] = trim($header[1] ?? '');
         }
 
         // Read the entire email body into a byte stream
         $bodyStream = new Swift_ByteStream_TemporaryFileByteStream();
 
         // Skip the header and separator and point to the body
-        $emailStream->setReadPointer($headersPosEnd + strlen($headerBodySeparator));
+        $emailStream->setReadPointer($headersPosEnd + \strlen($headerBodySeparator));
 
         while (false !== ($buffer = $emailStream->read($bufferLength))) {
             $bodyStream->write($buffer);

@@ -23,6 +23,7 @@ class Notification extends AbstractApi
      * @param bool          $includingRead
      * @param bool          $participating
      * @param DateTime|null $since
+     * @param DateTime|null $before
      *
      * @return array array of notifications
      */

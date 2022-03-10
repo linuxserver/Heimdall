@@ -11,9 +11,9 @@
 
 namespace Symfony\Component\HttpKernel\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Base class for events thrown in the HttpKernel component.
@@ -27,10 +27,8 @@ class KernelEvent extends Event
     private $requestType;
 
     /**
-     * @param HttpKernelInterface $kernel      The kernel in which this event was thrown
-     * @param Request             $request     The request the kernel is currently processing
-     * @param int                 $requestType The request type the kernel is currently processing; one of
-     *                                         HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST
+     * @param int $requestType The request type the kernel is currently processing; one of
+     *                         HttpKernelInterface::MAIN_REQUEST or HttpKernelInterface::SUB_REQUEST
      */
     public function __construct(HttpKernelInterface $kernel, Request $request, ?int $requestType)
     {
@@ -62,7 +60,7 @@ class KernelEvent extends Event
     /**
      * Returns the request type the kernel is currently processing.
      *
-     * @return int One of HttpKernelInterface::MASTER_REQUEST and
+     * @return int One of HttpKernelInterface::MAIN_REQUEST and
      *             HttpKernelInterface::SUB_REQUEST
      */
     public function getRequestType()
@@ -71,12 +69,24 @@ class KernelEvent extends Event
     }
 
     /**
+     * Checks if this is the main request.
+     */
+    public function isMainRequest(): bool
+    {
+        return HttpKernelInterface::MAIN_REQUEST === $this->requestType;
+    }
+
+    /**
      * Checks if this is a master request.
      *
-     * @return bool True if the request is a master request
+     * @return bool
+     *
+     * @deprecated since symfony/http-kernel 5.3, use isMainRequest() instead
      */
     public function isMasterRequest()
     {
-        return HttpKernelInterface::MASTER_REQUEST === $this->requestType;
+        trigger_deprecation('symfony/http-kernel', '5.3', '"%s()" is deprecated, use "isMainRequest()" instead.', __METHOD__);
+
+        return $this->isMainRequest();
     }
 }

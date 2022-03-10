@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of Laravel GitHub.
  *
- * (c) Graham Campbell <graham@alt-three.com>
+ * (c) Graham Campbell <hello@gjcampbell.co.uk>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,43 +14,44 @@ declare(strict_types=1);
 namespace GrahamCampbell\GitHub;
 
 use Github\Client;
-use GrahamCampbell\GitHub\Authenticators\AuthenticatorFactory;
-use GrahamCampbell\GitHub\Http\ClientBuilder;
+use Github\HttpClient\Builder;
+use GrahamCampbell\GitHub\Auth\AuthenticatorFactory;
+use GrahamCampbell\GitHub\Cache\ConnectionFactory;
 use Http\Client\Common\Plugin\RetryPlugin;
-use Illuminate\Contracts\Cache\Factory;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use Madewithlove\IlluminatePsrCacheBridge\Laravel\CacheItemPool;
+use Symfony\Component\Cache\Adapter\Psr16Adapter;
 
 /**
  * This is the github factory class.
  *
- * @author Graham Campbell <graham@alt-three.com>
+ * @author Graham Campbell <hello@gjcampbell.co.uk>
  */
 class GitHubFactory
 {
     /**
      * The authenticator factory instance.
      *
-     * @var \GrahamCampbell\GitHub\Authenticators\AuthenticatorFactory
+     * @var \GrahamCampbell\GitHub\Auth\AuthenticatorFactory
      */
     protected $auth;
 
     /**
-     * The illuminate cache instance.
+     * The cache factory instance.
      *
-     * @var \Illuminate\Contracts\Cache\Factory|null
+     * @var \GrahamCampbell\GitHub\Cache\ConnectionFactory
      */
     protected $cache;
 
     /**
      * Create a new github factory instance.
      *
-     * @param \GrahamCampbell\GitHub\Authenticators\AuthenticatorFactory $auth
-     * @param \Illuminate\Contracts\Cache\Factory|null                   $cache
+     * @param \GrahamCampbell\GitHub\Auth\AuthenticatorFactory $auth
+     * @param \GrahamCampbell\GitHub\Cache\ConnectionFactory   $cache
      *
      * @return void
      */
-    public function __construct(AuthenticatorFactory $auth, Factory $cache = null)
+    public function __construct(AuthenticatorFactory $auth, ConnectionFactory $cache)
     {
         $this->auth = $auth;
         $this->cache = $cache;
@@ -67,7 +68,7 @@ class GitHubFactory
      */
     public function make(array $config)
     {
-        $client = new Client($this->getBuilder($config), array_get($config, 'version'), array_get($config, 'enterprise'));
+        $client = new Client($this->getBuilder($config), Arr::get($config, 'version'), Arr::get($config, 'enterprise'));
 
         if (!array_key_exists('method', $config)) {
             throw new InvalidArgumentException('The github factory requires an auth method.');
@@ -85,18 +86,23 @@ class GitHubFactory
      *
      * @param string[] $config
      *
-     * @return \GrahamCampbell\GitHub\Http\ClientBuilder
+     * @return \Github\HttpClient\Builder
      */
     protected function getBuilder(array $config)
     {
-        $builder = new ClientBuilder();
+        $builder = new Builder();
 
-        if ($backoff = array_get($config, 'backoff')) {
+        if ($backoff = Arr::get($config, 'backoff')) {
             $builder->addPlugin(new RetryPlugin(['retries' => $backoff === true ? 2 : $backoff]));
         }
 
-        if ($this->cache && class_exists(CacheItemPool::class) && $cache = array_get($config, 'cache')) {
-            $builder->addCache(new CacheItemPool($this->cache->store($cache === true ? null : $cache)));
+        if (is_array($cache = Arr::get($config, 'cache', false))) {
+            $boundedCache = $this->cache->make($cache);
+
+            $builder->addCache(
+                new Psr16Adapter($boundedCache),
+                ['cache_lifetime' => $boundedCache->getMaximumLifetime()]
+            );
         }
 
         return $builder;

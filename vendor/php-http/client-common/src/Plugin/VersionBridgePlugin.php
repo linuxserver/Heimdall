@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -14,7 +17,7 @@ trait VersionBridgePlugin
 {
     abstract protected function doHandleRequest(RequestInterface $request, callable $next, callable $first);
 
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         return $this->doHandleRequest($request, $next, $first);
     }

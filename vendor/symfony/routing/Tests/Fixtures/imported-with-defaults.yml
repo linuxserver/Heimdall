@@ -1,7 +1,0 @@
-one:
-  path: /one
-
-two:
-  path: /two
-  defaults:
-    specific: imported

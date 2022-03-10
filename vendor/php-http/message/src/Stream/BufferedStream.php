@@ -203,6 +203,9 @@ class BufferedStream implements StreamInterface
         if (null === $this->resource) {
             throw new \RuntimeException('Cannot read on a detached stream');
         }
+        if ($length < 0) {
+            throw new \InvalidArgumentException('Can not read a negative amount of bytes');
+        }
 
         $read = '';
 

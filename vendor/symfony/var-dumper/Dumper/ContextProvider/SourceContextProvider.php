@@ -40,7 +40,7 @@ final class SourceContextProvider implements ContextProviderInterface
 
     public function getContext(): ?array
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, $this->limit);
+        $trace = debug_backtrace(\DEBUG_BACKTRACE_PROVIDE_OBJECT | \DEBUG_BACKTRACE_IGNORE_ARGS, $this->limit);
 
         $file = $trace[1]['file'];
         $line = $trace[1]['line'];
@@ -52,11 +52,11 @@ final class SourceContextProvider implements ContextProviderInterface
                 && 'dump' === $trace[$i]['function']
                 && VarDumper::class === $trace[$i]['class']
             ) {
-                $file = $trace[$i]['file'];
-                $line = $trace[$i]['line'];
+                $file = $trace[$i]['file'] ?? $file;
+                $line = $trace[$i]['line'] ?? $line;
 
                 while (++$i < $this->limit) {
-                    if (isset($trace[$i]['function'], $trace[$i]['file']) && empty($trace[$i]['class']) && 0 !== strpos($trace[$i]['function'], 'call_user_func')) {
+                    if (isset($trace[$i]['function'], $trace[$i]['file']) && empty($trace[$i]['class']) && !str_starts_with($trace[$i]['function'], 'call_user_func')) {
                         $file = $trace[$i]['file'];
                         $line = $trace[$i]['line'];
 
@@ -98,7 +98,7 @@ final class SourceContextProvider implements ContextProviderInterface
 
         if (null !== $this->projectDir) {
             $context['project_dir'] = $this->projectDir;
-            if (0 === strpos($file, $this->projectDir)) {
+            if (str_starts_with($file, $this->projectDir)) {
                 $context['file_relative'] = ltrim(substr($file, \strlen($this->projectDir)), \DIRECTORY_SEPARATOR);
             }
         }

@@ -1,7 +1,7 @@
 {
     "name": "symfony/translation",
     "type": "library",
-    "description": "Symfony Translation Component",
+    "description": "Provides tools to internationalize your application",
     "keywords": [],
     "homepage": "https://symfony.com",
     "license": "MIT",
@@ -16,29 +16,35 @@
         }
     ],
     "require": {
-        "php": "^7.1.3",
+        "php": ">=7.2.5",
+        "symfony/deprecation-contracts": "^2.1|^3",
         "symfony/polyfill-mbstring": "~1.0",
-        "symfony/translation-contracts": "^1.1.2"
+        "symfony/polyfill-php80": "^1.16",
+        "symfony/translation-contracts": "^2.3"
     },
     "require-dev": {
-        "symfony/config": "~3.4|~4.0",
-        "symfony/console": "~3.4|~4.0",
-        "symfony/dependency-injection": "~3.4|~4.0",
-        "symfony/http-kernel": "~3.4|~4.0",
-        "symfony/intl": "~3.4|~4.0",
-        "symfony/service-contracts": "^1.1.2",
-        "symfony/var-dumper": "~3.4|~4.0",
-        "symfony/yaml": "~3.4|~4.0",
-        "symfony/finder": "~2.8|~3.0|~4.0",
-        "psr/log": "~1.0"
+        "symfony/config": "^4.4|^5.0|^6.0",
+        "symfony/console": "^5.4|^6.0",
+        "symfony/dependency-injection": "^5.0|^6.0",
+        "symfony/http-client-contracts": "^1.1|^2.0|^3.0",
+        "symfony/http-kernel": "^5.0|^6.0",
+        "symfony/intl": "^4.4|^5.0|^6.0",
+        "symfony/polyfill-intl-icu": "^1.21",
+        "symfony/service-contracts": "^1.1.2|^2|^3",
+        "symfony/yaml": "^4.4|^5.0|^6.0",
+        "symfony/finder": "^4.4|^5.0|^6.0",
+        "psr/log": "^1|^2|^3"
     },
     "conflict": {
-        "symfony/config": "<3.4",
-        "symfony/dependency-injection": "<3.4",
-        "symfony/yaml": "<3.4"
+        "symfony/config": "<4.4",
+        "symfony/dependency-injection": "<5.0",
+        "symfony/http-kernel": "<5.0",
+        "symfony/twig-bundle": "<5.0",
+        "symfony/yaml": "<4.4",
+        "symfony/console": "<5.3"
     },
     "provide": {
-        "symfony/translation-implementation": "1.0"
+        "symfony/translation-implementation": "2.3"
     },
     "suggest": {
         "symfony/config": "",
@@ -46,15 +52,11 @@
         "psr/log-implementation": "To use logging capability in translator"
     },
     "autoload": {
+        "files": [ "Resources/functions.php" ],
         "psr-4": { "Symfony\\Component\\Translation\\": "" },
         "exclude-from-classmap": [
             "/Tests/"
         ]
     },
-    "minimum-stability": "dev",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "4.3-dev"
-        }
-    }
+    "minimum-stability": "dev"
 }

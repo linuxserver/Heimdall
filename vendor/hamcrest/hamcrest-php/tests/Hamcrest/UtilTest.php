@@ -1,7 +1,9 @@
 <?php
 namespace Hamcrest;
 
-class UtilTest extends \PhpUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class UtilTest extends TestCase
 {
 
     public function testWrapValueWithIsEqualLeavesMatchersUntouched()

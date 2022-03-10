@@ -1,6 +1,12 @@
-== Version 2.0: Released XXX XX 2016 ==
+== Version 2.0.1: Released Jul 09 2020 ==
+
+* Added support for PHP 8
+
+
+== Version 2.0: Released Feb 26 2016 ==
 
 * Removed automatic loading of global functions
+
 
 == Version 1.1.0: Released Feb 2 2012 ==
 

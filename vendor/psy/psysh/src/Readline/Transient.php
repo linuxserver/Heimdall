@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,9 +28,17 @@ class Transient implements Readline
      *
      * {@inheritdoc}
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function supportsBracketedPaste(): bool
+    {
+        return false;
     }
 
     /**
@@ -39,15 +47,15 @@ class Transient implements Readline
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
         // don't do anything with the history file...
-        $this->history     = [];
+        $this->history = [];
         $this->historySize = $historySize;
-        $this->eraseDups   = $eraseDups;
+        $this->eraseDups = $eraseDups;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line)
+    public function addHistory(string $line): bool
     {
         if ($this->eraseDups) {
             if (($key = \array_search($line, $this->history)) !== false) {
@@ -72,7 +80,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function clearHistory()
+    public function clearHistory(): bool
     {
         $this->history = [];
 
@@ -82,7 +90,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function listHistory()
+    public function listHistory(): array
     {
         return $this->history;
     }
@@ -90,7 +98,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readHistory()
+    public function readHistory(): bool
     {
         return true;
     }
@@ -100,9 +108,9 @@ class Transient implements Readline
      *
      * @throws BreakException if user hits Ctrl+D
      *
-     * @return string
+     * @return false|string
      */
-    public function readline($prompt = null)
+    public function readline(string $prompt = null)
     {
         echo $prompt;
 
@@ -120,7 +128,7 @@ class Transient implements Readline
     /**
      * {@inheritdoc}
      */
-    public function writeHistory()
+    public function writeHistory(): bool
     {
         return true;
     }

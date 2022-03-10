@@ -25,7 +25,7 @@ class Contents extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -33,7 +33,7 @@ class Contents extends AbstractApi
             $bodyType = 'raw';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s', $this->getApiVersion(), $bodyType);
 
         return $this;
     }
@@ -45,7 +45,7 @@ class Contents extends AbstractApi
      *
      * @param string      $username   the user who owns the repository
      * @param string      $repository the name of the repository
-     * @param null|string $reference  reference to a branch or commit
+     * @param string|null $reference  reference to a branch or commit
      *
      * @return array information for README file
      */
@@ -63,8 +63,8 @@ class Contents extends AbstractApi
      *
      * @param string      $username   the user who owns the repository
      * @param string      $repository the name of the repository
-     * @param null|string $path       path to file or directory
-     * @param null|string $reference  reference to a branch or commit
+     * @param string|null $path       path to file or directory
+     * @param string|null $reference  reference to a branch or commit
      *
      * @return array|string information for file | information for each item in directory
      */
@@ -90,7 +90,7 @@ class Contents extends AbstractApi
      * @param string      $path       path to file
      * @param string      $content    contents of the new file
      * @param string      $message    the commit message
-     * @param null|string $branch     name of a branch
+     * @param string|null $branch     name of a branch
      * @param null|array  $committer  information about the committer
      *
      * @throws MissingArgumentException
@@ -102,8 +102,8 @@ class Contents extends AbstractApi
         $url = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/contents/'.rawurlencode($path);
 
         $parameters = [
-          'content' => base64_encode($content),
-          'message' => $message,
+            'content' => base64_encode($content),
+            'message' => $message,
         ];
 
         if (null !== $branch) {
@@ -126,7 +126,7 @@ class Contents extends AbstractApi
      * @param string      $username   the user who owns the repository
      * @param string      $repository the name of the repository
      * @param string      $path       path of file to check
-     * @param null|string $reference  reference to a branch or commit
+     * @param string|null $reference  reference to a branch or commit
      *
      * @return bool
      */
@@ -166,7 +166,7 @@ class Contents extends AbstractApi
      * @param string      $content    contents of the new file
      * @param string      $message    the commit message
      * @param string      $sha        blob SHA of the file being replaced
-     * @param null|string $branch     name of a branch
+     * @param string|null $branch     name of a branch
      * @param null|array  $committer  information about the committer
      *
      * @throws MissingArgumentException
@@ -178,9 +178,9 @@ class Contents extends AbstractApi
         $url = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/contents/'.rawurlencode($path);
 
         $parameters = [
-          'content' => base64_encode($content),
-          'message' => $message,
-          'sha'     => $sha,
+            'content' => base64_encode($content),
+            'message' => $message,
+            'sha'     => $sha,
         ];
 
         if (null !== $branch) {
@@ -207,7 +207,7 @@ class Contents extends AbstractApi
      * @param string      $path       path to file
      * @param string      $message    the commit message
      * @param string      $sha        blob SHA of the file being deleted
-     * @param null|string $branch     name of a branch
+     * @param string|null $branch     name of a branch
      * @param null|array  $committer  information about the committer
      *
      * @throws MissingArgumentException
@@ -219,8 +219,8 @@ class Contents extends AbstractApi
         $url = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/contents/'.rawurlencode($path);
 
         $parameters = [
-          'message' => $message,
-          'sha'     => $sha,
+            'message' => $message,
+            'sha'     => $sha,
         ];
 
         if (null !== $branch) {
@@ -245,7 +245,7 @@ class Contents extends AbstractApi
      * @param string      $username   the user who owns the repository
      * @param string      $repository the name of the repository
      * @param string      $format     format of archive: tarball or zipball
-     * @param null|string $reference  reference to a branch or commit
+     * @param string|null $reference  reference to a branch or commit
      *
      * @return string repository archive binary data
      */
@@ -265,12 +265,12 @@ class Contents extends AbstractApi
      * @param string      $username   the user who owns the repository
      * @param string      $repository the name of the repository
      * @param string      $path       path to file
-     * @param null|string $reference  reference to a branch or commit
+     * @param string|null $reference  reference to a branch or commit
      *
      * @throws InvalidArgumentException If $path is not a file or if its encoding is different from base64
      * @throws ErrorException           If $path doesn't include a 'content' index
      *
-     * @return null|string content of file, or null in case of base64_decode failure
+     * @return string|null content of file, or null in case of base64_decode failure
      */
     public function download($username, $repository, $path, $reference = null)
     {

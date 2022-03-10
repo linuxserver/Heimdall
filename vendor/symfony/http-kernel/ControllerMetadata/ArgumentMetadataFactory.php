@@ -21,20 +21,34 @@ final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createArgumentMetadata($controller)
+    public function createArgumentMetadata($controller): array
     {
         $arguments = [];
 
         if (\is_array($controller)) {
             $reflection = new \ReflectionMethod($controller[0], $controller[1]);
+            $class = $reflection->class;
         } elseif (\is_object($controller) && !$controller instanceof \Closure) {
-            $reflection = (new \ReflectionObject($controller))->getMethod('__invoke');
+            $reflection = new \ReflectionMethod($controller, '__invoke');
+            $class = $reflection->class;
         } else {
             $reflection = new \ReflectionFunction($controller);
+            if ($class = str_contains($reflection->name, '{closure}') ? null : $reflection->getClosureScopeClass()) {
+                $class = $class->name;
+            }
         }
 
         foreach ($reflection->getParameters() as $param) {
-            $arguments[] = new ArgumentMetadata($param->getName(), $this->getType($param, $reflection), $param->isVariadic(), $param->isDefaultValueAvailable(), $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null, $param->allowsNull());
+            $attributes = [];
+            if (\PHP_VERSION_ID >= 80000) {
+                foreach ($param->getAttributes() as $reflectionAttribute) {
+                    if (class_exists($reflectionAttribute->getName())) {
+                        $attributes[] = $reflectionAttribute->newInstance();
+                    }
+                }
+            }
+
+            $arguments[] = new ArgumentMetadata($param->getName(), $this->getType($param, $class), $param->isVariadic(), $param->isDefaultValueAvailable(), $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null, $param->allowsNull(), $attributes);
         }
 
         return $arguments;
@@ -42,30 +56,23 @@ final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
 
     /**
      * Returns an associated type to the given parameter if available.
-     *
-     * @param \ReflectionParameter $parameter
-     *
-     * @return string|null
      */
-    private function getType(\ReflectionParameter $parameter, \ReflectionFunctionAbstract $function)
+    private function getType(\ReflectionParameter $parameter, ?string $class): ?string
     {
         if (!$type = $parameter->getType()) {
-            return;
+            return null;
         }
-        $name = $type->getName();
-        $lcName = strtolower($name);
+        $name = $type instanceof \ReflectionNamedType ? $type->getName() : (string) $type;
 
-        if ('self' !== $lcName && 'parent' !== $lcName) {
-            return $name;
+        if (null !== $class) {
+            switch (strtolower($name)) {
+                case 'self':
+                    return $class;
+                case 'parent':
+                    return get_parent_class($class) ?: null;
+            }
         }
-        if (!$function instanceof \ReflectionMethod) {
-            return;
-        }
-        if ('self' === $lcName) {
-            return $function->getDeclaringClass()->name;
-        }
-        if ($parent = $function->getDeclaringClass()->getParentClass()) {
-            return $parent->name;
-        }
+
+        return $name;
     }
 }

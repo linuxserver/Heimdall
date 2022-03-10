@@ -35,14 +35,14 @@ class AuthenticateSession
      */
     public function handle($request, Closure $next)
     {
-        if (! $request->user() || ! $request->session()) {
+        if (! $request->hasSession() || ! $request->user()) {
             return $next($request);
         }
 
         if ($this->auth->viaRemember()) {
-            $passwordHash = explode('|', $request->cookies->get($this->auth->getRecallerName()))[2];
+            $passwordHash = explode('|', $request->cookies->get($this->auth->getRecallerName()))[2] ?? null;
 
-            if ($passwordHash != $request->user()->getAuthPassword()) {
+            if (! $passwordHash || $passwordHash != $request->user()->getAuthPassword()) {
                 $this->logout($request);
             }
         }
@@ -87,7 +87,7 @@ class AuthenticateSession
      */
     protected function logout($request)
     {
-        $this->auth->logout();
+        $this->auth->logoutCurrentDevice();
 
         $request->session()->flush();
 

@@ -19,18 +19,6 @@ class RateLimit extends AbstractApi
     protected $resources = [];
 
     /**
-     * Get rate limits data in an array.
-     *
-     * @deprecated since 2.11.0 Use `->getResources()` instead
-     *
-     * @return array
-     */
-    public function getRateLimits()
-    {
-        return $this->fetchLimits();
-    }
-
-    /**
      * Gets the rate limit resource objects.
      *
      * @return RateLimitResource[]
@@ -78,29 +66,5 @@ class RateLimit extends AbstractApi
         }
 
         return $result;
-    }
-
-    /**
-     * Get core rate limit.
-     *
-     * @deprecated since 2.11.0 Use `->getResource('core')->getLimit()` instead
-     *
-     * @return int
-     */
-    public function getCoreLimit()
-    {
-        return $this->getResource('core')->getLimit();
-    }
-
-    /**
-     * Get search rate limit.
-     *
-     * @deprecated since 2.11.0 Use `->getResource('core')->getLimit()` instead
-     *
-     * @return int
-     */
-    public function getSearchLimit()
-    {
-        return $this->getResource('search')->getLimit();
     }
 }

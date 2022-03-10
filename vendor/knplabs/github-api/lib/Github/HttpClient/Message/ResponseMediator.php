@@ -5,7 +5,7 @@ namespace Github\HttpClient\Message;
 use Github\Exception\ApiLimitExceedException;
 use Psr\Http\Message\ResponseInterface;
 
-class ResponseMediator
+final class ResponseMediator
 {
     /**
      * @param ResponseInterface $response
@@ -28,19 +28,21 @@ class ResponseMediator
     /**
      * @param ResponseInterface $response
      *
-     * @return array|void
+     * @return array<string,string>
      */
-    public static function getPagination(ResponseInterface $response)
+    public static function getPagination(ResponseInterface $response): array
     {
-        if (!$response->hasHeader('Link')) {
-            return;
+        $header = self::getHeader($response, 'Link');
+
+        if (null === $header) {
+            return [];
         }
 
-        $header = self::getHeader($response, 'Link');
         $pagination = [];
         foreach (explode(',', $header) as $link) {
             preg_match('/<(.*)>; rel="(.*)"/i', trim($link, ','), $match);
 
+            /** @var string[] $match */
             if (3 === count($match)) {
                 $pagination[$match[2]] = $match[1];
             }
@@ -52,17 +54,23 @@ class ResponseMediator
     /**
      * @param ResponseInterface $response
      *
-     * @return null|string
+     * @return string|null
      */
-    public static function getApiLimit(ResponseInterface $response)
+    public static function getApiLimit(ResponseInterface $response): ?string
     {
-        $remainingCalls = self::getHeader($response, 'X-RateLimit-Remaining');
+        $remainingCallsHeader = self::getHeader($response, 'X-RateLimit-Remaining');
 
-        if (null !== $remainingCalls && 1 > $remainingCalls) {
+        if (null === $remainingCallsHeader) {
+            return null;
+        }
+
+        $remainingCalls = (int) $remainingCallsHeader;
+
+        if (1 > $remainingCalls) {
             throw new ApiLimitExceedException($remainingCalls);
         }
 
-        return $remainingCalls;
+        return $remainingCallsHeader;
     }
 
     /**
@@ -73,7 +81,7 @@ class ResponseMediator
      *
      * @return string|null
      */
-    public static function getHeader(ResponseInterface $response, $name)
+    public static function getHeader(ResponseInterface $response, string $name): ?string
     {
         $headers = $response->getHeader($name);
 

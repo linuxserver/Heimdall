@@ -20,15 +20,13 @@ use Symfony\Component\Mime\Part\TextPart;
  * Implements RFC 7578.
  *
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 final class FormDataPart extends AbstractMultipartPart
 {
     private $fields = [];
 
     /**
-     * @param (string|array|DataPart)[] $fields
+     * @param array<string|array|DataPart> $fields
      */
     public function __construct(array $fields = [])
     {
@@ -36,13 +34,13 @@ final class FormDataPart extends AbstractMultipartPart
 
         foreach ($fields as $name => $value) {
             if (!\is_string($value) && !\is_array($value) && !$value instanceof TextPart) {
-                throw new InvalidArgumentException(sprintf('A form field value can only be a string, an array, or an instance of TextPart ("%s" given).', \is_object($value) ? \get_class($value) : \gettype($value)));
+                throw new InvalidArgumentException(sprintf('A form field value can only be a string, an array, or an instance of TextPart ("%s" given).', get_debug_type($value)));
             }
 
             $this->fields[$name] = $value;
         }
         // HTTP does not support \r\n in header values
-        $this->getHeaders()->setMaxLineLength(PHP_INT_MAX);
+        $this->getHeaders()->setMaxLineLength(\PHP_INT_MAX);
     }
 
     public function getMediaSubtype(): string
@@ -58,16 +56,34 @@ final class FormDataPart extends AbstractMultipartPart
     private function prepareFields(array $fields): array
     {
         $values = [];
-        array_walk_recursive($fields, function ($item, $key) use (&$values) {
-            if (!\is_array($item)) {
-                $values[] = $this->preparePart($key, $item);
+
+        $prepare = function ($item, $key, $root = null) use (&$values, &$prepare) {
+            if (\is_int($key) && \is_array($item)) {
+                if (1 !== \count($item)) {
+                    throw new InvalidArgumentException(sprintf('Form field values with integer keys can only have one array element, the key being the field name and the value being the field value, %d provided.', \count($item)));
+                }
+
+                $key = key($item);
+                $item = $item[$key];
             }
-        });
+
+            $fieldName = null !== $root ? sprintf('%s[%s]', $root, $key) : $key;
+
+            if (\is_array($item)) {
+                array_walk($item, $prepare, $fieldName);
+
+                return;
+            }
+
+            $values[] = $this->preparePart($fieldName, $item);
+        };
+
+        array_walk($fields, $prepare);
 
         return $values;
     }
 
-    private function preparePart($name, $value): TextPart
+    private function preparePart(string $name, $value): TextPart
     {
         if (\is_string($value)) {
             return $this->configurePart($name, new TextPart($value, 'utf-8', 'plain', '8bit'));
@@ -88,7 +104,7 @@ final class FormDataPart extends AbstractMultipartPart
         $part->setDisposition('form-data');
         $part->setName($name);
         // HTTP does not support \r\n in header values
-        $part->getHeaders()->setMaxLineLength(PHP_INT_MAX);
+        $part->getHeaders()->setMaxLineLength(\PHP_INT_MAX);
         $r->setValue($part, '8bit');
 
         return $part;

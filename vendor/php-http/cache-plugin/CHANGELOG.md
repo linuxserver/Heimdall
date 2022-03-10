@@ -1,5 +1,41 @@
 # Change Log
 
+## 1.7.5 - 2022-01-18
+
+- Allow installation with psr/cache 3.0 (1.0 and 2.0 are still allowed too)
+
+## 1.7.4 - 2021-11-30
+
+### Added
+
+- Allow installation with Symfony 6
+
+## 1.7.3 - 2021-11-03
+
+### Changed
+
+- Be more defensive about cache hits. A cache entry can technically contain `null`.
+
+## 1.7.2 - 2021-04-14
+
+### Added
+
+- Allow installation with psr/cache 2.0 (1.0 still allowed too)
+
+## 1.7.1 - 2020-07-13
+
+### Added
+
+- Support for PHP 8
+
+## 1.7.0 - 2019-12-17
+
+### Added
+
+* Support for Symfony 5.
+* Support for PSR-17 `StreamFactoryInterface`.
+* Added `blacklisted_paths` option, which takes an array of `strings` (regular expressions) and allows to define paths, that shall not be cached in any case.
+
 ## 1.6.0 - 2019-01-23
 
 ### Added
@@ -15,18 +51,18 @@
 
 ### Changed
 
-* Removed check if etag is a string. Etag can never be a string, it is always an array. 
+* Removed check if etag is a string. Etag can never be a string, it is always an array.
 
 ## 1.4.0 - 2017-04-05
 
-### Added 
+### Added
 
 - `CacheKeyGenerator` interface that allow you to configure how the PSR-6 cache key is created. There are two implementations
 of this interface: `SimpleGenerator` (default) and `HeaderCacheKeyGenerator`.
 
 ### Fixed
 
-- Issue where deprecation warning always was triggered. Not it is just triggered if `respect_cache_headers` is used. 
+- Issue where deprecation warning always was triggered. Not it is just triggered if `respect_cache_headers` is used.
 
 ## 1.3.0 - 2017-03-28
 
@@ -34,13 +70,13 @@ of this interface: `SimpleGenerator` (default) and `HeaderCacheKeyGenerator`.
 
 - New `methods` option which allows to configure the request methods which can be cached.
 - New `respect_response_cache_directives` option to define specific cache directives to respect when handling responses.
-- Introduced `CachePlugin::clientCache` and `CachePlugin::serverCache` factory methods to easily setup the plugin with 
+- Introduced `CachePlugin::clientCache` and `CachePlugin::serverCache` factory methods to easily setup the plugin with
   the correct config settigns for each usecase.
 
 ### Changed
 
 - The `no-cache` directive is now respected by the plugin and will not cache the response. If you need the previous behaviour, configure `respect_response_cache_directives`.
-- We always rewind the stream after loading response from cache. 
+- We always rewind the stream after loading response from cache.
 
 ### Deprecated
 

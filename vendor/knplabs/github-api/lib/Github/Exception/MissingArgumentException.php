@@ -2,19 +2,24 @@
 
 namespace Github\Exception;
 
+use Throwable;
+
 /**
- * MissingArgumentException.
- *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class MissingArgumentException extends ErrorException
 {
-    public function __construct($required, $code = 0, $previous = null)
+    /**
+     * @param string|array   $required
+     * @param int            $code
+     * @param Throwable|null $previous
+     */
+    public function __construct($required, int $code = 0, Throwable $previous = null)
     {
         if (is_string($required)) {
             $required = [$required];
         }
 
-        parent::__construct(sprintf('One or more of required ("%s") parameters is missing!', implode('", "', $required)), $code, $previous);
+        parent::__construct(sprintf('One or more of required ("%s") parameters is missing!', implode('", "', $required)), $code, 1, __FILE__, __LINE__, $previous);
     }
 }

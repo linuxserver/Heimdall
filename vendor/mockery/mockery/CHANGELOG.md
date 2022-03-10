@@ -1,8 +1,53 @@
 # Change Log
 
+## 1.3.5 (2021-09-13)
+* Fix auto-generated return values with union types #1143
+* Adds support for tentative types #1130
+* Fixes for PHP 8.1 Support (#1130 and #1140)
+
+## 1.3.4 (2021-02-24)
+
+* Fixes calls to fetchMock before initialisation #1113
+* Fix crash on a union type including null #1106
+
+## 1.3.3 (2020-08-11)
+* Fix array to string conversion in ConstantsPass (#1086)
+* Fixed nullable PHP 8.0 union types (#1088)
+* Fixed support for PHP 8.0 parent type (#1088)
+* Fixed PHP 8.0 mixed type support (#1088)
+* Fixed PHP 8.0 union return types (#1088)
+
+## 1.3.2 (2020-07-09)
+* Fix mocking with anonymous classes (#1039)
+* Fix andAnyOthers() to properly match earlier expectations (#1051)
+* Added provisional support for PHP 8.0 (#1068, #1072,#1079)
+* Fix mocking methods with iterable return type without specifying a return value (#1075)
+
+## 1.3.1 (2019-12-26)
+* Revert improved exception debugging due to BC breaks (#1032)
+
+## 1.3.0 (2019-11-24)
+
+* Added capture `Mockery::capture` convenience matcher (#1020)
+* Added `andReturnArg` to echo back an argument passed to a an expectation (#992)
+* Improved exception debugging (#1000)
+* Fixed `andSet` to not reuse properties between mock objects (#1012)
+
+## 1.2.4 (2019-09-30)
+
+* Fix a bug introduced with previous release, for empty method definition lists (#1009)
+
+## 1.2.3 (2019-08-07)
+
+* Allow mocking classes that have allows and expects methods (#868)
+* Allow passing thru __call method in all mock types (experimental) (#969)
+* Add support for `!` to blacklist methods (#959)
+* Added `withSomeOfArgs` to partial match a list of args (#967)
+* Fix chained demeter calls with type hint (#956)
+
 ## 1.2.2 (2019-02-13)
 
-* Fix a BC breaking change for PHP 5.6/PHPUnit 5.7.27 (#947) 
+* Fix a BC breaking change for PHP 5.6/PHPUnit 5.7.27 (#947)
 
 ## 1.2.1 (2019-02-07)
 
@@ -45,7 +90,7 @@
 ## 1.0.0 (2017-09-06)
 
 * Destructors (`__destruct`) are stubbed out where it makes sense
-* Allow passing a closure argument to `withArgs()` to validate multiple arguments at once. 
+* Allow passing a closure argument to `withArgs()` to validate multiple arguments at once.
 * `Mockery\Adapter\Phpunit\TestListener` has been rewritten because it
   incorrectly marked some tests as risky. It will no longer verify mock
   expectations but instead check that tests do that themselves. PHPUnit 6 is
@@ -68,7 +113,7 @@
 * BC BREAK - Fix Mockery not trying default expectations if there is any concrete expectation
 * BC BREAK - Mockery's PHPUnit integration will mark a test as risky if it
   thinks one it's exceptions has been swallowed in PHPUnit > 5.7.6. Use `$e->dismiss()` to dismiss.
- 
+
 ## 0.9.4 (XXXX-XX-XX)
 
 * `shouldIgnoreMissing` will respect global `allowMockingNonExistentMethods`

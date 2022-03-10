@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -59,7 +59,7 @@ EOS;
      *
      * @return string
      */
-    public static function unvis($input)
+    public static function unvis(string $input): string
     {
         $output = \preg_replace_callback(self::UNVIS_RX, 'self::unvisReplace', $input);
         // other escapes & octal are handled by stripcslashes
@@ -73,7 +73,7 @@ EOS;
      *
      * @return string
      */
-    protected static function unvisReplace($match)
+    protected static function unvisReplace(array $match): string
     {
         // \040, \s
         if (!empty($match[1])) {

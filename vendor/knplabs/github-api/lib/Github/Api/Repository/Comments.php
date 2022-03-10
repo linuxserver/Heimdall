@@ -23,7 +23,7 @@ class Comments extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -31,7 +31,7 @@ class Comments extends AbstractApi
             $bodyType = 'full';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->getApiVersion(), $bodyType);
 
         return $this;
     }

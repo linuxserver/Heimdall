@@ -1,9 +1,9 @@
 {
     "name": "doctrine/inflector",
     "type": "library",
-    "description": "Common String Manipulations with regard to casing and singular/plural rules.",
-    "keywords": ["string", "inflection", "singularize", "pluralize"],
-    "homepage": "http://www.doctrine-project.org",
+    "description": "PHP Doctrine Inflector is a small library that can perform string manipulations with regard to upper/lowercase and singular/plural forms of words.",
+    "keywords": ["php", "strings", "words", "manipulation", "inflector", "inflection", "uppercase", "lowercase", "singular", "plural"],
+    "homepage": "https://www.doctrine-project.org/projects/inflector.html",
     "license": "MIT",
     "authors": [
         {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
@@ -13,20 +13,24 @@
         {"name": "Johannes Schmitt", "email": "schmittjoh@gmail.com"}
     ],
     "require": {
-        "php": "^7.1"
+        "php": "^7.2 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.2"
+        "doctrine/coding-standard": "^8.2",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12",
+        "phpstan/phpstan-strict-rules": "^0.12",
+        "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
+        "vimeo/psalm": "^4.10"
     },
     "autoload": {
-        "psr-4": { "Doctrine\\Common\\Inflector\\": "lib/Doctrine/Common/Inflector" }
+        "psr-4": {
+            "Doctrine\\Inflector\\": "lib/Doctrine/Inflector"
+        }
     },
     "autoload-dev": {
-        "psr-4": { "Doctrine\\Tests\\Common\\Inflector\\": "tests/Doctrine/Tests/Common/Inflector" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.3.x-dev"
+        "psr-4": {
+            "Doctrine\\Tests\\Inflector\\": "tests/Doctrine/Tests/Inflector"
         }
     }
 }

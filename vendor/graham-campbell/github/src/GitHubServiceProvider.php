@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of Laravel GitHub.
  *
- * (c) Graham Campbell <graham@alt-three.com>
+ * (c) Graham Campbell <hello@gjcampbell.co.uk>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace GrahamCampbell\GitHub;
 
 use Github\Client;
-use GrahamCampbell\GitHub\Authenticators\AuthenticatorFactory;
+use GrahamCampbell\GitHub\Auth\AuthenticatorFactory;
+use GrahamCampbell\GitHub\Cache\ConnectionFactory;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
@@ -23,7 +24,7 @@ use Laravel\Lumen\Application as LumenApplication;
 /**
  * This is the github service provider class.
  *
- * @author Graham Campbell <graham@alt-three.com>
+ * @author Graham Campbell <hello@gjcampbell.co.uk>
  */
 class GitHubServiceProvider extends ServiceProvider
 {
@@ -63,6 +64,7 @@ class GitHubServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerAuthFactory();
+        $this->registerCacheFactory();
         $this->registerGitHubFactory();
         $this->registerManager();
         $this->registerBindings();
@@ -83,6 +85,22 @@ class GitHubServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the cache factory class.
+     *
+     * @return void
+     */
+    protected function registerCacheFactory()
+    {
+        $this->app->singleton('github.cachefactory', function (Container $app) {
+            $cache = $app->bound('cache') ? $app->make('cache') : null;
+
+            return new ConnectionFactory($cache);
+        });
+
+        $this->app->alias('github.cachefactory', ConnectionFactory::class);
+    }
+
+    /**
      * Register the github factory class.
      *
      * @return void
@@ -91,7 +109,7 @@ class GitHubServiceProvider extends ServiceProvider
     {
         $this->app->singleton('github.factory', function (Container $app) {
             $auth = $app['github.authfactory'];
-            $cache = $app['cache'];
+            $cache = $app['github.cachefactory'];
 
             return new GitHubFactory($auth, $cache);
         });
@@ -141,6 +159,7 @@ class GitHubServiceProvider extends ServiceProvider
     {
         return [
             'github.authfactory',
+            'github.cachefactory',
             'github.factory',
             'github',
             'github.connection',

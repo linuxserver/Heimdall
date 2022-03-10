@@ -20,6 +20,8 @@ class Review extends AbstractApi
 
     public function configure()
     {
+        trigger_deprecation('KnpLabs/php-github-api', '3.2', 'The "%s" is deprecated and will be removed.', __METHOD__);
+
         return $this;
     }
 
@@ -37,6 +39,10 @@ class Review extends AbstractApi
      */
     public function all($username, $repository, $pullRequest, array $params = [])
     {
+        if (!empty($params)) {
+            trigger_deprecation('KnpLabs/php-github-api', '3.2', 'The "$params" parameter is deprecated, to paginate the results use the "ResultPager" instead.');
+        }
+
         $parameters = array_merge([
             'page' => 1,
             'per_page' => 30,
@@ -93,7 +99,7 @@ class Review extends AbstractApi
      */
     public function comments($username, $repository, $pullRequest, $id)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.rawurlencode($pullRequest).'/reviews/'.rawurlencode($id).'/comments');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/reviews/'.$id.'/comments');
     }
 
     /**
@@ -171,7 +177,35 @@ class Review extends AbstractApi
         }
 
         return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/reviews/'.$id.'/dismissals', [
-          'message' => $message,
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * Update a pull request review by the username, repository, pull request number and the review id.
+     *
+     * @link https://developer.github.com/v3/pulls/reviews/#update-a-pull-request-review
+     *
+     * @param string $username    the username
+     * @param string $repository  the repository
+     * @param int    $pullRequest the pull request number
+     * @param int    $id          the review id
+     * @param string $body        a mandatory dismissal message
+     *
+     * @return array|string
+     */
+    public function update($username, $repository, $pullRequest, $id, $body)
+    {
+        if (!is_string($body)) {
+            throw new InvalidArgumentException(sprintf('"body" must be a valid string ("%s" given).', gettype($body)));
+        }
+
+        if (empty($body)) {
+            throw new InvalidArgumentException('"body" is mandatory and cannot be empty');
+        }
+
+        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/pulls/'.$pullRequest.'/reviews/'.$id, [
+            'body' => $body,
         ]);
     }
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,12 +32,6 @@ class StrictTypesPass extends CodeCleanerPass
     const EXCEPTION_MESSAGE = 'strict_types declaration must have 0 or 1 as its value';
 
     private $strictTypes = false;
-    private $atLeastPhp7;
-
-    public function __construct()
-    {
-        $this->atLeastPhp7 = \version_compare(PHP_VERSION, '7.0', '>=');
-    }
 
     /**
      * If this is a standalone strict types declaration, remember it for later.
@@ -51,13 +45,9 @@ class StrictTypesPass extends CodeCleanerPass
      */
     public function beforeTraverse(array $nodes)
     {
-        if (!$this->atLeastPhp7) {
-            return; // @codeCoverageIgnore
-        }
-
         $prependStrictTypes = $this->strictTypes;
 
-        foreach ($nodes as $key => $node) {
+        foreach ($nodes as $node) {
             if ($node instanceof Declare_) {
                 foreach ($node->declares as $declare) {
                     // For PHP Parser 4.x
@@ -65,7 +55,7 @@ class StrictTypesPass extends CodeCleanerPass
                     if ($declareKey === 'strict_types') {
                         $value = $declare->value;
                         if (!$value instanceof LNumber || ($value->value !== 0 && $value->value !== 1)) {
-                            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, E_ERROR, null, $node->getLine());
+                            throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
                         }
 
                         $this->strictTypes = $value->value === 1;

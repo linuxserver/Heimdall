@@ -13,22 +13,20 @@ namespace Symfony\Component\Mime;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 interface MimeTypesInterface extends MimeTypeGuesserInterface
 {
     /**
-     * Gets the extensions for the given MIME type.
+     * Gets the extensions for the given MIME type in decreasing order of preference.
      *
-     * @return string[] an array of extensions (first one is the preferred one)
+     * @return string[]
      */
     public function getExtensions(string $mimeType): array;
 
     /**
-     * Gets the MIME types for the given extension.
+     * Gets the MIME types for the given extension in decreasing order of preference.
      *
-     * @return string[] an array of MIME types (first one is the preferred one)
+     * @return string[]
      */
     public function getMimeTypes(string $ext): array;
 }

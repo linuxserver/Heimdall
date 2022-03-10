@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,10 +13,10 @@ namespace Psy\TabCompletion\Matcher;
 
 class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatcher
 {
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
-        $openBracket    = \array_pop($tokens);
-        $functionName   = \array_pop($tokens);
+        $openBracket = \array_pop($tokens);
+        $functionName = \array_pop($tokens);
         $methodOperator = \array_pop($tokens);
 
         $class = $this->getNamespaceAndClass($tokens);
@@ -39,7 +39,7 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
         return [];
     }
 
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
         $openBracket = \array_pop($tokens);
 

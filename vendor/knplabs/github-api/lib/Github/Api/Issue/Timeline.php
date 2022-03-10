@@ -29,6 +29,6 @@ class Timeline extends AbstractApi
      */
     public function all($username, $repository, $issue)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/timeline');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/timeline');
     }
 }

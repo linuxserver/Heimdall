@@ -21,12 +21,12 @@ class Blobs extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
         if ('raw' === $bodyType) {
-            $this->acceptHeaderValue = sprintf('application/vnd.github.%s.raw', $this->client->getApiVersion());
+            $this->acceptHeaderValue = sprintf('application/vnd.github.%s.raw', $this->getApiVersion());
         }
 
         return $this;
@@ -43,9 +43,7 @@ class Blobs extends AbstractApi
      */
     public function show($username, $repository, $sha)
     {
-        $response = $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/blobs/'.rawurlencode($sha));
-
-        return $response;
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/blobs/'.rawurlencode($sha));
     }
 
     /**

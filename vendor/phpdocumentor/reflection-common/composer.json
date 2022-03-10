@@ -11,19 +11,18 @@
         }
     ],
     "require": {
-        "php": ">=5.5"
+        "php": "^7.2 || ^8.0"
     },
     "autoload" : {
       "psr-4" : {
-        "phpDocumentor\\Reflection\\": ["src"]
+        "phpDocumentor\\Reflection\\": "src/"
       }
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.6"
     },
     "extra": {
         "branch-alias": {
-          "dev-master": "1.0.x-dev"
+            "dev-2.x": "2.x-dev"
         }
     }
 }

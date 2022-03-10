@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^7.0",
+        "php": ">=7.0",
         "sebastian/object-reflector": "^1.1.1",
         "sebastian/recursion-context": "^3.0"
     },

@@ -3,6 +3,7 @@
 namespace Github\Api\Repository;
 
 use Github\Api\AbstractApi;
+use Github\Api\AcceptHeaderTrait;
 use Github\Exception\ErrorException;
 use Github\Exception\MissingArgumentException;
 
@@ -13,6 +14,8 @@ use Github\Exception\MissingArgumentException;
  */
 class Assets extends AbstractApi
 {
+    use AcceptHeaderTrait;
+
     /**
      * Get all release's assets in selected repository
      * GET /repos/:owner/:repo/releases/:id/assets.
@@ -25,7 +28,7 @@ class Assets extends AbstractApi
      */
     public function all($username, $repository, $id)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.$id.'/assets');
     }
 
     /**
@@ -36,11 +39,15 @@ class Assets extends AbstractApi
      * @param string $repository the name of the repo
      * @param int    $id         the id of the asset
      *
-     * @return array
+     * @return array|string
      */
-    public function show($username, $repository, $id)
+    public function show($username, $repository, $id, bool $returnBinaryContent = false)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
+        if ($returnBinaryContent) {
+            $this->acceptHeaderValue = 'application/octet-stream';
+        }
+
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.$id);
     }
 
     /**
@@ -67,16 +74,14 @@ class Assets extends AbstractApi
      */
     public function create($username, $repository, $id, $name, $contentType, $content)
     {
-        if (!defined('OPENSSL_TLSEXT_SERVER_NAME') || !OPENSSL_TLSEXT_SERVER_NAME) {
-            throw new ErrorException('Asset upload support requires Server Name Indication. This is not supported by your PHP version. See http://php.net/manual/en/openssl.constsni.php.');
+        if (!defined('OPENSSL_TLSEXT_SERVER_NAME') || OPENSSL_TLSEXT_SERVER_NAME == 0) {
+            throw new ErrorException('Asset upload support requires Server Name Indication. This is not supported by your PHP version. See https://www.php.net/manual/en/openssl.constsni.php.');
         }
 
         // Asset creation requires a separate endpoint, uploads.github.com.
         // Change the base url for the HTTP client temporarily while we execute
         // this request.
-        $response = $this->postRaw('https://uploads.github.com/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets?name='.$name, $content, ['Content-Type' => $contentType]);
-
-        return $response;
+        return $this->postRaw('https://uploads.github.com/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.$id.'/assets?name='.$name, $content, ['Content-Type' => $contentType]);
     }
 
     /**
@@ -98,7 +103,7 @@ class Assets extends AbstractApi
             throw new MissingArgumentException('name');
         }
 
-        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.$id, $params);
     }
 
     /**
@@ -113,6 +118,6 @@ class Assets extends AbstractApi
      */
     public function remove($username, $repository, $id)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.$id);
     }
 }

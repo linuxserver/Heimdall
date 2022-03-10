@@ -2,6 +2,12 @@
 
 All notable changes to `sebastianbergmann/object-reflector` are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## 1.1.2 - 2020-11-30
+
+### Changed
+
+* Changed PHP version constraint in `composer.json` from `^7.0` to `>=7.1`
+
 ## 1.1.1 - 2017-03-29
 
 * Fixed [#1](https://github.com/sebastianbergmann/object-reflector/issues/1): Attributes that with non-string names are not handled correctly
@@ -16,5 +22,6 @@ All notable changes to `sebastianbergmann/object-reflector` are documented in th
 
 * Initial release
 
+[1.1.2]: https://github.com/sebastianbergmann/object-enumerator/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/sebastianbergmann/object-enumerator/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/sebastianbergmann/object-enumerator/compare/1.0.0...1.1.0

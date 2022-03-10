@@ -2,12 +2,12 @@
 
 namespace Illuminate\Database\Schema\Grammars;
 
-use RuntimeException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Fluent;
 use Doctrine\DBAL\Schema\Index;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Fluent;
+use RuntimeException;
 
 class SQLiteGrammar extends Grammar
 {
@@ -179,6 +179,7 @@ class SQLiteGrammar extends Grammar
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
+     * @return void
      *
      * @throws \RuntimeException
      */
@@ -309,6 +310,7 @@ class SQLiteGrammar extends Grammar
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
+     * @return void
      *
      * @throws \RuntimeException
      */
@@ -334,10 +336,12 @@ class SQLiteGrammar extends Grammar
     /**
      * Compile a rename index command.
      *
-     * @param  \Illuminate\Database\Schema\Blueprint $blueprint
-     * @param  \Illuminate\Support\Fluent $command
-     * @param  \Illuminate\Database\Connection $connection
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $command
+     * @param  \Illuminate\Database\Connection  $connection
      * @return array
+     *
+     * @throws \RuntimeException
      */
     public function compileRenameIndex(Blueprint $blueprint, Fluent $command, Connection $connection)
     {
@@ -460,7 +464,7 @@ class SQLiteGrammar extends Grammar
     }
 
     /**
-     * Create the column definition for a integer type.
+     * Create the column definition for an integer type.
      *
      * @param  \Illuminate\Support\Fluent  $column
      * @return string
@@ -614,13 +618,14 @@ class SQLiteGrammar extends Grammar
      */
     protected function typeDateTime(Fluent $column)
     {
-        return 'datetime';
+        return $this->typeTimestamp($column);
     }
 
     /**
      * Create the column definition for a date-time (with time zone) type.
      *
      * Note: "SQLite does not have a storage class set aside for storing dates and/or times."
+     *
      * @link https://www.sqlite.org/datatype3.html
      *
      * @param  \Illuminate\Support\Fluent  $column

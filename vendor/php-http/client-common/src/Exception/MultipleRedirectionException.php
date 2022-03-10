@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Exception;
 
 use Http\Client\Exception\HttpException;
@@ -9,6 +11,6 @@ use Http\Client\Exception\HttpException;
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
-class MultipleRedirectionException extends HttpException
+final class MultipleRedirectionException extends HttpException
 {
 }

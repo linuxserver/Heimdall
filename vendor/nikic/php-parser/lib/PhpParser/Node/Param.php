@@ -6,7 +6,7 @@ use PhpParser\NodeAbstract;
 
 class Param extends NodeAbstract
 {
-    /** @var null|Identifier|Name|NullableType Type declaration */
+    /** @var null|Identifier|Name|ComplexType Type declaration */
     public $type;
     /** @var bool Whether parameter is passed by reference */
     public $byRef;
@@ -16,20 +16,29 @@ class Param extends NodeAbstract
     public $var;
     /** @var null|Expr Default value */
     public $default;
+    /** @var int */
+    public $flags;
+    /** @var AttributeGroup[] PHP attribute groups */
+    public $attrGroups;
 
     /**
      * Constructs a parameter node.
      *
-     * @param Expr\Variable|Expr\Error                 $var        Parameter variable
-     * @param null|Expr                                $default    Default value
-     * @param null|string|Identifier|Name|NullableType $type       Type declaration
-     * @param bool                                     $byRef      Whether is passed by reference
-     * @param bool                                     $variadic   Whether this is a variadic argument
-     * @param array                                    $attributes Additional attributes
+     * @param Expr\Variable|Expr\Error                $var        Parameter variable
+     * @param null|Expr                               $default    Default value
+     * @param null|string|Identifier|Name|ComplexType $type       Type declaration
+     * @param bool                                    $byRef      Whether is passed by reference
+     * @param bool                                    $variadic   Whether this is a variadic argument
+     * @param array                                   $attributes Additional attributes
+     * @param int                                     $flags      Optional visibility flags
+     * @param AttributeGroup[]                        $attrGroups PHP attribute groups
      */
     public function __construct(
         $var, Expr $default = null, $type = null,
-        bool $byRef = false, bool $variadic = false, array $attributes = []
+        bool $byRef = false, bool $variadic = false,
+        array $attributes = [],
+        int $flags = 0,
+        array $attrGroups = []
     ) {
         $this->attributes = $attributes;
         $this->type = \is_string($type) ? new Identifier($type) : $type;
@@ -37,10 +46,12 @@ class Param extends NodeAbstract
         $this->variadic = $variadic;
         $this->var = $var;
         $this->default = $default;
+        $this->flags = $flags;
+        $this->attrGroups = $attrGroups;
     }
 
     public function getSubNodeNames() : array {
-        return ['type', 'byRef', 'variadic', 'var', 'default'];
+        return ['attrGroups', 'flags', 'type', 'byRef', 'variadic', 'var', 'default'];
     }
 
     public function getType() : string {

@@ -19,8 +19,6 @@ use Symfony\Component\DependencyInjection\Reference;
  * Registers custom mime types guessers.
  *
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 4.3
  */
 class AddMimeTypeGuesserPass implements CompilerPassInterface
 {
@@ -29,6 +27,10 @@ class AddMimeTypeGuesserPass implements CompilerPassInterface
 
     public function __construct(string $mimeTypesService = 'mime_types', string $mimeTypeGuesserTag = 'mime.mime_type_guesser')
     {
+        if (0 < \func_num_args()) {
+            trigger_deprecation('symfony/mime', '5.3', 'Configuring "%s" is deprecated.', __CLASS__);
+        }
+
         $this->mimeTypesService = $mimeTypesService;
         $this->mimeTypeGuesserTag = $mimeTypeGuesserTag;
     }

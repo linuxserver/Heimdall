@@ -3,6 +3,7 @@
 namespace Github\Api\Issue;
 
 use Github\Api\AbstractApi;
+use Github\Exception\InvalidArgumentException;
 use Github\Exception\MissingArgumentException;
 
 class Assignees extends AbstractApi
@@ -47,6 +48,7 @@ class Assignees extends AbstractApi
      * @param string $issue
      * @param array  $parameters
      *
+     * @throws InvalidArgumentException
      * @throws MissingArgumentException
      *
      * @return string
@@ -58,9 +60,7 @@ class Assignees extends AbstractApi
         }
 
         if (!is_array($parameters['assignees'])) {
-            @trigger_error(sprintf('Passing the "assignees" parameter as a string in "%s" is deprecated and will throw an exception in php-github-api version 3.0. Pass an array of strings instead', __METHOD__), E_USER_DEPRECATED);
-
-            $parameters['assignees'] = [$parameters['assignees']];
+            throw new InvalidArgumentException('The assignees parameter should be an array of assignees');
         }
 
         return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/assignees', $parameters);

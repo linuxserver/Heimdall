@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -56,6 +56,8 @@ HELP
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);
         }
+
+        return 0;
     }
 
     /**
@@ -66,7 +68,7 @@ HELP
      *
      * @return array Formatted strings
      */
-    protected function formatLines(array $lines, $type = 'return')
+    protected function formatLines(array $lines, string $type = 'return'): array
     {
         $template = \sprintf('<%s>%%s</%s>', $type, $type);
 

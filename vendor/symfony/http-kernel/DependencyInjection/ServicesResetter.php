@@ -26,6 +26,10 @@ class ServicesResetter implements ResetInterface
     private $resettableServices;
     private $resetMethods;
 
+    /**
+     * @param \Traversable<string, object>   $resettableServices
+     * @param array<string, string|string[]> $resetMethods
+     */
     public function __construct(\Traversable $resettableServices, array $resetMethods)
     {
         $this->resettableServices = $resettableServices;
@@ -35,7 +39,13 @@ class ServicesResetter implements ResetInterface
     public function reset()
     {
         foreach ($this->resettableServices as $id => $service) {
-            $service->{$this->resetMethods[$id]}();
+            foreach ((array) $this->resetMethods[$id] as $resetMethod) {
+                if ('?' === $resetMethod[0] && !method_exists($service, $resetMethod = substr($resetMethod, 1))) {
+                    continue;
+                }
+
+                $service->$resetMethod();
+            }
         }
     }
 }

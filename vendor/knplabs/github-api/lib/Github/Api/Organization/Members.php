@@ -58,9 +58,9 @@ class Members extends AbstractApi
     /*
      * Add user to organization
      */
-    public function add($organization, $username)
+    public function add($organization, $username, array $params = [])
     {
-        return $this->put('/orgs/'.rawurlencode($organization).'/memberships/'.rawurlencode($username));
+        return $this->put('/orgs/'.rawurlencode($organization).'/memberships/'.rawurlencode($username), $params);
     }
 
     public function addMember($organization, $username)

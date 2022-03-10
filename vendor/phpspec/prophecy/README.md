@@ -12,7 +12,7 @@ enough to be used inside any testing framework out there with minimal effort.
 ```php
 <?php
 
-class UserTest extends PHPUnit_Framework_TestCase
+class UserTest extends PHPUnit\Framework\TestCase
 {
     private $prophet;
 
@@ -28,7 +28,7 @@ class UserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hashed_pass', $user->getPassword());
     }
 
-    protected function setup()
+    protected function setUp()
     {
         $this->prophet = new \Prophecy\Prophet;
     }
@@ -205,6 +205,17 @@ $user->setName('everzet')->will(function ($args) use ($user) {
 
 And now it doesn't matter how many times or in which order your methods are called.
 What matters is their behaviors and how well you faked it.
+
+Note: If the method is called several times, you can use the following syntax to return different
+values for each call:
+
+```php
+$prophecy->read('123')->willReturn(1, 2, 3);
+```
+
+This feature is actually not recommended for most cases. Relying on the order of
+calls for the same arguments tends to make test fragile, as adding one more call
+can break everything.
 
 #### Arguments wildcarding
 

@@ -47,7 +47,7 @@ class Hooks extends AbstractApi
 
     public function test($username, $repository, $id)
     {
-        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/hooks/'.rawurlencode($id).'/test');
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/hooks/'.rawurlencode($id).'/tests');
     }
 
     public function remove($username, $repository, $id)

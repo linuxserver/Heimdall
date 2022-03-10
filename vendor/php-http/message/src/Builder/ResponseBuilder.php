@@ -18,8 +18,6 @@ class ResponseBuilder
 
     /**
      * Create builder for the given response.
-     *
-     * @param ResponseInterface $response
      */
     public function __construct(ResponseInterface $response)
     {
@@ -39,12 +37,12 @@ class ResponseBuilder
     /**
      * Add headers represented by an array of header lines.
      *
-     * @param string[] $headers Response headers as array of header lines.
+     * @param string[] $headers response headers as array of header lines
      *
      * @return $this
      *
-     * @throws \UnexpectedValueException For invalid header values.
-     * @throws \InvalidArgumentException For invalid status code arguments.
+     * @throws \UnexpectedValueException for invalid header values
+     * @throws \InvalidArgumentException for invalid status code arguments
      */
     public function setHeadersFromArray(array $headers)
     {
@@ -66,12 +64,12 @@ class ResponseBuilder
     /**
      * Add headers represented by a single string.
      *
-     * @param string $headers Response headers as single string.
+     * @param string $headers response headers as single string
      *
      * @return $this
      *
      * @throws \InvalidArgumentException if $headers is not a string on object with __toString()
-     * @throws \UnexpectedValueException For invalid header values.
+     * @throws \UnexpectedValueException for invalid header values
      */
     public function setHeadersFromString($headers)
     {
@@ -95,11 +93,11 @@ class ResponseBuilder
     /**
      * Set response status from a status string.
      *
-     * @param string $statusLine Response status as a string.
+     * @param string $statusLine response status as a string
      *
      * @return $this
      *
-     * @throws \InvalidArgumentException For invalid status line.
+     * @throws \InvalidArgumentException for invalid status line
      */
     public function setStatus($statusLine)
     {
@@ -121,11 +119,11 @@ class ResponseBuilder
     /**
      * Add header represented by a string.
      *
-     * @param string $headerLine Response header as a string.
+     * @param string $headerLine response header as a string
      *
      * @return $this
      *
-     * @throws \InvalidArgumentException For invalid header names or values.
+     * @throws \InvalidArgumentException for invalid header names or values
      */
     public function addHeader($headerLine)
     {

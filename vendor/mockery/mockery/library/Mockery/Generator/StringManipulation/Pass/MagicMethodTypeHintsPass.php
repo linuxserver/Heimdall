@@ -23,6 +23,7 @@ namespace Mockery\Generator\StringManipulation\Pass;
 use Mockery\Generator\MockConfiguration;
 use Mockery\Generator\TargetClassInterface;
 use Mockery\Generator\Method;
+use Mockery\Generator\Parameter;
 
 class MagicMethodTypeHintsPass implements Pass
 {
@@ -111,7 +112,7 @@ class MagicMethodTypeHintsPass implements Pass
     }
 
     /**
-     * Checks if the method is declared withing code.
+     * Checks if the method is declared within code.
      *
      * @param int $code
      * @param Method $method
@@ -153,9 +154,7 @@ class MagicMethodTypeHintsPass implements Pass
         }
 
         $groupMatches = end($parameterMatches);
-        $parameterNames = is_array($groupMatches) ?
-            $groupMatches                         :
-            array($groupMatches);
+        $parameterNames = is_array($groupMatches) ? $groupMatches : [$groupMatches];
 
         return $parameterNames;
     }
@@ -173,25 +172,30 @@ class MagicMethodTypeHintsPass implements Pass
     ) {
         $declaration = 'public';
         $declaration .= $method->isStatic() ? ' static' : '';
-        $declaration .= ' function '.$method->getName().'(';
+        $declaration .= ' function ' . $method->getName() . '(';
 
         foreach ($method->getParameters() as $index => $parameter) {
-            $declaration .= $parameter->getTypeHintAsString().' ';
-            $name = isset($namedParameters[$index]) ?
-                $namedParameters[$index]            :
-                $parameter->getName();
-            $declaration .= '$'.$name;
+            $declaration .= $this->renderTypeHint($parameter);
+            $name = isset($namedParameters[$index]) ? $namedParameters[$index] : $parameter->getName();
+            $declaration .= '$' . $name;
             $declaration .= ',';
         }
         $declaration = rtrim($declaration, ',');
         $declaration .= ') ';
 
         $returnType = $method->getReturnType();
-        if (!empty($returnType)) {
-            $declaration .= ': '.$returnType;
+        if ($returnType !== null) {
+            $declaration .= sprintf(': %s', $returnType);
         }
 
         return $declaration;
+    }
+
+    protected function renderTypeHint(Parameter $param)
+    {
+        $typeHint = $param->getTypeHint();
+
+        return $typeHint === null ? '' : sprintf('%s ', $typeHint);
     }
 
     /**

@@ -14,12 +14,12 @@ class HeaderCacheKeyGenerator implements CacheKeyGenerator
     /**
      * The header names we should take into account when creating the cache key.
      *
-     * @var array
+     * @var string[]
      */
     private $headerNames;
 
     /**
-     * @param $headerNames
+     * @param string[] $headerNames
      */
     public function __construct(array $headerNames)
     {

@@ -1,6 +1,0 @@
----
-i_need:
-    resource: ./imported-with-locale.yml
-    prefix:
-        nl: /nl
-        en: /en

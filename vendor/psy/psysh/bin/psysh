@@ -4,7 +4,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2017 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ call_user_func(function () {
     foreach ($argv as $i => $arg) {
         if ($arg === '--cwd') {
             if ($i >= count($argv) - 1) {
-                echo 'Missing --cwd argument.' . PHP_EOL;
+                fwrite(STDERR, 'Missing --cwd argument.' . PHP_EOL);
                 exit(1);
             }
             $cwd = $argv[$i + 1];
@@ -43,14 +43,21 @@ call_user_func(function () {
     $chunks = explode('/', $cwd);
     while (!empty($chunks)) {
         $path = implode('/', $chunks);
+        $prettyPath = $path;
+        if (isset($_SERVER['HOME']) && $_SERVER['HOME']) {
+            $prettyPath = preg_replace('/^' . preg_quote($_SERVER['HOME'], '/') . '/', '~', $path);
+        }
 
         // Find composer.json
         if (is_file($path . '/composer.json')) {
             if ($cfg = json_decode(file_get_contents($path . '/composer.json'), true)) {
                 if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
-                    // We're inside the psysh project. Let's use the local
-                    // Composer autoload.
+                    // We're inside the psysh project. Let's use the local Composer autoload.
                     if (is_file($path . '/vendor/autoload.php')) {
+                        if (realpath($path) !== realpath(__DIR__ . '/..')) {
+                            fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
+                        }
+
                         require $path . '/vendor/autoload.php';
                     }
 
@@ -64,9 +71,12 @@ call_user_func(function () {
             if ($cfg = json_decode(file_get_contents($path . '/composer.lock'), true)) {
                 foreach (array_merge($cfg['packages'], $cfg['packages-dev']) as $pkg) {
                     if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
-                        // We're inside a project which requires psysh. We'll
-                        // use the local Composer autoload.
+                        // We're inside a project which requires psysh. We'll use the local Composer autoload.
                         if (is_file($path . '/vendor/autoload.php')) {
+                            if (realpath($path . '/vendor') !== realpath(__DIR__ . '/../../..')) {
+                                fwrite(STDERR, 'Using local PsySH version at ' . $prettyPath . PHP_EOL);
+                            }
+
                             require $path . '/vendor/autoload.php';
                         }
 
@@ -89,8 +99,8 @@ if (!class_exists('Psy\Shell')) {
     } elseif (is_file(__DIR__ . '/../../../autoload.php')) {
         require __DIR__ . '/../../../autoload.php';
     } else {
-        echo 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL;
-        echo 'See https://getcomposer.org to get Composer.' . PHP_EOL;
+        fwrite(STDERR, 'PsySH dependencies not found, be sure to run `composer install`.' . PHP_EOL);
+        fwrite(STDERR, 'See https://getcomposer.org to get Composer.' . PHP_EOL);
         exit(1);
     }
 /* >>> */
@@ -99,14 +109,14 @@ if (!class_exists('Psy\Shell')) {
 // If the psysh binary was included directly, assume they just wanted an
 // autoloader and bail early.
 //
-// Keep this PHP 5.3 code around for a while in case someone is using a globally
-// installed psysh as a bin launcher for older local versions.
+// Keep this PHP 5.3 and 5.4 code around for a while in case someone is using a
+// globally installed psysh as a bin launcher for older local versions.
 if (version_compare(PHP_VERSION, '5.3.6', '<')) {
     $trace = debug_backtrace();
 } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 } else {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 }
 
 if (Psy\Shell::isIncluded($trace)) {
@@ -120,17 +130,17 @@ unset($trace);
 
 // If the local version is too old, we can't do this
 if (!function_exists('Psy\bin')) {
-    $argv = $_SERVER['argv'];
+    $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
     $first = array_shift($argv);
     if (preg_match('/php(\.exe)?$/', $first)) {
         array_shift($argv);
     }
     array_unshift($argv, 'vendor/bin/psysh');
 
-    echo 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL;
-    echo 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL;
-    echo PHP_EOL;
-    echo '    ' . implode(' ', $argv) . PHP_EOL;
+    fwrite(STDERR, 'A local PsySH dependency was found, but it cannot be loaded. Please update to' . PHP_EOL);
+    fwrite(STDERR, 'the latest version, or run the local copy directly, e.g.:' . PHP_EOL);
+    fwrite(STDERR, PHP_EOL);
+    fwrite(STDERR, '    ' . implode(' ', $argv) . PHP_EOL);
     exit(1);
 }
 

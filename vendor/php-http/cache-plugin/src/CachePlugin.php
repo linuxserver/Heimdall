@@ -9,15 +9,19 @@ use Http\Client\Common\Plugin\Cache\Generator\SimpleGenerator;
 use Http\Client\Common\Plugin\Cache\Listener\CacheListener;
 use Http\Message\StreamFactory;
 use Http\Promise\FulfilledPromise;
+use Http\Promise\Promise;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Allow for caching a response.
+ * Allow for caching a response with a PSR-6 compatible caching engine.
+ *
+ * It can follow the RFC-7234 caching specification or use a fixed cache lifetime.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  */
@@ -31,51 +35,51 @@ final class CachePlugin implements Plugin
     private $pool;
 
     /**
-     * @var StreamFactory
+     * @var StreamFactory|StreamFactoryInterface
      */
     private $streamFactory;
 
     /**
-     * @var array
+     * @var mixed[]
      */
     private $config;
 
     /**
      * Cache directives indicating if a response can not be cached.
      *
-     * @var array
+     * @var string[]
      */
     private $noCacheFlags = ['no-cache', 'private', 'no-store'];
 
     /**
-     * @param CacheItemPoolInterface $pool
-     * @param StreamFactory          $streamFactory
-     * @param array                  $config        {
+     * @param StreamFactory|StreamFactoryInterface $streamFactory
+     * @param mixed[]                              $config
      *
-     *     @var bool $respect_cache_headers Whether to look at the cache directives or ignore them
-     *     @var int $default_ttl (seconds) If we do not respect cache headers or can't calculate a good ttl, use this
-     *              value
-     *     @var string $hash_algo The hashing algorithm to use when generating cache keys
-     *     @var int $cache_lifetime (seconds) To support serving a previous stale response when the server answers 304
+     *     bool respect_cache_headers: Whether to look at the cache directives or ignore them
+     *     int default_ttl: (seconds) If we do not respect cache headers or can't calculate a good ttl, use this value
+     *     string hash_algo: The hashing algorithm to use when generating cache keys
+     *     int cache_lifetime: (seconds) To support serving a previous stale response when the server answers 304
      *              we have to store the cache for a longer time than the server originally says it is valid for.
      *              We store a cache item for $cache_lifetime + max age of the response.
-     *     @var array $methods list of request methods which can be cached
-     *     @var array $respect_response_cache_directives list of cache directives this plugin will respect while caching responses
-     *     @var CacheKeyGenerator $cache_key_generator an object to generate the cache key. Defaults to a new instance of SimpleGenerator
-     *     @var CacheListener[] $cache_listeners an array of objects to act on the response based on the results of the cache check.
+     *     string[] methods: list of request methods which can be cached
+     *     string[] blacklisted_paths: list of regex for URLs explicitly not to be cached
+     *     string[] respect_response_cache_directives: list of cache directives this plugin will respect while caching responses
+     *     CacheKeyGenerator cache_key_generator: an object to generate the cache key. Defaults to a new instance of SimpleGenerator
+     *     CacheListener[] cache_listeners: an array of objects to act on the response based on the results of the cache check.
      *              Defaults to an empty array
      * }
      */
-    public function __construct(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
+    public function __construct(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
     {
+        if (!($streamFactory instanceof StreamFactory) && !($streamFactory instanceof StreamFactoryInterface)) {
+            throw new \TypeError(\sprintf('Argument 2 passed to %s::__construct() must be of type %s|%s, %s given.', self::class, StreamFactory::class, StreamFactoryInterface::class, \is_object($streamFactory) ? \get_class($streamFactory) : \gettype($streamFactory)));
+        }
+
         $this->pool = $pool;
         $this->streamFactory = $streamFactory;
 
-        if (isset($config['respect_cache_headers']) && isset($config['respect_response_cache_directives'])) {
-            throw new \InvalidArgumentException(
-                'You can\'t provide config option "respect_cache_headers" and "respect_response_cache_directives". '.
-                'Use "respect_response_cache_directives" instead.'
-            );
+        if (\array_key_exists('respect_cache_headers', $config) && \array_key_exists('respect_response_cache_directives', $config)) {
+            throw new \InvalidArgumentException('You can\'t provide config option "respect_cache_headers" and "respect_response_cache_directives". Use "respect_response_cache_directives" instead.');
         }
 
         $optionsResolver = new OptionsResolver();
@@ -91,16 +95,15 @@ final class CachePlugin implements Plugin
      * This method will setup the cachePlugin in client cache mode. When using the client cache mode the plugin will
      * cache responses with `private` cache directive.
      *
-     * @param CacheItemPoolInterface $pool
-     * @param StreamFactory          $streamFactory
-     * @param array                  $config        For all possible config options see the constructor docs
+     * @param StreamFactory|StreamFactoryInterface $streamFactory
+     * @param mixed[]                              $config        For all possible config options see the constructor docs
      *
      * @return CachePlugin
      */
-    public static function clientCache(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
+    public static function clientCache(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
     {
         // Allow caching of private requests
-        if (isset($config['respect_response_cache_directives'])) {
+        if (\array_key_exists('respect_response_cache_directives', $config)) {
             $config['respect_response_cache_directives'][] = 'no-cache';
             $config['respect_response_cache_directives'][] = 'max-age';
             $config['respect_response_cache_directives'] = array_unique($config['respect_response_cache_directives']);
@@ -115,17 +118,21 @@ final class CachePlugin implements Plugin
      * This method will setup the cachePlugin in server cache mode. This is the default caching behavior it refuses to
      * cache responses with the `private`or `no-cache` directives.
      *
-     * @param CacheItemPoolInterface $pool
-     * @param StreamFactory          $streamFactory
-     * @param array                  $config        For all possible config options see the constructor docs
+     * @param StreamFactory|StreamFactoryInterface $streamFactory
+     * @param mixed[]                              $config        For all possible config options see the constructor docs
      *
      * @return CachePlugin
      */
-    public static function serverCache(CacheItemPoolInterface $pool, StreamFactory $streamFactory, array $config = [])
+    public static function serverCache(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
     {
         return new self($pool, $streamFactory, $config);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @return Promise Resolves a PSR-7 Response or fails with an Http\Client\Exception (The same as HttpAsyncClient)
+     */
     protected function doHandleRequest(RequestInterface $request, callable $next, callable $first)
     {
         $method = strtoupper($request->getMethod());
@@ -144,22 +151,24 @@ final class CachePlugin implements Plugin
 
         if ($cacheItem->isHit()) {
             $data = $cacheItem->get();
-            // The array_key_exists() is to be removed in 2.0.
-            if (array_key_exists('expiresAt', $data) && (null === $data['expiresAt'] || time() < $data['expiresAt'])) {
-                // This item is still valid according to previous cache headers
-                $response = $this->createResponseFromCacheItem($cacheItem);
-                $response = $this->handleCacheListeners($request, $response, true, $cacheItem);
+            if (is_array($data)) {
+                // The array_key_exists() is to be removed in 2.0.
+                if (array_key_exists('expiresAt', $data) && (null === $data['expiresAt'] || time() < $data['expiresAt'])) {
+                    // This item is still valid according to previous cache headers
+                    $response = $this->createResponseFromCacheItem($cacheItem);
+                    $response = $this->handleCacheListeners($request, $response, true, $cacheItem);
 
-                return new FulfilledPromise($response);
-            }
+                    return new FulfilledPromise($response);
+                }
 
-            // Add headers to ask the server if this cache is still valid
-            if ($modifiedSinceValue = $this->getModifiedSinceHeaderValue($cacheItem)) {
-                $request = $request->withHeader('If-Modified-Since', $modifiedSinceValue);
-            }
+                // Add headers to ask the server if this cache is still valid
+                if ($modifiedSinceValue = $this->getModifiedSinceHeaderValue($cacheItem)) {
+                    $request = $request->withHeader('If-Modified-Since', $modifiedSinceValue);
+                }
 
-            if ($etag = $this->getETag($cacheItem)) {
-                $request = $request->withHeader('If-None-Match', $etag);
+                if ($etag = $this->getETag($cacheItem)) {
+                    $request = $request->withHeader('If-None-Match', $etag);
+                }
             }
         }
 
@@ -183,7 +192,7 @@ final class CachePlugin implements Plugin
                 return $this->handleCacheListeners($request, $this->createResponseFromCacheItem($cacheItem), true, $cacheItem);
             }
 
-            if ($this->isCacheable($response)) {
+            if ($this->isCacheable($response) && $this->isCacheableRequest($request)) {
                 $bodyStream = $response->getBody();
                 $body = $bodyStream->__toString();
                 if ($bodyStream->isSeekable()) {
@@ -205,7 +214,7 @@ final class CachePlugin implements Plugin
                 $this->pool->save($cacheItem);
             }
 
-            return $this->handleCacheListeners($request, $response, false, isset($cacheItem) ? $cacheItem : null);
+            return $this->handleCacheListeners($request, $response, false, $cacheItem);
         });
     }
 
@@ -213,14 +222,12 @@ final class CachePlugin implements Plugin
      * Calculate the timestamp when this cache item should be dropped from the cache. The lowest value that can be
      * returned is $maxAge.
      *
-     * @param int|null $maxAge
-     *
      * @return int|null Unix system time passed to the PSR-6 cache
      */
-    private function calculateCacheItemExpiresAfter($maxAge)
+    private function calculateCacheItemExpiresAfter(?int $maxAge): ?int
     {
         if (null === $this->config['cache_lifetime'] && null === $maxAge) {
-            return;
+            return null;
         }
 
         return $this->config['cache_lifetime'] + $maxAge;
@@ -230,14 +237,12 @@ final class CachePlugin implements Plugin
      * Calculate the timestamp when a response expires. After that timestamp, we need to send a
      * If-Modified-Since / If-None-Match request to validate the response.
      *
-     * @param int|null $maxAge
-     *
      * @return int|null Unix system time. A null value means that the response expires when the cache item expires
      */
-    private function calculateResponseExpiresAt($maxAge)
+    private function calculateResponseExpiresAt(?int $maxAge): ?int
     {
         if (null === $maxAge) {
-            return;
+            return null;
         }
 
         return time() + $maxAge;
@@ -245,8 +250,6 @@ final class CachePlugin implements Plugin
 
     /**
      * Verify that we can cache this response.
-     *
-     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -267,14 +270,28 @@ final class CachePlugin implements Plugin
     }
 
     /**
+     * Verify that we can cache this request.
+     */
+    private function isCacheableRequest(RequestInterface $request): bool
+    {
+        $uri = $request->getUri()->__toString();
+        foreach ($this->config['blacklisted_paths'] as $regex) {
+            if (1 === preg_match($regex, $uri)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Get the value of a parameter in the cache control header.
      *
-     * @param ResponseInterface $response
-     * @param string            $name     The field of Cache-Control to fetch
+     * @param string $name The field of Cache-Control to fetch
      *
      * @return bool|string The value of the directive, true if directive without value, false if directive not present
      */
-    private function getCacheControlDirective(ResponseInterface $response, $name)
+    private function getCacheControlDirective(ResponseInterface $response, string $name)
     {
         $headers = $response->getHeader('Cache-Control');
         foreach ($headers as $header) {
@@ -291,12 +308,7 @@ final class CachePlugin implements Plugin
         return false;
     }
 
-    /**
-     * @param RequestInterface $request
-     *
-     * @return string
-     */
-    private function createCacheKey(RequestInterface $request)
+    private function createCacheKey(RequestInterface $request): string
     {
         $key = $this->config['cache_key_generator']->generate($request);
 
@@ -304,13 +316,11 @@ final class CachePlugin implements Plugin
     }
 
     /**
-     * Get a ttl in seconds. It could return null if we do not respect cache headers and got no defaultTtl.
+     * Get a ttl in seconds.
      *
-     * @param ResponseInterface $response
-     *
-     * @return int|null
+     * Returns null if we do not respect cache headers and got no defaultTtl.
      */
-    private function getMaxAge(ResponseInterface $response)
+    private function getMaxAge(ResponseInterface $response): ?int
     {
         if (!in_array('max-age', $this->config['respect_response_cache_directives'], true)) {
             return $this->config['default_ttl'];
@@ -321,7 +331,7 @@ final class CachePlugin implements Plugin
         if (!is_bool($maxAge)) {
             $ageHeaders = $response->getHeader('Age');
             foreach ($ageHeaders as $age) {
-                return $maxAge - ((int) $age);
+                return ((int) $maxAge) - ((int) $age);
             }
 
             return (int) $maxAge;
@@ -338,10 +348,8 @@ final class CachePlugin implements Plugin
 
     /**
      * Configure an options resolver.
-     *
-     * @param OptionsResolver $resolver
      */
-    private function configureOptions(OptionsResolver $resolver)
+    private function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'cache_lifetime' => 86400 * 30, // 30 days
@@ -353,6 +361,7 @@ final class CachePlugin implements Plugin
             'respect_response_cache_directives' => ['no-cache', 'private', 'max-age', 'no-store'],
             'cache_key_generator' => null,
             'cache_listeners' => [],
+            'blacklisted_paths' => [],
         ]);
 
         $resolver->setAllowedTypes('cache_lifetime', ['int', 'null']);
@@ -360,6 +369,7 @@ final class CachePlugin implements Plugin
         $resolver->setAllowedTypes('respect_cache_headers', ['bool', 'null']);
         $resolver->setAllowedTypes('methods', 'array');
         $resolver->setAllowedTypes('cache_key_generator', ['null', 'Http\Client\Common\Plugin\Cache\Generator\CacheKeyGenerator']);
+        $resolver->setAllowedTypes('blacklisted_paths', 'array');
         $resolver->setAllowedValues('hash_algo', hash_algos());
         $resolver->setAllowedValues('methods', function ($value) {
             /* RFC7230 sections 3.1.1 and 3.2.6 except limited to uppercase characters. */
@@ -386,12 +396,7 @@ final class CachePlugin implements Plugin
         });
     }
 
-    /**
-     * @param CacheItemInterface $cacheItem
-     *
-     * @return ResponseInterface
-     */
-    private function createResponseFromCacheItem(CacheItemInterface $cacheItem)
+    private function createResponseFromCacheItem(CacheItemInterface $cacheItem): ResponseInterface
     {
         $data = $cacheItem->get();
 
@@ -405,24 +410,18 @@ final class CachePlugin implements Plugin
             throw new RewindStreamException('Cannot rewind stream.', 0, $e);
         }
 
-        $response = $response->withBody($stream);
-
-        return $response;
+        return $response->withBody($stream);
     }
 
     /**
-     * Get the value of the "If-Modified-Since" header.
-     *
-     * @param CacheItemInterface $cacheItem
-     *
-     * @return string|null
+     * Get the value for the "If-Modified-Since" header.
      */
-    private function getModifiedSinceHeaderValue(CacheItemInterface $cacheItem)
+    private function getModifiedSinceHeaderValue(CacheItemInterface $cacheItem): ?string
     {
         $data = $cacheItem->get();
         // The isset() is to be removed in 2.0.
         if (!isset($data['createdAt'])) {
-            return;
+            return null;
         }
 
         $modified = new \DateTime('@'.$data['createdAt']);
@@ -433,17 +432,13 @@ final class CachePlugin implements Plugin
 
     /**
      * Get the ETag from the cached response.
-     *
-     * @param CacheItemInterface $cacheItem
-     *
-     * @return string|null
      */
-    private function getETag(CacheItemInterface $cacheItem)
+    private function getETag(CacheItemInterface $cacheItem): ?string
     {
         $data = $cacheItem->get();
         // The isset() is to be removed in 2.0.
         if (!isset($data['etag'])) {
-            return;
+            return null;
         }
 
         foreach ($data['etag'] as $etag) {
@@ -451,19 +446,14 @@ final class CachePlugin implements Plugin
                 return $etag;
             }
         }
+
+        return null;
     }
 
     /**
-     * Call the cache listeners, if they are set.
-     *
-     * @param RequestInterface        $request
-     * @param ResponseInterface       $response
-     * @param bool                    $cacheHit
-     * @param CacheItemInterface|null $cacheItem
-     *
-     * @return ResponseInterface
+     * Call the registered cache listeners.
      */
-    private function handleCacheListeners(RequestInterface $request, ResponseInterface $response, $cacheHit, $cacheItem)
+    private function handleCacheListeners(RequestInterface $request, ResponseInterface $response, bool $cacheHit, ?CacheItemInterface $cacheItem): ResponseInterface
     {
         foreach ($this->config['cache_listeners'] as $cacheListener) {
             $response = $cacheListener->onCacheResponse($request, $response, $cacheHit, $cacheItem);

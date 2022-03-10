@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common;
 
 use Http\Client\HttpAsyncClient;
-use Http\Client\HttpClient;
 use Psr\Http\Client\ClientInterface;
 
 /**
@@ -15,7 +16,7 @@ use Psr\Http\Client\ClientInterface;
 final class PluginClientFactory
 {
     /**
-     * @var callable
+     * @var (callable(ClientInterface|HttpAsyncClient, Plugin[], array): PluginClient)|null
      */
     private static $factory;
 
@@ -28,28 +29,32 @@ final class PluginClientFactory
      *
      * @internal
      *
-     * @param callable $factory
+     * @param callable(ClientInterface|HttpAsyncClient, Plugin[], array): PluginClient $factory
      */
-    public static function setFactory(callable $factory)
+    public static function setFactory(callable $factory): void
     {
         static::$factory = $factory;
     }
 
     /**
-     * @param HttpClient|HttpAsyncClient|ClientInterface $client
-     * @param Plugin[]                                   $plugins
-     * @param array                                      $options {
+     * @param ClientInterface|HttpAsyncClient $client
+     * @param Plugin[]                        $plugins
+     * @param array{'client_name'?: string}    $options
      *
-     *     @var string $client_name to give client a name which may be used when displaying client information  like in
-     *         the HTTPlugBundle profiler.
-     * }
+     * Configuration options:
+     *   - client_name: to give client a name which may be used when displaying client information
+     *     like in the HTTPlugBundle profiler.
      *
      * @see PluginClient constructor for PluginClient specific $options.
-     *
-     * @return PluginClient
      */
-    public function createClient($client, array $plugins = [], array $options = [])
+    public function createClient($client, array $plugins = [], array $options = []): PluginClient
     {
+        if (!$client instanceof ClientInterface && !$client instanceof HttpAsyncClient) {
+            throw new \TypeError(
+                sprintf('%s::createClient(): Argument #1 ($client) must be of type %s|%s, %s given', self::class, ClientInterface::class, HttpAsyncClient::class, get_debug_type($client))
+            );
+        }
+
         if (static::$factory) {
             $factory = static::$factory;
 

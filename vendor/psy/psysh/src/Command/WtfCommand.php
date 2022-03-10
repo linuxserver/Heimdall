@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -54,7 +54,7 @@ class WtfCommand extends TraceCommand implements ContextAware
             ->setAliases(['last-exception', 'wtf?'])
             ->setDefinition([
                 new InputArgument('incredulity', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Number of lines to show.'),
-                new InputOption('all', 'a',  InputOption::VALUE_NONE, 'Show entire backtrace.'),
+                new InputOption('all', 'a', InputOption::VALUE_NONE, 'Show entire backtrace.'),
 
                 $grep,
                 $insensitive,
@@ -92,19 +92,23 @@ HELP
         }
 
         $exception = $this->context->getLastException();
-        $count     = $input->getOption('all') ? PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
+        $count = $input->getOption('all') ? \PHP_INT_MAX : \max(3, \pow(2, \strlen($incredulity) + 1));
 
         $shell = $this->getApplication();
-        $output->startPaging();
+
+        if ($output instanceof ShellOutput) {
+            $output->startPaging();
+        }
+
         do {
             $traceCount = \count($exception->getTrace());
-            $showLines  = $count;
+            $showLines = $count;
             // Show the whole trace if we'd only be hiding a few lines
             if ($traceCount < \max($count * 1.2, $count + 2)) {
-                $showLines = PHP_INT_MAX;
+                $showLines = \PHP_INT_MAX;
             }
 
-            $trace     = $this->getBacktrace($exception, $showLines);
+            $trace = $this->getBacktrace($exception, $showLines);
             $moreLines = $traceCount - \count($trace);
 
             $output->writeln($shell->formatException($exception));
@@ -120,6 +124,11 @@ HELP
                 $output->writeln('');
             }
         } while ($exception = $exception->getPrevious());
-        $output->stopPaging();
+
+        if ($output instanceof ShellOutput) {
+            $output->stopPaging();
+        }
+
+        return 0;
     }
 }

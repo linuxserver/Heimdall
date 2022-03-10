@@ -54,7 +54,7 @@ class Trees extends AbstractApi
             }
 
             // If `sha` is not set, `content` is required
-            if (!isset($tree['sha']) && !isset($tree['content'])) {
+            if (!array_key_exists('sha', $tree) && !isset($tree['content'])) {
                 throw new MissingArgumentException("tree.$key.content");
             }
         }

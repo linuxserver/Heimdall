@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,30 +21,29 @@ class MethodEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // only list methods when a Reflector is present.
-
         if ($reflector === null) {
-            return;
+            return [];
         }
 
         // We can only list methods on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
-            return;
+            return [];
         }
 
         // only list methods if we are specifically asked
         if (!$input->getOption('methods')) {
-            return;
+            return [];
         }
 
-        $showAll   = $input->getOption('all');
+        $showAll = $input->getOption('all');
         $noInherit = $input->getOption('no-inherit');
-        $methods   = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
+        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
 
         if (empty($methods)) {
-            return;
+            return [];
         }
 
         $ret = [];
@@ -62,13 +61,15 @@ class MethodEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false)
+    protected function getMethods(bool $showAll, \Reflector $reflector, bool $noInherit = false): array
     {
         $className = $reflector->getName();
 
         $methods = [];
         foreach ($reflector->getMethods() as $name => $method) {
-            if ($noInherit && $method->getDeclaringClass()->getName() !== $className) {
+            // For some reason PHP reflection shows private methods from the parent class, even
+            // though they're effectively worthless. Let's suppress them here, like --no-inherit
+            if (($noInherit || $method->isPrivate()) && $method->getDeclaringClass()->getName() !== $className) {
                 continue;
             }
 
@@ -77,7 +78,7 @@ class MethodEnumerator extends Enumerator
             }
         }
 
-        \ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
+        \ksort($methods, \SORT_NATURAL | \SORT_FLAG_CASE);
 
         return $methods;
     }
@@ -89,7 +90,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareMethods(array $methods)
+    protected function prepareMethods(array $methods): array
     {
         // My kingdom for a generator.
         $ret = [];
@@ -114,7 +115,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return string
      */
-    protected function getKindLabel(\ReflectionClass $reflector)
+    protected function getKindLabel(\ReflectionClass $reflector): string
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
@@ -132,7 +133,7 @@ class MethodEnumerator extends Enumerator
      *
      * @return string
      */
-    private function getVisibilityStyle(\ReflectionMethod $method)
+    private function getVisibilityStyle(\ReflectionMethod $method): string
     {
         if ($method->isPublic()) {
             return self::IS_PUBLIC;

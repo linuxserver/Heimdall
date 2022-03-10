@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common;
 
 use Http\Client\HttpAsyncClient;
@@ -18,23 +20,17 @@ final class FlexibleHttpClient implements HttpClient, HttpAsyncClient
     use HttpAsyncClientDecorator;
 
     /**
-     * @param HttpClient|HttpAsyncClient|ClientInterface $client
+     * @param ClientInterface|HttpAsyncClient $client
      */
     public function __construct($client)
     {
-        if (!($client instanceof HttpClient) && !($client instanceof HttpAsyncClient) && !($client instanceof ClientInterface)) {
-            throw new \LogicException('Client must be an instance of Http\\Client\\HttpClient or Http\\Client\\HttpAsyncClient');
+        if (!$client instanceof ClientInterface && !$client instanceof HttpAsyncClient) {
+            throw new \TypeError(
+                sprintf('%s::__construct(): Argument #1 ($client) must be of type %s|%s, %s given', self::class, ClientInterface::class, HttpAsyncClient::class, get_debug_type($client))
+            );
         }
 
-        $this->httpClient = $client;
-        $this->httpAsyncClient = $client;
-
-        if (!($this->httpClient instanceof HttpClient) && !($client instanceof ClientInterface)) {
-            $this->httpClient = new EmulatedHttpClient($this->httpClient);
-        }
-
-        if (!($this->httpAsyncClient instanceof HttpAsyncClient)) {
-            $this->httpAsyncClient = new EmulatedHttpAsyncClient($this->httpAsyncClient);
-        }
+        $this->httpClient = $client instanceof ClientInterface ? $client : new EmulatedHttpClient($client);
+        $this->httpAsyncClient = $client instanceof HttpAsyncClient ? $client : new EmulatedHttpAsyncClient($client);
     }
 }

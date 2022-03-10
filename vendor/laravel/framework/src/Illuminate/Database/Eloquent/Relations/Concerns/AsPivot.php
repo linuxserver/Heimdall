@@ -2,9 +2,9 @@
 
 namespace Illuminate\Database\Eloquent\Relations\Concerns;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 trait AsPivot
 {
@@ -33,14 +33,16 @@ trait AsPivot
      * Create a new pivot model instance.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $parent
-     * @param  array   $attributes
+     * @param  array  $attributes
      * @param  string  $table
-     * @param  bool    $exists
+     * @param  bool  $exists
      * @return static
      */
     public static function fromAttributes(Model $parent, $attributes, $table, $exists = false)
     {
         $instance = new static;
+
+        $instance->timestamps = $instance->hasTimestampAttributes($attributes);
 
         // The pivot model is a "dynamic" model since we will set the tables dynamically
         // for the instance. This allows it work for any intermediate tables for the
@@ -57,8 +59,6 @@ trait AsPivot
 
         $instance->exists = $exists;
 
-        $instance->timestamps = $instance->hasTimestampAttributes();
-
         return $instance;
     }
 
@@ -66,18 +66,18 @@ trait AsPivot
      * Create a new pivot model from raw values returned from a query.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $parent
-     * @param  array   $attributes
+     * @param  array  $attributes
      * @param  string  $table
-     * @param  bool    $exists
+     * @param  bool  $exists
      * @return static
      */
     public static function fromRawAttributes(Model $parent, $attributes, $table, $exists = false)
     {
         $instance = static::fromAttributes($parent, [], $table, $exists);
 
-        $instance->setRawAttributes($attributes, true);
+        $instance->timestamps = $instance->hasTimestampAttributes($attributes);
 
-        $instance->timestamps = $instance->hasTimestampAttributes();
+        $instance->setRawAttributes($attributes, $exists);
 
         return $instance;
     }
@@ -111,10 +111,20 @@ trait AsPivot
     public function delete()
     {
         if (isset($this->attributes[$this->getKeyName()])) {
-            return parent::delete();
+            return (int) parent::delete();
         }
 
-        return $this->getDeleteQuery()->delete();
+        if ($this->fireModelEvent('deleting') === false) {
+            return 0;
+        }
+
+        $this->touchOwners();
+
+        return tap($this->getDeleteQuery()->delete(), function () {
+            $this->exists = false;
+
+            $this->fireModelEvent('deleted', false);
+        });
     }
 
     /**
@@ -193,13 +203,14 @@ trait AsPivot
     }
 
     /**
-     * Determine if the pivot model has timestamp attributes.
+     * Determine if the pivot model or given attributes has timestamp attributes.
      *
+     * @param  array|null  $attributes
      * @return bool
      */
-    public function hasTimestampAttributes()
+    public function hasTimestampAttributes($attributes = null)
     {
-        return array_key_exists($this->getCreatedAtColumn(), $this->attributes);
+        return array_key_exists($this->getCreatedAtColumn(), $attributes ?? $this->attributes);
     }
 
     /**
@@ -247,7 +258,7 @@ trait AsPivot
     /**
      * Get a new query to restore one or more models by their queueable IDs.
      *
-     * @param  array<int>  $ids
+     * @param  int[]|string[]|string  $ids
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function newQueryForRestoration($ids)
@@ -270,11 +281,13 @@ trait AsPivot
     /**
      * Get a new query to restore multiple models by their queueable IDs.
      *
-     * @param  array|int  $ids
+     * @param  int[]|string[]  $ids
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newQueryForCollectionRestoration(array $ids)
     {
+        $ids = array_values($ids);
+
         if (! Str::contains($ids[0], ':')) {
             return parent::newQueryForRestoration($ids);
         }
@@ -291,5 +304,18 @@ trait AsPivot
         }
 
         return $query;
+    }
+
+    /**
+     * Unset all the loaded relations for the instance.
+     *
+     * @return $this
+     */
+    public function unsetRelations()
+    {
+        $this->pivotParent = null;
+        $this->relations = [];
+
+        return $this;
     }
 }

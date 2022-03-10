@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,7 +24,7 @@ class ClassAttributesMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
         $input = $this->getInput($tokens);
 
@@ -45,7 +45,7 @@ class ClassAttributesMatcher extends AbstractMatcher
         $vars = \array_merge(
             \array_map(
                 function ($var) {
-                    return '$' . $var;
+                    return '$'.$var;
                 },
                 \array_keys($reflection->getStaticProperties())
             ),
@@ -57,7 +57,7 @@ class ClassAttributesMatcher extends AbstractMatcher
                 $chunks = \explode('\\', $class);
                 $className = \array_pop($chunks);
 
-                return $className . '::' . $name;
+                return $className.'::'.$name;
             },
             \array_filter(
                 $vars,
@@ -71,9 +71,9 @@ class ClassAttributesMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
-        $token     = \array_pop($tokens);
+        $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
         switch (true) {

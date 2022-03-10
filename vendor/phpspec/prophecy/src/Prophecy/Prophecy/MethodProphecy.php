@@ -71,7 +71,7 @@ class MethodProphecy
         }
 
         if (version_compare(PHP_VERSION, '7.0', '>=') && true === $reflectedMethod->hasReturnType()) {
-            $type = (string) $reflectedMethod->getReturnType();
+            $type = PHP_VERSION_ID >= 70100 ? $reflectedMethod->getReturnType()->getName() : (string) $reflectedMethod->getReturnType();
 
             if ('void' === $type) {
                 $this->voidReturnType = true;
@@ -178,6 +178,40 @@ class MethodProphecy
         }
 
         return $this->will(new Promise\ReturnPromise(func_get_args()));
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return $this
+     *
+     * @throws \Prophecy\Exception\InvalidArgumentException
+     */
+    public function willYield($items)
+    {
+        if ($this->voidReturnType) {
+            throw new MethodProphecyException(
+                "The method \"$this->methodName\" has a void return type, and so cannot yield anything",
+                $this
+            );
+        }
+
+        if (!is_array($items)) {
+            throw new InvalidArgumentException(sprintf(
+                'Expected array, but got %s.',
+                gettype($items)
+            ));
+        }
+
+        // Remove eval() when minimum version >=5.5
+        /** @var callable $generator */
+        $generator = eval('return function() use ($items) {
+            foreach ($items as $key => $value) {
+                yield $key => $value;
+            }
+        };');
+
+        return $this->will($generator);
     }
 
     /**

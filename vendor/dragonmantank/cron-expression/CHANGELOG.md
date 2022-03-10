@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.3.1] - 2020-10-12
+### Added
+- Added support for PHP 8 (#92)
+### Changed
+- N/A
+### Fixed
+- N/A
+
 ## [2.3.0] - 2019-03-30
 ### Added
 - Added support for DateTimeImmutable via DateTimeInterface

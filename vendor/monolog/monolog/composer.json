@@ -2,46 +2,52 @@
     "name": "monolog/monolog",
     "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
     "keywords": ["log", "logging", "psr-3"],
-    "homepage": "http://github.com/Seldaek/monolog",
+    "homepage": "https://github.com/Seldaek/monolog",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Jordi Boggiano",
             "email": "j.boggiano@seld.be",
-            "homepage": "http://seld.be"
+            "homepage": "https://seld.be"
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "psr/log": "~1.0"
+        "php": ">=7.2",
+        "psr/log": "^1.0.1 || ^2.0 || ^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.5",
-        "graylog2/gelf-php": "~1.0",
-        "sentry/sentry": "^0.13",
-        "ruflin/elastica": ">=0.90 <3.0",
-        "doctrine/couchdb": "~1.0@dev",
         "aws/aws-sdk-php": "^2.4.9 || ^3.0",
-        "php-amqplib/php-amqplib": "~2.4",
-        "swiftmailer/swiftmailer": "^5.3|^6.0",
+        "doctrine/couchdb": "~1.0@dev",
+        "elasticsearch/elasticsearch": "^7",
+        "mongodb/mongodb": "^1.8",
+        "graylog2/gelf-php": "^1.4.2",
+        "php-amqplib/php-amqplib": "~2.4 || ^3",
         "php-console/php-console": "^3.1.3",
-        "phpunit/phpunit-mock-objects": "2.3.0",
-        "jakub-onderka/php-parallel-lint": "0.9"
+        "phpspec/prophecy": "^1.6.1",
+        "phpunit/phpunit": "^8.5",
+        "predis/predis": "^1.1",
+        "rollbar/rollbar": "^1.3",
+        "ruflin/elastica": ">=0.90@dev",
+        "swiftmailer/swiftmailer": "^5.3|^6.0",
+        "phpstan/phpstan": "^0.12.91"
     },
-    "_": "phpunit/phpunit-mock-objects required in 2.3.0 due to https://github.com/sebastianbergmann/phpunit-mock-objects/issues/223 - needs hhvm 3.8+ on travis",
     "suggest": {
         "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
-        "sentry/sentry": "Allow sending log messages to a Sentry server",
         "doctrine/couchdb": "Allow sending log messages to a CouchDB server",
         "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
+        "elasticsearch/elasticsearch": "Allow sending log messages to an Elasticsearch server via official client",
         "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
         "ext-amqp": "Allow sending log messages to an AMQP server (1.0+ required)",
-        "ext-mongo": "Allow sending log messages to a MongoDB server",
-        "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
+        "ext-mongodb": "Allow sending log messages to a MongoDB server (via driver)",
+        "mongodb/mongodb": "Allow sending log messages to a MongoDB server (via library)",
         "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
         "rollbar/rollbar": "Allow sending log messages to Rollbar",
-        "php-console/php-console": "Allow sending log messages to Google Chrome"
+        "php-console/php-console": "Allow sending log messages to Google Chrome",
+        "ext-mbstring": "Allow to work properly with unicode symbols",
+        "ext-sockets": "Allow sending log messages to a Syslog server (via UDP driver)",
+        "ext-curl": "Required to send log messages using the IFTTTHandler, the LogglyHandler, the SendGridHandler, the SlackWebhookHandler or the TelegramBotHandler",
+        "ext-openssl": "Required to send log messages using SSL"
     },
     "autoload": {
         "psr-4": {"Monolog\\": "src/Monolog"}
@@ -50,17 +56,20 @@
         "psr-4": {"Monolog\\": "tests/Monolog"}
     },
     "provide": {
-        "psr/log-implementation": "1.0.0"
+        "psr/log-implementation": "1.0.0 || 2.0.0 || 3.0.0"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-main": "2.x-dev"
         }
     },
     "scripts": {
-        "test": [
-            "parallel-lint . --exclude vendor",
-            "phpunit"
-        ]
+        "test": "vendor/bin/phpunit",
+        "phpstan": "vendor/bin/phpstan analyse"
+    },
+    "config": {
+        "lock": false,
+        "sort-packages": true,
+        "platform-check": false
     }
 }

@@ -24,7 +24,7 @@ class Gists extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -32,11 +32,16 @@ class Gists extends AbstractApi
             $bodyType = 'raw';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s', $this->getApiVersion(), $bodyType);
 
         return $this;
     }
 
+    /**
+     * @param string|null $type
+     *
+     * @return array|string
+     */
     public function all($type = null)
     {
         if (!in_array($type, ['public', 'starred'])) {
@@ -46,9 +51,29 @@ class Gists extends AbstractApi
         return $this->get('/gists/'.rawurlencode($type));
     }
 
+    /**
+     * @param string $number
+     *
+     * @return array
+     */
     public function show($number)
     {
         return $this->get('/gists/'.rawurlencode($number));
+    }
+
+    /**
+     * Get a specific revision of a gist.
+     *
+     * @param string $number
+     * @param string $sha
+     *
+     * @link https://developer.github.com/v3/gists/#get-a-specific-revision-of-a-gist
+     *
+     * @return array
+     */
+    public function revision($number, $sha)
+    {
+        return $this->get('/gists/'.rawurlencode($number).'/'.rawurlencode($sha));
     }
 
     public function create(array $params)
@@ -62,41 +87,82 @@ class Gists extends AbstractApi
         return $this->post('/gists', $params);
     }
 
+    /**
+     * @param string $id
+     * @param array  $params
+     *
+     * @return array
+     */
     public function update($id, array $params)
     {
         return $this->patch('/gists/'.rawurlencode($id), $params);
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function commits($id)
     {
         return $this->get('/gists/'.rawurlencode($id).'/commits');
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function fork($id)
     {
         return $this->post('/gists/'.rawurlencode($id).'/fork');
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function forks($id)
     {
         return $this->get('/gists/'.rawurlencode($id).'/forks');
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function remove($id)
     {
         return $this->delete('/gists/'.rawurlencode($id));
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function check($id)
     {
         return $this->get('/gists/'.rawurlencode($id).'/star');
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function star($id)
     {
         return $this->put('/gists/'.rawurlencode($id).'/star');
     }
 
+    /**
+     * @param string $id
+     *
+     * @return array
+     */
     public function unstar($id)
     {
         return $this->delete('/gists/'.rawurlencode($id).'/star');
@@ -111,6 +177,6 @@ class Gists extends AbstractApi
      */
     public function comments()
     {
-        return new Comments($this->client);
+        return new Comments($this->getClient());
     }
 }

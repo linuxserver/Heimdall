@@ -22,6 +22,9 @@ class ChainCacheClearer implements CacheClearerInterface
 {
     private $clearers;
 
+    /**
+     * @param iterable<mixed, CacheClearerInterface> $clearers
+     */
     public function __construct(iterable $clearers = [])
     {
         $this->clearers = $clearers;
@@ -30,7 +33,7 @@ class ChainCacheClearer implements CacheClearerInterface
     /**
      * {@inheritdoc}
      */
-    public function clear($cacheDir)
+    public function clear(string $cacheDir)
     {
         foreach ($this->clearers as $clearer) {
             $clearer->clear($cacheDir);

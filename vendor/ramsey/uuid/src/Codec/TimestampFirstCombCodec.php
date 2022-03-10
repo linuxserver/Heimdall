@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -7,101 +8,106 @@
  *
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
- * @link https://benramsey.com/projects/ramsey-uuid/ Documentation
- * @link https://packagist.org/packages/ramsey/uuid Packagist
- * @link https://github.com/ramsey/uuid GitHub
  */
+
+declare(strict_types=1);
+
 namespace Ramsey\Uuid\Codec;
 
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidInterface;
 
+use function bin2hex;
+use function sprintf;
+use function substr;
+use function substr_replace;
+
 /**
- * TimestampLastCombCodec encodes and decodes COMB UUIDs which have the timestamp as the first 48 bits.
- * To be used with MySQL, PostgreSQL, Oracle.
+ * TimestampFirstCombCodec encodes and decodes COMBs, with the timestamp as the
+ * first 48 bits
+ *
+ * In contrast with the TimestampLastCombCodec, the TimestampFirstCombCodec
+ * adds the timestamp to the first 48 bits of the COMB. To generate a
+ * timestamp-first COMB, set the TimestampFirstCombCodec as the codec, along
+ * with the CombGenerator as the random generator.
+ *
+ * ``` php
+ * $factory = new UuidFactory();
+ *
+ * $factory->setCodec(new TimestampFirstCombCodec($factory->getUuidBuilder()));
+ *
+ * $factory->setRandomGenerator(new CombGenerator(
+ *     $factory->getRandomGenerator(),
+ *     $factory->getNumberConverter()
+ * ));
+ *
+ * $timestampFirstComb = $factory->uuid4();
+ * ```
+ *
+ * @link https://www.informit.com/articles/printerfriendly/25862 The Cost of GUIDs as Primary Keys
+ *
+ * @psalm-immutable
  */
 class TimestampFirstCombCodec extends StringCodec
 {
     /**
-     * Encodes a UuidInterface as a string representation of a timestamp first COMB UUID
-     *
-     * @param UuidInterface $uuid
-     *
-     * @return string Hexadecimal string representation of a GUID
+     * @psalm-return non-empty-string
+     * @psalm-suppress MoreSpecificReturnType we know that the retrieved `string` is never empty
+     * @psalm-suppress LessSpecificReturnStatement we know that the retrieved `string` is never empty
      */
-    public function encode(UuidInterface $uuid)
+    public function encode(UuidInterface $uuid): string
     {
-        $sixPieceComponents = array_values($uuid->getFieldsHex());
+        $bytes = $this->swapBytes($uuid->getFields()->getBytes());
 
-        $this->swapTimestampAndRandomBits($sixPieceComponents);
-
-        return vsprintf(
-            '%08s-%04s-%04s-%02s%02s-%012s',
-            $sixPieceComponents
+        return sprintf(
+            '%08s-%04s-%04s-%04s-%012s',
+            bin2hex(substr($bytes, 0, 4)),
+            bin2hex(substr($bytes, 4, 2)),
+            bin2hex(substr($bytes, 6, 2)),
+            bin2hex(substr($bytes, 8, 2)),
+            bin2hex(substr($bytes, 10))
         );
     }
 
     /**
-     * Encodes a UuidInterface as a binary representation of timestamp first COMB UUID
-     *
-     * @param UuidInterface $uuid
-     *
-     * @return string Binary string representation of timestamp first COMB UUID
+     * @psalm-return non-empty-string
+     * @psalm-suppress MoreSpecificReturnType we know that the retrieved `string` is never empty
+     * @psalm-suppress LessSpecificReturnStatement we know that the retrieved `string` is never empty
      */
-    public function encodeBinary(UuidInterface $uuid)
+    public function encodeBinary(UuidInterface $uuid): string
     {
-        $stringEncoding = $this->encode($uuid);
-
-        return hex2bin(str_replace('-', '', $stringEncoding));
+        /** @phpstan-ignore-next-line PHPStan complains that this is not a non-empty-string. */
+        return $this->swapBytes($uuid->getFields()->getBytes());
     }
 
     /**
-     * Decodes a string representation of timestamp first COMB UUID into a UuidInterface object instance
+     * @throws InvalidUuidStringException
      *
-     * @param string $encodedUuid
-     *
-     * @return UuidInterface
-     * @throws \Ramsey\Uuid\Exception\InvalidUuidStringException
+     * @inheritDoc
      */
-    public function decode($encodedUuid)
+    public function decode(string $encodedUuid): UuidInterface
     {
-        $fivePieceComponents = $this->extractComponents($encodedUuid);
+        $bytes = $this->getBytes($encodedUuid);
 
-        $this->swapTimestampAndRandomBits($fivePieceComponents);
+        return $this->getBuilder()->build($this, $this->swapBytes($bytes));
+    }
 
-        return $this->getBuilder()->build($this, $this->getFields($fivePieceComponents));
+    public function decodeBytes(string $bytes): UuidInterface
+    {
+        return $this->getBuilder()->build($this, $this->swapBytes($bytes));
     }
 
     /**
-     * Decodes a binary representation of timestamp first COMB UUID into a UuidInterface object instance
-     *
-     * @param string $bytes
-     *
-     * @return UuidInterface
-     * @throws \Ramsey\Uuid\Exception\InvalidUuidStringException
+     * Swaps bytes according to the timestamp-first COMB rules
      */
-    public function decodeBytes($bytes)
+    private function swapBytes(string $bytes): string
     {
-        return $this->decode(bin2hex($bytes));
-    }
+        $first48Bits = substr($bytes, 0, 6);
+        $last48Bits = substr($bytes, -6);
 
-    /**
-     * Swaps the first 48 bits with the last 48 bits
-     *
-     * @param array $components An array of UUID components (the UUID exploded on its dashes)
-     *
-     * @return void
-     */
-    protected function swapTimestampAndRandomBits(array &$components)
-    {
-        $last48Bits = $components[4];
-        if (count($components) == 6) {
-            $last48Bits = $components[5];
-            $components[5] = $components[0] . $components[1];
-        } else {
-            $components[4] = $components[0] . $components[1];
-        }
+        $bytes = substr_replace($bytes, $last48Bits, 0, 6);
+        $bytes = substr_replace($bytes, $first48Bits, -6);
 
-        $components[0] = substr($last48Bits, 0, 8);
-        $components[1] = substr($last48Bits, 8, 4);
+        return $bytes;
     }
 }

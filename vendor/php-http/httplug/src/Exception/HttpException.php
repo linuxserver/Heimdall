@@ -20,10 +20,7 @@ class HttpException extends RequestException
     protected $response;
 
     /**
-     * @param string            $message
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param \Exception|null   $previous
+     * @param string $message
      */
     public function __construct(
         $message,
@@ -49,12 +46,6 @@ class HttpException extends RequestException
 
     /**
      * Factory method to create a new exception with a normalized error message.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param \Exception|null   $previous
-     *
-     * @return HttpException
      */
     public static function create(
         RequestInterface $request,
@@ -69,6 +60,6 @@ class HttpException extends RequestException
             $response->getReasonPhrase()
         );
 
-        return new self($message, $request, $response, $previous);
+        return new static($message, $request, $response, $previous);
     }
 }

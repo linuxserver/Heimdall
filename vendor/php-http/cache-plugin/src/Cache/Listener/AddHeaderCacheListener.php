@@ -9,7 +9,7 @@ use Psr\Cache\CacheItemInterface;
 /**
  * Adds a header indicating if the response came from cache.
  *
- * @author Iain Connor <iain.connor@priceline.com>
+ * @author Iain Connor <iainconnor@gmail.com>
  */
 class AddHeaderCacheListener implements CacheListener
 {
@@ -27,8 +27,6 @@ class AddHeaderCacheListener implements CacheListener
     /**
      * Called before the cache plugin returns the response, with information on whether that response came from cache.
      *
-     * @param RequestInterface        $request
-     * @param ResponseInterface       $response
      * @param bool                    $fromCache Whether the `$response` was from the cache or not.
      *                                           Note that checking `$cacheItem->isHit()` is not sufficent to determine this.
      * @param CacheItemInterface|null $cacheItem

@@ -13,12 +13,11 @@ use Psr\Http\Message\StreamInterface;
  */
 abstract class FilteredStream implements StreamInterface
 {
-    const BUFFER_SIZE = 8192;
-
     use StreamDecorator {
         rewind as private doRewind;
         seek as private doSeek;
     }
+    const BUFFER_SIZE = 8192;
 
     /**
      * @var callable
@@ -54,9 +53,8 @@ abstract class FilteredStream implements StreamInterface
     protected $buffer = '';
 
     /**
-     * @param StreamInterface $stream
-     * @param mixed|null      $readFilterOptions
-     * @param mixed|null      $writeFilterOptions deprecated since 1.5, will be removed in 2.0
+     * @param mixed|null $readFilterOptions
+     * @param mixed|null $writeFilterOptions deprecated since 1.5, will be removed in 2.0
      */
     public function __construct(StreamInterface $stream, $readFilterOptions = null, $writeFilterOptions = null)
     {

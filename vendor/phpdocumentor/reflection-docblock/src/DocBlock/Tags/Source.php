@@ -1,12 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * This file is part of phpDocumentor.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @copyright 2010-2015 Mike van Riel<mike@phpdoc.org>
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
@@ -17,6 +18,8 @@ use phpDocumentor\Reflection\DocBlock\DescriptionFactory;
 use phpDocumentor\Reflection\Types\Context as TypeContext;
 use Webmozart\Assert\Assert;
 
+use function preg_match;
+
 /**
  * Reflection class for a {@}source tag in a Docblock.
  */
@@ -26,26 +29,30 @@ final class Source extends BaseTag implements Factory\StaticMethod
     protected $name = 'source';
 
     /** @var int The starting line, relative to the structural element's location. */
-    private $startingLine = 1;
+    private $startingLine;
 
     /** @var int|null The number of lines, relative to the starting line. NULL means "to the end". */
-    private $lineCount = null;
+    private $lineCount;
 
-    public function __construct($startingLine, $lineCount = null, Description $description = null)
+    /**
+     * @param int|string      $startingLine should be a to int convertible value
+     * @param int|string|null $lineCount    should be a to int convertible value
+     */
+    public function __construct($startingLine, $lineCount = null, ?Description $description = null)
     {
         Assert::integerish($startingLine);
         Assert::nullOrIntegerish($lineCount);
 
-        $this->startingLine = (int)$startingLine;
-        $this->lineCount    = $lineCount !== null ? (int)$lineCount : null;
+        $this->startingLine = (int) $startingLine;
+        $this->lineCount    = $lineCount !== null ? (int) $lineCount : null;
         $this->description  = $description;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function create($body, DescriptionFactory $descriptionFactory = null, TypeContext $context = null)
-    {
+    public static function create(
+        string $body,
+        ?DescriptionFactory $descriptionFactory = null,
+        ?TypeContext $context = null
+    ): self {
         Assert::stringNotEmpty($body);
         Assert::notNull($descriptionFactory);
 
@@ -55,15 +62,15 @@ final class Source extends BaseTag implements Factory\StaticMethod
 
         // Starting line / Number of lines / Description
         if (preg_match('/^([1-9]\d*)\s*(?:((?1))\s+)?(.*)$/sux', $body, $matches)) {
-            $startingLine = (int)$matches[1];
+            $startingLine = (int) $matches[1];
             if (isset($matches[2]) && $matches[2] !== '') {
-                $lineCount = (int)$matches[2];
+                $lineCount = (int) $matches[2];
             }
 
             $description = $matches[3];
         }
 
-        return new static($startingLine, $lineCount, $descriptionFactory->create($description, $context));
+        return new static($startingLine, $lineCount, $descriptionFactory->create($description ?? '', $context));
     }
 
     /**
@@ -72,7 +79,7 @@ final class Source extends BaseTag implements Factory\StaticMethod
      * @return int The starting line, relative to the structural element's
      *     location.
      */
-    public function getStartingLine()
+    public function getStartingLine(): int
     {
         return $this->startingLine;
     }
@@ -83,15 +90,27 @@ final class Source extends BaseTag implements Factory\StaticMethod
      * @return int|null The number of lines, relative to the starting line. NULL
      *     means "to the end".
      */
-    public function getLineCount()
+    public function getLineCount(): ?int
     {
         return $this->lineCount;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->startingLine
-        . ($this->lineCount !== null ? ' ' . $this->lineCount : '')
-        . ($this->description ? ' ' . $this->description->render() : '');
+        if ($this->description) {
+            $description = $this->description->render();
+        } else {
+            $description = '';
+        }
+
+        $startingLine = (string) $this->startingLine;
+
+        $lineCount = $this->lineCount !== null ? ' ' . $this->lineCount : '';
+
+        return $startingLine
+            . $lineCount
+            . ($description !== ''
+                ? ' ' . $description
+                : '');
     }
 }

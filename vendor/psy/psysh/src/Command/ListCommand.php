@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,7 @@ use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
 use Psy\Input\CodeArgument;
 use Psy\Input\FilterOptions;
+use Psy\Output\ShellOutput;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -57,33 +58,33 @@ class ListCommand extends ReflectingCommand implements PresenterAware
 
         $this
             ->setName('ls')
-            ->setAliases(['list', 'dir'])
+            ->setAliases(['dir'])
             ->setDefinition([
                 new CodeArgument('target', CodeArgument::OPTIONAL, 'A target class or object to list.'),
 
-                new InputOption('vars',        '',  InputOption::VALUE_NONE,     'Display variables.'),
-                new InputOption('constants',   'c', InputOption::VALUE_NONE,     'Display defined constants.'),
-                new InputOption('functions',   'f', InputOption::VALUE_NONE,     'Display defined functions.'),
-                new InputOption('classes',     'k', InputOption::VALUE_NONE,     'Display declared classes.'),
-                new InputOption('interfaces',  'I', InputOption::VALUE_NONE,     'Display declared interfaces.'),
-                new InputOption('traits',      't', InputOption::VALUE_NONE,     'Display declared traits.'),
+                new InputOption('vars', '', InputOption::VALUE_NONE, 'Display variables.'),
+                new InputOption('constants', 'c', InputOption::VALUE_NONE, 'Display defined constants.'),
+                new InputOption('functions', 'f', InputOption::VALUE_NONE, 'Display defined functions.'),
+                new InputOption('classes', 'k', InputOption::VALUE_NONE, 'Display declared classes.'),
+                new InputOption('interfaces', 'I', InputOption::VALUE_NONE, 'Display declared interfaces.'),
+                new InputOption('traits', 't', InputOption::VALUE_NONE, 'Display declared traits.'),
 
-                new InputOption('no-inherit',  '',  InputOption::VALUE_NONE,     'Exclude inherited methods, properties and constants.'),
+                new InputOption('no-inherit', '', InputOption::VALUE_NONE, 'Exclude inherited methods, properties and constants.'),
 
-                new InputOption('properties',  'p', InputOption::VALUE_NONE,     'Display class or object properties (public properties by default).'),
-                new InputOption('methods',     'm', InputOption::VALUE_NONE,     'Display class or object methods (public methods by default).'),
+                new InputOption('properties', 'p', InputOption::VALUE_NONE, 'Display class or object properties (public properties by default).'),
+                new InputOption('methods', 'm', InputOption::VALUE_NONE, 'Display class or object methods (public methods by default).'),
 
                 $grep,
                 $insensitive,
                 $invert,
 
-                new InputOption('globals',     'g', InputOption::VALUE_NONE,     'Include global variables.'),
-                new InputOption('internal',    'n', InputOption::VALUE_NONE,     'Limit to internal functions and classes.'),
-                new InputOption('user',        'u', InputOption::VALUE_NONE,     'Limit to user-defined constants, functions and classes.'),
-                new InputOption('category',    'C', InputOption::VALUE_REQUIRED, 'Limit to constants in a specific category (e.g. "date").'),
+                new InputOption('globals', 'g', InputOption::VALUE_NONE, 'Include global variables.'),
+                new InputOption('internal', 'n', InputOption::VALUE_NONE, 'Limit to internal functions and classes.'),
+                new InputOption('user', 'u', InputOption::VALUE_NONE, 'Limit to user-defined constants, functions and classes.'),
+                new InputOption('category', 'C', InputOption::VALUE_REQUIRED, 'Limit to constants in a specific category (e.g. "date").'),
 
-                new InputOption('all',         'a', InputOption::VALUE_NONE,     'Include private and protected methods and properties.'),
-                new InputOption('long',        'l', InputOption::VALUE_NONE,     'List in long format: includes class names and method signatures.'),
+                new InputOption('all', 'a', InputOption::VALUE_NONE, 'Include private and protected methods and properties.'),
+                new InputOption('long', 'l', InputOption::VALUE_NONE, 'List in long format: includes class names and method signatures.'),
             ])
             ->setDescription('List local, instance or class variables, methods and constants.')
             ->setHelp(
@@ -126,7 +127,7 @@ HELP
         }
 
         // @todo something cleaner than this :-/
-        if ($input->getOption('long')) {
+        if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->startPaging();
         }
 
@@ -134,7 +135,7 @@ HELP
             $this->$method($output, $enumerator->enumerate($input, $reflector, $target));
         }
 
-        if ($input->getOption('long')) {
+        if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->stopPaging();
         }
 
@@ -142,6 +143,8 @@ HELP
         if ($reflector !== null) {
             $this->setCommandScopeVariables($reflector);
         }
+
+        return 0;
     }
 
     /**
@@ -169,11 +172,11 @@ HELP
      * Write the list items to $output.
      *
      * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items
+     * @param array           $result List of enumerated items
      */
-    protected function write(OutputInterface $output, array $result = null)
+    protected function write(OutputInterface $output, array $result)
     {
-        if ($result === null) {
+        if (\count($result) === 0) {
             return;
         }
 
@@ -189,11 +192,11 @@ HELP
      * Items are listed one per line, and include the item signature.
      *
      * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items
+     * @param array           $result List of enumerated items
      */
-    protected function writeLong(OutputInterface $output, array $result = null)
+    protected function writeLong(OutputInterface $output, array $result)
     {
-        if ($result === null) {
+        if (\count($result) === 0) {
             return;
         }
 
@@ -223,7 +226,7 @@ HELP
      *
      * @return string
      */
-    private function formatItemName($item)
+    private function formatItemName(array $item): string
     {
         return \sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
     }
@@ -241,7 +244,7 @@ HELP
             // if no target is passed, there can be no properties or methods
             foreach (['properties', 'methods', 'no-inherit'] as $option) {
                 if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense without a specified target');
+                    throw new RuntimeException('--'.$option.' does not make sense without a specified target');
                 }
             }
 
@@ -255,22 +258,23 @@ HELP
             $input->setOption('vars', true);
         } else {
             // if a target is passed, classes, functions, etc don't make sense
-            foreach (['vars', 'globals', 'functions', 'classes', 'interfaces', 'traits'] as $option) {
+            foreach (['vars', 'globals'] as $option) {
                 if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense with a specified target');
+                    throw new RuntimeException('--'.$option.' does not make sense with a specified target');
                 }
             }
 
-            foreach (['constants', 'properties', 'methods'] as $option) {
+            // @todo ensure that 'functions', 'classes', 'interfaces', 'traits' only accept namespace target?
+            foreach (['constants', 'properties', 'methods', 'functions', 'classes', 'interfaces', 'traits'] as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }
             }
 
             // default to --constants --properties --methods if no other options are passed
-            $input->setOption('constants',  true);
+            $input->setOption('constants', true);
             $input->setOption('properties', true);
-            $input->setOption('methods',    true);
+            $input->setOption('methods', true);
         }
     }
 }

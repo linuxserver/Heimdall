@@ -26,9 +26,9 @@ class CsvFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    public function formatCatalogue(MessageCatalogue $messages, $domain, array $options = [])
+    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = [])
     {
-        $handle = fopen('php://memory', 'r+b');
+        $handle = fopen('php://memory', 'r+');
 
         foreach ($messages->all($domain) as $source => $target) {
             fputcsv($handle, [$source, $target], $this->delimiter, $this->enclosure);
@@ -43,11 +43,8 @@ class CsvFileDumper extends FileDumper
 
     /**
      * Sets the delimiter and escape character for CSV.
-     *
-     * @param string $delimiter Delimiter character
-     * @param string $enclosure Enclosure character
      */
-    public function setCsvControl($delimiter = ';', $enclosure = '"')
+    public function setCsvControl(string $delimiter = ';', string $enclosure = '"')
     {
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;

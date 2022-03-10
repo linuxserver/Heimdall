@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -37,27 +37,18 @@ class ExecutionClosure
                 \set_error_handler([$__psysh__, 'handleError']);
 
                 // Evaluate the current code buffer
-                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionClosure::NOOP_INPUT));
+                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: self::NOOP_INPUT));
             } catch (\Throwable $_e) {
                 // Clean up on our way out.
-                \restore_error_handler();
                 if (\ob_get_level() > 0) {
                     \ob_end_clean();
                 }
 
                 throw $_e;
-            } catch (\Exception $_e) {
-                // Clean up on our way out.
+            } finally {
+                // Won't be needing this anymore
                 \restore_error_handler();
-                if (\ob_get_level() > 0) {
-                    \ob_end_clean();
-                }
-
-                throw $_e;
             }
-
-            // Won't be needing this anymore
-            \restore_error_handler();
 
             // Flush stdout (write to shell output, plus save to magic variable)
             \ob_end_flush();
@@ -72,21 +63,18 @@ class ExecutionClosure
     /**
      * Set the closure instance.
      *
-     * @param Shell    $psysh
+     * @param Shell    $shell
      * @param \Closure $closure
      */
     protected function setClosure(Shell $shell, \Closure $closure)
     {
-        if (self::shouldBindClosure()) {
-            $that = $shell->getBoundObject();
-            if (\is_object($that)) {
-                $closure = $closure->bindTo($that, \get_class($that));
-            } else {
-                $closure = $closure->bindTo(null, $shell->getBoundClass());
-            }
-        }
+        $that = $shell->getBoundObject();
 
-        $this->closure = $closure;
+        if (\is_object($that)) {
+            $this->closure = $closure->bindTo($that, \get_class($that));
+        } else {
+            $this->closure = $closure->bindTo(null, $shell->getBoundClass());
+        }
     }
 
     /**
@@ -99,21 +87,5 @@ class ExecutionClosure
         $closure = $this->closure;
 
         return $closure();
-    }
-
-    /**
-     * Decide whether to bind the execution closure.
-     *
-     * @return bool
-     */
-    protected static function shouldBindClosure()
-    {
-        // skip binding on HHVM < 3.5.0
-        // see https://github.com/facebook/hhvm/issues/1203
-        if (\defined('HHVM_VERSION')) {
-            return \version_compare(HHVM_VERSION, '3.5.0', '>=');
-        }
-
-        return true;
     }
 }

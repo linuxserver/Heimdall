@@ -14,9 +14,12 @@
             "email": "mark.sagikazar@gmail.com"
         }
     ],
+    "require": {
+        "php" : "^7.1 || ^8.0"
+    },
     "require-dev": {
-        "phpspec/phpspec": "^2.4",
-        "henrikbjorn/phpspec-code-coverage" : "^1.0"
+        "friends-of-phpspec/phpspec-code-coverage" : "^4.3.2",
+        "phpspec/phpspec": "^5.1.2 || ^6.2"
     },
     "autoload": {
         "psr-4": {

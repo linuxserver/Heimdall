@@ -11,10 +11,14 @@ interface InstantiatorInterface
 {
     /**
      * @param string $className
+     * @phpstan-param class-string<T> $className
      *
      * @return object
+     * @phpstan-return T
      *
      * @throws ExceptionInterface
+     *
+     * @template T of object
      */
     public function instantiate($className);
 }

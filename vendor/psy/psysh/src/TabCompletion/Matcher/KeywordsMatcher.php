@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,7 +34,7 @@ class KeywordsMatcher extends AbstractMatcher
      *
      * @return array
      */
-    public function getKeywords()
+    public function getKeywords(): array
     {
         return $this->keywords;
     }
@@ -46,7 +46,7 @@ class KeywordsMatcher extends AbstractMatcher
      *
      * @return bool
      */
-    public function isKeyword($keyword)
+    public function isKeyword(string $keyword): bool
     {
         return \in_array($keyword, $this->keywords);
     }
@@ -54,7 +54,7 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = [])
+    public function getMatches(array $tokens, array $info = []): array
     {
         $input = $this->getInput($tokens);
 
@@ -66,9 +66,9 @@ class KeywordsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function hasMatched(array $tokens)
+    public function hasMatched(array $tokens): bool
     {
-        $token     = \array_pop($tokens);
+        $token = \array_pop($tokens);
         $prevToken = \array_pop($tokens);
 
         switch (true) {

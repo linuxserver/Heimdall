@@ -4,10 +4,11 @@ namespace PhpParser\Builder;
 
 use PhpParser;
 use PhpParser\BuilderHelpers;
+use PhpParser\Node;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt;
+use PhpParser\Node\ComplexType;
 
 class Property implements PhpParser\Builder
 {
@@ -19,6 +20,9 @@ class Property implements PhpParser\Builder
 
     /** @var null|Identifier|Name|NullableType */
     protected $type;
+
+    /** @var Node\AttributeGroup[] */
+    protected $attributeGroups = [];
 
     /**
      * Creates a property builder.
@@ -74,6 +78,17 @@ class Property implements PhpParser\Builder
     }
 
     /**
+     * Makes the property readonly.
+     *
+     * @return $this The builder instance (for fluid interface)
+     */
+    public function makeReadonly() {
+        $this->flags = BuilderHelpers::addModifier($this->flags, Stmt\Class_::MODIFIER_READONLY);
+
+        return $this;
+    }
+
+    /**
      * Sets default value for the property.
      *
      * @param mixed $value Default value to use
@@ -104,12 +119,25 @@ class Property implements PhpParser\Builder
     /**
      * Sets the property type for PHP 7.4+.
      *
-     * @param string|Name|NullableType|Identifier $type
+     * @param string|Name|Identifier|ComplexType $type
      *
      * @return $this
      */
     public function setType($type) {
         $this->type = BuilderHelpers::normalizeType($type);
+
+        return $this;
+    }
+
+    /**
+     * Adds an attribute group.
+     *
+     * @param Node\Attribute|Node\AttributeGroup $attribute
+     *
+     * @return $this The builder instance (for fluid interface)
+     */
+    public function addAttribute($attribute) {
+        $this->attributeGroups[] = BuilderHelpers::normalizeAttribute($attribute);
 
         return $this;
     }
@@ -126,7 +154,8 @@ class Property implements PhpParser\Builder
                 new Stmt\PropertyProperty($this->name, $this->default)
             ],
             $this->attributes,
-            $this->type
+            $this->type,
+            $this->attributeGroups
         );
     }
 }

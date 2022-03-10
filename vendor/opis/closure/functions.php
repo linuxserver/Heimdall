@@ -1,6 +1,6 @@
 <?php
 /* ===========================================================================
- * Copyright (c) 2018-2019 Zindex Software
+ * Copyright (c) 2018-2021 Zindex Software
  *
  * Licensed under the MIT License
  * =========================================================================== */
@@ -10,7 +10,7 @@ namespace Opis\Closure;
 /**
  * Serialize
  *
- * @param $data
+ * @param mixed $data
  * @return string
  */
 function serialize($data)
@@ -25,13 +25,16 @@ function serialize($data)
 /**
  * Unserialize
  *
- * @param $data
+ * @param string $data
+ * @param array|null $options
  * @return mixed
  */
-function unserialize($data)
+function unserialize($data, array $options = null)
 {
     SerializableClosure::enterContext();
-    $data = \unserialize($data);
+    $data = ($options === null || \PHP_MAJOR_VERSION < 7)
+        ? \unserialize($data)
+        : \unserialize($data, $options);
     SerializableClosure::unwrapClosures($data);
     SerializableClosure::exitContext();
     return $data;

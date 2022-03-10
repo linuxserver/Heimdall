@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,12 +21,12 @@ class ErrorException extends \ErrorException implements Exception
     /**
      * Construct a Psy ErrorException.
      *
-     * @param string    $message  (default: "")
-     * @param int       $code     (default: 0)
-     * @param int       $severity (default: 1)
-     * @param string    $filename (default: null)
-     * @param int       $lineno   (default: null)
-     * @param Exception $previous (default: null)
+     * @param string         $message  (default: "")
+     * @param int            $code     (default: 0)
+     * @param int            $severity (default: 1)
+     * @param string|null    $filename (default: null)
+     * @param int|null       $lineno   (default: null)
+     * @param Exception|null $previous (default: null)
      */
     public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
@@ -37,28 +37,28 @@ class ErrorException extends \ErrorException implements Exception
         }
 
         switch ($severity) {
-            case E_STRICT:
+            case \E_STRICT:
                 $type = 'Strict error';
                 break;
 
-            case E_NOTICE:
-            case E_USER_NOTICE:
+            case \E_NOTICE:
+            case \E_USER_NOTICE:
                 $type = 'Notice';
                 break;
 
-            case E_WARNING:
-            case E_CORE_WARNING:
-            case E_COMPILE_WARNING:
-            case E_USER_WARNING:
+            case \E_WARNING:
+            case \E_CORE_WARNING:
+            case \E_COMPILE_WARNING:
+            case \E_USER_WARNING:
                 $type = 'Warning';
                 break;
 
-            case E_DEPRECATED:
-            case E_USER_DEPRECATED:
+            case \E_DEPRECATED:
+            case \E_USER_DEPRECATED:
                 $type = 'Deprecated';
                 break;
 
-            case E_RECOVERABLE_ERROR:
+            case \E_RECOVERABLE_ERROR:
                 $type = 'Recoverable fatal error';
                 break;
 
@@ -67,7 +67,7 @@ class ErrorException extends \ErrorException implements Exception
                 break;
         }
 
-        $message = \sprintf('PHP %s:  %s%s on line %d', $type, $message, $filename ? ' in ' . $filename : '', $lineno);
+        $message = \sprintf('PHP %s:  %s%s on line %d', $type, $message, $filename ? ' in '.$filename : '', $lineno);
         parent::__construct($message, $code, $severity, $filename, $lineno, $previous);
     }
 
@@ -76,7 +76,7 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->rawMessage;
     }
@@ -86,9 +86,9 @@ class ErrorException extends \ErrorException implements Exception
      *
      * This allows us to:
      *
-     *     set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
+     *     set_error_handler([ErrorException::class, 'throwException']);
      *
-     * @throws ErrorException
+     * @throws self
      *
      * @param int    $errno   Error type
      * @param string $errstr  Message
@@ -105,9 +105,9 @@ class ErrorException extends \ErrorException implements Exception
      *
      * @param \Error $e
      *
-     * @return ErrorException
+     * @return self
      */
-    public static function fromError(\Error $e)
+    public static function fromError(\Error $e): self
     {
         return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
     }

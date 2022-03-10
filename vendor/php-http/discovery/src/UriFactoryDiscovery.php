@@ -26,11 +26,7 @@ final class UriFactoryDiscovery extends ClassDiscovery
         try {
             $uriFactory = static::findOneByType(UriFactory::class);
         } catch (DiscoveryFailedException $e) {
-            throw new NotFoundException(
-                'No uri factories found. To use Guzzle, Diactoros or Slim Framework factories install php-http/message and the chosen message implementation.',
-                0,
-                $e
-            );
+            throw new NotFoundException('No uri factories found. To use Guzzle, Diactoros or Slim Framework factories install php-http/message and the chosen message implementation.', 0, $e);
         }
 
         return static::instantiateClass($uriFactory);

@@ -16,9 +16,7 @@ use Composer\Downloader\TransportException;
 use Composer\Factory;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
-use Composer\Plugin\PluginEvents;
-use Composer\Plugin\PreFileDownloadEvent;
-use Hirak\Prestissimo\CurlRemoteFilesystem;
+use Composer\Util\HttpDownloader;
 
 /**
  * @author Nicolas Grekas <p@tchwork.com>
@@ -58,9 +56,9 @@ class GitHubClient
             'name' => 'phpDocumentor/phpDocumentor2',
             'url' => 'https://github.com/phpDocumentor/phpDocumentor2',
         ],
-        'piwik' => [
+        'matomo' => [
             'name' => 'piwik/piwik',
-            'url' => 'https://github.com/piwik/piwik',
+            'url' => 'https://github.com/matomo-org/matomo',
         ],
         'reactphp' => [
             'name' => 'reactphp/react',
@@ -100,10 +98,15 @@ class GitHubClient
     {
         $this->composer = $composer;
         $this->io = $io;
-        $this->rfs = Factory::createRemoteFilesystem($io, $composer->getConfig());
+
+        if (class_exists(HttpDownloader::class)) {
+            $this->rfs = new HttpDownloader($io, $composer->getConfig());
+        } else {
+            $this->rfs = Factory::createRemoteFilesystem($io, $composer->getConfig());
+        }
     }
 
-    public function getRepositories(array &$failures = null)
+    public function getRepositories(array &$failures = null, $withFundingLinks = false)
     {
         $repo = $this->composer->getRepositoryManager()->getLocalRepository();
 
@@ -144,13 +147,15 @@ class GitHubClient
         ksort($urls);
 
         $i = 0;
-        $template = '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred}'."\n";
+        $template = $withFundingLinks
+            ? '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred,fundingLinks{platform,url}}'."\n"
+            : '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred}'."\n";
         $graphql = '';
 
         foreach ($urls as $package => $url) {
             if (preg_match('#^https://github.com/([^/]++)/(.*?)(?:\.git)?$#i', $url, $url)) {
                 $graphql .= sprintf($template, ++$i, $url[1], $url[2]);
-                $aliases['_'.$i] = [$package, $url[0]];
+                $aliases['_'.$i] = [$package, sprintf('https://github.com/%s/%s', $url[1], $url[2])];
             }
         }
 
@@ -176,31 +181,33 @@ class GitHubClient
 
     public function call($graphql, array &$failures = [])
     {
-        $rfs = $this->rfs;
-
-        if ($eventDispatcher = $this->composer->getEventDispatcher()) {
-            $preFileDownloadEvent = new PreFileDownloadEvent(PluginEvents::PRE_FILE_DOWNLOAD, $rfs, 'https://api.github.com/graphql');
-            $eventDispatcher->dispatch($preFileDownloadEvent->getName(), $preFileDownloadEvent);
-            if (!$preFileDownloadEvent->getRemoteFilesystem() instanceof CurlRemoteFilesystem) {
-                $rfs = $preFileDownloadEvent->getRemoteFilesystem();
-            }
-        }
-
-        $result = $rfs->getContents('github.com', 'https://api.github.com/graphql', false, [
+        $options = [
             'http' => [
                 'method' => 'POST',
                 'content' => json_encode(['query' => $graphql]),
                 'header' => ['Content-Type: application/json'],
             ],
-        ]);
+        ];
+
+        if ($this->rfs instanceof HttpDownloader) {
+            $result = $this->rfs->get('https://api.github.com/graphql', $options)->getBody();
+        } else {
+            $result = $this->rfs->getContents('github.com', 'https://api.github.com/graphql', false, $options);
+        }
+
         $result = json_decode($result, true);
 
         if (isset($result['errors'][0]['message'])) {
-            if (!$result['data']) {
+            if (!isset($result['data'])) {
                 throw new TransportException($result['errors'][0]['message']);
             }
 
             foreach ($result['errors'] as $error) {
+                if (!isset($error['path'])) {
+                    $failures[isset($error['type']) ? $error['type'] : $error['message']] = $error['message'];
+                    continue;
+                }
+
                 foreach ($error['path'] as $path) {
                     $failures += [$path => $error['message']];
                     unset($result['data'][$path]);
@@ -208,7 +215,7 @@ class GitHubClient
             }
         }
 
-        return $result['data'];
+        return isset($result['data']) ? $result['data'] : [];
     }
 
     private function getDirectlyRequiredPackageNames()

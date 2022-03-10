@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -45,23 +45,23 @@ class VariableEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
+    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
         // only list variables when no Reflector is present.
         if ($reflector !== null || $target !== null) {
-            return;
+            return [];
         }
 
         // only list variables if we are specifically asked
         if (!$input->getOption('vars')) {
-            return;
+            return [];
         }
 
-        $showAll   = $input->getOption('all');
+        $showAll = $input->getOption('all');
         $variables = $this->prepareVariables($this->getVariables($showAll));
 
         if (empty($variables)) {
-            return;
+            return [];
         }
 
         return [
@@ -76,7 +76,7 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getVariables($showAll)
+    protected function getVariables(bool $showAll): array
     {
         $scopeVars = $this->context->getAll();
         \uksort($scopeVars, function ($a, $b) {
@@ -117,13 +117,13 @@ class VariableEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function prepareVariables(array $variables)
+    protected function prepareVariables(array $variables): array
     {
         // My kingdom for a generator.
         $ret = [];
         foreach ($variables as $name => $val) {
             if ($this->showItem($name)) {
-                $fname = '$' . $name;
+                $fname = '$'.$name;
                 $ret[$fname] = [
                     'name'  => $fname,
                     'style' => \in_array($name, self::$specialNames) ? self::IS_PRIVATE : self::IS_PUBLIC,

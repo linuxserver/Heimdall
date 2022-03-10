@@ -8,6 +8,7 @@ use Form;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Search;
+use Illuminate\Http\Request;
 
 class Setting extends Model
 {
@@ -39,11 +40,11 @@ class Setting extends Model
     /**
      * @return array
      */
-    public static function getInput()
+    public static function getInput(Request $request)
     {
         return (object) [
-            'value' => Input::get('value'),
-            'image' => Input::file('value'),
+            'value' => $request->input('value'),
+            'image' => $request->file('value'),
         ];
     }
 

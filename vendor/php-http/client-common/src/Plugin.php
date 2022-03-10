@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common;
 
 use Http\Promise\Promise;
@@ -22,11 +24,10 @@ interface Plugin
      *
      * @see http://docs.php-http.org/en/latest/plugins/build-your-own.html
      *
-     * @param RequestInterface $request
-     * @param callable         $next    Next middleware in the chain, the request is passed as the first argument
-     * @param callable         $first   First middleware in the chain, used to to restart a request
+     * @param callable(RequestInterface): Promise $next  Next middleware in the chain, the request is passed as the first argument
+     * @param callable(RequestInterface): Promise $first First middleware in the chain, used to to restart a request
      *
-     * @return Promise Resolves a PSR-7 Response or fails with an Http\Client\Exception (The same as HttpAsyncClient).
+     * @return Promise Resolves a PSR-7 Response or fails with an Http\Client\Exception (The same as HttpAsyncClient)
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first);
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise;
 }

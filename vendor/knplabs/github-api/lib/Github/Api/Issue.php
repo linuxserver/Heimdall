@@ -29,7 +29,7 @@ class Issue extends AbstractApi
      *
      * @param string|null $bodyType
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null)
     {
@@ -37,7 +37,7 @@ class Issue extends AbstractApi
             $bodyType = 'raw';
         }
 
-        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->client->getApiVersion(), $bodyType);
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->getApiVersion(), $bodyType);
 
         return $this;
     }
@@ -56,28 +56,6 @@ class Issue extends AbstractApi
     public function all($username, $repository, array $params = [])
     {
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues', array_merge(['page' => 1], $params));
-    }
-
-    /**
-     * Search issues by username, repo, state and keyword.
-     *
-     * @deprecated This method is deprecated use the Search api instead. See https://developer.github.com/v3/search/legacy/#legacy-search-api-is-deprecated
-     * @link http://developer.github.com/v3/search/#search-issues
-     *
-     * @param string $username   the username
-     * @param string $repository the repository
-     * @param string $state      the issue state, can be open or closed
-     * @param string $keyword    the keyword to filter issues by
-     *
-     * @return array list of issues found
-     */
-    public function find($username, $repository, $state, $keyword)
-    {
-        if (!in_array($state, ['open', 'closed'])) {
-            $state = 'open';
-        }
-
-        return $this->get('/legacy/issues/search/'.rawurlencode($username).'/'.rawurlencode($repository).'/'.rawurlencode($state).'/'.rawurlencode($keyword));
     }
 
     /**
@@ -113,7 +91,7 @@ class Issue extends AbstractApi
      */
     public function show($username, $repository, $id)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($id));
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$id);
     }
 
     /**
@@ -154,7 +132,7 @@ class Issue extends AbstractApi
      */
     public function update($username, $repository, $id, array $params)
     {
-        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($id), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$id, $params);
     }
 
     /**
@@ -170,7 +148,7 @@ class Issue extends AbstractApi
      */
     public function lock($username, $repository, $id)
     {
-        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($id).'/lock');
+        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$id.'/lock');
     }
 
     /**
@@ -186,7 +164,7 @@ class Issue extends AbstractApi
      */
     public function unlock($username, $repository, $id)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($id).'/lock');
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$id.'/lock');
     }
 
     /**
@@ -198,7 +176,7 @@ class Issue extends AbstractApi
      */
     public function comments()
     {
-        return new Comments($this->client);
+        return new Comments($this->getClient());
     }
 
     /**
@@ -210,7 +188,7 @@ class Issue extends AbstractApi
      */
     public function events()
     {
-        return new Events($this->client);
+        return new Events($this->getClient());
     }
 
     /**
@@ -222,7 +200,7 @@ class Issue extends AbstractApi
      */
     public function labels()
     {
-        return new Labels($this->client);
+        return new Labels($this->getClient());
     }
 
     /**
@@ -234,7 +212,7 @@ class Issue extends AbstractApi
      */
     public function milestones()
     {
-        return new Milestones($this->client);
+        return new Milestones($this->getClient());
     }
 
     /**
@@ -246,7 +224,7 @@ class Issue extends AbstractApi
      */
     public function assignees()
     {
-        return new Assignees($this->client);
+        return new Assignees($this->getClient());
     }
 
     /**
@@ -258,6 +236,6 @@ class Issue extends AbstractApi
      */
     public function timeline()
     {
-        return new Timeline($this->client);
+        return new Timeline($this->getClient());
     }
 }

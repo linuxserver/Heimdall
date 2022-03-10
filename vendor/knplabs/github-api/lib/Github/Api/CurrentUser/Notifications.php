@@ -83,7 +83,7 @@ class Notifications extends AbstractApi
      */
     public function markAsRead($id, array $params)
     {
-        return $this->patch('/notifications/threads/'.rawurlencode($id), $params);
+        return $this->patch('/notifications/threads/'.$id, $params);
     }
 
     /**
@@ -97,7 +97,7 @@ class Notifications extends AbstractApi
      */
     public function show($id)
     {
-        return $this->get('/notifications/threads/'.rawurlencode($id));
+        return $this->get('/notifications/threads/'.$id);
     }
 
     /**
@@ -111,7 +111,7 @@ class Notifications extends AbstractApi
      */
     public function showSubscription($id)
     {
-        return $this->get('/notifications/threads/'.rawurlencode($id).'/subscription');
+        return $this->get('/notifications/threads/'.$id.'/subscription');
     }
 
     /**
@@ -126,7 +126,7 @@ class Notifications extends AbstractApi
      */
     public function createSubscription($id, array $params)
     {
-        return $this->put('/notifications/threads/'.rawurlencode($id).'/subscription', $params);
+        return $this->put('/notifications/threads/'.$id.'/subscription', $params);
     }
 
     /**
@@ -140,6 +140,6 @@ class Notifications extends AbstractApi
      */
     public function removeSubscription($id)
     {
-        return $this->delete('/notifications/threads/'.rawurlencode($id).'/subscription');
+        return $this->delete('/notifications/threads/'.$id.'/subscription');
     }
 }

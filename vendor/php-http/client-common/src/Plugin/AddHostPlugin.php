@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
 use Http\Client\Common\Plugin;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -25,11 +28,10 @@ final class AddHostPlugin implements Plugin
     private $replace;
 
     /**
-     * @param UriInterface $host
-     * @param array        $config {
+     * @param array{'replace'?: bool} $config
      *
-     *     @var bool $replace True will replace all hosts, false will only add host when none is specified.
-     * }
+     * Configuration options:
+     *   - replace: True will replace all hosts, false will only add host when none is specified.
      */
     public function __construct(UriInterface $host, array $config = [])
     {
@@ -49,7 +51,7 @@ final class AddHostPlugin implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         if ($this->replace || '' === $request->getUri()->getHost()) {
             $uri = $request->getUri()
@@ -64,10 +66,7 @@ final class AddHostPlugin implements Plugin
         return $next($request);
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
-    private function configureOptions(OptionsResolver $resolver)
+    private function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'replace' => false,

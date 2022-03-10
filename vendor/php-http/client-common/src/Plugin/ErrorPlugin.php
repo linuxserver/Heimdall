@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
 use Http\Client\Common\Exception\ClientErrorException;
 use Http\Client\Common\Exception\ServerErrorException;
 use Http\Client\Common\Plugin;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -13,6 +16,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Throw exception when the response of a request is not acceptable.
  *
  * Status codes 400-499 lead to a ClientErrorException, status 500-599 to a ServerErrorException.
+ *
+ * Warning
+ * =======
+ *
+ * Throwing an exception on a valid response violates the PSR-18 specification.
+ * This plugin is provided as a convenience when writing a small application.
+ * When providing a client to a third party library, this plugin must not be
+ * included, or the third party library will have problems with error handling.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
@@ -26,10 +37,10 @@ final class ErrorPlugin implements Plugin
     private $onlyServerException;
 
     /**
-     * @param array $config {
+     * @param array{'only_server_exception'?: bool} $config
      *
-     *    @var bool only_server_exception Whether this plugin should only throw 5XX Exceptions (default to false).
-     * }
+     * Configuration options:
+     *   - only_server_exception: Whether this plugin should only throw 5XX Exceptions (default to false).
      */
     public function __construct(array $config = [])
     {
@@ -46,7 +57,7 @@ final class ErrorPlugin implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $promise = $next($request);
 
@@ -66,7 +77,7 @@ final class ErrorPlugin implements Plugin
      *
      * @return ResponseInterface If status code is not in 4xx or 5xx return response
      */
-    protected function transformResponseToException(RequestInterface $request, ResponseInterface $response)
+    private function transformResponseToException(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         if (!$this->onlyServerException && $response->getStatusCode() >= 400 && $response->getStatusCode() < 500) {
             throw new ClientErrorException($response->getReasonPhrase(), $request, $response);

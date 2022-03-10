@@ -17,10 +17,13 @@
         {"name": "Johannes Schmitt", "email": "schmittjoh@gmail.com"}
     ],
     "require": {
-        "php": ">=5.3.2"
+        "php": "^7.1 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.5"
+        "doctrine/coding-standard": "^9.0",
+        "phpstan/phpstan": "^1.3",
+        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+        "vimeo/psalm": "^4.11"
     },
     "autoload": {
         "psr-4": { "Doctrine\\Common\\Lexer\\": "lib/Doctrine/Common/Lexer" }
@@ -28,9 +31,11 @@
     "autoload-dev": {
         "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine" }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        }
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "sort-packages": true
     }
 }

@@ -26,7 +26,7 @@ for a general introduction to promises.
 - Promises can be cancelled.
 - Works with any object that has a `then` function.
 - C# style async/await coroutine promises using
-  `GuzzleHttp\Promise\coroutine()`.
+  `GuzzleHttp\Promise\Coroutine::of()`.
 
 
 # Quick start
@@ -88,7 +88,7 @@ $promise
     });
 
 // Resolving the promise triggers the $onFulfilled callbacks and outputs
-// "Hello, reader".
+// "Hello, reader."
 $promise->resolve('reader.');
 ```
 
@@ -150,7 +150,7 @@ use GuzzleHttp\Promise\Promise;
 
 $promise = new Promise();
 $promise->then(null, function ($reason) {
-    throw new \Exception($reason);
+    throw new Exception($reason);
 })->then(null, function ($reason) {
     assert($reason->getMessage() === 'Error!');
 });
@@ -182,7 +182,6 @@ invoked using the value returned from the `$onRejected` callback.
 
 ```php
 use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Promise\RejectedPromise;
 
 $promise = new Promise();
 $promise
@@ -220,7 +219,7 @@ the promise is rejected with the exception and the exception is thrown.
 
 ```php
 $promise = new Promise(function () use (&$promise) {
-    throw new \Exception('foo');
+    throw new Exception('foo');
 });
 
 $promise->wait(); // throws the exception.
@@ -397,7 +396,7 @@ $deferred = new React\Promise\Deferred();
 $reactPromise = $deferred->promise();
 
 // Create a Guzzle promise that is fulfilled with a React promise.
-$guzzlePromise = new \GuzzleHttp\Promise\Promise();
+$guzzlePromise = new GuzzleHttp\Promise\Promise();
 $guzzlePromise->then(function ($value) use ($reactPromise) {
     // Do something something with the value...
     // Return the React promise
@@ -424,7 +423,7 @@ instance.
 
 ```php
 // Get the global task queue
-$queue = \GuzzleHttp\Promise\queue();
+$queue = GuzzleHttp\Promise\Utils::queue();
 $queue->run();
 ```
 
@@ -502,3 +501,47 @@ $promise->then(function ($value) { echo $value; });
 $promise->resolve('foo');
 // prints "foo"
 ```
+
+
+## Upgrading from Function API
+
+A static API was first introduced in 1.4.0, in order to mitigate problems with functions conflicting between global and local copies of the package. The function API will be removed in 2.0.0. A migration table has been provided here for your convenience:
+
+| Original Function | Replacement Method |
+|----------------|----------------|
+| `queue` | `Utils::queue` |
+| `task` | `Utils::task` |
+| `promise_for` | `Create::promiseFor` |
+| `rejection_for` | `Create::rejectionFor` |
+| `exception_for` | `Create::exceptionFor` |
+| `iter_for` | `Create::iterFor` |
+| `inspect` | `Utils::inspect` |
+| `inspect_all` | `Utils::inspectAll` |
+| `unwrap` | `Utils::unwrap` |
+| `all` | `Utils::all` |
+| `some` | `Utils::some` |
+| `any` | `Utils::any` |
+| `settle` | `Utils::settle` |
+| `each` | `Each::of` |
+| `each_limit` | `Each::ofLimit` |
+| `each_limit_all` | `Each::ofLimitAll` |
+| `!is_fulfilled` | `Is::pending` |
+| `is_fulfilled` | `Is::fulfilled` |
+| `is_rejected` | `Is::rejected` |
+| `is_settled` | `Is::settled` |
+| `coroutine` | `Coroutine::of` |
+
+
+## Security
+
+If you discover a security vulnerability within this package, please send an email to security@tidelift.com. All security vulnerabilities will be promptly addressed. Please do not disclose security-related issues publicly until a fix has been announced. Please see [Security Policy](https://github.com/guzzle/promises/security/policy) for more information.
+
+## License
+
+Guzzle is made available under the MIT License (MIT). Please see [License File](LICENSE) for more information.
+
+## For Enterprise
+
+Available as part of the Tidelift Subscription
+
+The maintainers of Guzzle and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/packagist-guzzlehttp-promises?utm_source=packagist-guzzlehttp-promises&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)

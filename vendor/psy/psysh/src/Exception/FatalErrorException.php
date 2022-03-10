@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,12 +21,12 @@ class FatalErrorException extends \ErrorException implements Exception
     /**
      * Create a fatal error.
      *
-     * @param string     $message  (default: "")
-     * @param int        $code     (default: 0)
-     * @param int        $severity (default: 1)
-     * @param string     $filename (default: null)
-     * @param int        $lineno   (default: null)
-     * @param \Exception $previous (default: null)
+     * @param string          $message  (default: "")
+     * @param int             $code     (default: 0)
+     * @param int             $severity (default: 1)
+     * @param string|null     $filename (default: null)
+     * @param int|null        $lineno   (default: null)
+     * @param \Exception|null $previous (default: null)
      */
     public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
@@ -45,7 +45,7 @@ class FatalErrorException extends \ErrorException implements Exception
      *
      * @return string
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->rawMessage;
     }

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
-use Http\Client\Exception;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -24,8 +26,8 @@ interface Journal
     /**
      * Record a failed call.
      *
-     * @param RequestInterface $request   Request use to make the call
-     * @param Exception        $exception Exception returned by the call
+     * @param RequestInterface         $request   Request use to make the call
+     * @param ClientExceptionInterface $exception Exception returned by the call
      */
-    public function addFailure(RequestInterface $request, Exception $exception);
+    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception);
 }

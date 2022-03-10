@@ -36,7 +36,7 @@ interface Session
     /**
      * Save the session data to storage.
      *
-     * @return bool
+     * @return void
      */
     public function save();
 
@@ -56,7 +56,7 @@ interface Session
     public function exists($key);
 
     /**
-     * Checks if an a key is present and not null.
+     * Checks if a key is present and not null.
      *
      * @param  string|array  $key
      * @return bool
@@ -76,7 +76,7 @@ interface Session
      * Put a key / value pair or array of key / value pairs in the session.
      *
      * @param  string|array  $key
-     * @param  mixed       $value
+     * @param  mixed  $value
      * @return void
      */
     public function put($key, $value = null);

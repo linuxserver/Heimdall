@@ -12,11 +12,11 @@
 namespace Prophecy\Call;
 
 use Prophecy\Exception\Prophecy\MethodProphecyException;
-use Prophecy\Prophecy\MethodProphecy;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Argument\ArgumentsWildcard;
 use Prophecy\Util\StringUtil;
 use Prophecy\Exception\Call\UnexpectedCallException;
+use SplObjectStorage;
 
 /**
  * Calls receiver & manager.
@@ -33,6 +33,11 @@ class CallCenter
     private $recordedCalls = array();
 
     /**
+     * @var SplObjectStorage
+     */
+    private $unexpectedCalls;
+
+    /**
      * Initializes call center.
      *
      * @param StringUtil $util
@@ -40,6 +45,7 @@ class CallCenter
     public function __construct(StringUtil $util = null)
     {
         $this->util = $util ?: new StringUtil;
+        $this->unexpectedCalls = new SplObjectStorage();
     }
 
     /**
@@ -74,23 +80,21 @@ class CallCenter
         }
 
         // If no method prophecies defined, then it's a dummy, so we'll just return null
-        if ('__destruct' === $methodName || 0 == count($prophecy->getMethodProphecies())) {
+        if ('__destruct' === strtolower($methodName) || 0 == count($prophecy->getMethodProphecies())) {
             $this->recordedCalls[] = new Call($methodName, $arguments, null, null, $file, $line);
 
             return null;
         }
 
         // There are method prophecies, so it's a fake/stub. Searching prophecy for this call
-        $matches = array();
-        foreach ($prophecy->getMethodProphecies($methodName) as $methodProphecy) {
-            if (0 < $score = $methodProphecy->getArgumentsWildcard()->scoreArguments($arguments)) {
-                $matches[] = array($score, $methodProphecy);
-            }
-        }
+        $matches = $this->findMethodProphecies($prophecy, $methodName, $arguments);
 
         // If fake/stub doesn't have method prophecy for this call - throw exception
         if (!count($matches)) {
-            throw $this->createUnexpectedCallException($prophecy, $methodName, $arguments);
+            $this->unexpectedCalls->attach(new Call($methodName, $arguments, null, null, $file, $line), $prophecy);
+            $this->recordedCalls[] = new Call($methodName, $arguments, null, null, $file, $line);
+
+            return null;
         }
 
         // Sort matches by their score value
@@ -138,13 +142,31 @@ class CallCenter
      */
     public function findCalls($methodName, ArgumentsWildcard $wildcard)
     {
+        $methodName = strtolower($methodName);
+
         return array_values(
             array_filter($this->recordedCalls, function (Call $call) use ($methodName, $wildcard) {
-                return $methodName === $call->getMethodName()
+                return $methodName === strtolower($call->getMethodName())
                     && 0 < $call->getScore($wildcard)
                 ;
             })
         );
+    }
+
+    /**
+     * @throws UnexpectedCallException
+     */
+    public function checkUnexpectedCalls()
+    {
+        /** @var Call $call */
+        foreach ($this->unexpectedCalls as $call) {
+            $prophecy = $this->unexpectedCalls[$call];
+
+            // If fake/stub doesn't have method prophecy for this call - throw exception
+            if (!count($this->findMethodProphecies($prophecy, $call->getMethodName(), $call->getArguments()))) {
+                throw $this->createUnexpectedCallException($prophecy, $call->getMethodName(), $call->getArguments());
+            }
+        }
     }
 
     private function createUnexpectedCallException(ObjectProphecy $prophecy, $methodName,
@@ -194,28 +216,6 @@ class CallCenter
         );
     }
 
-    private function formatExceptionMessage(MethodProphecy $methodProphecy)
-    {
-        return sprintf(
-            "  - %s(\n".
-            "%s\n".
-            "    )",
-            $methodProphecy->getMethodName(),
-            implode(
-                ",\n",
-                $this->indentArguments(
-                    array_map(
-                        function ($token) {
-                            return (string) $token;
-                        },
-                        $methodProphecy->getArgumentsWildcard()->getTokens()
-                    ),
-                    $indentationLength
-                )
-            )
-        );
-    }
-
     private function indentArguments(array $arguments, $indentationLength)
     {
         return preg_replace_callback(
@@ -225,5 +225,24 @@ class CallCenter
             },
             $arguments
         );
+    }
+
+    /**
+     * @param ObjectProphecy $prophecy
+     * @param string $methodName
+     * @param array $arguments
+     *
+     * @return array
+     */
+    private function findMethodProphecies(ObjectProphecy $prophecy, $methodName, array $arguments)
+    {
+        $matches = array();
+        foreach ($prophecy->getMethodProphecies($methodName) as $methodProphecy) {
+            if (0 < $score = $methodProphecy->getArgumentsWildcard()->scoreArguments($arguments)) {
+                $matches[] = array($score, $methodProphecy);
+            }
+        }
+
+        return $matches;
     }
 }

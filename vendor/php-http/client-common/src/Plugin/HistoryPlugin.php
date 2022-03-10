@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
 use Http\Client\Common\Plugin;
-use Http\Client\Exception;
+use Http\Promise\Promise;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -21,9 +24,6 @@ final class HistoryPlugin implements Plugin
      */
     private $journal;
 
-    /**
-     * @param Journal $journal
-     */
     public function __construct(Journal $journal)
     {
         $this->journal = $journal;
@@ -32,7 +32,7 @@ final class HistoryPlugin implements Plugin
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $journal = $this->journal;
 
@@ -40,7 +40,7 @@ final class HistoryPlugin implements Plugin
             $journal->addSuccess($request, $response);
 
             return $response;
-        }, function (Exception $exception) use ($request, $journal) {
+        }, function (ClientExceptionInterface $exception) use ($request, $journal) {
             $journal->addFailure($request, $exception);
 
             throw $exception;

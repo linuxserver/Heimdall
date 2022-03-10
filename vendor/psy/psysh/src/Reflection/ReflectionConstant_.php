@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,12 +42,12 @@ class ReflectionConstant_ implements \Reflector
      *
      * @param string $name
      */
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
 
         if (!\defined($name) && !self::isMagicConstant($name)) {
-            throw new \InvalidArgumentException('Unknown constant: ' . $name);
+            throw new \InvalidArgumentException('Unknown constant: '.$name);
         }
 
         if (!self::isMagicConstant($name)) {
@@ -61,9 +61,9 @@ class ReflectionConstant_ implements \Reflector
      * @param string $name
      * @param bool   $return pass true to return the export, as opposed to emitting it
      *
-     * @return null|string
+     * @return string|null
      */
-    public static function export($name, $return = false)
+    public static function export(string $name, bool $return = false)
     {
         $refl = new self($name);
         $value = $refl->getValue();
@@ -74,7 +74,7 @@ class ReflectionConstant_ implements \Reflector
             return $str;
         }
 
-        echo $str . "\n";
+        echo $str."\n";
     }
 
     public static function isMagicConstant($name)
@@ -87,7 +87,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return false
      */
-    public function getDocComment()
+    public function getDocComment(): bool
     {
         return false;
     }
@@ -97,7 +97,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -109,7 +109,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return string
      */
-    public function getNamespaceName()
+    public function getNamespaceName(): string
     {
         if (!$this->inNamespace()) {
             return '';
@@ -133,7 +133,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return bool
      */
-    public function inNamespace()
+    public function inNamespace(): bool
     {
         return \strpos($this->name, '\\') !== false;
     }
@@ -143,7 +143,7 @@ class ReflectionConstant_ implements \Reflector
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName();
     }

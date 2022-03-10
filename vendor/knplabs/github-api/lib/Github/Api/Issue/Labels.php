@@ -29,7 +29,7 @@ class Labels extends AbstractApi
         if ($issue === null) {
             $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels';
         } else {
-            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels';
+            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/labels';
         }
 
         return $this->get($path);
@@ -118,7 +118,7 @@ class Labels extends AbstractApi
     /**
      * Add a label to an issue.
      *
-     * @link https://developer.github.com/v3/issues/labels/#remove-a-label-from-an-issue
+     * @link https://developer.github.com/v3/issues/labels/#add-labels-to-an-issue
      *
      * @param string       $username
      * @param string       $repository
@@ -137,7 +137,7 @@ class Labels extends AbstractApi
             throw new InvalidArgumentException('The labels parameter should be a single label or an array of labels');
         }
 
-        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $labels);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/labels', $labels);
     }
 
     /**
@@ -154,7 +154,7 @@ class Labels extends AbstractApi
      */
     public function replace($username, $repository, $issue, array $params)
     {
-        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $params);
+        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/labels', $params);
     }
 
     /**
@@ -164,14 +164,14 @@ class Labels extends AbstractApi
      *
      * @param string $username
      * @param string $repository
-     * @param string $issue
+     * @param int    $issue
      * @param string $label
      *
      * @return array|string
      */
     public function remove($username, $repository, $issue, $label)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels/'.rawurlencode($label));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/labels/'.rawurlencode($label));
     }
 
     /**
@@ -181,12 +181,12 @@ class Labels extends AbstractApi
      *
      * @param string $username
      * @param string $repository
-     * @param string $issue
+     * @param int    $issue
      *
      * @return array|string
      */
     public function clear($username, $repository, $issue)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels');
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/labels');
     }
 }

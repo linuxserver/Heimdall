@@ -3,8 +3,8 @@
 namespace Illuminate\Queue;
 
 use Closure;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 class Listener
 {
@@ -126,7 +126,7 @@ class Listener
     /**
      * Add the environment option to the given command.
      *
-     * @param  string  $command
+     * @param  array  $command
      * @param  \Illuminate\Queue\ListenerOptions  $options
      * @return array
      */
@@ -214,7 +214,7 @@ class Listener
      */
     public function stop()
     {
-        die;
+        exit;
     }
 
     /**

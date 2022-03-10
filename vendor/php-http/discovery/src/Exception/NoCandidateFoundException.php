@@ -13,7 +13,6 @@ final class NoCandidateFoundException extends \Exception implements Exception
 {
     /**
      * @param string $strategy
-     * @param array  $candidates
      */
     public function __construct($strategy, array $candidates)
     {
