@@ -10,14 +10,12 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "cross-env": "^5.2.0",
+        "@inertiajs/inertia": "^0.11.0",
+        "@inertiajs/inertia-vue3": "^0.6.0",
         "laravel-mix": "^6.0.43",
-        "vue-loader": "^15.9.7",
+        "vue": "^3.2.31",
+        "vue-loader": "^16.1.2",
         "vue-template-compiler": "^2.6.14"
     },
-    "dependencies": {
-        "@inertiajs/inertia": "^0.11.0",
-        "@inertiajs/inertia-vue": "^0.8.0",
-        "select2": "^4.0.7"
-    }
+    "dependencies": {}
 }

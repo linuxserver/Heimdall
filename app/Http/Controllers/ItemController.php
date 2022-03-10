@@ -38,11 +38,12 @@ class ItemController extends Controller
             $query->where('id', 0);
         })->orWhere('type', 1)->orderBy('order', 'asc')->get();
 
+        $data['current_user'] = User::currentUser();
+
         //$data['all_apps'] = Item::doesntHave('parents')->get();
         //die(print_r($data['apps']));
         // return view('welcome', $data);
-        return Inertia::render('index', [
-        ]);
+        return Inertia::render('Index', $data);
     }
 
      /**

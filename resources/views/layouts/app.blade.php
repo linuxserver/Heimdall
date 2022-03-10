@@ -26,17 +26,92 @@
         <meta name="theme-color" content="#ffffff">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="{{ asset('css/app.css?v=2') }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
-        <link href="{{ mix('/css/app.css') }}" rel="stylesheet" />
-        <script src="{{ mix('/js/app.js') }}" defer></script>
         @if(config('app.url') !== 'http://localhost')
         <base href="{{ config('app.url') }}">
         @else
         <base href="{{ url('') }}">
         @endif
-        @inertiaHead
     </head>
     <body>
-        @inertia
+        <div id="app"{!! $alt_bg !!}>
+            <nav class="sidenav">
+                <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
+                @if(isset($all_apps))
+                <h2>{{ __('app.dash.pinned_items') }}</h2>
+                <ul id="pinlist">
+                    @foreach($all_apps as $app)
+                    <?php
+                    $active = ((bool)$app->pinned === true) ? 'active' : '';
+                    ?>
+                    <li>{{ $app->title }}<a class="{{ $active }}" data-tag="{{ $tag ?? 0 }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id]) }}"><i class="fas fa-thumbtack"></i></a></li>
+                    
+                    @endforeach
+                </ul>
+                @endif
+            </nav>
+            <div class="content">
+                <header class="appheader">
+                    <ul>
+                        <li><a href="{{ route('dash', []) }}">Dash</a></li><li>
+                            <a href="{{ route('items.index', []) }}">Items</a></li>
+                    </ul>
+                </header>
+                <main>
+                    @if ($message = Session::get('success'))
+                    <div class="message-container">
+                        <div class="alert alert-success">
+                            <p>{{ $message }}</p>
+                        </div>
+                    </div>
+                    @endif
+                    @if (count($errors) > 0)
+                    <div class="message-container">
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    @endif
+                    @if($allusers->count() > 1)
+                    <div id="switchuser">
+                        @if($current_user->avatar)
+                        <img class="user-img" src="{{ asset('/storage/'.$current_user->avatar) }}" />
+                        @else
+                        <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
+                        @endif
+                        {{ $current_user->username }}
+                        <a class="btn" href="{{ route('user.select') }}">Switch User</a>
+                    </div>
+                    @endif
+                    @yield('content')
+                    <div id="config-buttons">
+
+                        
+                        @if(Route::is('dash') || Route::is('tags.show'))
+                        <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i></a>
+                        @endif
+    
+                        <a id="dash" class="config" href="{{ route('dash', []) }}"><i class="fas fa-th"></i></a>
+                        @if($current_user->id === 1)
+                        <a id="users" class="config" href="{{ route('users.index', []) }}"><i class="fas fa-user"></i></a>
+                        @endif
+                        <a id="items" class="config" href="{{ route('items.index', []) }}"><i class="fas fa-list"></i></a>
+                        <a id="folder" class="config" href="{{ route('tags.index', []) }}"><i class="fas fa-tag"></i></a>
+                        <a id="settings" class="config" href="{{ route('settings.index', []) }}"><i class="fas fa-cogs"></i></a>
+                    </div>
+                </main>
+
+            </div>
+        </div>
+        <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+        <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+        <script src="{{ asset('js/app.js?v=4') }}"></script>
+        @yield('scripts')
+        
     </body>
 </html>

@@ -1,13 +1,11 @@
-import Vue from 'vue'
-import { createInertiaApp } from '@inertiajs/inertia-vue'
+import { createApp, h } from 'vue'
+import { createInertiaApp } from '@inertiajs/inertia-vue3'
 
 createInertiaApp({
   resolve: name => require(`./Pages/${name}`),
   setup({ el, App, props, plugin }) {
-    Vue.use(plugin)
-
-    new Vue({
-      render: h => h(App, props),
-    }).$mount(el)
+    createApp({ render: () => h(App, props) })
+      .use(plugin)
+      .mount(el)
   },
 })
