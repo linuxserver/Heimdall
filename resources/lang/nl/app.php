@@ -22,11 +22,11 @@ return [
     'settings.window_target.one' => 'In dezelfde tab openen',
     'settings.window_target.new' => 'In een nieuwe tab openen',
     'settings.homepage_search' => 'Zoeken op thuispagina',
-    'settings.search_provider' => 'Zoekaanbieder',
+    'settings.search_provider' => 'Zoekmachine',
     'settings.language' => 'Taal',
     'settings.reset' => 'Standaardinstellingen herstellen',
     'settings.remove' => 'Verwijderen',
-    'settings.search' => 'zoeken',
+    'settings.search' => 'Zoeken',
     'settings.no_items' => 'Geen items gevonden',
 
 
