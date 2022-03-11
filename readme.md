@@ -83,6 +83,7 @@ Currently added languages are
 - Swedish
 - Spanish
 - Turkish
+- Russian
 
 ## Web Server Configuration
 
