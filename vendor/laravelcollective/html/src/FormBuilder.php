@@ -331,9 +331,9 @@ class FormBuilder
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function password($name, $options = [])
+    public function password($name, $value = null, $options = [])
     {
-        return $this->input('password', $name, '', $options);
+        return $this->input('password', $name, $value, $options);
     }
 
     /**
