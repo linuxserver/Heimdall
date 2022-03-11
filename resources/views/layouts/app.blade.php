@@ -115,7 +115,7 @@
         </div>
         <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
-        <script src="{{ asset('js/app.js?v=4') }}"></script>
+        <script src="{{ asset('js/app.js?v=5') }}"></script>
         @yield('scripts')
         
         <script id="custom_js">
