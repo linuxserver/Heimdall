@@ -34,11 +34,14 @@ return array (
   'options.startpage' => 'Page d\'accueil',
   'options.yes' => 'Oui',
   'options.no' => 'Non',
+  'options.nzbhydra' => 'NZBHydra',
+  'options.jackett' => 'Jackett',
   
   'buttons.save' => 'Enregistrer',
   'buttons.cancel' => 'Annuler',
   'buttons.add' => 'Ajouter',
   'buttons.upload' => 'Choisir un fichier',
+  'buttons.downloadapps' => 'Mettre à jour la liste',
   
   'dash.pin_item' => 'Épingler l\'application au tableau de bord',
   'dash.no_apps' => 'Il n\'existe actuellement aucune application épinglée :link1 ou :link2',
@@ -58,13 +61,28 @@ return array (
   'apps.username' => 'Nom d\'utilisateur',
   'apps.password' => 'Mot de passe',
   'apps.config' => 'Config',
+  'apps.apikey' => 'Clé de l\'API',
   'apps.enable' => 'Actif',
   'apps.tag_list' => 'Liste des labels',
   'apps.add_tag' => 'Ajouter un label',
   'apps.tag_name' => 'Nom du label',
   'apps.tags' => 'Labels',
   'apps.override' => 'Si différent de l\'url actuelle',
-  
+  'apps.preview' => 'Aperçu',
+  'apps.apptype' => 'Type d\'application ',
+  'apps.only_admin_account' => 'Seulement si vous avez un compte administrateur!',
+
+  'dashboard' => 'Tableau de bord',
+
+  'user.user_list' => 'Utilisateurs',
+  'user.add_user' => 'Ajouter un utilisateur',
+  'user.username' => 'Nom d\'utilisateur',
+  'user.avatar' => 'Avatar',
+  'user.email' => 'Email',
+  'user.password_confirm' => 'Confirmer le mot de passe',
+  'user.secure_front' => 'Autoriser l\'accès public au front - Uniquement appliqué si un mot de passe est défini.',
+  'user.autologin' => 'Autorisez la connexion à partir d\'une URL spécifique. Toute personne disposant du lien peut se connecter.',
+
   'url' => 'Url',
   'title' => 'Titre',
   'delete' => 'Effacer',
@@ -75,6 +93,7 @@ return array (
   'alert.success.item_updated' => 'Application mise à jour avec succès',
   'alert.success.item_deleted' => 'Application supprimée avec succès',
   'alert.success.item_restored' => 'Application restaurée avec succès',
+  'alert.success.updating' => 'Liste des applications mise à jour avec succès',
   
   'alert.success.tag_created' => 'Label crée avec succès',
   'alert.success.tag_updated' => 'Label mis à jour avec succès',
