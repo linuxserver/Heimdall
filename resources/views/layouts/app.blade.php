@@ -27,6 +27,7 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="{{ asset('css/app.css?v=2') }}" type="text/css" />
+        <link rel="stylesheet" href="{{ asset('css/all.min.css?v=2') }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
         @if(config('app.url') !== 'http://localhost')
         <base href="{{ config('app.url') }}">
