@@ -120,7 +120,7 @@ $.when( $.ready ).then(function() {
                 attribute: 'data-id'
             });
             $.post(
-                base+'/order',
+                base+'order',
                 { order:idsInOrder }
             );
         }
@@ -175,7 +175,7 @@ $.when( $.ready ).then(function() {
             data[config] = $(this).val();
         });
 
-        $.post(base+'/test_config', { data: data }, function(data) {
+        $.post(base+'test_config', { data: data }, function(data) {
             alert(data);
         });
 
@@ -185,7 +185,7 @@ $.when( $.ready ).then(function() {
         var current = $(this);
         var id = current.data('id');
         var tag = current.data('tag');
-        $.get(base+'/items/pintoggle/'+id+'/true/'+tag, function(data) {
+        $.get(base+'items/pintoggle/'+id+'/true/'+tag, function(data) {
             var inner = $(data).filter('#sortable').html();
             $('#sortable').html(inner);
             current.toggleClass('active');
