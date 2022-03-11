@@ -25,7 +25,11 @@
                             <tr>
                                 <td>{{ __($setting->label) }}</td>
                                 <td>
+                                    @if($setting->type === "textarea")
+                                    <pre>{{ $setting->list_value }}</pre>
+                                    @else
                                     {!! $setting->list_value !!}
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if((bool)$setting->system !== true)
