@@ -52,6 +52,11 @@ There is also a multi-arch Docker which supports x86-64, armhf and arm64, instru
 
 - https://hub.docker.com/r/linuxserver/heimdall/
 
+## Updating
+
+To update your instance, simply clone this repository or download the zip/tar file with the new version and copy it over the old installation.
+
+
 ## New background image not being set
 If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
 
