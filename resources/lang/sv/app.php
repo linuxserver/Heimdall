@@ -73,13 +73,13 @@ return array (
   'apps.preview' => 'Förhandsvisa',
 
 
-  'user.user_list' => 'Avnändare',
+  'user.user_list' => 'Användare',
   'user.add_user' => 'Lägg till användare',
   'user.username' => 'Användarnamn',
   'user.avatar' => 'Avatar',
   'user.email' => 'Epost',
   'user.password_confirm' => 'Upprepa lösenord',
-  'user.secure_front' => 'Tillåt allmän åtkonst till framsidan - Upprätthålls endast om ett lösenord är satt.',
+  'user.secure_front' => 'Tillåt allmän åtkomst till framsidan - Upprätthålls endast om ett lösenord är satt.',
   'user.autologin' => 'Tillåt inloggning från en specifik URL. Vem som helst med länken kan logga in.',
 
 
@@ -90,9 +90,9 @@ return array (
   'restore' => 'Återställ',
 
 
-  'alert.success.item_created' => 'Artickeln skapad',
-  'alert.success.item_updated' => 'Artickeln uppdaterad',
-  'alert.success.item_deleted' => 'Artickeln borttagen',
+  'alert.success.item_created' => 'Artikeln skapad',
+  'alert.success.item_updated' => 'Artikeln uppdaterad',
+  'alert.success.item_deleted' => 'Artikeln borttagen',
   'alert.success.item_restored' => 'Artikeln återställd',
   'alert.success.updating' => 'Uppdaterar app lista',
 
