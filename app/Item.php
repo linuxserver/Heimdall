@@ -214,6 +214,8 @@ class Item extends Model
             $config = new \stdClass;
             $config->name = end($explode);
             $config->enabled = false;
+            $config->override_url = null;
+            $config->apikey = null;
             return $config;
         }
 
@@ -227,6 +229,8 @@ class Item extends Model
         $config->url = $this->url;
         if(isset($config->override_url) && !empty($config->override_url)) {
             $config->url = $config->override_url;
+        } else {
+            $config->override_url = null;
         }
     
         return $config;

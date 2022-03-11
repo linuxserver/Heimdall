@@ -61,7 +61,7 @@
                         $('#tile-preview .app-icon').attr('src', data.iconview);
                         $('#tile-preview .title').html(data.name);
                         if(data.config != null) {
-                            $.get(base+'/view/'+data.config, function(getdata) {
+                            $.get(base+'view/'+data.config, function(getdata) {
                                 $('#sapconfig').html(getdata).show();
                             });
                         } else {

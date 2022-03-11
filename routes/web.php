@@ -44,7 +44,7 @@ Route::post('order', 'ItemController@setOrder')->name('items.order');
 
 Route::post('appload', 'ItemController@appload')->name('appload');
 Route::post('test_config', 'ItemController@testConfig')->name('test_config');
-Route::get('/get_stats/{id}', 'ItemController@getStats')->name('get_stats');
+Route::get('get_stats/{id}', 'ItemController@getStats')->name('get_stats');
 
 Route::get('/search', 'SearchController@index')->name('search');
 

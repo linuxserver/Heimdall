@@ -60,7 +60,7 @@ $.when( $.ready ).then(function() {
             var timer = 5000;
             var fun = function worker() {
                 $.ajax({
-                    url: base+'/get_stats/'+id,
+                    url: base+'get_stats/'+id,
                     dataType: 'json',
                     success: function(data) {
                         container.html(data.html);
