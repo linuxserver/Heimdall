@@ -52,7 +52,8 @@ class Application extends Model
         $list['null'] = 'None';
         foreach($all as $app) {
             $name = $app->name;
-            $name = preg_replace('/\PL/u', '', $name);
+            // $name = preg_replace('/\PL/u', '', $name);
+            $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
         
             $list['\App\SupportedApps\\'.$name.'\\'.$name] = $app->name;
         }
