@@ -56,19 +56,6 @@ class Item extends Model
         if(empty($config)) {
             $config = null;
         } else {
-            $store = false;
-            //die(var_dump($config));
-            foreach($config as $key => $check) {
-                if($key == 'type') continue;
-                if($key == 'dataonly') continue;
-                if(!empty($check) && $check != '0') {
-                    $store = true;
-                    break;
-                }
-            }
-            //die(var_dump($store))
-
-            $config['enabled'] = ($store) ? true : false;
             $config = json_encode($config);
         }
         return $config;
