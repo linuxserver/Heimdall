@@ -74,6 +74,9 @@ class Setting extends Model
             case 'select':
                 if(!empty($this->value) && $this->value !== 'none') {
                     $options =  (array)json_decode($this->options);
+                    if($this->key === 'search_provider') {
+                        $options = Search::providers()->pluck('name', 'id')->toArray();
+                    }    
                     $value = __($options[$this->value]);
                 } else {
                     $value = __('app.options.none');
@@ -122,6 +125,9 @@ class Setting extends Model
                 break;
             case 'select':
                 $options = json_decode($this->options);
+                if($this->key === 'search_provider') {
+                    $options = Search::providers()->pluck('name', 'id');
+                }
                 foreach($options as $key => $opt) {
                     $options->$key = __($opt);
                 }

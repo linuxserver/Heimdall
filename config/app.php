@@ -228,6 +228,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Yaml' => Symfony\Component\Yaml\Yaml::class,
 
         'SupportedApps' => App\SupportedApps::class,
         'EnhancedApps' => App\EnhancedApps::class,

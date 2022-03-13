@@ -12,7 +12,8 @@
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.4",
-        "laravelcollective/html": "^6.0"
+        "laravelcollective/html": "^6.0",
+        "symfony/yaml": "^5.4"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

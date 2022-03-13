@@ -1,0 +1,37 @@
+tiles:
+   id: tiles
+   name: Tiles
+   target: _blank
+
+google:
+   id: google
+   url: https://www.google.com/search
+   name: Google
+   method: get
+   target: _blank
+   query: q
+
+bing:
+   id: bing
+   url: https://www.bing.com/search
+   name: Bing
+   method: get
+   target: _blank
+   query: q
+
+ddg:
+   id: ddg
+   url: https://duckduckgo.com/
+   name: DuckDuckGo
+   method: get
+   target: _blank
+   query: q
+
+startpage:
+   id: startpage
+   url: https://www.startpage.com/do/dsearch
+   name: Startpage
+   method: get
+   target: _blank
+   query: query
+

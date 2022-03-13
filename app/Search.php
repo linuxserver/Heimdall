@@ -6,6 +6,7 @@ use App\Item;
 use App\Setting;
 use Form;
 use Cache;
+use Yaml;
 
 abstract class Search
 {
@@ -19,7 +20,7 @@ abstract class Search
     {
         $providers = self::standardProviders();
         $providers = $providers + self::appProviders();
-        return $providers;
+        return collect($providers);
     }
 
     /**
@@ -41,38 +42,16 @@ abstract class Search
      */
     public static function standardProviders()
     {
-        return [
-            'google' => [
-                'url' => 'https://www.google.com/search',
-                'var' => 'q',
-                'method' => 'get',
-                'type' => 'standard',
-            ],
-            'ddg' => [
-                'url' => 'https://duckduckgo.com/',
-                'var' => 'q',
-                'method' => 'get',
-                'type' => 'standard',
-            ],
-            'bing' => [
-                'url' => 'https://www.bing.com/search',
-                'var' => 'q',
-                'method' => 'get',
-                'type' => 'standard',
-            ],
-            'qwant' => [
-                'url' => 'https://www.qwant.com/',
-                'var' => 'q',
-                'method' => 'get',
-                'type' => 'standard',
-            ],
-            'startpage' => [
-                'url' => 'https://www.startpage.com/do/dsearch',
-                'var' => 'query',
-                'method' => 'get',
-                'type' => 'standard',
-            ],
-        ];
+        // $providers = json_decode(file_get_contents(storage_path('app/searchproviders.json')));
+        // print_r($providers);
+        $providers = Yaml::parseFile(storage_path('app/searchproviders.yaml'));
+        $all = [];
+        foreach($providers as $key => $provider) {
+            $all[$key] = $provider;
+            $all[$key]['type'] = 'standard';
+        }
+
+        return $all;
     }
 
     /**
@@ -90,10 +69,11 @@ abstract class Search
             if(($provider = Item::isSearchProvider($app->class)) !== false) {
                 $name = Item::nameFromClass($app->class);
                 $providers[$app->id] = [
+                    'id' => $app->id,
                     'type' => $provider->type,
                     'class' => $app->class,
                     'url' => $app->url,
-                    'title' => $app->title,
+                    'name' => $app->title,
                     'colour' => $app->colour,
                     'icon' => $app->icon,
                     'description' => $app->description
@@ -133,12 +113,8 @@ abstract class Search
                 $output .= '<div id="search-container" class="input-container">';
                 $output .= '<select name="provider">';
                 foreach(self::providers() as $key => $searchprovider) {
-                    $selected = ($key === $user_search_provider) ? ' selected="selected"' : '';
-                    if (is_numeric($key)) {
-                      $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['title'].'</option>';
-                    } else {
-                      $output .= '<option value="'.$key.'"'.$selected.'>'.__('app.options.'.$key).'</option>';
-                    }
+                    $selected = ((string)$key === (string)$user_search_provider) ? ' selected="selected"' : '';
+                    $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
                 }
                 $output .= '</select>';
                 $output .= Form::text('q', null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __('app.settings.search').'...']);

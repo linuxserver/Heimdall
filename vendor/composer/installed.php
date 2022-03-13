@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'f9a19fce91446a34aa433bb1426491fbb2005611',
+        'reference' => '96ec1e0b08d37ac3a4beea6d9d9076b6e3f6d58e',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -379,7 +379,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'f9a19fce91446a34aa433bb1426491fbb2005611',
+            'reference' => '96ec1e0b08d37ac3a4beea6d9d9076b6e3f6d58e',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(
@@ -1269,6 +1269,15 @@
             'install_path' => __DIR__ . '/../symfony/var-exporter',
             'aliases' => array(),
             'reference' => '49e2355fe6f59ea30c18ebb68edf13b7e20582e5',
+            'dev_requirement' => false,
+        ),
+        'symfony/yaml' => array(
+            'pretty_version' => 'v5.4.3',
+            'version' => '5.4.3.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/yaml',
+            'aliases' => array(),
+            'reference' => 'e80f87d2c9495966768310fc531b487ce64237a2',
             'dev_requirement' => false,
         ),
         'theseer/tokenizer' => array(

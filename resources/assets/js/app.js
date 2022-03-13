@@ -128,7 +128,41 @@ $.when( $.ready ).then(function() {
     });
     $('#sortable').sortable('disable');
 
-
+    $('#search-container').on('input', 'input[name=q]', function () {
+        const search = this.value
+        const items = $('#sortable').children('.item-container')
+        if($('#search-container select[name=provider]').val() === 'tiles') {
+            if(search.length > 0) {
+                items.hide()
+                items.filter(function () {
+                    const name = $(this).data('name').toLowerCase();
+                    return name.includes(search.toLowerCase())
+                }).show()
+            } else {
+                items.show()
+            }
+        } else {
+            items.show()
+        }
+    }).on('change', 'select[name=provider]', function () {
+        const items = $('#sortable').children('.item-container')
+        if($(this).val() === 'tiles') {
+            $('#search-container button').hide()
+            const search = $('#search-container input[name=q]').val()
+            if(search.length > 0) {
+                items.hide()
+                items.filter(function () {
+                    const name = $(this).data('name').toLowerCase();
+                    return name.includes(search.toLowerCase())
+                }).show()
+            } else {
+                items.show()
+            }
+        } else {
+            $('#search-container button').show()
+            items.show()
+        }
+    })
 
     $('#app').on('click', '#config-button', function(e) {
         e.preventDefault();
