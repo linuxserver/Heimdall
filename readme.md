@@ -55,6 +55,15 @@ There is also a multi-arch Docker which supports x86-64, armhf and arm64, instru
 ## Updating
 To update your instance, simply clone this repository or download the zip/tar file with the new version and copy it over the old installation.
 
+## Search Providers
+v2.3.0 added the ability for users to customise the search options.
+
+Options are stored in `/storage/app/searchproviders.yaml` (`/config/www/searchproviders.yaml` on docker installs), feel free to rearrange the options, add new ones, delete ones you don't use, etc.
+
+Consider contributing to https://github.com/linuxserver/Heimdall/discussions/categories/search-providers to help others add new ones.
+
+The item at the top of the list `Tiles` allows you to search for apps on your dashboard by name, helpful when you have lots of icons.
+
 ## New background image not being set
 If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
 
