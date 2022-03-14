@@ -73,7 +73,7 @@ function getLinkTargetAttribute()
 
 function className($name)
 {
-    $name = preg_replace('/\PL/u', '', $name);
+    $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
     return $name;
 }
 

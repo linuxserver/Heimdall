@@ -23,6 +23,9 @@ Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.au
 
 Route::get('/', 'ItemController@dash')->name('dash');
 Route::get('check_app_list', 'ItemController@checkAppList')->name('applist');
+Route::get('single/{appid}', function($appid) {
+    return json_encode(\App\Application::single($appid));
+})->name('single');
 
 Route::resources([
     'items' => 'ItemController',

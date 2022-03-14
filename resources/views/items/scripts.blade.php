@@ -19,13 +19,15 @@
                 });
             })
 
-            var availableTags = @json(App\Application::all()->pluck('name'));
-
+            var availableTags = @json(App\Application::autocomplete());
+            console.log(availableTags)
             $( "#appname" ).autocomplete({
                 source: availableTags,
                 select: function( event, ui ) {
-                    var appvalue = ui.item.value;
-                    appload(appvalue);
+                    event.preventDefault();
+                    // appload(ui.item.value);
+                    $( "#appname" ).val(ui.item.label)
+                    $('#apptype').val(ui.item.value).change()
                 }
             });
             // initial load
@@ -38,7 +40,7 @@
                 $('#tile-preview .title').html($(this).val());
             })
             $('#apptype').on('change', function(e) {
-                appload($(this).find('option:selected').text());
+                appload($(this).find('option:selected').val());
             });
             $('#appcolour').on('change', function(e) {
                 $('#tile-preview .item').css('backgroundColor', $(this).val());
@@ -56,7 +58,7 @@
                         // Main details
                         $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
                         $('input[name=colour]').val(data.colour);
-                        $('select[name=class]').val(data.class);
+                        $('select[name=class]').val(data.appid);
                         hueb.setColor( data.colour );
                         $('input[name=pinned]').prop('checked', true);
                         // Preview details

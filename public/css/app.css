@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 html {
   font-family: sans-serif;
@@ -419,6 +420,23 @@ body {
   text-align: center;
   line-height: 30px;
   display: none;
+}
+.item-container .tooltip {
+  padding: 25px;
+  border-radius: 5px;
+  background: #00000038;
+  color: white;
+  position: absolute;
+  bottom: 120px;
+  left: 0;
+  right: 0;
+  font-size: 13px;
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  display: none;
+}
+.item-container:hover .tooltip {
+  display: block;
 }
 
 .black {

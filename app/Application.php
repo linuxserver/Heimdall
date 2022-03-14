@@ -39,23 +39,49 @@ class Application extends Model
     public function class()
     {
         $name = $this->name;
-        $name = preg_replace('/\PL/u', '', $name);    
+        $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
 
         $class = '\App\SupportedApps\\'.$name.'\\'.$name;
         return $class;
     }
 
+    public static function apps()
+    {
+        $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];
+        $apps = collect($json->apps);
+        $sorted = $apps->sortBy('name', SORT_NATURAL|SORT_FLAG_CASE);
+        return $sorted;
+    }
+
+    public static function autocomplete()
+    {
+        $apps = self::apps();
+        $list = [];
+        foreach($apps as $app) {
+            $list[] = (object)[
+                'label' => $app->name,
+                'value' => $app->appid
+            ];
+        }
+        return $list;
+    }
+
+    public static function single($appid)
+    {
+        $apps = self::apps();
+        $app = $apps->where('appid', $appid)->first();
+        $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name); 
+        $app->class = '\App\SupportedApps\\'.$classname.'\\'.$classname;
+        return $app;
+    }
+
     public static function applist()
     {
         $list = [];
-        $all = self::orderBy('name')->get()->sortBy('name', SORT_NATURAL|SORT_FLAG_CASE);
         $list['null'] = 'None';
-        foreach($all as $app) {
-            $name = $app->name;
-            // $name = preg_replace('/\PL/u', '', $name);
-            $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
-        
-            $list['\App\SupportedApps\\'.$name.'\\'.$name] = $app->name;
+        $apps = self::apps();
+        foreach($apps as $app) {
+            $list[$app->appid] = $app->name;
         }
         return $list;
     }

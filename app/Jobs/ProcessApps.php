@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Storage;
 use App\Application;
 use App\SupportedApps;
 
@@ -32,8 +33,11 @@ class ProcessApps implements ShouldQueue
     public function handle()
     {
         $localapps = Application::all();
-        $list = json_decode(SupportedApps::getList()->getBody());
-        $validapps = [];
+        $json = SupportedApps::getList()->getBody();
+
+        Storage::disk('local')->put('supportedapps.json', $json);
+
+        /* $validapps = [];
         
         foreach($list->apps as $app) {
             $validapps[] = $app->appid;
@@ -58,7 +62,7 @@ class ProcessApps implements ShouldQueue
       
                 }
             }
-        }
+        }*/
         //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list
         // removed the delete so local apps can be added
 

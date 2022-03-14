@@ -201,6 +201,24 @@ body {
 		line-height: 30px;
 		display: none;
 	}
+	.tooltip {
+		padding: 25px;
+		border-radius: 5px;
+		background: #00000038;
+		color: white;
+		position: absolute;
+		bottom: 120px;
+		left: 0;
+		right: 0;
+		font-size: 13px;
+		backdrop-filter: blur(8px);
+		display: none;
+	}
+	&:hover {
+		.tooltip {
+			display: block;
+		}
+	}
 }
 .black {
 	color: #000!important;

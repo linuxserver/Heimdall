@@ -319,7 +319,8 @@ class ItemController extends Controller
     public function appload(Request $request)
     {
         $output = [];
-        $appname = $request->input('app');
+        $appid = $request->input('app');
+        /*$appname = $request->input('app');
         //die($appname);
 
         $app_details = Application::where('name', $appname)->firstOrFail();
@@ -338,7 +339,15 @@ class ItemController extends Controller
             $output['config'] = className($app_details->name).'.config';
         } else {
             $output['config'] = null;
-        }
+        }*/
+        $app = Application::single($appid);
+        $output = (array)$app;
+        $output['config'] = null;
+        $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
+        $output['iconview'] =  'https://raw.githubusercontent.com/linuxserver/Heimdall-Apps/master/' . preg_replace('/[^\p{L}\p{N}]/u', '', $app->name) . '/' . $app->icon;
+
+;
+
         
         return json_encode($output);
     }
