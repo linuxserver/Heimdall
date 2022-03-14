@@ -93,7 +93,7 @@ class Item extends Model
     public function getLinkAttribute()
     {
         if((int)$this->type === 1) {
-            return env('APP_URL').'/tag/'.$this->url;
+            return url('tag/'.$this->url);
         } else {
             return $this->url;
         }
