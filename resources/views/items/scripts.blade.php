@@ -49,6 +49,8 @@
             function appload(appvalue) {
                 if(appvalue == 'None') {
                     $('#sapconfig').html('').hide();
+                    $('#tile-preview .app-icon').attr('src', '/img/heimdall-icon-small.png');
+                    $('#appimage').html("<img src='/img/heimdall-icon-small.png' />");
                 } else {
                     $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
                         // Main details
