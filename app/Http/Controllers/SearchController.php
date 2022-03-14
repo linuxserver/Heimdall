@@ -16,7 +16,7 @@ class SearchController extends Controller
         $provider = Search::providerDetails($requestprovider);
 
         if($provider->type == 'standard') {
-            return redirect($provider->url.'?'.$provider->var.'='.urlencode($query));
+            return redirect($provider->url.'?'.$provider->query.'='.urlencode($query));
         } elseif($provider->type == 'external') {
             $class = new $provider->class;
             //print_r($provider);
