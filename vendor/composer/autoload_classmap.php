@@ -2812,6 +2812,7 @@ return array(
     'Monolog\\Handler\\DoctrineCouchDBHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/DoctrineCouchDBHandler.php',
     'Monolog\\Handler\\DynamoDbHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/DynamoDbHandler.php',
     'Monolog\\Handler\\ElasticaHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/ElasticaHandler.php',
+    'Monolog\\Handler\\ElasticsearchHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/ElasticsearchHandler.php',
     'Monolog\\Handler\\ErrorLogHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/ErrorLogHandler.php',
     'Monolog\\Handler\\FallbackGroupHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/FallbackGroupHandler.php',
     'Monolog\\Handler\\FilterHandler' => $vendorDir . '/monolog/monolog/src/Monolog/Handler/FilterHandler.php',
