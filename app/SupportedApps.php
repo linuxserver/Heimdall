@@ -122,7 +122,11 @@ abstract class SupportedApps
 
     public static function getFiles($app)
     {
-        $zipurl = $app->files;
+        $apps = json_decode(file_get_contents('https://apps.heimdall.site/list'));
+        $collect = collect($apps->apps);
+        $collapp = $collect->where('appid', $app->appid)->first();
+        $zipurl = $collapp->files;
+
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
         $res = $client->request('GET', $zipurl);
 
@@ -139,20 +143,13 @@ abstract class SupportedApps
             $zip->extractTo(app_path('SupportedApps')); // place in the directory with same name
             $zip->close();
             unlink($src); //Deleting the Zipped file
+        } else {
+            var_dump($x);
         }
     }
 
     public static function saveApp($details, $app)
-    {
-        if(!file_exists(storage_path('app/public/icons')))  {
-            mkdir(storage_path('app/public/icons'), 0777, true);
-        }
-
-        $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
-        $img_dest = storage_path('app/public/icons/'.$details->icon);
-        //die("i: ".$img_src);
-        @copy($img_src, $img_dest);
-        
+    {        
         $app->appid = $details->appid;
         $app->name = $details->name;
         $app->sha = $details->sha ?? null;
@@ -168,6 +165,7 @@ abstract class SupportedApps
         $app->enhanced = $enhanced;
         $app->tile_background = $details->tile_background;
         $app->save();
+        return $app; 
     }
 
 }

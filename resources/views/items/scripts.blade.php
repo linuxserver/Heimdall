@@ -49,23 +49,24 @@
             $('.tags').select2();
 
             function appload(appvalue) {
-                if(appvalue == 'None') {
+                if(appvalue == 'null') {
                     $('#sapconfig').html('').hide();
                     $('#tile-preview .app-icon').attr('src', '/img/heimdall-icon-small.png');
                     $('#appimage').html("<img src='/img/heimdall-icon-small.png' />");
+                    $('#sapconfig').html('').hide();
                 } else {
                     $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
                         // Main details
-                        $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.icon+"' />");
+                        $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.iconview+"' />");
                         $('input[name=colour]').val(data.colour);
-                        $('select[name=class]').val(data.appid);
+                        $('select[name=appid]').val(data.appid);
                         hueb.setColor( data.colour );
                         $('input[name=pinned]').prop('checked', true);
                         // Preview details
                         $('#tile-preview .app-icon').attr('src', data.iconview);
                         $('#tile-preview .title').html(data.name);
-                        if(data.config != null) {
-                            $.get(base+'view/'+data.config, function(getdata) {
+                        if(data.custom != null) {
+                            $.get(base+'view/'+data.custom, function(getdata) {
                                 $('#sapconfig').html(getdata).show();
                             });
                         } else {

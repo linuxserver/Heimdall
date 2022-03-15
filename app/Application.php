@@ -66,10 +66,38 @@ class Application extends Model
         return $list;
     }
 
+    public static function getApp($appid)
+    {
+        $localapp = Application::where('appid', $appid)->first();
+        $app = self::single($appid);
+
+        $application = ($localapp) ? $localapp : new Application;
+
+        if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
+            SupportedApps::getFiles($app);
+            SupportedApps::saveApp($app, $application);
+        } else {
+            // check if there has been an update for this app
+            if($localapp) {
+                if($localapp->sha !== $app->sha) {
+                    SupportedApps::getFiles($app);
+                    $app = SupportedApps::saveApp($app, $application);
+                }
+            }  else {
+                SupportedApps::getFiles($app);
+                $app = SupportedApps::saveApp($app, $application);
+    
+            }
+        }
+        return $app;
+
+    }
+
     public static function single($appid)
     {
         $apps = self::apps();
         $app = $apps->where('appid', $appid)->first();
+        if ($app === null) return null;
         $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name); 
         $app->class = '\App\SupportedApps\\'.$classname.'\\'.$classname;
         return $app;

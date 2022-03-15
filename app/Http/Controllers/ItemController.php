@@ -145,15 +145,9 @@ class ItemController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function storelogic($request, $id = null)
     {
-        //
+        $application = Application::single($request->input('appid'));
         $validatedData = $request->validate([
             'title' => 'required|max:255',
             'url' => 'required',
@@ -161,6 +155,14 @@ class ItemController extends Controller
 
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
+            $request->merge([
+                'icon' => $path
+            ]);
+        } elseif(strpos($request->input('icon'), 'http') === 0) {
+            $icon = $application->icon;
+            $contents = file_get_contents($request->input('icon'));
+            $path = 'icons/'.$icon;
+            Storage::disk('public')->put($path, $contents);
             $request->merge([
                 'icon' => $path
             ]);
@@ -180,13 +182,27 @@ class ItemController extends Controller
         }
 
 
-        //die(print_r($request->input('config')));
-        
-        $item = Item::create($request->all());
+        if($id === null) {
+            $item = Item::create($request->all());
+        } else {
+            $item = Item::find($id);
+            $item->update($request->all());
+        }
 
-        //Search::storeSearchProvider($request->input('class'), $item);
 
         $item->parents()->sync($request->tags);
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->storelogic($request);
 
         $route = route('dash', []);
         return redirect($route)
@@ -232,39 +248,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'url' => 'required',
-        ]);
-            //die(print_r($request->all()));
-        if($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons');
-            $request->merge([
-                'icon' => $path
-            ]);
-        }
-        
-        $config = Item::checkConfig($request->input('config'));
-        $current_user = User::currentUser();
-        $request->merge([
-            'description' => $config,
-            'user_id' => $current_user->id
-        ]);
-
-        if($request->input('class') === 'null') {
-            $request->merge([
-                'class' => null,
-            ]);
-        }
-
-
-        $item = Item::find($id);
-        $item->update($request->all());
-
-        //Search::storeSearchProvider($request->input('class'), $item);
-
-        $item->parents()->sync($request->tags);
-
+        $this->storelogic($request, $id);
         $route = route('dash', []);
         return redirect($route)
             ->with('success',__('app.alert.success.item_updated'));
@@ -320,6 +304,8 @@ class ItemController extends Controller
     {
         $output = [];
         $appid = $request->input('app');
+
+        if($appid === "null") return null;
         /*$appname = $request->input('app');
         //die($appname);
 
@@ -340,9 +326,20 @@ class ItemController extends Controller
         } else {
             $output['config'] = null;
         }*/
+
+        $output['config'] = null;
+        $output['custom'] = null;
+
         $app = Application::single($appid);
         $output = (array)$app;
-        $output['config'] = null;
+
+        if((boolean)$app->enhanced === true) {
+            if(!isset($app->config)) { // class based config
+                $appdetails = Application::getApp($appid);
+                $output['custom'] = className($appdetails->name).'.config';
+            }
+        }
+        
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
         $output['iconview'] =  'https://raw.githubusercontent.com/linuxserver/Heimdall-Apps/master/' . preg_replace('/[^\p{L}\p{N}]/u', '', $app->name) . '/' . $app->icon;
 

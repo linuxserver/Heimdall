@@ -30,7 +30,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'class', 'user_id'
+        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type', 'class', 'user_id', 'appid'
     ];
 
     /**
@@ -53,6 +53,7 @@ class Item extends Model
 
     public static function checkConfig($config)
     {
+        // die(print_r($config));
         if(empty($config)) {
             $config = null;
         } else {
