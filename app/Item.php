@@ -161,12 +161,13 @@ class Item extends Model
 
     public function enhanced()
     {
-        if(isset($this->class) && !empty($this->class)) {
+        /*if(isset($this->class) && !empty($this->class)) {
             $app = new $this->class;
         } else {
             return false;
         }
-        return (bool)($app instanceof \App\EnhancedApps);
+        return (bool)($app instanceof \App\EnhancedApps);*/
+        return $this->description !== null;
     }
 
     public static function isEnhanced($class)
@@ -195,12 +196,12 @@ class Item extends Model
 
     public function getconfig()
     {
-        $explode = explode('\\', $this->class);
+        // $explode = explode('\\', $this->class);
         
 
         if(!isset($this->description) || empty($this->description)) {
             $config = new \stdClass;
-            $config->name = end($explode);
+            // $config->name = end($explode);
             $config->enabled = false;
             $config->override_url = null;
             $config->apikey = null;
@@ -211,7 +212,7 @@ class Item extends Model
 
         $config = json_decode($this->description);
 
-        $config->name = end($explode);
+        // $config->name = end($explode);
 
         
         $config->url = $this->url;

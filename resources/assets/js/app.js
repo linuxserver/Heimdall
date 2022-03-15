@@ -130,8 +130,10 @@ $.when( $.ready ).then(function() {
 
     $('#sortable').on('mouseenter', '.item', function () {
         $(this).siblings('.tooltip').addClass('active')
+        $('.refresh', this).addClass('active')
     }).on('mouseleave', '.item', function () {
         $(this).siblings('.tooltip').removeClass('active')
+        $('.refresh', this).removeClass('active')
     })
 
     $('#search-container').on('input', 'input[name=q]', function () {

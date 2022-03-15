@@ -221,8 +221,38 @@ body {
 		&.active {
 			transform: translateY(0);
 			opacity: 1;
-			z-index: 2;
+			z-index: 4;
 		}
+	}
+}
+.tile-actions {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    padding: 7px;
+    background: #000000d9;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 6px;
+    width: 80px;
+    height: 90px;
+    display: flex;
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    flex-direction: column;
+    text-align: center;
+	cursor: pointer;
+	&.active {
+		opacity: 1;
+	}
+}
+.refresh {
+	z-index: 3;
+	.icon {
+		font-size: 20px;
+		margin-bottom: 5px;
 	}
 }
 .black {
@@ -717,6 +747,8 @@ div.create {
 	  position: relative;
 	  width: 100%;
 	  max-width: 620px;
+	  position: relative;
+	  z-index: 4;
 	  form { 
 		width: 100%;
 	  }

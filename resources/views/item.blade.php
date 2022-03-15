@@ -12,6 +12,14 @@
                                 @endif
                             </div>
                             <a rel="noopener noreferrer" title="{{ App\Item::getApplicationDescription($app->class) }}" class="link{{ title_color($app->colour) }}"{!! $app->link_target !!} href="{{ $app->link }}"><i class="fas {{ $app->link_icon }}"></i></a>
+                            @if($app->enhanced() === true)
+                            <div class="tile-actions refresh">
+                                <div class="icon">
+                                    <i class="fas fa-arrow-rotate-right"></i>
+                                </div>
+                                Refresh Stats
+                            </div>
+                            @endif
                         </div>
                         <a class="item-edit" href="{{ route($app->link_type.'.edit', [ $app->id ]) }}"><i class="fas fa-pencil"></i></a>
                         @if(App\Item::getApplicationDescription($app->class) !== '')<div class="tooltip">{{ App\Item::getApplicationDescription($app->class) }}</div>@endif
