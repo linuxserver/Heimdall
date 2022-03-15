@@ -200,11 +200,13 @@ body {
 		text-align: center;
 		line-height: 30px;
 		display: none;
+		z-index: 1;
 	}
+
 	.tooltip {
 		padding: 25px;
 		border-radius: 5px;
-		background: #00000038;
+		background: #000000c8;
 		color: white;
 		position: absolute;
 		bottom: 120px;
@@ -212,11 +214,14 @@ body {
 		right: 0;
 		font-size: 13px;
 		backdrop-filter: blur(8px);
-		display: none;
-	}
-	&:hover {
-		.tooltip {
-			display: block;
+		z-index: 0;
+		opacity: 0;
+		transform: translateY(-20px);
+		transition: all 0.3s;
+		&.active {
+			transform: translateY(0);
+			opacity: 1;
+			z-index: 2;
 		}
 	}
 }
