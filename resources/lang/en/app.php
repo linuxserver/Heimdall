@@ -86,6 +86,7 @@ return [
     'apps.website' => 'Website',
     'apps.description' => 'Description',
     'apps.only_admin_account' => 'Only if you have admin-account!',
+    'apps.autologin_url' => 'Auto login url',
 
     'dashboard' => 'Home dashboard',
 
