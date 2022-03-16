@@ -87,6 +87,7 @@ return [
     'apps.description' => 'Description',
     'apps.only_admin_account' => 'Only if you have admin-account!',
     'apps.autologin_url' => 'Auto login url',
+    'apps.show_deleted' => 'Showing Deleted Applications',
 
     'dashboard' => 'Home dashboard',
 
