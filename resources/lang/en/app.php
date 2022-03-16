@@ -83,6 +83,8 @@ return [
     'apps.override' => 'If different to main url',
     'apps.preview' => 'Preview',
     'apps.apptype' => 'Application Type',
+    'apps.website' => 'Website',
+    'apps.description' => 'Description',
     'apps.only_admin_account' => 'Only if you have admin-account!',
 
     'dashboard' => 'Home dashboard',

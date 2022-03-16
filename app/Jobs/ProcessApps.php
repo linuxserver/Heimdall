@@ -32,39 +32,15 @@ class ProcessApps implements ShouldQueue
      */
     public function handle()
     {
-        $localapps = Application::all();
+        $localapps = Application::whereNull('class')->get();
         $json = SupportedApps::getList()->getBody();
 
         Storage::disk('local')->put('supportedapps.json', $json);
 
-        /* $validapps = [];
-        
-        foreach($list->apps as $app) {
-            $validapps[] = $app->appid;
-            $localapp = $localapps->where('appid', $app->appid)->first();
-
-            $application = ($localapp) ? $localapp : new Application;
-
-            if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
-                SupportedApps::getFiles($app);
-                SupportedApps::saveApp($app, $application);
-            } else {
-                // check if there has been an update for this app
-                $localapp = $localapps->where('appid', $app->appid)->first();
-                if($localapp) {
-                    if($localapp->sha !== $app->sha) {
-                        SupportedApps::getFiles($app);
-                        SupportedApps::saveApp($app, $application);
-                    }
-                }  else {
-                    SupportedApps::getFiles($app);
-                    SupportedApps::saveApp($app, $application);
-      
-                }
-            }
-        }*/
-        //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list
-        // removed the delete so local apps can be added
+        foreach($localapps as $app) {
+            $app->class = $app->class();
+            $app->save();
+        }
 
     }
 }

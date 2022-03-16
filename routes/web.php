@@ -38,7 +38,7 @@ Route::get('tag/{slug}', 'TagController@show')->name('tags.show');
 Route::get('tag/add/{tag}/{item}', 'TagController@add')->name('tags.add');
 Route::get('tag/restore/{id}', 'TagController@restore')->name('tags.restore');
 
-
+Route::get('items/websitelookup/{url}', 'ItemController@websitelookup')->name('items.lookup');
 Route::get('items/pin/{id}', 'ItemController@pin')->name('items.pin');
 Route::get('items/restore/{id}', 'ItemController@restore')->name('items.restore');
 Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');

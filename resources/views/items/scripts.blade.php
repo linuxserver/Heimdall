@@ -48,6 +48,85 @@
 
             $('.tags').select2();
 
+            $('#searchwebsite').on('click', 'button.btn', function (e) {
+                e.preventDefault()
+                let websiteurl = $('#searchwebsite input').val()
+                website = btoa(websiteurl)
+                $.get(base + 'items/websitelookup/' + website, function (data) {
+                    const url = new URL(websiteurl)
+                    const websitedata = {}
+                    const parser = new DOMParser()
+                    const document = parser.parseFromString(data, 'text/html')
+
+                    const links = document.getElementsByTagName('link')
+                    websitedata.title = document.getElementsByTagName('title')[0].innerText
+                    const metas = document.getElementsByTagName('meta')
+                    const icons = []
+
+                    for (let i = 0; i < metas.length; i++) {
+                        if (metas[i].getAttribute('name') === 'description') {
+                            websitedata.description = metas[i].getAttribute('content')
+                        }
+                    }
+
+                    for (let i = 0; i < links.length; i++) {
+                        const link = links[i]
+                        const rel = link.getAttribute('rel')
+                        if (rel) {
+                            if (rel.toLowerCase().indexOf('icon') > -1) {
+                                const href = link.getAttribute('href')
+                                // Make sure href is not null / undefined
+                                if (href) {
+                                    if (href.toLowerCase().indexOf('https:') === -1 && href.toLowerCase().indexOf('http:') === -1 && href.indexOf('//') !== 0) {
+                                        let finalBase = ''
+                                        if (websiteurl.endsWith('/')) {
+                                            const baseurl = websiteurl.split('/')
+                                            baseurl.pop()
+                                            finalBase = baseurl.join('/')
+                                        } else {
+                                            finalBase = websiteurl
+                                        }
+
+                                        let absoluteHref = finalBase
+
+                                        if (href.indexOf('/') === 0) {
+                                            absoluteHref += href
+                                        } else {
+                                            const path = url.pathname.split('/')
+                                            path.pop()
+                                            const finalPath = path.join('/')
+                                            absoluteHref += finalPath + '/' + href
+                                        }
+                                        icons.push(encodeURI(absoluteHref))
+                                    } else if (href.indexOf('//') === 0) {
+                                        // Absolute url with no protocol
+                                        const absoluteUrl = url.protocol + href
+                                        icons.push(encodeURI(absoluteUrl))
+                                    } else {
+                                    // Absolute
+                                        icons.push(encodeURI(href))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    websitedata.icons = icons
+
+                    $('#appname').val(websitedata.title)
+                    $('#appurl').val(websiteurl)
+                    $('#appimage').html("<img src='"+websitedata.icons[0]+"' /><input type='hidden' name='icon' value='"+websitedata.icons[0]+"' />");
+                    $('#tile-preview .app-icon').attr('src', $('#appimage img').attr('src'));
+                    $('#tile-preview .title').text(websitedata.title);
+                    console.log(websitedata)
+                })
+                console.log(website)
+            })
+
+            $('.optdetails button.dark').on('click', function (e) {
+                e.preventDefault()
+                $(this).parent().next().toggleClass('active')
+            })
+
             function appload(appvalue) {
                 if(appvalue == 'null') {
                     $('#sapconfig').html('').hide();
@@ -64,7 +143,11 @@
                         $('input[name=pinned]').prop('checked', true);
                         // Preview details
                         $('#tile-preview .app-icon').attr('src', data.iconview);
-                        $('#tile-preview .title').html(data.name);
+                        $('#appdescription').val(data.description);
+                        if($('#appname').val() === '') {
+                            $('#appname').val(data.name)
+                        }
+                        $('#tile-preview .title').html($('#appname').val());
                         if(data.custom != null) {
                             $.get(base+'view/'+data.custom, function(getdata) {
                                 $('#sapconfig').html(getdata).show();

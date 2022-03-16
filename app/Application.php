@@ -45,6 +45,15 @@ class Application extends Model
         return $class;
     }
 
+    public static function classFromName($name)
+    {
+        $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
+
+        $class = '\App\SupportedApps\\'.$name.'\\'.$name;
+        return $class;
+    }
+   
+
     public static function apps()
     {
         $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];

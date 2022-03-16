@@ -15,6 +15,11 @@ use App\Jobs\ProcessApps;
 use App\Search;
 use Illuminate\Support\Facades\Route;
 
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
+
+
 class ItemController extends Controller
 {
     public function __construct()
@@ -159,8 +164,16 @@ class ItemController extends Controller
                 'icon' => $path
             ]);
         } elseif(strpos($request->input('icon'), 'http') === 0) {
-            $icon = $application->icon;
             $contents = file_get_contents($request->input('icon'));
+
+            if ($application) {
+                $icon = $application->icon;
+            } else {
+                $file = $request->input('icon');
+                $path_parts = pathinfo($file);
+                $icon = md5($contents);
+                $icon .= '.'.$path_parts['extension'];
+            }
             $path = 'icons/'.$icon;
             Storage::disk('public')->put($path, $contents);
             $request->merge([
@@ -175,10 +188,15 @@ class ItemController extends Controller
             'user_id' => $current_user->id
         ]);
 
-        if($request->input('class') === 'null') {
+        if($request->input('appid') === 'null') {
             $request->merge([
                 'class' => null,
             ]);
+        } else {
+            $request->merge([
+                'class' => Application::classFromName($application->name),
+            ]);
+ 
         }
 
 
@@ -229,7 +247,12 @@ class ItemController extends Controller
     public function edit($id)
     {
         // Get the item
-        $data['item'] = Item::find($id);
+        $item = Item::find($id);
+        if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
+            $app = Application::where('class', $item->class)->first();
+            $item->appid = $app->appid;
+        }
+        $data['item'] = $item;
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = $data['item']->tags();
@@ -334,14 +357,14 @@ class ItemController extends Controller
         $output = (array)$app;
 
         if((boolean)$app->enhanced === true) {
-            if(!isset($app->config)) { // class based config
+            // if(!isset($app->config)) { // class based config
                 $appdetails = Application::getApp($appid);
                 $output['custom'] = className($appdetails->name).'.config';
-            }
+            // }
         }
         
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
-        $output['iconview'] =  'https://raw.githubusercontent.com/linuxserver/Heimdall-Apps/master/' . preg_replace('/[^\p{L}\p{N}]/u', '', $app->name) . '/' . $app->icon;
+        $output['iconview'] =   config('app.appsource').'icons/' . $app->icon;
 
 ;
 
@@ -359,6 +382,41 @@ class ItemController extends Controller
         $app_details = new $app();
         $app_details->config = (object)$data;
         $app_details->test();
+    }
+
+    public function execute($url, $attrs = [], $overridevars=false)
+    {
+        $res = null;
+
+        $vars = ($overridevars !== false) ?
+        $overridevars : [
+            'http_errors' => false, 
+            'timeout' => 15, 
+            'connect_timeout' => 15,
+            'verify' => false
+        ];
+
+        $client = new Client($vars);
+
+        $method = 'GET';
+
+        try {
+            return $client->request($method, $url, $attrs);  
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error("Connection refused");
+            Log::debug($e->getMessage());
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            Log::debug($e->getMessage());
+        }
+        return $res;
+    }
+
+
+    public function websitelookup($url)
+    {
+        $url = \base64_decode($url);
+        $data = $this->execute($url);
+        return $data->getBody();
     }
 
     public function getStats($id)

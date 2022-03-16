@@ -108,7 +108,7 @@ abstract class SupportedApps
     public static function getList()
     {
         // $list_url = 'https://apps.heimdall.site/list';
-        $list_url = 'https://appslist.heimdall.site/list.json';
+        $list_url = config('app.appsource').'list.json';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         return $client->request('GET', $list_url);
     }
@@ -122,10 +122,7 @@ abstract class SupportedApps
 
     public static function getFiles($app)
     {
-        $apps = json_decode(file_get_contents('https://apps.heimdall.site/list'));
-        $collect = collect($apps->apps);
-        $collapp = $collect->where('appid', $app->appid)->first();
-        $zipurl = $collapp->files;
+        $zipurl = config('app.appsource').'files/'.$app->sha.'.zip';
 
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
         $res = $client->request('GET', $zipurl);
@@ -161,7 +158,7 @@ abstract class SupportedApps
         $appclass = $app->class();
         $application = new $appclass;
         $enhanced = (bool)($application instanceof \App\EnhancedApps);
-
+        $app->class = $appclass;
         $app->enhanced = $enhanced;
         $app->tile_background = $details->tile_background;
         $app->save();

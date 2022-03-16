@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 html {
   font-family: sans-serif;
@@ -267,6 +268,67 @@ body {
 }
 #switchuser .btn:hover {
   background: #d64d55;
+}
+
+#tile-preview {
+  align-items: center;
+}
+
+.create .textarea {
+  width: 100%;
+  margin: 0px 20px;
+}
+.create .textarea textarea {
+  width: 100%;
+  border: 1px solid #dedfe2;
+  padding: 15px;
+  border-radius: 6px;
+  height: 100px;
+  font-size: 14px;
+}
+.create .textarea label:not(.switch) {
+  width: 100%;
+  font-size: 13px;
+  color: #9094a5;
+  margin-bottom: 15px;
+  display: block;
+  font-weight: 300;
+}
+
+.appoptions {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 5px;
+}
+.appoptions .optdetails {
+  display: flex;
+}
+.appoptions .optdetails .input {
+  margin: 0 20px;
+  width: 200px;
+}
+.appoptions .optvalue {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.appoptions .optvalue.active {
+  opacity: 1;
+  width: auto;
+  height: auto;
+  overflow: auto;
+}
+.appoptions button.dark {
+  background: #1b1b1b;
+  border: none;
+  padding: 12px 15px;
+  border-radius: 4px;
+  color: white;
+  min-width: 240px;
 }
 
 #app {
@@ -1034,7 +1096,7 @@ a.settinglink {
 }
 
 #appimage img {
-  max-width: 95px;
+  width: 95px;
 }
 
 #sapconfig, .newblock {

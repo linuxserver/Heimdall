@@ -54,6 +54,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
+
 
     /*
     |--------------------------------------------------------------------------

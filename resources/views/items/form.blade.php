@@ -1,6 +1,6 @@
     <section class="module-container">
         <header>
-            <div class="section-title">{{ __('app.apps.add_application') }}</div>
+            <div class="section-title">{{ __('app.apps.preview') }}</div>
             <div class="module-actions">
             <div class="toggleinput">
                 <label class="name">{{ __('app.apps.pinned') }}</label>
@@ -19,20 +19,49 @@
                 <a href="{{ route('items.index', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </header>
-        <div id="create" class="create">
+
+        <div id="tile-preview" class="create">
+                <div class="">
+                @include('items.preview')
+                </div>
+                <div class="appoptions">
+                    <div class="optdetails">
+                        <div><button class="dark">{{ __('app.apps.apptype') }}</button></div>
+                        <div class="optvalue">
+                            <div class="input">
+                                {!! Form::select('appid', App\Application::applist(), null, array('class' => 'form-control config-item', 'id' => 'apptype', 'data-config' => 'type')) !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="searchwebsite" class="optdetails">
+                        <div><button class="dark">{{ __('app.apps.website') }}</button></div>
+                        <div class="optvalue">
+                            <div class="input">
+                            {!! Form::text('website', null, array('placeholder' => __('app.apps.website'), 'id' => 'website', 'class' => 'form-control')) !!}
+                            </div>
+                            <div><button class="btn">Go</button></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <header style="border-top: 1px solid #dbdce3;">
+                <div class="section-title">{{ __('app.apps.add_application') }}</div>
+            </header>
+
+
+            <div id="create" class="create">
             {!! csrf_field() !!}
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
                 {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
             </div>
-            <div class="input">
-                <label>{{ __('app.apps.apptype') }} *</label>
-                {!! Form::select('appid', App\Application::applist(), null, array('class' => 'form-control config-item', 'id' => 'apptype', 'data-config' => 'type')) !!}
-            </div>
 
             <div class="input">
                 <label>{{ __('app.apps.colour') }} *</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'), 'id' => 'appcolour', 'class' => 'form-control color-picker set-bg-elem')) !!}
+                {!! Form::text('colour', $item->colour ?? '#161b1f', array('placeholder' => __('app.apps.hex'), 'id' => 'appcolour', 'class' => 'form-control color-picker set-bg-elem')) !!}
             </div>
 
             <div class="input">
@@ -65,16 +94,14 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-
-
-            <div class="newblock" style="display: block;">
-                <h2>Preview</h2>
-            </div>
-
-
-            <div id="tile-preview" class="input">
-                @include('items.preview')
+        <header style="border-top: 1px solid #dbdce3; width: 100%;">
+            <div class="section-title">{{ __('app.apps.description') }}</div>
+        </header>
+        <div class="create">
+            <div class="textarea">
+                <textarea id="appdescription">{{ $item->description ?? '' }}</textarea>
             </div>
 
 
@@ -84,7 +111,7 @@
 
             <div id="sapconfig" style="display: block;">
                 @if(isset($item))
-                @include('SupportedApps::'.$item->getconfig()->name.'.config')
+                @include('SupportedApps::'.App\Item::nameFromClass($item->class).'.config')
                 @endif
             </div>
 
