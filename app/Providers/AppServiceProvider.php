@@ -52,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('storage:link');
             \Session::put('current_user', null);
         }
+
+        $lang = Setting::fetch('language');
+        \App::setLocale($lang);
+
         
         $applications = Application::all();
         if($applications->count() <= 0) {
@@ -97,8 +101,6 @@ class AppServiceProvider extends ServiceProvider
             if($bg_image = Setting::fetch('background_image')) {
                 $alt_bg = ' style="background-image: url(storage/'.$bg_image.')"';
             }
-            $lang = Setting::fetch('language');
-            \App::setLocale($lang);
 
             $allusers = User::all();
             $current_user = User::currentUser();
