@@ -101,7 +101,7 @@
         </header>
         <div class="create">
             <div class="textarea">
-                <textarea id="appdescription">{{ $item->description ?? '' }}</textarea>
+                <textarea name="appdescription" id="appdescription">{{ $item->appdescription ?? '' }}</textarea>
             </div>
 
 

@@ -48,6 +48,7 @@
                     @foreach($all_apps as $app)
                     <?php
                     $active = ((bool)$app->pinned === true) ? 'active' : '';
+                    if($app->title == 'app.dashboard') continue;
                     ?>
                     <li>{{ $app->title }}<a class="{{ $active }}" data-tag="{{ $tag ?? 0 }}" data-id="{{ $app->id }}" href="{{ route('items.pintoggle', [$app->id]) }}"><i class="fas fa-thumbtack"></i></a></li>
                     

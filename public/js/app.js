@@ -620,14 +620,14 @@ $.when($.ready).then(function () {
       drop: function( event, ui ) {
           var tag = $( this ).data('id');
           var item = $( ui.draggable ).data('id');
-            $.get('tag/add/'+tag+'/'+item, function(data) {
+           $.get('tag/add/'+tag+'/'+item, function(data) {
               if(data == 1) {
                   $( ui.draggable ).remove();
               } else {
                   alert('not added');
               }
           });
-        }
+       }
     });*/
 
   $('#sortable').sortable({

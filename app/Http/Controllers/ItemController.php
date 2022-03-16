@@ -250,7 +250,9 @@ class ItemController extends Controller
         $item = Item::find($id);
         if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
             $app = Application::where('class', $item->class)->first();
-            $item->appid = $app->appid;
+            if($app) {
+                $item->appid = $app->appid;
+            }
         }
         $data['item'] = $item;
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');

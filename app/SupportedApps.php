@@ -153,7 +153,7 @@ abstract class SupportedApps
         $app->icon = 'icons/'.$details->icon;
         $app->website = $details->website;
         $app->license = $details->license;
-        $app->description = $details->description;
+        $app->appdescription = $details->description;
 
         $appclass = $app->class();
         $application = new $appclass;
