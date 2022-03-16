@@ -37,13 +37,13 @@
                         <div><button class="dark">{{ __('app.apps.website') }}</button></div>
                         <div class="optvalue">
                             <div class="input">
-                            {!! Form::text('website', null, array('placeholder' => __('app.apps.website'), 'id' => 'website', 'class' => 'form-control')) !!}
+                            {!! Form::text('website', $item->url ?? null, array('placeholder' => __('app.apps.website'), 'id' => 'website', 'class' => 'form-control')) !!}
                             </div>
                             <div><button class="btn">Go</button></div>
                         </div>
                     </div>
                 </div>
-
+                <div id="websiteiconoptions"></div>
             </div>
 
 
@@ -66,7 +66,7 @@
 
             <div class="input">
                 <label>{{ strtoupper(__('app.url')) }}</label>
-                {!! Form::text('url', null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
+                {!! Form::text('url', $item->url ?? null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
             </div>
 
             <div class="input">

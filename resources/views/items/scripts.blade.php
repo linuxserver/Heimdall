@@ -46,6 +46,15 @@
                 $('#tile-preview .item').css('backgroundColor', $(this).val());
             })
 
+            $('#websiteiconoptions').on('click', '.iconbutton', function (e) {
+                const src = $('.selecticon', this).attr('src')
+                $('#appimage').html("<img src='"+src+"' /><input type='hidden' name='icon' value='"+src+"' />");
+                $('#tile-preview .app-icon').attr('src', src);
+
+            }).on('click', '.selectclose', function () {
+                $('#websiteiconoptions').html('')
+            })
+
             $('.tags').select2();
 
             $('#searchwebsite').on('click', 'button.btn', function (e) {
@@ -112,11 +121,16 @@
                     }
                     websitedata.icons = icons
 
-                    $('#appname').val(websitedata.title)
-                    $('#appurl').val(websiteurl)
-                    $('#appimage').html("<img src='"+websitedata.icons[0]+"' /><input type='hidden' name='icon' value='"+websitedata.icons[0]+"' />");
+                    if ($('#appname').val() === '') $('#appname').val(websitedata.title)
+                    if ($('#appurl').val() === '') $('#appurl').val(websiteurl)
+                    $('input[name=pinned]').prop('checked', true);
+                    // $('#appimage').html("<img src='"+websitedata.icons[0]+"' /><input type='hidden' name='icon' value='"+websitedata.icons[0]+"' />");
                     $('#tile-preview .app-icon').attr('src', $('#appimage img').attr('src'));
-                    $('#tile-preview .title').text(websitedata.title);
+                    $('#tile-preview .title').text($('#appname').val());
+                    $('#websiteiconoptions').html('<div class="header"><span>Select Icon</span><span class="selectclose">Close</span></div><div class="results"></div>')
+                    icons.forEach(icon => {
+                        $('#websiteiconoptions .results').append('<div class="iconbutton"><img class="selecticon" src="' + icon + '" /></div>')
+                    })
                     console.log(websitedata)
                 })
                 console.log(website)

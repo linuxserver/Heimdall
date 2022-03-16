@@ -689,6 +689,41 @@ div.create {
 	color: #91a1b3;
 	margin-left: 20px;
 }
+#websiteiconoptions {
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	.results {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+	}
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 0;
+	}
+	.selectclose {
+		cursor: pointer;
+	}
+}
+.iconbutton {
+	width: 160px;
+	height: 160px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: pointer;
+}
+.selecticon {
+	max-width: 120px;
+	height: auto;
+}
 
 .switch {
 	position: relative;
