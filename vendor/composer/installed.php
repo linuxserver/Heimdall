@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => '2.3.x-dev',
+        'version' => '2.3.9999999.9999999-dev',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '96ec1e0b08d37ac3a4beea6d9d9076b6e3f6d58e',
+        'reference' => 'ed3dbf2f1420e720c7bdcf0c8b36830bf6368c6d',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -374,12 +374,12 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => '2.3.x-dev',
+            'version' => '2.3.9999999.9999999-dev',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '96ec1e0b08d37ac3a4beea6d9d9076b6e3f6d58e',
+            'reference' => 'ed3dbf2f1420e720c7bdcf0c8b36830bf6368c6d',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(

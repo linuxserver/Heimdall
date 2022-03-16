@@ -128,6 +128,14 @@ $.when( $.ready ).then(function() {
     });
     $('#sortable').sortable('disable');
 
+    $('#sortable').on('mouseenter', '.item', function () {
+        $(this).siblings('.tooltip').addClass('active')
+        $('.refresh', this).addClass('active')
+    }).on('mouseleave', '.item', function () {
+        $(this).siblings('.tooltip').removeClass('active')
+        $('.refresh', this).removeClass('active')
+    })
+
     $('#search-container').on('input', 'input[name=q]', function () {
         const search = this.value
         const items = $('#sortable').children('.item-container')

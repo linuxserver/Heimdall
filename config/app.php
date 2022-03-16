@@ -14,7 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Heimdall'),  
-    'version' => '2.3.2',
+    'version' => '2.4.0',
 
     /*
     |--------------------------------------------------------------------------
@@ -54,6 +54,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
+
 
     /*
     |--------------------------------------------------------------------------

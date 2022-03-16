@@ -4,7 +4,7 @@
         <section class="module-container">
             <header>
                 <div class="section-title">
-                    Showing Deleted Applications
+                    {{ __('app.apps.show_deleted') }}
                 </div>
                 <div class="module-actions">
                     <a href="{{ route('items.index', []) }}" title="" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>

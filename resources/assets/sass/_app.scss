@@ -47,6 +47,66 @@ body {
 		}
 	}
 }
+#tile-preview {
+	align-items: center;
+}
+.create {
+	.textarea {
+		width: 100%;
+		margin: 0px 20px;
+		textarea{
+				width: 100%;
+				border: 1px solid #dedfe2;
+				padding: 15px;
+				border-radius: 6px;
+				height: 100px;
+				font-size: 14px;
+		}
+		label:not(.switch) {
+			width: 100%;
+			font-size: 13px;
+			color: lighten($app-text, 40%);
+			margin-bottom: 15px;
+			display: block;
+			font-weight: 300;
+		}
+	}
+}
+.appoptions {
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	gap: 5px;
+	.optdetails {
+		display: flex;
+		.input {
+			margin: 0 20px;
+			width: 200px;
+		}
+	}
+	.optvalue {
+		display: flex;
+		align-items: center;
+		opacity: 0;
+		width: 0;
+		height: 0;
+		overflow: hidden;
+		&.active {
+			opacity: 1;
+			width: auto;
+			height: auto;
+			overflow: auto;
+		}
+	}
+	button.dark {
+		background: #1b1b1b;
+		border: none;
+		padding: 12px 15px;
+		border-radius: 4px;
+		color: white;
+		min-width: 240px;
+	}
+}
 #app {
 	display: flex;
 	min-height: 100vh;
@@ -200,6 +260,59 @@ body {
 		text-align: center;
 		line-height: 30px;
 		display: none;
+		z-index: 1;
+	}
+
+	.tooltip {
+		padding: 25px;
+		border-radius: 5px;
+		background: #000000c8;
+		color: white;
+		position: absolute;
+		bottom: 120px;
+		left: 0;
+		right: 0;
+		font-size: 13px;
+		backdrop-filter: blur(8px);
+		z-index: 0;
+		opacity: 0;
+		transform: translateY(-20px);
+		transition: all 0.3s;
+		&.active {
+			transform: translateY(0);
+			opacity: 1;
+			z-index: 4;
+		}
+	}
+}
+.tile-actions {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    padding: 7px;
+    background: #000000d9;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 6px;
+    width: 80px;
+    height: 90px;
+    display: flex;
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    flex-direction: column;
+    text-align: center;
+	cursor: pointer;
+	&.active {
+		opacity: 1;
+	}
+}
+.refresh {
+	z-index: 3;
+	.icon {
+		font-size: 20px;
+		margin-bottom: 5px;
 	}
 }
 .black {
@@ -576,6 +689,41 @@ div.create {
 	color: #91a1b3;
 	margin-left: 20px;
 }
+#websiteiconoptions {
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	.results {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+	}
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 0;
+	}
+	.selectclose {
+		cursor: pointer;
+	}
+}
+.iconbutton {
+	width: 160px;
+	height: 160px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: pointer;
+}
+.selecticon {
+	max-width: 120px;
+	height: auto;
+}
 
 .switch {
 	position: relative;
@@ -694,6 +842,8 @@ div.create {
 	  position: relative;
 	  width: 100%;
 	  max-width: 620px;
+	  position: relative;
+	  z-index: 4;
 	  form { 
 		width: 100%;
 	  }
@@ -784,7 +934,7 @@ div.create {
 
 #appimage {
 	img {
-		max-width: 95px;
+		width: 95px;
 	}
 }
 

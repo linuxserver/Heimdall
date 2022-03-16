@@ -15,6 +15,11 @@ use App\Jobs\ProcessApps;
 use App\Search;
 use Illuminate\Support\Facades\Route;
 
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
+
+
 class ItemController extends Controller
 {
     public function __construct()
@@ -145,15 +150,9 @@ class ItemController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function storelogic($request, $id = null)
     {
-        //
+        $application = Application::single($request->input('appid'));
         $validatedData = $request->validate([
             'title' => 'required|max:255',
             'url' => 'required',
@@ -161,6 +160,22 @@ class ItemController extends Controller
 
         if($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
+            $request->merge([
+                'icon' => $path
+            ]);
+        } elseif(strpos($request->input('icon'), 'http') === 0) {
+            $contents = file_get_contents($request->input('icon'));
+
+            if ($application) {
+                $icon = $application->icon;
+            } else {
+                $file = $request->input('icon');
+                $path_parts = pathinfo($file);
+                $icon = md5($contents);
+                $icon .= '.'.$path_parts['extension'];
+            }
+            $path = 'icons/'.$icon;
+            Storage::disk('public')->put($path, $contents);
             $request->merge([
                 'icon' => $path
             ]);
@@ -173,20 +188,39 @@ class ItemController extends Controller
             'user_id' => $current_user->id
         ]);
 
-        if($request->input('class') === 'null') {
+        if($request->input('appid') === 'null') {
             $request->merge([
                 'class' => null,
             ]);
+        } else {
+            $request->merge([
+                'class' => Application::classFromName($application->name),
+            ]);
+ 
         }
 
 
-        //die(print_r($request->input('config')));
-        
-        $item = Item::create($request->all());
+        if($id === null) {
+            $item = Item::create($request->all());
+        } else {
+            $item = Item::find($id);
+            $item->update($request->all());
+        }
 
-        //Search::storeSearchProvider($request->input('class'), $item);
 
         $item->parents()->sync($request->tags);
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->storelogic($request);
 
         $route = route('dash', []);
         return redirect($route)
@@ -213,7 +247,14 @@ class ItemController extends Controller
     public function edit($id)
     {
         // Get the item
-        $data['item'] = Item::find($id);
+        $item = Item::find($id);
+        if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
+            $app = Application::where('class', $item->class)->first();
+            if($app) {
+                $item->appid = $app->appid;
+            }
+        }
+        $data['item'] = $item;
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = $data['item']->tags();
@@ -232,39 +273,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'url' => 'required',
-        ]);
-            //die(print_r($request->all()));
-        if($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons');
-            $request->merge([
-                'icon' => $path
-            ]);
-        }
-        
-        $config = Item::checkConfig($request->input('config'));
-        $current_user = User::currentUser();
-        $request->merge([
-            'description' => $config,
-            'user_id' => $current_user->id
-        ]);
-
-        if($request->input('class') === 'null') {
-            $request->merge([
-                'class' => null,
-            ]);
-        }
-
-
-        $item = Item::find($id);
-        $item->update($request->all());
-
-        //Search::storeSearchProvider($request->input('class'), $item);
-
-        $item->parents()->sync($request->tags);
-
+        $this->storelogic($request, $id);
         $route = route('dash', []);
         return redirect($route)
             ->with('success',__('app.alert.success.item_updated'));
@@ -319,7 +328,10 @@ class ItemController extends Controller
     public function appload(Request $request)
     {
         $output = [];
-        $appname = $request->input('app');
+        $appid = $request->input('app');
+
+        if($appid === "null") return null;
+        /*$appname = $request->input('app');
         //die($appname);
 
         $app_details = Application::where('name', $appname)->firstOrFail();
@@ -338,7 +350,26 @@ class ItemController extends Controller
             $output['config'] = className($app_details->name).'.config';
         } else {
             $output['config'] = null;
+        }*/
+
+        $output['config'] = null;
+        $output['custom'] = null;
+
+        $app = Application::single($appid);
+        $output = (array)$app;
+
+        if((boolean)$app->enhanced === true) {
+            // if(!isset($app->config)) { // class based config
+                $appdetails = Application::getApp($appid);
+                $output['custom'] = className($appdetails->name).'.config';
+            // }
         }
+        
+        $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
+        $output['iconview'] =   config('app.appsource').'icons/' . $app->icon;
+
+;
+
         
         return json_encode($output);
     }
@@ -353,6 +384,41 @@ class ItemController extends Controller
         $app_details = new $app();
         $app_details->config = (object)$data;
         $app_details->test();
+    }
+
+    public function execute($url, $attrs = [], $overridevars=false)
+    {
+        $res = null;
+
+        $vars = ($overridevars !== false) ?
+        $overridevars : [
+            'http_errors' => false, 
+            'timeout' => 15, 
+            'connect_timeout' => 15,
+            'verify' => false
+        ];
+
+        $client = new Client($vars);
+
+        $method = 'GET';
+
+        try {
+            return $client->request($method, $url, $attrs);  
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error("Connection refused");
+            Log::debug($e->getMessage());
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            Log::debug($e->getMessage());
+        }
+        return $res;
+    }
+
+
+    public function websitelookup($url)
+    {
+        $url = \base64_decode($url);
+        $data = $this->execute($url);
+        return $data->getBody();
     }
 
     public function getStats($id)

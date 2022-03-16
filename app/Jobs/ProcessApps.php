@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Storage;
 use App\Application;
 use App\SupportedApps;
 
@@ -31,36 +32,15 @@ class ProcessApps implements ShouldQueue
      */
     public function handle()
     {
-        $localapps = Application::all();
-        $list = json_decode(SupportedApps::getList()->getBody());
-        $validapps = [];
-        
-        foreach($list->apps as $app) {
-            $validapps[] = $app->appid;
-            $localapp = $localapps->where('appid', $app->appid)->first();
+        $localapps = Application::whereNull('class')->get();
+        $json = SupportedApps::getList()->getBody();
 
-            $application = ($localapp) ? $localapp : new Application;
+        Storage::disk('local')->put('supportedapps.json', $json);
 
-            if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
-                SupportedApps::getFiles($app);
-                SupportedApps::saveApp($app, $application);
-            } else {
-                // check if there has been an update for this app
-                $localapp = $localapps->where('appid', $app->appid)->first();
-                if($localapp) {
-                    if($localapp->sha !== $app->sha) {
-                        SupportedApps::getFiles($app);
-                        SupportedApps::saveApp($app, $application);
-                    }
-                }  else {
-                    SupportedApps::getFiles($app);
-                    SupportedApps::saveApp($app, $application);
-      
-                }
-            }
+        foreach($localapps as $app) {
+            $app->class = $app->class();
+            $app->save();
         }
-        //$delete = Application::whereNotIn('appid', $validapps)->delete(); // delete any apps not in list
-        // removed the delete so local apps can be added
 
     }
 }

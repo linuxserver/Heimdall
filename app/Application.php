@@ -39,23 +39,86 @@ class Application extends Model
     public function class()
     {
         $name = $this->name;
-        $name = preg_replace('/\PL/u', '', $name);    
+        $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
 
         $class = '\App\SupportedApps\\'.$name.'\\'.$name;
         return $class;
     }
 
+    public static function classFromName($name)
+    {
+        $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
+
+        $class = '\App\SupportedApps\\'.$name.'\\'.$name;
+        return $class;
+    }
+   
+
+    public static function apps()
+    {
+        $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];
+        $apps = collect($json->apps);
+        $sorted = $apps->sortBy('name', SORT_NATURAL|SORT_FLAG_CASE);
+        return $sorted;
+    }
+
+    public static function autocomplete()
+    {
+        $apps = self::apps();
+        $list = [];
+        foreach($apps as $app) {
+            $list[] = (object)[
+                'label' => $app->name,
+                'value' => $app->appid
+            ];
+        }
+        return $list;
+    }
+
+    public static function getApp($appid)
+    {
+        $localapp = Application::where('appid', $appid)->first();
+        $app = self::single($appid);
+
+        $application = ($localapp) ? $localapp : new Application;
+
+        if(!file_exists(app_path('SupportedApps/'.className($app->name)))) {
+            SupportedApps::getFiles($app);
+            SupportedApps::saveApp($app, $application);
+        } else {
+            // check if there has been an update for this app
+            if($localapp) {
+                if($localapp->sha !== $app->sha) {
+                    SupportedApps::getFiles($app);
+                    $app = SupportedApps::saveApp($app, $application);
+                }
+            }  else {
+                SupportedApps::getFiles($app);
+                $app = SupportedApps::saveApp($app, $application);
+    
+            }
+        }
+        return $app;
+
+    }
+
+    public static function single($appid)
+    {
+        $apps = self::apps();
+        $app = $apps->where('appid', $appid)->first();
+        if ($app === null) return null;
+        $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name); 
+        $app->class = '\App\SupportedApps\\'.$classname.'\\'.$classname;
+        return $app;
+    }
+
     public static function applist()
     {
         $list = [];
-        $all = self::orderBy('name')->get()->sortBy('name', SORT_NATURAL|SORT_FLAG_CASE);
         $list['null'] = 'None';
-        foreach($all as $app) {
-            $name = $app->name;
-            // $name = preg_replace('/\PL/u', '', $name);
-            $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
-        
-            $list['\App\SupportedApps\\'.$name.'\\'.$name] = $app->name;
+        $apps = self::apps();
+        foreach($apps as $app) {
+            $list[$app->appid] = $app->name;
         }
         return $list;
     }

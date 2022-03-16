@@ -107,7 +107,8 @@ abstract class SupportedApps
 
     public static function getList()
     {
-        $list_url = 'https://apps.heimdall.site/list';
+        // $list_url = 'https://apps.heimdall.site/list';
+        $list_url = config('app.appsource').'list.json';
         $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
         return $client->request('GET', $list_url);
     }
@@ -121,7 +122,8 @@ abstract class SupportedApps
 
     public static function getFiles($app)
     {
-        $zipurl = $app->files;
+        $zipurl = config('app.appsource').'files/'.$app->sha.'.zip';
+
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
         $res = $client->request('GET', $zipurl);
 
@@ -138,35 +140,28 @@ abstract class SupportedApps
             $zip->extractTo(app_path('SupportedApps')); // place in the directory with same name
             $zip->close();
             unlink($src); //Deleting the Zipped file
+        } else {
+            var_dump($x);
         }
     }
 
     public static function saveApp($details, $app)
-    {
-        if(!file_exists(storage_path('app/public/icons')))  {
-            mkdir(storage_path('app/public/icons'), 0777, true);
-        }
-
-        $img_src = app_path('SupportedApps/'.className($details->name).'/'.$details->icon);
-        $img_dest = storage_path('app/public/icons/'.$details->icon);
-        //die("i: ".$img_src);
-        @copy($img_src, $img_dest);
-        
+    {        
         $app->appid = $details->appid;
         $app->name = $details->name;
         $app->sha = $details->sha ?? null;
         $app->icon = 'icons/'.$details->icon;
         $app->website = $details->website;
         $app->license = $details->license;
-        $app->description = $details->description;
 
         $appclass = $app->class();
         $application = new $appclass;
         $enhanced = (bool)($application instanceof \App\EnhancedApps);
-
+        $app->class = $appclass;
         $app->enhanced = $enhanced;
         $app->tile_background = $details->tile_background;
         $app->save();
+        return $app; 
     }
 
 }
