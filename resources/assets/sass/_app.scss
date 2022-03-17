@@ -647,10 +647,19 @@ div.create {
 		}
 	}
 }
-
+.app-icon-container {
+	width: 60px;
+	height: 60px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 15px;
+	flex: 0 0 60px;
+}
 .app-icon {
 	max-width: 60px;
-	margin-right: 15px;
+	display: block;
+	max-height: 60px;
 }
 
 .sidenav {
