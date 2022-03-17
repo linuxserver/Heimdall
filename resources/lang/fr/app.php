@@ -64,6 +64,7 @@ return array (
   'apps.tag_name' => 'Nom du label',
   'apps.tags' => 'Labels',
   'apps.override' => 'Si différent de l\'url actuelle',
+  'apps.autologin_url' => 'URL de connexion automatique',
   
   'url' => 'Url',
   'title' => 'Titre',
