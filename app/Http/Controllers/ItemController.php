@@ -379,8 +379,8 @@ class ItemController extends Controller
     {
         $data = $request->input('data');
         //$url = $data[array_search('url', array_column($data, 'name'))]['value'];
-        
-        $app = $data['type'];
+        $single = Application::single($data['type']);
+        $app = $single->class;
 
         $app_details = new $app();
         $app_details->config = (object)$data;

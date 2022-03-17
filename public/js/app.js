@@ -620,14 +620,14 @@ $.when($.ready).then(function () {
       drop: function( event, ui ) {
           var tag = $( this ).data('id');
           var item = $( ui.draggable ).data('id');
-            $.get('tag/add/'+tag+'/'+item, function(data) {
+           $.get('tag/add/'+tag+'/'+item, function(data) {
               if(data == 1) {
                   $( ui.draggable ).remove();
               } else {
                   alert('not added');
               }
           });
-        }
+       }
     });*/
 
   $('#sortable').sortable({
@@ -716,7 +716,7 @@ $.when($.ready).then(function () {
   }).on('click', '#test_config', function (e) {
     e.preventDefault();
     var apiurl = $('#create input[name=url]').val();
-    var override_url = $('#create input[name="config[override_url]"]').val();
+    var override_url = $('#sapconfig input[name="config[override_url]"]').val();
 
     if (override_url.length && override_url != '') {
       apiurl = override_url;
