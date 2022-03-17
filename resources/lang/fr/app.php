@@ -65,6 +65,7 @@ return array (
   'apps.tags' => 'Labels',
   'apps.override' => 'Si différent de l\'url actuelle',
   'apps.autologin_url' => 'URL de connexion automatique',
+  'apps.show_deleted' => 'Afficher les applications supprimées',
   
   'url' => 'Url',
   'title' => 'Titre',
