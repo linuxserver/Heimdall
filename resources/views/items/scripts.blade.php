@@ -57,6 +57,23 @@
 
             $('.tags').select2();
 
+            if($('#appurl').val() !== '') {
+                if ($('#appurl').val().indexOf("://") !== -1) {
+                    $('#appurl').parent().find('.help').hide()
+                }
+            }             
+            if($('#website').val() !== '') {
+                if ($('#website').val().indexOf("://") !== -1) {
+                    $('#website').parent().find('.help').hide()
+                }
+            }             
+            $('#appurl, #website').on('input', function () {
+                if ($(this).val().indexOf("://") !== -1) {
+                    $(this).parent().find('.help').hide()
+                }
+            })
+
+
             $('#searchwebsite').on('click', 'button.btn', function (e) {
                 e.preventDefault()
                 let websiteurl = $('#searchwebsite input').val()

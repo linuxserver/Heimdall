@@ -95,7 +95,7 @@ body {
 			opacity: 1;
 			width: auto;
 			height: auto;
-			overflow: auto;
+			overflow: visible;
 		}
 	}
 	button.dark {
@@ -623,6 +623,15 @@ body {
             margin: 0;
         }
     }
+}
+.input {
+	position: relative;
+	.help {
+		position: absolute;
+		bottom: -22px;
+		left: 10px;
+		color: #c00;
+	}
 }
 div.create {
 	padding: 30px 15px;
