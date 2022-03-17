@@ -38,6 +38,7 @@
                         <div class="optvalue">
                             <div class="input">
                             {!! Form::text('website', $item->url ?? null, array('placeholder' => __('app.apps.website'), 'id' => 'website', 'class' => 'form-control')) !!}
+                            <small class="help">Don't forget http(s)://</small>    
                             </div>
                             <div><button class="btn">Go</button></div>
                         </div>
@@ -67,6 +68,7 @@
             <div class="input">
                 <label>{{ strtoupper(__('app.url')) }}</label>
                 {!! Form::text('url', $item->url ?? null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
+                <small class="help">Don't forget http(s)://</small>
             </div>
 
             <div class="input">

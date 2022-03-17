@@ -320,7 +320,7 @@ body {
   opacity: 1;
   width: auto;
   height: auto;
-  overflow: auto;
+  overflow: visible;
 }
 .appoptions button.dark {
   background: #1b1b1b;
@@ -823,6 +823,16 @@ body {
   position: relative;
   top: 4px;
   margin: 0;
+}
+
+.input {
+  position: relative;
+}
+.input .help {
+  position: absolute;
+  bottom: -22px;
+  left: 10px;
+  color: #c00;
 }
 
 div.create {
