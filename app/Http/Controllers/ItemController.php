@@ -358,9 +358,10 @@ class ItemController extends Controller
         $app = Application::single($appid);
         $output = (array)$app;
 
+        $appdetails = Application::getApp($appid);
+
         if((boolean)$app->enhanced === true) {
             // if(!isset($app->config)) { // class based config
-                $appdetails = Application::getApp($appid);
                 $output['custom'] = className($appdetails->name).'.config';
             // }
         }
