@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Storage;
 use App\Application;
 use App\SupportedApps;
+use App\Item;
 
 class ProcessApps implements ShouldQueue
 {
@@ -40,6 +41,14 @@ class ProcessApps implements ShouldQueue
         foreach($localapps as $app) {
             $app->class = $app->class();
             $app->save();
+        }
+
+        $items = Item::whereNotNull('class')->get();
+        foreach($items as $item) {
+            if(!file_exists(app_path('SupportedApps/'.Item::nameFromClass($item->class)))) {
+                $app = Application::where('class', $item->class)->first();
+                Application::getApp($app->appid);
+            }
         }
 
     }
