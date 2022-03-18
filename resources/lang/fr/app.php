@@ -6,6 +6,7 @@ return array (
   'settings.miscellaneous' => 'Divers',
   'settings.support' => 'Support',
   'settings.donate' => 'Contribuer',
+  'settings.advanced' => 'Options avancées',
   
   'settings.version' => 'Version',
   'settings.background_image' => 'Image d\'arrière-plan',
@@ -71,6 +72,8 @@ return array (
   'apps.preview' => 'Aperçu',
   'apps.apptype' => 'Type d\'application ',
   'apps.only_admin_account' => 'Seulement si vous avez un compte administrateur!',
+  'apps.autologin_url' => 'URL de connexion automatique',
+  'apps.show_deleted' => 'Afficher les applications supprimées',
 
   'dashboard' => 'Tableau de bord',
 
