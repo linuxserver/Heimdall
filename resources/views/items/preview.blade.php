@@ -3,11 +3,13 @@
                     ?>
                     <section class="item-container" data-id="">
                         <div class="item set-bg-elem" style="background-color: {{ $item->colour ?? '#222' }}">
-                            @if(isset($item->icon) && !empty($item->icon))
-                            <img class="app-icon" src="{{ asset('/storage/'.$item->icon) }}" />
-                            @else
-                            <img class="app-icon" src="{{ asset('/img/heimdall-icon-small.png') }}" />
-                            @endif
+                            <div class="app-icon-container">
+                                @if(isset($item->icon) && !empty($item->icon))
+                                <img class="app-icon" src="{{ asset('/storage/'.$item->icon) }}" />
+                                @else
+                                <img class="app-icon" src="{{ asset('/img/heimdall-icon-small.png') }}" />
+                                @endif
+                            </div>
                             <div class="details">
                                 <div class="title{{ title_color($item->colour) ?? 'white' }}">{{ $item->title ?? '' }}</div>
                                 @if($item->enhanced())
