@@ -145,10 +145,37 @@ class ItemController extends Controller
         //
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
-        $data['current_tags'] = collect([0 => __('app.dashboard')]);
+        $data['current_tags'] = '0';
         return view('items.create', $data);
 
     }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        // Get the item
+        $item = Item::find($id);
+        if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
+            $app = Application::where('class', $item->class)->first();
+            if($app) {
+                $item->appid = $app->appid;
+            }
+        }
+        $data['item'] = $item;
+        $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
+        $data['tags']->prepend(__('app.dashboard'), 0);
+        $data['current_tags'] = $data['item']->tags();
+        //$data['current_tags'] = $data['item']->parent;
+        //die(print_r($data['current_tags']));
+        // show the edit form and pass the nerd
+        return view('items.edit', $data);    
+    }
+
 
     public function storelogic($request, $id = null)
     {
@@ -238,31 +265,6 @@ class ItemController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        // Get the item
-        $item = Item::find($id);
-        if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
-            $app = Application::where('class', $item->class)->first();
-            if($app) {
-                $item->appid = $app->appid;
-            }
-        }
-        $data['item'] = $item;
-        $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
-        $data['tags']->prepend(__('app.dashboard'), 0);
-        $data['current_tags'] = $data['item']->tags();
-        //$data['current_tags'] = $data['item']->parent;
-        //die(print_r($data['current_tags']));
-        // show the edit form and pass the nerd
-        return view('items.edit', $data);    
-    }
 
     /**
      * Update the specified resource in storage.
