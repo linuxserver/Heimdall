@@ -13,7 +13,7 @@
                 {!! Form::select('supported', \App\Item::supportedOptions(), array('placeholder' => 'Title','class' => 'form-control')) !!}
             </div>*/ ?>
 
-            <div class="input">
+            <div class="input" style="width: 100%">
                     {!! $setting->edit_value !!}
             </div>
 

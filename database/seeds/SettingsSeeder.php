@@ -237,6 +237,22 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
+        if(!$setting = Setting::find(12)) {
+            $setting = new Setting;
+            $setting->id = 12;
+            $setting->group_id = 1;
+            $setting->key = 'api_key';
+            $setting->type = 'apikey';
+            $setting->label = 'app.settings.apikey';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->type = 'apikey';
+            $setting->group_id = 1;
+            $setting->label = 'app.settings.apikey';
+            $setting->save();
+        }
+
         if(!$home_tag = \App\Item::find(0)) {
             $home_tag = new \App\Item;
             $home_tag->id = 0;

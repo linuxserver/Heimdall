@@ -13,3 +13,4 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::resource('items', 'ApiItemController');

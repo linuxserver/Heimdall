@@ -134,7 +134,15 @@ class Setting extends Model
                 $value = Form::select('value', $options, null, ['class' => 'form-control']);
                 break;
             case 'textarea':
-                $value = Form::textarea('value', null, ['class' => 'form-control', 'cols' => '44', 'rows' => '15']);
+                $value = Form::textarea('value', null, ['class' => 'form-control', 'cols' => '44', 'rows' => '15', 'style' => 'width: 100%;']);
+                break;
+            case 'apikey':
+                if (isset($this->value) && !empty($this->value)) {
+                    $value = Form::text('value', null, ['class' => 'form-control']);
+                } else {
+                    $value = '<div>'.$current.'</div>';
+                }
+                $value .= '<small style="margin-top: 10px; display: block">'.__('app.settings.click_generate').'</small>';
                 break;
             default:
                 $value = Form::text('value', null, ['class' => 'form-control']);

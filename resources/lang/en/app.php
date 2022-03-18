@@ -39,6 +39,9 @@ return [
     'settings.custom_css' => 'Custom CSS',
     'settings.custom_js' => 'Custom JavaScript',
 
+    'settings.apikey' => 'API Key',
+    'settings.click_generate' => 'Clicking the save button will generate a new API key.',
+
     'options.none' => '- not set -',
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',

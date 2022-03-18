@@ -8,6 +8,7 @@ use App\SettingGroup;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
@@ -77,7 +78,8 @@ class SettingsController extends Controller
                     $path = $request->file('value')->store('backgrounds');
                     $setting_value = $path;
                 }
-            
+            } elseif ($setting->type == 'apikey') {
+                $setting_value = Str::random(40);
             } else {
                 $setting_value = $data->value;
             }
