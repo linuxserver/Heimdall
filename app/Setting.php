@@ -147,7 +147,7 @@ class Setting extends Model
 
     public function group()
     {
-        return $this->belongsTo('App\SettingGroup', 'group_id');
+        return $this->belongsTo(\App\SettingGroup::class, 'group_id');
     }
 
     /**
@@ -232,7 +232,7 @@ class Setting extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User')->using('App\SettingUser')->withPivot('uservalue');
+        return $this->belongsToMany(\App\User::class)->using(\App\SettingUser::class)->withPivot('uservalue');
     }
 
     public static function user()

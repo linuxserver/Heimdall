@@ -32,7 +32,7 @@ class User extends Authenticatable
      */
     public function items()
     {
-        return $this->hasMany('App\Item');
+        return $this->hasMany(\App\Item::class);
     }
 
     /**
@@ -40,7 +40,7 @@ class User extends Authenticatable
      */
     public function settings()
     {
-        return $this->belongsToMany('App\Setting')->withPivot('uservalue');
+        return $this->belongsToMany(\App\Setting::class)->withPivot('uservalue');
     }
 
     public static function currentUser()

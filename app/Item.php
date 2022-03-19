@@ -84,12 +84,12 @@ class Item extends Model
 
     public function parents()
     {
-        return $this->belongsToMany('App\Item', 'item_tag', 'item_id', 'tag_id');
+        return $this->belongsToMany(\App\Item::class, 'item_tag', 'item_id', 'tag_id');
     }
 
     public function children()
     {
-        return $this->belongsToMany('App\Item', 'item_tag', 'tag_id', 'item_id');
+        return $this->belongsToMany(\App\Item::class, 'item_tag', 'tag_id', 'item_id');
     }
 
     public function getLinkAttribute()
@@ -257,6 +257,6 @@ class Item extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 }

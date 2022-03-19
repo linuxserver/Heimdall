@@ -22,6 +22,6 @@ class SettingGroup extends Model
 
     public function settings()
     {
-        return $this->hasMany('App\Setting', 'group_id');
+        return $this->hasMany(\App\Setting::class, 'group_id');
     }
 }
