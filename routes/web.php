@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
 |
 */
 
-if (\Config::get('app.url') !== 'http://localhost') {
-    URL::forceRootUrl(\Config::get('app.url'));
+if (config('app.url') !== 'http://localhost') {
+    URL::forceRootUrl(config('app.url'));
 }
 
 Route::get('/userselect/{user}', 'Auth\LoginController@setUser')->name('user.set');
