@@ -29,7 +29,6 @@ return [
     'settings.search' => 'išči',
     'settings.no_items' => 'Ni najdenih elementov',
 
-
     'settings.label' => 'Oznaka',
     'settings.value' => 'Vrednost',
     'settings.edit' => 'Uredi',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => 'Uporabnik uspešno posodobljen',
     'alert.success.user_deleted' => 'Uporabnik uspešno izbrisan',
     'alert.success.user_restored' => 'Uporabnik uspešno obnovljen',
-
 
 ];

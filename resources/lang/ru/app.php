@@ -29,7 +29,6 @@ return [
     'settings.search' => 'найти',
     'settings.no_items' => 'Ничего не найдено',
 
-
     'settings.label' => 'Метка',
     'settings.value' => 'Значение',
     'settings.edit' => 'Редактировать',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => 'Пользователь обновлен успешно',
     'alert.success.user_deleted' => 'Пользователь удален успешно',
     'alert.success.user_restored' => 'Пользователь восстановлен успешно',
-
 
 ];

@@ -12,7 +12,7 @@ return [
     | as the size rules. Feel free to tweak each of these messages here.
     |
     */
-    
+
     'accepted'             => ':attribute kabul edilmelidir.',
     'active_url'           => ':attribute geçerli bir adres değil.',
     'after'                => ':attribute :date tarihinden sonra olmalıdır.',
@@ -87,7 +87,7 @@ return [
     'unique'               => ':attribute zaten kullanımda.',
     'uploaded'             => ':attribute yüklenemedi.',
     'url'                  => ':attribute düzeni geçersiz.',
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
@@ -98,13 +98,13 @@ return [
     | specify a specific custom language line for a given attribute rule.
     |
     */
-    
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes
@@ -115,7 +115,7 @@ return [
     | of "email". This simply helps us make messages a little cleaner.
     |
     */
-    
+
     'attributes' => [],
-    
+
 ];

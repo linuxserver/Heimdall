@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Item;
 use App\User;
 use DB;
+use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
@@ -13,6 +13,7 @@ class TagController extends Controller
     {
         $this->middleware('allowed');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,11 +21,11 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
-        $trash = (bool)$request->input('trash');
+        $trash = (bool) $request->input('trash');
 
         $data['apps'] = Item::ofType('tag')->where('id', '>', 0)->orderBy('title', 'asc')->get();
         $data['trash'] = Item::ofType('tag')->where('id', '>', 0)->onlyTrashed()->get();
-        if($trash) {
+        if ($trash) {
             return view('tags.trash', $data);
         } else {
             return view('tags.list', $data);
@@ -39,6 +40,7 @@ class TagController extends Controller
     public function create()
     {
         $data = [];
+
         return view('tags.create', $data);
     }
 
@@ -54,10 +56,10 @@ class TagController extends Controller
             'title' => 'required|max:255',
         ]);
 
-        if($request->hasFile('file')) {
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
             $request->merge([
-                'icon' => $path
+                'icon' => $path,
             ]);
         }
 
@@ -69,12 +71,13 @@ class TagController extends Controller
         $request->merge([
             'type' => '1',
             'url' => $slug,
-            'user_id' => $current_user->id
+            'user_id' => $current_user->id,
         ]);
         //die(print_r($request->all()));
         Item::create($request->all());
 
         $route = route('dash', []);
+
         return redirect($route)
             ->with('success', __('app.alert.success.tag_created'));
     }
@@ -92,6 +95,7 @@ class TagController extends Controller
         $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
         $data['tag'] = $item->id;
         $data['all_apps'] = $item->children;
+
         return view('welcome', $data);
     }
 
@@ -108,7 +112,7 @@ class TagController extends Controller
 
         // show the edit form and pass the nerd
         return view('tags.edit')
-            ->with('item', $item);    
+            ->with('item', $item);
     }
 
     /**
@@ -124,24 +128,25 @@ class TagController extends Controller
             'title' => 'required|max:255',
         ]);
 
-        if($request->hasFile('file')) {
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
             $request->merge([
-                'icon' => $path
+                'icon' => $path,
             ]);
         }
 
         $slug = str_slug($request->title, '-');
         // set item type to tag
         $request->merge([
-            'url' => $slug
+            'url' => $slug,
         ]);
 
         Item::find($id)->update($request->all());
 
         $route = route('dash', []);
+
         return redirect($route)
-        ->with('success',__('app.alert.success.tag_updated'));
+        ->with('success', __('app.alert.success.tag_updated'));
     }
 
     /**
@@ -153,18 +158,19 @@ class TagController extends Controller
     public function destroy(Request $request, $id)
     {
         //
-        $force = (bool)$request->input('force');
-        if($force) {
+        $force = (bool) $request->input('force');
+        if ($force) {
             Item::withTrashed()
                 ->where('id', $id)
                 ->forceDelete();
         } else {
             Item::find($id)->delete();
         }
-        
+
         $route = route('tags.index', []);
+
         return redirect($route)
-            ->with('success',__('app.alert.success.item_deleted'));
+            ->with('success', __('app.alert.success.item_deleted'));
     }
 
     /**
@@ -178,10 +184,11 @@ class TagController extends Controller
         //
         Item::withTrashed()
                 ->where('id', $id)
-                ->restore();        
+                ->restore();
         $route = route('tags.index', []);
+
         return redirect($route)
-            ->with('success',__('app.alert.success.item_restored'));
+            ->with('success', __('app.alert.success.item_restored'));
     }
 
     public function add($tag, $item)
@@ -189,14 +196,15 @@ class TagController extends Controller
         $output = 0;
         $tag = Item::find($tag);
         $item = Item::find($item);
-        if($tag && $item) {
+        if ($tag && $item) {
             // only add items, not cats
-            if((int)$item->type === 0) {
+            if ((int) $item->type === 0) {
                 $tag->children()->attach($item);
+
                 return 1;
             }
         }
+
         return $output;
     }
-
 }

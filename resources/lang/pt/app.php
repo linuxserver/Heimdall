@@ -29,7 +29,6 @@ return [
     'settings.search' => 'procura',
     'settings.no_items' => 'Nenhum item encontrado',
 
-
     'settings.label' => 'Etiqueta',
     'settings.value' => 'Valor',
     'settings.edit' => 'Editar',
@@ -111,6 +110,5 @@ return [
     'alert.success.user_updated' => 'Utilizador atualizada com sucesso',
     'alert.success.user_deleted' => 'Utilizador apagada com sucesso',
     'alert.success.user_restored' => 'Utilizador restaurada com sucesso',
-
 
 ];

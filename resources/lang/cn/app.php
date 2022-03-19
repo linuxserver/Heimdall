@@ -29,7 +29,6 @@ return [
     'settings.search' => '搜索',
     'settings.no_items' => '没有可用项目',
 
-
     'settings.label' => '设置项',
     'settings.value' => '内容',
     'settings.edit' => '编辑',
@@ -95,7 +94,7 @@ return [
     'title' => '标题',
     'delete' => '删除',
     'optional' => '可选',
-      'restore' => '复位',
+    'restore' => '复位',
 
     'alert.success.item_created' => '应用添加成功',
     'alert.success.item_updated' => '应用更新成功',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => '用户更新成功',
     'alert.success.user_deleted' => '用户删除成功',
     'alert.success.user_restored' => '用户复位成功',
-
 
 ];

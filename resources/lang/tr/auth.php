@@ -12,8 +12,8 @@ return [
     | these language lines according to your application's requirements.
     |
     */
-    
+
     'failed' => 'Kimlik bilgileri doğru değil.',
     'throttle' => 'Çok fazla girişim. :seconds saniye sonra tekrar deneyin.',
-    
+
 ];

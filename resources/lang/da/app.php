@@ -29,7 +29,6 @@ return [
     'settings.search' => 'søg',
     'settings.no_items' => 'Intet fundet',
 
-
     'settings.label' => 'Etiket',
     'settings.value' => 'Værdi',
     'settings.edit' => 'Rediger',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => 'Bruger opdateret med succes',
     'alert.success.user_deleted' => 'Bruger slettet med succes',
     'alert.success.user_restored' => 'Bruger genskabt med succes',
-
 
 ];

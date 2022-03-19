@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Artisan;
 use App\Application;
 use App\Item;
-use App\Setting;
-use App\User;
-use GrahamCampbell\GitHub\Facades\GitHub;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\SupportedApps;
 use App\Jobs\ProcessApps;
 use App\Search;
-use Illuminate\Support\Facades\Route;
-
-use GuzzleHttp\Exception\GuzzleException;
+use App\Setting;
+use App\SupportedApps;
+use App\User;
+use Artisan;
+use GrahamCampbell\GitHub\Facades\GitHub;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -26,7 +24,8 @@ class ItemController extends Controller
     {
         $this->middleware('allowed');
     }
-     /**
+
+    /**
      * Display a listing of the resource on the dashboard.
      *
      * @return \Illuminate\Http\Response
@@ -46,7 +45,7 @@ class ItemController extends Controller
         return view('welcome', $data);
     }
 
-     /**
+    /**
      * Set order on the dashboard.
      *
      * @return \Illuminate\Http\Response
@@ -54,7 +53,7 @@ class ItemController extends Controller
     public function setOrder(Request $request)
     {
         $order = array_filter($request->input('order'));
-        foreach($order as $o => $id) {
+        foreach ($order as $o => $id) {
             $item = Item::find($id);
             $item->order = $o;
             $item->save();
@@ -72,10 +71,11 @@ class ItemController extends Controller
         $item->pinned = true;
         $item->save();
         $route = route('dash', []);
+
         return redirect($route);
     }
 
-     /**
+    /**
      * Unpin item on the dashboard.
      *
      * @return \Illuminate\Http\Response
@@ -86,36 +86,38 @@ class ItemController extends Controller
         $item->pinned = false;
         $item->save();
         $route = route('dash', []);
+
         return redirect($route);
     }
 
-     /**
+    /**
      * Unpin item on the dashboard.
      *
      * @return \Illuminate\Http\Response
      */
-    public function pinToggle($id, $ajax=false, $tag=false)
+    public function pinToggle($id, $ajax = false, $tag = false)
     {
         $item = Item::findOrFail($id);
-        $new = ((bool)$item->pinned === true) ? false : true;
+        $new = ((bool) $item->pinned === true) ? false : true;
         $item->pinned = $new;
         $item->save();
-        if($ajax) {
-            if(is_numeric($tag) && $tag > 0) {
+        if ($ajax) {
+            if (is_numeric($tag) && $tag > 0) {
                 $item = Item::whereId($tag)->first();
                 $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
             } else {
                 $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
             }
             $data['ajax'] = true;
+
             return view('sortable', $data);
         } else {
             $route = route('dash', []);
+
             return redirect($route);
         }
     }
 
-   
     /**
      * Display a listing of the resource.
      *
@@ -123,17 +125,16 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $trash = (bool)$request->input('trash');
+        $trash = (bool) $request->input('trash');
 
         $data['apps'] = Item::ofType('item')->orderBy('title', 'asc')->get();
         $data['trash'] = Item::ofType('item')->onlyTrashed()->get();
-        if($trash) {
+        if ($trash) {
             return view('items.trash', $data);
         } else {
             return view('items.list', $data);
         }
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -146,8 +147,8 @@ class ItemController extends Controller
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = '0';
-        return view('items.create', $data);
 
+        return view('items.create', $data);
     }
 
     /**
@@ -160,9 +161,9 @@ class ItemController extends Controller
     {
         // Get the item
         $item = Item::find($id);
-        if($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
+        if ($item->appid === null && $item->class !== null) { // old apps wont have an app id so set it
             $app = Application::where('class', $item->class)->first();
-            if($app) {
+            if ($app) {
                 $item->appid = $app->appid;
             }
         }
@@ -173,9 +174,8 @@ class ItemController extends Controller
         //$data['current_tags'] = $data['item']->parent;
         //die(print_r($data['current_tags']));
         // show the edit form and pass the nerd
-        return view('items.edit', $data);    
+        return view('items.edit', $data);
     }
-
 
     public function storelogic($request, $id = null)
     {
@@ -185,12 +185,12 @@ class ItemController extends Controller
             'url' => 'required',
         ]);
 
-        if($request->hasFile('file')) {
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('icons');
             $request->merge([
-                'icon' => $path
+                'icon' => $path,
             ]);
-        } elseif(strpos($request->input('icon'), 'http') === 0) {
+        } elseif (strpos($request->input('icon'), 'http') === 0) {
             $contents = file_get_contents($request->input('icon'));
 
             if ($application) {
@@ -204,7 +204,7 @@ class ItemController extends Controller
             $path = 'icons/'.$icon;
             Storage::disk('public')->put($path, $contents);
             $request->merge([
-                'icon' => $path
+                'icon' => $path,
             ]);
         }
 
@@ -212,10 +212,10 @@ class ItemController extends Controller
         $current_user = User::currentUser();
         $request->merge([
             'description' => $config,
-            'user_id' => $current_user->id
+            'user_id' => $current_user->id,
         ]);
 
-        if($request->input('appid') === 'null') {
+        if ($request->input('appid') === 'null') {
             $request->merge([
                 'class' => null,
             ]);
@@ -223,20 +223,16 @@ class ItemController extends Controller
             $request->merge([
                 'class' => Application::classFromName($application->name),
             ]);
- 
         }
 
-
-        if($id === null) {
+        if ($id === null) {
             $item = Item::create($request->all());
         } else {
             $item = Item::find($id);
             $item->update($request->all());
         }
 
-
         $item->parents()->sync($request->tags);
-
     }
 
     /**
@@ -250,6 +246,7 @@ class ItemController extends Controller
         $this->storelogic($request);
 
         $route = route('dash', []);
+
         return redirect($route)
             ->with('success', __('app.alert.success.item_created'));
     }
@@ -265,7 +262,6 @@ class ItemController extends Controller
         //
     }
 
-
     /**
      * Update the specified resource in storage.
      *
@@ -277,8 +273,9 @@ class ItemController extends Controller
     {
         $this->storelogic($request, $id);
         $route = route('dash', []);
+
         return redirect($route)
-            ->with('success',__('app.alert.success.item_updated'));
+            ->with('success', __('app.alert.success.item_updated'));
     }
 
     /**
@@ -290,8 +287,8 @@ class ItemController extends Controller
     public function destroy(Request $request, $id)
     {
         //
-        $force = (bool)$request->input('force');
-        if($force) {
+        $force = (bool) $request->input('force');
+        if ($force) {
             Item::withTrashed()
                 ->where('id', $id)
                 ->forceDelete();
@@ -300,8 +297,9 @@ class ItemController extends Controller
         }
 
         $route = route('items.index', []);
-        return redirect($route)       
-            ->with('success',__('app.alert.success.item_deleted'));
+
+        return redirect($route)
+            ->with('success', __('app.alert.success.item_deleted'));
     }
 
     /**
@@ -315,11 +313,12 @@ class ItemController extends Controller
         //
         Item::withTrashed()
                 ->where('id', $id)
-                ->restore();      
-        
+                ->restore();
+
         $route = route('items.index', []);
+
         return redirect($route)
-            ->with('success',__('app.alert.success.item_restored'));
+            ->with('success', __('app.alert.success.item_restored'));
     }
 
     /**
@@ -332,7 +331,9 @@ class ItemController extends Controller
         $output = [];
         $appid = $request->input('app');
 
-        if($appid === "null") return null;
+        if ($appid === 'null') {
+            return null;
+        }
         /*$appname = $request->input('app');
         //die($appname);
 
@@ -358,22 +359,19 @@ class ItemController extends Controller
         $output['custom'] = null;
 
         $app = Application::single($appid);
-        $output = (array)$app;
+        $output = (array) $app;
 
         $appdetails = Application::getApp($appid);
 
-        if((boolean)$app->enhanced === true) {
+        if ((bool) $app->enhanced === true) {
             // if(!isset($app->config)) { // class based config
-                $output['custom'] = className($appdetails->name).'.config';
+            $output['custom'] = className($appdetails->name).'.config';
             // }
         }
-        
+
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
-        $output['iconview'] =   config('app.appsource').'icons/' . $app->icon;
+        $output['iconview'] = config('app.appsource').'icons/'.$app->icon;
 
-;
-
-        
         return json_encode($output);
     }
 
@@ -385,20 +383,20 @@ class ItemController extends Controller
         $app = $single->class;
 
         $app_details = new $app();
-        $app_details->config = (object)$data;
+        $app_details->config = (object) $data;
         $app_details->test();
     }
 
-    public function execute($url, $attrs = [], $overridevars=false)
+    public function execute($url, $attrs = [], $overridevars = false)
     {
         $res = null;
 
         $vars = ($overridevars !== false) ?
         $overridevars : [
-            'http_errors' => false, 
-            'timeout' => 15, 
+            'http_errors' => false,
+            'timeout' => 15,
             'connect_timeout' => 15,
-            'verify' => false
+            'verify' => false,
         ];
 
         $client = new Client($vars);
@@ -406,21 +404,22 @@ class ItemController extends Controller
         $method = 'GET';
 
         try {
-            return $client->request($method, $url, $attrs);  
+            return $client->request($method, $url, $attrs);
         } catch (\GuzzleHttp\Exception\ConnectException $e) {
-            Log::error("Connection refused");
+            Log::error('Connection refused');
             Log::debug($e->getMessage());
         } catch (\GuzzleHttp\Exception\ServerException $e) {
             Log::debug($e->getMessage());
         }
+
         return $res;
     }
-
 
     public function websitelookup($url)
     {
         $url = \base64_decode($url);
         $data = $this->execute($url);
+
         return $data->getBody();
     }
 
@@ -429,26 +428,19 @@ class ItemController extends Controller
         $item = Item::find($id);
 
         $config = $item->getconfig();
-        if(isset($item->class)) {
+        if (isset($item->class)) {
             $application = new $item->class;
             $application->config = $config;
             echo $application->livestats();
         }
-        
     }
-
 
     public function checkAppList()
     {
         ProcessApps::dispatch();
         $route = route('items.index');
+
         return redirect($route)
             ->with('success', __('app.alert.success.updating'));
-
     }
-
-    
-    
-
-    
 }
