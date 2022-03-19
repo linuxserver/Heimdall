@@ -29,7 +29,6 @@ return [
     'settings.search' => 'busca',
     'settings.no_items' => 'Nenhum item encontrado',
 
-
     'settings.label' => 'Rótulo',
     'settings.value' => 'Valor',
     'settings.edit' => 'Editar',

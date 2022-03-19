@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\Setting;
 use App\SettingGroup;
+use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class SettingsSeeder extends Seeder
     public function run()
     {
         // Groups
-        if(!$setting_group = SettingGroup::find(1)) {
+        if (! $setting_group = SettingGroup::find(1)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 1;
             $setting_group->title = 'app.settings.system';
@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.system';
             $setting_group->save();
         }
-        if(!$setting_group = SettingGroup::find(2)) {
+        if (! $setting_group = SettingGroup::find(2)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 2;
             $setting_group->title = 'app.settings.appearance';
@@ -34,7 +34,7 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.appearance';
             $setting_group->save();
         }
-        if(!$setting_group = SettingGroup::find(3)) {
+        if (! $setting_group = SettingGroup::find(3)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 3;
             $setting_group->title = 'app.settings.miscellaneous';
@@ -44,7 +44,7 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->save();
         }
-        if(!$setting_group = SettingGroup::find(4)) {
+        if (! $setting_group = SettingGroup::find(4)) {
             $setting_group = new SettingGroup;
             $setting_group->id = 4;
             $setting_group->title = 'app.settings.advanced';
@@ -55,7 +55,7 @@ class SettingsSeeder extends Seeder
             $setting_group->save();
         }
 
-        if($version = Setting::find(1)) {
+        if ($version = Setting::find(1)) {
             $version->label = 'app.settings.version';
             $version->value = config('app.version');
             $version->save();
@@ -71,7 +71,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if(!$setting = Setting::find(2)) {
+        if (! $setting = Setting::find(2)) {
             $setting = new Setting;
             $setting->id = 2;
             $setting->group_id = 2;
@@ -83,7 +83,7 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.background_image';
             $setting->save();
         }
-        if(!$setting = Setting::find(3)) {
+        if (! $setting = Setting::find(3)) {
             $setting = new Setting;
             $setting->id = 3;
             $setting->group_id = 3;
@@ -105,8 +105,7 @@ class SettingsSeeder extends Seeder
             'startpage' => 'app.options.startpage',
         ]);
 
-        if(!$setting = Setting::find(4)) {
-
+        if (! $setting = Setting::find(4)) {
             $setting = new Setting;
             $setting->id = 4;
             $setting->group_id = 3;
@@ -121,7 +120,6 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-
         $language_options = json_encode([
             'de' => 'Deutsch (German)',
             'en' => 'English',
@@ -135,7 +133,7 @@ class SettingsSeeder extends Seeder
             'es' => 'Español (Spanish)',
             'tr' => 'Türkçe (Turkish)',
         ]);
-        if($languages = Setting::find(5)) {
+        if ($languages = Setting::find(5)) {
             $languages->options = $language_options;
             $languages->save();
         } else {
@@ -156,8 +154,7 @@ class SettingsSeeder extends Seeder
             '_blank' => 'app.settings.window_target.new',
         ]);
 
-        if(!$setting = Setting::find(7)) {
-
+        if (! $setting = Setting::find(7)) {
             $setting = new Setting;
             $setting->id = 7;
             $setting->group_id = 3;
@@ -173,7 +170,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if($support = Setting::find(8)) {
+        if ($support = Setting::find(8)) {
             $support->label = 'app.settings.support';
             $support->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
             $support->save();
@@ -189,7 +186,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if($donate = Setting::find(9)) {
+        if ($donate = Setting::find(9)) {
             $donate->label = 'app.settings.donate';
             $donate->value = '<a rel="noopener" target="_blank" href="https://www.paypal.me/heimdall">Paypal</a>';
             $donate->save();
@@ -204,8 +201,8 @@ class SettingsSeeder extends Seeder
             $setting->system = true;
             $setting->save();
         }
-        
-        if(!$setting = Setting::find(10)) {
+
+        if (! $setting = Setting::find(10)) {
             $setting = new Setting;
             $setting->id = 10;
             $setting->group_id = 4;
@@ -221,7 +218,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if(!$setting = Setting::find(11)) {
+        if (! $setting = Setting::find(11)) {
             $setting = new Setting;
             $setting->id = 11;
             $setting->group_id = 4;
@@ -237,7 +234,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if(!$home_tag = \App\Item::find(0)) {
+        if (! $home_tag = \App\Item::find(0)) {
             $home_tag = new \App\Item;
             $home_tag->id = 0;
             $home_tag->title = 'app.dashboard';
@@ -248,11 +245,12 @@ class SettingsSeeder extends Seeder
             $home_tag->save();
 
             $homeapps = \App\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
-            foreach($homeapps as $app) {
-                if($app->id === 0) continue;
+            foreach ($homeapps as $app) {
+                if ($app->id === 0) {
+                    continue;
+                }
                 $app->parents()->attach(0);
             }
         }
-
     }
 }

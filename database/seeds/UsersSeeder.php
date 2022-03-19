@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\User;
+use Illuminate\Database\Seeder;
 
 class UsersSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class UsersSeeder extends Seeder
     public function run()
     {
         // Groups
-        if(!$user = User::find(1)) {
+        if (! $user = User::find(1)) {
             $user = new User;
             $user->id = 1;
             $user->username = 'admin';

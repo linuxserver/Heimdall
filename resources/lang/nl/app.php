@@ -29,7 +29,6 @@ return [
     'settings.search' => 'Zoeken',
     'settings.no_items' => 'Geen items gevonden',
 
-
     'settings.label' => 'Label',
     'settings.value' => 'Waarde',
     'settings.edit' => 'Bewerken',
@@ -91,7 +90,7 @@ return [
     'url' => 'URL',
     'title' => 'Titel',
     'delete' => 'Verwijderen',
-    'optional' => 'Optioneel',    
+    'optional' => 'Optioneel',
     'restore' => 'Herstellen',
 
     'alert.success.item_created' => 'Item met succes aangemaakt',
@@ -112,6 +111,5 @@ return [
     'alert.success.user_updated' => 'Gebruiker met succes bewerkt',
     'alert.success.user_deleted' => 'Gebruiker met succes verwijderd',
     'alert.success.user_restored' => 'Gebruiker met succes hersteld',
-
 
 ];

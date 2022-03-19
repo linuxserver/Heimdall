@@ -17,6 +17,6 @@ return [
     'reset' => 'Din adgangskode er nulstillet!',
     'sent' => 'Vi har sendt dig en e-mail med et link til nulstilling af adgangskode!',
     'token' => 'Dit token er ikke gyldigt!',
-    'user' => "Vi kan ikke finde en bruger med den e-mail-adresse.",
+    'user' => 'Vi kan ikke finde en bruger med den e-mail-adresse.',
 
 ];

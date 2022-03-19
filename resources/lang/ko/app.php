@@ -29,7 +29,6 @@ return [
     'settings.search' => '검색',
     'settings.no_items' => '항목을 찾을 수 없음',
 
-
     'settings.label' => '레이블',
     'settings.value' => '값',
     'settings.edit' => '편집',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => '사용자를 성공적으로 업데이트했습니다',
     'alert.success.user_deleted' => '사용자를 성공적으로 제거했습니다',
     'alert.success.user_restored' => '사용자를 성공적으로 복원했습니다',
-
 
 ];

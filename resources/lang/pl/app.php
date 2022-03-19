@@ -22,12 +22,11 @@ return [
     'settings.remove' => 'Usuń',
     'settings.search' => 'szukaj',
     'settings.no_items' => 'Nic nie znaleziono',
-    
 
-    'settings.label' => 'Etykieta',    
-    'settings.value' => 'Wartość',    
-    'settings.edit' => 'Edytuj',    
-    'settings.view' => 'Widok',    
+    'settings.label' => 'Etykieta',
+    'settings.value' => 'Wartość',
+    'settings.edit' => 'Edytuj',
+    'settings.view' => 'Widok',
 
     'options.none' => '- not set -',
     'options.google' => 'Google',
@@ -65,9 +64,9 @@ return [
 
     'url' => 'URL',
     'title' => 'Tytuł',
-    'delete' => 'Usuń',    
-    'optional' => 'Opcjonalny',    
-    'restore' => 'Przywróć',    
+    'delete' => 'Usuń',
+    'optional' => 'Opcjonalny',
+    'restore' => 'Przywróć',
 
     'alert.success.item_created' => 'Element utworzony',
     'alert.success.item_updated' => 'Element zaktualizowany',
@@ -76,6 +75,5 @@ return [
 
     'alert.success.setting_updated' => 'Ustawienie zostało zaktualizowane',
     'alert.error.not_exist' => 'Takie ustawienie nie istnieje',
-
 
 ];

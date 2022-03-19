@@ -29,7 +29,6 @@ return [
     'settings.search' => 'αναζήτηση',
     'settings.no_items' => 'Δε βρεθηκαν αποτελέσματα',
 
-
     'settings.label' => 'Ετικέτα',
     'settings.value' => 'Τιμή',
     'settings.edit' => 'Επεξεργασία',
@@ -115,6 +114,5 @@ return [
     'alert.success.user_updated' => 'Ο χρήστης ενημερώθηκε επιτυχώς',
     'alert.success.user_deleted' => 'Ο χρήστης διαγράφηκε επιτυχώς',
     'alert.success.user_restored' => 'Ο χρήστης επαναφέρθηκε επιτυχώς',
-
 
 ];
