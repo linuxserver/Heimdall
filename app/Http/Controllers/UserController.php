@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -14,6 +14,7 @@ class UserController extends Controller
     {
         $this->middleware('allowed')->except(['selectUser']);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,6 +23,7 @@ class UserController extends Controller
     public function index()
     {
         $data['users'] = User::all();
+
         return view('users.index', $data);
     }
 
@@ -33,6 +35,7 @@ class UserController extends Controller
     public function create()
     {
         $data = [];
+
         return view('users.create', $data);
     }
 
@@ -40,8 +43,8 @@ class UserController extends Controller
     {
         Auth::logout();
         $data['users'] = User::all();
-        return view('userselect', $data);
 
+        return view('userselect', $data);
     }
 
     /**
@@ -56,7 +59,7 @@ class UserController extends Controller
             'username' => 'required|max:255|unique:users',
             'email' => 'required|email',
             'password' => 'nullable|confirmed',
-            'password_confirmation' => 'nullable'
+            'password_confirmation' => 'nullable',
 
         ]);
         $user = new User;
@@ -65,24 +68,25 @@ class UserController extends Controller
         $user->public_front = $request->input('public_front');
 
         $password = $request->input('password');
-        if(!empty($password)) {
+        if (! empty($password)) {
             $user->password = bcrypt($password);
         }
 
-        if($request->hasFile('file')) {
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('avatars');
             $user->avatar = $path;
         }
 
-        if ((bool)$request->input('autologin_allow') === true) {
-            $user->autologin = (string)Str::uuid();
+        if ((bool) $request->input('autologin_allow') === true) {
+            $user->autologin = (string) Str::uuid();
         }
 
         $user->save();
-        
+
         $route = route('dash', []);
+
         return redirect($route)
-            ->with('success',__('app.alert.success.user_updated'));
+            ->with('success', __('app.alert.success.user_updated'));
     }
 
     /**
@@ -105,8 +109,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $data['user'] = $user;
-        return view('users.edit', $data);
 
+        return view('users.edit', $data);
     }
 
     /**
@@ -122,28 +126,28 @@ class UserController extends Controller
             'username' => 'required|max:255|unique:users,username,'.$user->id,
             'email' => 'required|email',
             'password' => 'nullable|confirmed',
-            'password_confirmation' => 'nullable'
+            'password_confirmation' => 'nullable',
         ]);
-            //die(print_r($request->all()));
+        //die(print_r($request->all()));
 
         $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->public_front = $request->input('public_front');
 
         $password = $request->input('password');
-        if(!empty($password)) {
+        if (! empty($password)) {
             $user->password = bcrypt($password);
-        } elseif($password == 'null') {
+        } elseif ($password == 'null') {
             $user->password = null;
         }
-    
-        if($request->hasFile('file')) {
+
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('avatars');
             $user->avatar = $path;
         }
 
-        if ((bool)$request->input('autologin_allow') === true) {
-            $user->autologin = (is_null($user->autologin)) ? (string)Str::uuid() : $user->autologin;
+        if ((bool) $request->input('autologin_allow') === true) {
+            $user->autologin = (is_null($user->autologin)) ? (string) Str::uuid() : $user->autologin;
         } else {
             $user->autologin = null;
         }
@@ -151,9 +155,9 @@ class UserController extends Controller
         $user->save();
 
         $route = route('dash', []);
-        return redirect($route)
-            ->with('success',__('app.alert.success.user_updated'));
 
+        return redirect($route)
+            ->with('success', __('app.alert.success.user_updated'));
     }
 
     /**
@@ -164,12 +168,12 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if($user->id !== 1) {
+        if ($user->id !== 1) {
             $user->delete();
             $route = route('dash', []);
-            return redirect($route)
-            ->with('success',__('app.alert.success.user_deleted'));
 
+            return redirect($route)
+            ->with('success', __('app.alert.success.user_deleted'));
         }
     }
 }

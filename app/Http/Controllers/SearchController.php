@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Search;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -15,9 +15,9 @@ class SearchController extends Controller
 
         $provider = Search::providerDetails($requestprovider);
 
-        if($provider->type == 'standard') {
+        if ($provider->type == 'standard') {
             return redirect($provider->url.'?'.$provider->query.'='.urlencode($query));
-        } elseif($provider->type == 'external') {
+        } elseif ($provider->type == 'external') {
             $class = new $provider->class;
             //print_r($provider);
             return $class->getResults($query, $provider);

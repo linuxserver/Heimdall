@@ -29,7 +29,6 @@ return [
     'settings.search' => 'keresés',
     'settings.no_items' => 'Nincs találat',
 
-
     'settings.label' => 'Címke',
     'settings.value' => 'Érték',
     'settings.edit' => 'Módosítás',
@@ -90,8 +89,7 @@ return [
     'user.password_confirm' => 'Jelszó megerősítés',
     'user.secure_front' => 'Nyilvános hozzáférés engedélyezése - Csak jelszó alkalmazása esetén.',
     'user.autologin' => 'Bejelentkezés URL-el, Link birtokában bárki bejelentkezhet.',
-	
-	
+
     'url' => 'URL',
     'title' => 'Cím',
     'delete' => 'Törlés',
@@ -116,6 +114,5 @@ return [
     'alert.success.user_updated' => 'Felhasználó sikeresen frissítve',
     'alert.success.user_deleted' => 'Felhasználó sikeresen törölve',
     'alert.success.user_restored' => 'Felhasználó sikeresen visszaállítva',
-
 
 ];

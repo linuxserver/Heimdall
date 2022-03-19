@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -32,7 +32,7 @@ class User extends Authenticatable
      */
     public function items()
     {
-        return $this->hasMany('App\Item');
+        return $this->hasMany(\App\Item::class);
     }
 
     /**
@@ -40,7 +40,7 @@ class User extends Authenticatable
      */
     public function settings()
     {
-        return $this->belongsToMany('App\Setting')->withPivot('uservalue');
+        return $this->belongsToMany(\App\Setting::class)->withPivot('uservalue');
     }
 
     public static function currentUser()
@@ -49,15 +49,13 @@ class User extends Authenticatable
         if ($current_user) { // if logged in, set this user
             return $current_user;
         } else { // not logged in, get first user
-            $user = User::where('public_front',true)->first();
-            if(!$user) {
-                $user = User::first();
+            $user = self::where('public_front', true)->first();
+            if (! $user) {
+                $user = self::first();
             }
             session(['current_user' => $user]);
+
             return $user;
         }
-
     }
-
-
 }

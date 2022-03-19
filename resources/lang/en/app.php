@@ -13,7 +13,7 @@ return [
     'settings.appearance' => 'Appearance',
     'settings.miscellaneous' => 'Miscellaneous',
     'settings.advanced' => 'Advanced',
-    
+
     'settings.support' => 'Support',
     'settings.donate' => 'Donate',
 
@@ -35,7 +35,7 @@ return [
     'settings.value' => 'Value',
     'settings.edit' => 'Edit',
     'settings.view' => 'View',
-    
+
     'settings.custom_css' => 'Custom CSS',
     'settings.custom_js' => 'Custom JavaScript',
 
@@ -124,6 +124,5 @@ return [
     'alert.success.user_updated' => 'User updated successfully',
     'alert.success.user_deleted' => 'User deleted successfully',
     'alert.success.user_restored' => 'User restored successfully',
-
 
 ];

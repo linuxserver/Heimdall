@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\User;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -92,6 +92,7 @@ class LoginController extends Controller
     {
         Auth::logout();
         session(['current_user' => $user]);
+
         return redirect()->route('dash');
     }
 
@@ -100,6 +101,7 @@ class LoginController extends Controller
         $user = User::where('autologin', $uuid)->first();
         Auth::login($user, true);
         session(['current_user' => $user]);
+
         return redirect()->route('dash');
     }
 
@@ -122,5 +124,4 @@ class LoginController extends Controller
     {
         return Session::get('url.intended') ? Session::get('url.intended') : $this->redirectTo;
     }
-
 }

@@ -17,6 +17,6 @@ return [
     'reset' => 'Passordet ditt har blitt tilbakestilt!',
     'sent' => 'Vi har sendt deg en e-post med en tilbakestillingslink for ditt passord!',
     'token' => 'Denne tilgangstoken er ikke gyldig.',
-    'user' => "Vi fant ingen med den e-postadressen.",
+    'user' => 'Vi fant ingen med den e-postadressen.',
 
 ];

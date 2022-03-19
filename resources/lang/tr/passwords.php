@@ -1,7 +1,7 @@
 <?php
 
 return [
-    
+
     /*
     |--------------------------------------------------------------------------
     | Password Reset Language Lines
@@ -12,11 +12,11 @@ return [
     | has failed, such as for an invalid token or invalid new password.
     |
     */
-    
+
     'password' => 'Şifre en az altı karakter olmalı ve onaylamasına uymalıdır.',
     'reset' => 'Şifreniz sıfırlandı!',
     'sent' => 'Şifre sıfırlama bağlantısı eposta adresinize yollandı!',
     'token' => 'Şifre sıfırlama simgesi geçerli değil.',
-    'user' => "Adresle ilişkili kullanıcı adı bulunamadı.",
-    
+    'user' => 'Adresle ilişkili kullanıcı adı bulunamadı.',
+
 ];

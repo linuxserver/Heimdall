@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Application;
 use App\SupportedApps;
+use Illuminate\Console\Command;
 
 class RegisterApp extends Command
 {
@@ -40,40 +40,38 @@ class RegisterApp extends Command
     public function handle()
     {
         $folder = $this->argument('folder');
-        if($folder == 'all') {
+        if ($folder == 'all') {
             $apps = scandir(app_path('SupportedApps'));
-            foreach($apps as $folder) {
-                if($folder == '.' || $folder == '..') continue;
+            foreach ($apps as $folder) {
+                if ($folder == '.' || $folder == '..') {
+                    continue;
+                }
                 $this->addApp($folder);
             }
-
         } else {
             $this->addApp($folder);
         }
-        
     }
 
     public function addApp($folder)
     {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
-        if(file_exists($json)) {
+        if (file_exists($json)) {
             $app = json_decode(file_get_contents($json));
-            if(isset($app->appid)) {
+            if (isset($app->appid)) {
                 $exists = Application::find($app->appid);
-                if($exists) {
-                    $this->error('Application already registered - '.$exists->name." - ".$exists->appid);
+                if ($exists) {
+                    $this->error('Application already registered - '.$exists->name.' - '.$exists->appid);
                 } else {
                     // Doesn't exist so add it
                     SupportedApps::saveApp($app, new Application);
-                    $this->info("Application Added - ".$app->name." - ".$app->appid);
+                    $this->info('Application Added - '.$app->name.' - '.$app->appid);
                 }
             } else {
                 $this->error('No App ID for - '.$folder);
             }
-            
         } else {
             $this->error('Could not find '.$json);
         }
-
     }
 }

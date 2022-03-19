@@ -1,12 +1,15 @@
-<?php namespace App;
+<?php
 
-use GuzzleHttp\Exception\GuzzleException;
+namespace App;
+
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 interface EnhancedApps
 {
     public function test();
-    public function livestats();
-    public function url($endpoint);
 
+    public function livestats();
+
+    public function url($endpoint);
 }

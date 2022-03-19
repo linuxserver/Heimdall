@@ -54,5 +54,4 @@ class VerifyCsrfToken extends Middleware
     {
         return EncryptCookies::serialized('HEIMDALL-XSRF-TOKEN');
     }
-
 }
