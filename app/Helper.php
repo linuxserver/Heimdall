@@ -43,7 +43,8 @@ function get_brightness($hex)
 {
     // returns brightness value from 0 to 255
     // strip off any leading #
-    $hex = str_replace('#', '', $hex);
+    // $hex = str_replace('#', '', $hex);
+    $hex = preg_replace("/[^0-9A-Fa-f]/", '', $hex);
     if (strlen($hex) == 3) {
         $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
     }
