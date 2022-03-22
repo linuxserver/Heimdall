@@ -1,0 +1,68 @@
+name: Test Usage of MySQL
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning' 
+        type: choice
+        options:
+        - info
+        - warning
+        - debug 
+      tags:
+        description: 'Test scenario tags'
+        required: false 
+        type: boolean
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: true 
+
+      
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: forge
+          MYSQL_PASSWORD: forgepass
+          MYSQL_DATABASE: forge
+          MYSQL_ROOT_PASSWORD: forgeroot
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+    steps:
+      - run: |
+          echo "Log level: $LEVEL"
+          echo "Tags: $TAGS"
+          echo "Environment: $ENVIRONMENT"
+        env:
+          LEVEL: ${{ github.event.inputs.logLevel }}
+          TAGS: ${{ github.event.inputs.tags }}
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - name: setup php env
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "7.4"
+      - name: set github oauth
+        run: composer config -a github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+      - name: install composer deps
+        uses: "ramsey/composer-install@v2"
+        with:
+          composer-options: "--prefer-dist --no-dev --no-interaction"
+
