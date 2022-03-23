@@ -99,6 +99,7 @@ class SettingsSeeder extends Seeder
         $options = json_encode([
             'none' => 'app.options.none',
             'google' => 'app.options.google',
+            'baidu' => 'app.options.baidu',
             'ddg' => 'app.options.ddg',
             'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
@@ -123,6 +124,7 @@ class SettingsSeeder extends Seeder
         $language_options = json_encode([
             'de' => 'Deutsch (German)',
             'en' => 'English',
+            'cn' => '简体中文 (Simplified Chinese)',
             'fi' => 'Suomi (Finnish)',
             'fr' => 'Français (French)',
             'el' => 'Ελληνικά (Greek)',
