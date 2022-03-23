@@ -11,7 +11,7 @@ return [
 
     'settings.system' => '系统',
     'settings.appearance' => '外观',
-    'settings.miscellaneous' => '其他',
+    'settings.miscellaneous' => '杂项',
     'settings.advanced' => '高级',
 
     'settings.support' => '支持',
@@ -36,8 +36,8 @@ return [
     'settings.edit' => '编辑',
     'settings.view' => '查看',
 
-    'settings.custom_css' => 'Custom CSS',
-    'settings.custom_js' => 'Custom JavaScript',
+    'settings.custom_css' => '自定义 CSS',
+    'settings.custom_js' => '自定义 JavaScript',
 
     'options.none' => '- 未设置 -',
     'options.google' => 'Google',
