@@ -99,7 +99,6 @@ class SettingsSeeder extends Seeder
         $options = json_encode([
             'none' => 'app.options.none',
             'google' => 'app.options.google',
-            'baidu' => 'app.options.baidu',
             'ddg' => 'app.options.ddg',
             'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
