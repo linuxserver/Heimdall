@@ -41,6 +41,7 @@ return [
 
     'options.none' => '- 未设置 -',
     'options.google' => 'Google',
+    'options.baidu' => '百度',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
     'options.qwant' => 'Qwant',
