@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'failed' => '认证凭据错误。',
-    'throttle' => '登录尝试次数过多。 请在 :seconds 秒后重试。',
+    'failed' => '此凭据无效，请重试。',
+    'throttle' => '登录尝试次数过多. 请等待 :seconds 秒后重试.',
 
 ];
