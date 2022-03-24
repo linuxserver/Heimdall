@@ -1,3 +1,8 @@
+tiles:
+   id: tiles
+   name: Tiles
+   target: _blank
+
 baidu:
    id: baidu
    url: https://www.baidu.com/s
@@ -37,8 +42,3 @@ startpage:
    method: get
    target: _blank
    query: query
-
-tiles:
-   id: tiles
-   name: Tiles
-   target: _blank
