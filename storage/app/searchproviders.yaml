@@ -11,14 +11,6 @@ google:
    target: _blank
    query: q
 
-baidu:
-   id: baidu
-   url: https://www.baidu.com/s
-   name: Baidu
-   method: get
-   target: _blank
-   query: wd
-
 bing:
    id: bing
    url: https://www.bing.com/search
