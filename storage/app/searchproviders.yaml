@@ -3,13 +3,13 @@ tiles:
    name: Tiles
    target: _blank
 
-google:
-   id: google
-   url: https://www.google.com/search
-   name: Google
+baidu:
+   id: baidu
+   url: https://www.baidu.com/s
+   name: Baidu
    method: get
    target: _blank
-   query: q
+   query: wd
 
 bing:
    id: bing
@@ -27,6 +27,14 @@ ddg:
    target: _blank
    query: q
 
+google:
+   id: google
+   url: https://www.google.com/search
+   name: Google
+   method: get
+   target: _blank
+   query: q
+
 startpage:
    id: startpage
    url: https://www.startpage.com/do/dsearch
@@ -34,4 +42,3 @@ startpage:
    method: get
    target: _blank
    query: query
-
