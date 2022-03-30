@@ -113,7 +113,7 @@ abstract class SupportedApps
     {
         // $list_url = 'https://apps.heimdall.site/list';
         $list_url = config('app.appsource').'list.json';
-        $client = new Client(['http_errors' => false, 'timeout' => 15, 'connect_timeout' => 15]);
+        $client = new Client(['http_errors' => false, 'verify' => false, 'timeout' => 15, 'connect_timeout' => 15]);
 
         return $client->request('GET', $list_url);
     }
