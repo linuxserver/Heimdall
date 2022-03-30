@@ -30,7 +30,7 @@ class Item extends Model
 
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'appdescription', 'description', 'pinned', 'order', 'type', 'class', 'user_id', 'appid',
+        'title', 'url', 'colour', 'icon', 'appdescription', 'description', 'pinned', 'order', 'type', 'class', 'user_id', 'tag_id', 'appid',
     ];
 
 
