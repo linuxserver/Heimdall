@@ -47,7 +47,9 @@ class ProcessApps implements ShouldQueue
         foreach ($items as $item) {
             if (! file_exists(app_path('SupportedApps/'.Item::nameFromClass($item->class)))) {
                 $app = Application::where('class', $item->class)->first();
-                Application::getApp($app->appid);
+                if ($app) {
+                    Application::getApp($app->appid);
+                }
             }
         }
     }
