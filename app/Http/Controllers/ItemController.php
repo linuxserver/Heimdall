@@ -191,7 +191,13 @@ class ItemController extends Controller
                 'icon' => $path,
             ]);
         } elseif (strpos($request->input('icon'), 'http') === 0) {
-            $contents = file_get_contents($request->input('icon'));
+            $options=array(
+                "ssl"=>array(
+                    "verify_peer"=>false,
+                    "verify_peer_name"=>false,
+                ),
+            );  
+            $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
 
             if ($application) {
                 $icon = $application->icon;
