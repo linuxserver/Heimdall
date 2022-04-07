@@ -131,7 +131,7 @@ abstract class SupportedApps
     {
         $zipurl = config('app.appsource').'files/'.$app->sha.'.zip';
 
-        $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15]);
+        $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15, 'verify' => false]);
         $res = $client->request('GET', $zipurl);
 
         if (! file_exists(app_path('SupportedApps'))) {
