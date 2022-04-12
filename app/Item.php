@@ -169,7 +169,7 @@ class Item extends Model
 
     public static function isEnhanced($class)
     {
-        if (!class_exists($class) || $class === null || $class === 'null') {
+        if (!class_exists($class, false) || $class === null || $class === 'null') {
             return false;
         }
         $app = new $class;
@@ -179,7 +179,7 @@ class Item extends Model
 
     public static function isSearchProvider($class)
     {
-        if (!class_exists($class) || $class === null || $class === 'null') {
+        if (!class_exists($class, false) || $class === null || $class === 'null') {
             return false;
         }
         $app = new $class;
