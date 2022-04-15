@@ -35,6 +35,14 @@ google:
    target: _blank
    query: q
 
+qwant:
+   id: qwant
+   url: https://www.qwant.com/
+   name: Qwant
+   method: get
+   target: _blank
+   query: q
+
 startpage:
    id: startpage
    url: https://www.startpage.com/do/dsearch
