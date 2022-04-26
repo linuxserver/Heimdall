@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -21,23 +23,26 @@ use League\CommonMark\Normalizer\TextNormalizer;
  */
 final class ReferenceMap implements ReferenceMapInterface
 {
-    /** @var TextNormalizer */
-    private $normalizer;
+    /** @psalm-readonly */
+    private TextNormalizer $normalizer;
 
     /**
-     * @var ReferenceInterface[]
+     * @var array<string, ReferenceInterface>
+     *
+     * @psalm-readonly-allow-private-mutation
      */
-    private $references = [];
+    private array $references = [];
 
     public function __construct()
     {
         $this->normalizer = new TextNormalizer();
     }
 
-    public function addReference(ReferenceInterface $reference): void
+    public function add(ReferenceInterface $reference): void
     {
+        // Normalize the key
         $key = $this->normalizer->normalize($reference->getLabel());
-
+        // Store the reference
         $this->references[$key] = $reference;
     }
 
@@ -48,19 +53,25 @@ final class ReferenceMap implements ReferenceMapInterface
         return isset($this->references[$label]);
     }
 
-    public function getReference(string $label): ?ReferenceInterface
+    public function get(string $label): ?ReferenceInterface
     {
         $label = $this->normalizer->normalize($label);
 
-        if (!isset($this->references[$label])) {
-            return null;
-        }
-
-        return $this->references[$label];
+        return $this->references[$label] ?? null;
     }
 
-    public function listReferences(): iterable
+    /**
+     * @return \Traversable<string, ReferenceInterface>
+     */
+    public function getIterator(): \Traversable
     {
-        return \array_values($this->references);
+        foreach ($this->references as $normalizedLabel => $reference) {
+            yield $normalizedLabel => $reference;
+        }
+    }
+
+    public function count(): int
+    {
+        return \count($this->references);
     }
 }

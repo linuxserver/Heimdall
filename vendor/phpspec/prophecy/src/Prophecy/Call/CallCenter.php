@@ -62,16 +62,8 @@ class CallCenter
     public function makeCall(ObjectProphecy $prophecy, $methodName, array $arguments)
     {
         // For efficiency exclude 'args' from the generated backtrace
-        if (PHP_VERSION_ID >= 50400) {
-            // Limit backtrace to last 3 calls as we don't use the rest
-            // Limit argument was introduced in PHP 5.4.0
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-        } elseif (defined('DEBUG_BACKTRACE_IGNORE_ARGS')) {
-            // DEBUG_BACKTRACE_IGNORE_ARGS was introduced in PHP 5.3.6
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        } else {
-            $backtrace = debug_backtrace();
-        }
+        // Limit backtrace to last 3 calls as we don't use the rest
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
 
         $file = $line = null;
         if (isset($backtrace[2]) && isset($backtrace[2]['file'])) {
@@ -184,7 +176,7 @@ class CallCenter
 
         $expected = array();
 
-        foreach (call_user_func_array('array_merge', $prophecy->getMethodProphecies()) as $methodProphecy) {
+        foreach (array_merge(...array_values($prophecy->getMethodProphecies())) as $methodProphecy) {
             $expected[] = sprintf(
                 "  - %s(\n" .
                 "%s\n" .

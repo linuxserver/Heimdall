@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /*
  * This file is part of PharIo\Manifest.
  *
@@ -7,58 +7,30 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PharIo\Manifest;
 
 class ApplicationName {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * ApplicationName constructor.
-     *
-     * @param string $name
-     *
-     * @throws InvalidApplicationNameException
-     */
-    public function __construct($name) {
-        $this->ensureIsString($name);
+    public function __construct(string $name) {
         $this->ensureValidFormat($name);
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString() {
+    public function asString(): string {
         return $this->name;
     }
 
-    public function isEqual(ApplicationName $name) {
+    public function isEqual(ApplicationName $name): bool {
         return $this->name === $name->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @throws InvalidApplicationNameException
-     */
-    private function ensureValidFormat($name) {
-        if (!preg_match('#\w/\w#', $name)) {
+    private function ensureValidFormat(string $name): void {
+        if (!\preg_match('#\w/\w#', $name)) {
             throw new InvalidApplicationNameException(
-                sprintf('Format of name "%s" is not valid - expected: vendor/packagename', $name),
+                \sprintf('Format of name "%s" is not valid - expected: vendor/packagename', $name),
                 InvalidApplicationNameException::InvalidFormat
-            );
-        }
-    }
-
-    private function ensureIsString($name) {
-        if (!is_string($name)) {
-            throw new InvalidApplicationNameException(
-                'Name must be a string',
-                InvalidApplicationNameException::NotAString
             );
         }
     }

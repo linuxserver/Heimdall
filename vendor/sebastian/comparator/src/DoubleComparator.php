@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -7,8 +7,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Comparator;
+
+use function is_float;
+use function is_numeric;
 
 /**
  * Compares doubles for equality.
@@ -20,7 +22,7 @@ class DoubleComparator extends NumericComparator
      *
      * @var float
      */
-    const EPSILON = 0.0000000001;
+    public const EPSILON = 0.0000000001;
 
     /**
      * Returns whether the comparator can compare two values.
@@ -32,7 +34,7 @@ class DoubleComparator extends NumericComparator
      */
     public function accepts($expected, $actual)
     {
-        return (\is_float($expected) || \is_float($actual)) && \is_numeric($expected) && \is_numeric($actual);
+        return (is_float($expected) || is_float($actual)) && is_numeric($expected) && is_numeric($actual);
     }
 
     /**
@@ -46,7 +48,7 @@ class DoubleComparator extends NumericComparator
      *
      * @throws ComparisonFailure
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)/*: void*/
     {
         if ($delta == 0) {
             $delta = self::EPSILON;

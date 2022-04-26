@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,45 +9,51 @@
  */
 namespace PHPUnit\Framework;
 
+use Throwable;
+
+/**
+ * @deprecated The `TestListener` interface is deprecated
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 trait TestListenerDefaultImplementation
 {
-    public function addError(Test $test, \Exception $e, $time)
+    public function addError(Test $test, Throwable $t, float $time): void
     {
     }
 
-    public function addWarning(Test $test, Warning $e, $time)
+    public function addWarning(Test $test, Warning $e, float $time): void
     {
     }
 
-    public function addFailure(Test $test, AssertionFailedError $e, $time)
+    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
     }
 
-    public function addIncompleteTest(Test $test, \Exception $e, $time)
+    public function addIncompleteTest(Test $test, Throwable $t, float $time): void
     {
     }
 
-    public function addRiskyTest(Test $test, \Exception $e, $time)
+    public function addRiskyTest(Test $test, Throwable $t, float $time): void
     {
     }
 
-    public function addSkippedTest(Test $test, \Exception $e, $time)
+    public function addSkippedTest(Test $test, Throwable $t, float $time): void
     {
     }
 
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
     }
 
-    public function endTestSuite(TestSuite $suite)
+    public function endTestSuite(TestSuite $suite): void
     {
     }
 
-    public function startTest(Test $test)
+    public function startTest(Test $test): void
     {
     }
 
-    public function endTest(Test $test, $time)
+    public function endTest(Test $test, float $time): void
     {
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /*
  * This file is part of PharIo\Manifest.
  *
@@ -7,36 +7,25 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PharIo\Manifest;
 
 class License {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var Url
-     */
+    /** @var Url */
     private $url;
 
-    public function __construct($name, Url $url) {
+    public function __construct(string $name, Url $url) {
         $this->name = $name;
         $this->url  = $url;
     }
 
-    /**
-     * @return string
-     */
-    public function getName() {
+    public function getName(): string {
         return $this->name;
     }
 
-    /**
-     * @return Url
-     */
-    public function getUrl() {
+    public function getUrl(): Url {
         return $this->url;
     }
 }

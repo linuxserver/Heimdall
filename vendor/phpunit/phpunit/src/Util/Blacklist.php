@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -7,107 +7,35 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit\Util;
 
-use ReflectionClass;
-
 /**
- * Utility class for blacklisting PHPUnit's own source code files.
+ * @deprecated Use ExcludeList instead
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-class Blacklist
+final class Blacklist
 {
-    /**
-     * @var array
-     */
-    public static $blacklistedClassNames = [
-        'File_Iterator'                               => 1,
-        'PHP_Invoker'                                 => 1,
-        'PHP_Timer'                                   => 1,
-        'PHP_Token'                                   => 1,
-        'PHPUnit\Framework\TestCase'                  => 2,
-        'PHPUnit\DbUnit\TestCase'                     => 2,
-        'PHPUnit\Framework\MockObject\Generator'      => 1,
-        'Text_Template'                               => 1,
-        'Symfony\Component\Yaml\Yaml'                 => 1,
-        'SebastianBergmann\CodeCoverage\CodeCoverage' => 1,
-        'SebastianBergmann\Diff\Diff'                 => 1,
-        'SebastianBergmann\Environment\Runtime'       => 1,
-        'SebastianBergmann\Comparator\Comparator'     => 1,
-        'SebastianBergmann\Exporter\Exporter'         => 1,
-        'SebastianBergmann\GlobalState\Snapshot'      => 1,
-        'SebastianBergmann\RecursionContext\Context'  => 1,
-        'SebastianBergmann\Version'                   => 1,
-        'Composer\Autoload\ClassLoader'               => 1,
-        'Doctrine\Instantiator\Instantiator'          => 1,
-        'phpDocumentor\Reflection\DocBlock'           => 1,
-        'Prophecy\Prophet'                            => 1,
-        'DeepCopy\DeepCopy'                           => 1
-    ];
+    public static function addDirectory(string $directory): void
+    {
+        ExcludeList::addDirectory($directory);
+    }
 
     /**
-     * @var string[]
-     */
-    private static $directories;
-
-    /**
+     * @throws Exception
+     *
      * @return string[]
      */
-    public function getBlacklistedDirectories()
+    public function getBlacklistedDirectories(): array
     {
-        $this->initialize();
-
-        return self::$directories;
+        return (new ExcludeList)->getExcludedDirectories();
     }
 
     /**
-     * @param string $file
-     *
-     * @return bool
+     * @throws Exception
      */
-    public function isBlacklisted($file)
+    public function isBlacklisted(string $file): bool
     {
-        if (\defined('PHPUNIT_TESTSUITE')) {
-            return false;
-        }
-
-        $this->initialize();
-
-        foreach (self::$directories as $directory) {
-            if (\strpos($file, $directory) === 0) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function initialize()
-    {
-        if (self::$directories === null) {
-            self::$directories = [];
-
-            foreach (self::$blacklistedClassNames as $className => $parent) {
-                if (!\class_exists($className)) {
-                    continue;
-                }
-
-                $reflector = new ReflectionClass($className);
-                $directory = $reflector->getFileName();
-
-                for ($i = 0; $i < $parent; $i++) {
-                    $directory = \dirname($directory);
-                }
-
-                self::$directories[] = $directory;
-            }
-
-            // Hide process isolation workaround on Windows.
-            if (DIRECTORY_SEPARATOR === '\\') {
-                // tempnam() prefix is limited to first 3 chars.
-                // @see http://php.net/manual/en/function.tempnam.php
-                self::$directories[] = \sys_get_temp_dir() . '\\PHP';
-            }
-        }
+        return (new ExcludeList)->isExcluded($file);
     }
 }

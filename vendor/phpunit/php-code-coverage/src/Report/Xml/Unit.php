@@ -1,79 +1,56 @@
-<?php
+<?php declare(strict_types=1);
 /*
- * This file is part of the php-code-coverage package.
+ * This file is part of phpunit/php-code-coverage.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-class Unit
+use DOMElement;
+
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Unit
 {
     /**
-     * @var \DOMElement
+     * @var DOMElement
      */
     private $contextNode;
 
-    public function __construct(\DOMElement $context, $name)
+    public function __construct(DOMElement $context, string $name)
     {
         $this->contextNode = $context;
 
         $this->setName($name);
     }
 
-    private function setName($name)
+    public function setLines(int $start, int $executable, int $executed): void
     {
-        $this->contextNode->setAttribute('name', $name);
+        $this->contextNode->setAttribute('start', (string) $start);
+        $this->contextNode->setAttribute('executable', (string) $executable);
+        $this->contextNode->setAttribute('executed', (string) $executed);
     }
 
-    public function setLines($start, $executable, $executed)
+    public function setCrap(float $crap): void
     {
-        $this->contextNode->setAttribute('start', $start);
-        $this->contextNode->setAttribute('executable', $executable);
-        $this->contextNode->setAttribute('executed', $executed);
+        $this->contextNode->setAttribute('crap', (string) $crap);
     }
 
-    public function setCrap($crap)
-    {
-        $this->contextNode->setAttribute('crap', $crap);
-    }
-
-    public function setPackage($full, $package, $sub, $category)
+    public function setNamespace(string $namespace): void
     {
         $node = $this->contextNode->getElementsByTagNameNS(
-            'http://schema.phpunit.de/coverage/1.0',
-            'package'
-        )->item(0);
-
-        if (!$node) {
-            $node = $this->contextNode->appendChild(
-                $this->contextNode->ownerDocument->createElementNS(
-                    'http://schema.phpunit.de/coverage/1.0',
-                    'package'
-                )
-            );
-        }
-
-        $node->setAttribute('full', $full);
-        $node->setAttribute('name', $package);
-        $node->setAttribute('sub', $sub);
-        $node->setAttribute('category', $category);
-    }
-
-    public function setNamespace($namespace)
-    {
-        $node = $this->contextNode->getElementsByTagNameNS(
-            'http://schema.phpunit.de/coverage/1.0',
+            'https://schema.phpunit.de/coverage/1.0',
             'namespace'
         )->item(0);
 
         if (!$node) {
             $node = $this->contextNode->appendChild(
                 $this->contextNode->ownerDocument->createElementNS(
-                    'http://schema.phpunit.de/coverage/1.0',
+                    'https://schema.phpunit.de/coverage/1.0',
                     'namespace'
                 )
             );
@@ -82,15 +59,20 @@ class Unit
         $node->setAttribute('name', $namespace);
     }
 
-    public function addMethod($name)
+    public function addMethod(string $name): Method
     {
         $node = $this->contextNode->appendChild(
             $this->contextNode->ownerDocument->createElementNS(
-                'http://schema.phpunit.de/coverage/1.0',
+                'https://schema.phpunit.de/coverage/1.0',
                 'method'
             )
         );
 
         return new Method($node, $name);
+    }
+
+    private function setName(string $name): void
+    {
+        $this->contextNode->setAttribute('name', $name);
     }
 }

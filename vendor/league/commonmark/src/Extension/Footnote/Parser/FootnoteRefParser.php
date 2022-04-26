@@ -15,58 +15,43 @@ declare(strict_types=1);
 namespace League\CommonMark\Extension\Footnote\Parser;
 
 use League\CommonMark\Extension\Footnote\Node\FootnoteRef;
-use League\CommonMark\Inline\Parser\InlineParserInterface;
-use League\CommonMark\InlineParserContext;
+use League\CommonMark\Parser\Inline\InlineParserInterface;
+use League\CommonMark\Parser\Inline\InlineParserMatch;
+use League\CommonMark\Parser\InlineParserContext;
 use League\CommonMark\Reference\Reference;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\Config\ConfigurationAwareInterface;
+use League\Config\ConfigurationInterface;
 
 final class FootnoteRefParser implements InlineParserInterface, ConfigurationAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
-    public function getCharacters(): array
+    public function getMatchDefinition(): InlineParserMatch
     {
-        return ['['];
+        return InlineParserMatch::regex('\[\^([^\s\]]+)\]');
     }
 
     public function parse(InlineParserContext $inlineContext): bool
     {
-        $container = $inlineContext->getContainer();
-        $cursor = $inlineContext->getCursor();
-        $nextChar = $cursor->peek();
-        if ($nextChar !== '^') {
-            return false;
-        }
+        $inlineContext->getCursor()->advanceBy($inlineContext->getFullMatchLength());
 
-        $state = $cursor->saveState();
+        [$label] = $inlineContext->getSubMatches();
+        $inlineContext->getContainer()->appendChild(new FootnoteRef($this->createReference($label)));
 
-        $m = $cursor->match('#\[\^([^\]]+)\]#');
-        if ($m !== null) {
-            if (\preg_match('#\[\^([^\]]+)\]#', $m, $matches) > 0) {
-                $container->appendChild(new FootnoteRef($this->createReference($matches[1])));
-
-                return true;
-            }
-        }
-
-        $cursor->restoreState($state);
-
-        return false;
+        return true;
     }
 
     private function createReference(string $label): Reference
     {
         return new Reference(
             $label,
-            '#' . $this->config->get('footnote/footnote_id_prefix', 'fn:') . $label,
+            '#' . $this->config->get('footnote/footnote_id_prefix') . $label,
             $label
         );
     }
 
-    public function setConfiguration(ConfigurationInterface $config): void
+    public function setConfiguration(ConfigurationInterface $configuration): void
     {
-        $this->config = $config;
+        $this->config = $configuration;
     }
 }

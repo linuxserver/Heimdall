@@ -4,8 +4,8 @@ namespace Illuminate\Encryption;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Opis\Closure\SerializableClosure;
-use RuntimeException;
+use Laravel\SerializableClosure\SerializableClosure;
+use Opis\Closure\SerializableClosure as OpisSerializableClosure;
 
 class EncryptionServiceProvider extends ServiceProvider
 {
@@ -18,6 +18,7 @@ class EncryptionServiceProvider extends ServiceProvider
     {
         $this->registerEncrypter();
         $this->registerOpisSecurityKey();
+        $this->registerSerializableClosureSecurityKey();
     }
 
     /**
@@ -38,8 +39,28 @@ class EncryptionServiceProvider extends ServiceProvider
      * Configure Opis Closure signing for security.
      *
      * @return void
+     *
+     * @deprecated Will be removed in a future Laravel version.
      */
     protected function registerOpisSecurityKey()
+    {
+        if (\PHP_VERSION_ID < 80100) {
+            $config = $this->app->make('config')->get('app');
+
+            if (! class_exists(OpisSerializableClosure::class) || empty($config['key'])) {
+                return;
+            }
+
+            OpisSerializableClosure::setSecretKey($this->parseKey($config));
+        }
+    }
+
+    /**
+     * Configure Serializable Closure signing for security.
+     *
+     * @return void
+     */
+    protected function registerSerializableClosureSecurityKey()
     {
         $config = $this->app->make('config')->get('app');
 
@@ -71,15 +92,13 @@ class EncryptionServiceProvider extends ServiceProvider
      * @param  array  $config
      * @return string
      *
-     * @throws \RuntimeException
+     * @throws \Illuminate\Encryption\MissingAppKeyException
      */
     protected function key(array $config)
     {
         return tap($config['key'], function ($key) {
             if (empty($key)) {
-                throw new RuntimeException(
-                    'No application encryption key has been specified.'
-                );
+                throw new MissingAppKeyException;
             }
         });
     }

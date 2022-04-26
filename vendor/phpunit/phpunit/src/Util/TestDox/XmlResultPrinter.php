@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,6 +9,10 @@
  */
 namespace PHPUnit\Util\TestDox;
 
+use function array_filter;
+use function get_class;
+use function implode;
+use function strpos;
 use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\AssertionFailedError;
@@ -18,10 +22,17 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
+use PHPUnit\Framework\WarningTestCase;
 use PHPUnit\Util\Printer;
+use PHPUnit\Util\Test as TestUtil;
 use ReflectionClass;
+use ReflectionException;
+use Throwable;
 
-class XmlResultPrinter extends Printer implements TestListener
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class XmlResultPrinter extends Printer implements TestListener
 {
     /**
      * @var DOMDocument
@@ -39,12 +50,14 @@ class XmlResultPrinter extends Printer implements TestListener
     private $prettifier;
 
     /**
-     * @var \Exception|null
+     * @var null|Throwable
      */
     private $exception;
 
     /**
-     * @param string|resource $out
+     * @param resource|string $out
+     *
+     * @throws Exception
      */
     public function __construct($out = null)
     {
@@ -62,7 +75,7 @@ class XmlResultPrinter extends Printer implements TestListener
     /**
      * Flush buffer and close output.
      */
-    public function flush()
+    public function flush(): void
     {
         $this->write($this->document->saveXML());
 
@@ -71,96 +84,66 @@ class XmlResultPrinter extends Printer implements TestListener
 
     /**
      * An error occurred.
-     *
-     * @param Test       $test
-     * @param \Exception $e
-     * @param float      $time
      */
-    public function addError(Test $test, \Exception $e, $time)
+    public function addError(Test $test, Throwable $t, float $time): void
     {
-        $this->exception = $e;
+        $this->exception = $t;
     }
 
     /**
      * A warning occurred.
-     *
-     * @param Test    $test
-     * @param Warning $e
-     * @param float   $time
      */
-    public function addWarning(Test $test, Warning $e, $time)
+    public function addWarning(Test $test, Warning $e, float $time): void
     {
     }
 
     /**
      * A failure occurred.
-     *
-     * @param Test                 $test
-     * @param AssertionFailedError $e
-     * @param float                $time
      */
-    public function addFailure(Test $test, AssertionFailedError $e, $time)
+    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
         $this->exception = $e;
     }
 
     /**
      * Incomplete test.
-     *
-     * @param Test       $test
-     * @param \Exception $e
-     * @param float      $time
      */
-    public function addIncompleteTest(Test $test, \Exception $e, $time)
+    public function addIncompleteTest(Test $test, Throwable $t, float $time): void
     {
     }
 
     /**
      * Risky test.
-     *
-     * @param Test       $test
-     * @param \Exception $e
-     * @param float      $time
      */
-    public function addRiskyTest(Test $test, \Exception $e, $time)
+    public function addRiskyTest(Test $test, Throwable $t, float $time): void
     {
     }
 
     /**
      * Skipped test.
-     *
-     * @param Test       $test
-     * @param \Exception $e
-     * @param float      $time
      */
-    public function addSkippedTest(Test $test, \Exception $e, $time)
+    public function addSkippedTest(Test $test, Throwable $t, float $time): void
     {
     }
 
     /**
      * A test suite started.
-     *
-     * @param TestSuite $suite
      */
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
     }
 
     /**
      * A test suite ended.
-     *
-     * @param TestSuite $suite
      */
-    public function endTestSuite(TestSuite $suite)
+    public function endTestSuite(TestSuite $suite): void
     {
     }
 
     /**
      * A test started.
-     *
-     * @param Test $test
      */
-    public function startTest(Test $test)
+    public function startTest(Test $test): void
     {
         $this->exception = null;
     }
@@ -168,48 +151,79 @@ class XmlResultPrinter extends Printer implements TestListener
     /**
      * A test ended.
      *
-     * @param Test  $test
-     * @param float $time
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
-    public function endTest(Test $test, $time)
+    public function endTest(Test $test, float $time): void
     {
-        if (!$test instanceof TestCase) {
+        if (!$test instanceof TestCase || $test instanceof WarningTestCase) {
             return;
         }
 
-        /* @var TestCase $test */
-
-        $groups = \array_filter(
+        $groups = array_filter(
             $test->getGroups(),
-            function ($group) {
-                if ($group == 'small' || $group == 'medium' || $group == 'large') {
-                    return false;
-                }
-
-                return true;
+            static function ($group)
+            {
+                return !($group === 'small' || $group === 'medium' || $group === 'large' || strpos($group, '__phpunit_') === 0);
             }
         );
 
-        $node = $this->document->createElement('test');
+        $testNode = $this->document->createElement('test');
 
-        $node->setAttribute('className', \get_class($test));
-        $node->setAttribute('methodName', $test->getName());
-        $node->setAttribute('prettifiedClassName', $this->prettifier->prettifyTestClass(\get_class($test)));
-        $node->setAttribute('prettifiedMethodName', $this->prettifier->prettifyTestMethod($test->getName()));
-        $node->setAttribute('status', $test->getStatus());
-        $node->setAttribute('time', $time);
-        $node->setAttribute('size', $test->getSize());
-        $node->setAttribute('groups', \implode(',', $groups));
+        $testNode->setAttribute('className', get_class($test));
+        $testNode->setAttribute('methodName', $test->getName());
+        $testNode->setAttribute('prettifiedClassName', $this->prettifier->prettifyTestClass(get_class($test)));
+        $testNode->setAttribute('prettifiedMethodName', $this->prettifier->prettifyTestCase($test));
+        $testNode->setAttribute('status', (string) $test->getStatus());
+        $testNode->setAttribute('time', (string) $time);
+        $testNode->setAttribute('size', (string) $test->getSize());
+        $testNode->setAttribute('groups', implode(',', $groups));
 
-        $inlineAnnotations = \PHPUnit\Util\Test::getInlineAnnotations(\get_class($test), $test->getName());
+        foreach ($groups as $group) {
+            $groupNode = $this->document->createElement('group');
 
-        if (isset($inlineAnnotations['given']) && isset($inlineAnnotations['when']) && isset($inlineAnnotations['then'])) {
-            $node->setAttribute('given', $inlineAnnotations['given']['value']);
-            $node->setAttribute('givenStartLine', $inlineAnnotations['given']['line']);
-            $node->setAttribute('when', $inlineAnnotations['when']['value']);
-            $node->setAttribute('whenStartLine', $inlineAnnotations['when']['line']);
-            $node->setAttribute('then', $inlineAnnotations['then']['value']);
-            $node->setAttribute('thenStartLine', $inlineAnnotations['then']['line']);
+            $groupNode->setAttribute('name', $group);
+
+            $testNode->appendChild($groupNode);
+        }
+
+        $annotations = TestUtil::parseTestMethodAnnotations(
+            get_class($test),
+            $test->getName(false)
+        );
+
+        foreach (['class', 'method'] as $type) {
+            foreach ($annotations[$type] as $annotation => $values) {
+                if ($annotation !== 'covers' && $annotation !== 'uses') {
+                    continue;
+                }
+
+                foreach ($values as $value) {
+                    $coversNode = $this->document->createElement($annotation);
+
+                    $coversNode->setAttribute('target', $value);
+
+                    $testNode->appendChild($coversNode);
+                }
+            }
+        }
+
+        foreach ($test->doubledTypes() as $doubledType) {
+            $testDoubleNode = $this->document->createElement('testDouble');
+
+            $testDoubleNode->setAttribute('type', $doubledType);
+
+            $testNode->appendChild($testDoubleNode);
+        }
+
+        $inlineAnnotations = \PHPUnit\Util\Test::getInlineAnnotations(get_class($test), $test->getName(false));
+
+        if (isset($inlineAnnotations['given'], $inlineAnnotations['when'], $inlineAnnotations['then'])) {
+            $testNode->setAttribute('given', $inlineAnnotations['given']['value']);
+            $testNode->setAttribute('givenStartLine', (string) $inlineAnnotations['given']['line']);
+            $testNode->setAttribute('when', $inlineAnnotations['when']['value']);
+            $testNode->setAttribute('whenStartLine', (string) $inlineAnnotations['when']['line']);
+            $testNode->setAttribute('then', $inlineAnnotations['then']['value']);
+            $testNode->setAttribute('thenStartLine', (string) $inlineAnnotations['then']['line']);
         }
 
         if ($this->exception !== null) {
@@ -219,20 +233,29 @@ class XmlResultPrinter extends Printer implements TestListener
                 $steps = $this->exception->getTrace();
             }
 
-            $class = new ReflectionClass($test);
-            $file  = $class->getFileName();
+            try {
+                $file = (new ReflectionClass($test))->getFileName();
+                // @codeCoverageIgnoreStart
+            } catch (ReflectionException $e) {
+                throw new Exception(
+                    $e->getMessage(),
+                    (int) $e->getCode(),
+                    $e
+                );
+            }
+            // @codeCoverageIgnoreEnd
 
             foreach ($steps as $step) {
-                if (isset($step['file']) && $step['file'] == $file) {
-                    $node->setAttribute('exceptionLine', $step['line']);
+                if (isset($step['file']) && $step['file'] === $file) {
+                    $testNode->setAttribute('exceptionLine', (string) $step['line']);
 
                     break;
                 }
             }
 
-            $node->setAttribute('exceptionMessage', $this->exception->getMessage());
+            $testNode->setAttribute('exceptionMessage', $this->exception->getMessage());
         }
 
-        $this->root->appendChild($node);
+        $this->root->appendChild($testNode);
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -7,12 +7,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit;
 
+use Throwable;
+
 /**
- * Marker interface for PHPUnit exceptions.
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-interface Exception
+interface Exception extends Throwable
 {
 }

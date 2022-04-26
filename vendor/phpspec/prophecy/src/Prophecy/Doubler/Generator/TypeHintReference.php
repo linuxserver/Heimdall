@@ -5,6 +5,8 @@ namespace Prophecy\Doubler\Generator;
 /**
  * Tells whether a keyword refers to a class or to a built-in type for the
  * current version of php
+ *
+ * @deprecated in favour of Node\TypeNodeAbstract
  */
 final class TypeHintReference
 {
@@ -13,22 +15,17 @@ final class TypeHintReference
         switch ($type) {
             case 'self':
             case 'array':
-                return true;
-
             case 'callable':
-                return PHP_VERSION_ID >= 50400;
-
             case 'bool':
             case 'float':
             case 'int':
             case 'string':
-                return PHP_VERSION_ID >= 70000;
-
             case 'iterable':
-                return PHP_VERSION_ID >= 70100;
-
             case 'object':
-                return PHP_VERSION_ID >= 70200;
+                return true;
+
+            case 'mixed':
+                return PHP_VERSION_ID >= 80000;
 
             default:
                 return false;
@@ -38,7 +35,7 @@ final class TypeHintReference
     public function isBuiltInReturnTypeHint($type)
     {
         if ($type === 'void') {
-            return PHP_VERSION_ID >= 70100;
+            return true;
         }
 
         return $this->isBuiltInParamTypeHint($type);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -11,11 +13,15 @@
 
 namespace League\CommonMark;
 
+use League\CommonMark\Output\RenderedContentInterface;
+
 /**
- * Interface for a service which converts CommonMark to HTML.
- *
- * @deprecated ConverterInterface is deprecated since league/commonmark 1.4, use MarkdownConverterInterface instead
+ * Interface for a service which converts content from one format (like Markdown) to another (like HTML).
  */
-interface ConverterInterface extends MarkdownConverterInterface
+interface ConverterInterface
 {
+    /**
+     * @throws \RuntimeException
+     */
+    public function convert(string $input): RenderedContentInterface;
 }

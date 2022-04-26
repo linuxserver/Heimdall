@@ -1,73 +1,94 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Cron;
 
 use DateTimeInterface;
 
 /**
- * Minutes field.  Allows: * , / -
+ * Minutes field.  Allows: * , / -.
  */
 class MinutesField extends AbstractField
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected $rangeStart = 0;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected $rangeEnd = 59;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value)
+    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert):bool
     {
-        if ($value == '?') {
+        if ($value === '?') {
             return true;
         }
 
-        return $this->isSatisfied($date->format('i'), $value);
+        return $this->isSatisfied((int)$date->format('i'), $value);
     }
 
     /**
+     * {@inheritdoc}
      * {@inheritDoc}
      *
-     * @param \DateTime|\DateTimeImmutable &$date
      * @param string|null                  $parts
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null)
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
         if (is_null($parts)) {
-            $date = $date->modify(($invert ? '-' : '+') . '1 minute');
+            $date = $this->timezoneSafeModify($date, ($invert ? "-" : "+") ."1 minute");
             return $this;
         }
 
-        $parts = strpos($parts, ',') !== false ? explode(',', $parts) : array($parts);
-        $minutes = array();
+        $current_minute = (int) $date->format('i');
+
+        $parts = false !== strpos($parts, ',') ? explode(',', $parts) : [$parts];
+        $minutes = [];
         foreach ($parts as $part) {
             $minutes = array_merge($minutes, $this->getRangeForExpression($part, 59));
         }
 
-        $current_minute = $date->format('i');
-        $position = $invert ? count($minutes) - 1 : 0;
-        if (count($minutes) > 1) {
-            for ($i = 0; $i < count($minutes) - 1; $i++) {
+        $position = $invert ? \count($minutes) - 1 : 0;
+        if (\count($minutes) > 1) {
+            for ($i = 0; $i < \count($minutes) - 1; ++$i) {
                 if ((!$invert && $current_minute >= $minutes[$i] && $current_minute < $minutes[$i + 1]) ||
                     ($invert && $current_minute > $minutes[$i] && $current_minute <= $minutes[$i + 1])) {
                     $position = $invert ? $i : $i + 1;
+
                     break;
                 }
             }
         }
 
-        if ((!$invert && $current_minute >= $minutes[$position]) || ($invert && $current_minute <= $minutes[$position])) {
-            $date = $date->modify(($invert ? '-' : '+') . '1 hour');
-            $date = $date->setTime($date->format('H'), $invert ? 59 : 0);
-        }
-        else {
-            $date = $date->setTime($date->format('H'), $minutes[$position]);
+        $target = (int) $minutes[$position];
+        $originalMinute = (int) $date->format("i");
+
+        if (! $invert) {
+            if ($originalMinute >= $target) {
+                $distance = 60 - $originalMinute;
+                $date = $this->timezoneSafeModify($date, "+{$distance} minutes");
+
+                $originalMinute = (int) $date->format("i");
+            }
+
+            $distance = $target - $originalMinute;
+            $date = $this->timezoneSafeModify($date, "+{$distance} minutes");
+        } else {
+            if ($originalMinute <= $target) {
+                $distance = ($originalMinute + 1);
+                $date = $this->timezoneSafeModify($date, "-{$distance} minutes");
+
+                $originalMinute = (int) $date->format("i");
+            }
+
+            $distance = $originalMinute - $target;
+            $date = $this->timezoneSafeModify($date, "-{$distance} minutes");
         }
 
         return $this;

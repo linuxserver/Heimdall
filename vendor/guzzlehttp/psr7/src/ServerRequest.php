@@ -80,7 +80,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * Return an UploadedFile instance array.
      *
-     * @param array $files A array which respect $_FILES structure
+     * @param array $files An array which respect $_FILES structure
      *
      * @throws InvalidArgumentException for unrecognized values
      */

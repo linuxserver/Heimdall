@@ -5,8 +5,10 @@ namespace Illuminate\Support\Testing\Fakes;
 use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ReflectsClosures;
 use PHPUnit\Framework\Assert as PHPUnit;
+use ReflectionFunction;
 
 class EventFake implements Dispatcher
 {
@@ -45,6 +47,42 @@ class EventFake implements Dispatcher
         $this->dispatcher = $dispatcher;
 
         $this->eventsToFake = Arr::wrap($eventsToFake);
+    }
+
+    /**
+     * Assert if an event has a listener attached to it.
+     *
+     * @param  string  $expectedEvent
+     * @param  string  $expectedListener
+     * @return void
+     */
+    public function assertListening($expectedEvent, $expectedListener)
+    {
+        foreach ($this->dispatcher->getListeners($expectedEvent) as $listenerClosure) {
+            $actualListener = (new ReflectionFunction($listenerClosure))
+                        ->getStaticVariables()['listener'];
+
+            if (is_string($actualListener) && Str::endsWith($actualListener, '@handle')) {
+                $actualListener = Str::parseCallback($actualListener)[0];
+            }
+
+            if ($actualListener === $expectedListener ||
+                ($actualListener instanceof Closure &&
+                $expectedListener === Closure::class)) {
+                PHPUnit::assertTrue(true);
+
+                return;
+            }
+        }
+
+        PHPUnit::assertTrue(
+            false,
+            sprintf(
+                'Event [%s] does not have the [%s] listener attached to it',
+                $expectedEvent,
+                print_r($expectedListener, true)
+            )
+        );
     }
 
     /**
@@ -107,6 +145,21 @@ class EventFake implements Dispatcher
     }
 
     /**
+     * Assert that no events were dispatched.
+     *
+     * @return void
+     */
+    public function assertNothingDispatched()
+    {
+        $count = count(Arr::flatten($this->events));
+
+        PHPUnit::assertSame(
+            0, $count,
+            "{$count} unexpected events were dispatched."
+        );
+    }
+
+    /**
      * Get all of the events matching a truth-test callback.
      *
      * @param  string  $event
@@ -142,11 +195,11 @@ class EventFake implements Dispatcher
     /**
      * Register an event listener with the dispatcher.
      *
-     * @param  string|array  $events
+     * @param  \Closure|string|array  $events
      * @param  mixed  $listener
      * @return void
      */
-    public function listen($events, $listener)
+    public function listen($events, $listener = null)
     {
         $this->dispatcher->listen($events, $listener);
     }
@@ -263,7 +316,7 @@ class EventFake implements Dispatcher
      *
      * @param  string|object  $event
      * @param  mixed  $payload
-     * @return void
+     * @return array|null
      */
     public function until($event, $payload = [])
     {
