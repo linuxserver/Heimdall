@@ -14,17 +14,17 @@ return [
 
     */
 
-    'settings.system' => 'System',
+    'settings.system' => 'Sistema',
 
-    'settings.appearance' => 'Appearance',
+    'settings.appearance' => 'Aspet',
 
-    'settings.miscellaneous' => 'Miscellaneous',
+    'settings.miscellaneous' => 'Varie robe',
 
-    'settings.advanced' => 'Advanced',
+    'settings.advanced' => 'Avanzad',
 
-    'settings.support' => 'Support',
+    'settings.support' => 'Jut',
 
-    'settings.donate' => 'Donate',
+    'settings.donate' => 'Donà',
 
     'settings.version' => 'Version',
 
