@@ -28,43 +28,43 @@ return [
 
     'settings.version' => 'Version',
 
-    'settings.background_image' => 'Background Image',
+    'settings.background_image' => 'Imagin dedree',
 
-    'settings.window_target' => 'Link opens in',
+    'settings.window_target' => 'I link se derven...',
 
-    'settings.window_target.current' => 'Open in this tab',
+    'settings.window_target.current' => 'In quella scheda chi',
 
-    'settings.window_target.one' => 'Open in the same tab',
+    'settings.window_target.one' => 'In l'istessa scheda',
 
-    'settings.window_target.new' => 'Open in a new tab',
+    'settings.window_target.new' => 'In d'una scheda noeuva',
 
-    'settings.homepage_search' => 'Homepage Search',
+    'settings.homepage_search' => 'Ricerca in l'home page',
 
-    'settings.search_provider' => 'Default Search Provider',
+    'settings.search_provider' => 'Provider de default',
 
-    'settings.language' => 'Language',
+    'settings.language' => 'Lengov',
 
-    'settings.reset' => 'Reset back to default',
+    'settings.reset' => 'Mena indree ai condizzion de default',
 
-    'settings.remove' => 'Remove',
+    'settings.remove' => 'Cava via',
 
-    'settings.search' => 'search',
+    'settings.search' => 'cerca',
 
-    'settings.no_items' => 'No items found',
+    'settings.no_items' => 'Trovad nagot',
 
-    'settings.label' => 'Label',
+    'settings.label' => 'Ticheta',
 
-    'settings.value' => 'Value',
+    'settings.value' => 'Valor',
 
-    'settings.edit' => 'Edit',
+    'settings.edit' => 'Modifega',
 
-    'settings.view' => 'View',
+    'settings.view' => 'Varda',
 
-    'settings.custom_css' => 'Custom CSS',
+    'settings.custom_css' => 'CSS personal',
 
-    'settings.custom_js' => 'Custom JavaScript',
+    'settings.custom_js' => 'JavaScript personal',
 
-    'options.none' => '- not set -',
+    'options.none' => '- catad no foeura -',
 
     'options.google' => 'Google',
 
@@ -76,7 +76,7 @@ return [
 
     'options.startpage' => 'StartPage',
 
-    'options.yes' => 'Yes',
+    'options.yes' => 'Sì',
 
     'options.no' => 'No',
 
@@ -84,105 +84,105 @@ return [
 
     'options.jackett' => 'Jackett',
 
-    'buttons.save' => 'Save',
+    'buttons.save' => 'Salva',
 
-    'buttons.cancel' => 'Cancel',
+    'buttons.cancel' => 'Scassa',
 
-    'buttons.add' => 'Add',
+    'buttons.add' => 'Sgionta',
 
-    'buttons.upload' => 'Upload an icon',
+    'buttons.upload' => 'Carega 'n icona',
 
-    'buttons.downloadapps' => 'Update Apps List',
+    'buttons.downloadapps' => 'Descarega la lista di app',
 
-    'dash.pin_item' => 'Pin item to dashboard',
+    'dash.pin_item' => 'Taca su l'oget',
 
-    'dash.no_apps' => 'There are currently no pinned applications, :link1 or :link2',
+    'dash.no_apps' => 'Ghe n'è minga de app tacade su, :link1 o :link2',
 
-    'dash.link1' => 'Add an application here',
+    'dash.link1' => 'Met 'n aplicazzion chi',
 
-    'dash.link2' => 'Pin an item to the dash',
+    'dash.link2' => 'Taca su 'n oget',
 
-    'dash.pinned_items' => 'Pinned Items',
+    'dash.pinned_items' => 'Oget tacad su',
 
-    'apps.app_list' => 'Application list',
+    'apps.app_list' => 'Lista di aplicazzion',
 
-    'apps.view_trash' => 'View trash',
+    'apps.view_trash' => 'Varda el ruf',
 
-    'apps.add_application' => 'Add application',
+    'apps.add_application' => 'Sgionta aplicazzion',
 
-    'apps.application_name' => 'Application name',
+    'apps.application_name' => 'Nom de l'aplicazzion',
 
-    'apps.colour' => 'Colour',
+    'apps.colour' => 'Color',
 
-    'apps.icon' => 'Icon',
+    'apps.icon' => 'Icona',
 
-    'apps.pinned' => 'Pinned',
+    'apps.pinned' => 'Tacad su',
 
-    'apps.title' => 'Title',
+    'apps.title' => 'Titol',
 
-    'apps.hex' => 'Hex colour',
+    'apps.hex' => 'Color esa',
 
-    'apps.username' => 'Username',
+    'apps.username' => 'Nom utent',
 
     'apps.password' => 'Password',
 
     'apps.config' => 'Config',
 
-    'apps.apikey' => 'API Key',
+    'apps.apikey' => 'Ciav API',
 
-    'apps.enable' => 'Enable',
+    'apps.enable' => 'Pizza',
 
-    'apps.tag_list' => 'Tags list',
+    'apps.tag_list' => 'Lista di tag',
 
-    'apps.add_tag' => 'Add tag',
+    'apps.add_tag' => 'Sgionta tag',
 
-    'apps.tag_name' => 'Tag name',
+    'apps.tag_name' => 'Nom del tag',
 
-    'apps.tags' => 'Tags',
+    'apps.tags' => 'Tag',
 
-    'apps.override' => 'If different to main url',
+    'apps.override' => 'Se divers de l'url principal',
 
-    'apps.preview' => 'Preview',
+    'apps.preview' => 'Varda prima',
 
-    'apps.apptype' => 'Application Type',
+    'apps.apptype' => 'Tipo de aplicazzion',
 
-    'apps.website' => 'Website',
+    'apps.website' => 'Sit web',
 
-    'apps.description' => 'Description',
+    'apps.description' => 'Descrizzion',
 
-    'apps.only_admin_account' => 'Only if you have admin-account!',
+    'apps.only_admin_account' => 'Domà se te gh'heet un cunt admin!',
 
     'apps.autologin_url' => 'Auto login url',
 
-    'apps.show_deleted' => 'Showing Deleted Applications',
+    'apps.show_deleted' => 'Fa vidé i aplicazzion scassade',
 
     'dashboard' => 'Home dashboard',
 
-    'user.user_list' => 'Users',
+    'user.user_list' => 'Utent',
 
-    'user.add_user' => 'Add user',
+    'user.add_user' => 'Sgionta utent',
 
-    'user.username' => 'Username',
+    'user.username' => 'Nom utent',
 
     'user.avatar' => 'Avatar',
 
     'user.email' => 'Email',
 
-    'user.password_confirm' => 'Confirm Password',
+    'user.password_confirm' => 'Conferma Password',
 
-    'user.secure_front' => 'Allow public access to front - Only enforced if a password is set.',
+    'user.secure_front' => 'Fà entra del front - El fonziona domà cont una password.',
 
-    'user.autologin' => 'Allow logging in from a specific URL. Anyone with the link can login.',
+    'user.autologin' => 'Permet el login de 'n ciar URL. Tucc quèi che ghe l'hann poden entrà.',
 
     'url' => 'URL',
 
-    'title' => 'Title',
+    'title' => 'Titol',
 
-    'delete' => 'Delete',
+    'delete' => 'Scassa',
 
-    'optional' => 'Optional',
+    'optional' => 'Opzzional',
 
-    'restore' => 'Restore',
+    'restore' => 'Torna indree',
 
     'alert.success.item_created' => 'Item created successfully',
 
