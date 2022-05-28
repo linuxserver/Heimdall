@@ -184,35 +184,35 @@ return [
 
     'restore' => 'Torna indree',
 
-    'alert.success.item_created' => 'Item created successfully',
+    'alert.success.item_created' => 'Oget fad su',
 
-    'alert.success.item_updated' => 'Item updated successfully',
+    'alert.success.item_updated' => 'Oget giornad',
 
-    'alert.success.item_deleted' => 'Item deleted successfully',
+    'alert.success.item_deleted' => 'Oget scassad',
 
-    'alert.success.item_restored' => 'Item restored successfully',
+    'alert.success.item_restored' => 'Oget ripescad',
 
-    'alert.success.updating' => 'Updating apps list',
+    'alert.success.updating' => 'Descareghi...',
 
-    'alert.success.tag_created' => 'Tag created successfully',
+    'alert.success.tag_created' => 'Tag fad su',
 
-    'alert.success.tag_updated' => 'Tag updated successfully',
+    'alert.success.tag_updated' => 'Tag giornad',
 
-    'alert.success.tag_deleted' => 'Tag deleted successfully',
+    'alert.success.tag_deleted' => 'Tag scancellad',
 
-    'alert.success.tag_restored' => 'Tag restored successfully',
+    'alert.success.tag_restored' => 'Tag ripescad',
 
-    'alert.success.setting_updated' => 'You have successfully edited this setting',
+    'alert.success.setting_updated' => 'L'impostazzion l'è stada mudada',
 
-    'alert.error.not_exist' => 'This setting does not exist.',
+    'alert.error.not_exist' => 'Quella impostazzion chi la gh'è no.',
 
-    'alert.success.user_created' => 'User created successfully',
+    'alert.success.user_created' => 'Utent fad su',
 
-    'alert.success.user_updated' => 'User updated successfully',
+    'alert.success.user_updated' => 'Utent giornad',
 
-    'alert.success.user_deleted' => 'User deleted successfully',
+    'alert.success.user_deleted' => 'Utent scassad',
 
-    'alert.success.user_restored' => 'User restored successfully',
+    'alert.success.user_restored' => 'Utent ripescad',
 
 ];
 
