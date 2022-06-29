@@ -20,6 +20,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Translation\Provider\FilteringProvider;
 use Symfony\Component\Translation\Provider\TranslationProviderCollection;
 use Symfony\Component\Translation\Reader\TranslationReaderInterface;
 use Symfony\Component\Translation\TranslatorBag;
@@ -130,6 +131,12 @@ EOF
         $force = $input->getOption('force');
         $deleteMissing = $input->getOption('delete-missing');
 
+        if (!$domains && $provider instanceof FilteringProvider) {
+            $domains = $provider->getDomains();
+        }
+
+        // Reading local translations must be done after retrieving the domains from the provider
+        // in order to manage only translations from configured domains
         $localTranslations = $this->readLocalTranslations($locales, $domains, $this->transPaths);
 
         if (!$domains) {

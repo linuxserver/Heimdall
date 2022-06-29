@@ -2,6 +2,28 @@
 
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
+## 7.4.5 - 2022-06-20
+
+* Fix change in port should be considered a change in origin
+* Fix `CURLOPT_HTTPAUTH` option not cleared on change of origin
+
+## 7.4.4 - 2022-06-09
+
+* Fix failure to strip Authorization header on HTTP downgrade
+* Fix failure to strip the Cookie header on change in host or HTTP downgrade
+
+## 7.4.3 - 2022-05-25
+
+* Fix cross-domain cookie leakage
+
+## 7.4.2 - 2022-03-20
+
+### Fixed
+
+- Remove curl auth on cross-domain redirects to align with the Authorization HTTP header
+- Reject non-HTTP schemes in StreamHandler
+- Set a default ssl.peer_name context in StreamHandler to allow `force_ip_resolve`
+
 ## 7.4.1 - 2021-12-06
 
 ### Changed

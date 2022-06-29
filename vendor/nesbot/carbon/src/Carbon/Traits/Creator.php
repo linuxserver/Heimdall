@@ -368,7 +368,7 @@ trait Creator
      */
     public static function create($year = 0, $month = 1, $day = 1, $hour = 0, $minute = 0, $second = 0, $tz = null)
     {
-        if (\is_string($year) && !is_numeric($year) || $year instanceof DateTimeInterface) {
+        if ((\is_string($year) && !is_numeric($year)) || $year instanceof DateTimeInterface) {
             return static::parse($year, $tz ?: (\is_string($month) || $month instanceof DateTimeZone ? $month : null));
         }
 
@@ -907,9 +907,9 @@ trait Creator
         if (\is_string($var)) {
             $var = trim($var);
 
-            if (!preg_match('/^P[0-9T]/', $var) &&
-                !preg_match('/^R[0-9]/', $var) &&
-                preg_match('/[a-z0-9]/i', $var)
+            if (!preg_match('/^P[\dT]/', $var) &&
+                !preg_match('/^R\d/', $var) &&
+                preg_match('/[a-z\d]/i', $var)
             ) {
                 $date = static::parse($var);
             }

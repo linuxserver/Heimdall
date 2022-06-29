@@ -21,6 +21,11 @@ final class CachingStream implements StreamInterface
     private $skipReadBytes = 0;
 
     /**
+     * @var StreamInterface
+     */
+    private $stream;
+
+    /**
      * We will treat the buffer object as the body of the stream
      *
      * @param StreamInterface $stream Stream to cache. The cursor is assumed to be at the beginning of the stream.

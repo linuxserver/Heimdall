@@ -148,6 +148,18 @@ class Logger implements LoggerInterface, ResettableInterface
     protected $exceptionHandler;
 
     /**
+     * @var int Keeps track of depth to prevent infinite logging loops
+     */
+    private $logDepth = 0;
+
+    /**
+     * @var bool Whether to detect infinite logging loops
+     *
+     * This can be disabled via {@see useLoggingLoopDetection} if you have async handlers that do not play well with this
+     */
+    private $detectCycles = true;
+
+    /**
      * @psalm-param array<callable(array): array> $processors
      *
      * @param string             $name       The logging channel, a simple descriptive name that is attached to all log records
@@ -272,48 +284,80 @@ class Logger implements LoggerInterface, ResettableInterface
      *
      * @param bool $micro True to use microtime() to create timestamps
      */
-    public function useMicrosecondTimestamps(bool $micro): void
+    public function useMicrosecondTimestamps(bool $micro): self
     {
         $this->microsecondTimestamps = $micro;
+
+        return $this;
+    }
+
+    public function useLoggingLoopDetection(bool $detectCycles): self
+    {
+        $this->detectCycles = $detectCycles;
+
+        return $this;
     }
 
     /**
      * Adds a log record.
      *
-     * @param  int     $level   The logging level
-     * @param  string  $message The log message
-     * @param  mixed[] $context The log context
-     * @return bool    Whether the record has been processed
+     * @param  int               $level    The logging level
+     * @param  string            $message  The log message
+     * @param  mixed[]           $context  The log context
+     * @param  DateTimeImmutable $datetime Optional log date to log into the past or future
+     * @return bool              Whether the record has been processed
      *
      * @phpstan-param Level $level
      */
-    public function addRecord(int $level, string $message, array $context = []): bool
+    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
     {
-        $offset = 0;
-        $record = null;
+        if ($this->detectCycles) {
+            $this->logDepth += 1;
+        }
+        if ($this->logDepth === 3) {
+            $this->warning('A possible infinite logging loop was detected and aborted. It appears some of your handler code is triggering logging, see the previous log record for a hint as to what may be the cause.');
+            return false;
+        } elseif ($this->logDepth >= 5) { // log depth 4 is let through so we can log the warning above
+            return false;
+        }
 
-        foreach ($this->handlers as $handler) {
-            if (null === $record) {
-                // skip creating the record as long as no handler is going to handle it
-                if (!$handler->isHandling(['level' => $level])) {
-                    continue;
+        try {
+            $record = null;
+
+            foreach ($this->handlers as $handler) {
+                if (null === $record) {
+                    // skip creating the record as long as no handler is going to handle it
+                    if (!$handler->isHandling(['level' => $level])) {
+                        continue;
+                    }
+
+                    $levelName = static::getLevelName($level);
+
+                    $record = [
+                        'message' => $message,
+                        'context' => $context,
+                        'level' => $level,
+                        'level_name' => $levelName,
+                        'channel' => $this->name,
+                        'datetime' => $datetime ?? new DateTimeImmutable($this->microsecondTimestamps, $this->timezone),
+                        'extra' => [],
+                    ];
+
+                    try {
+                        foreach ($this->processors as $processor) {
+                            $record = $processor($record);
+                        }
+                    } catch (Throwable $e) {
+                        $this->handleException($e, $record);
+
+                        return true;
+                    }
                 }
 
-                $levelName = static::getLevelName($level);
-
-                $record = [
-                    'message' => $message,
-                    'context' => $context,
-                    'level' => $level,
-                    'level_name' => $levelName,
-                    'channel' => $this->name,
-                    'datetime' => new DateTimeImmutable($this->microsecondTimestamps, $this->timezone),
-                    'extra' => [],
-                ];
-
+                // once the record exists, send it to all handlers as long as the bubbling chain is not interrupted
                 try {
-                    foreach ($this->processors as $processor) {
-                        $record = $processor($record);
+                    if (true === $handler->handle($record)) {
+                        break;
                     }
                 } catch (Throwable $e) {
                     $this->handleException($e, $record);
@@ -321,16 +365,9 @@ class Logger implements LoggerInterface, ResettableInterface
                     return true;
                 }
             }
-
-            // once the record exists, send it to all handlers as long as the bubbling chain is not interrupted
-            try {
-                if (true === $handler->handle($record)) {
-                    break;
-                }
-            } catch (Throwable $e) {
-                $this->handleException($e, $record);
-
-                return true;
+        } finally {
+            if ($this->detectCycles) {
+                $this->logDepth--;
             }
         }
 

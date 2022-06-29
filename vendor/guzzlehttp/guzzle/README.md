@@ -42,9 +42,9 @@ $promise->wait();
 
 We use GitHub issues only to discuss bugs and new features. For support please refer to:
 
-- [Documentation](http://guzzlephp.org/)
-- [Stack Overflow](http://stackoverflow.com/questions/tagged/guzzle)
-- [#guzzle](https://app.slack.com/client/T0D2S9JCT/CE6UAAKL4) channel on [PHP-HTTP Slack](http://slack.httplug.io/)
+- [Documentation](https://docs.guzzlephp.org)
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/guzzle)
+- [#guzzle](https://app.slack.com/client/T0D2S9JCT/CE6UAAKL4) channel on [PHP-HTTP Slack](https://slack.httplug.io/)
 - [Gitter](https://gitter.im/guzzle/guzzle)
 
 
@@ -60,23 +60,23 @@ composer require guzzlehttp/guzzle
 
 ## Version Guidance
 
-| Version | Status     | Packagist           | Namespace    | Repo                | Docs                | PSR-7 | PHP Version |
-|---------|------------|---------------------|--------------|---------------------|---------------------|-------|-------------|
-| 3.x     | EOL        | `guzzle/guzzle`     | `Guzzle`     | [v3][guzzle-3-repo] | [v3][guzzle-3-docs] | No    | >= 5.3.3    |
-| 4.x     | EOL        | `guzzlehttp/guzzle` | `GuzzleHttp` | [v4][guzzle-4-repo] | N/A                 | No    | >= 5.4      |
-| 5.x     | EOL        | `guzzlehttp/guzzle` | `GuzzleHttp` | [v5][guzzle-5-repo] | [v5][guzzle-5-docs] | No    | >= 5.4      |
-| 6.x     | Security fixes | `guzzlehttp/guzzle` | `GuzzleHttp` | [v6][guzzle-6-repo] | [v6][guzzle-6-docs] | Yes   | >= 5.5      |
-| 7.x     | Latest     | `guzzlehttp/guzzle` | `GuzzleHttp` | [v7][guzzle-7-repo] | [v7][guzzle-7-docs] | Yes   | >= 7.2      |
+| Version | Status         | Packagist           | Namespace    | Repo                | Docs                | PSR-7 | PHP Version  |
+|---------|----------------|---------------------|--------------|---------------------|---------------------|-------|--------------|
+| 3.x     | EOL            | `guzzle/guzzle`     | `Guzzle`     | [v3][guzzle-3-repo] | [v3][guzzle-3-docs] | No    | >=5.3.3,<7.0 |
+| 4.x     | EOL            | `guzzlehttp/guzzle` | `GuzzleHttp` | [v4][guzzle-4-repo] | N/A                 | No    | >=5.4,<7.0   |
+| 5.x     | EOL            | `guzzlehttp/guzzle` | `GuzzleHttp` | [v5][guzzle-5-repo] | [v5][guzzle-5-docs] | No    | >=5.4,<7.4   |
+| 6.x     | Security fixes | `guzzlehttp/guzzle` | `GuzzleHttp` | [v6][guzzle-6-repo] | [v6][guzzle-6-docs] | Yes   | >=5.5,<8.0   |
+| 7.x     | Latest         | `guzzlehttp/guzzle` | `GuzzleHttp` | [v7][guzzle-7-repo] | [v7][guzzle-7-docs] | Yes   | >=7.2.5,<8.2 |
 
 [guzzle-3-repo]: https://github.com/guzzle/guzzle3
 [guzzle-4-repo]: https://github.com/guzzle/guzzle/tree/4.x
 [guzzle-5-repo]: https://github.com/guzzle/guzzle/tree/5.3
 [guzzle-6-repo]: https://github.com/guzzle/guzzle/tree/6.5
 [guzzle-7-repo]: https://github.com/guzzle/guzzle
-[guzzle-3-docs]: http://guzzle3.readthedocs.org
-[guzzle-5-docs]: http://docs.guzzlephp.org/en/5.3/
-[guzzle-6-docs]: http://docs.guzzlephp.org/en/6.5/
-[guzzle-7-docs]: http://docs.guzzlephp.org/en/latest/
+[guzzle-3-docs]: https://guzzle3.readthedocs.io/
+[guzzle-5-docs]: https://docs.guzzlephp.org/en/5.3/
+[guzzle-6-docs]: https://docs.guzzlephp.org/en/6.5/
+[guzzle-7-docs]: https://docs.guzzlephp.org/en/latest/
 
 
 ## Security

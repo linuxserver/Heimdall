@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.14.2 - 2022-05-25
+
+- [#202](https://github.com/php-http/discovery/pull/202) - Avoid error when the Symfony PSR-18 client exists but its dependencies are not installed
+
 ## 1.14.1 - 2021-09-18
 
 - [#199](https://github.com/php-http/discovery/pull/199) - Fixes message factory discovery for `laminas-diactoros ^2.7` 

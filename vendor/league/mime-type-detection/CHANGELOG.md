@@ -1,12 +1,18 @@
 # Changelog
 
+## 1.10.0 - 2022-04-11
+
+### Fixed
+
+- Added Flysystem v1 inconclusive mime-types and made it configurable as a constructor parameter.
+
 ## 1.9.0 - 2021-11-21
 
 ### Updated
 
 - Updated lookup
 
-- ## 1.8.0 - 2021-09-25
+## 1.8.0 - 2021-09-25
 
 ### Added
 

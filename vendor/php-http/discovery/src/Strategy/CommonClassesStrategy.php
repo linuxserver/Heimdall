@@ -2,45 +2,46 @@
 
 namespace Http\Discovery\Strategy;
 
+use GuzzleHttp\Client as GuzzleHttp;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use Http\Adapter\Artax\Client as Artax;
+use Http\Adapter\Buzz\Client as Buzz;
+use Http\Adapter\Cake\Client as Cake;
+use Http\Adapter\Guzzle5\Client as Guzzle5;
+use Http\Adapter\Guzzle6\Client as Guzzle6;
+use Http\Adapter\Guzzle7\Client as Guzzle7;
+use Http\Adapter\React\Client as React;
+use Http\Adapter\Zend\Client as Zend;
+use Http\Client\Curl\Client as Curl;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
+use Http\Client\Socket\Client as Socket;
+use Http\Discovery\ClassDiscovery;
 use Http\Discovery\Exception\NotFoundException;
 use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Http\Message\RequestFactory;
-use Psr\Http\Message\RequestFactoryInterface as Psr17RequestFactory;
 use Http\Message\MessageFactory;
-use Http\Message\MessageFactory\GuzzleMessageFactory;
-use Http\Message\StreamFactory;
-use Http\Message\StreamFactory\GuzzleStreamFactory;
-use Http\Message\UriFactory;
-use Http\Message\UriFactory\GuzzleUriFactory;
 use Http\Message\MessageFactory\DiactorosMessageFactory;
-use Http\Message\StreamFactory\DiactorosStreamFactory;
-use Http\Message\UriFactory\DiactorosUriFactory;
-use Psr\Http\Client\ClientInterface as Psr18Client;
-use Zend\Diactoros\Request as ZendDiactorosRequest;
-use Laminas\Diactoros\Request as DiactorosRequest;
+use Http\Message\MessageFactory\GuzzleMessageFactory;
 use Http\Message\MessageFactory\SlimMessageFactory;
+use Http\Message\RequestFactory;
+use Http\Message\StreamFactory;
+use Http\Message\StreamFactory\DiactorosStreamFactory;
+use Http\Message\StreamFactory\GuzzleStreamFactory;
 use Http\Message\StreamFactory\SlimStreamFactory;
+use Http\Message\UriFactory;
+use Http\Message\UriFactory\DiactorosUriFactory;
+use Http\Message\UriFactory\GuzzleUriFactory;
 use Http\Message\UriFactory\SlimUriFactory;
+use Laminas\Diactoros\Request as DiactorosRequest;
+use Nyholm\Psr7\Factory\HttplugFactory as NyholmHttplugFactory;
+use Psr\Http\Client\ClientInterface as Psr18Client;
+use Psr\Http\Message\RequestFactoryInterface as Psr17RequestFactory;
 use Slim\Http\Request as SlimRequest;
-use GuzzleHttp\Client as GuzzleHttp;
-use Http\Adapter\Guzzle7\Client as Guzzle7;
-use Http\Adapter\Guzzle6\Client as Guzzle6;
-use Http\Adapter\Guzzle5\Client as Guzzle5;
-use Http\Client\Curl\Client as Curl;
-use Http\Client\Socket\Client as Socket;
-use Http\Adapter\React\Client as React;
-use Http\Adapter\Buzz\Client as Buzz;
-use Http\Adapter\Cake\Client as Cake;
-use Http\Adapter\Zend\Client as Zend;
-use Http\Adapter\Artax\Client as Artax;
 use Symfony\Component\HttpClient\HttplugClient as SymfonyHttplug;
 use Symfony\Component\HttpClient\Psr18Client as SymfonyPsr18;
-use Nyholm\Psr7\Factory\HttplugFactory as NyholmHttplugFactory;
+use Zend\Diactoros\Request as ZendDiactorosRequest;
 
 /**
  * @internal
@@ -136,8 +137,11 @@ final class CommonClassesStrategy implements DiscoveryStrategy
 
         // HTTPlug 2.0 clients implements PSR18Client too.
         foreach (self::$classes[HttpClient::class] as $c) {
+            if (!is_string($c['class'])) {
+                continue;
+            }
             try {
-                if (is_subclass_of($c['class'], Psr18Client::class)) {
+                if (ClassDiscovery::safeClassExists($c['class']) && is_subclass_of($c['class'], Psr18Client::class)) {
                     $candidates[] = $c;
                 }
             } catch (\Throwable $e) {

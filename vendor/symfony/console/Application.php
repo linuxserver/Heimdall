@@ -179,7 +179,7 @@ class Application implements ResetInterface
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
                 $exitCode = (int) $exitCode;
-                if (0 === $exitCode) {
+                if ($exitCode <= 0) {
                     $exitCode = 1;
                 }
             } else {
@@ -363,9 +363,18 @@ class Application implements ResetInterface
             CompletionInput::TYPE_ARGUMENT_VALUE === $input->getCompletionType()
             && 'command' === $input->getCompletionName()
         ) {
-            $suggestions->suggestValues(array_filter(array_map(function (Command $command) {
-                return $command->isHidden() ? null : $command->getName();
-            }, $this->all())));
+            $commandNames = [];
+            foreach ($this->all() as $name => $command) {
+                // skip hidden commands and aliased commands as they already get added below
+                if ($command->isHidden() || $command->getName() !== $name) {
+                    continue;
+                }
+                $commandNames[] = $command->getName();
+                foreach ($command->getAliases() as $name) {
+                    $commandNames[] = $name;
+                }
+            }
+            $suggestions->suggestValues(array_filter($commandNames));
 
             return;
         }

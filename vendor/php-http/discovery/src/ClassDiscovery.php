@@ -206,7 +206,7 @@ abstract class ClassDiscovery
     /**
      * Get an instance of the $class.
      *
-     * @param string|\Closure $class A FQCN of a class or a closure that instantiate the class.
+     * @param string|\Closure $class a FQCN of a class or a closure that instantiate the class
      *
      * @return object
      *

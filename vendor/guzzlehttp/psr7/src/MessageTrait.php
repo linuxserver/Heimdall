@@ -145,11 +145,9 @@ trait MessageTrait
     {
         $this->headerNames = $this->headers = [];
         foreach ($headers as $header => $value) {
-            if (is_int($header)) {
-                // Numeric array keys are converted to int by PHP but having a header name '123' is not forbidden by the spec
-                // and also allowed in withHeader(). So we need to cast it to string again for the following assertion to pass.
-                $header = (string) $header;
-            }
+            // Numeric array keys are converted to int by PHP.
+            $header = (string) $header;
+
             $this->assertHeader($header);
             $value = $this->normalizeHeaderValue($value);
             $normalized = strtolower($header);
@@ -171,14 +169,14 @@ trait MessageTrait
     private function normalizeHeaderValue($value): array
     {
         if (!is_array($value)) {
-            return $this->trimHeaderValues([$value]);
+            return $this->trimAndValidateHeaderValues([$value]);
         }
 
         if (count($value) === 0) {
             throw new \InvalidArgumentException('Header value can not be an empty array.');
         }
 
-        return $this->trimHeaderValues($value);
+        return $this->trimAndValidateHeaderValues($value);
     }
 
     /**
@@ -195,7 +193,7 @@ trait MessageTrait
      *
      * @see https://tools.ietf.org/html/rfc7230#section-3.2.4
      */
-    private function trimHeaderValues(array $values): array
+    private function trimAndValidateHeaderValues(array $values): array
     {
         return array_map(function ($value) {
             if (!is_scalar($value) && null !== $value) {
@@ -205,7 +203,10 @@ trait MessageTrait
                 ));
             }
 
-            return trim((string) $value, " \t");
+            $trimmed = trim((string) $value, " \t");
+            $this->assertValue($trimmed);
+
+            return $trimmed;
         }, array_values($values));
     }
 
@@ -230,6 +231,34 @@ trait MessageTrait
                     $header
                 )
             );
+        }
+    }
+
+    /**
+     * @see https://tools.ietf.org/html/rfc7230#section-3.2
+     *
+     * field-value    = *( field-content / obs-fold )
+     * field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+     * field-vchar    = VCHAR / obs-text
+     * VCHAR          = %x21-7E
+     * obs-text       = %x80-FF
+     * obs-fold       = CRLF 1*( SP / HTAB )
+     */
+    private function assertValue(string $value): void
+    {
+        // The regular expression intentionally does not support the obs-fold production, because as
+        // per RFC 7230#3.2.4:
+        //
+        // A sender MUST NOT generate a message that includes
+        // line folding (i.e., that has any field-value that contains a match to
+        // the obs-fold rule) unless the message is intended for packaging
+        // within the message/http media type.
+        //
+        // Clients must not send a request with line folding and a server sending folded headers is
+        // likely very rare. Line folding is a fairly obscure feature of HTTP/1.1 and thus not accepting
+        // folding is not likely to break any legitimate use case.
+        if (! preg_match('/^[\x20\x09\x21-\x7E\x80-\xFF]*$/', $value)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not valid header value', $value));
         }
     }
 }

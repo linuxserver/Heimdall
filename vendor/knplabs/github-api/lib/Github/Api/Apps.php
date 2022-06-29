@@ -82,7 +82,7 @@ class Apps extends AbstractApi
     {
         $this->configurePreviewHeader();
 
-        return $this->get('/org/'.rawurldecode($org).'/installation');
+        return $this->get('/orgs/'.rawurldecode($org).'/installation');
     }
 
     /**

@@ -12,11 +12,11 @@
     ],
     "require": {
         "php": "^7.2.5 || ^8.0",
-        "graham-campbell/bounded-cache": "^1.1",
+        "graham-campbell/bounded-cache": "^1.1 || ^2.0",
         "graham-campbell/manager": "^4.7",
         "illuminate/contracts": "^6.0 || ^7.0 || ^8.0 || ^9.0",
         "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0",
-        "knplabs/github-api": "3.5.*",
+        "knplabs/github-api": "3.6.*",
         "symfony/cache": "^4.3 || ^5.0 || ^6.0"
     },
     "require-dev": {
