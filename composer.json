@@ -5,33 +5,37 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.3.0",
+        "facade/ignition": "^2.3.6",
         "fideloper/proxy": "^4.0",
         "graham-campbell/github": "^10.5",
         "guzzlehttp/guzzle": "^7.4",
-        "laravel/framework": "^7.0",
+        "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
-        "laravel/ui": "^2.4",
+        "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.0",
+        "nunomaduro/collision": "^5.0",
         "symfony/yaml": "^5.4"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "~1.0",
-        "phpunit/phpunit": "~6.0",
+        "phpunit/phpunit": "~9.0",
         "symfony/thanks": "^1.0"
     },
     "autoload": {
         "classmap": [
-            "database/seeds",
+            "database/seeders",
             "database/factories"
         ],
         "files": [
             "app/Helper.php"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
