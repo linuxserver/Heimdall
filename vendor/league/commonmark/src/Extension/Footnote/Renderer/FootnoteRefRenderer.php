@@ -14,49 +14,74 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Renderer;
 
-use League\CommonMark\ElementRendererInterface;
 use League\CommonMark\Extension\Footnote\Node\FootnoteRef;
-use League\CommonMark\HtmlElement;
-use League\CommonMark\Inline\Element\AbstractInline;
-use League\CommonMark\Inline\Renderer\InlineRendererInterface;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
+use League\CommonMark\Util\HtmlElement;
+use League\CommonMark\Xml\XmlNodeRendererInterface;
+use League\Config\ConfigurationAwareInterface;
+use League\Config\ConfigurationInterface;
 
-final class FootnoteRefRenderer implements InlineRendererInterface, ConfigurationAwareInterface
+final class FootnoteRefRenderer implements NodeRendererInterface, XmlNodeRendererInterface, ConfigurationAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
-    public function render(AbstractInline $inline, ElementRendererInterface $htmlRenderer)
+    /**
+     * @param FootnoteRef $node
+     *
+     * {@inheritDoc}
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer): \Stringable
     {
-        if (!($inline instanceof FootnoteRef)) {
-            throw new \InvalidArgumentException('Incompatible inline type: ' . \get_class($inline));
-        }
+        FootnoteRef::assertInstanceOf($node);
 
-        $attrs = $inline->getData('attributes', []);
-        $class = $attrs['class'] ?? $this->config->get('footnote/ref_class', 'footnote-ref');
-        $idPrefix = $this->config->get('footnote/ref_id_prefix', 'fnref:');
+        $attrs = $node->data->getData('attributes');
+        $attrs->append('class', $this->config->get('footnote/ref_class'));
+        $attrs->set('href', \mb_strtolower($node->getReference()->getDestination()));
+        $attrs->set('role', 'doc-noteref');
+
+        $idPrefix = $this->config->get('footnote/ref_id_prefix');
 
         return new HtmlElement(
             'sup',
             [
-                'id' => $idPrefix . \mb_strtolower($inline->getReference()->getLabel()),
+                'id' => $idPrefix . \mb_strtolower($node->getReference()->getLabel()),
             ],
-            new HTMLElement(
+            new HtmlElement(
                 'a',
-                [
-                    'class' => $class,
-                    'href'  => \mb_strtolower($inline->getReference()->getDestination()),
-                    'role'  => 'doc-noteref',
-                ],
-                $inline->getReference()->getTitle()
+                $attrs->export(),
+                $node->getReference()->getTitle()
             ),
             true
         );
     }
 
-    public function setConfiguration(ConfigurationInterface $configuration)
+    public function setConfiguration(ConfigurationInterface $configuration): void
     {
         $this->config = $configuration;
+    }
+
+    public function getXmlTagName(Node $node): string
+    {
+        return 'footnote_ref';
+    }
+
+    /**
+     * @param FootnoteRef $node
+     *
+     * @return array<string, scalar>
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function getXmlAttributes(Node $node): array
+    {
+        FootnoteRef::assertInstanceOf($node);
+
+        return [
+            'reference' => $node->getReference()->getLabel(),
+        ];
     }
 }

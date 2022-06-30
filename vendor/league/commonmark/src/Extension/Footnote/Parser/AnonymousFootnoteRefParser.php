@@ -14,72 +14,53 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Parser;
 
+use League\CommonMark\Environment\EnvironmentAwareInterface;
+use League\CommonMark\Environment\EnvironmentInterface;
 use League\CommonMark\Extension\Footnote\Node\FootnoteRef;
-use League\CommonMark\Inline\Parser\InlineParserInterface;
-use League\CommonMark\InlineParserContext;
-use League\CommonMark\Normalizer\SlugNormalizer;
 use League\CommonMark\Normalizer\TextNormalizerInterface;
+use League\CommonMark\Parser\Inline\InlineParserInterface;
+use League\CommonMark\Parser\Inline\InlineParserMatch;
+use League\CommonMark\Parser\InlineParserContext;
 use League\CommonMark\Reference\Reference;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\Config\ConfigurationInterface;
 
-final class AnonymousFootnoteRefParser implements InlineParserInterface, ConfigurationAwareInterface
+final class AnonymousFootnoteRefParser implements InlineParserInterface, EnvironmentAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
-    /** @var TextNormalizerInterface */
-    private $slugNormalizer;
+    /** @psalm-readonly-allow-private-mutation */
+    private TextNormalizerInterface $slugNormalizer;
 
-    public function __construct()
+    public function getMatchDefinition(): InlineParserMatch
     {
-        $this->slugNormalizer = new SlugNormalizer();
-    }
-
-    public function getCharacters(): array
-    {
-        return ['^'];
+        return InlineParserMatch::regex('\^\[([^\]]+)\]');
     }
 
     public function parse(InlineParserContext $inlineContext): bool
     {
-        $container = $inlineContext->getContainer();
-        $cursor = $inlineContext->getCursor();
-        $nextChar = $cursor->peek();
-        if ($nextChar !== '[') {
-            return false;
-        }
-        $state = $cursor->saveState();
+        $inlineContext->getCursor()->advanceBy($inlineContext->getFullMatchLength());
 
-        $m = $cursor->match('/\^\[[^\n^\]]+\]/');
-        if ($m !== null) {
-            if (\preg_match('#\^\[([^\]]+)\]#', $m, $matches) > 0) {
-                $reference = $this->createReference($matches[1]);
-                $container->appendChild(new FootnoteRef($reference, $matches[1]));
+        [$label]   = $inlineContext->getSubMatches();
+        $reference = $this->createReference($label);
+        $inlineContext->getContainer()->appendChild(new FootnoteRef($reference, $label));
 
-                return true;
-            }
-        }
-
-        $cursor->restoreState($state);
-
-        return false;
+        return true;
     }
 
     private function createReference(string $label): Reference
     {
-        $refLabel = $this->slugNormalizer->normalize($label);
-        $refLabel = \mb_substr($refLabel, 0, 20);
+        $refLabel = $this->slugNormalizer->normalize($label, ['length' => 20]);
 
         return new Reference(
             $refLabel,
-            '#' . $this->config->get('footnote/footnote_id_prefix', 'fn:') . $refLabel,
+            '#' . $this->config->get('footnote/footnote_id_prefix') . $refLabel,
             $label
         );
     }
 
-    public function setConfiguration(ConfigurationInterface $config): void
+    public function setEnvironment(EnvironmentInterface $environment): void
     {
-        $this->config = $config;
+        $this->config         = $environment->getConfiguration();
+        $this->slugNormalizer = $environment->getSlugNormalizer();
     }
 }

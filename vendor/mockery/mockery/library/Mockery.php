@@ -80,24 +80,18 @@ class Mockery
      */
     public static function builtInTypes()
     {
-        $builtInTypes = array(
-            'self',
+        return array(
             'array',
-            'callable',
-            // Up to php 7
             'bool',
+            'callable',
             'float',
             'int',
-            'string',
             'iterable',
+            'object',
+            'self',
+            'string',
             'void',
         );
-
-        if (\PHP_VERSION_ID >= 70200) {
-            $builtInTypes[] = 'object';
-        }
-
-        return $builtInTypes;
     }
 
     /**
@@ -404,7 +398,7 @@ class Mockery
     /**
      * Return instance of CONTAINS matcher.
      *
-     * @param array ...$args
+     * @param mixed $args
      *
      * @return \Mockery\Matcher\Contains
      */
@@ -668,10 +662,22 @@ class Mockery
             return array('...');
         }
 
-        return array(
-            'class' => get_class($object),
-            'properties' => self::extractInstancePublicProperties($object, $nesting)
+        $defaultFormatter = function ($object, $nesting) {
+            return array('properties' => self::extractInstancePublicProperties($object, $nesting));
+        };
+
+        $class = get_class($object);
+
+        $formatter = self::getConfiguration()->getObjectFormatter($class, $defaultFormatter);
+
+        $array = array(
+          'class' => $class,
+          'identity' => '#' . md5(spl_object_hash($object))
         );
+
+        $array = array_merge($array, $formatter($object, $nesting));
+
+        return $array;
     }
 
     /**
@@ -691,7 +697,11 @@ class Mockery
         foreach ($properties as $publicProperty) {
             if (!$publicProperty->isStatic()) {
                 $name = $publicProperty->getName();
-                $cleanedProperties[$name] = self::cleanupNesting($object->$name, $nesting);
+                try {
+                    $cleanedProperties[$name] = self::cleanupNesting($object->$name, $nesting);
+                } catch (\Exception $exception) {
+                    $cleanedProperties[$name] = $exception->getMessage();
+                }
             }
         }
 
@@ -863,28 +873,26 @@ class Mockery
     ) {
         $newMockName = 'demeter_' . md5($parent) . '_' . $method;
 
-        if (\PHP_VERSION_ID >= 70000) {
-            $parRef = null;
-            $parRefMethod = null;
-            $parRefMethodRetType = null;
+        $parRef = null;
+        $parRefMethod = null;
+        $parRefMethodRetType = null;
 
-            $parentMock = $exp->getMock();
-            if ($parentMock !== null) {
-                $parRef = new ReflectionObject($parentMock);
-            }
+        $parentMock = $exp->getMock();
+        if ($parentMock !== null) {
+            $parRef = new ReflectionObject($parentMock);
+        }
 
-            if ($parRef !== null && $parRef->hasMethod($method)) {
-                $parRefMethod = $parRef->getMethod($method);
-                $parRefMethodRetType = Reflector::getReturnType($parRefMethod, true);
+        if ($parRef !== null && $parRef->hasMethod($method)) {
+            $parRefMethod = $parRef->getMethod($method);
+            $parRefMethodRetType = Reflector::getReturnType($parRefMethod, true);
 
-                if ($parRefMethodRetType !== null) {
-                    $nameBuilder = new MockNameBuilder();
-                    $nameBuilder->addPart('\\' . $newMockName);
-                    $mock = self::namedMock($nameBuilder->build(), $parRefMethodRetType);
-                    $exp->andReturn($mock);
+            if ($parRefMethodRetType !== null && $parRefMethodRetType !== 'mixed') {
+                $nameBuilder = new MockNameBuilder();
+                $nameBuilder->addPart('\\' . $newMockName);
+                $mock = self::namedMock($nameBuilder->build(), $parRefMethodRetType);
+                $exp->andReturn($mock);
 
-                    return $mock;
-                }
+                return $mock;
             }
         }
 

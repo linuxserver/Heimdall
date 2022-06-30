@@ -1,21 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 /*
- * This file is part of the php-code-coverage package.
+ * This file is part of phpunit/php-code-coverage.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\CodeCoverage\Node;
 
-use SebastianBergmann\CodeCoverage\Util;
+use const DIRECTORY_SEPARATOR;
+use function array_merge;
+use function str_replace;
+use function substr;
+use Countable;
+use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
- * Base class for nodes in the code coverage information tree.
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-abstract class AbstractNode implements \Countable
+abstract class AbstractNode implements Countable
 {
     /**
      * @var string
@@ -25,12 +29,12 @@ abstract class AbstractNode implements \Countable
     /**
      * @var string
      */
-    private $path;
+    private $pathAsString;
 
     /**
      * @var array
      */
-    private $pathArray;
+    private $pathAsArray;
 
     /**
      * @var AbstractNode
@@ -42,45 +46,33 @@ abstract class AbstractNode implements \Countable
      */
     private $id;
 
-    /**
-     * Constructor.
-     *
-     * @param string       $name
-     * @param AbstractNode $parent
-     */
-    public function __construct($name, self $parent = null)
+    public function __construct(string $name, self $parent = null)
     {
-        if (\substr($name, -1) == '/') {
-            $name = \substr($name, 0, -1);
+        if (substr($name, -1) === DIRECTORY_SEPARATOR) {
+            $name = substr($name, 0, -1);
         }
 
         $this->name   = $name;
         $this->parent = $parent;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function name(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function id(): string
     {
         if ($this->id === null) {
-            $parent = $this->getParent();
+            $parent = $this->parent();
 
             if ($parent === null) {
                 $this->id = 'index';
             } else {
-                $parentId = $parent->getId();
+                $parentId = $parent->id();
 
-                if ($parentId == 'index') {
-                    $this->id = \str_replace(':', '_', $this->name);
+                if ($parentId === 'index') {
+                    $this->id = str_replace(':', '_', $this->name);
                 } else {
                     $this->id = $parentId . '/' . $this->name;
                 }
@@ -90,315 +82,172 @@ abstract class AbstractNode implements \Countable
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getPath()
+    public function pathAsString(): string
     {
-        if ($this->path === null) {
-            if ($this->parent === null || $this->parent->getPath() === null || $this->parent->getPath() === false) {
-                $this->path = $this->name;
-            } else {
-                $this->path = $this->parent->getPath() . '/' . $this->name;
-            }
-        }
-
-        return $this->path;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPathAsArray()
-    {
-        if ($this->pathArray === null) {
+        if ($this->pathAsString === null) {
             if ($this->parent === null) {
-                $this->pathArray = [];
+                $this->pathAsString = $this->name;
             } else {
-                $this->pathArray = $this->parent->getPathAsArray();
+                $this->pathAsString = $this->parent->pathAsString() . DIRECTORY_SEPARATOR . $this->name;
             }
-
-            $this->pathArray[] = $this;
         }
 
-        return $this->pathArray;
+        return $this->pathAsString;
     }
 
-    /**
-     * @return AbstractNode
-     */
-    public function getParent()
+    public function pathAsArray(): array
+    {
+        if ($this->pathAsArray === null) {
+            if ($this->parent === null) {
+                $this->pathAsArray = [];
+            } else {
+                $this->pathAsArray = $this->parent->pathAsArray();
+            }
+
+            $this->pathAsArray[] = $this;
+        }
+
+        return $this->pathAsArray;
+    }
+
+    public function parent(): ?self
     {
         return $this->parent;
     }
 
-    /**
-     * Returns the percentage of classes that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedClassesPercent($asString = true)
+    public function percentageOfTestedClasses(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedClasses(),
-            $this->getNumClasses(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedClasses(),
+            $this->numberOfClasses(),
         );
     }
 
-    /**
-     * Returns the percentage of traits that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedTraitsPercent($asString = true)
+    public function percentageOfTestedTraits(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedTraits(),
-            $this->getNumTraits(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedTraits(),
+            $this->numberOfTraits(),
         );
     }
 
-    /**
-     * Returns the percentage of classes and traits that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedClassesAndTraitsPercent($asString = true)
+    public function percentageOfTestedClassesAndTraits(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedClassesAndTraits(),
-            $this->getNumClassesAndTraits(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedClassesAndTraits(),
+            $this->numberOfClassesAndTraits(),
         );
     }
 
-    /**
-     * Returns the percentage of functions that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedFunctionsPercent($asString = true)
+    public function percentageOfTestedFunctions(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedFunctions(),
-            $this->getNumFunctions(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedFunctions(),
+            $this->numberOfFunctions(),
         );
     }
 
-    /**
-     * Returns the percentage of methods that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedMethodsPercent($asString = true)
+    public function percentageOfTestedMethods(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedMethods(),
-            $this->getNumMethods(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedMethods(),
+            $this->numberOfMethods(),
         );
     }
 
-    /**
-     * Returns the percentage of functions and methods that has been tested.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getTestedFunctionsAndMethodsPercent($asString = true)
+    public function percentageOfTestedFunctionsAndMethods(): Percentage
     {
-        return Util::percent(
-            $this->getNumTestedFunctionsAndMethods(),
-            $this->getNumFunctionsAndMethods(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedFunctionsAndMethods(),
+            $this->numberOfFunctionsAndMethods(),
         );
     }
 
-    /**
-     * Returns the percentage of executed lines.
-     *
-     * @param bool $asString
-     *
-     * @return int
-     */
-    public function getLineExecutedPercent($asString = true)
+    public function percentageOfExecutedLines(): Percentage
     {
-        return Util::percent(
-            $this->getNumExecutedLines(),
-            $this->getNumExecutableLines(),
-            $asString
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedLines(),
+            $this->numberOfExecutableLines(),
         );
     }
 
-    /**
-     * Returns the number of classes and traits.
-     *
-     * @return int
-     */
-    public function getNumClassesAndTraits()
+    public function percentageOfExecutedBranches(): Percentage
     {
-        return $this->getNumClasses() + $this->getNumTraits();
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedBranches(),
+            $this->numberOfExecutableBranches()
+        );
     }
 
-    /**
-     * Returns the number of tested classes and traits.
-     *
-     * @return int
-     */
-    public function getNumTestedClassesAndTraits()
+    public function percentageOfExecutedPaths(): Percentage
     {
-        return $this->getNumTestedClasses() + $this->getNumTestedTraits();
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedPaths(),
+            $this->numberOfExecutablePaths()
+        );
     }
 
-    /**
-     * Returns the classes and traits of this node.
-     *
-     * @return array
-     */
-    public function getClassesAndTraits()
+    public function numberOfClassesAndTraits(): int
     {
-        return \array_merge($this->getClasses(), $this->getTraits());
+        return $this->numberOfClasses() + $this->numberOfTraits();
     }
 
-    /**
-     * Returns the number of functions and methods.
-     *
-     * @return int
-     */
-    public function getNumFunctionsAndMethods()
+    public function numberOfTestedClassesAndTraits(): int
     {
-        return $this->getNumFunctions() + $this->getNumMethods();
+        return $this->numberOfTestedClasses() + $this->numberOfTestedTraits();
     }
 
-    /**
-     * Returns the number of tested functions and methods.
-     *
-     * @return int
-     */
-    public function getNumTestedFunctionsAndMethods()
+    public function classesAndTraits(): array
     {
-        return $this->getNumTestedFunctions() + $this->getNumTestedMethods();
+        return array_merge($this->classes(), $this->traits());
     }
 
-    /**
-     * Returns the functions and methods of this node.
-     *
-     * @return array
-     */
-    public function getFunctionsAndMethods()
+    public function numberOfFunctionsAndMethods(): int
     {
-        return \array_merge($this->getFunctions(), $this->getMethods());
+        return $this->numberOfFunctions() + $this->numberOfMethods();
     }
 
-    /**
-     * Returns the classes of this node.
-     *
-     * @return array
-     */
-    abstract public function getClasses();
+    public function numberOfTestedFunctionsAndMethods(): int
+    {
+        return $this->numberOfTestedFunctions() + $this->numberOfTestedMethods();
+    }
+
+    abstract public function classes(): array;
+
+    abstract public function traits(): array;
+
+    abstract public function functions(): array;
 
     /**
-     * Returns the traits of this node.
-     *
-     * @return array
+     * @psalm-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
      */
-    abstract public function getTraits();
+    abstract public function linesOfCode(): array;
 
-    /**
-     * Returns the functions of this node.
-     *
-     * @return array
-     */
-    abstract public function getFunctions();
+    abstract public function numberOfExecutableLines(): int;
 
-    /**
-     * Returns the LOC/CLOC/NCLOC of this node.
-     *
-     * @return array
-     */
-    abstract public function getLinesOfCode();
+    abstract public function numberOfExecutedLines(): int;
 
-    /**
-     * Returns the number of executable lines.
-     *
-     * @return int
-     */
-    abstract public function getNumExecutableLines();
+    abstract public function numberOfExecutableBranches(): int;
 
-    /**
-     * Returns the number of executed lines.
-     *
-     * @return int
-     */
-    abstract public function getNumExecutedLines();
+    abstract public function numberOfExecutedBranches(): int;
 
-    /**
-     * Returns the number of classes.
-     *
-     * @return int
-     */
-    abstract public function getNumClasses();
+    abstract public function numberOfExecutablePaths(): int;
 
-    /**
-     * Returns the number of tested classes.
-     *
-     * @return int
-     */
-    abstract public function getNumTestedClasses();
+    abstract public function numberOfExecutedPaths(): int;
 
-    /**
-     * Returns the number of traits.
-     *
-     * @return int
-     */
-    abstract public function getNumTraits();
+    abstract public function numberOfClasses(): int;
 
-    /**
-     * Returns the number of tested traits.
-     *
-     * @return int
-     */
-    abstract public function getNumTestedTraits();
+    abstract public function numberOfTestedClasses(): int;
 
-    /**
-     * Returns the number of methods.
-     *
-     * @return int
-     */
-    abstract public function getNumMethods();
+    abstract public function numberOfTraits(): int;
 
-    /**
-     * Returns the number of tested methods.
-     *
-     * @return int
-     */
-    abstract public function getNumTestedMethods();
+    abstract public function numberOfTestedTraits(): int;
 
-    /**
-     * Returns the number of functions.
-     *
-     * @return int
-     */
-    abstract public function getNumFunctions();
+    abstract public function numberOfMethods(): int;
 
-    /**
-     * Returns the number of tested functions.
-     *
-     * @return int
-     */
-    abstract public function getNumTestedFunctions();
+    abstract public function numberOfTestedMethods(): int;
+
+    abstract public function numberOfFunctions(): int;
+
+    abstract public function numberOfTestedFunctions(): int;
 }

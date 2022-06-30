@@ -1,9 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dotenv\Store\File;
 
-class Paths
+/**
+ * @internal
+ */
+final class Paths
 {
+    /**
+     * This class is a singleton.
+     *
+     * @codeCoverageIgnore
+     *
+     * @return void
+     */
+    private function __construct()
+    {
+        //
+    }
+
     /**
      * Returns the full paths to the files.
      *
@@ -18,7 +35,7 @@ class Paths
 
         foreach ($paths as $path) {
             foreach ($names as $name) {
-                $files[] = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$name;
+                $files[] = \rtrim($path, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR.$name;
             }
         }
 

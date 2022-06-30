@@ -1,101 +1,88 @@
-<?php
+<?php declare(strict_types=1);
 /*
- * This file is part of the php-code-coverage package.
+ * This file is part of phpunit/php-code-coverage.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
+use function constant;
+use function phpversion;
+use DateTimeImmutable;
+use DOMElement;
 use SebastianBergmann\Environment\Runtime;
 
-class BuildInformation
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class BuildInformation
 {
     /**
-     * @var \DOMElement
+     * @var DOMElement
      */
     private $contextNode;
 
-    /**
-     * @param \DOMElement $contextNode
-     */
-    public function __construct(\DOMElement $contextNode)
+    public function __construct(DOMElement $contextNode)
     {
         $this->contextNode = $contextNode;
     }
 
-    /**
-     * @param Runtime $runtime
-     */
-    public function setRuntimeInformation(Runtime $runtime)
+    public function setRuntimeInformation(Runtime $runtime): void
     {
-        $runtimeNode = $this->getNodeByName('runtime');
+        $runtimeNode = $this->nodeByName('runtime');
 
         $runtimeNode->setAttribute('name', $runtime->getName());
         $runtimeNode->setAttribute('version', $runtime->getVersion());
         $runtimeNode->setAttribute('url', $runtime->getVendorUrl());
 
-        $driverNode = $this->getNodeByName('driver');
-        if ($runtime->isHHVM()) {
-            $driverNode->setAttribute('name', 'hhvm');
-            $driverNode->setAttribute('version', \constant('HHVM_VERSION'));
-
-            return;
-        }
+        $driverNode = $this->nodeByName('driver');
 
         if ($runtime->hasPHPDBGCodeCoverage()) {
             $driverNode->setAttribute('name', 'phpdbg');
-            $driverNode->setAttribute('version', \constant('PHPDBG_VERSION'));
+            $driverNode->setAttribute('version', constant('PHPDBG_VERSION'));
         }
 
         if ($runtime->hasXdebug()) {
             $driverNode->setAttribute('name', 'xdebug');
-            $driverNode->setAttribute('version', \phpversion('xdebug'));
+            $driverNode->setAttribute('version', phpversion('xdebug'));
+        }
+
+        if ($runtime->hasPCOV()) {
+            $driverNode->setAttribute('name', 'pcov');
+            $driverNode->setAttribute('version', phpversion('pcov'));
         }
     }
 
-    /**
-     * @param $name
-     *
-     * @return \DOMElement
-     */
-    private function getNodeByName($name)
+    public function setBuildTime(DateTimeImmutable $date): void
+    {
+        $this->contextNode->setAttribute('time', $date->format('D M j G:i:s T Y'));
+    }
+
+    public function setGeneratorVersions(string $phpUnitVersion, string $coverageVersion): void
+    {
+        $this->contextNode->setAttribute('phpunit', $phpUnitVersion);
+        $this->contextNode->setAttribute('coverage', $coverageVersion);
+    }
+
+    private function nodeByName(string $name): DOMElement
     {
         $node = $this->contextNode->getElementsByTagNameNS(
-            'http://schema.phpunit.de/coverage/1.0',
+            'https://schema.phpunit.de/coverage/1.0',
             $name
         )->item(0);
 
         if (!$node) {
             $node = $this->contextNode->appendChild(
                 $this->contextNode->ownerDocument->createElementNS(
-                    'http://schema.phpunit.de/coverage/1.0',
+                    'https://schema.phpunit.de/coverage/1.0',
                     $name
                 )
             );
         }
 
         return $node;
-    }
-
-    /**
-     * @param \DateTime $date
-     */
-    public function setBuildTime(\DateTime $date)
-    {
-        $this->contextNode->setAttribute('time', $date->format('D M j G:i:s T Y'));
-    }
-
-    /**
-     * @param string $phpUnitVersion
-     * @param string $coverageVersion
-     */
-    public function setGeneratorVersions($phpUnitVersion, $coverageVersion)
-    {
-        $this->contextNode->setAttribute('phpunit', $phpUnitVersion);
-        $this->contextNode->setAttribute('coverage', $coverageVersion);
     }
 }

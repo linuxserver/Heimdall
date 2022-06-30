@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class SeedCommand extends Command
@@ -81,9 +82,20 @@ class SeedCommand extends Command
      */
     protected function getSeeder()
     {
-        $class = $this->laravel->make($this->input->getOption('class'));
+        $class = $this->input->getArgument('class') ?? $this->input->getOption('class');
 
-        return $class->setContainer($this->laravel)->setCommand($this);
+        if (strpos($class, '\\') === false) {
+            $class = 'Database\\Seeders\\'.$class;
+        }
+
+        if ($class === 'Database\\Seeders\\DatabaseSeeder' &&
+            ! class_exists($class)) {
+            $class = 'DatabaseSeeder';
+        }
+
+        return $this->laravel->make($class)
+                        ->setContainer($this->laravel)
+                        ->setCommand($this);
     }
 
     /**
@@ -99,6 +111,18 @@ class SeedCommand extends Command
     }
 
     /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['class', InputArgument::OPTIONAL, 'The class name of the root seeder', null],
+        ];
+    }
+
+    /**
      * Get the console command options.
      *
      * @return array
@@ -106,10 +130,8 @@ class SeedCommand extends Command
     protected function getOptions()
     {
         return [
-            ['class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'DatabaseSeeder'],
-
+            ['class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'Database\\Seeders\\DatabaseSeeder'],
             ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to seed'],
-
             ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production'],
         ];
     }

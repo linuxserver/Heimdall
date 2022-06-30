@@ -13,6 +13,7 @@ namespace Prophecy\Doubler\ClassPatch;
 
 use Prophecy\Doubler\Generator\Node\ClassNode;
 use Prophecy\Doubler\Generator\Node\MethodNode;
+use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
 
 /**
  * Traversable interface patch.
@@ -64,11 +65,25 @@ class TraversablePatch implements ClassPatchInterface
     {
         $node->addInterface('Iterator');
 
-        $node->addMethod(new MethodNode('current'));
-        $node->addMethod(new MethodNode('key'));
-        $node->addMethod(new MethodNode('next'));
-        $node->addMethod(new MethodNode('rewind'));
-        $node->addMethod(new MethodNode('valid'));
+        $currentMethod = new MethodNode('current');
+        (\PHP_VERSION_ID >= 80100) && $currentMethod->setReturnTypeNode(new ReturnTypeNode('mixed'));
+        $node->addMethod($currentMethod);
+
+        $keyMethod = new MethodNode('key');
+        (\PHP_VERSION_ID >= 80100) && $keyMethod->setReturnTypeNode(new ReturnTypeNode('mixed'));
+        $node->addMethod($keyMethod);
+
+        $nextMethod = new MethodNode('next');
+        (\PHP_VERSION_ID >= 80100) && $nextMethod->setReturnTypeNode(new ReturnTypeNode('void'));
+        $node->addMethod($nextMethod);
+
+        $rewindMethod = new MethodNode('rewind');
+        (\PHP_VERSION_ID >= 80100) && $rewindMethod->setReturnTypeNode(new ReturnTypeNode('void'));
+        $node->addMethod($rewindMethod);
+
+        $validMethod = new MethodNode('valid');
+        (\PHP_VERSION_ID >= 80100) && $validMethod->setReturnTypeNode(new ReturnTypeNode('bool'));
+        $node->addMethod($validMethod);
     }
 
     /**

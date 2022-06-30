@@ -7,18 +7,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PHPUnit\Util;
 
+use function get_class;
+use function implode;
+use function str_replace;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Runner\PhptTestCase;
+use RecursiveIteratorIterator;
+use XMLWriter;
 
-class XmlTestListRenderer
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class XmlTestListRenderer
 {
+    /**
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
     public function render(TestSuite $suite): string
     {
-        $writer = new \XmlWriter;
+        $writer = new XMLWriter;
 
         $writer->openMemory();
         $writer->setIndent(true);
@@ -27,27 +37,27 @@ class XmlTestListRenderer
 
         $currentTestCase = null;
 
-        foreach (new \RecursiveIteratorIterator($suite->getIterator()) as $test) {
+        foreach (new RecursiveIteratorIterator($suite->getIterator()) as $test) {
             if ($test instanceof TestCase) {
-                if (\get_class($test) !== $currentTestCase) {
+                if (get_class($test) !== $currentTestCase) {
                     if ($currentTestCase !== null) {
                         $writer->endElement();
                     }
 
                     $writer->startElement('testCaseClass');
-                    $writer->writeAttribute('name', \get_class($test));
+                    $writer->writeAttribute('name', get_class($test));
 
-                    $currentTestCase = \get_class($test);
+                    $currentTestCase = get_class($test);
                 }
 
                 $writer->startElement('testCaseMethod');
                 $writer->writeAttribute('name', $test->getName(false));
-                $writer->writeAttribute('groups', \implode(',', $test->getGroups()));
+                $writer->writeAttribute('groups', implode(',', $test->getGroups()));
 
                 if (!empty($test->getDataSetAsString(false))) {
                     $writer->writeAttribute(
                         'dataSet',
-                        \str_replace(
+                        str_replace(
                             ' with data set ',
                             '',
                             $test->getDataSetAsString(false)
@@ -66,8 +76,6 @@ class XmlTestListRenderer
                 $writer->startElement('phptFile');
                 $writer->writeAttribute('path', $test->getName());
                 $writer->endElement();
-            } else {
-                continue;
             }
         }
 

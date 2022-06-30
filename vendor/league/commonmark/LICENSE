@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2014-2019, Colin O'Dell. All rights reserved. Based on commonmark.js,copyright (c) 2014-2018, John MacFarlane
+Copyright (c) 2014-2022, Colin O'Dell. All rights reserved. Some code based on commonmark.js (copyright 2014-2018, John MacFarlane) and commonmark-java (copyright 2015-2016, Atlassian Pty Ltd)
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

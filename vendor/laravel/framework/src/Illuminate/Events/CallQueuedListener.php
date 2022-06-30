@@ -2,6 +2,7 @@
 
 namespace Illuminate\Events;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class CallQueuedListener implements ShouldQueue
 {
-    use InteractsWithQueue;
+    use InteractsWithQueue, Queueable;
 
     /**
      * The listener class name.
@@ -40,18 +41,25 @@ class CallQueuedListener implements ShouldQueue
     public $tries;
 
     /**
-     * The number of seconds to wait before retrying the job.
+     * The maximum number of exceptions allowed, regardless of attempts.
      *
      * @var int
      */
-    public $retryAfter;
+    public $maxExceptions;
+
+    /**
+     * The number of seconds to wait before retrying a job that encountered an uncaught exception.
+     *
+     * @var int
+     */
+    public $backoff;
 
     /**
      * The timestamp indicating when the job should timeout.
      *
      * @var int
      */
-    public $timeoutAt;
+    public $retryUntil;
 
     /**
      * The number of seconds the job can run before timing out.
@@ -59,6 +67,13 @@ class CallQueuedListener implements ShouldQueue
      * @var int
      */
     public $timeout;
+
+    /**
+     * Indicates if the job should be encrypted.
+     *
+     * @var bool
+     */
+    public $shouldBeEncrypted = false;
 
     /**
      * Create a new job instance.

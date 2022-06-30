@@ -6,7 +6,7 @@ body {
  max-width: none;
 }
 
-.glyphicon {
+.octicon {
  margin-right:.25em;
 }
 
@@ -48,7 +48,7 @@ body {
  background-color: #f2dede;
 }
 
-.table tbody td.warning, li.warning, span.warning {
+.table tbody tr.warning, .table tbody td.warning, li.warning, span.warning {
  background-color: #fcf8e3;
 }
 
@@ -64,8 +64,8 @@ td.small {
 }
 
 td.codeLine {
- font-family: monospace;
- white-space: pre;
+ font-family: "Source Code Pro", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ white-space: pre-wrap;
 }
 
 td span.comment {
@@ -96,11 +96,6 @@ span.success, span.warning, span.danger {
  text-align: center;
 }
 
-#classCoverageDistribution, #classComplexity {
- height: 200px;
- width: 475px;
-}
-
 #toplink {
  position: fixed;
  left: 5px;
@@ -119,4 +114,9 @@ svg text {
  height:245px;
  overflow-x:hidden;
  overflow-y:scroll;
+}
+
+table + .structure-heading {
+ border-top: 1px solid lightgrey;
+ padding-top: 0.5em;
 }

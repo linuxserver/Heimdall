@@ -3,18 +3,21 @@
 PHPUnit is a programmer-oriented testing framework for PHP. It is an instance of the xUnit architecture for unit testing frameworks.
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/phpunit/phpunit.svg?style=flat-square)](https://packagist.org/packages/phpunit/phpunit)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.0-8892BF.svg?style=flat-square)](https://php.net/)
-[![Build Status](https://img.shields.io/travis/sebastianbergmann/phpunit/6.5.svg?style=flat-square)](https://phpunit.de/build-status.html)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.3-8892BF.svg?style=flat-square)](https://php.net/)
+[![CI Status](https://github.com/sebastianbergmann/phpunit/workflows/CI/badge.svg?branch=9.5&event=push)](https://phpunit.de/build-status.html)
+[![Type Coverage](https://shepherd.dev/github/sebastianbergmann/phpunit/coverage.svg)](https://shepherd.dev/github/sebastianbergmann/phpunit)
 
 ## Installation
 
-We distribute a [PHP Archive (PHAR)](https://php.net/phar) that has all required (as well as some optional) dependencies of PHPUnit 6.5 bundled in a single file:
+We distribute a [PHP Archive (PHAR)](https://php.net/phar) that has all required (as well as some optional) dependencies of PHPUnit bundled in a single file:
 
 ```bash
-$ wget https://phar.phpunit.de/phpunit-6.5.phar
+$ wget https://phar.phpunit.de/phpunit-X.Y.phar
 
-$ php phpunit-6.5.phar --version
+$ php phpunit-X.Y.phar --version
 ```
+
+Please replace `X.Y` with the version of PHPUnit you are interested in.
 
 Alternatively, you may use [Composer](https://getcomposer.org/) to download and install PHPUnit as well as its dependencies. Please refer to the "[Getting Started](https://phpunit.de/getting-started-with-phpunit.html)" guide for details on how to install PHPUnit.
 
@@ -28,7 +31,6 @@ Thanks to everyone who has contributed to PHPUnit! You can find a detailed list 
 
 * [PHPUnit](https://github.com/sebastianbergmann/phpunit/graphs/contributors)
 * [php-code-coverage](https://github.com/sebastianbergmann/php-code-coverage/graphs/contributors)
-* [phpunit-mock-objects](https://github.com/sebastianbergmann/phpunit-mock-objects/graphs/contributors)
 
 A very special thanks to everyone who has contributed to the documentation and helps maintain the translations:
 

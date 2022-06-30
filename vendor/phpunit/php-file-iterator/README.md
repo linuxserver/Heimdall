@@ -1,4 +1,6 @@
-# File_Iterator
+[![Build Status](https://travis-ci.org/sebastianbergmann/php-file-iterator.svg?branch=master)](https://travis-ci.org/sebastianbergmann/php-file-iterator)
+
+# php-file-iterator
 
 ## Installation
 

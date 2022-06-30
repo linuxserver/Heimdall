@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -7,16 +7,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Comparator;
 
+use RuntimeException;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
 /**
  * Thrown when an assertion for string equality failed.
  */
-class ComparisonFailure extends \RuntimeException
+class ComparisonFailure extends RuntimeException
 {
     /**
      * Expected value of the retrieval which does not match $actual.
@@ -33,14 +33,14 @@ class ComparisonFailure extends \RuntimeException
     protected $actual;
 
     /**
-     * The string representation of the expected value
+     * The string representation of the expected value.
      *
      * @var string
      */
     protected $expectedAsString;
 
     /**
-     * The string representation of the actual value
+     * The string representation of the actual value.
      *
      * @var string
      */
@@ -62,13 +62,13 @@ class ComparisonFailure extends \RuntimeException
     /**
      * Initialises with the expected value and the actual value.
      *
-     * @param mixed  $expected         Expected value retrieved.
-     * @param mixed  $actual           Actual value retrieved.
+     * @param mixed  $expected         expected value retrieved
+     * @param mixed  $actual           actual value retrieved
      * @param string $expectedAsString
      * @param string $actualAsString
      * @param bool   $identical
-     * @param string $message          A string which is prefixed on all returned lines
-     *                                 in the difference output.
+     * @param string $message          a string which is prefixed on all returned lines
+     *                                 in the difference output
      */
     public function __construct($expected, $actual, $expectedAsString, $actualAsString, $identical = false, $message = '')
     {
@@ -79,17 +79,11 @@ class ComparisonFailure extends \RuntimeException
         $this->message          = $message;
     }
 
-    /**
-     * @return mixed
-     */
     public function getActual()
     {
         return $this->actual;
     }
 
-    /**
-     * @return mixed
-     */
     public function getExpected()
     {
         return $this->expected;

@@ -31,6 +31,7 @@
     .on({
      'mouseenter.popover': function () {
       var $target = $(this);
+      var $container = $target.children().first();
 
       $target.data('popover-hover', true);
 
@@ -40,7 +41,7 @@
       }
 
       // show the popover
-      $target.popover('show');
+      $container.popover('show');
 
       // register mouse events on the popover
       $target.next('.popover:not(.popover-initialized)')
@@ -49,13 +50,13 @@
          $target.data('popover-hover', true);
         },
         'mouseleave': function () {
-         hidePopover($target);
+         hidePopover($container);
         }
        })
        .addClass('popover-initialized');
      },
      'mouseleave.popover': function () {
-      hidePopover($(this));
+      hidePopover($(this).children().first());
      }
     });
   });

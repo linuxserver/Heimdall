@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -7,11 +7,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Comparator;
 
+use function sprintf;
+use function strtolower;
 use DOMDocument;
 use DOMNode;
+use ValueError;
 
 /**
  * Compares DOMNode instances for equality.
@@ -43,7 +45,7 @@ class DOMNodeComparator extends ObjectComparator
      *
      * @throws ComparisonFailure
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false, array &$processed = [])/*: void*/
     {
         $expectedAsString = $this->nodeToText($expected, true, $ignoreCase);
         $actualAsString   = $this->nodeToText($actual, true, $ignoreCase);
@@ -57,7 +59,7 @@ class DOMNodeComparator extends ObjectComparator
                 $expectedAsString,
                 $actualAsString,
                 false,
-                \sprintf("Failed asserting that two DOM %s are equal.\n", $type)
+                sprintf("Failed asserting that two DOM %s are equal.\n", $type)
             );
         }
     }
@@ -70,7 +72,11 @@ class DOMNodeComparator extends ObjectComparator
     {
         if ($canonicalize) {
             $document = new DOMDocument;
-            @$document->loadXML($node->C14N());
+
+            try {
+                @$document->loadXML($node->C14N());
+            } catch (ValueError $e) {
+            }
 
             $node = $document;
         }
@@ -82,6 +88,6 @@ class DOMNodeComparator extends ObjectComparator
 
         $text = $node instanceof DOMDocument ? $node->saveXML() : $document->saveXML($node);
 
-        return $ignoreCase ? $text : \strtolower($text);
+        return $ignoreCase ? strtolower($text) : $text;
     }
 }

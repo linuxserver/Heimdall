@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -13,24 +15,37 @@ namespace League\CommonMark\Input;
 
 use League\CommonMark\Exception\UnexpectedEncodingException;
 
-final class MarkdownInput implements MarkdownInputInterface
+class MarkdownInput implements MarkdownInputInterface
 {
-    /** @var array<int, string>|null */
-    private $lines;
+    /**
+     * @var array<int, string>|null
+     *
+     * @psalm-readonly-allow-private-mutation
+     */
+    private ?array $lines = null;
 
-    /** @var string */
-    private $content;
+    /** @psalm-readonly-allow-private-mutation */
+    private string $content;
 
-    /** @var int|null */
-    private $lineCount;
+    /** @psalm-readonly-allow-private-mutation */
+    private ?int $lineCount = null;
 
-    public function __construct(string $content)
+    /** @psalm-readonly */
+    private int $lineOffset;
+
+    public function __construct(string $content, int $lineOffset = 0)
     {
-        if (!\mb_check_encoding($content, 'UTF-8')) {
+        if (! \mb_check_encoding($content, 'UTF-8')) {
             throw new UnexpectedEncodingException('Unexpected encoding - UTF-8 or ASCII was expected');
         }
 
-        $this->content = $content;
+        // Strip any leading UTF-8 BOM
+        if (\substr($content, 0, 3) === "\xEF\xBB\xBF") {
+            $content = \substr($content, 3);
+        }
+
+        $this->content    = $content;
+        $this->lineOffset = $lineOffset;
     }
 
     public function getContent(): string
@@ -39,20 +54,25 @@ final class MarkdownInput implements MarkdownInputInterface
     }
 
     /**
-     * @return \Traversable<int, string>
+     * {@inheritDoc}
      */
-    public function getLines(): \Traversable
+    public function getLines(): iterable
     {
         $this->splitLinesIfNeeded();
 
-        foreach ($this->lines as $lineNumber => $line) {
-            yield $lineNumber => $line;
+        \assert($this->lines !== null);
+
+        /** @psalm-suppress PossiblyNullIterator */
+        foreach ($this->lines as $i => $line) {
+            yield $this->lineOffset + $i + 1 => $line;
         }
     }
 
     public function getLineCount(): int
     {
         $this->splitLinesIfNeeded();
+
+        \assert($this->lineCount !== null);
 
         return $this->lineCount;
     }

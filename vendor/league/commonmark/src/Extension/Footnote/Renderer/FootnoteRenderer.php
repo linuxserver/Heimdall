@@ -14,51 +14,67 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Renderer;
 
-use League\CommonMark\Block\Element\AbstractBlock;
-use League\CommonMark\Block\Renderer\BlockRendererInterface;
-use League\CommonMark\ElementRendererInterface;
 use League\CommonMark\Extension\Footnote\Node\Footnote;
-use League\CommonMark\HtmlElement;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
+use League\CommonMark\Util\HtmlElement;
+use League\CommonMark\Xml\XmlNodeRendererInterface;
+use League\Config\ConfigurationAwareInterface;
+use League\Config\ConfigurationInterface;
 
-final class FootnoteRenderer implements BlockRendererInterface, ConfigurationAwareInterface
+final class FootnoteRenderer implements NodeRendererInterface, XmlNodeRendererInterface, ConfigurationAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
     /**
-     * @param Footnote                 $block
-     * @param ElementRendererInterface $htmlRenderer
-     * @param bool                     $inTightList
+     * @param Footnote $node
      *
-     * @return HtmlElement
+     * {@inheritDoc}
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
-    public function render(AbstractBlock $block, ElementRendererInterface $htmlRenderer, bool $inTightList = false)
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer): \Stringable
     {
-        if (!($block instanceof Footnote)) {
-            throw new \InvalidArgumentException('Incompatible block type: ' . \get_class($block));
-        }
+        Footnote::assertInstanceOf($node);
 
-        $attrs = $block->getData('attributes', []);
-        $attrs['class'] = $attrs['class'] ?? $this->config->get('footnote/footnote_class', 'footnote');
-        $attrs['id'] = $this->config->get('footnote/footnote_id_prefix', 'fn:') . \mb_strtolower($block->getReference()->getLabel());
-        $attrs['role'] = 'doc-endnote';
+        $attrs = $node->data->getData('attributes');
 
-        foreach ($block->getBackrefs() as $backref) {
-            $block->lastChild()->appendChild($backref);
-        }
+        $attrs->append('class', $this->config->get('footnote/footnote_class'));
+        $attrs->set('id', $this->config->get('footnote/footnote_id_prefix') . \mb_strtolower($node->getReference()->getLabel()));
+        $attrs->set('role', 'doc-endnote');
 
         return new HtmlElement(
             'li',
-            $attrs,
-            $htmlRenderer->renderBlocks($block->children()),
+            $attrs->export(),
+            $childRenderer->renderNodes($node->children()),
             true
         );
     }
 
-    public function setConfiguration(ConfigurationInterface $configuration)
+    public function setConfiguration(ConfigurationInterface $configuration): void
     {
         $this->config = $configuration;
+    }
+
+    public function getXmlTagName(Node $node): string
+    {
+        return 'footnote';
+    }
+
+    /**
+     * @param Footnote $node
+     *
+     * @return array<string, scalar>
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function getXmlAttributes(Node $node): array
+    {
+        Footnote::assertInstanceOf($node);
+
+        return [
+            'reference' => $node->getReference()->getLabel(),
+        ];
     }
 }

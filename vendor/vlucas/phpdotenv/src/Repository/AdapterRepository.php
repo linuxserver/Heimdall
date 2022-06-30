@@ -1,73 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dotenv\Repository;
 
-class AdapterRepository extends AbstractRepository
+use Dotenv\Repository\Adapter\ReaderInterface;
+use Dotenv\Repository\Adapter\WriterInterface;
+
+final class AdapterRepository implements RepositoryInterface
 {
     /**
-     * The set of readers to use.
+     * The reader to use.
      *
-     * @var \Dotenv\Repository\Adapter\ReaderInterface[]
+     * @var \Dotenv\Repository\Adapter\ReaderInterface
      */
-    protected $readers;
+    private $reader;
 
     /**
-     * The set of writers to use.
+     * The writer to use.
      *
-     * @var \Dotenv\Repository\Adapter\WriterInterface[]
+     * @var \Dotenv\Repository\Adapter\WriterInterface
      */
-    protected $writers;
+    private $writer;
 
     /**
      * Create a new adapter repository instance.
      *
-     * @param \Dotenv\Repository\Adapter\ReaderInterface[] $readers
-     * @param \Dotenv\Repository\Adapter\WriterInterface[] $writers
-     * @param bool                                         $immutable
+     * @param \Dotenv\Repository\Adapter\ReaderInterface $reader
+     * @param \Dotenv\Repository\Adapter\WriterInterface $writer
      *
      * @return void
      */
-    public function __construct(array $readers, array $writers, $immutable)
+    public function __construct(ReaderInterface $reader, WriterInterface $writer)
     {
-        $this->readers = $readers;
-        $this->writers = $writers;
-        parent::__construct($immutable);
+        $this->reader = $reader;
+        $this->writer = $writer;
+    }
+
+    /**
+     * Determine if the given environment variable is defined.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function has(string $name)
+    {
+        return $this->reader->read($name)->isDefined();
     }
 
     /**
      * Get an environment variable.
      *
-     * We do this by querying our readers sequentially.
-     *
      * @param string $name
      *
      * @return string|null
      */
-    protected function getInternal($name)
+    public function get(string $name)
     {
-        foreach ($this->readers as $reader) {
-            $result = $reader->get($name);
-            if ($result->isDefined()) {
-                return $result->get();
-            }
-        }
-
-        return null;
+        return $this->reader->read($name)->getOrElse(null);
     }
 
     /**
      * Set an environment variable.
      *
-     * @param string      $name
-     * @param string|null $value
+     * @param string $name
+     * @param string $value
      *
-     * @return void
+     * @return bool
      */
-    protected function setInternal($name, $value = null)
+    public function set(string $name, string $value)
     {
-        foreach ($this->writers as $writers) {
-            $writers->set($name, $value);
-        }
+        return $this->writer->write($name, $value);
     }
 
     /**
@@ -75,12 +79,10 @@ class AdapterRepository extends AbstractRepository
      *
      * @param string $name
      *
-     * @return void
+     * @return bool
      */
-    protected function clearInternal($name)
+    public function clear(string $name)
     {
-        foreach ($this->writers as $writers) {
-            $writers->clear($name);
-        }
+        return $this->writer->delete($name);
     }
 }

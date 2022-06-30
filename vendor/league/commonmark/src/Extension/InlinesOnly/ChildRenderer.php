@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -11,34 +13,21 @@
 
 namespace League\CommonMark\Extension\InlinesOnly;
 
-use League\CommonMark\Block\Element\AbstractBlock;
-use League\CommonMark\Block\Element\Document;
-use League\CommonMark\Block\Element\InlineContainerInterface;
-use League\CommonMark\Block\Renderer\BlockRendererInterface;
-use League\CommonMark\ElementRendererInterface;
-use League\CommonMark\Inline\Element\AbstractInline;
+use League\CommonMark\Node\Block\Document;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
 
 /**
  * Simply renders child elements as-is, adding newlines as needed.
  */
-final class ChildRenderer implements BlockRendererInterface
+final class ChildRenderer implements NodeRendererInterface
 {
-    public function render(AbstractBlock $block, ElementRendererInterface $htmlRenderer, bool $inTightList = false)
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        $out = '';
-
-        if ($block instanceof InlineContainerInterface) {
-            /** @var iterable<AbstractInline> $children */
-            $children = $block->children();
-            $out .= $htmlRenderer->renderInlines($children);
-        } else {
-            /** @var iterable<AbstractBlock> $children */
-            $children = $block->children();
-            $out .= $htmlRenderer->renderBlocks($children);
-        }
-
-        if (!($block instanceof Document)) {
-            $out .= "\n";
+        $out = $childRenderer->renderNodes($node->children());
+        if (! $node instanceof Document) {
+            $out .= $childRenderer->getBlockSeparator();
         }
 
         return $out;
