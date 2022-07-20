@@ -1,0 +1,10 @@
+{
+    "appid": "f18e7d860a9886eb86bb406d2e9afdc6eb0bf67f",
+    "name": "Scrypted",
+    "website": "https://www.scrypted.app/",
+    "license": "W3C Software Notice and License (2002-12-31)",
+    "description": "Integration platform",
+    "enhanced": true,
+    "tile_background": "dark",
+    "icon": "scrypted.png"
+}

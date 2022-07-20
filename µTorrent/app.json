@@ -1,0 +1,10 @@
+{
+    "appid": "ff991f82a68ffaccf4ff305d0f9b9ae878d427ef",
+    "name": "µTorrent",
+    "website": "https://www.utorrent.com/",
+    "license": "GNU Lesser General Public License v2.1 only",
+    "description": "Based in San Francisco, BitTorrent is the company behind the largest decentralized P2P communications protocol for distributing data and large files over the Internet. The protocol is responsible for moving a significant percentage of the world’s Internet traffic each day.\r\n\r\nThe company currently develops products across two brands, BitTorrent (https://www.bittorrent.com) and µTorrent (https://www.utorrent.com), which offer popular torrent download clients for Windows, Mac and Android. With over 100 million active users each month, BitTorrent offers feature-rich, safe torrent programs for the desktop, a browser-based torrent streaming and downloading product, and a mobile torrent downloader for Android available on the Google Play Store.",
+    "enhanced": true,
+    "tile_background": "dark",
+    "icon": "utorrent.svg"
+}

@@ -1,0 +1,10 @@
+{
+    "appid": "2df49308d78ad2b26eea4da5812e43387b5a39dd",
+    "name": "VSCode Server",
+    "website": "https://coder.com/docs/code-server/latest",
+    "license": "MIT License",
+    "description": "Visual Studio Code combines the simplicity of a code editor with what developers need for their core edit-build-debug cycle. It provides comprehensive code editing, navigation, and understanding support along with lightweight debugging, a rich extensibility model, and lightweight integration with existing tools.",
+    "enhanced": true,
+    "tile_background": "dark",
+    "icon": "vscodeserver.png"
+}
