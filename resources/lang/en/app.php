@@ -88,8 +88,8 @@ return [
     'apps.only_admin_account' => 'Only if you have admin-account!',
     'apps.autologin_url' => 'Auto login url',
     'apps.show_deleted' => 'Showing Deleted Applications',
-	'apps.category' => 'Category',
-	'apps.embedded' => 'Embed',
+    'apps.category' => 'Category',
+    'apps.embedded' => 'Embed',
     
     'dashboard' => 'Home dashboard',
 
