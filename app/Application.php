@@ -128,6 +128,15 @@ class Application extends Model
             $list[$app->appid] = $app->name;
         }
 
+        // Check for private apps in the db
+        $appsListFromDB = self::all(['appid', 'name']);
+
+        foreach($appsListFromDB as $app) {
+            // Already existing keys are overwritten,
+            // only private apps should be added at the end
+            $list[$app->appid] = $app->name;
+        }
+
         return $list;
     }
 }
