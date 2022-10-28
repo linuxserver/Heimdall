@@ -14,7 +14,7 @@ class RegisterApp extends Command
      *
      * @var string
      */
-    protected $signature = 'register:app {folder}';
+    protected $signature = 'register:app {folder} {--remove}';
 
     /**
      * The console command description.
@@ -50,31 +50,42 @@ class RegisterApp extends Command
                 $this->addApp($folder);
             }
         } else {
-            $this->addApp($folder);
+            $this->addApp($folder, $this->option('remove'));
         }
     }
 
-    public function addApp($folder)
+    public function addApp($folder, $remove = false)
     {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
-        if (file_exists($json)) {
-            $app = json_decode(file_get_contents($json));
-            if (isset($app->appid)) {
-                $exists = Application::find($app->appid);
-                if ($exists) {
-                    $this->error('Application already registered - '.$exists->name.' - '.$exists->appid);
-                } else {
-                    // Doesn't exist so add it
-                    SupportedApps::saveApp($app, new Application);
-                    $this->saveIcon($folder, $app->icon);
-                    $this->info('Application Added - '.$app->name.' - '.$app->appid);
-                }
-            } else {
-                $this->error('No App ID for - '.$folder);
-            }
-        } else {
-            $this->error('Could not find '.$json);
+
+        if (!file_exists($json)) {
+            $this->error('Could not find ' . $json);
+            return;
         }
+
+        $app = json_decode(file_get_contents($json));
+
+        if (!isset($app->appid)) {
+            $this->error('No App ID for - ' . $folder);
+            return;
+        }
+
+        $exists = Application::find($app->appid);
+
+        if ($exists) {
+            if ($remove) {
+                $exists->delete();
+                $this->info('Application Removed - ' . $app->name . ' - ' . $app->appid);
+                return;
+            }
+            $this->error('Application already registered - ' . $exists->name . ' - ' . $exists->appid);
+            return;
+        }
+
+        // Doesn't exist so add it
+        SupportedApps::saveApp($app, new Application);
+        $this->saveIcon($folder, $app->icon);
+        $this->info('Application Added - ' . $app->name . ' - ' . $app->appid);
     }
 
     private function saveIcon($appFolder, $icon) {
