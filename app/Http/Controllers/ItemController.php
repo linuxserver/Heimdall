@@ -209,6 +209,11 @@ class ItemController extends Controller
                 $icon .= '.'.$path_parts['extension'];
             }
             $path = 'icons/'.$icon;
+
+            // Private apps could have here duplicated icons folder
+            if (strpos($path, 'icons/icons/') !== false) {
+                $path = str_replace('icons/icons/','icons/',$path);
+            }
             Storage::disk('public')->put($path, $contents);
             $request->merge([
                 'icon' => $path,
@@ -377,9 +382,13 @@ class ItemController extends Controller
         }
 
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
-        if(strpos($app->icon, 'icons/') !== false) {
+
+        if(strpos($app->icon, '://') !== false) {
+            $output['iconview'] = $app->icon;
+        } elseif(strpos($app->icon, 'icons/') !== false) {
             // Private apps have the icon locally
             $output['iconview'] = URL::to('/').'/storage/'.$app->icon;
+            $output['icon'] = str_replace('icons/', '', $output['icon']);
         } else {
             $output['iconview'] = config('app.appsource').'icons/'.$app->icon;
         }

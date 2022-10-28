@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Application;
 use App\SupportedApps;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterApp extends Command
 {
@@ -65,6 +66,7 @@ class RegisterApp extends Command
                 } else {
                     // Doesn't exist so add it
                     SupportedApps::saveApp($app, new Application);
+                    $this->saveIcon($folder, $app->icon);
                     $this->info('Application Added - '.$app->name.' - '.$app->appid);
                 }
             } else {
@@ -73,5 +75,11 @@ class RegisterApp extends Command
         } else {
             $this->error('Could not find '.$json);
         }
+    }
+
+    private function saveIcon($appFolder, $icon) {
+        $iconPath = app_path('SupportedApps/' . $appFolder . '/' . $icon);
+        $contents = file_get_contents($iconPath);
+        Storage::disk('public')->put('icons/'.$icon, $contents);
     }
 }
