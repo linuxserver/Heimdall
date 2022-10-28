@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class ItemController extends Controller
 {
@@ -376,7 +377,13 @@ class ItemController extends Controller
         }
 
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
-        $output['iconview'] = config('app.appsource').'icons/'.$app->icon;
+        if(strpos($app->icon, 'icons/') !== false) {
+            // Private apps have the icon locally
+            $output['iconview'] = URL::to('/').'/storage/'.$app->icon;
+        } else {
+            $output['iconview'] = config('app.appsource').'icons/'.$app->icon;
+        }
+
 
         return json_encode($output);
     }

@@ -110,6 +110,13 @@ class Application extends Model
     {
         $apps = self::apps();
         $app = $apps->where('appid', $appid)->first();
+
+        if ($app === null) {
+            // Try in db for Private App
+            $appModel = self::where('appid', $appid)->first();
+            $app = json_decode($appModel->toJson());
+        }
+
         if ($app === null) {
             return null;
         }
