@@ -110,6 +110,13 @@ class Application extends Model
     {
         $apps = self::apps();
         $app = $apps->where('appid', $appid)->first();
+
+        if ($app === null) {
+            // Try in db for Private App
+            $appModel = self::where('appid', $appid)->first();
+            $app = json_decode($appModel->toJson());
+        }
+
         if ($app === null) {
             return null;
         }
@@ -125,6 +132,15 @@ class Application extends Model
         $list['null'] = 'None';
         $apps = self::apps();
         foreach ($apps as $app) {
+            $list[$app->appid] = $app->name;
+        }
+
+        // Check for private apps in the db
+        $appsListFromDB = self::all(['appid', 'name']);
+
+        foreach($appsListFromDB as $app) {
+            // Already existing keys are overwritten,
+            // only private apps should be added at the end
             $list[$app->appid] = $app->name;
         }
 
