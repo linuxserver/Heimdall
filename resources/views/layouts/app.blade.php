@@ -63,7 +63,7 @@
                             <a href="{{ route('items.index', []) }}">Items</a></li>
                     </ul>
                 </header>
-                <main>
+                <main id="main">
                     @if ($message = Session::get('success'))
                     <div class="message-container">
                         <div class="alert alert-success">
