@@ -641,7 +641,7 @@ $.when($.ready).then(function () {
     }
   });
   $('#sortable').sortable('disable');
-  $('#sortable').on('mouseenter', '.item', function () {
+  $('#main').on('mouseenter', '#sortable.ui-sortable-disabled .item', function () {
     $(this).siblings('.tooltip').addClass('active');
     $('.refresh', this).addClass('active');
   }).on('mouseleave', '.item', function () {
@@ -696,8 +696,10 @@ $.when($.ready).then(function () {
       $('.add-item').hide();
       $('.item-edit').hide();
       $('#app').removeClass('sidebar');
+      $('#sortable .tooltip').css('display', '')
       $('#sortable').sortable('disable');
     } else {
+      $('#sortable .tooltip').css('display', 'none')
       $('#sortable').sortable('enable');
       setTimeout(function () {
         $('.add-item').fadeIn();
