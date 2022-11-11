@@ -3,6 +3,8 @@
 use App\Setting;
 use App\SettingGroup;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SettingsSeeder extends Seeder
 {
@@ -243,7 +245,15 @@ class SettingsSeeder extends Seeder
             $home_tag->url = '';
             $home_tag->type = 1;
             $home_tag->user_id = 0;
+
             $home_tag->save();
+            $home_tag_id = $home_tag->id;
+
+            if($home_tag_id != 0) {
+                Log::info("Home Tag returned with id $home_tag_id from db! Changing to 0.");
+
+                DB::update('update items set id = 0 where id = ?', [$home_tag_id]);
+            }
 
             $homeapps = \App\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
             foreach ($homeapps as $app) {
