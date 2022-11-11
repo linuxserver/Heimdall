@@ -15,11 +15,18 @@ class UsersSeeder extends Seeder
         // Groups
         if (! $user = User::find(1)) {
             $user = new User;
-            $user->id = 1;
             $user->username = 'admin';
             $user->email = 'admin@test.com';
             $user->password = null;
             $user->save();
+
+            $user_id = $user->id;
+
+            if($user_id != 1) {
+                Log::info("First User returned with id $user_id from db! Changing to 1.");
+
+                DB::update('update users set id = 1 where id = ?', [$user_id]);
+            }
         } else {
             //$user->save();
         }
