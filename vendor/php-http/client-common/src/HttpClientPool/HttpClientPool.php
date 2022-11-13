@@ -46,9 +46,9 @@ abstract class HttpClientPool implements HttpClientPoolInterface
     /**
      * Return an http client given a specific strategy.
      *
-     * @throws HttpClientNotFoundException When no http client has been found into the pool
-     *
      * @return HttpClientPoolItem Return a http client that can do both sync or async
+     *
+     * @throws HttpClientNotFoundException When no http client has been found into the pool
      */
     abstract protected function chooseHttpClient(): HttpClientPoolItem;
 

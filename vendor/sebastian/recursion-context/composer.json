@@ -17,11 +17,19 @@
             "email": "aharvey@php.net"
         }
     ],
+    "prefer-stable": true,
+    "config": {
+        "platform": {
+            "php": "7.3.0"
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
     "require": {
-        "php": ">=7.0"
+        "php": ">=7.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.0"
+        "phpunit/phpunit": "^9.3"
     },
     "autoload": {
         "classmap": [
@@ -30,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.0.x-dev"
+            "dev-master": "4.0-dev"
         }
     }
 }

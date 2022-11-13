@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of sebastian/comparator.
  *
@@ -7,11 +7,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Comparator;
 
+use PHPUnit\Framework\MockObject\MockObject;
+
 /**
- * Compares PHPUnit_Framework_MockObject_MockObject instances for equality.
+ * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
  */
 class MockObjectComparator extends ObjectComparator
 {
@@ -25,8 +26,7 @@ class MockObjectComparator extends ObjectComparator
      */
     public function accepts($expected, $actual)
     {
-        return ($expected instanceof \PHPUnit_Framework_MockObject_MockObject || $expected instanceof \PHPUnit\Framework\MockObject\MockObject) &&
-               ($actual instanceof \PHPUnit_Framework_MockObject_MockObject || $actual instanceof \PHPUnit\Framework\MockObject\MockObject);
+        return $expected instanceof MockObject && $actual instanceof MockObject;
     }
 
     /**

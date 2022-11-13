@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -16,23 +18,15 @@ namespace League\CommonMark\Node;
 
 final class NodeWalkerEvent
 {
-    /**
-     * @var Node
-     */
-    private $node;
+    /** @psalm-readonly */
+    private Node $node;
 
-    /**
-     * @var bool
-     */
-    private $isEntering;
+    /** @psalm-readonly */
+    private bool $isEntering;
 
-    /**
-     * @param Node $node
-     * @param bool $isEntering
-     */
-    public function __construct(Node $node, $isEntering = true)
+    public function __construct(Node $node, bool $isEntering = true)
     {
-        $this->node = $node;
+        $this->node       = $node;
         $this->isEntering = $isEntering;
     }
 

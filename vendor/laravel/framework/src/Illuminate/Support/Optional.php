@@ -4,10 +4,11 @@ namespace Illuminate\Support;
 
 use ArrayAccess;
 use ArrayObject;
+use Illuminate\Support\Traits\Macroable;
 
 class Optional implements ArrayAccess
 {
-    use Traits\Macroable {
+    use Macroable {
         __call as macroCall;
     }
 
@@ -67,6 +68,7 @@ class Optional implements ArrayAccess
      * @param  mixed  $key
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($key)
     {
         return Arr::accessible($this->value) && Arr::exists($this->value, $key);
@@ -78,6 +80,7 @@ class Optional implements ArrayAccess
      * @param  mixed  $key
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return Arr::get($this->value, $key);
@@ -90,6 +93,7 @@ class Optional implements ArrayAccess
      * @param  mixed  $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         if (Arr::accessible($this->value)) {
@@ -103,6 +107,7 @@ class Optional implements ArrayAccess
      * @param  string  $key
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
         if (Arr::accessible($this->value)) {

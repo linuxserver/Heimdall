@@ -141,12 +141,42 @@ class NativeSessionStorage implements SessionStorageInterface
             throw new \RuntimeException('Failed to start the session: already started by PHP.');
         }
 
-        if (filter_var(ini_get('session.use_cookies'), \FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line)) {
+        if (filter_var(\ini_get('session.use_cookies'), \FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line)) {
             throw new \RuntimeException(sprintf('Failed to start the session because headers have already been sent by "%s" at line %d.', $file, $line));
         }
 
         $sessionId = $_COOKIE[session_name()] ?? null;
-        if ($sessionId && $this->saveHandler instanceof AbstractProxy && 'files' === $this->saveHandler->getSaveHandlerName() && !preg_match('/^[a-zA-Z0-9,-]{22,}$/', $sessionId)) {
+        /*
+         * Explanation of the session ID regular expression: `/^[a-zA-Z0-9,-]{22,250}$/`.
+         *
+         * ---------- Part 1
+         *
+         * The part `[a-zA-Z0-9,-]` is related to the PHP ini directive `session.sid_bits_per_character` defined as 6.
+         * See https://www.php.net/manual/en/session.configuration.php#ini.session.sid-bits-per-character.
+         * Allowed values are integers such as:
+         * - 4 for range `a-f0-9`
+         * - 5 for range `a-v0-9`
+         * - 6 for range `a-zA-Z0-9,-`
+         *
+         * ---------- Part 2
+         *
+         * The part `{22,250}` is related to the PHP ini directive `session.sid_length`.
+         * See https://www.php.net/manual/en/session.configuration.php#ini.session.sid-length.
+         * Allowed values are integers between 22 and 256, but we use 250 for the max.
+         *
+         * Where does the 250 come from?
+         * - The length of Windows and Linux filenames is limited to 255 bytes. Then the max must not exceed 255.
+         * - The session filename prefix is `sess_`, a 5 bytes string. Then the max must not exceed 255 - 5 = 250.
+         *
+         * ---------- Conclusion
+         *
+         * The parts 1 and 2 prevent the warning below:
+         * `PHP Warning: SessionHandler::read(): Session ID is too long or contains illegal characters. Only the A-Z, a-z, 0-9, "-", and "," characters are allowed.`
+         *
+         * The part 2 prevents the warning below:
+         * `PHP Warning: SessionHandler::read(): open(filepath, O_RDWR) failed: No such file or directory (2).`
+         */
+        if ($sessionId && $this->saveHandler instanceof AbstractProxy && 'files' === $this->saveHandler->getSaveHandlerName() && !preg_match('/^[a-zA-Z0-9,-]{22,250}$/', $sessionId)) {
             // the session ID in the header is invalid, create a new one
             session_id(session_create_id());
         }
@@ -214,7 +244,7 @@ class NativeSessionStorage implements SessionStorageInterface
             return false;
         }
 
-        if (null !== $lifetime && $lifetime != ini_get('session.cookie_lifetime')) {
+        if (null !== $lifetime && $lifetime != \ini_get('session.cookie_lifetime')) {
             $this->save();
             ini_set('session.cookie_lifetime', $lifetime);
             $this->start();
@@ -249,7 +279,7 @@ class NativeSessionStorage implements SessionStorageInterface
                 unset($_SESSION[$key]);
             }
         }
-        if ([$key = $this->metadataBag->getStorageKey()] === array_keys($_SESSION)) {
+        if ($_SESSION && [$key = $this->metadataBag->getStorageKey()] === array_keys($_SESSION)) {
             unset($_SESSION[$key]);
         }
 

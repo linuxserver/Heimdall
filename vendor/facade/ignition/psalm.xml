@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="4"
+    findUnusedVariablesAndParams="true"
+    resolveFromConfigFile="true"
+    useDocblockPropertyTypes="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorBaseline="psalm-baseline.xml"
+>
+    <projectFiles>
+        <directory name="src"/>
+         <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <UndefinedInterfaceMethod>
+            <errorLevel type="suppress">
+                <file name="src/Solutions/SolutionTransformer.php" />
+            </errorLevel>
+        </UndefinedInterfaceMethod>
+        <ForbiddenCode>
+            <errorLevel type="suppress">
+                <file name="src/SolutionProviders/MergeConflictSolutionProvider.php" />
+            </errorLevel>
+        </ForbiddenCode>
+        <InvalidCast>
+            <errorLevel type="suppress">
+                <file name="src/DumpRecorder/DumpRecorder.php" />
+            </errorLevel>
+        </InvalidCast>
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <file name="src/ErrorPage/ErrorPageViewModel.php" />
+                <file name="src/ErrorPage/IgnitionExceptionRenderer.php" />
+                <file name="src/IgnitionServiceProvider.php" />
+            </errorLevel>
+        </UndefinedClass>
+    </issueHandlers>
+
+    <plugins>
+        <pluginClass class="Psalm\LaravelPlugin\Plugin"/>
+    </plugins>
+</psalm>

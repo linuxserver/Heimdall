@@ -152,7 +152,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     protected function requestWithoutTrailingSlash(Request $request)
     {
-        $trimmedRequest = Request::createFromBase($request);
+        $trimmedRequest = $request->duplicate();
 
         $parts = explode('?', $request->server->get('REQUEST_URI'), 2);
 
@@ -252,7 +252,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
             })
             ->map(function (Collection $routes) {
                 return $routes->mapWithKeys(function (Route $route) {
-                    return [$route->uri => $route];
+                    return [$route->getDomain().$route->uri => $route];
                 })->all();
             })
             ->all();
@@ -293,12 +293,13 @@ class CompiledRouteCollection extends AbstractRouteCollection
             ), '/');
         }
 
-        return $this->router->newRoute($attributes['methods'], $baseUri == '' ? '/' : $baseUri, $attributes['action'])
+        return $this->router->newRoute($attributes['methods'], $baseUri === '' ? '/' : $baseUri, $attributes['action'])
             ->setFallback($attributes['fallback'])
             ->setDefaults($attributes['defaults'])
             ->setWheres($attributes['wheres'])
             ->setBindingFields($attributes['bindingFields'])
-            ->block($attributes['lockSeconds'] ?? null, $attributes['waitSeconds'] ?? null);
+            ->block($attributes['lockSeconds'] ?? null, $attributes['waitSeconds'] ?? null)
+            ->withTrashed($attributes['withTrashed'] ?? false);
     }
 
     /**

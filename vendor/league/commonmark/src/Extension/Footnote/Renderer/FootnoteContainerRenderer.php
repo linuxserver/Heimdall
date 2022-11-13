@@ -14,39 +14,58 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Renderer;
 
-use League\CommonMark\Block\Element\AbstractBlock;
-use League\CommonMark\Block\Renderer\BlockRendererInterface;
-use League\CommonMark\ElementRendererInterface;
 use League\CommonMark\Extension\Footnote\Node\FootnoteContainer;
-use League\CommonMark\HtmlElement;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
+use League\CommonMark\Util\HtmlElement;
+use League\CommonMark\Xml\XmlNodeRendererInterface;
+use League\Config\ConfigurationAwareInterface;
+use League\Config\ConfigurationInterface;
 
-final class FootnoteContainerRenderer implements BlockRendererInterface, ConfigurationAwareInterface
+final class FootnoteContainerRenderer implements NodeRendererInterface, XmlNodeRendererInterface, ConfigurationAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
-    public function render(AbstractBlock $block, ElementRendererInterface $htmlRenderer, bool $inTightList = false)
+    /**
+     * @param FootnoteContainer $node
+     *
+     * {@inheritDoc}
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer): \Stringable
     {
-        if (!($block instanceof FootnoteContainer)) {
-            throw new \InvalidArgumentException('Incompatible block type: ' . \get_class($block));
-        }
+        FootnoteContainer::assertInstanceOf($node);
 
-        $attrs = $block->getData('attributes', []);
-        $attrs['class'] = $attrs['class'] ?? $this->config->get('footnote/container_class', 'footnotes');
-        $attrs['role'] = 'doc-endnotes';
+        $attrs = $node->data->getData('attributes');
 
-        $contents = new HtmlElement('ol', [], $htmlRenderer->renderBlocks($block->children()));
-        if ($this->config->get('footnote/container_add_hr', true)) {
+        $attrs->append('class', $this->config->get('footnote/container_class'));
+        $attrs->set('role', 'doc-endnotes');
+
+        $contents = new HtmlElement('ol', [], $childRenderer->renderNodes($node->children()));
+        if ($this->config->get('footnote/container_add_hr')) {
             $contents = [new HtmlElement('hr', [], null, true), $contents];
         }
 
-        return new HtmlElement('div', $attrs, $contents);
+        return new HtmlElement('div', $attrs->export(), $contents);
     }
 
-    public function setConfiguration(ConfigurationInterface $configuration)
+    public function setConfiguration(ConfigurationInterface $configuration): void
     {
         $this->config = $configuration;
+    }
+
+    public function getXmlTagName(Node $node): string
+    {
+        return 'footnote_container';
+    }
+
+    /**
+     * @return array<string, scalar>
+     */
+    public function getXmlAttributes(Node $node): array
+    {
+        return [];
     }
 }

@@ -113,7 +113,7 @@ class CssToInlineStyles
     {
         $document = new \DOMDocument('1.0', 'UTF-8');
         $internalErrors = libxml_use_internal_errors(true);
-        $document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $document->loadHTML(mb_encode_numericentity($html, [0x80, 0xFFFF, 0, 0xFFFF], 'UTF-8'));
         libxml_use_internal_errors($internalErrors);
         $document->formatOutput = true;
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of the Recursion Context package.
  *
@@ -7,8 +7,18 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\RecursionContext;
+
+use const PHP_INT_MAX;
+use const PHP_INT_MIN;
+use function array_pop;
+use function array_slice;
+use function count;
+use function is_array;
+use function is_object;
+use function random_int;
+use function spl_object_hash;
+use SplObjectStorage;
 
 /**
  * A context containing previously processed arrays and objects
@@ -22,33 +32,52 @@ final class Context
     private $arrays;
 
     /**
-     * @var \SplObjectStorage
+     * @var SplObjectStorage
      */
     private $objects;
 
     /**
-     * Initialises the context
+     * Initialises the context.
      */
     public function __construct()
     {
-        $this->arrays  = array();
-        $this->objects = new \SplObjectStorage;
+        $this->arrays  = [];
+        $this->objects = new SplObjectStorage;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function __destruct()
+    {
+        foreach ($this->arrays as &$array) {
+            if (is_array($array)) {
+                array_pop($array);
+                array_pop($array);
+            }
+        }
     }
 
     /**
      * Adds a value to the context.
      *
-     * @param array|object $value The value to add.
-     *
-     * @return int|string The ID of the stored value, either as a string or integer.
+     * @param array|object $value the value to add
      *
      * @throws InvalidArgumentException Thrown if $value is not an array or object
+     *
+     * @return bool|int|string the ID of the stored value, either as a string or integer
+     *
+     * @psalm-template T
+     * @psalm-param T $value
+     * @param-out T $value
      */
     public function add(&$value)
     {
         if (is_array($value)) {
             return $this->addArray($value);
-        } elseif (is_object($value)) {
+        }
+
+        if (is_object($value)) {
             return $this->addObject($value);
         }
 
@@ -60,17 +89,23 @@ final class Context
     /**
      * Checks if the given value exists within the context.
      *
-     * @param array|object $value The value to check.
-     *
-     * @return int|string|false The string or integer ID of the stored value if it has already been seen, or false if the value is not stored.
+     * @param array|object $value the value to check
      *
      * @throws InvalidArgumentException Thrown if $value is not an array or object
+     *
+     * @return false|int|string the string or integer ID of the stored value if it has already been seen, or false if the value is not stored
+     *
+     * @psalm-template T
+     * @psalm-param T $value
+     * @param-out T $value
      */
     public function contains(&$value)
     {
         if (is_array($value)) {
             return $this->containsArray($value);
-        } elseif (is_object($value)) {
+        }
+
+        if (is_object($value)) {
             return $this->containsObject($value);
         }
 
@@ -80,8 +115,6 @@ final class Context
     }
 
     /**
-     * @param array $array
-     *
      * @return bool|int
      */
     private function addArray(array &$array)
@@ -117,10 +150,8 @@ final class Context
 
     /**
      * @param object $object
-     *
-     * @return string
      */
-    private function addObject($object)
+    private function addObject($object): string
     {
         if (!$this->objects->contains($object)) {
             $this->objects->attach($object);
@@ -130,9 +161,7 @@ final class Context
     }
 
     /**
-     * @param array $array
-     *
-     * @return int|false
+     * @return false|int
      */
     private function containsArray(array &$array)
     {
@@ -144,7 +173,7 @@ final class Context
     /**
      * @param object $value
      *
-     * @return string|false
+     * @return false|string
      */
     private function containsObject($value)
     {
@@ -153,15 +182,5 @@ final class Context
         }
 
         return false;
-    }
-
-    public function __destruct()
-    {
-        foreach ($this->arrays as &$array) {
-            if (is_array($array)) {
-                array_pop($array);
-                array_pop($array);
-            }
-        }
     }
 }

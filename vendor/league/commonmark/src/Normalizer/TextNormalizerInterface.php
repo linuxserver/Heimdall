@@ -19,8 +19,15 @@ namespace League\CommonMark\Normalizer;
 interface TextNormalizerInterface
 {
     /**
-     * @param string $text    The text to normalize
-     * @param mixed  $context Additional context about the text being normalized (optional)
+     * @param string               $text    The text to normalize
+     * @param array<string, mixed> $context Additional context about the text being normalized (optional)
+     *
+     * $context may include (but is not required to include) the following:
+     *   - `prefix` - A string prefix to prepend to each normalized result
+     *   - `length` - The requested maximum length
+     *   - `node` - The node we're normalizing text for
+     *
+     * Implementations do not have to use or respect any information within that $context
      */
-    public function normalize(string $text, $context = null): string;
+    public function normalize(string $text, array $context = []): string;
 }

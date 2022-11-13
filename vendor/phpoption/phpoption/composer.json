@@ -16,11 +16,11 @@
         }
     ],
     "require": {
-        "php": "^7.0 || ^8.0"
+        "php": "^7.2.5 || ^8.0"
     },
     "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.4.1",
-        "phpunit/phpunit": "^6.5.14 || ^7.5.20 || ^8.5.19 || ^9.5.8"
+        "bamarni/composer-bin-plugin": "^1.8",
+        "phpunit/phpunit": "^8.5.28 || ^9.5.21"
     },
     "autoload": {
         "psr-4": {
@@ -33,11 +33,18 @@
         }
     },
     "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        },
         "preferred-install": "dist"
     },
     "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "forward-command": true
+        },
         "branch-alias": {
-            "dev-master": "1.8-dev"
+            "dev-master": "1.9-dev"
         }
     },
     "minimum-stability": "dev",

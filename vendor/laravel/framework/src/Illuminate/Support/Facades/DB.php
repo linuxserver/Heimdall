@@ -3,6 +3,7 @@
 namespace Illuminate\Support\Facades;
 
 /**
+ * @method static \Doctrine\DBAL\Driver\PDOConnection getPdo()
  * @method static \Illuminate\Database\ConnectionInterface connection(string $name = null)
  * @method static \Illuminate\Database\Query\Builder table(string $table, string $as = null)
  * @method static \Illuminate\Database\Query\Expression raw($value)
@@ -21,11 +22,13 @@ namespace Illuminate\Support\Facades;
  * @method static mixed selectOne(string $query, array $bindings = [], bool $useReadPdo = true)
  * @method static mixed transaction(\Closure $callback, int $attempts = 1)
  * @method static string getDefaultConnection()
+ * @method static void afterCommit(\Closure $callback)
  * @method static void beginTransaction()
  * @method static void commit()
  * @method static void enableQueryLog()
  * @method static void disableQueryLog()
  * @method static void flushQueryLog()
+ * @method static \Illuminate\Database\Connection beforeExecuting(\Closure $callback)
  * @method static void listen(\Closure $callback)
  * @method static void rollBack(int $toLevel = null)
  * @method static void setDefaultConnection(string $name)

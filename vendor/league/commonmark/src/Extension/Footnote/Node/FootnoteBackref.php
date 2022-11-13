@@ -14,19 +14,22 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Node;
 
-use League\CommonMark\Inline\Element\AbstractInline;
+use League\CommonMark\Node\Inline\AbstractInline;
 use League\CommonMark\Reference\ReferenceInterface;
+use League\CommonMark\Reference\ReferenceableInterface;
 
 /**
  * Link from the footnote on the bottom of the document back to the reference
  */
-final class FootnoteBackref extends AbstractInline
+final class FootnoteBackref extends AbstractInline implements ReferenceableInterface
 {
-    /** @var ReferenceInterface */
-    private $reference;
+    /** @psalm-readonly */
+    private ReferenceInterface $reference;
 
     public function __construct(ReferenceInterface $reference)
     {
+        parent::__construct();
+
         $this->reference = $reference;
     }
 

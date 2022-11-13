@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -14,14 +16,9 @@
 
 namespace League\CommonMark\Extension;
 
-use League\CommonMark\ConfigurableEnvironmentInterface;
+use League\CommonMark\Environment\EnvironmentBuilderInterface;
 
 interface ExtensionInterface
 {
-    /**
-     * @param ConfigurableEnvironmentInterface $environment
-     *
-     * @return void
-     */
-    public function register(ConfigurableEnvironmentInterface $environment);
+    public function register(EnvironmentBuilderInterface $environment): void;
 }

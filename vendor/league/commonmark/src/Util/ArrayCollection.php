@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -18,39 +20,34 @@ namespace League\CommonMark\Util;
  *
  * @internal
  *
- * @phpstan-template TKey
- * @phpstan-template TValue
- * @phpstan-implements \IteratorAggregate<TKey, TValue>
- * @phpstan-implements \ArrayAccess<TKey, TValue>
+ * @phpstan-template T
+ * @phpstan-implements \IteratorAggregate<int, T>
+ * @phpstan-implements \ArrayAccess<int, T>
  */
-class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
+final class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
 {
     /**
-     * @var array<int|string, mixed>
-     * @phpstan-var array<TKey, TValue>
+     * @var array<int, mixed>
+     * @phpstan-var array<int, T>
      */
-    private $elements;
+    private array $elements;
 
     /**
      * Constructor
      *
      * @param array<int|string, mixed> $elements
      *
-     * @phpstan-param array<TKey, TValue> $elements
+     * @phpstan-param array<int, T> $elements
      */
     public function __construct(array $elements = [])
     {
         $this->elements = $elements;
-
-        if (self::class !== static::class) {
-            @\trigger_error('Extending the ArrayCollection class is deprecated in league/commonmark 1.6 and will not be allowed in 2.0', \E_USER_DEPRECATED);
-        }
     }
 
     /**
      * @return mixed|false
      *
-     * @phpstan-return TValue|false
+     * @phpstan-return T|false
      */
     public function first()
     {
@@ -60,7 +57,7 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * @return mixed|false
      *
-     * @phpstan-return TValue|false
+     * @phpstan-return T|false
      */
     public function last()
     {
@@ -70,151 +67,14 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Retrieve an external iterator
      *
-     * @return \ArrayIterator<int|string, mixed>
+     * @return \ArrayIterator<int, mixed>
+     *
+     * @phpstan-return \ArrayIterator<int, T>
      */
     #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->elements);
-    }
-
-    /**
-     * @param mixed $element
-     *
-     * @return bool
-     *
-     * @phpstan-param TValue $element
-     *
-     * @deprecated
-     */
-    public function add($element): bool
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'add()', '$collection[] = $value'), E_USER_DEPRECATED);
-
-        $this->elements[] = $element;
-
-        return true;
-    }
-
-    /**
-     * @param int|string $key
-     * @param mixed      $value
-     *
-     * @return void
-     *
-     * @phpstan-param TKey   $key
-     * @phpstan-param TValue $value
-     *
-     * @deprecated
-     */
-    public function set($key, $value)
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'set()', '$collection[$key] = $value'), E_USER_DEPRECATED);
-
-        $this->offsetSet($key, $value);
-    }
-
-    /**
-     * @param int|string $key
-     *
-     * @return mixed
-     *
-     * @phpstan-param TKey $key
-     *
-     * @phpstan-return TValue|null
-     *
-     * @deprecated
-     */
-    public function get($key)
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'get()', '$collection[$key]'), E_USER_DEPRECATED);
-
-        return $this->offsetGet($key);
-    }
-
-    /**
-     * @param int|string $key
-     *
-     * @return mixed
-     *
-     * @phpstan-param TKey $key
-     *
-     * @phpstan-return TValue|null
-     *
-     * @deprecated
-     */
-    public function remove($key)
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'remove()', 'unset($collection[$key])'), E_USER_DEPRECATED);
-
-        if (!\array_key_exists($key, $this->elements)) {
-            return;
-        }
-
-        $removed = $this->elements[$key];
-        unset($this->elements[$key]);
-
-        return $removed;
-    }
-
-    /**
-     * @return bool
-     *
-     * @deprecated
-     */
-    public function isEmpty(): bool
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'isEmpty()', 'count($collection) === 0'), E_USER_DEPRECATED);
-
-        return empty($this->elements);
-    }
-
-    /**
-     * @param mixed $element
-     *
-     * @return bool
-     *
-     * @phpstan-param TValue $element
-     *
-     * @deprecated
-     */
-    public function contains($element): bool
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'contains()', 'in_array($value, $collection->toArray(), true)'), E_USER_DEPRECATED);
-
-        return \in_array($element, $this->elements, true);
-    }
-
-    /**
-     * @param mixed $element
-     *
-     * @return mixed|false
-     *
-     * @phpstan-param TValue $element
-     *
-     * @deprecated
-     */
-    public function indexOf($element)
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'indexOf()', 'array_search($value, $collection->toArray(), true)'), E_USER_DEPRECATED);
-
-        return \array_search($element, $this->elements, true);
-    }
-
-    /**
-     * @param int|string $key
-     *
-     * @return bool
-     *
-     * @phpstan-param TKey $key
-     *
-     * @deprecated
-     */
-    public function containsKey($key): bool
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4, use "%s" instead.', self::class, 'containsKey()', 'isset($collection[$key])'), E_USER_DEPRECATED);
-
-        return \array_key_exists($key, $this->elements);
     }
 
     /**
@@ -230,11 +90,9 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Whether an offset exists
      *
-     * @param int|string $offset An offset to check for.
+     * {@inheritDoc}
      *
-     * @return bool true on success or false on failure.
-     *
-     * @phpstan-param TKey $offset
+     * @phpstan-param int $offset
      */
     public function offsetExists($offset): bool
     {
@@ -244,13 +102,11 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Offset to retrieve
      *
-     * @param int|string $offset
+     * {@inheritDoc}
      *
-     * @return mixed|null
+     * @phpstan-param int $offset
      *
-     * @phpstan-param TKey $offset
-     *
-     * @phpstan-return TValue|null
+     * @phpstan-return T|null
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -261,16 +117,13 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Offset to set
      *
-     * @param int|string|null $offset The offset to assign the value to.
-     * @param mixed           $value  The value to set.
+     * {@inheritDoc}
      *
-     * @return void
-     *
-     * @phpstan-param TKey|null $offset
-     * @phpstan-param TValue    $value
+     * @phpstan-param int|null $offset
+     * @phpstan-param T        $value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($offset === null) {
             $this->elements[] = $value;
@@ -282,16 +135,14 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Offset to unset
      *
-     * @param int|string $offset The offset to unset.
+     * {@inheritDoc}
      *
-     * @return void
-     *
-     * @phpstan-param TKey $offset
+     * @phpstan-param int $offset
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
-        if (!\array_key_exists($offset, $this->elements)) {
+        if (! \array_key_exists($offset, $this->elements)) {
             return;
         }
 
@@ -301,12 +152,9 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     /**
      * Returns a subset of the array
      *
-     * @param int      $offset
-     * @param int|null $length
+     * @return array<int, mixed>
      *
-     * @return array<int|string, mixed>
-     *
-     * @phpstan-return array<TKey, TValue>
+     * @phpstan-return array<int, T>
      */
     public function slice(int $offset, ?int $length = null): array
     {
@@ -314,42 +162,12 @@ class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAccess
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<int, mixed>
      *
-     * @phpstan-return array<TKey, TValue>
+     * @phpstan-return array<int, T>
      */
     public function toArray(): array
     {
         return $this->elements;
-    }
-
-    /**
-     * @param array<int|string, mixed> $elements
-     *
-     * @return $this
-     *
-     * @phpstan-param array<TKey, TValue> $elements
-     *
-     * @deprecated
-     */
-    public function replaceWith(array $elements)
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4.', self::class, 'replaceWith()'), E_USER_DEPRECATED);
-
-        $this->elements = $elements;
-
-        return $this;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @return void
-     */
-    public function removeGaps()
-    {
-        @trigger_error(sprintf('The "%s:%s" method is deprecated since league/commonmark 1.4.', self::class, 'removeGaps()'), E_USER_DEPRECATED);
-
-        $this->elements = \array_filter($this->elements);
     }
 }

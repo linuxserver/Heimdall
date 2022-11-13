@@ -14,18 +14,18 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Attributes;
 
-use League\CommonMark\ConfigurableEnvironmentInterface;
+use League\CommonMark\Environment\EnvironmentBuilderInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\Attributes\Event\AttributesListener;
-use League\CommonMark\Extension\Attributes\Parser\AttributesBlockParser;
+use League\CommonMark\Extension\Attributes\Parser\AttributesBlockStartParser;
 use League\CommonMark\Extension\Attributes\Parser\AttributesInlineParser;
 use League\CommonMark\Extension\ExtensionInterface;
 
 final class AttributesExtension implements ExtensionInterface
 {
-    public function register(ConfigurableEnvironmentInterface $environment)
+    public function register(EnvironmentBuilderInterface $environment): void
     {
-        $environment->addBlockParser(new AttributesBlockParser());
+        $environment->addBlockStartParser(new AttributesBlockStartParser());
         $environment->addInlineParser(new AttributesInlineParser());
         $environment->addEventListener(DocumentParsedEvent::class, [new AttributesListener(), 'processDocument']);
     }

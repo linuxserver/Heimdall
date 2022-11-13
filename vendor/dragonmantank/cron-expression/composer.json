@@ -6,21 +6,20 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Michael Dowling",
-            "email": "mtdowling@gmail.com",
-            "homepage": "https://github.com/mtdowling"
-        },
-        {
             "name": "Chris Tankersley",
             "email": "chris@ctankersley.com",
             "homepage": "https://github.com/dragonmantank"
         }
     ],
     "require": {
-        "php": "^7.0|^8.0"
+        "php": "^7.2|^8.0",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.4|^7.0|^8.0|^9.0"
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^7.0|^8.0|^9.0",
+        "phpstan/phpstan-webmozart-assert": "^1.0",
+        "phpstan/extension-installer": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -29,12 +28,20 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/Cron/"
+            "Cron\\Tests\\": "tests/Cron/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.3-dev"
+    "replace": {
+        "mtdowling/cron-expression": "^1.0"
+    },
+    "scripts": {
+        "phpstan": "./vendor/bin/phpstan analyze",
+        "test": "phpunit"
+    },
+    "config": {
+        "allow-plugins": {
+            "ocramius/package-versions": true,
+            "phpstan/extension-installer": true
         }
     }
 }

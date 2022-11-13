@@ -103,7 +103,10 @@ class ByteString extends AbstractString
     public function camel(): parent
     {
         $str = clone $this;
-        $str->string = lcfirst(str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9\x7f-\xff]++/', ' ', $this->string))));
+
+        $parts = explode(' ', trim(ucwords(preg_replace('/[^a-zA-Z0-9\x7f-\xff]++/', ' ', $this->string))));
+        $parts[0] = 1 !== \strlen($parts[0]) && ctype_upper($parts[0]) ? $parts[0] : lcfirst($parts[0]);
+        $str->string = implode('', $parts);
 
         return $str;
     }
@@ -363,7 +366,7 @@ class ByteString extends AbstractString
 
     public function snake(): parent
     {
-        $str = $this->camel()->title();
+        $str = $this->camel();
         $str->string = strtolower(preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'], '\1_\2', $str->string));
 
         return $str;

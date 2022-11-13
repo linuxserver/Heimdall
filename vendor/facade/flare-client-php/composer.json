@@ -1,0 +1,52 @@
+{
+    "name": "facade/flare-client-php",
+    "description": "Send PHP errors to Flare",
+    "keywords": [
+        "facade",
+        "flare",
+        "exception",
+        "reporting"
+    ],
+    "homepage": "https://github.com/facade/flare-client-php",
+    "license": "MIT",
+    "require": {
+        "php": "^7.1|^8.0",
+        "facade/ignition-contracts": "~1.0",
+        "illuminate/pipeline": "^5.5|^6.0|^7.0|^8.0",
+        "symfony/http-foundation": "^3.3|^4.1|^5.0",
+        "symfony/mime": "^3.4|^4.0|^5.1",
+        "symfony/var-dumper": "^3.4|^4.0|^5.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.14",
+        "spatie/phpunit-snapshot-assertions": "^2.0",
+        "phpunit/phpunit": "^7.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Facade\\FlareClient\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Facade\\FlareClient\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes",
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}

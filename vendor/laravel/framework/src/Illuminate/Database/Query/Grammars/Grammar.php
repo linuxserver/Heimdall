@@ -19,9 +19,16 @@ class Grammar extends BaseGrammar
     protected $operators = [];
 
     /**
-     * The components that make up a select clause.
+     * The grammar specific bitwise operators.
      *
      * @var array
+     */
+    protected $bitwiseOperators = [];
+
+    /**
+     * The components that make up a select clause.
+     *
+     * @var string[]
      */
     protected $selectComponents = [
         'aggregate',
@@ -45,7 +52,7 @@ class Grammar extends BaseGrammar
      */
     public function compileSelect(Builder $query)
     {
-        if ($query->unions && $query->aggregate) {
+        if (($query->unions || $query->havings) && $query->aggregate) {
             return $this->compileUnionAggregate($query);
         }
 
@@ -181,7 +188,7 @@ class Grammar extends BaseGrammar
      * @param  \Illuminate\Database\Query\Builder  $query
      * @return string
      */
-    protected function compileWheres(Builder $query)
+    public function compileWheres(Builder $query)
     {
         // Each type of where clauses has its own compiler function which is responsible
         // for actually creating the where clauses SQL. This helps keep the code nice
@@ -250,7 +257,21 @@ class Grammar extends BaseGrammar
     {
         $value = $this->parameter($where['value']);
 
-        return $this->wrap($where['column']).' '.$where['operator'].' '.$value;
+        $operator = str_replace('?', '??', $where['operator']);
+
+        return $this->wrap($where['column']).' '.$operator.' '.$value;
+    }
+
+    /**
+     * Compile a bitwise operator where clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereBitwise(Builder $query, $where)
+    {
+        return $this->whereBasic($query, $where);
     }
 
     /**
@@ -457,7 +478,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a where clause comparing two columns..
+     * Compile a where clause comparing two columns.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
      * @param  array  $where
@@ -569,7 +590,8 @@ class Grammar extends BaseGrammar
         $not = $where['not'] ? 'not ' : '';
 
         return $not.$this->compileJsonContains(
-            $where['column'], $this->parameter($where['value'])
+            $where['column'],
+            $this->parameter($where['value'])
         );
     }
 
@@ -608,7 +630,9 @@ class Grammar extends BaseGrammar
     protected function whereJsonLength(Builder $query, $where)
     {
         return $this->compileJsonLength(
-            $where['column'], $where['operator'], $this->parameter($where['value'])
+            $where['column'],
+            $where['operator'],
+            $this->parameter($where['value'])
         );
     }
 
@@ -625,6 +649,18 @@ class Grammar extends BaseGrammar
     protected function compileJsonLength($column, $operator, $value)
     {
         throw new RuntimeException('This database engine does not support JSON length operations.');
+    }
+
+    /**
+     * Compile a "where fulltext" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    public function whereFullText(Builder $query, $where)
+    {
+        throw new RuntimeException('This database engine does not support fulltext search operations.');
     }
 
     /**
@@ -994,6 +1030,22 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Compile an "upsert" statement into SQL.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $values
+     * @param  array  $uniqueBy
+     * @param  array  $update
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    public function compileUpsert(Builder $query, array $values, array $uniqueBy, array $update)
+    {
+        throw new RuntimeException('This database engine does not support upserts.');
+    }
+
+    /**
      * Prepare the bindings for an update statement.
      *
      * @param  array  $bindings
@@ -1265,5 +1317,15 @@ class Grammar extends BaseGrammar
     public function getOperators()
     {
         return $this->operators;
+    }
+
+    /**
+     * Get the grammar specific bitwise operators.
+     *
+     * @return array
+     */
+    public function getBitwiseOperators()
+    {
+        return $this->bitwiseOperators;
     }
 }

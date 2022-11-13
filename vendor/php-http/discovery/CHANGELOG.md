@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.14.3 - 2022-07-11
+
+- [#207](https://github.com/php-http/discovery/pull/207) - Updates Exception to extend Throwable solving static analysis errors for consumers
+
 ## 1.14.2 - 2022-05-25
 
 - [#202](https://github.com/php-http/discovery/pull/202) - Avoid error when the Symfony PSR-18 client exists but its dependencies are not installed

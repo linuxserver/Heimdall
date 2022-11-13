@@ -70,7 +70,7 @@ final class AddPathPlugin implements Plugin
         if (substr($path, 0, strlen($prepend)) !== $prepend) {
             $request = $request->withUri($request->getUri()
                  ->withPath($prepend.$path)
-             );
+            );
         }
 
         return $next($request);

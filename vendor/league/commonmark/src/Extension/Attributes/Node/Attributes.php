@@ -14,19 +14,26 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Attributes\Node;
 
-use League\CommonMark\Block\Element\AbstractBlock;
-use League\CommonMark\Cursor;
+use League\CommonMark\Node\Block\AbstractBlock;
 
 final class Attributes extends AbstractBlock
 {
+    public const TARGET_PARENT   = 0;
+    public const TARGET_PREVIOUS = 1;
+    public const TARGET_NEXT     = 2;
+
     /** @var array<string, mixed> */
-    private $attributes;
+    private array $attributes;
+
+    private int $target = self::TARGET_NEXT;
 
     /**
      * @param array<string, mixed> $attributes
      */
     public function __construct(array $attributes)
     {
+        parent::__construct();
+
         $this->attributes = $attributes;
     }
 
@@ -38,25 +45,21 @@ final class Attributes extends AbstractBlock
         return $this->attributes;
     }
 
-    public function canContain(AbstractBlock $block): bool
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    public function setAttributes(array $attributes): void
     {
-        return false;
+        $this->attributes = $attributes;
     }
 
-    public function isCode(): bool
+    public function getTarget(): int
     {
-        return false;
+        return $this->target;
     }
 
-    public function matchesNextLine(Cursor $cursor): bool
+    public function setTarget(int $target): void
     {
-        $this->setLastLineBlank($cursor->isBlank());
-
-        return false;
-    }
-
-    public function shouldLastLineBeBlank(Cursor $cursor, int $currentLineNumber): bool
-    {
-        return false;
+        $this->target = $target;
     }
 }

@@ -27,19 +27,31 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    public function register()
+    {
+        $this->booting(function () {
+            $events = $this->getEvents();
+
+            foreach ($events as $event => $listeners) {
+                foreach (array_unique($listeners) as $listener) {
+                    Event::listen($event, $listener);
+                }
+            }
+
+            foreach ($this->subscribe as $subscriber) {
+                Event::subscribe($subscriber);
+            }
+        });
+    }
+
+    /**
+     * Boot any application services.
+     *
+     * @return void
+     */
     public function boot()
     {
-        $events = $this->getEvents();
-
-        foreach ($events as $event => $listeners) {
-            foreach (array_unique($listeners) as $listener) {
-                Event::listen($event, $listener);
-            }
-        }
-
-        foreach ($this->subscribe as $subscriber) {
-            Event::subscribe($subscriber);
-        }
+        //
     }
 
     /**
@@ -107,7 +119,7 @@ class EventServiceProvider extends ServiceProvider
                     ->reduce(function ($discovered, $directory) {
                         return array_merge_recursive(
                             $discovered,
-                            DiscoverEvents::within($directory, base_path())
+                            DiscoverEvents::within($directory, $this->eventDiscoveryBasePath())
                         );
                     }, []);
     }
@@ -122,5 +134,15 @@ class EventServiceProvider extends ServiceProvider
         return [
             $this->app->path('Listeners'),
         ];
+    }
+
+    /**
+     * Get the base path to be used during event discovery.
+     *
+     * @return string
+     */
+    protected function eventDiscoveryBasePath()
+    {
+        return base_path();
     }
 }

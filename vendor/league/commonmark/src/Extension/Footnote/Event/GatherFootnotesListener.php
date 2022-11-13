@@ -14,61 +14,43 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Footnote\Event;
 
-use League\CommonMark\Block\Element\Document;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\Footnote\Node\Footnote;
 use League\CommonMark\Extension\Footnote\Node\FootnoteBackref;
 use League\CommonMark\Extension\Footnote\Node\FootnoteContainer;
+use League\CommonMark\Node\Block\Document;
+use League\CommonMark\Node\NodeIterator;
 use League\CommonMark\Reference\Reference;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\Config\ConfigurationAwareInterface;
+use League\Config\ConfigurationInterface;
 
 final class GatherFootnotesListener implements ConfigurationAwareInterface
 {
-    /** @var ConfigurationInterface */
-    private $config;
+    private ConfigurationInterface $config;
 
     public function onDocumentParsed(DocumentParsedEvent $event): void
     {
-        $document = $event->getDocument();
-        $walker = $document->walker();
-
+        $document  = $event->getDocument();
         $footnotes = [];
-        while ($event = $walker->next()) {
-            if (!$event->isEntering()) {
-                continue;
-            }
 
-            $node = $event->getNode();
-            if (!$node instanceof Footnote) {
+        foreach ($document->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
+            if (! $node instanceof Footnote) {
                 continue;
             }
 
             // Look for existing reference with footnote label
-            $ref = $document->getReferenceMap()->getReference($node->getReference()->getLabel());
+            $ref = $document->getReferenceMap()->get($node->getReference()->getLabel());
             if ($ref !== null) {
                 // Use numeric title to get footnotes order
-                $footnotes[\intval($ref->getTitle())] = $node;
+                $footnotes[(int) $ref->getTitle()] = $node;
             } else {
                 // Footnote call is missing, append footnote at the end
-                $footnotes[INF] = $node;
+                $footnotes[\PHP_INT_MAX] = $node;
             }
 
-            /*
-             * Look for all footnote refs pointing to this footnote
-             * and create each footnote backrefs.
-             */
-            $backrefs = $document->getData(
-                '#' . $this->config->get('footnote/footnote_id_prefix', 'fn:') . $node->getReference()->getDestination(),
-                []
-            );
-            /** @var Reference $backref */
-            foreach ($backrefs as $backref) {
-                $node->addBackref(new FootnoteBackref(new Reference(
-                    $backref->getLabel(),
-                    '#' . $this->config->get('footnote/ref_id_prefix', 'fnref:') . $backref->getLabel(),
-                    $backref->getTitle()
-                )));
+            $key = '#' . $this->config->get('footnote/footnote_id_prefix') . $node->getReference()->getDestination();
+            if ($document->data->has($key)) {
+                $this->createBackrefs($node, $document->data->get($key));
             }
         }
 
@@ -93,8 +75,32 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
         return $footnoteContainer;
     }
 
-    public function setConfiguration(ConfigurationInterface $config): void
+    /**
+     * Look for all footnote refs pointing to this footnote and create each footnote backrefs.
+     *
+     * @param Footnote    $node     The target footnote
+     * @param Reference[] $backrefs References to create backrefs for
+     */
+    private function createBackrefs(Footnote $node, array $backrefs): void
     {
-        $this->config = $config;
+        // Backrefs should be added to the child paragraph
+        $target = $node->lastChild();
+        if ($target === null) {
+            // This should never happen, but you never know
+            $target = $node;
+        }
+
+        foreach ($backrefs as $backref) {
+            $target->appendChild(new FootnoteBackref(new Reference(
+                $backref->getLabel(),
+                '#' . $this->config->get('footnote/ref_id_prefix') . $backref->getLabel(),
+                $backref->getTitle()
+            )));
+        }
+    }
+
+    public function setConfiguration(ConfigurationInterface $configuration): void
+    {
+        $this->config = $configuration;
     }
 }

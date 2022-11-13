@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,15 +9,18 @@
  */
 namespace PHPUnit\Util\TestDox;
 
+use function sprintf;
+use PHPUnit\Framework\TestResult;
+
 /**
- * Prints TestDox documentation in HTML format.
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-class HtmlResultPrinter extends ResultPrinter
+final class HtmlResultPrinter extends ResultPrinter
 {
     /**
      * @var string
      */
-    private $pageHeader = <<<EOT
+    private const PAGE_HEADER = <<<'EOT'
 <!doctype html>
 <html lang="en">
     <head>
@@ -29,6 +32,8 @@ class HtmlResultPrinter extends ResultPrinter
                 font-variant-ligatures: common-ligatures;
                 font-kerning: normal;
                 margin-left: 2em;
+                background-color: #ffffff;
+                color: #000000;
             }
 
             body > ul > li {
@@ -53,7 +58,7 @@ EOT;
     /**
      * @var string
      */
-    private $classHeader = <<<EOT
+    private const CLASS_HEADER = <<<'EOT'
 
         <h2 id="%s">%s</h2>
         <ul>
@@ -63,37 +68,39 @@ EOT;
     /**
      * @var string
      */
-    private $classFooter = <<<EOT
+    private const CLASS_FOOTER = <<<'EOT'
         </ul>
 EOT;
 
     /**
      * @var string
      */
-    private $pageFooter = <<<EOT
+    private const PAGE_FOOTER = <<<'EOT'
 
     </body>
 </html>
 EOT;
 
+    public function printResult(TestResult $result): void
+    {
+    }
+
     /**
      * Handler for 'start run' event.
      */
-    protected function startRun()
+    protected function startRun(): void
     {
-        $this->write($this->pageHeader);
+        $this->write(self::PAGE_HEADER);
     }
 
     /**
      * Handler for 'start class' event.
-     *
-     * @param string $name
      */
-    protected function startClass($name)
+    protected function startClass(string $name): void
     {
         $this->write(
-            \sprintf(
-                $this->classHeader,
+            sprintf(
+                self::CLASS_HEADER,
                 $name,
                 $this->currentTestClassPrettified
             )
@@ -102,14 +109,11 @@ EOT;
 
     /**
      * Handler for 'on test' event.
-     *
-     * @param string $name
-     * @param bool   $success
      */
-    protected function onTest($name, $success = true)
+    protected function onTest(string $name, bool $success = true): void
     {
         $this->write(
-            \sprintf(
+            sprintf(
                 "            <li style=\"color: %s;\">%s %s</li>\n",
                 $success ? '#555753' : '#ef2929',
                 $success ? '✓' : '❌',
@@ -120,19 +124,17 @@ EOT;
 
     /**
      * Handler for 'end class' event.
-     *
-     * @param string $name
      */
-    protected function endClass($name)
+    protected function endClass(string $name): void
     {
-        $this->write($this->classFooter);
+        $this->write(self::CLASS_FOOTER);
     }
 
     /**
      * Handler for 'end run' event.
      */
-    protected function endRun()
+    protected function endRun(): void
     {
-        $this->write($this->pageFooter);
+        $this->write(self::PAGE_FOOTER);
     }
 }

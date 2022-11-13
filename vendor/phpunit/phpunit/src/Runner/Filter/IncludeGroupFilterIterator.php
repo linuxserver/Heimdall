@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,15 +9,15 @@
  */
 namespace PHPUnit\Runner\Filter;
 
-class IncludeGroupFilterIterator extends GroupFilterIterator
+use function in_array;
+
+/**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class IncludeGroupFilterIterator extends GroupFilterIterator
 {
-    /**
-     * @param string $hash
-     *
-     * @return bool
-     */
-    protected function doAccept($hash)
+    protected function doAccept(string $hash): bool
     {
-        return \in_array($hash, $this->groupTests);
+        return in_array($hash, $this->groupTests, true);
     }
 }

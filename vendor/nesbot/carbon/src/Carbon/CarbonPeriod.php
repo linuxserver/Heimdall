@@ -24,11 +24,13 @@ use Carbon\Exceptions\UnreachableException;
 use Carbon\Traits\IntervalRounding;
 use Carbon\Traits\Mixin;
 use Carbon\Traits\Options;
+use Carbon\Traits\ToStringFormat;
 use Closure;
 use Countable;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -174,6 +176,7 @@ class CarbonPeriod implements Iterator, Countable, JsonSerializable
         Mixin::mixin as baseMixin;
     }
     use Options;
+    use ToStringFormat;
 
     /**
      * Built-in filter for limit by recurrences.
@@ -1458,13 +1461,21 @@ class CarbonPeriod implements Iterator, Countable, JsonSerializable
      */
     public function toString()
     {
+        $format = $this->localToStringFormat ?? static::$toStringFormat;
+
+        if ($format instanceof Closure) {
+            return $format($this);
+        }
+
         $translator = ([$this->dateClass, 'getTranslator'])();
 
         $parts = [];
 
-        $format = !$this->startDate->isStartOfDay() || ($this->endDate && !$this->endDate->isStartOfDay())
-            ? 'Y-m-d H:i:s'
-            : 'Y-m-d';
+        $format = $format ?? (
+            !$this->startDate->isStartOfDay() || ($this->endDate && !$this->endDate->isStartOfDay())
+                ? 'Y-m-d H:i:s'
+                : 'Y-m-d'
+        );
 
         if ($this->recurrences !== null) {
             $parts[] = $this->translate('period_recurrences', [], $this->recurrences, $translator);
@@ -1507,9 +1518,9 @@ class CarbonPeriod implements Iterator, Countable, JsonSerializable
         if (!method_exists($className, 'instance')) {
             if (is_a($className, DatePeriod::class, true)) {
                 return new $className(
-                    $this->getStartDate(),
+                    $this->rawDate($this->getStartDate()),
                     $this->getDateInterval(),
-                    $this->getEndDate() ? $this->getIncludedEndDate() : $this->getRecurrences(),
+                    $this->getEndDate() ? $this->rawDate($this->getIncludedEndDate()) : $this->getRecurrences(),
                     $this->isStartExcluded() ? DatePeriod::EXCLUDE_START_DATE : 0
                 );
             }
@@ -2617,5 +2628,26 @@ class CarbonPeriod implements Iterator, Countable, JsonSerializable
     private function isInfiniteDate($date): bool
     {
         return $date instanceof CarbonInterface && ($date->isEndOfTime() || $date->isStartOfTime());
+    }
+
+    private function rawDate($date): ?DateTimeInterface
+    {
+        if ($date === false || $date === null) {
+            return null;
+        }
+
+        if ($date instanceof CarbonInterface) {
+            return $date->isMutable()
+                ? $date->toDateTime()
+                : $date->toDateTimeImmutable();
+        }
+
+        if (\in_array(\get_class($date), [DateTime::class, DateTimeImmutable::class], true)) {
+            return $date;
+        }
+
+        $class = $date instanceof DateTime ? DateTime::class : DateTimeImmutable::class;
+
+        return new $class($date->format('Y-m-d H:i:s.u'), $date->getTimezone());
     }
 }

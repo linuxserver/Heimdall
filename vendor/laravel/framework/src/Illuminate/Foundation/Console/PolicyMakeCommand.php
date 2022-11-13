@@ -4,6 +4,7 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
+use LogicException;
 use Symfony\Component\Console\Input\InputOption;
 
 class PolicyMakeCommand extends GeneratorCommand
@@ -71,6 +72,8 @@ class PolicyMakeCommand extends GeneratorCommand
      * Get the model for the guard's user provider.
      *
      * @return string|null
+     *
+     * @throws \LogicException
      */
     protected function userProviderModel()
     {
@@ -78,8 +81,16 @@ class PolicyMakeCommand extends GeneratorCommand
 
         $guard = $this->option('guard') ?: $config->get('auth.defaults.guard');
 
+        if (is_null($guardProvider = $config->get('auth.guards.'.$guard.'.provider'))) {
+            throw new LogicException('The ['.$guard.'] guard is not defined in your "auth" configuration file.');
+        }
+
+        if (! $config->get('auth.providers.'.$guardProvider.'.model')) {
+            return 'App\\Models\\User';
+        }
+
         return $config->get(
-            'auth.providers.'.$config->get('auth.guards.'.$guard.'.provider').'.model'
+            'auth.providers.'.$guardProvider.'.model'
         );
     }
 
@@ -97,7 +108,7 @@ class PolicyMakeCommand extends GeneratorCommand
         if (Str::startsWith($model, '\\')) {
             $namespacedModel = trim($model, '\\');
         } else {
-            $namespacedModel = $this->laravel->getNamespace().$model;
+            $namespacedModel = $this->qualifyModel($model);
         }
 
         $model = class_basename(trim($model, '\\'));
@@ -126,8 +137,13 @@ class PolicyMakeCommand extends GeneratorCommand
             array_keys($replace), array_values($replace), $stub
         );
 
-        return str_replace(
-            "use {$namespacedModel};\nuse {$namespacedModel};", "use {$namespacedModel};", $stub
+        return preg_replace(
+            vsprintf('/use %s;[\r\n]+use %s;/', [
+                preg_quote($namespacedModel, '/'),
+                preg_quote($namespacedModel, '/'),
+            ]),
+            "use {$namespacedModel};",
+            $stub
         );
     }
 

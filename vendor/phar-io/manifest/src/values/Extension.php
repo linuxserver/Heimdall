@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /*
  * This file is part of PharIo\Manifest.
  *
@@ -7,69 +7,40 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PharIo\Manifest;
 
 use PharIo\Version\Version;
 use PharIo\Version\VersionConstraint;
 
 class Extension extends Type {
-    /**
-     * @var ApplicationName
-     */
+    /** @var ApplicationName */
     private $application;
 
-    /**
-     * @var VersionConstraint
-     */
+    /** @var VersionConstraint */
     private $versionConstraint;
 
-    /**
-     * @param ApplicationName   $application
-     * @param VersionConstraint $versionConstraint
-     */
     public function __construct(ApplicationName $application, VersionConstraint $versionConstraint) {
         $this->application       = $application;
         $this->versionConstraint = $versionConstraint;
     }
 
-    /**
-     * @return ApplicationName
-     */
-    public function getApplicationName() {
+    public function getApplicationName(): ApplicationName {
         return $this->application;
     }
 
-    /**
-     * @return VersionConstraint
-     */
-    public function getVersionConstraint() {
+    public function getVersionConstraint(): VersionConstraint {
         return $this->versionConstraint;
     }
 
-    /**
-     * @return bool
-     */
-    public function isExtension() {
+    public function isExtension(): bool {
         return true;
     }
 
-    /**
-     * @param ApplicationName $name
-     *
-     * @return bool
-     */
-    public function isExtensionFor(ApplicationName $name) {
+    public function isExtensionFor(ApplicationName $name): bool {
         return $this->application->isEqual($name);
     }
 
-    /**
-     * @param ApplicationName $name
-     * @param Version         $version
-     *
-     * @return bool
-     */
-    public function isCompatibleWith(ApplicationName $name, Version $version) {
+    public function isCompatibleWith(ApplicationName $name, Version $version): bool {
         return $this->isExtensionFor($name) && $this->versionConstraint->complies($version);
     }
 }

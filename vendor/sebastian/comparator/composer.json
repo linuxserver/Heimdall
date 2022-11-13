@@ -24,14 +24,17 @@
     ],
     "prefer-stable": true,
     "require": {
-        "php": "^7.0",
-        "sebastian/diff": "^2.0 || ^3.0",
-        "sebastian/exporter": "^3.1"
+        "php": ">=7.3",
+        "sebastian/diff": "^4.0",
+        "sebastian/exporter": "^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.4"
+        "phpunit/phpunit": "^9.3"
     },
     "config": {
+        "platform": {
+            "php": "7.3.0"
+        },
         "optimize-autoloader": true,
         "sort-packages": true
     },
@@ -47,7 +50,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.1.x-dev"
+            "dev-master": "4.0-dev"
         }
     }
 }

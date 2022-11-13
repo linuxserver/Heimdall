@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -12,7 +14,7 @@
 namespace League\CommonMark\Extension\Mention\Generator;
 
 use League\CommonMark\Extension\Mention\Mention;
-use League\CommonMark\Inline\Element\AbstractInline;
+use League\CommonMark\Node\Inline\AbstractInline;
 
 final class CallbackGenerator implements MentionGeneratorInterface
 {
@@ -30,12 +32,12 @@ final class CallbackGenerator implements MentionGeneratorInterface
 
     public function generateMention(Mention $mention): ?AbstractInline
     {
-        $result = \call_user_func_array($this->callback, [$mention]);
+        $result = \call_user_func($this->callback, $mention);
         if ($result === null) {
             return null;
         }
 
-        if ($result instanceof AbstractInline && !($result instanceof Mention)) {
+        if ($result instanceof AbstractInline && ! ($result instanceof Mention)) {
             return $result;
         }
 

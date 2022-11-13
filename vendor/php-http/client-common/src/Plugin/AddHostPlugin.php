@@ -31,7 +31,7 @@ final class AddHostPlugin implements Plugin
      * @param array{'replace'?: bool} $config
      *
      * Configuration options:
-     *   - replace: True will replace all hosts, false will only add host when none is specified.
+     *   - replace: True will replace all hosts, false will only add host when none is specified
      */
     public function __construct(UriInterface $host, array $config = [])
     {
