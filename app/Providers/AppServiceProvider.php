@@ -19,32 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (! is_file(base_path('.env'))) {
-            copy(base_path('.env.example'), base_path('.env'));
-        }
-        $this->genKey();
-        if (! is_file(database_path('app.sqlite'))) {
-            // first time setup
-            touch(database_path('app.sqlite'));
-            Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
-            //Cache
-            //Artisan::call('config:cache');
-            //Artisan::call('route:cache');
-        }
-        if (is_file(database_path('app.sqlite'))) {
-            if (Schema::hasTable('settings')) {
+        $this->createEnvFile();
 
-                // check version to see if an upgrade is needed
-                $db_version = Setting::_fetch('version');
-                $app_version = config('app.version');
-                if (version_compare($app_version, $db_version) == 1) { // app is higher than db, so need to run migrations etc
-                    Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
-                    ProcessApps::dispatch();                 
-                }
-            } else {
-                Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
-            }
-        }
+        $this->setupDatabase();
 
         if (! is_file(public_path('storage/.gitignore'))) {
             Artisan::call('storage:link');
@@ -137,5 +114,44 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('settings', function () {
             return new Setting();
         });
+    }
+
+    /**
+     * Check if database needs an update or do first time database setup
+     *
+     * @return void
+     */
+    public function setupDatabase(): void
+    {
+        $db_type = env('DB_CONNECTION');
+
+        if ($db_type == 'sqlite' && ! is_file(database_path('app.sqlite'))) {
+            touch(database_path('app.sqlite'));
+        }
+
+        if (Schema::hasTable('settings')) {
+            // check version to see if an upgrade is needed
+            $db_version = Setting::_fetch('version');
+            $app_version = config('app.version');
+            if (version_compare($app_version, $db_version) == 1) {
+                // app is higher than db, so need to run migrations etc
+                Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
+                ProcessApps::dispatch();
+            }
+        } else {
+            Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function createEnvFile(): void
+    {
+        if (!is_file(base_path('.env'))) {
+            copy(base_path('.env.example'), base_path('.env'));
+        }
+
+        $this->genKey();
     }
 }
