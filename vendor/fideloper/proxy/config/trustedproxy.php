@@ -35,16 +35,12 @@ return [
      *
      * Options include:
      *
-     * - Illuminate\Http\Request::HEADER_X_FORWARDED_ALL (use all x-forwarded-* headers to establish trust)
-     * - Illuminate\Http\Request::HEADER_FORWARDED (use the FORWARDED header to establish trust)
-     * - Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB (If you are using AWS Elastic Load Balancer)
-     *
-     * - 'HEADER_X_FORWARDED_ALL' (use all x-forwarded-* headers to establish trust)
-     * - 'HEADER_FORWARDED' (use the FORWARDED header to establish trust)
-     * - 'HEADER_X_FORWARDED_AWS_ELB' (If you are using AWS Elastic Load Balancer)
+     * - All headers (see below) - Trust all x-forwarded-* headers
+     * - Illuminate\Http\Request::HEADER_FORWARDED - Use the FORWARDED header to establish trust
+     * - Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB - If you are using AWS Elastic Load Balancer
      *
      * @link https://symfony.com/doc/current/deployment/proxies.html
      */
-    'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_ALL,
+    'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO | Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB,
 
 ];

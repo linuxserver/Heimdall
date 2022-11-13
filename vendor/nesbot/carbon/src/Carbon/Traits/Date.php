@@ -1354,9 +1354,14 @@ trait Date
      */
     public function weekday($value = null)
     {
-        $dayOfWeek = ($this->dayOfWeek + 7 - (int) ($this->getTranslationMessage('first_day_of_week') ?? 0)) % 7;
+        if ($value === null) {
+            return $this->dayOfWeek;
+        }
 
-        return $value === null ? $dayOfWeek : $this->addDays($value - $dayOfWeek);
+        $firstDay = (int) ($this->getTranslationMessage('first_day_of_week') ?? 0);
+        $dayOfWeek = ($this->dayOfWeek + 7 - $firstDay) % 7;
+
+        return $this->addDays((($value + 7 - $firstDay) % 7) - $dayOfWeek);
     }
 
     /**
@@ -1853,7 +1858,13 @@ trait Date
             ? strftime($format, $time)
             : @strftime($format, $time);
 
-        return static::$utf8 ? utf8_encode($formatted) : $formatted;
+        return static::$utf8
+            ? (
+                \function_exists('mb_convert_encoding')
+                ? mb_convert_encoding($formatted, 'UTF-8', mb_list_encodings())
+                : utf8_encode($formatted)
+            )
+            : $formatted;
     }
 
     /**
@@ -1872,6 +1883,10 @@ trait Date
             'LL' => $this->getTranslationMessage('formats.LL', $locale, 'MMMM D, YYYY'),
             'LLL' => $this->getTranslationMessage('formats.LLL', $locale, 'MMMM D, YYYY h:mm A'),
             'LLLL' => $this->getTranslationMessage('formats.LLLL', $locale, 'dddd, MMMM D, YYYY h:mm A'),
+            'l' => $this->getTranslationMessage('formats.l', $locale),
+            'll' => $this->getTranslationMessage('formats.ll', $locale),
+            'lll' => $this->getTranslationMessage('formats.lll', $locale),
+            'llll' => $this->getTranslationMessage('formats.llll', $locale),
         ];
     }
 
@@ -2155,7 +2170,7 @@ trait Date
 
             $input = mb_substr($format, $i);
 
-            if (preg_match('/^(LTS|LT|[Ll]{1,4})/', $input, $match)) {
+            if (preg_match('/^(LTS|LT|l{1,4}|L{1,4})/', $input, $match)) {
                 if ($formats === null) {
                     $formats = $this->getIsoFormats();
                 }

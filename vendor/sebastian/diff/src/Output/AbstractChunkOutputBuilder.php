@@ -7,23 +7,19 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Diff\Output;
+
+use function count;
 
 abstract class AbstractChunkOutputBuilder implements DiffOutputBuilderInterface
 {
     /**
      * Takes input of the diff array and returns the common parts.
      * Iterates through diff line by line.
-     *
-     * @param array $diff
-     * @param int   $lineThreshold
-     *
-     * @return array
      */
     protected function getCommonChunks(array $diff, int $lineThreshold = 5): array
     {
-        $diffSize     = \count($diff);
+        $diffSize     = count($diff);
         $capturing    = false;
         $chunkStart   = 0;
         $chunkSize    = 0;

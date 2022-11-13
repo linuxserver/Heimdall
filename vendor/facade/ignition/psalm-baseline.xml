@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="3.17.1@8f211792d813e4dc89f04ed372785ce93b902fd1">
+  <file src="src/IgnitionServiceProvider.php">
+    <UndefinedInterfaceMethod occurrences="7">
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/LogRecorder/LogRecorder.php">
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>$this-&gt;app</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/QueryRecorder/QueryRecorder.php">
+    <UndefinedInterfaceMethod occurrences="3">
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+      <code>$this-&gt;app</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/SolutionProviders/MissingLivewireComponentSolutionProvider.php">
+    <UndefinedClass occurrences="1">
+      <code>ComponentNotFoundException</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/SolutionProviders/UnknownValidationSolutionProvider.php">
+    <UndefinedClass occurrences="1">
+      <code>app('validator')</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/Solutions/LivewireDiscoverSolution.php">
+    <UndefinedClass occurrences="1">
+      <code>LivewireComponentsFinder</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/Views/Engines/CompilerEngine.php">
+    <ParamNameMismatch occurrences="1">
+      <code>$baseException</code>
+    </ParamNameMismatch>
+  </file>
+  <file src="src/Views/Engines/PhpEngine.php">
+    <ParamNameMismatch occurrences="1">
+      <code>$baseException</code>
+    </ParamNameMismatch>
+  </file>
+</files>

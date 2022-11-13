@@ -15,27 +15,56 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Table;
 
-use League\CommonMark\Block\Element\AbstractBlock;
-use League\CommonMark\Block\Renderer\BlockRendererInterface;
-use League\CommonMark\ElementRendererInterface;
-use League\CommonMark\HtmlElement;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
+use League\CommonMark\Util\HtmlElement;
+use League\CommonMark\Xml\XmlNodeRendererInterface;
 
-final class TableSectionRenderer implements BlockRendererInterface
+final class TableSectionRenderer implements NodeRendererInterface, XmlNodeRendererInterface
 {
-    public function render(AbstractBlock $block, ElementRendererInterface $htmlRenderer, bool $inTightList = false)
+    /**
+     * @param TableSection $node
+     *
+     * {@inheritDoc}
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer)
     {
-        if (!$block instanceof TableSection) {
-            throw new \InvalidArgumentException('Incompatible block type: ' . get_class($block));
-        }
+        TableSection::assertInstanceOf($node);
 
-        if (!$block->hasChildren()) {
+        if (! $node->hasChildren()) {
             return '';
         }
 
-        $attrs = $block->getData('attributes', []);
+        $attrs = $node->data->get('attributes');
 
-        $separator = $htmlRenderer->getOption('inner_separator', "\n");
+        $separator = $childRenderer->getInnerSeparator();
 
-        return new HtmlElement($block->type, $attrs, $separator . $htmlRenderer->renderBlocks($block->children()) . $separator);
+        $tag = $node->getType() === TableSection::TYPE_HEAD ? 'thead' : 'tbody';
+
+        return new HtmlElement($tag, $attrs, $separator . $childRenderer->renderNodes($node->children()) . $separator);
+    }
+
+    public function getXmlTagName(Node $node): string
+    {
+        return 'table_section';
+    }
+
+    /**
+     * @param TableSection $node
+     *
+     * @return array<string, scalar>
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    public function getXmlAttributes(Node $node): array
+    {
+        TableSection::assertInstanceOf($node);
+
+        return [
+            'type' => $node->getType(),
+        ];
     }
 }

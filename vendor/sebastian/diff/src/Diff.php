@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Diff;
 
 final class Diff
@@ -28,8 +27,6 @@ final class Diff
     private $chunks;
 
     /**
-     * @param string  $from
-     * @param string  $to
      * @param Chunk[] $chunks
      */
     public function __construct(string $from, string $to, array $chunks = [])
@@ -60,7 +57,7 @@ final class Diff
     /**
      * @param Chunk[] $chunks
      */
-    public function setChunks(array $chunks)
+    public function setChunks(array $chunks): void
     {
         $this->chunks = $chunks;
     }

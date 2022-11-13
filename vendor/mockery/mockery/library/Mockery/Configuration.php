@@ -41,6 +41,11 @@ class Configuration
     protected $_allowMockingMethodsUnnecessarily = true;
 
     /**
+     * @var QuickDefinitionsConfiguration
+     */
+    protected $_quickDefinitionsConfiguration;
+
+    /**
      * Parameter map for use with PHP internal classes.
      *
      * @var array
@@ -56,6 +61,25 @@ class Configuration
      * @see https://github.com/mockery/mockery/issues/268
      */
     protected $_reflectionCacheEnabled = true;
+
+    public function __construct()
+    {
+        $this->_quickDefinitionsConfiguration = new QuickDefinitionsConfiguration();
+    }
+
+    /**
+     * Custom object formatters
+     *
+     * @var array
+     */
+    protected $_objectFormatters = array();
+
+    /**
+     * Default argument matchers
+     *
+     * @var array
+     */
+    protected $_defaultMatchers = array();
 
     /**
      * Set boolean to allow/prevent mocking of non-existent methods
@@ -78,15 +102,15 @@ class Configuration
     }
 
     /**
-     * @deprecated
-     *
      * Set boolean to allow/prevent unnecessary mocking of methods
      *
      * @param bool $flag
+     *
+     * @deprecated since 1.4.0
      */
     public function allowMockingMethodsUnnecessarily($flag = true)
     {
-        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
 
         $this->_allowMockingMethodsUnnecessarily = (bool) $flag;
     }
@@ -95,10 +119,12 @@ class Configuration
      * Return flag indicating whether mocking non-existent methods allowed
      *
      * @return bool
+     *
+     * @deprecated since 1.4.0
      */
     public function mockingMethodsUnnecessarilyAllowed()
     {
-        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
 
         return $this->_allowMockingMethodsUnnecessarily;
     }
@@ -159,6 +185,14 @@ class Configuration
     }
 
     /**
+     * Returns the quick definitions configuration
+     */
+    public function getQuickDefinitions(): QuickDefinitionsConfiguration
+    {
+        return $this->_quickDefinitionsConfiguration;
+    }
+
+    /**
      * Disable reflection caching
      *
      * It should be always enabled, except when using
@@ -190,5 +224,60 @@ class Configuration
     public function reflectionCacheEnabled()
     {
         return $this->_reflectionCacheEnabled;
+    }
+
+    public function setObjectFormatter($class, $formatterCallback)
+    {
+        $this->_objectFormatters[$class] = $formatterCallback;
+    }
+
+    public function getObjectFormatter($class, $defaultFormatter)
+    {
+        $parentClass = $class;
+        do {
+            $classes[] = $parentClass;
+            $parentClass = get_parent_class($parentClass);
+        } while ($parentClass);
+        $classesAndInterfaces = array_merge($classes, class_implements($class));
+        foreach ($classesAndInterfaces as $type) {
+            if (isset($this->_objectFormatters[$type])) {
+                return $this->_objectFormatters[$type];
+            }
+        }
+        return $defaultFormatter;
+    }
+
+    /**
+     * @param string $class
+     * @param string $matcherClass
+     */
+    public function setDefaultMatcher($class, $matcherClass)
+    {
+        if (!is_a($matcherClass, \Mockery\Matcher\MatcherAbstract::class, true) &&
+            !is_a($matcherClass, \Hamcrest\Matcher::class, true) &&
+            !is_a($matcherClass, \Hamcrest_Matcher::class, true)
+        ) {
+            throw new \InvalidArgumentException(
+                "Matcher class must be either Hamcrest matcher or extend \Mockery\Matcher\MatcherAbstract, " .
+                  "'$matcherClass' given."
+            );
+        }
+        $this->_defaultMatchers[$class] = $matcherClass;
+    }
+
+    public function getDefaultMatcher($class)
+    {
+        $parentClass = $class;
+        do {
+            $classes[] = $parentClass;
+            $parentClass = get_parent_class($parentClass);
+        } while ($parentClass);
+        $classesAndInterfaces = array_merge($classes, class_implements($class));
+        foreach ($classesAndInterfaces as $type) {
+            if (isset($this->_defaultMatchers[$type])) {
+                return $this->_defaultMatchers[$type];
+            }
+        }
+        return null;
     }
 }

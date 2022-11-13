@@ -1,43 +1,40 @@
-<?php
+<?php declare(strict_types=1);
 /*
- * This file is part of the File_Iterator package.
+ * This file is part of phpunit/php-file-iterator.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace SebastianBergmann\FileIterator;
 
-/**
- * Façade implementation that uses File_Iterator_Factory to create a
- * File_Iterator that operates on an AppendIterator that contains an
- * RecursiveDirectoryIterator for each given path. The list of unique
- * files is returned as an array.
- *
- * @since     Class available since Release 1.3.0
- */
-class File_Iterator_Facade
+use const DIRECTORY_SEPARATOR;
+use function array_unique;
+use function count;
+use function dirname;
+use function explode;
+use function is_file;
+use function is_string;
+use function realpath;
+use function sort;
+
+class Facade
 {
     /**
-     * @param  array|string $paths
-     * @param  array|string $suffixes
-     * @param  array|string $prefixes
-     * @param  array        $exclude
-     * @param  bool         $commonPath
-     * @return array
+     * @param array|string $paths
+     * @param array|string $suffixes
+     * @param array|string $prefixes
      */
-    public function getFilesAsArray($paths, $suffixes = '', $prefixes = '', array $exclude = array(), $commonPath = FALSE)
+    public function getFilesAsArray($paths, $suffixes = '', $prefixes = '', array $exclude = [], bool $commonPath = false): array
     {
         if (is_string($paths)) {
-            $paths = array($paths);
+            $paths = [$paths];
         }
 
-        $factory  = new File_Iterator_Factory;
-        $iterator = $factory->getFileIterator(
-          $paths, $suffixes, $prefixes, $exclude
-        );
+        $iterator = (new Factory)->getFileIterator($paths, $suffixes, $prefixes, $exclude);
 
-        $files = array();
+        $files = [];
 
         foreach ($iterator as $file) {
             $file = $file->getRealPath();
@@ -57,34 +54,28 @@ class File_Iterator_Facade
         sort($files);
 
         if ($commonPath) {
-            return array(
-              'commonPath' => $this->getCommonPath($files),
-              'files'      => $files
-            );
-        } else {
-            return $files;
+            return [
+                'commonPath' => $this->getCommonPath($files),
+                'files'      => $files,
+            ];
         }
+
+        return $files;
     }
 
-    /**
-     * Returns the common path of a set of files.
-     *
-     * @param  array  $files
-     * @return string
-     */
-    protected function getCommonPath(array $files)
+    protected function getCommonPath(array $files): string
     {
         $count = count($files);
 
-        if ($count == 0) {
+        if ($count === 0) {
             return '';
         }
 
-        if ($count == 1) {
+        if ($count === 1) {
             return dirname($files[0]) . DIRECTORY_SEPARATOR;
         }
 
-        $_files = array();
+        $_files = [];
 
         foreach ($files as $file) {
             $_files[] = $_fileParts = explode(DIRECTORY_SEPARATOR, $file);
@@ -95,14 +86,15 @@ class File_Iterator_Facade
         }
 
         $common = '';
-        $done   = FALSE;
+        $done   = false;
         $j      = 0;
         $count--;
 
         while (!$done) {
             for ($i = 0; $i < $count; $i++) {
-                if ($_files[$i][$j] != $_files[$i+1][$j]) {
-                    $done = TRUE;
+                if ($_files[$i][$j] != $_files[$i + 1][$j]) {
+                    $done = true;
+
                     break;
                 }
             }

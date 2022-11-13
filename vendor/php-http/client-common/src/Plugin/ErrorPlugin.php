@@ -40,7 +40,7 @@ final class ErrorPlugin implements Plugin
      * @param array{'only_server_exception'?: bool} $config
      *
      * Configuration options:
-     *   - only_server_exception: Whether this plugin should only throw 5XX Exceptions (default to false).
+     *   - only_server_exception: Whether this plugin should only throw 5XX Exceptions (default to false)
      */
     public function __construct(array $config = [])
     {
@@ -72,10 +72,10 @@ final class ErrorPlugin implements Plugin
      * @param RequestInterface  $request  Request of the call
      * @param ResponseInterface $response Response of the call
      *
+     * @return ResponseInterface If status code is not in 4xx or 5xx return response
+     *
      * @throws ClientErrorException If response status code is a 4xx
      * @throws ServerErrorException If response status code is a 5xx
-     *
-     * @return ResponseInterface If status code is not in 4xx or 5xx return response
      */
     private function transformResponseToException(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {

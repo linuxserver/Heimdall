@@ -10,10 +10,14 @@
         }
     ],
     "require": {
-        "php": "^7.2.5|^8.0",
-        "illuminate/console": "^7.0",
-        "illuminate/filesystem": "^7.0",
-        "illuminate/support": "^7.0"
+        "php": "^7.3|^8.0",
+        "illuminate/console": "^8.42|^9.0",
+        "illuminate/filesystem": "^8.42|^9.0",
+        "illuminate/support": "^8.82|^9.0",
+        "illuminate/validation": "^8.42|^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.23|^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -25,6 +29,9 @@
         "sort-packages": true
     },
     "extra": {
+        "branch-alias": {
+            "dev-master": "3.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Laravel\\Ui\\UiServiceProvider"

@@ -7,14 +7,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace SebastianBergmann\Diff;
 
 final class Line
 {
-    const ADDED     = 1;
-    const REMOVED   = 2;
-    const UNCHANGED = 3;
+    public const ADDED     = 1;
+
+    public const REMOVED   = 2;
+
+    public const UNCHANGED = 3;
 
     /**
      * @var int

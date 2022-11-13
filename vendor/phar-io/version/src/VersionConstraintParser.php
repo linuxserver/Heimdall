@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /*
  * This file is part of PharIo\Version.
  *
@@ -7,26 +7,20 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PharIo\Version;
 
 class VersionConstraintParser {
     /**
-     * @param string $value
-     *
-     * @return VersionConstraint
-     *
      * @throws UnsupportedVersionConstraintException
      */
-    public function parse($value) {
-
-        if (strpos($value, '||') !== false) {
+    public function parse(string $value): VersionConstraint {
+        if (\strpos($value, '|') !== false) {
             return $this->handleOrGroup($value);
         }
 
-        if (!preg_match('/^[\^~\*]?[\d.\*]+$/', $value)) {
+        if (!\preg_match('/^[\^~*]?v?[\d.*]+(?:-.*)?$/i', $value)) {
             throw new UnsupportedVersionConstraintException(
-                sprintf('Version constraint %s is not supported.', $value)
+                \sprintf('Version constraint %s is not supported.', $value)
             );
         }
 
@@ -37,86 +31,85 @@ class VersionConstraintParser {
                 return $this->handleCaretOperator($value);
         }
 
-        $version = new VersionConstraintValue($value);
+        $constraint = new VersionConstraintValue($value);
 
-        if ($version->getMajor()->isAny()) {
+        if ($constraint->getMajor()->isAny()) {
             return new AnyVersionConstraint();
         }
 
-        if ($version->getMinor()->isAny()) {
+        if ($constraint->getMinor()->isAny()) {
             return new SpecificMajorVersionConstraint(
-                $value,
-                $version->getMajor()->getValue()
+                $constraint->getVersionString(),
+                $constraint->getMajor()->getValue() ?? 0
             );
         }
 
-        if ($version->getPatch()->isAny()) {
+        if ($constraint->getPatch()->isAny()) {
             return new SpecificMajorAndMinorVersionConstraint(
-                $value,
-                $version->getMajor()->getValue(),
-                $version->getMinor()->getValue()
+                $constraint->getVersionString(),
+                $constraint->getMajor()->getValue() ?? 0,
+                $constraint->getMinor()->getValue() ?? 0
             );
         }
 
-        return new ExactVersionConstraint($value);
+        return new ExactVersionConstraint($constraint->getVersionString());
     }
 
-    /**
-     * @param $value
-     *
-     * @return OrVersionConstraintGroup
-     */
-    private function handleOrGroup($value) {
+    private function handleOrGroup(string $value): OrVersionConstraintGroup {
         $constraints = [];
 
-        foreach (explode('||', $value) as $groupSegment) {
-            $constraints[] = $this->parse(trim($groupSegment));
+        foreach (\preg_split('{\s*\|\|?\s*}', \trim($value)) as $groupSegment) {
+            $constraints[] = $this->parse(\trim($groupSegment));
         }
 
         return new OrVersionConstraintGroup($value, $constraints);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return AndVersionConstraintGroup
-     */
-    private function handleTildeOperator($value) {
-        $version     = new Version(substr($value, 1));
-        $constraints = [
-            new GreaterThanOrEqualToVersionConstraint($value, $version)
-        ];
+    private function handleTildeOperator(string $value): AndVersionConstraintGroup {
+        $constraintValue = new VersionConstraintValue(\substr($value, 1));
 
-        if ($version->getPatch()->isAny()) {
-            $constraints[] = new SpecificMajorVersionConstraint(
-                $value,
-                $version->getMajor()->getValue()
-            );
-        } else {
-            $constraints[] = new SpecificMajorAndMinorVersionConstraint(
-                $value,
-                $version->getMajor()->getValue(),
-                $version->getMinor()->getValue()
-            );
+        if ($constraintValue->getPatch()->isAny()) {
+            return $this->handleCaretOperator($value);
         }
+
+        $constraints = [
+            new GreaterThanOrEqualToVersionConstraint(
+                $value,
+                new Version(\substr($value, 1))
+            ),
+            new SpecificMajorAndMinorVersionConstraint(
+                $value,
+                $constraintValue->getMajor()->getValue() ?? 0,
+                $constraintValue->getMinor()->getValue() ?? 0
+            )
+        ];
 
         return new AndVersionConstraintGroup($value, $constraints);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return AndVersionConstraintGroup
-     */
-    private function handleCaretOperator($value) {
-        $version = new Version(substr($value, 1));
+    private function handleCaretOperator(string $value): AndVersionConstraintGroup {
+        $constraintValue = new VersionConstraintValue(\substr($value, 1));
+
+        $constraints = [
+            new GreaterThanOrEqualToVersionConstraint($value, new Version(\substr($value, 1)))
+        ];
+
+        if ($constraintValue->getMajor()->getValue() === 0) {
+            $constraints[] = new SpecificMajorAndMinorVersionConstraint(
+                $value,
+                $constraintValue->getMajor()->getValue() ?? 0,
+                $constraintValue->getMinor()->getValue() ?? 0
+            );
+        } else {
+            $constraints[] = new SpecificMajorVersionConstraint(
+                $value,
+                $constraintValue->getMajor()->getValue() ?? 0
+            );
+        }
 
         return new AndVersionConstraintGroup(
             $value,
-            [
-                new GreaterThanOrEqualToVersionConstraint($value, $version),
-                new SpecificMajorVersionConstraint($value, $version->getMajor()->getValue())
-            ]
+            $constraints
         );
     }
 }

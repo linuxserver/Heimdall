@@ -54,15 +54,21 @@ class ComponentMakeCommand extends GeneratorCommand
     protected function writeView()
     {
         $path = $this->viewPath(
-            str_replace('.', '/', 'components.'.$this->getView())
+            str_replace('.', '/', 'components.'.$this->getView()).'.blade.php'
         );
 
         if (! $this->files->isDirectory(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0777, true, true);
         }
 
+        if ($this->files->exists($path) && ! $this->option('force')) {
+            $this->error('View already exists!');
+
+            return;
+        }
+
         file_put_contents(
-            $path.'.blade.php',
+            $path,
             '<div>
     <!-- '.Inspiring::quote().' -->
 </div>'
@@ -79,14 +85,14 @@ class ComponentMakeCommand extends GeneratorCommand
     {
         if ($this->option('inline')) {
             return str_replace(
-                'DummyView',
+                ['DummyView', '{{ view }}'],
                 "<<<'blade'\n<div>\n    <!-- ".Inspiring::quote()." -->\n</div>\nblade",
                 parent::buildClass($name)
             );
         }
 
         return str_replace(
-            'DummyView',
+            ['DummyView', '{{ view }}'],
             'view(\'components.'.$this->getView().'\')',
             parent::buildClass($name)
         );
@@ -115,7 +121,20 @@ class ComponentMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/stubs/view-component.stub';
+        return $this->resolveStubPath('/stubs/view-component.stub');
+    }
+
+    /**
+     * Resolve the fully-qualified path to the stub.
+     *
+     * @param  string  $stub
+     * @return string
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+                        ? $customPath
+                        : __DIR__.$stub;
     }
 
     /**

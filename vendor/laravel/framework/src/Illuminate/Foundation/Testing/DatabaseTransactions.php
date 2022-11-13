@@ -14,14 +14,22 @@ trait DatabaseTransactions
         $database = $this->app->make('db');
 
         foreach ($this->connectionsToTransact() as $name) {
-            $database->connection($name)->beginTransaction();
+            $connection = $database->connection($name);
+            $dispatcher = $connection->getEventDispatcher();
+
+            $connection->unsetEventDispatcher();
+            $connection->beginTransaction();
+            $connection->setEventDispatcher($dispatcher);
         }
 
         $this->beforeApplicationDestroyed(function () use ($database) {
             foreach ($this->connectionsToTransact() as $name) {
                 $connection = $database->connection($name);
+                $dispatcher = $connection->getEventDispatcher();
 
+                $connection->unsetEventDispatcher();
                 $connection->rollBack();
+                $connection->setEventDispatcher($dispatcher);
                 $connection->disconnect();
             }
         });

@@ -194,7 +194,7 @@ class Expectation implements ExpectationInterface
     /**
      * Throws an exception if the expectation has been configured to do so
      *
-     * @throws \Exception|\Throwable
+     * @throws \Throwable
      * @return void
      */
     private function throwAsNecessary($return)
@@ -203,9 +203,7 @@ class Expectation implements ExpectationInterface
             return;
         }
 
-        $type = \PHP_VERSION_ID >= 70000 ? "\Throwable" : "\Exception";
-
-        if ($return instanceof $type) {
+        if ($return instanceof \Throwable) {
             throw $return;
         }
 
@@ -391,6 +389,12 @@ class Expectation implements ExpectationInterface
                 return true;
             }
         }
+        if (is_object($expected)) {
+            $matcher = \Mockery::getConfiguration()->getDefaultMatcher(get_class($expected));
+            if ($matcher !== null) {
+                $expected = new $matcher($expected);
+            }
+        }
         if ($expected instanceof \Mockery\Matcher\MatcherAbstract) {
             return $expected->match($actual);
         }
@@ -567,7 +571,7 @@ class Expectation implements ExpectationInterface
     public function andReturnArg($index)
     {
         if (!is_int($index) || $index < 0) {
-            throw new \InvalidArgumentException("Invalid argument index supplied. Index must be a positive integer.");
+            throw new \InvalidArgumentException("Invalid argument index supplied. Index must be a non-negative integer.");
         }
         $closure = function (...$args) use ($index) {
             if (array_key_exists($index, $args)) {
@@ -667,6 +671,25 @@ class Expectation implements ExpectationInterface
     }
 
     /**
+     * Sets up a closure that will yield each of the provided args
+     *
+     * @param mixed ...$args
+     * @return self
+     */
+    public function andYield(...$args)
+    {
+        $this->_closureQueue = [
+            static function () use ($args) {
+                foreach ($args as $arg) {
+                    yield $arg;
+                }
+            },
+        ];
+
+        return $this;
+    }
+
+    /**
      * Alias to andSet(). Allows the natural English construct
      * - set('foo', 'bar')->andReturn('bar')
      *
@@ -705,7 +728,12 @@ class Expectation implements ExpectationInterface
             throw new \InvalidArgumentException('The passed Times limit should be an integer value');
         }
         $this->_countValidators[$this->_countValidatorClass] = new $this->_countValidatorClass($this, $limit);
-        $this->_countValidatorClass = 'Mockery\CountValidator\Exact';
+
+        if ('Mockery\CountValidator\Exact' !== $this->_countValidatorClass) {
+            $this->_countValidatorClass = 'Mockery\CountValidator\Exact';
+            unset($this->_countValidators[$this->_countValidatorClass]);
+        }
+
         return $this;
     }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * This file is part of PHPUnit.
  *
@@ -9,7 +9,9 @@
  */
 namespace PHPUnit\Framework\Error;
 
-class Notice extends Error
+/**
+ * @internal
+ */
+final class Notice extends Error
 {
-    public static $enabled = true;
 }
