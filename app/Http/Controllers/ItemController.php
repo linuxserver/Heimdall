@@ -214,7 +214,9 @@ class ItemController extends Controller
             if (strpos($path, 'icons/icons/') !== false) {
                 $path = str_replace('icons/icons/','icons/',$path);
             }
-            Storage::disk('public')->put($path, $contents);
+            if(! Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->put($path, $contents);
+            }
             $request->merge([
                 'icon' => $path,
             ]);
