@@ -52,11 +52,29 @@ class DceSecurityGenerator implements DceSecurityGeneratorInterface
      */
     private const CLOCK_SEQ_LOW = 0;
 
+    /**
+     * @var NumberConverterInterface
+     */
+    private $numberConverter;
+
+    /**
+     * @var TimeGeneratorInterface
+     */
+    private $timeGenerator;
+
+    /**
+     * @var DceSecurityProviderInterface
+     */
+    private $dceSecurityProvider;
+
     public function __construct(
-        private NumberConverterInterface $numberConverter,
-        private TimeGeneratorInterface $timeGenerator,
-        private DceSecurityProviderInterface $dceSecurityProvider
+        NumberConverterInterface $numberConverter,
+        TimeGeneratorInterface $timeGenerator,
+        DceSecurityProviderInterface $dceSecurityProvider
     ) {
+        $this->numberConverter = $numberConverter;
+        $this->timeGenerator = $timeGenerator;
+        $this->dceSecurityProvider = $dceSecurityProvider;
     }
 
     public function generate(
@@ -135,7 +153,8 @@ class DceSecurityGenerator implements DceSecurityGeneratorInterface
 
         // Replace bytes in the time-based UUID with DCE Security values.
         $bytes = substr_replace($bytes, $identifierBytes, 0, 4);
+        $bytes = substr_replace($bytes, $domainByte, 9, 1);
 
-        return substr_replace($bytes, $domainByte, 9, 1);
+        return $bytes;
     }
 }

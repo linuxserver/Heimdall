@@ -21,8 +21,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class LoggingTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
-    private TranslatorInterface $translator;
-    private LoggerInterface $logger;
+    private $translator;
+    private $logger;
 
     /**
      * @param TranslatorInterface&TranslatorBagInterface&LocaleAwareInterface $translator The translator must implement TranslatorBagInterface
@@ -40,7 +40,7 @@ class LoggingTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * {@inheritdoc}
      */
-    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null)
     {
         $trans = $this->translator->trans($id = (string) $id, $parameters, $domain, $locale);
         $this->log($id, $domain, $locale);
@@ -65,7 +65,7 @@ class LoggingTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * {@inheritdoc}
      */
-    public function getLocale(): string
+    public function getLocale()
     {
         return $this->translator->getLocale();
     }
@@ -73,7 +73,7 @@ class LoggingTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue(string $locale = null): MessageCatalogueInterface
+    public function getCatalogue(string $locale = null)
     {
         return $this->translator->getCatalogue($locale);
     }
@@ -88,8 +88,10 @@ class LoggingTranslator implements TranslatorInterface, TranslatorBagInterface, 
 
     /**
      * Gets the fallback locales.
+     *
+     * @return array
      */
-    public function getFallbackLocales(): array
+    public function getFallbackLocales()
     {
         if ($this->translator instanceof Translator || method_exists($this->translator, 'getFallbackLocales')) {
             return $this->translator->getFallbackLocales();

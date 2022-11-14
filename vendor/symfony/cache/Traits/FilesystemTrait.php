@@ -12,7 +12,6 @@
 namespace Symfony\Component\Cache\Traits;
 
 use Symfony\Component\Cache\Exception\CacheException;
-use Symfony\Component\Cache\Marshaller\MarshallerInterface;
 
 /**
  * @author Nicolas Grekas <p@tchwork.com>
@@ -24,9 +23,12 @@ trait FilesystemTrait
 {
     use FilesystemCommonTrait;
 
-    private MarshallerInterface $marshaller;
+    private $marshaller;
 
-    public function prune(): bool
+    /**
+     * @return bool
+     */
+    public function prune()
     {
         $time = time();
         $pruned = true;
@@ -50,7 +52,7 @@ trait FilesystemTrait
     /**
      * {@inheritdoc}
      */
-    protected function doFetch(array $ids): iterable
+    protected function doFetch(array $ids)
     {
         $values = [];
         $now = time();
@@ -79,7 +81,7 @@ trait FilesystemTrait
     /**
      * {@inheritdoc}
      */
-    protected function doHave(string $id): bool
+    protected function doHave(string $id)
     {
         $file = $this->getFile($id);
 
@@ -89,7 +91,7 @@ trait FilesystemTrait
     /**
      * {@inheritdoc}
      */
-    protected function doSave(array $values, int $lifetime): array|bool
+    protected function doSave(array $values, int $lifetime)
     {
         $expiresAt = $lifetime ? (time() + $lifetime) : 0;
         $values = $this->marshaller->marshall($values, $failed);

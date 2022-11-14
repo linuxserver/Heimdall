@@ -2,7 +2,7 @@
 
 namespace Faker\Provider;
 
-class Uuid extends \Faker\Provider\Base
+class Uuid extends Base
 {
     /**
      * Generate name based md5 UUID (version 3).
@@ -10,7 +10,8 @@ class Uuid extends \Faker\Provider\Base
      */
     public static function uuid()
     {
-        // fix for compatibility with 32bit architecture; seed range restricted to 62bit
+        // fix for compatibility with 32bit architecture; each mt_rand call is restricted to 32bit
+        // two such calls will cause 64bits of randomness regardless of architecture
         $seed = mt_rand(0, 2147483647) . '#' . mt_rand(0, 2147483647);
 
         // Hash the seed and convert to a byte array

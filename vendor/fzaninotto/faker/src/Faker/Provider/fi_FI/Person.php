@@ -31,7 +31,7 @@ class Person extends \Faker\Provider\Person
         'Aake', 'Aapeli', 'Aapo', 'Aappo', 'Aarni', 'Aaro', 'Aatto', 'Aatu', 'Akseli', 'Aku', 'Antton', 'Artturi',
         'Aune', 'Beeda', 'Briitta', 'Eeli', 'Eelis', 'Eemeli', 'Ekku', 'Eljas', 'Erkko', 'Iiro', 'Ilmari', 'Isto',
         'Jirko', 'Joonatan', 'Jore', 'Junnu', 'Jusu', 'Kaste', 'Kauto', 'Luukas', 'Nuutti', 'Onni', 'Osmo', 'Pekko',
-        'Sampo', 'Santtu', 'Sauli', 'Simo,', 'Sisu', 'Teijo', 'Unto', 'Urho', 'Veeti', 'Veikko', 'Vilho', 'Werneri', 'Wiljami',
+        'Sampo', 'Santtu', 'Sauli', 'Simo', 'Sisu', 'Teijo', 'Unto', 'Urho', 'Veeti', 'Veikko', 'Vilho', 'Werneri', 'Wiljami',
 
     );
 
@@ -57,7 +57,7 @@ class Person extends \Faker\Provider\Person
     );
 
     protected static $lastName = array(
-        'Aakula', 'Aalto', 'Aaltonen', 'Aarnio', 'Aaronen', 'Aavikkola', 'Ahmala', 'Aho', 'Ahokas', 'Ahola', 'Ahomaa', 'Ahonen', 'Ahoniemi', 'Ahopelto', 'Ahovaara', 'Ahtila', 'Ahtiluoto', 'Ahtio', 'Ahtisaari', 'Ahto', 'Ahtola', 'Ahtonen', 'Ahtorinne', 'Aija', 'Aijala', 'Ainola', 'Aitio', 'Aitolahti', 'Aitomaa', 'Aittasalmi', 'Akkala', 'Akkanen', 'Alahuhta', 'Alajoki', 'Alajärvi', 'Alanen', 'Alatalo', 'Alasalmi', 'Alapuro', 'Alhola', 'Alijoki', 'Ankkala', 'Ankkuri', 'Annala', 'Annunen', 'Anttila', 'Anttinen', 'Anttonen', 'Ara', 'Arhila', 'Arhinmäki', 'Arhosuo,', 'Arinen', 'Arjamaa', 'Arjanen', 'Arkkila', 'Armio', 'Arnio', 'Aronen', 'Arosuo', 'Arponen', 'Arvola', 'Asikainen', 'Astala', 'Attila', 'Aunela', 'Aura', 'Auramies', 'Auranen', 'Autio', 'Auvinen', 'Auvola', 'Avonius', 'Avotie',
+        'Aakula', 'Aalto', 'Aaltonen', 'Aarnio', 'Aaronen', 'Aavikkola', 'Ahmala', 'Aho', 'Ahokas', 'Ahola', 'Ahomaa', 'Ahonen', 'Ahoniemi', 'Ahopelto', 'Ahovaara', 'Ahtila', 'Ahtiluoto', 'Ahtio', 'Ahtisaari', 'Ahto', 'Ahtola', 'Ahtonen', 'Ahtorinne', 'Aija', 'Aijala', 'Ainola', 'Aitio', 'Aitolahti', 'Aitomaa', 'Aittasalmi', 'Akkala', 'Akkanen', 'Alahuhta', 'Alajoki', 'Alajärvi', 'Alanen', 'Alatalo', 'Alasalmi', 'Alapuro', 'Alhola', 'Alijoki', 'Ankkala', 'Ankkuri', 'Annala', 'Annunen', 'Anttila', 'Anttinen', 'Anttonen', 'Ara', 'Arhila', 'Arhinmäki', 'Arhosuo', 'Arinen', 'Arjamaa', 'Arjanen', 'Arkkila', 'Armio', 'Arnio', 'Aronen', 'Arosuo', 'Arponen', 'Arvola', 'Asikainen', 'Astala', 'Attila', 'Aunela', 'Aura', 'Auramies', 'Auranen', 'Autio', 'Auvinen', 'Auvola', 'Avonius', 'Avotie',
         'Bräysy',
         'Davidsainen', 'Dufva',
         'Eerikäinen', 'Eerola', 'Einel', 'Eino', 'Einola', 'Einonen', 'Ekman', 'Ekola', 'Ellilä', 'Ellinen', 'Elomaa', 'Eloharju', 'Eloranta', 'Eno', 'Enola', 'Enäjärvi', 'Erkinjuntti', 'Erkkilä', 'Erkkinen', 'Erkko', 'Erkkola', 'Ernamo', 'Erola', 'Eronen', 'Ervola', 'Eräharju', 'Erämaja', 'Eränen', 'Eskelinen', 'Eskelä', 'Eskola', 'Evelä', 'Evilä',
@@ -85,4 +85,61 @@ class Person extends \Faker\Provider\Person
     protected static $titleMale = array('Hra.', 'Tri.');
 
     protected static $titleFemale = array('Rva.', 'Nti.', 'Tri.');
+    
+     /**
+     * National Personal Identity Number (Henkilötunnus)
+     * @link http://www.finlex.fi/fi/laki/ajantasa/2010/20100128
+     * @param \DateTime $birthdate
+     * @param string $gender Person::GENDER_MALE || Person::GENDER_FEMALE
+     * @return string on format DDMMYYCZZZQ, where DDMMYY is the date of birth, C the century sign, ZZZ the individual number and Q the control character (checksum)
+     */
+    public function personalIdentityNumber(\DateTime $birthdate = null, $gender = null)
+    {
+        $checksumCharacters = '0123456789ABCDEFHJKLMNPRSTUVWXY';
+
+        if (!$birthdate) {
+            $birthdate = \Faker\Provider\DateTime::dateTimeThisCentury();
+        }
+        $datePart = $birthdate->format('dmy');
+
+        switch ((int)($birthdate->format('Y')/100)) {
+            case 18:
+                $centurySign = '+';
+                break;
+            case 19:
+                $centurySign = '-';
+                break;
+            case 20:
+                $centurySign = 'A';
+                break;
+            default:
+                throw new \InvalidArgumentException('Year must be between 1800 and 2099 inclusive.');
+        }
+
+        $randomDigits = self::numberBetween(0, 89);
+        if ($gender && $gender == static::GENDER_MALE) {
+            if ($randomDigits === 0) {
+                $randomDigits .= static::randomElement(array(3,5,7,9));
+            } else {
+                $randomDigits .= static::randomElement(array(1,3,5,7,9));
+            }
+        } elseif ($gender && $gender == static::GENDER_FEMALE) {
+            if ($randomDigits === 0) {
+                $randomDigits .= static::randomElement(array(2,4,6,8));
+            } else {
+                $randomDigits .= static::randomElement(array(0,2,4,6,8));
+            }
+        } else {
+            if ($randomDigits === 0) {
+                $randomDigits .= self::numberBetween(2, 9);
+            } else {
+                $randomDigits .= (string)static::numerify('#');
+            }
+        }
+        $randomDigits = str_pad($randomDigits, 3, '0', STR_PAD_LEFT);
+
+        $checksum = $checksumCharacters[(int)($datePart . $randomDigits) % strlen($checksumCharacters)];
+
+        return $datePart . $centurySign . $randomDigits . $checksum;
+    }
 }

@@ -58,9 +58,20 @@ class PhpTimeConverter implements TimeConverterInterface
      */
     private const MICROSECOND_INTERVALS = 10;
 
-    private int $phpPrecision;
-    private CalculatorInterface $calculator;
-    private TimeConverterInterface $fallbackConverter;
+    /**
+     * @var CalculatorInterface
+     */
+    private $calculator;
+
+    /**
+     * @var TimeConverterInterface
+     */
+    private $fallbackConverter;
+
+    /**
+     * @var int
+     */
+    private $phpPrecision;
 
     public function __construct(
         ?CalculatorInterface $calculator = null,
@@ -121,11 +132,11 @@ class PhpTimeConverter implements TimeConverterInterface
     }
 
     /**
-     * @param float|int $time The time to split into seconds and microseconds
+     * @param int|float $time The time to split into seconds and microseconds
      *
      * @return string[]
      */
-    private function splitTime(float | int $time): array
+    private function splitTime($time): array
     {
         $split = explode('.', (string) $time, 2);
 

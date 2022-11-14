@@ -23,7 +23,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlFileDumper extends FileDumper
 {
-    private string $extension;
+    private $extension;
 
     public function __construct(string $extension = 'yml')
     {
@@ -33,7 +33,7 @@ class YamlFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = []): string
+    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = [])
     {
         if (!class_exists(Yaml::class)) {
             throw new LogicException('Dumping translations in the YAML format requires the Symfony Yaml component.');
@@ -55,7 +55,7 @@ class YamlFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    protected function getExtension(): string
+    protected function getExtension()
     {
         return $this->extension;
     }

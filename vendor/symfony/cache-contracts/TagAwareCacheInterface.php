@@ -34,5 +34,5 @@ interface TagAwareCacheInterface extends CacheInterface
      *
      * @throws InvalidArgumentException When $tags is not valid
      */
-    public function invalidateTags(array $tags): bool;
+    public function invalidateTags(array $tags);
 }

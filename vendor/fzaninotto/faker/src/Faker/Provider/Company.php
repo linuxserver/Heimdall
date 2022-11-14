@@ -2,7 +2,7 @@
 
 namespace Faker\Provider;
 
-class Company extends \Faker\Provider\Base
+class Company extends Base
 {
     protected static $formats = array(
         '{{lastName}} {{companySuffix}}',
@@ -10,8 +10,14 @@ class Company extends \Faker\Provider\Base
 
     protected static $companySuffix = array('Ltd');
 
+    protected static $jobTitleFormat = array(
+        '{{word}}',
+    );
+
     /**
      * @example 'Acme Ltd'
+     *
+     * @return string
      */
     public function company()
     {
@@ -22,9 +28,23 @@ class Company extends \Faker\Provider\Base
 
     /**
      * @example 'Ltd'
+     *
+     * @return string
      */
     public static function companySuffix()
     {
         return static::randomElement(static::$companySuffix);
+    }
+
+    /**
+     * @example 'Job'
+     *
+     * @return string
+     */
+    public function jobTitle()
+    {
+        $format = static::randomElement(static::$jobTitleFormat);
+
+        return $this->generator->parse($format);
     }
 }

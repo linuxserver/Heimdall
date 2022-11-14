@@ -17,8 +17,10 @@ namespace Ramsey\Uuid;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Ramsey\Uuid\Converter\NumberConverterInterface;
+use Ramsey\Uuid\Converter\TimeConverterInterface;
 use Ramsey\Uuid\Exception\DateTimeException;
 use Ramsey\Uuid\Exception\UnsupportedOperationException;
+use Ramsey\Uuid\Rfc4122\FieldsInterface as Rfc4122FieldsInterface;
 use Throwable;
 
 use function str_pad;
@@ -30,17 +32,29 @@ use const STR_PAD_LEFT;
  * This trait encapsulates deprecated methods for ramsey/uuid; this trait and
  * its methods will be removed in ramsey/uuid 5.0.0.
  *
- * @deprecated This trait and its methods will be removed in ramsey/uuid 5.0.0.
- *
  * @psalm-immutable
  */
 trait DeprecatedUuidMethodsTrait
 {
     /**
+     * @var Rfc4122FieldsInterface
+     */
+    protected $fields;
+
+    /**
+     * @var NumberConverterInterface
+     */
+    protected $numberConverter;
+
+    /**
+     * @var TimeConverterInterface
+     */
+    protected $timeConverter;
+
+    /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeqHiAndReserved()}
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeqHiAndReserved()}
      *     and use the arbitrary-precision math library of your choice to
      *     convert it to a string integer.
      */
@@ -51,9 +65,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeqHiAndReserved()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeqHiAndReserved()}.
      */
     public function getClockSeqHiAndReservedHex(): string
     {
@@ -62,9 +75,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeqLow()}
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeqLow()}
      *     and use the arbitrary-precision math library of your choice to
      *     convert it to a string integer.
      */
@@ -75,9 +87,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeqLow()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeqLow()}.
      */
     public function getClockSeqLowHex(): string
     {
@@ -86,9 +97,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeq()}
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeq()}
      *     and use the arbitrary-precision math library of your choice to
      *     convert it to a string integer.
      */
@@ -99,9 +109,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getClockSeq()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getClockSeq()}.
      */
     public function getClockSequenceHex(): string
     {
@@ -148,7 +157,7 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance.
+     *     {@see FieldsInterface} instance.
      *
      * @return string[]
      */
@@ -210,11 +219,10 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getNode()} and use the
-     *     arbitrary-precision math library of your choice to convert it to a
-     *     string integer.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getNode()}
+     *     and use the arbitrary-precision math library of your choice to
+     *     convert it to a string integer.
      */
     public function getNode(): string
     {
@@ -223,9 +231,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getNode()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getNode()}.
      */
     public function getNodeHex(): string
     {
@@ -234,9 +241,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeHiAndVersion()}
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeHiAndVersion()}
      *     and use the arbitrary-precision math library of your choice to
      *     convert it to a string integer.
      */
@@ -247,9 +253,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeHiAndVersion()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeHiAndVersion()}.
      */
     public function getTimeHiAndVersionHex(): string
     {
@@ -258,11 +263,10 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeLow()} and use the
-     *     arbitrary-precision math library of your choice to convert it to a
-     *     string integer.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeLow()}
+     *     and use the arbitrary-precision math library of your choice to
+     *     convert it to a string integer.
      */
     public function getTimeLow(): string
     {
@@ -271,9 +275,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeLow()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeLow()}.
      */
     public function getTimeLowHex(): string
     {
@@ -282,11 +285,10 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeMid()} and use the
-     *     arbitrary-precision math library of your choice to convert it to a
-     *     string integer.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeMid()}
+     *     and use the arbitrary-precision math library of your choice to
+     *     convert it to a string integer.
      */
     public function getTimeMid(): string
     {
@@ -295,9 +297,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimeMid()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimeMid()}.
      */
     public function getTimeMidHex(): string
     {
@@ -306,11 +307,10 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimestamp()} and use
-     *     the arbitrary-precision math library of your choice to convert it to
-     *     a string integer.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimestamp()}
+     *     and use the arbitrary-precision math library of your choice to
+     *     convert it to a string integer.
      */
     public function getTimestamp(): string
     {
@@ -323,9 +323,8 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
-     *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getTimestamp()}.
+     *     {@see FieldsInterface} instance. If it is a {@see Rfc4122FieldsInterface}
+     *     instance, you may call {@see Rfc4122FieldsInterface::getTimestamp()}.
      */
     public function getTimestampHex(): string
     {
@@ -337,8 +336,19 @@ trait DeprecatedUuidMethodsTrait
     }
 
     /**
+     * @deprecated This has moved to {@see Rfc4122FieldsInterface::getUrn()} and
+     *     is available on {@see \Ramsey\Uuid\Rfc4122\UuidV1},
+     *     {@see \Ramsey\Uuid\Rfc4122\UuidV3}, {@see \Ramsey\Uuid\Rfc4122\UuidV4},
+     *     and {@see \Ramsey\Uuid\Rfc4122\UuidV5}.
+     */
+    public function getUrn(): string
+    {
+        return 'urn:uuid:' . $this->toString();
+    }
+
+    /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
+     *     {@see FieldsInterface} instance. If it is a
      *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
      *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getVariant()}.
      */
@@ -349,7 +359,7 @@ trait DeprecatedUuidMethodsTrait
 
     /**
      * @deprecated Use {@see UuidInterface::getFields()} to get a
-     *     {@see \Ramsey\Uuid\Fields\FieldsInterface} instance. If it is a
+     *     {@see FieldsInterface} instance. If it is a
      *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface} instance, you may call
      *     {@see \Ramsey\Uuid\Rfc4122\FieldsInterface::getVersion()}.
      */

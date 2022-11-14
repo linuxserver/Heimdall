@@ -2,7 +2,7 @@
 
 namespace Faker\Provider;
 
-class Biased extends \Faker\Provider\Base
+class Biased extends Base
 {
     /**
      * Returns a biased integer between $min and $max (both inclusive).
@@ -25,8 +25,8 @@ class Biased extends \Faker\Provider\Base
             $x = mt_rand() / mt_getrandmax();
             $y = mt_rand() / (mt_getrandmax() + 1);
         } while (call_user_func($function, $x) < $y);
-        
-        return floor($x * ($max - $min + 1) + $min);
+
+        return (int) floor($x * ($max - $min + 1) + $min);
     }
 
     /**
@@ -35,7 +35,7 @@ class Biased extends \Faker\Provider\Base
      *
      * @return integer
      */
-    protected static function unbiased($x)
+    protected static function unbiased()
     {
         return 1;
     }

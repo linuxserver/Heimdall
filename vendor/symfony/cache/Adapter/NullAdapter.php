@@ -40,7 +40,7 @@ class NullAdapter implements AdapterInterface, CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
+    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null)
     {
         $save = true;
 
@@ -50,7 +50,7 @@ class NullAdapter implements AdapterInterface, CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function getItem(mixed $key): CacheItem
+    public function getItem($key)
     {
         return (self::$createCacheItem)($key);
     }
@@ -58,63 +58,77 @@ class NullAdapter implements AdapterInterface, CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function getItems(array $keys = []): iterable
+    public function getItems(array $keys = [])
     {
         return $this->generateItems($keys);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function hasItem(mixed $key): bool
+    public function hasItem($key)
     {
         return false;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function clear(string $prefix = ''): bool
+    public function clear(string $prefix = '')
     {
         return true;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function deleteItem(mixed $key): bool
+    public function deleteItem($key)
     {
         return true;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function deleteItems(array $keys): bool
+    public function deleteItems(array $keys)
     {
         return true;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function save(CacheItemInterface $item): bool
+    public function save(CacheItemInterface $item)
     {
         return true;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function saveDeferred(CacheItemInterface $item): bool
+    public function saveDeferred(CacheItemInterface $item)
     {
         return true;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function commit(): bool
+    public function commit()
     {
         return true;
     }

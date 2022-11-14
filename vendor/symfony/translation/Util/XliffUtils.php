@@ -85,6 +85,11 @@ class XliffUtils
 
     private static function shouldEnableEntityLoader(): bool
     {
+        // Version prior to 8.0 can be enabled without deprecation
+        if (\PHP_VERSION_ID < 80000) {
+            return true;
+        }
+
         static $dom, $schema;
         if (null === $dom) {
             $dom = new \DOMDocument();
@@ -129,7 +134,7 @@ class XliffUtils
     private static function getSchema(string $xliffVersion): string
     {
         if ('1.2' === $xliffVersion) {
-            $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-1.2-transitional.xsd');
+            $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-1.2-strict.xsd');
             $xmlUri = 'http://www.w3.org/2001/xml.xsd';
         } elseif ('2.0' === $xliffVersion) {
             $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-2.0.xsd');

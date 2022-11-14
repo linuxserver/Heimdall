@@ -17,13 +17,11 @@ namespace Ramsey\Uuid\Rfc4122;
 use Ramsey\Uuid\Builder\UuidBuilderInterface;
 use Ramsey\Uuid\Codec\CodecInterface;
 use Ramsey\Uuid\Converter\NumberConverterInterface;
-use Ramsey\Uuid\Converter\Time\UnixTimeConverter;
 use Ramsey\Uuid\Converter\TimeConverterInterface;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 use Ramsey\Uuid\Exception\UnsupportedOperationException;
-use Ramsey\Uuid\Math\BrickMathCalculator;
+use Ramsey\Uuid\Nonstandard\UuidV6;
 use Ramsey\Uuid\Rfc4122\UuidInterface as Rfc4122UuidInterface;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Throwable;
 
@@ -34,7 +32,15 @@ use Throwable;
  */
 class UuidBuilder implements UuidBuilderInterface
 {
-    private TimeConverterInterface $unixTimeConverter;
+    /**
+     * @var NumberConverterInterface
+     */
+    private $numberConverter;
+
+    /**
+     * @var TimeConverterInterface
+     */
+    private $timeConverter;
 
     /**
      * Constructs the DefaultUuidBuilder
@@ -42,18 +48,14 @@ class UuidBuilder implements UuidBuilderInterface
      * @param NumberConverterInterface $numberConverter The number converter to
      *     use when constructing the Uuid
      * @param TimeConverterInterface $timeConverter The time converter to use
-     *     for converting Gregorian time extracted from version 1, 2, and 6
-     *     UUIDs to Unix timestamps
-     * @param TimeConverterInterface|null $unixTimeConverter The time converter
-     *     to use for converter Unix Epoch time extracted from version 7 UUIDs
-     *     to Unix timestamps
+     *     for converting timestamps extracted from a UUID to Unix timestamps
      */
     public function __construct(
-        private NumberConverterInterface $numberConverter,
-        private TimeConverterInterface $timeConverter,
-        ?TimeConverterInterface $unixTimeConverter = null
+        NumberConverterInterface $numberConverter,
+        TimeConverterInterface $timeConverter
     ) {
-        $this->unixTimeConverter = $unixTimeConverter ?? new UnixTimeConverter(new BrickMathCalculator());
+        $this->numberConverter = $numberConverter;
+        $this->timeConverter = $timeConverter;
     }
 
     /**
@@ -69,34 +71,25 @@ class UuidBuilder implements UuidBuilderInterface
     public function build(CodecInterface $codec, string $bytes): UuidInterface
     {
         try {
-            /** @var Fields $fields */
             $fields = $this->buildFields($bytes);
 
             if ($fields->isNil()) {
                 return new NilUuid($fields, $this->numberConverter, $codec, $this->timeConverter);
             }
 
-            if ($fields->isMax()) {
-                return new MaxUuid($fields, $this->numberConverter, $codec, $this->timeConverter);
-            }
-
             switch ($fields->getVersion()) {
-                case Uuid::UUID_TYPE_TIME:
+                case 1:
                     return new UuidV1($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_DCE_SECURITY:
+                case 2:
                     return new UuidV2($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_HASH_MD5:
+                case 3:
                     return new UuidV3($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_RANDOM:
+                case 4:
                     return new UuidV4($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_HASH_SHA1:
+                case 5:
                     return new UuidV5($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_REORDERED_TIME:
+                case 6:
                     return new UuidV6($fields, $this->numberConverter, $codec, $this->timeConverter);
-                case Uuid::UUID_TYPE_UNIX_TIME:
-                    return new UuidV7($fields, $this->numberConverter, $codec, $this->unixTimeConverter);
-                case Uuid::UUID_TYPE_CUSTOM:
-                    return new UuidV8($fields, $this->numberConverter, $codec, $this->timeConverter);
             }
 
             throw new UnsupportedOperationException(

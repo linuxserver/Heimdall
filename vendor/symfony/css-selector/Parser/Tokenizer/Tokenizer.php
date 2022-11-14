@@ -31,7 +31,7 @@ class Tokenizer
     /**
      * @var Handler\HandlerInterface[]
      */
-    private array $handlers;
+    private $handlers;
 
     public function __construct()
     {

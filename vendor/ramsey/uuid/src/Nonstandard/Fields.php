@@ -48,18 +48,25 @@ final class Fields implements FieldsInterface
     use VariantTrait;
 
     /**
+     * @var string
+     */
+    private $bytes;
+
+    /**
      * @param string $bytes A 16-byte binary string representation of a UUID
      *
      * @throws InvalidArgumentException if the byte string is not exactly 16 bytes
      */
-    public function __construct(private string $bytes)
+    public function __construct(string $bytes)
     {
-        if (strlen($this->bytes) !== 16) {
+        if (strlen($bytes) !== 16) {
             throw new InvalidArgumentException(
                 'The byte string must be 16 bytes long; '
-                . 'received ' . strlen($this->bytes) . ' bytes'
+                . 'received ' . strlen($bytes) . ' bytes'
             );
         }
+
+        $this->bytes = $bytes;
     }
 
     public function getBytes(): string
@@ -120,11 +127,6 @@ final class Fields implements FieldsInterface
     }
 
     public function isNil(): bool
-    {
-        return false;
-    }
-
-    public function isMax(): bool
     {
         return false;
     }

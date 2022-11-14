@@ -23,7 +23,7 @@ class PoFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = []): string
+    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = [])
     {
         $output = 'msgid ""'."\n";
         $output .= 'msgstr ""'."\n";
@@ -114,7 +114,7 @@ EOF;
     /**
      * {@inheritdoc}
      */
-    protected function getExtension(): string
+    protected function getExtension()
     {
         return 'po';
     }
@@ -124,7 +124,7 @@ EOF;
         return addcslashes($str, "\0..\37\42\134");
     }
 
-    private function formatComments(string|array $comments, string $prefix = ''): ?string
+    private function formatComments($comments, string $prefix = ''): ?string
     {
         $output = null;
 

@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-6.0
----
-
- * Remove `OptionsResolverIntrospector::getDeprecationMessage()`
-
 5.3
 ---
 

@@ -28,7 +28,7 @@ class PhpExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * Prefix for new found message.
      */
-    private string $prefix = '';
+    private $prefix = '';
 
     /**
      * The sequence that captures translation messages.
@@ -131,7 +131,7 @@ class PhpExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function extract(string|iterable $resource, MessageCatalogue $catalog)
+    public function extract($resource, MessageCatalogue $catalog)
     {
         $files = $this->extractFiles($resource);
         foreach ($files as $file) {
@@ -151,8 +151,12 @@ class PhpExtractor extends AbstractFileExtractor implements ExtractorInterface
 
     /**
      * Normalizes a token.
+     *
+     * @param mixed $token
+     *
+     * @return string|null
      */
-    protected function normalizeToken(mixed $token): ?string
+    protected function normalizeToken($token)
     {
         if (isset($token[1]) && 'b"' !== $token) {
             return $token[1];
@@ -307,9 +311,11 @@ class PhpExtractor extends AbstractFileExtractor implements ExtractorInterface
     }
 
     /**
+     * @return bool
+     *
      * @throws \InvalidArgumentException
      */
-    protected function canBeExtracted(string $file): bool
+    protected function canBeExtracted(string $file)
     {
         return $this->isFile($file) && 'php' === pathinfo($file, \PATHINFO_EXTENSION);
     }
@@ -317,7 +323,7 @@ class PhpExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * {@inheritdoc}
      */
-    protected function extractFromDirectory(string|array $directory): iterable
+    protected function extractFromDirectory($directory)
     {
         if (!class_exists(Finder::class)) {
             throw new \LogicException(sprintf('You cannot use "%s" as the "symfony/finder" package is not installed. Try running "composer require symfony/finder".', static::class));

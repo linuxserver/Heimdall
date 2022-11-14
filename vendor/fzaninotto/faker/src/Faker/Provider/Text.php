@@ -2,13 +2,14 @@
 
 namespace Faker\Provider;
 
-abstract class Text extends \Faker\Provider\Base
+abstract class Text extends Base
 {
     protected static $baseText = '';
     protected static $separator = ' ';
     protected static $separatorLen = 1;
-    protected $explodedText = null;
+    protected $explodedText;
     protected $consecutiveWords = array();
+    protected static $textStartsWithUppercase = true;
 
     /**
      * Generate a text string by the Markov chain algorithm.
@@ -20,7 +21,7 @@ abstract class Text extends \Faker\Provider\Base
      * @example 'Alice, swallowing down her flamingo, and began by taking the little golden key'
      * @param integer $maxNbChars Maximum number of characters the text should contain (minimum: 10)
      * @param integer $indexSize  Determines how many words are considered for the generation of the next word.
-     *                             The minimum is 1, and it produces the higher level of randomness, although the
+     *                             The minimum is 1, and it produces a higher level of randomness, although the
      *                             generated text usually doesn't make sense. Higher index sizes (up to 5)
      *                             produce more correct text, at the price of less randomness.
      * @return string
@@ -38,7 +39,6 @@ abstract class Text extends \Faker\Provider\Base
         if ($indexSize > 5) {
             throw new \InvalidArgumentException('indexSize must be at most 5');
         }
-
 
         $words = $this->getConsecutiveWords($indexSize);
         $result = array();
@@ -127,11 +127,15 @@ abstract class Text extends \Faker\Provider\Base
 
     protected static function validStart($word)
     {
-        return preg_match('/^\p{Lu}/u', $word);
+        $isValid = true;
+        if (static::$textStartsWithUppercase) {
+            $isValid = preg_match('/^\p{Lu}/u', $word);
+        }
+        return $isValid;
     }
 
     protected static function appendEnd($text)
     {
-        return $text.'.';
+        return preg_replace("/([ ,-:;\x{2013}\x{2014}]+$)/us", '', $text).'.';
     }
 }

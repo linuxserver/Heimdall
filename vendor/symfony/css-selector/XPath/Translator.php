@@ -30,23 +30,23 @@ use Symfony\Component\CssSelector\Parser\ParserInterface;
  */
 class Translator implements TranslatorInterface
 {
-    private ParserInterface $mainParser;
+    private $mainParser;
 
     /**
      * @var ParserInterface[]
      */
-    private array $shortcutParsers = [];
+    private $shortcutParsers = [];
 
     /**
      * @var Extension\ExtensionInterface[]
      */
-    private array $extensions = [];
+    private $extensions = [];
 
-    private array $nodeTranslators = [];
-    private array $combinationTranslators = [];
-    private array $functionTranslators = [];
-    private array $pseudoClassTranslators = [];
-    private array $attributeMatchingTranslators = [];
+    private $nodeTranslators = [];
+    private $combinationTranslators = [];
+    private $functionTranslators = [];
+    private $pseudoClassTranslators = [];
+    private $attributeMatchingTranslators = [];
 
     public function __construct(ParserInterface $parser = null)
     {
@@ -117,7 +117,7 @@ class Translator implements TranslatorInterface
     /**
      * @return $this
      */
-    public function registerExtension(Extension\ExtensionInterface $extension): static
+    public function registerExtension(Extension\ExtensionInterface $extension): self
     {
         $this->extensions[$extension->getName()] = $extension;
 
@@ -145,7 +145,7 @@ class Translator implements TranslatorInterface
     /**
      * @return $this
      */
-    public function registerParserShortcut(ParserInterface $shortcut): static
+    public function registerParserShortcut(ParserInterface $shortcut): self
     {
         $this->shortcutParsers[] = $shortcut;
 
