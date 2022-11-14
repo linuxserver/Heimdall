@@ -24,7 +24,7 @@ class MoFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = []): string
+    public function formatCatalogue(MessageCatalogue $messages, string $domain, array $options = [])
     {
         $sources = $targets = $sourceOffsets = $targetOffsets = '';
         $offsets = [];
@@ -57,7 +57,7 @@ class MoFileDumper extends FileDumper
                           .$this->writeLong($offset[2] + $sourcesStart + $sourcesSize);
         }
 
-        $output = implode('', array_map($this->writeLong(...), $header))
+        $output = implode('', array_map([$this, 'writeLong'], $header))
                .$sourceOffsets
                .$targetOffsets
                .$sources
@@ -70,12 +70,12 @@ class MoFileDumper extends FileDumper
     /**
      * {@inheritdoc}
      */
-    protected function getExtension(): string
+    protected function getExtension()
     {
         return 'mo';
     }
 
-    private function writeLong(mixed $str): string
+    private function writeLong($str): string
     {
         return pack('V*', $str);
     }

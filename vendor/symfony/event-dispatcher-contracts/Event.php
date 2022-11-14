@@ -30,7 +30,7 @@ use Psr\EventDispatcher\StoppableEventInterface;
  */
 class Event implements StoppableEventInterface
 {
-    private bool $propagationStopped = false;
+    private $propagationStopped = false;
 
     /**
      * {@inheritdoc}

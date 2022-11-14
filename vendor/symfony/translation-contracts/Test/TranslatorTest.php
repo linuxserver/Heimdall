@@ -43,7 +43,10 @@ class TranslatorTest extends TestCase
         \Locale::setDefault($this->defaultLocale);
     }
 
-    public function getTranslator(): TranslatorInterface
+    /**
+     * @return TranslatorInterface
+     */
+    public function getTranslator()
     {
         return new class() implements TranslatorInterface {
             use TranslatorTrait;
@@ -314,8 +317,10 @@ class TranslatorTest extends TestCase
      * This array should contain all currently known langcodes.
      *
      * As it is impossible to have this ever complete we should try as hard as possible to have it almost complete.
+     *
+     * @return array
      */
-    public function successLangcodes(): array
+    public function successLangcodes()
     {
         return [
             ['1', ['ay', 'bo', 'cgg', 'dz', 'id', 'ja', 'jbo', 'ka', 'kk', 'km', 'ko', 'ky']],
@@ -334,7 +339,7 @@ class TranslatorTest extends TestCase
      *
      * @return array with nplural together with langcodes
      */
-    public function failingLangcodes(): array
+    public function failingLangcodes()
     {
         return [
             ['1', ['fa']],
@@ -348,10 +353,11 @@ class TranslatorTest extends TestCase
     /**
      * We validate only on the plural coverage. Thus the real rules is not tested.
      *
-     * @param string $nplural Plural expected
-     * @param array  $matrix  Containing langcodes and their plural index values
+     * @param string $nplural       Plural expected
+     * @param array  $matrix        Containing langcodes and their plural index values
+     * @param bool   $expectSuccess
      */
-    protected function validateMatrix(string $nplural, array $matrix, bool $expectSuccess = true)
+    protected function validateMatrix($nplural, $matrix, $expectSuccess = true)
     {
         foreach ($matrix as $langCode => $data) {
             $indexes = array_flip($data);

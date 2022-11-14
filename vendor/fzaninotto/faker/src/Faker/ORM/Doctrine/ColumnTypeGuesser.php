@@ -8,11 +8,18 @@ class ColumnTypeGuesser
 {
     protected $generator;
 
+    /**
+     * @param \Faker\Generator $generator
+     */
     public function __construct(\Faker\Generator $generator)
     {
         $this->generator = $generator;
     }
 
+    /**
+     * @param ClassMetadata $class
+     * @return \Closure|null
+     */
     public function guessFormat($fieldName, ClassMetadata $class)
     {
         $generator = $this->generator;
@@ -59,6 +66,12 @@ class ColumnTypeGuesser
             case 'time':
                 return function () use ($generator) {
                     return $generator->datetime;
+                };
+            case 'datetime_immutable':
+            case 'date_immutable':
+            case 'time_immutable':
+                return function () use ($generator) {
+                    return \DateTimeImmutable::createFromMutable($generator->datetime);
                 };
             default:
                 // no smart way to guess what the user expects here

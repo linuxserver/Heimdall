@@ -52,7 +52,10 @@ abstract class AbstractUnicodeString extends AbstractString
     private static $tableZero;
     private static $tableWide;
 
-    public static function fromCodePoints(int ...$codes): static
+    /**
+     * @return static
+     */
+    public static function fromCodePoints(int ...$codes): self
     {
         $string = '';
 
@@ -156,7 +159,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function camel(): static
+    public function camel(): parent
     {
         $str = clone $this;
         $str->string = str_replace(' ', '', preg_replace_callback('/\b.(?![A-Z]{2,})/u', static function ($m) use (&$i) {
@@ -186,11 +189,11 @@ abstract class AbstractUnicodeString extends AbstractString
         return $codePoints;
     }
 
-    public function folded(bool $compat = true): static
+    public function folded(bool $compat = true): parent
     {
         $str = clone $this;
 
-        if (!$compat || !\defined('Normalizer::NFKC_CF')) {
+        if (!$compat || \PHP_VERSION_ID < 70300 || !\defined('Normalizer::NFKC_CF')) {
             $str->string = normalizer_normalize($str->string, $compat ? \Normalizer::NFKC : \Normalizer::NFC);
             $str->string = mb_strtolower(str_replace(self::FOLD_FROM, self::FOLD_TO, $this->string), 'UTF-8');
         } else {
@@ -200,7 +203,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function join(array $strings, string $lastGlue = null): static
+    public function join(array $strings, string $lastGlue = null): parent
     {
         $str = clone $this;
 
@@ -214,7 +217,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function lower(): static
+    public function lower(): parent
     {
         $str = clone $this;
         $str->string = mb_strtolower(str_replace('İ', 'i̇', $str->string), 'UTF-8');
@@ -237,7 +240,7 @@ abstract class AbstractUnicodeString extends AbstractString
                 $lastError = preg_last_error();
 
                 foreach (get_defined_constants(true)['pcre'] as $k => $v) {
-                    if ($lastError === $v && str_ends_with($k, '_ERROR')) {
+                    if ($lastError === $v && '_ERROR' === substr($k, -6)) {
                         throw new RuntimeException('Matching failed with '.$k.'.');
                     }
                 }
@@ -251,7 +254,10 @@ abstract class AbstractUnicodeString extends AbstractString
         return $matches;
     }
 
-    public function normalize(int $form = self::NFC): static
+    /**
+     * @return static
+     */
+    public function normalize(int $form = self::NFC): self
     {
         if (!\in_array($form, [self::NFC, self::NFD, self::NFKC, self::NFKD])) {
             throw new InvalidArgumentException('Unsupported normalization form.');
@@ -263,7 +269,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function padBoth(int $length, string $padStr = ' '): static
+    public function padBoth(int $length, string $padStr = ' '): parent
     {
         if ('' === $padStr || !preg_match('//u', $padStr)) {
             throw new InvalidArgumentException('Invalid UTF-8 string.');
@@ -275,7 +281,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $this->pad($length, $pad, \STR_PAD_BOTH);
     }
 
-    public function padEnd(int $length, string $padStr = ' '): static
+    public function padEnd(int $length, string $padStr = ' '): parent
     {
         if ('' === $padStr || !preg_match('//u', $padStr)) {
             throw new InvalidArgumentException('Invalid UTF-8 string.');
@@ -287,7 +293,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $this->pad($length, $pad, \STR_PAD_RIGHT);
     }
 
-    public function padStart(int $length, string $padStr = ' '): static
+    public function padStart(int $length, string $padStr = ' '): parent
     {
         if ('' === $padStr || !preg_match('//u', $padStr)) {
             throw new InvalidArgumentException('Invalid UTF-8 string.');
@@ -299,13 +305,17 @@ abstract class AbstractUnicodeString extends AbstractString
         return $this->pad($length, $pad, \STR_PAD_LEFT);
     }
 
-    public function replaceMatches(string $fromRegexp, string|callable $to): static
+    public function replaceMatches(string $fromRegexp, $to): parent
     {
         if ($this->ignoreCase) {
             $fromRegexp .= 'i';
         }
 
         if (\is_array($to) || $to instanceof \Closure) {
+            if (!\is_callable($to)) {
+                throw new \TypeError(sprintf('Argument 2 passed to "%s::replaceMatches()" must be callable, array given.', static::class));
+            }
+
             $replace = 'preg_replace_callback';
             $to = static function (array $m) use ($to): string {
                 $to = $to($m);
@@ -329,7 +339,7 @@ abstract class AbstractUnicodeString extends AbstractString
                 $lastError = preg_last_error();
 
                 foreach (get_defined_constants(true)['pcre'] as $k => $v) {
-                    if ($lastError === $v && str_ends_with($k, '_ERROR')) {
+                    if ($lastError === $v && '_ERROR' === substr($k, -6)) {
                         throw new RuntimeException('Matching failed with '.$k.'.');
                     }
                 }
@@ -346,7 +356,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function reverse(): static
+    public function reverse(): parent
     {
         $str = clone $this;
         $str->string = implode('', array_reverse(preg_split('/(\X)/u', $str->string, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY)));
@@ -354,7 +364,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function snake(): static
+    public function snake(): parent
     {
         $str = $this->camel();
         $str->string = mb_strtolower(preg_replace(['/(\p{Lu}+)(\p{Lu}\p{Ll})/u', '/([\p{Ll}0-9])(\p{Lu})/u'], '\1_\2', $str->string), 'UTF-8');
@@ -362,7 +372,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function title(bool $allWords = false): static
+    public function title(bool $allWords = false): parent
     {
         $str = clone $this;
 
@@ -375,7 +385,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function trim(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): static
+    public function trim(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): parent
     {
         if (" \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}" !== $chars && !preg_match('//u', $chars)) {
             throw new InvalidArgumentException('Invalid UTF-8 chars.');
@@ -388,7 +398,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function trimEnd(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): static
+    public function trimEnd(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): parent
     {
         if (" \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}" !== $chars && !preg_match('//u', $chars)) {
             throw new InvalidArgumentException('Invalid UTF-8 chars.');
@@ -401,7 +411,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function trimPrefix($prefix): static
+    public function trimPrefix($prefix): parent
     {
         if (!$this->ignoreCase) {
             return parent::trimPrefix($prefix);
@@ -421,7 +431,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function trimStart(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): static
+    public function trimStart(string $chars = " \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}"): parent
     {
         if (" \t\n\r\0\x0B\x0C\u{A0}\u{FEFF}" !== $chars && !preg_match('//u', $chars)) {
             throw new InvalidArgumentException('Invalid UTF-8 chars.');
@@ -434,7 +444,7 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function trimSuffix($suffix): static
+    public function trimSuffix($suffix): parent
     {
         if (!$this->ignoreCase) {
             return parent::trimSuffix($suffix);
@@ -454,10 +464,14 @@ abstract class AbstractUnicodeString extends AbstractString
         return $str;
     }
 
-    public function upper(): static
+    public function upper(): parent
     {
         $str = clone $this;
         $str->string = mb_strtoupper($str->string, 'UTF-8');
+
+        if (\PHP_VERSION_ID < 70300) {
+            $str->string = str_replace(self::UPPER_FROM, self::UPPER_TO, $str->string);
+        }
 
         return $str;
     }
@@ -467,7 +481,7 @@ abstract class AbstractUnicodeString extends AbstractString
         $width = 0;
         $s = str_replace(["\x00", "\x05", "\x07"], '', $this->string);
 
-        if (str_contains($s, "\r")) {
+        if (false !== strpos($s, "\r")) {
             $s = str_replace(["\r\n", "\r"], "\n", $s);
         }
 
@@ -494,7 +508,10 @@ abstract class AbstractUnicodeString extends AbstractString
         return $width;
     }
 
-    private function pad(int $len, self $pad, int $type): static
+    /**
+     * @return static
+     */
+    private function pad(int $len, self $pad, int $type): parent
     {
         $sLen = $this->length();
 

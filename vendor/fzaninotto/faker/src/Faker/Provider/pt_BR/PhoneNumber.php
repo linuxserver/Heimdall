@@ -4,45 +4,41 @@ namespace Faker\Provider\pt_BR;
 
 class PhoneNumber extends \Faker\Provider\PhoneNumber
 {
-
-    protected static $landlineFormats = array('2###-####', '3###-####');
-
-    protected static $cellphoneFormats = array('7###-####', '8###-####', '9###-####');
+    protected static $landlineFormats = array('2###-####', '3###-####', '4###-####');
 
     /**
-     * Extracted from http://portal.embratel.com.br/embratel/9-digito/ (point 11)
-     */
-    protected static $ninthDigitAreaCodes = array(
-        11, 12, 13, 14, 15, 16, 17, 18, 19,
-        21, 22, 24, 27, 28,
-        91, 92, 93, 94, 95, 96, 97, 98, 99,
-        //31, 32, 33, 34, 35, 37, 38, 71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, //by dec/2015
-        //41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61,62, 63, 64, 65, 66, 67, 68, 69 //by dec/2016
-    );
+    * Since december 2016 all mobile phone numbers in brazil begin with 9 and landlines 2, 3 or 4.
+    * @link http://www.anatel.gov.br/Portal/exibirPortalPaginaEspecial.do?org.apache.struts.taglib.html.TOKEN=9594e1d11fbc996d52bda44e608bb744&codItemCanal=1794&pastaSelecionada=2984
+    */
+    protected static $cellphoneFormats = array('9####-####');
 
     /**
      * Generates a 2-digit area code not composed by zeroes.
+     * @link http://www.anatel.gov.br/legislacao/resolucoes/16-2001/383-resolucao-263.
      * @return string
      */
     public static function areaCode()
     {
-        return static::randomDigitNotNull().static::randomDigitNotNull();
+        $areaCodes = array(
+            '11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22', '24',
+            '27', '28', '31', '32', '33', '34', '35', '37', '38', '41', '42', '43',
+            '44', '45', '46', '47', '48', '49', '51', '53', '54', '55', '61', '62',
+            '63', '64', '65', '66', '67', '68', '69', '71', '73', '74', '75', '77',
+            '79', '81', '82', '83', '84', '85', '86', '87', '88', '89', '91', '92',
+            '93', '94', '95', '96', '97', '98', '99'
+        );
+
+        return self::randomElement($areaCodes);
     }
 
     /**
-     * Generates a 8/9-digit cellphone number without formatting characters.
+     * Generates a 9-digit cellphone number without formatting characters.
      * @param bool $formatted [def: true] If it should return a formatted number or not.
-     * @param bool $ninth     [def: false] If the number should have a nine in the beginning or not.
-     *                        If the generated number begins with 7 this is ignored.
      * @return string
      */
-    public static function cellphone($formatted = true, $ninth = false)
+    public static function cellphone($formatted = true)
     {
         $number = static::numerify(static::randomElement(static::$cellphoneFormats));
-
-        if ($ninth && $number[0] != 7) {
-            $number = "9$number";
-        }
 
         if (!$formatted) {
             $number = strtr($number, array('-' => ''));
@@ -52,7 +48,7 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
     }
 
     /**
-     * Generates an 8-digit landline number without formatting characters.
+     * Generates an 9-digit landline number without formatting characters.
      * @param bool $formatted [def: true] If it should return a formatted number or not.
      * @return string
      */
@@ -93,15 +89,14 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
     {
         $area   = static::areaCode();
         $number = ($type == 'cellphone')?
-            static::cellphone($formatted, in_array($area, static::$ninthDigitAreaCodes)) :
+            static::cellphone($formatted) :
             static::landline($formatted);
 
         return $formatted? "($area) $number" : $area.$number;
     }
 
     /**
-     * Concatenates {@link areaCode} and {@link cellphone} into a national cellphone number. The ninth digit is
-     * derived from the area code.
+     * Concatenates {@link areaCode} and {@link cellphone} into a national cellphone number.
      * @param bool $formatted [def: true] If it should return a formatted number or not.
      * @return string
      */
@@ -124,7 +119,7 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
      * Randomizes between complete cellphone and landline numbers.
      * @return mixed
      */
-    public static function phoneNumber()
+    public function phoneNumber()
     {
         $method = static::randomElement(array('cellphoneNumber', 'landlineNumber'));
         return call_user_func("static::$method", true);

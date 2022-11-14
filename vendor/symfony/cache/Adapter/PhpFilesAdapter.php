@@ -29,13 +29,13 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
         doDelete as private doCommonDelete;
     }
 
-    private \Closure $includeHandler;
-    private bool $appendOnly;
-    private array $values = [];
-    private array $files = [];
+    private $includeHandler;
+    private $appendOnly;
+    private $values = [];
+    private $files = [];
 
-    private static int $startTime;
-    private static array $valuesCache = [];
+    private static $startTime;
+    private static $valuesCache = [];
 
     /**
      * @param $appendOnly Set to `true` to gain extra performance when the items stored in this pool never expire.
@@ -61,7 +61,10 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
         return \function_exists('opcache_invalidate') && filter_var(\ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN) && (!\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) || filter_var(\ini_get('opcache.enable_cli'), \FILTER_VALIDATE_BOOLEAN));
     }
 
-    public function prune(): bool
+    /**
+     * @return bool
+     */
+    public function prune()
     {
         $time = time();
         $pruned = true;
@@ -92,7 +95,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * {@inheritdoc}
      */
-    protected function doFetch(array $ids): iterable
+    protected function doFetch(array $ids)
     {
         if ($this->appendOnly) {
             $now = 0;
@@ -135,7 +138,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
 
             foreach ($missingIds as $k => $id) {
                 try {
-                    $file = $this->files[$id] ??= $this->getFile($id);
+                    $file = $this->files[$id] ?? $this->files[$id] = $this->getFile($id);
 
                     if (isset(self::$valuesCache[$file])) {
                         [$expiresAt, $this->values[$id]] = self::$valuesCache[$file];
@@ -168,7 +171,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * {@inheritdoc}
      */
-    protected function doHave(string $id): bool
+    protected function doHave(string $id)
     {
         if ($this->appendOnly && isset($this->values[$id])) {
             return true;
@@ -176,7 +179,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
 
         set_error_handler($this->includeHandler);
         try {
-            $file = $this->files[$id] ??= $this->getFile($id);
+            $file = $this->files[$id] ?? $this->files[$id] = $this->getFile($id);
             $getExpiry = true;
 
             if (isset(self::$valuesCache[$file])) {
@@ -190,7 +193,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
             } elseif ($this->appendOnly) {
                 $value = new LazyValue($file);
             }
-        } catch (\ErrorException) {
+        } catch (\ErrorException $e) {
             return false;
         } finally {
             restore_error_handler();
@@ -208,7 +211,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * {@inheritdoc}
      */
-    protected function doSave(array $values, int $lifetime): array|bool
+    protected function doSave(array $values, int $lifetime)
     {
         $ok = true;
         $expiry = $lifetime ? time() + $lifetime : 'PHP_INT_MAX';
@@ -270,7 +273,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * {@inheritdoc}
      */
-    protected function doClear(string $namespace): bool
+    protected function doClear(string $namespace)
     {
         $this->values = [];
 
@@ -280,7 +283,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * {@inheritdoc}
      */
-    protected function doDelete(array $ids): bool
+    protected function doDelete(array $ids)
     {
         foreach ($ids as $id) {
             unset($this->values[$id]);
@@ -318,7 +321,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
  */
 class LazyValue
 {
-    public string $file;
+    public $file;
 
     public function __construct(string $file)
     {

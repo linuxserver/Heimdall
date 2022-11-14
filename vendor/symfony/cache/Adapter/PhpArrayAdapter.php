@@ -34,12 +34,12 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
     use ContractsTrait;
     use ProxyTrait;
 
-    private string $file;
-    private array $keys;
-    private array $values;
+    private $file;
+    private $keys;
+    private $values;
 
-    private static \Closure $createCacheItem;
-    private static array $valuesCache = [];
+    private static $createCacheItem;
+    private static $valuesCache = [];
 
     /**
      * @param string           $file         The PHP file were values are cached
@@ -68,8 +68,10 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
      *
      * @param string                 $file         The PHP file were values are cached
      * @param CacheItemPoolInterface $fallbackPool A pool to fallback on when an item is not hit
+     *
+     * @return CacheItemPoolInterface
      */
-    public static function create(string $file, CacheItemPoolInterface $fallbackPool): CacheItemPoolInterface
+    public static function create(string $file, CacheItemPoolInterface $fallbackPool)
     {
         if (!$fallbackPool instanceof AdapterInterface) {
             $fallbackPool = new ProxyAdapter($fallbackPool);
@@ -81,9 +83,9 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
+    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null)
     {
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
         if (!isset($this->keys[$key])) {
@@ -103,7 +105,7 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
             if ($value instanceof \Closure) {
                 return $value();
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             unset($this->keys[$key]);
             goto get_from_pool;
         }
@@ -114,12 +116,12 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
     /**
      * {@inheritdoc}
      */
-    public function getItem(mixed $key): CacheItem
+    public function getItem($key)
     {
         if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', get_debug_type($key)));
         }
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
         if (!isset($this->keys[$key])) {
@@ -134,7 +136,7 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
         } elseif ($value instanceof \Closure) {
             try {
                 $value = $value();
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $value = null;
                 $isHit = false;
             }
@@ -146,14 +148,14 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
     /**
      * {@inheritdoc}
      */
-    public function getItems(array $keys = []): iterable
+    public function getItems(array $keys = [])
     {
         foreach ($keys as $key) {
             if (!\is_string($key)) {
                 throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', get_debug_type($key)));
             }
         }
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -162,13 +164,15 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function hasItem(mixed $key): bool
+    public function hasItem($key)
     {
         if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', get_debug_type($key)));
         }
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -177,13 +181,15 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function deleteItem(mixed $key): bool
+    public function deleteItem($key)
     {
         if (!\is_string($key)) {
             throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', get_debug_type($key)));
         }
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -192,8 +198,10 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function deleteItems(array $keys): bool
+    public function deleteItems(array $keys)
     {
         $deleted = true;
         $fallbackKeys = [];
@@ -209,7 +217,7 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
                 $fallbackKeys[] = $key;
             }
         }
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -222,10 +230,12 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function save(CacheItemInterface $item): bool
+    public function save(CacheItemInterface $item)
     {
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -234,10 +244,12 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function saveDeferred(CacheItemInterface $item): bool
+    public function saveDeferred(CacheItemInterface $item)
     {
-        if (!isset($this->values)) {
+        if (null === $this->values) {
             $this->initialize();
         }
 
@@ -246,16 +258,20 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function commit(): bool
+    public function commit()
     {
         return $this->pool->commit();
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function clear(string $prefix = ''): bool
+    public function clear(string $prefix = '')
     {
         $this->keys = $this->values = [];
 
@@ -276,7 +292,7 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
      *
      * @return string[] A list of classes to preload on PHP 7.4+
      */
-    public function warmUp(array $values): array
+    public function warmUp(array $values)
     {
         if (file_exists($this->file)) {
             if (!is_file($this->file)) {
@@ -401,7 +417,7 @@ EOF;
                 } elseif ($value instanceof \Closure) {
                     try {
                         yield $key => $f($key, $value(), true);
-                    } catch (\Throwable) {
+                    } catch (\Throwable $e) {
                         yield $key => $f($key, null, false);
                     }
                 } else {

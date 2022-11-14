@@ -17,10 +17,10 @@ namespace Ramsey\Uuid\Type;
 use Ramsey\Uuid\Exception\InvalidArgumentException;
 use ValueError;
 
-use function assert;
-use function is_numeric;
-use function preg_match;
+use function ctype_digit;
+use function ltrim;
 use function sprintf;
+use function strpos;
 use function substr;
 
 /**
@@ -40,13 +40,52 @@ final class Integer implements NumberInterface
     /**
      * @psalm-var numeric-string
      */
-    private string $value;
+    private $value;
 
-    private bool $isNegative = false;
+    /**
+     * @var bool
+     */
+    private $isNegative = false;
 
-    public function __construct(float | int | string | self $value)
+    /**
+     * @param mixed $value The integer value to store
+     */
+    public function __construct($value)
     {
-        $this->value = $value instanceof self ? (string) $value : $this->prepareValue($value);
+        $value = (string) $value;
+        $sign = '+';
+
+        // If the value contains a sign, remove it for ctype_digit() check.
+        if (strpos($value, '-') === 0 || strpos($value, '+') === 0) {
+            $sign = substr($value, 0, 1);
+            $value = substr($value, 1);
+        }
+
+        if (!ctype_digit($value)) {
+            throw new InvalidArgumentException(
+                'Value must be a signed integer or a string containing only '
+                . 'digits 0-9 and, optionally, a sign (+ or -)'
+            );
+        }
+
+        // Trim any leading zeros.
+        $value = ltrim($value, '0');
+
+        // Set to zero if the string is empty after trimming zeros.
+        if ($value === '') {
+            $value = '0';
+        }
+
+        // Add the negative sign back to the value.
+        if ($sign === '-' && $value !== '0') {
+            $value = $sign . $value;
+            $this->isNegative = true;
+        }
+
+        /** @psalm-var numeric-string $numericValue */
+        $numericValue = $value;
+
+        $this->value = $numericValue;
     }
 
     public function isNegative(): bool
@@ -62,9 +101,6 @@ final class Integer implements NumberInterface
         return $this->value;
     }
 
-    /**
-     * @psalm-return numeric-string
-     */
     public function __toString(): string
     {
         return $this->toString();
@@ -91,17 +127,18 @@ final class Integer implements NumberInterface
     /**
      * Constructs the object from a serialized string representation
      *
-     * @param string $data The serialized string representation of the object
+     * @param string $serialized The serialized string representation of the object
      *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
      * @psalm-suppress UnusedMethodCall
      */
-    public function unserialize(string $data): void
+    public function unserialize($serialized): void
     {
-        $this->__construct($data);
+        $this->__construct($serialized);
     }
 
     /**
-     * @param array{string?: string} $data
+     * @param array{string: string} $data
      */
     public function __unserialize(array $data): void
     {
@@ -112,47 +149,5 @@ final class Integer implements NumberInterface
         // @codeCoverageIgnoreEnd
 
         $this->unserialize($data['string']);
-    }
-
-    /**
-     * @return numeric-string
-     */
-    private function prepareValue(float | int | string $value): string
-    {
-        $value = (string) $value;
-        $sign = '+';
-
-        // If the value contains a sign, remove it for digit pattern check.
-        if (str_starts_with($value, '-') || str_starts_with($value, '+')) {
-            $sign = substr($value, 0, 1);
-            $value = substr($value, 1);
-        }
-
-        if (!preg_match('/^\d+$/', $value)) {
-            throw new InvalidArgumentException(
-                'Value must be a signed integer or a string containing only '
-                . 'digits 0-9 and, optionally, a sign (+ or -)'
-            );
-        }
-
-        // Trim any leading zeros.
-        $value = ltrim($value, '0');
-
-        // Set to zero if the string is empty after trimming zeros.
-        if ($value === '') {
-            $value = '0';
-        }
-
-        // Add the negative sign back to the value.
-        if ($sign === '-' && $value !== '0') {
-            $value = $sign . $value;
-
-            /** @psalm-suppress InaccessibleProperty */
-            $this->isNegative = true;
-        }
-
-        assert(is_numeric($value));
-
-        return $value;
     }
 }

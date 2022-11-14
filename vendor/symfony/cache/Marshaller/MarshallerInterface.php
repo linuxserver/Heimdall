@@ -32,7 +32,9 @@ interface MarshallerInterface
     /**
      * Unserializes a single value and throws an exception if anything goes wrong.
      *
+     * @return mixed
+     *
      * @throws \Exception Whenever unserialization fails
      */
-    public function unmarshall(string $value): mixed;
+    public function unmarshall(string $value);
 }

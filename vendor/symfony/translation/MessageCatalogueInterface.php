@@ -24,13 +24,17 @@ interface MessageCatalogueInterface
 
     /**
      * Gets the catalogue locale.
+     *
+     * @return string
      */
-    public function getLocale(): string;
+    public function getLocale();
 
     /**
      * Gets the domains.
+     *
+     * @return array
      */
-    public function getDomains(): array;
+    public function getDomains();
 
     /**
      * Gets the messages within a given domain.
@@ -38,8 +42,10 @@ interface MessageCatalogueInterface
      * If $domain is null, it returns all messages.
      *
      * @param string $domain The domain name
+     *
+     * @return array
      */
-    public function all(string $domain = null): array;
+    public function all(string $domain = null);
 
     /**
      * Sets a message translation.
@@ -55,24 +61,30 @@ interface MessageCatalogueInterface
      *
      * @param string $id     The message id
      * @param string $domain The domain name
+     *
+     * @return bool
      */
-    public function has(string $id, string $domain = 'messages'): bool;
+    public function has(string $id, string $domain = 'messages');
 
     /**
      * Checks if a message has a translation (it does not take into account the fallback mechanism).
      *
      * @param string $id     The message id
      * @param string $domain The domain name
+     *
+     * @return bool
      */
-    public function defines(string $id, string $domain = 'messages'): bool;
+    public function defines(string $id, string $domain = 'messages');
 
     /**
      * Gets a message translation.
      *
      * @param string $id     The message id
      * @param string $domain The domain name
+     *
+     * @return string
      */
-    public function get(string $id, string $domain = 'messages'): string;
+    public function get(string $id, string $domain = 'messages');
 
     /**
      * Sets translations for a given domain.
@@ -107,15 +119,17 @@ interface MessageCatalogueInterface
 
     /**
      * Gets the fallback catalogue.
+     *
+     * @return self|null
      */
-    public function getFallbackCatalogue(): ?self;
+    public function getFallbackCatalogue();
 
     /**
      * Returns an array of resources loaded to build this collection.
      *
      * @return ResourceInterface[]
      */
-    public function getResources(): array;
+    public function getResources();
 
     /**
      * Adds a resource for this collection.

@@ -18,7 +18,7 @@ namespace Symfony\Component\EventDispatcher;
  */
 class ImmutableEventDispatcher implements EventDispatcherInterface
 {
-    private EventDispatcherInterface $dispatcher;
+    private $dispatcher;
 
     public function __construct(EventDispatcherInterface $dispatcher)
     {
@@ -36,7 +36,7 @@ class ImmutableEventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function addListener(string $eventName, callable|array $listener, int $priority = 0)
+    public function addListener(string $eventName, $listener, int $priority = 0)
     {
         throw new \BadMethodCallException('Unmodifiable event dispatchers must not be modified.');
     }
@@ -52,7 +52,7 @@ class ImmutableEventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function removeListener(string $eventName, callable|array $listener)
+    public function removeListener(string $eventName, $listener)
     {
         throw new \BadMethodCallException('Unmodifiable event dispatchers must not be modified.');
     }
@@ -68,7 +68,7 @@ class ImmutableEventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getListeners(string $eventName = null): array
+    public function getListeners(string $eventName = null)
     {
         return $this->dispatcher->getListeners($eventName);
     }
@@ -76,7 +76,7 @@ class ImmutableEventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getListenerPriority(string $eventName, callable|array $listener): ?int
+    public function getListenerPriority(string $eventName, $listener)
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
@@ -84,7 +84,7 @@ class ImmutableEventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function hasListeners(string $eventName = null): bool
+    public function hasListeners(string $eventName = null)
     {
         return $this->dispatcher->hasListeners($eventName);
     }

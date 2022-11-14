@@ -19,7 +19,6 @@ use ValueError;
 
 use function is_numeric;
 use function sprintf;
-use function str_starts_with;
 
 /**
  * A value object representing a decimal
@@ -35,10 +34,20 @@ use function str_starts_with;
  */
 final class Decimal implements NumberInterface
 {
-    private string $value;
-    private bool $isNegative = false;
+    /**
+     * @var string
+     */
+    private $value;
 
-    public function __construct(float | int | string | self $value)
+    /**
+     * @var bool
+     */
+    private $isNegative = false;
+
+    /**
+     * @param mixed $value The decimal value to store
+     */
+    public function __construct($value)
     {
         $value = (string) $value;
 
@@ -50,7 +59,7 @@ final class Decimal implements NumberInterface
         }
 
         // Remove the leading +-symbol.
-        if (str_starts_with($value, '+')) {
+        if (strpos($value, '+') === 0) {
             $value = substr($value, 1);
         }
 
@@ -59,7 +68,7 @@ final class Decimal implements NumberInterface
             $value = '0';
         }
 
-        if (str_starts_with($value, '-')) {
+        if (strpos($value, '-') === 0) {
             $this->isNegative = true;
         }
 
@@ -102,19 +111,18 @@ final class Decimal implements NumberInterface
     /**
      * Constructs the object from a serialized string representation
      *
-     * @param string $data The serialized string representation of the object
+     * @param string $serialized The serialized string representation of the object
      *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
      * @psalm-suppress UnusedMethodCall
      */
-    public function unserialize(string $data): void
+    public function unserialize($serialized): void
     {
-        $this->__construct($data);
+        $this->__construct($serialized);
     }
 
     /**
-     * @param array{string?: string} $data
-     *
-     * @psalm-suppress UnusedMethodCall
+     * @param array{string: string} $data
      */
     public function __unserialize(array $data): void
     {

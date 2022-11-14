@@ -32,7 +32,7 @@ final class OptionConfigurator
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function allowedTypes(string ...$types): static
+    public function allowedTypes(string ...$types): self
     {
         $this->resolver->setAllowedTypes($this->name, $types);
 
@@ -48,7 +48,7 @@ final class OptionConfigurator
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function allowedValues(mixed ...$values): static
+    public function allowedValues(...$values): self
     {
         $this->resolver->setAllowedValues($this->name, $values);
 
@@ -58,11 +58,13 @@ final class OptionConfigurator
     /**
      * Sets the default value for this option.
      *
+     * @param mixed $value The default value of the option
+     *
      * @return $this
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function default(mixed $value): static
+    public function default($value): self
     {
         $this->resolver->setDefault($this->name, $value);
 
@@ -86,7 +88,7 @@ final class OptionConfigurator
      *
      * @return $this
      */
-    public function deprecated(string $package, string $version, string|\Closure $message = 'The option "%name%" is deprecated.'): static
+    public function deprecated(string $package, string $version, $message = 'The option "%name%" is deprecated.'): self
     {
         $this->resolver->setDeprecated($this->name, $package, $version, $message);
 
@@ -100,7 +102,7 @@ final class OptionConfigurator
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function normalize(\Closure $normalizer): static
+    public function normalize(\Closure $normalizer): self
     {
         $this->resolver->setNormalizer($this->name, $normalizer);
 
@@ -114,7 +116,7 @@ final class OptionConfigurator
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function required(): static
+    public function required(): self
     {
         $this->resolver->setRequired($this->name);
 
@@ -128,7 +130,7 @@ final class OptionConfigurator
      *
      * @throws AccessException If called from a lazy option or normalizer
      */
-    public function info(string $info): static
+    public function info(string $info): self
     {
         $this->resolver->setInfo($this->name, $info);
 

@@ -4,7 +4,7 @@ namespace Faker\Provider\pt_PT;
 
 class Address extends \Faker\Provider\Address
 {
-    protected static $streetPrefix = array('Av.', 'Avenida', 'R.', 'Rua', 'Travessa', 'Largo');
+    protected static $streetPrefix = array('Av.', 'Avenida', 'R.', 'Rua', 'Tv.', 'Travessa', 'Lg.', 'Largo');
 
     protected static $streetNameFormats = array(
         '{{streetPrefix}} {{lastName}}',
@@ -22,7 +22,7 @@ class Address extends \Faker\Provider\Address
 
     /** @link http://www.univ-ab.pt/PINTAC/carta_normas.htm address example in letters **/
     protected static $addressFormats = array(
-        "{{streetAddress}}\n{{postcode}} {{city}}",
+        "{{streetAddress}} {{postcode}} {{city}}",
     );
 
     /** @link http://www.mapadeportugal.net/indicecidades.asp **/

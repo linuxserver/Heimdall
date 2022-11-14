@@ -27,7 +27,7 @@ class TranslationReader implements TranslationReaderInterface
      *
      * @var array<string, LoaderInterface>
      */
-    private array $loaders = [];
+    private $loaders = [];
 
     /**
      * Adds a loader to the translation extractor.

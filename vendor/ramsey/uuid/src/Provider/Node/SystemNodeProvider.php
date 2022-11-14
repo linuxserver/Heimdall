@@ -27,8 +27,8 @@ use function ob_start;
 use function preg_match;
 use function preg_match_all;
 use function reset;
-use function str_contains;
 use function str_replace;
+use function strpos;
 use function strtolower;
 use function strtoupper;
 use function substr;
@@ -100,18 +100,12 @@ class SystemNodeProvider implements NodeProviderInterface
     {
         $disabledFunctions = strtolower((string) ini_get('disable_functions'));
 
-        if (str_contains($disabledFunctions, 'passthru')) {
+        if (strpos($disabledFunctions, 'passthru') !== false) {
             return '';
         }
 
-        /**
-         * @psalm-suppress UnnecessaryVarAnnotation
-         * @var string $phpOs
-         */
-        $phpOs = constant('PHP_OS');
-
         ob_start();
-        switch (strtoupper(substr($phpOs, 0, 3))) {
+        switch (strtoupper(substr(constant('PHP_OS'), 0, 3))) {
             case 'WIN':
                 passthru('ipconfig /all 2>&1');
 
@@ -148,20 +142,13 @@ class SystemNodeProvider implements NodeProviderInterface
     {
         $mac = '';
 
-        /**
-         * @psalm-suppress UnnecessaryVarAnnotation
-         * @var string $phpOs
-         */
-        $phpOs = constant('PHP_OS');
-
-        if (strtoupper($phpOs) === 'LINUX') {
+        if (strtoupper(constant('PHP_OS')) === 'LINUX') {
             $addressPaths = glob('/sys/class/net/*/address', GLOB_NOSORT);
 
             if ($addressPaths === false || count($addressPaths) === 0) {
                 return '';
             }
 
-            /** @var array<array-key, string> $macs */
             $macs = [];
 
             array_walk($addressPaths, function (string $addressPath) use (&$macs): void {
@@ -170,10 +157,7 @@ class SystemNodeProvider implements NodeProviderInterface
                 }
             });
 
-            /** @var callable $trim */
-            $trim = 'trim';
-
-            $macs = array_map($trim, $macs);
+            $macs = array_map('trim', $macs);
 
             // Remove invalid entries.
             $macs = array_filter($macs, function (string $address) {
@@ -181,7 +165,6 @@ class SystemNodeProvider implements NodeProviderInterface
                     && preg_match(self::SYSFS_PATTERN, $address);
             });
 
-            /** @var string|bool $mac */
             $mac = reset($macs);
         }
 

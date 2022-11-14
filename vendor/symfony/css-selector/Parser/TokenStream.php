@@ -29,23 +29,34 @@ class TokenStream
     /**
      * @var Token[]
      */
-    private array $tokens = [];
+    private $tokens = [];
 
     /**
      * @var Token[]
      */
-    private array $used = [];
+    private $used = [];
 
-    private int $cursor = 0;
-    private ?Token $peeked;
-    private bool $peeking = false;
+    /**
+     * @var int
+     */
+    private $cursor = 0;
+
+    /**
+     * @var Token|null
+     */
+    private $peeked;
+
+    /**
+     * @var bool
+     */
+    private $peeking = false;
 
     /**
      * Pushes a token.
      *
      * @return $this
      */
-    public function push(Token $token): static
+    public function push(Token $token): self
     {
         $this->tokens[] = $token;
 
@@ -57,7 +68,7 @@ class TokenStream
      *
      * @return $this
      */
-    public function freeze(): static
+    public function freeze(): self
     {
         return $this;
     }

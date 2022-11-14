@@ -23,8 +23,8 @@ namespace Symfony\Component\CssSelector\Node;
  */
 class SelectorNode extends AbstractNode
 {
-    private NodeInterface $tree;
-    private ?string $pseudoElement;
+    private $tree;
+    private $pseudoElement;
 
     public function __construct(NodeInterface $tree, string $pseudoElement = null)
     {

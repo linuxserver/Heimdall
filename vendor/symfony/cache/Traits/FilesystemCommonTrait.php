@@ -20,8 +20,8 @@ use Symfony\Component\Cache\Exception\InvalidArgumentException;
  */
 trait FilesystemCommonTrait
 {
-    private string $directory;
-    private string $tmp;
+    private $directory;
+    private $tmp;
 
     private function init(string $namespace, ?string $directory)
     {
@@ -53,7 +53,7 @@ trait FilesystemCommonTrait
     /**
      * {@inheritdoc}
      */
-    protected function doClear(string $namespace): bool
+    protected function doClear(string $namespace)
     {
         $ok = true;
 
@@ -71,7 +71,7 @@ trait FilesystemCommonTrait
     /**
      * {@inheritdoc}
      */
-    protected function doDelete(array $ids): bool
+    protected function doDelete(array $ids)
     {
         $ok = true;
 
@@ -92,7 +92,7 @@ trait FilesystemCommonTrait
     {
         set_error_handler(__CLASS__.'::throwError');
         try {
-            if (!isset($this->tmp)) {
+            if (null === $this->tmp) {
                 $this->tmp = $this->directory.bin2hex(random_bytes(6));
             }
             try {
@@ -171,7 +171,10 @@ trait FilesystemCommonTrait
         throw new \ErrorException($message, 0, $type, $file, $line);
     }
 
-    public function __sleep(): array
+    /**
+     * @return array
+     */
+    public function __sleep()
     {
         throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
     }
@@ -186,7 +189,7 @@ trait FilesystemCommonTrait
         if (method_exists(parent::class, '__destruct')) {
             parent::__destruct();
         }
-        if (isset($this->tmp) && is_file($this->tmp)) {
+        if (null !== $this->tmp && is_file($this->tmp)) {
             unlink($this->tmp);
         }
     }

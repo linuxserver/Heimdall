@@ -36,8 +36,8 @@ class CouchbaseBucketAdapter extends AbstractAdapter
         'durabilityTimeout',
     ];
 
-    private \CouchbaseBucket $bucket;
-    private MarshallerInterface $marshaller;
+    private $bucket;
+    private $marshaller;
 
     public function __construct(\CouchbaseBucket $bucket, string $namespace = '', int $defaultLifetime = 0, MarshallerInterface $marshaller = null)
     {
@@ -54,10 +54,15 @@ class CouchbaseBucketAdapter extends AbstractAdapter
         $this->marshaller = $marshaller ?? new DefaultMarshaller();
     }
 
-    public static function createConnection(array|string $servers, array $options = []): \CouchbaseBucket
+    /**
+     * @param array|string $servers
+     */
+    public static function createConnection($servers, array $options = []): \CouchbaseBucket
     {
         if (\is_string($servers)) {
             $servers = [$servers];
+        } elseif (!\is_array($servers)) {
+            throw new \TypeError(sprintf('Argument 1 passed to "%s()" must be array or string, "%s" given.', __METHOD__, get_debug_type($servers)));
         }
 
         if (!static::isSupported()) {
@@ -77,7 +82,7 @@ class CouchbaseBucketAdapter extends AbstractAdapter
             $password = $options['password'];
 
             foreach ($servers as $dsn) {
-                if (!str_starts_with($dsn, 'couchbase:')) {
+                if (0 !== strpos($dsn, 'couchbase:')) {
                     throw new InvalidArgumentException(sprintf('Invalid Couchbase DSN: "%s" does not start with "couchbase:".', $dsn));
                 }
 
@@ -159,7 +164,7 @@ class CouchbaseBucketAdapter extends AbstractAdapter
     /**
      * {@inheritdoc}
      */
-    protected function doFetch(array $ids): iterable
+    protected function doFetch(array $ids)
     {
         $resultsCouchbase = $this->bucket->get($ids);
 
@@ -216,7 +221,7 @@ class CouchbaseBucketAdapter extends AbstractAdapter
     /**
      * {@inheritdoc}
      */
-    protected function doSave(array $values, int $lifetime): array|bool
+    protected function doSave(array $values, int $lifetime)
     {
         if (!$values = $this->marshaller->marshall($values, $failed)) {
             return $failed;
