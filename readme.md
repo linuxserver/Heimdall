@@ -92,6 +92,7 @@ Currently added languages are
 - Turkish
 - Russian
 - Chinese
+- Português
 
 ## Web Server Configuration
 
