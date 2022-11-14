@@ -2,12 +2,8 @@
 
 namespace App;
 
-use App\Item;
-use App\Setting;
 use Cache;
 use Form;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Yaml;
 
 abstract class Search
@@ -15,7 +11,7 @@ abstract class Search
     /**
      * List of all search providers
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public static function providers()
     {
@@ -28,7 +24,7 @@ abstract class Search
     /**
      * Gets details for a single provider
      *
-     * @return object
+     * @return false|object
      */
     public static function providerDetails($provider)
     {
@@ -45,7 +41,7 @@ abstract class Search
      *
      * @return array
      */
-    public static function standardProviders()
+    public static function standardProviders(): array
     {
         // $providers = json_decode(file_get_contents(storage_path('app/searchproviders.json')));
         // print_r($providers);
@@ -94,9 +90,9 @@ abstract class Search
     /**
      * Outputs the search form
      *
-     * @return html
+     * @return string
      */
-    public static function form()
+    public static function form(): string
     {
         $output = '';
         $homepage_search = Setting::fetch('homepage_search');
@@ -111,7 +107,7 @@ abstract class Search
         }
         $user_search_provider = $user_search_provider ?? 'none';
 
-        if ((bool) $homepage_search && (bool) $search_provider) {
+        if ((bool) $search_provider) {
             if ((bool) $user_search_provider) {
                 $name = 'app.options.'.$user_search_provider;
                 $provider = self::providerDetails($user_search_provider);

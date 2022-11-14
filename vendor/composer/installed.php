@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => '2.x-dev',
         'version' => '2.9999999.9999999.9999999-dev',
-        'reference' => '64c1e1d0081c06869677f0100fd2df5c40722555',
+        'reference' => 'a21b50a6abf439fc7c3c1a3f62a2b4e43b8f6391',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -433,7 +433,7 @@
         'laravel/laravel' => array(
             'pretty_version' => '2.x-dev',
             'version' => '2.9999999.9999999.9999999-dev',
-            'reference' => '64c1e1d0081c06869677f0100fd2df5c40722555',
+            'reference' => 'a21b50a6abf439fc7c3c1a3f62a2b4e43b8f6391',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -859,8 +859,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0',
-                1 => '1.0.0 || 2.0.0 || 3.0.0',
+                0 => '1.0.0 || 2.0.0 || 3.0.0',
+                1 => '1.0|2.0',
             ),
         ),
         'psr/simple-cache' => array(
@@ -875,8 +875,8 @@
         'psr/simple-cache-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '1.0|2.0',
             ),
         ),
         'psy/psysh' => array(

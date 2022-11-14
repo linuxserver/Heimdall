@@ -5,17 +5,16 @@ namespace App\Http\Controllers;
 use App\Application;
 use App\Item;
 use App\Jobs\ProcessApps;
-use App\Search;
-use App\Setting;
-use App\SupportedApps;
 use App\User;
 use Artisan;
-use GrahamCampbell\GitHub\Facades\GitHub;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
@@ -23,15 +22,16 @@ class ItemController extends Controller
 {
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('allowed');
     }
 
     /**
      * Display a listing of the resource on the dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function dash()
+    public function dash(): View
     {
         $data['apps'] = Item::whereHas('parents', function ($query) {
             $query->where('id', 0);
@@ -49,7 +49,7 @@ class ItemController extends Controller
     /**
      * Set order on the dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function setOrder(Request $request)
     {
@@ -64,9 +64,10 @@ class ItemController extends Controller
     /**
      * Pin item on the dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return RedirectResponse
      */
-    public function pin($id)
+    public function pin($id): RedirectResponse
     {
         $item = Item::findOrFail($id);
         $item->pinned = true;
@@ -79,9 +80,10 @@ class ItemController extends Controller
     /**
      * Unpin item on the dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return RedirectResponse
      */
-    public function unpin($id)
+    public function unpin($id): RedirectResponse
     {
         $item = Item::findOrFail($id);
         $item->pinned = false;
@@ -94,12 +96,12 @@ class ItemController extends Controller
     /**
      * Unpin item on the dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse|View
      */
     public function pinToggle($id, $ajax = false, $tag = false)
     {
         $item = Item::findOrFail($id);
-        $new = ((bool) $item->pinned === true) ? false : true;
+        $new = !(((bool)$item->pinned === true));
         $item->pinned = $new;
         $item->save();
         if ($ajax) {
@@ -122,7 +124,7 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
     public function index(Request $request)
     {
@@ -140,9 +142,9 @@ class ItemController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
         //
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
@@ -155,10 +157,10 @@ class ItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         // Get the item
         $item = Item::find($id);
@@ -226,7 +228,7 @@ class ItemController extends Controller
         $current_user = User::currentUser();
         $request->merge([
             'description' => $config,
-            'user_id' => $current_user->id,
+            'user_id' => $current_user->getId(),
         ]);
 
         if ($request->input('appid') === 'null') {
@@ -252,10 +254,10 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->storelogic($request);
 
@@ -268,10 +270,10 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
-    public function show($id)
+    public function show(int $id): void
     {
         //
     }
@@ -279,11 +281,11 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $this->storelogic($request, $id);
         $route = route('dash', []);
@@ -295,10 +297,11 @@ class ItemController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         //
         $force = (bool) $request->input('force');
@@ -319,10 +322,10 @@ class ItemController extends Controller
     /**
      * Restore the specified resource from soft deletion.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function restore($id)
+    public function restore(int $id): RedirectResponse
     {
         //
         Item::withTrashed()
@@ -338,9 +341,10 @@ class ItemController extends Controller
     /**
      * Return details for supported apps
      *
-     * @return Json
+     * @param Request $request
+     * @return string|null
      */
-    public function appload(Request $request)
+    public function appload(Request $request): ?string
     {
         $output = [];
         $appid = $request->input('app');
@@ -429,10 +433,10 @@ class ItemController extends Controller
 
         try {
             return $client->request($method, $url, $attrs);
-        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+        } catch (ConnectException $e) {
             Log::error('Connection refused');
             Log::debug($e->getMessage());
-        } catch (\GuzzleHttp\Exception\ServerException $e) {
+        } catch (ServerException $e) {
             Log::debug($e->getMessage());
         }
 
@@ -441,7 +445,7 @@ class ItemController extends Controller
 
     public function websitelookup($url)
     {
-        $url = \base64_decode($url);
+        $url = base64_decode($url);
         $data = $this->execute($url);
 
         return $data->getBody();

@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Setting;
 use App\SettingGroup;
-use App\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class SettingsController extends Controller
 {
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('allowed');
     }
 
     /**
-     * @return \Illuminate\View\View
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
         $settings = SettingGroup::with([
             'settings',
@@ -33,9 +33,9 @@ class SettingsController extends Controller
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse|View
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         $setting = Setting::find($id);
         //die("s: ".$setting->label);
@@ -59,11 +59,12 @@ class SettingsController extends Controller
     }
 
     /**
+     * @param Request $request
      * @param int $id
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $setting = Setting::find($id);
         $user = $this->user();
@@ -104,9 +105,9 @@ class SettingsController extends Controller
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function clear($id)
+    public function clear(int $id): RedirectResponse
     {
         $user = $this->user();
         $setting = Setting::find($id);

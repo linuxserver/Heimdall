@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -12,15 +13,16 @@ class UserController extends Controller
 {
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('allowed')->except(['selectUser']);
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
         $data['users'] = User::all();
 
@@ -30,9 +32,9 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
         $data = [];
 
@@ -50,10 +52,10 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
             'username' => 'required|max:255|unique:users',
@@ -92,10 +94,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
-    public function show($id)
+    public function show(int $id): void
     {
         //
     }
@@ -103,10 +105,10 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return View
      */
-    public function edit(User $user)
+    public function edit(User $user): View
     {
         $data['user'] = $user;
 
@@ -116,11 +118,11 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param User $user
+     * @return RedirectResponse
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): RedirectResponse
     {
         $validatedData = $request->validate([
             'username' => 'required|max:255|unique:users,username,'.$user->id,
@@ -163,10 +165,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return RedirectResponse | void
      */
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
         if ($user->id !== 1) {
             $user->delete();
