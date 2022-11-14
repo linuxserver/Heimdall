@@ -8,7 +8,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.3.0",
+        "php": ">=7.4.32",
         "facade/ignition": "^2.3.6",
         "fideloper/proxy": "^4.0",
         "graham-campbell/github": "^10.5",
