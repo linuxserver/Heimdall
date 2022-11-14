@@ -11,8 +11,10 @@ return [
 
     'settings.system' => 'Rendszer',
     'settings.appearance' => 'Megjelenés',
-    'settings.miscellaneous' => 'Miscellaneous',
-    'settings.support' => 'Támogatás',
+    'settings.miscellaneous' => 'Egyéb',
+    'settings.advanced' => 'Haladó',
+
+    'settings.support' => 'Segítség',
     'settings.donate' => 'Adomány',
 
     'settings.version' => 'Verzió',
@@ -22,7 +24,7 @@ return [
     'settings.window_target.one' => 'Azonos lapon',
     'settings.window_target.new' => 'Új lapon',
     'settings.homepage_search' => 'Kezdő oldal kereső',
-    'settings.search_provider' => 'Alapértelmezett kereső motor	',
+    'settings.search_provider' => 'Alapértelmezett kereső motor',
     'settings.language' => 'Nyelv',
     'settings.reset' => 'Alapértelmezetek visszaállítása',
     'settings.remove' => 'Eltávolítás',
@@ -33,6 +35,9 @@ return [
     'settings.value' => 'Érték',
     'settings.edit' => 'Módosítás',
     'settings.view' => 'Megtekintés',
+
+    'settings.custom_css' => 'Egyéni CSS',
+    'settings.custom_js' => 'Egyéni JavaScript',
 
     'options.none' => '- nincs beállítva -',
     'options.google' => 'Google',
@@ -45,13 +50,13 @@ return [
     'options.nzbhydra' => 'NZBHydra',
     'options.jackett' => 'Jackett',
 
-    'buttons.save' => 'Mentás',
+    'buttons.save' => 'Mentés',
     'buttons.cancel' => 'Mégsem',
     'buttons.add' => 'Hozzáadás',
     'buttons.upload' => 'Ikon feltöltése',
     'buttons.downloadapps' => 'Alkalmazás lista frissítése',
 
-    'dash.pin_item' => 'Kitőzés kezdő képernyőre',
+    'dash.pin_item' => 'Kitűzés kezdő képernyőre',
     'dash.no_apps' => 'Jelenleg nincsenek kitűzött alkalmazások, :link1 or :link2',
     'dash.link1' => 'Alkalmazás hozzáadása',
     'dash.link2' => 'Elem kitűzése kezdőképernyőre',
@@ -78,6 +83,11 @@ return [
     'apps.override' => 'Eltérő URL alkaplazása.',
     'apps.preview' => 'Előnézet',
     'apps.apptype' => 'Alkalmazás Típus',
+    'apps.website' => 'Weboldal',
+    'apps.description' => 'Leírás',
+    'apps.only_admin_account' => 'Csak admin hozzáféréssel!',
+    'apps.autologin_url' => 'Autómatikus belépés URL',
+    'apps.show_deleted' => 'Törölt alkalmazások mutatása',
 
     'dashboard' => 'Kezdőképernyő',
 

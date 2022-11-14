@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'failed' => 'Hitelesítő adat nem egyezik.',
-    'throttle' => 'Túl sok hibás bejelentkezési kísérlet, Próbálja újra :seconds seconds.',
+    'failed' => 'Belépési adatok nem egyeznek.',
+    'throttle' => 'Túl sok hibás bejelentkezési kísérlet, Próbálja újra :seconds másodperc múlva.',
 
 ];
