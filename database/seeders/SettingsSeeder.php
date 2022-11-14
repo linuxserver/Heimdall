@@ -17,6 +17,11 @@ class SettingsSeeder extends Seeder
      */
     public static function getSupportedLanguageMap()
     {
+        if (! class_exists('Locale')) {
+            Log::info('PHP Extension Intl not found. Falling back to English language support only.');
+            return json_encode(['en' => 'English']);
+        }
+
         $languageDirectories = array_filter(glob(resource_path().'/lang/*'), 'is_dir');
         $result = [];
 
