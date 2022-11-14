@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -28,19 +30,27 @@ class User extends Authenticatable
     ];
 
     /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * Get the items for the user.
      */
-    public function items()
+    public function items(): HasMany
     {
-        return $this->hasMany(\App\Item::class);
+        return $this->hasMany(Item::class);
     }
 
     /**
      * The settings that belong to the user.
      */
-    public function settings()
+    public function settings(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Setting::class)->withPivot('uservalue');
+        return $this->belongsToMany(Setting::class)->withPivot('uservalue');
     }
 
     public static function currentUser()

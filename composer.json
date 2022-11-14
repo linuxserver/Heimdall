@@ -18,7 +18,8 @@
         "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.0",
         "nunomaduro/collision": "^5.0",
-        "symfony/yaml": "^5.4"
+        "symfony/yaml": "^5.4",
+        "ext-json": "*"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

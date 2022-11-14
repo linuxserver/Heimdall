@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class HomeController extends Controller
 {
@@ -13,15 +13,16 @@ class HomeController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('auth');
     }
 
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse
      */
-    public function index()
+    public function index(): RedirectResponse
     {
         return redirect()->route('dash');
     }

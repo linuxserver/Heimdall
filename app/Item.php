@@ -2,9 +2,6 @@
 
 namespace App;
 
-use App\Application;
-use App\ItemTag;
-use App\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +18,7 @@ class Item extends Model
         static::addGlobalScope('user_id', function (Builder $builder) {
             $current_user = User::currentUser();
             if ($current_user) {
-                $builder->where('user_id', $current_user->id)->orWhere('user_id', 0);
+                $builder->where('user_id', $current_user->getId())->orWhere('user_id', 0);
             } else {
                 $builder->where('user_id', 0);
             }

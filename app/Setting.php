@@ -2,12 +2,9 @@
 
 namespace App;
 
-use App\Search;
-use App\User;
 use Form;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 
 class Setting extends Model
@@ -38,9 +35,10 @@ class Setting extends Model
     protected static $cache = [];
 
     /**
-     * @return array
+     * @param Request $request
+     * @return object
      */
-    public static function getInput(Request $request)
+    public static function getInput(Request $request): object
     {
         return (object) [
             'value' => $request->input('value'),

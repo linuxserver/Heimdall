@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Item;
 use App\User;
 use DB;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TagController extends Controller
 {
@@ -17,7 +20,7 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
@@ -35,7 +38,7 @@ class TagController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -47,10 +50,10 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
@@ -71,7 +74,7 @@ class TagController extends Controller
         $request->merge([
             'type' => '1',
             'url' => $slug,
-            'user_id' => $current_user->id,
+            'user_id' => $current_user->getId(),
         ]);
         //die(print_r($request->all()));
         Item::create($request->all());
@@ -85,10 +88,10 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $slug
+     * @return View
      */
-    public function show($slug)
+    public function show($slug): View
     {
         $item = Item::whereUrl($slug)->first();
         //print_r($item);
@@ -102,10 +105,10 @@ class TagController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return View
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         // Get the item
         $item = Item::find($id);
@@ -118,11 +121,11 @@ class TagController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
@@ -152,10 +155,10 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         //
         $force = (bool) $request->input('force');
@@ -176,10 +179,10 @@ class TagController extends Controller
     /**
      * Restore the specified resource from soft deletion.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function restore($id)
+    public function restore(int $id): RedirectResponse
     {
         //
         Item::withTrashed()
@@ -191,9 +194,15 @@ class TagController extends Controller
             ->with('success', __('app.alert.success.item_restored'));
     }
 
-    public function add($tag, $item)
+    /**
+     * Add item to tag
+     *
+     * @param $tag
+     * @param $item
+     * @return int 1|0
+     */
+    public function add($tag, $item): int
     {
-        $output = 0;
         $tag = Item::find($tag);
         $item = Item::find($item);
         if ($tag && $item) {
@@ -205,6 +214,6 @@ class TagController extends Controller
             }
         }
 
-        return $output;
+        return 0;
     }
 }

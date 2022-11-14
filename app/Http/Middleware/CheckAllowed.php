@@ -23,7 +23,7 @@ class CheckAllowed
         $current_user = User::currentUser();
 
         if (str_is('users*', $route)) {
-            if ($current_user->id !== 1) {
+            if ($current_user->getId() !== 1) {
                 return redirect()->route('dash');
             }
         }
@@ -43,7 +43,7 @@ class CheckAllowed
         // Check if user is logged in as $current_user
         if (Auth::check()) {
             $loggedin_user = Auth::user();
-            if ($loggedin_user->id === $current_user->id) {
+            if ($loggedin_user->id === $current_user->getId()) {
                 return $next($request);
             }
         }
