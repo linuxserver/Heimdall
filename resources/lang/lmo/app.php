@@ -34,11 +34,11 @@ return [
 
     'settings.window_target.current' => 'In quella scheda chi',
 
-    'settings.window_target.one' => 'In l'istessa scheda',
+    'settings.window_target.one' => 'In l\'istessa scheda',
 
-    'settings.window_target.new' => 'In d'una scheda noeuva',
+    'settings.window_target.new' => 'In d\'una scheda noeuva',
 
-    'settings.homepage_search' => 'Ricerca in l'home page',
+    'settings.homepage_search' => 'Ricerca in l\'home page',
 
     'settings.search_provider' => 'Provider de default',
 
@@ -90,17 +90,17 @@ return [
 
     'buttons.add' => 'Sgionta',
 
-    'buttons.upload' => 'Carega 'n icona',
+    'buttons.upload' => 'Carega \'n icona',
 
     'buttons.downloadapps' => 'Descarega la lista di app',
 
-    'dash.pin_item' => 'Taca su l'oget',
+    'dash.pin_item' => 'Taca su l\'oget',
 
-    'dash.no_apps' => 'Ghe n'è minga de app tacade su, :link1 o :link2',
+    'dash.no_apps' => 'Ghe n\'è minga de app tacade su, :link1 o :link2',
 
-    'dash.link1' => 'Met 'n aplicazzion chi',
+    'dash.link1' => 'Met \'n aplicazzion chi',
 
-    'dash.link2' => 'Taca su 'n oget',
+    'dash.link2' => 'Taca su \'n oget',
 
     'dash.pinned_items' => 'Oget tacad su',
 
@@ -110,7 +110,7 @@ return [
 
     'apps.add_application' => 'Sgionta aplicazzion',
 
-    'apps.application_name' => 'Nom de l'aplicazzion',
+    'apps.application_name' => 'Nom de l\'aplicazzion',
 
     'apps.colour' => 'Color',
 
@@ -140,7 +140,7 @@ return [
 
     'apps.tags' => 'Tag',
 
-    'apps.override' => 'Se divers de l'url principal',
+    'apps.override' => 'Se divers de l\'url principal',
 
     'apps.preview' => 'Varda prima',
 
@@ -150,7 +150,7 @@ return [
 
     'apps.description' => 'Descrizzion',
 
-    'apps.only_admin_account' => 'Domà se te gh'heet un cunt admin!',
+    'apps.only_admin_account' => 'Domà se te gh\'heet un cunt admin!',
 
     'apps.autologin_url' => 'Auto login url',
 
@@ -172,7 +172,7 @@ return [
 
     'user.secure_front' => 'Fà entra del front - El fonziona domà cont una password.',
 
-    'user.autologin' => 'Permet el login de 'n ciar URL. Tucc quèi che ghe l'hann poden entrà.',
+    'user.autologin' => 'Permet el login de \'n ciar URL. Tucc quèi che ghe l\'hann poden entrà.',
 
     'url' => 'URL',
 
@@ -202,9 +202,9 @@ return [
 
     'alert.success.tag_restored' => 'Tag ripescad',
 
-    'alert.success.setting_updated' => 'L'impostazzion l'è stada mudada',
+    'alert.success.setting_updated' => 'L\'impostazzion l\'è stada mudada',
 
-    'alert.error.not_exist' => 'Quella impostazzion chi la gh'è no.',
+    'alert.error.not_exist' => 'Quella impostazzion chi la gh\'è no.',
 
     'alert.success.user_created' => 'Utent fad su',
 

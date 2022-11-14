@@ -7,9 +7,45 @@ use App\SettingGroup;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Locale;
 
 class SettingsSeeder extends Seeder
 {
+
+    /**
+     * @return false|string
+     */
+    public static function getSupportedLanguageMap()
+    {
+        if (! class_exists('Locale')) {
+            Log::info('PHP Extension Intl not found. Falling back to English language support only.');
+            return json_encode(['en' => 'English']);
+        }
+
+        $languageDirectories = array_filter(glob(resource_path().'/lang/*'), 'is_dir');
+        $result = [];
+
+        foreach ($languageDirectories as $languageDirectory) {
+            $language = self::getLanguageFromDirectory($languageDirectory);
+            $resultNative = mb_convert_case(Locale::getDisplayLanguage($language.'-', $language), MB_CASE_TITLE, 'UTF-8');
+            $resultEn = ucfirst(Locale::getDisplayLanguage($language, 'en'));
+            $result[$language] = "$resultNative ($resultEn)";
+        }
+
+        return json_encode($result);
+    }
+
+    /**
+     * @param $languageDirectory
+     * @return false|string[]
+     */
+    public static function getLanguageFromDirectory($languageDirectory)
+    {
+        $directories = explode('/', $languageDirectory);
+
+        return $directories[array_key_last($directories)];
+    }
+
     /**
      * Run the database seeds.
      *
@@ -124,20 +160,8 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        $language_options = json_encode([
-            'de' => 'Deutsch (German)',
-            'en' => 'English',
-            'cn' => '简体中文 (Simplified Chinese)',
-            'fi' => 'Suomi (Finnish)',
-            'fr' => 'Français (French)',
-            'el' => 'Ελληνικά (Greek)',
-            'it' => 'Italiano (Italian)',
-            'no' => 'Norsk (Norwegian)',
-            'pl' => 'Polski (Polish)',
-            'sv' => 'Svenska (Swedish)',
-            'es' => 'Español (Spanish)',
-            'tr' => 'Türkçe (Turkish)',
-        ]);
+        $language_options = SettingsSeeder::getSupportedLanguageMap();
+
         if ($languages = Setting::find(5)) {
             $languages->options = $language_options;
             $languages->save();
