@@ -123,7 +123,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function setupDatabase(): void
     {
-        $db_type = env('DB_CONNECTION');
+        $db_type = config()->get('database.default');
 
         if ($db_type == 'sqlite' && ! is_file(database_path('app.sqlite'))) {
             touch(database_path('app.sqlite'));
