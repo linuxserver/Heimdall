@@ -370,8 +370,8 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -460,8 +460,8 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         ),
         'Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/php-http/message-factory/src',
-            1 => __DIR__ . '/..' . '/php-http/message/src',
+            0 => __DIR__ . '/..' . '/php-http/message/src',
+            1 => __DIR__ . '/..' . '/php-http/message-factory/src',
         ),
         'Http\\Discovery\\' => 
         array (
@@ -641,18 +641,6 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'App\\SettingGroup' => __DIR__ . '/../..' . '/app/SettingGroup.php',
         'App\\SettingUser' => __DIR__ . '/../..' . '/app/SettingUser.php',
         'App\\SupportedApps' => __DIR__ . '/../..' . '/app/SupportedApps.php',
-        'App\\SupportedApps\\AVMFritzbox\\AVMFritzbox' => __DIR__ . '/../..' . '/app/SupportedApps/AVMFritzbox/AVMFritzbox.php',
-        'App\\SupportedApps\\Ackee\\Ackee' => __DIR__ . '/../..' . '/app/SupportedApps/Ackee/Ackee.php',
-        'App\\SupportedApps\\Airsonic\\Airsonic' => __DIR__ . '/../..' . '/app/SupportedApps/Airsonic/Airsonic.php',
-        'App\\SupportedApps\\Alertmanager\\Alertmanager' => __DIR__ . '/../..' . '/app/SupportedApps/Alertmanager/Alertmanager.php',
-        'App\\SupportedApps\\ArchiSteamFarm\\ArchiSteamFarm' => __DIR__ . '/../..' . '/app/SupportedApps/ArchiSteamFarm/ArchiSteamFarm.php',
-        'App\\SupportedApps\\ArchiveBox\\ArchiveBox' => __DIR__ . '/../..' . '/app/SupportedApps/ArchiveBox/ArchiveBox.php',
-        'App\\SupportedApps\\ArgoCD\\ArgoCD' => __DIR__ . '/../..' . '/app/SupportedApps/ArgoCD/ArgoCD.php',
-        'App\\SupportedApps\\AriaNg\\AriaNg' => __DIR__ . '/../..' . '/app/SupportedApps/AriaNg/AriaNg.php',
-        'App\\SupportedApps\\Artifactory\\Artifactory' => __DIR__ . '/../..' . '/app/SupportedApps/Artifactory/Artifactory.php',
-        'App\\SupportedApps\\Pihole\\Pihole' => __DIR__ . '/../..' . '/app/SupportedApps/Pihole/Pihole.php',
-        'App\\SupportedApps\\XP900\\XP900' => __DIR__ . '/../..' . '/app/SupportedApps/XP900/XP900.php',
-        'App\\SupportedApps\\authentik\\authentik' => __DIR__ . '/../..' . '/app/SupportedApps/authentik/authentik.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
