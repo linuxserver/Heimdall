@@ -44,6 +44,13 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
         '2', '3', '7', '8'
     );
 
+    public static function phoneNumber()
+    {
+        $format = static::numerify(static::randomElement(static::$formats));
+
+        return str_replace('{{areaCode}}', static::areaCode(), $format);
+    }
+
     public static function mobileNumber()
     {
         return static::numerify(static::randomElement(static::$mobileFormats));

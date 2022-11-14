@@ -13,7 +13,6 @@ class Address extends \Faker\Provider\Address
 
     protected static $buildingNumber = array('###');
     protected static $postcode = array('0#####');
-    // TODO list all country names in the world
     protected static $country = array(
         'Қазақстан',
         'Ресей',
@@ -83,6 +82,23 @@ class Address extends \Faker\Provider\Address
         return static::numerify(static::randomElement(static::$buildingNumber));
     }
 
+    public function address()
+    {
+        $format = static::randomElement(static::$addressFormats);
+
+        return $this->generator->parse($format);
+    }
+
+    public static function country()
+    {
+        return static::randomElement(static::$country);
+    }
+
+    public static function postcode()
+    {
+        return static::toUpper(static::bothify(static::randomElement(static::$postcode)));
+    }
+
     public static function regionSuffix()
     {
         return static::randomElement(static::$regionSuffix);
@@ -93,9 +109,19 @@ class Address extends \Faker\Provider\Address
         return static::randomElement(static::$region);
     }
 
+    public static function citySuffix()
+    {
+        return static::randomElement(static::$citySuffix);
+    }
+
     public function city()
     {
         return static::randomElement(static::$city);
+    }
+
+    public static function streetSuffix()
+    {
+        return static::randomElement(static::$streetSuffix);
     }
 
     public static function street()

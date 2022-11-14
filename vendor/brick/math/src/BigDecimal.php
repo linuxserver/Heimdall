@@ -22,19 +22,15 @@ final class BigDecimal extends BigNumber
      * This is a string of digits with an optional leading minus sign.
      * No leading zero must be present.
      * No leading minus sign must be present if the value is 0.
-     *
-     * @var string
      */
-    private $value;
+    private string $value;
 
     /**
      * The scale (number of digits after the decimal point) of this decimal number.
      *
      * This must be zero or more.
-     *
-     * @var int
      */
-    private $scale;
+    private int $scale;
 
     /**
      * Protected constructor. Use a factory method to obtain an instance.

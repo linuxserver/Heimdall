@@ -11,9 +11,6 @@ class ColumnTypeGuesser
         $this->generator = $generator;
     }
 
-    /**
-     * @return \Closure|null
-     */
     public function guessFormat($column, $table)
     {
         $generator = $this->generator;
@@ -25,12 +22,12 @@ class ColumnTypeGuesser
                     return $generator->boolean;
                 };
             case 'integer':
-                return function () {
-                    return mt_rand(0, intval('2147483647'));
+                return function () use ($generator) {
+                    return $generator->randomNumber(10);
                 };
             case 'biginteger':
-                return function () {
-                    return mt_rand(0, intval('9223372036854775807'));
+                return function () use ($generator) {
+                    return $generator->randomNumber(20);
                 };
             case 'decimal':
             case 'float':
@@ -42,11 +39,7 @@ class ColumnTypeGuesser
                     return $generator->uuid();
                 };
             case 'string':
-                if (method_exists($schema, 'getColumn')) {
-                    $columnData = $schema->getColumn($column);
-                } else {
-                    $columnData = $schema->column($column);
-                }
+                $columnData = $schema->column($column);
                 $length = $columnData['length'];
                 return function () use ($generator, $length) {
                     return $generator->text($length);

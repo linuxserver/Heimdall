@@ -78,7 +78,7 @@ class Person extends \Faker\Provider\Person
      */
     public function lastNameMale()
     {
-        return $this->lastName().'son';
+        return $this->lastName().'dóttir';
     }
 
     /**
@@ -88,7 +88,7 @@ class Person extends \Faker\Provider\Person
      */
     public function lastNameFemale()
     {
-        return $this->lastName().'dóttir';
+        return $this->lastName().'son';
     }
 
     /**

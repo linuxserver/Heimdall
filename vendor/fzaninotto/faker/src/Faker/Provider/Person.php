@@ -2,7 +2,7 @@
 
 namespace Faker\Provider;
 
-class Person extends Base
+class Person extends \Faker\Provider\Base
 {
     const GENDER_MALE = 'male';
     const GENDER_FEMALE = 'female';

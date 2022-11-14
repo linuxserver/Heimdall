@@ -9,18 +9,11 @@ class ColumnTypeGuesser
 {
     protected $generator;
 
-    /**
-     * @param \Faker\Generator $generator
-     */
     public function __construct(\Faker\Generator $generator)
     {
         $this->generator = $generator;
     }
 
-    /**
-     * @param ColumnMap $column
-     * @return \Closure|null
-     */
     public function guessFormat(ColumnMap $column)
     {
         $generator = $this->generator;
@@ -29,11 +22,11 @@ class ColumnTypeGuesser
                 return function () use ($generator) {
                     return $generator->dateTime;
                 };
+            } else {
+                return function () use ($generator) {
+                    return $generator->dateTimeAD;
+                };
             }
-
-            return function () use ($generator) {
-                return $generator->dateTimeAD;
-            };
         }
         $type = $column->getType();
         switch ($type) {
@@ -99,8 +92,7 @@ class ColumnTypeGuesser
                 };
             case PropelColumnTypes::OBJECT:
             case PropelColumnTypes::PHP_ARRAY:
-            default:
-            // no smart way to guess what the user expects here
+                // no smart way to guess what the user expects here
                 return null;
         }
     }

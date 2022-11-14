@@ -159,12 +159,11 @@ class Person extends \Faker\Provider\Person
         for ($i = 6; $i < $length; $i++) {
             $result[$i] = static::randomDigit();
         }
-
-        $result[$length - 1] |= 1;
-        if ($sex == "F") {
-            $result[$length - 1] -= 1;
+        if ($sex == "M") {
+            $result[$length - 1] |= 1;
+        } elseif ($sex == "F") {
+            $result[$length - 1] ^= 1;
         }
-
         $checksum = 0;
         for ($i = 0; $i < $length; $i++) {
             $checksum += $weights[$i] * $result[$i];

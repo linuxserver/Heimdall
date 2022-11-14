@@ -10,11 +10,11 @@ class Company extends \Faker\Provider\Company
         '{{lastName}} {{companySuffix}}',
         '{{lastName}}-{{lastName}}',
         '{{lastName}} e {{lastName}}',
-        '{{lastName}} e {{lastName}} {{companySuffix}}',
-        '{{lastName}} Comercial Ltda.'
+        '{{lastName}} de {{lastName}}',
+        '{{lastName}}, {{lastName}} e {{lastName}}'
     );
 
-    protected static $companySuffix = array('e Filhos', 'e Associados', 'Ltda.', 'S.A.');
+    protected static $companySuffix = array('e Filho', 'e Filha', 'e Filhos', 'e Associados', 'e Flia.', 'SRL', 'SA', 'S. de H.');
 
     /**
      * A random CNPJ number.

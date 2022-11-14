@@ -2,7 +2,7 @@
 
 namespace Faker\Provider;
 
-class Address extends Base
+class Address extends \Faker\Provider\Base
 {
     protected static $citySuffix = array('Ville');
     protected static $streetSuffix = array('Street');
@@ -19,7 +19,7 @@ class Address extends Base
         '{{streetAddress}} {{postcode}} {{city}}',
     );
 
-    protected static $buildingNumber = array('%#');
+    protected static $buildingNumber = array('##');
     protected static $postcode = array('#####');
     protected static $country = array();
 
@@ -104,36 +104,20 @@ class Address extends Base
     }
 
     /**
-     * @example '77.147489'
-     * @param float|int $min
-     * @param float|int $max
+     * @example 77.147489
      * @return float Uses signed degrees format (returns a float number between -90 and 90)
      */
-    public static function latitude($min = -90, $max = 90)
+    public static function latitude()
     {
-        return static::randomFloat(6, $min, $max);
+        return static::randomFloat(6, 0, 180) - 90;
     }
 
     /**
-     * @example '86.211205'
-     * @param float|int $min
-     * @param float|int $max
+     * @example 86.211205
      * @return float Uses signed degrees format (returns a float number between -180 and 180)
      */
-    public static function longitude($min = -180, $max = 180)
+    public static function longitude()
     {
-        return static::randomFloat(6, $min, $max);
-    }
-
-    /**
-     * @example array('77.147489', '86.211205')
-     * @return array | latitude, longitude
-     */
-    public static function localCoordinates()
-    {
-        return array(
-            'latitude' => static::latitude(),
-            'longitude' => static::longitude()
-        );
+        return static::randomFloat(6, 0, 360) - 180;
     }
 }

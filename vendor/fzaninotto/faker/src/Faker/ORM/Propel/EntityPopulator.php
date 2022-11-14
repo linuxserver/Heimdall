@@ -24,9 +24,6 @@ class EntityPopulator
         $this->class = $class;
     }
 
-    /**
-     * @return string
-     */
     public function getClass()
     {
         return $this->class;
@@ -37,9 +34,6 @@ class EntityPopulator
         $this->columnFormatters = $columnFormatters;
     }
 
-    /**
-     * @return array
-     */
     public function getColumnFormatters()
     {
         return $this->columnFormatters;
@@ -50,10 +44,6 @@ class EntityPopulator
         $this->columnFormatters = array_merge($this->columnFormatters, $columnFormatters);
     }
 
-    /**
-     * @param \Faker\Generator $generator
-     * @return array
-     */
     public function guessColumnFormatters(\Faker\Generator $generator)
     {
         $formatters = array();
@@ -77,7 +67,7 @@ class EntityPopulator
             if ($columnMap->isPrimaryKey()) {
                 continue;
             }
-            if ($formatter = $nameGuesser->guessFormat($columnMap->getPhpName(), $columnMap->getSize())) {
+            if ($formatter = $nameGuesser->guessFormat($columnMap->getPhpName())) {
                 $formatters[$columnMap->getPhpName()] = $formatter;
                 continue;
             }
@@ -90,10 +80,6 @@ class EntityPopulator
         return $formatters;
     }
 
-    /**
-     * @param ColumnMap $columnMap
-     * @return bool
-     */
     protected function isColumnBehavior(ColumnMap $columnMap)
     {
         foreach ($columnMap->getTable()->getBehaviors() as $name => $params) {
@@ -122,9 +108,6 @@ class EntityPopulator
         $this->modifiers = $modifiers;
     }
 
-    /**
-     * @return array
-     */
     public function getModifiers()
     {
         return $this->modifiers;
@@ -135,10 +118,6 @@ class EntityPopulator
         $this->modifiers = array_merge($this->modifiers, $modifiers);
     }
 
-    /**
-     * @param \Faker\Generator $generator
-     * @return array
-     */
     public function guessModifiers(\Faker\Generator $generator)
     {
         $modifiers = array();
@@ -159,7 +138,7 @@ class EntityPopulator
                     };
                     break;
                 case 'sortable':
-                    $modifiers['sortable'] = function ($obj, $inserted) use ($class) {
+                    $modifiers['sortable'] = function ($obj, $inserted) use ($class, $generator) {
                         $maxRank = isset($inserted[$class]) ? count($inserted[$class]) : 0;
                         $obj->insertAtRank(mt_rand(1, $maxRank + 1));
                     };
