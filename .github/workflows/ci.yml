@@ -1,10 +1,6 @@
 name: Tests (PHP)
 
-on:
-  pull_request:
-    types: 
-      - ready_for_review
-      - review_requested
+on: [pull_request]
 
 jobs:
   tests:
