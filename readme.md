@@ -182,6 +182,14 @@ openssl.cafile = /config/heimdall.pem
 
 Restart the container and the enhanced apps should now be able to access your local HTTP websites. This configuration will survive updating or recreating the Heimdall container.
 
+## Running offline
+The apps list is hosted on github, you have a couple of options if you want to run without a connection to the outside world:
+1) Clone the repository and host it yourself, look at the .github actions file to see how to generate the apps list.
+2) Download the apps list and store it as a json accessible to heimdall named `list.json`
+
+With both options all you need to do is add the following to your `.env`
+`APP_SOURCE=http://localhost/` Where `http://localhost/` is the path to the apps list without the name of the file, so if your file is stored at `https://heimdall.local/list.json` you would put `APP_SOURCE=https://heimdall.local/`
+
 ## Support
 https://discord.gg/CCjHKn4 or through GitHub issues
 
