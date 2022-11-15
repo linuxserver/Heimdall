@@ -1,15 +1,19 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | App Language Lines
     |--------------------------------------------------------------------------
     |
     */
+
     'settings.system' => 'Sistema',
     'settings.appearance' => 'Aspetto',
     'settings.miscellaneous' => 'Altre impostazioni',
+    'settings.advanced' => 'Impostazioni avanzate',
+
     'settings.support' => 'Supporto',
     'settings.donate' => 'Dona',
 
@@ -32,6 +36,9 @@ return [
     'settings.edit' => 'Modifica',
     'settings.view' => 'Mostra',
 
+    'settings.custom_css' => 'CSS personalizzato',
+    'settings.custom_js' => 'JavaScript personalizzato',
+
     'options.none' => '- non impostato -',
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
@@ -41,6 +48,7 @@ return [
     'options.yes' => 'Sì',
     'options.no' => 'No',
     'options.nzbhydra' => 'NZBHydra',
+    'options.jackett' => 'Jackett',
 
     'buttons.save' => 'Salva',
     'buttons.cancel' => 'Annulla',
@@ -75,6 +83,11 @@ return [
     'apps.override' => 'Se diverso dall\'url principale',
     'apps.preview' => 'Anteprima',
     'apps.apptype' => 'Tipo di applicazione',
+    'apps.website' => 'Sito web',
+    'apps.description' => 'Descrizione',
+    'apps.only_admin_account' => 'Solo se hai un account da amministratore!',
+    'apps.autologin_url' => 'Indirizzo URL login automatico',
+    'apps.show_deleted' => 'Mostra applicazioni eliminate',
 
     'dashboard' => 'Home dashboard',
 
@@ -111,4 +124,5 @@ return [
     'alert.success.user_updated' => 'Utente aggiornato con successo',
     'alert.success.user_deleted' => 'Utente eliminato con successo',
     'alert.success.user_restored' => 'Utente ripristinato con successo',
+
 ];
