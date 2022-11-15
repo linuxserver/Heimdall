@@ -34,7 +34,7 @@ class LangTest extends TestCase
                     if(!isset($missingKeys[$langDirectory])) {
                         $missingKeys[$langDirectory] = [];
                     }
-                    $missingKeys[$langDirectory][] = $langKey;
+                    $missingKeys[$langDirectory][] = [$langKey => $langValue];
                 }
             }
         }

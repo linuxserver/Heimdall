@@ -1,6 +1,13 @@
 <?php
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | App Language Lines
+    |--------------------------------------------------------------------------
+    |
+    */
     
     'settings.system' => 'System',
     'settings.appearance' => 'Aussehen',
@@ -40,6 +47,8 @@ return [
     'options.startpage' => 'StartSeite',
     'options.yes' => 'Ja',
     'options.no' => 'Nein',
+    'options.nzbhydra' => 'NZBHydra',
+    'options.jackett' => 'Jackett',
     
     'buttons.save' => 'Speichern',
     'buttons.cancel' => 'Abbrechen',
@@ -65,10 +74,12 @@ return [
     'apps.username' => 'Benutzername',
     'apps.password' => 'Passwort',
     'apps.config' => 'Konfiguration',
+    'apps.apikey' => 'API Key',
     'apps.enable' => 'Aktivieren',
     'apps.tag_list' => 'Tags Liste',
     'apps.add_tag' => 'Tag hinzufügen',
     'apps.tag_name' => 'Tag Name',
+    'apps.tags' => 'Tags',
     'apps.override' => 'Fals anders zur Haupt-URL',
     'apps.preview' => 'Vorschau',
     'apps.apptype' => 'Anwendungstyp',
@@ -83,6 +94,8 @@ return [
     'user.user_list' => 'Nutzer',
     'user.add_user' => 'Nutzer hinzufügen',
     'user.username' => 'Benutzername',
+    'user.avatar' => 'Avatar',
+    'user.email' => 'Email',
     'user.password_confirm' => 'Passwort bestätigen',
     'user.secure_front' => 'Öffentlichen Zugang erlauben - Tritt nur bei gesetztem Passwort in kraft.',
     'user.autologin' => 'Anmelden von spezieller URL erlauben. Jeder mit diesem Link kann sich anmelden.',
