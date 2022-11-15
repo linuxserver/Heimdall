@@ -12,6 +12,8 @@ return [
     'settings.system' => 'Система',
     'settings.appearance' => 'Внешний вид',
     'settings.miscellaneous' => 'Разное',
+    'settings.advanced' => 'Продвинутые',
+
     'settings.support' => 'Поддержка',
     'settings.donate' => 'Пожертвования',
 
@@ -33,6 +35,9 @@ return [
     'settings.value' => 'Значение',
     'settings.edit' => 'Редактировать',
     'settings.view' => 'Просмотр',
+
+    'settings.custom_css' => 'Пользовательский CSS',
+    'settings.custom_js' => 'Пользовательский JavaScript',
 
     'options.none' => '- не установлено -',
     'options.google' => 'Google',
@@ -78,6 +83,11 @@ return [
     'apps.override' => 'Если отличается от основного url',
     'apps.preview' => 'Предпросмотр',
     'apps.apptype' => 'Тип приложения',
+    'apps.website' => 'Вебсайт',
+    'apps.description' => 'Описание',
+    'apps.only_admin_account' => 'Только с админ аккаунтом!',
+    'apps.autologin_url' => 'Автоматический логин',
+    'apps.show_deleted' => 'Показать удаленные приложения',
 
     'dashboard' => 'Основная панель',
 
