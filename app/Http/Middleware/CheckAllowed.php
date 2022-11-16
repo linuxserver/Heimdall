@@ -22,20 +22,23 @@ class CheckAllowed
         $route = Route::currentRouteName();
         $current_user = User::currentUser();
 
+        // Non admin users can't access users management
         if (str_is('users*', $route)) {
             if ($current_user->getId() !== 1) {
                 return redirect()->route('dash');
             }
         }
 
+        // Public access to frontpage
         if ($route == 'dash') {
             //print_r(User::all());
             //die("here".var_dump($current_user->password));
-            if ((bool) $current_user->public_front === true) {
+            if ((bool)$current_user->public_front === true) {
                 return $next($request);
             }
         }
 
+        // Continue with passwordless user
         if (empty($current_user->password)) {
             return $next($request);
         }
@@ -48,6 +51,8 @@ class CheckAllowed
             }
         }
 
-        return Auth::authenticate();
+        // Redirect to login
+        Auth::authenticate();
+        return redirect()->route('user.select');
     }
 }
