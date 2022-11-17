@@ -28,9 +28,6 @@ class AppServiceProvider extends ServiceProvider
             \Session::put('current_user', null);
         }
 
-        $lang = Setting::fetch('language');
-        \App::setLocale($lang);
-
         $applications = Application::all();
         if ($applications->count() <= 0) {
             if (class_exists('ZipArchive')) {
@@ -73,6 +70,9 @@ class AppServiceProvider extends ServiceProvider
 
             $allusers = User::all();
             $current_user = User::currentUser();
+
+            $lang = Setting::fetch('language');
+            \App::setLocale($lang);
 
             $view->with('alt_bg', $alt_bg);
             $view->with('allusers', $allusers);
