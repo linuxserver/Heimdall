@@ -588,8 +588,13 @@ $.when($.ready).then(function () {
               if (timer < max_timer) timer += 2000;
             }
           },
-          complete: function complete() {
-            // Schedule the next request when the current one's complete
+          complete: function complete(jqXHR) {
+            if (jqXHR.status > 299) {
+              // Stop polling when we get errors
+              return;
+            } // Schedule the next request when the current one's complete
+
+
             livestatsRefreshTimeouts[index] = window.setTimeout(worker, timer);
           }
         });
@@ -696,10 +701,10 @@ $.when($.ready).then(function () {
       $('.add-item').hide();
       $('.item-edit').hide();
       $('#app').removeClass('sidebar');
-      $('#sortable .tooltip').css('display', '')
+      $('#sortable .tooltip').css('display', '');
       $('#sortable').sortable('disable');
     } else {
-      $('#sortable .tooltip').css('display', 'none')
+      $('#sortable .tooltip').css('display', 'none');
       $('#sortable').sortable('enable');
       setTimeout(function () {
         $('.add-item').fadeIn();

@@ -28,3 +28,4 @@ yarn-error.log
 .VolumeIcon.icns
 storage/app/public/avatars/*
 .env
+.phpunit.result.cache
