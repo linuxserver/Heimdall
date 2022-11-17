@@ -180,7 +180,12 @@ class ItemController extends Controller
         return view('items.edit', $data);
     }
 
-    public function storelogic($request, $id = null)
+    /**
+     * @param Request $request
+     * @param $id
+     * @return void
+     */
+    public function storelogic(Request $request, $id = null)
     {
         $application = Application::single($request->input('appid'));
         $validatedData = $request->validate([
@@ -225,6 +230,18 @@ class ItemController extends Controller
         }
 
         $config = Item::checkConfig($request->input('config'));
+
+        // Don't overwrite the stored password if it wasn't submitted when updating the item
+        if ($id !== null && strpos($config, '"password":null') !== false) {
+            $storedItem = Item::find($id);
+            $storedConfigObject = json_decode($storedItem->getAttribute('description'));
+
+            $configObject = json_decode($config);
+            $configObject->password = $storedConfigObject->password;
+
+            $config = json_encode($configObject);
+        }
+
         $current_user = User::currentUser();
         $request->merge([
             'description' => $config,
