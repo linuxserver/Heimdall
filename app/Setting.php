@@ -75,7 +75,7 @@ class Setting extends Model
                     if ($this->key === 'search_provider') {
                         $options = Search::providers()->pluck('name', 'id')->toArray();
                     }
-                    $value = __($options[$this->value]);
+                    $value = (array_key_exists($this->value, $options)) ? __($options[$this->value]) : __('app.options.none');
                 } else {
                     $value = __('app.options.none');
                 }
