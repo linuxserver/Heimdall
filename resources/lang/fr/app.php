@@ -1,10 +1,19 @@
 <?php
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | App Language Lines
+    |--------------------------------------------------------------------------
+    |
+    */
+
     'settings.system' => 'Système',
     'settings.appearance' => 'Apparence',
     'settings.miscellaneous' => 'Divers',
     'settings.support' => 'Support',
+
     'settings.donate' => 'Contribuer',
     'settings.advanced' => 'Options avancées',
 
@@ -26,6 +35,9 @@ return [
     'settings.value' => 'Valeur',
     'settings.edit' => 'Modifier',
     'settings.view' => 'Vue',
+
+    'settings.custom_css' => 'CSS personnalisé',
+    'settings.custom_js' => 'JavaScript personnalisé',
 
     'options.none' => '- non défini -',
     'options.google' => 'Google',
@@ -71,6 +83,8 @@ return [
     'apps.override' => 'Si différent de l\'url actuelle',
     'apps.preview' => 'Aperçu',
     'apps.apptype' => 'Type d\'application ',
+    'apps.website' => 'Site Web',
+    'apps.description' => 'Description',
     'apps.only_admin_account' => 'Seulement si vous avez un compte administrateur!',
     'apps.autologin_url' => 'URL de connexion automatique',
     'apps.show_deleted' => 'Afficher les applications supprimées',
