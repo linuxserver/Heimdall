@@ -3,14 +3,23 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Application extends Model
 {
+    /**
+     * @var bool
+     */
     public $incrementing = false;
 
+    /**
+     * @var string
+     */
     protected $primaryKey = 'appid';
 
-    //
+    /**
+     * @return mixed
+     */
     public function icon()
     {
         if (! file_exists(storage_path('app/public/'.$this->icon))) {
@@ -23,12 +32,18 @@ class Application extends Model
         return $this->icon;
     }
 
-    public function iconView()
+    /**
+     * @return string
+     */
+    public function iconView(): string
     {
         return asset('storage/'.$this->icon);
     }
 
-    public function defaultColour()
+    /**
+     * @return string
+     */
+    public function defaultColour(): string
     {
         // check if light or dark
         if ($this->tile_background == 'light') {
@@ -38,7 +53,10 @@ class Application extends Model
         return '#161b1f';
     }
 
-    public function class()
+    /**
+     * @return string
+     */
+    public function class(): string
     {
         $name = $this->name;
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
@@ -48,6 +66,10 @@ class Application extends Model
         return $class;
     }
 
+    /**
+     * @param $name
+     * @return string
+     */
     public static function classFromName($name)
     {
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
@@ -57,16 +79,21 @@ class Application extends Model
         return $class;
     }
 
-    public static function apps()
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public static function apps(): \Illuminate\Support\Collection
     {
         $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];
         $apps = collect($json->apps);
-        $sorted = $apps->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE);
 
-        return $sorted;
+        return $apps->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE);
     }
 
-    public static function autocomplete()
+    /**
+     * @return array
+     */
+    public static function autocomplete(): array
     {
         $apps = self::apps();
         $list = [];
@@ -80,8 +107,14 @@ class Application extends Model
         return $list;
     }
 
+    /**
+     * @param $appid
+     * @return mixed|null
+     */
     public static function getApp($appid)
     {
+        Log::debug("Get app triggered for: $appid");
+
         $localapp = self::where('appid', $appid)->first();
         $app = self::single($appid);
 
@@ -106,6 +139,10 @@ class Application extends Model
         return $app;
     }
 
+    /**
+     * @param $appid
+     * @return mixed|null
+     */
     public static function single($appid)
     {
         $apps = self::apps();
@@ -128,7 +165,10 @@ class Application extends Model
         return $app;
     }
 
-    public static function applist()
+    /**
+     * @return array
+     */
+    public static function applist(): array
     {
         $list = [];
         $list['null'] = 'None';

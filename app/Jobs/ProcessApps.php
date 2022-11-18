@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProcessApps implements ShouldQueue
@@ -33,6 +34,7 @@ class ProcessApps implements ShouldQueue
      */
     public function handle()
     {
+        Log::debug('Process Apps dispatched');
         $localapps = Application::whereNull('class')->get();
         $json = SupportedApps::getList()->getBody();
 
