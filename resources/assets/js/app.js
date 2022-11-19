@@ -2,6 +2,18 @@ $.when( $.ready ).then(function() {
 
     var base = (document.querySelector('base') || {}).href;
 
+    var itemID = $('form[data-item-id]').data('item-id');
+    var fakePassword = '*****';
+
+    // If in edit mode and password field is present, fill it with stars
+    if (itemID) {
+        var passwordField = $('input[name="config[password]"]').first();
+
+        if (passwordField.length > 0) {
+            passwordField.attr('value', fakePassword);
+        }
+    }
+
     if($('.message-container').length) {
         setTimeout(
             function()
@@ -223,6 +235,12 @@ $.when( $.ready ).then(function() {
             var config = $(this).data('config');
             data[config] = $(this).val();
         });
+
+        data['id'] = $('form[data-item-id]').data('item-id');
+
+        if (data.password && data.password === fakePassword) {
+            data.password = '';
+        }
 
         $.post(base+'test_config', { data: data }, function(data) {
             alert(data);
