@@ -6,9 +6,10 @@ use App\Application;
 use App\Jobs\ProcessApps;
 use App\Setting;
 use App\User;
-use Artisan;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use Schema;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -129,17 +130,10 @@ class AppServiceProvider extends ServiceProvider
             touch(database_path('app.sqlite'));
         }
 
-        if (Schema::hasTable('settings')) {
-            // check version to see if an upgrade is needed
-            $db_version = Setting::_fetch('version');
-            $app_version = config('app.version');
-            if (version_compare($app_version, $db_version) == 1) {
-                // app is higher than db, so need to run migrations etc
-                Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
-                ProcessApps::dispatch();
-            }
-        } else {
+        if ($this->needsDBUpdate()) {
             Artisan::call('migrate', ['--path' => 'database/migrations', '--force' => true, '--seed' => true]);
+            ProcessApps::dispatchSync();
+            $this->updateApps();
         }
     }
 
@@ -153,5 +147,32 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->genKey();
+    }
+
+    /**
+     * @return bool
+     */
+    private function needsDBUpdate(): bool
+    {
+        if (!Schema::hasTable('settings')) {
+            return true;
+        }
+
+        $db_version = Setting::_fetch('version');
+        $app_version = config('app.version');
+
+        return version_compare($app_version, $db_version) === 1;
+    }
+
+    /**
+     * @return void
+     */
+    private function updateApps()
+    {
+        Log::debug('Update of all apps triggered');
+
+        foreach (Application::all(['appid']) as $app) {
+            Application::getApp($app->appid);
+        }
     }
 }

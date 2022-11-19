@@ -369,26 +369,6 @@ class ItemController extends Controller
         if ($appid === 'null') {
             return null;
         }
-        /*$appname = $request->input('app');
-        //die($appname);
-
-        $app_details = Application::where('name', $appname)->firstOrFail();
-        $appclass = $app_details->class();
-        $app = new $appclass;
-
-        // basic details
-        $output['icon'] = $app_details->icon();
-        $output['name'] = $app_details->name;
-        $output['iconview'] = $app_details->iconView();
-        $output['colour'] = $app_details->defaultColour();
-        $output['class'] = $appclass;
-
-        // live details
-        if($app instanceof \App\EnhancedApps) {
-            $output['config'] = className($app_details->name).'.config';
-        } else {
-            $output['config'] = null;
-        }*/
 
         $output['config'] = null;
         $output['custom'] = null;

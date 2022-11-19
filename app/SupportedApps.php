@@ -128,6 +128,8 @@ abstract class SupportedApps
 
     public static function getFiles($app)
     {
+        Log::debug("Download triggered for $app->name");
+
         $zipurl = config('app.appsource').'files/'.$app->sha.'.zip';
 
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15, 'verify' => false]);
