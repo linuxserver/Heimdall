@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Application;
+use App\Item;
 use App\Jobs\ProcessApps;
 use App\Setting;
 use App\User;
@@ -169,10 +170,16 @@ class AppServiceProvider extends ServiceProvider
      */
     private function updateApps()
     {
-        Log::debug('Update of all apps triggered');
+        Log::debug('Update of apps triggered');
+        $items = Item::whereNotNull('appid')->get('appid')->toArray();
+        $items = array_unique($items, SORT_REGULAR);
 
-        foreach (Application::all(['appid']) as $app) {
-            Application::getApp($app->appid);
+        // We onl update the apps that are actually in use by items
+        // 1 sec delay after each update to throttle the requests
+        // Todo: move this to some background task?
+        foreach ($items as $itemKey => $item) {
+            Application::getApp($item['appid']);
+            usleep(250000);
         }
     }
 }
