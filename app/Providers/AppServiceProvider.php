@@ -3,14 +3,13 @@
 namespace App\Providers;
 
 use App\Application;
-use App\Item;
 use App\Jobs\ProcessApps;
+use App\Jobs\UpdateApps;
 use App\Setting;
 use App\User;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (! class_exists('ZipArchive')) {
+            die('You are missing php-zip');
+        }
+
         $this->createEnvFile();
 
         $this->setupDatabase();
@@ -31,12 +34,9 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $applications = Application::all();
+
         if ($applications->count() <= 0) {
-            if (class_exists('ZipArchive')) {
-                ProcessApps::dispatch();
-            } else {
-                die('You are missing php-zip');
-            }
+            ProcessApps::dispatch();
         }
 
         // User specific settings need to go here as session isn't available at this point in the app
@@ -170,16 +170,6 @@ class AppServiceProvider extends ServiceProvider
      */
     private function updateApps()
     {
-        Log::debug('Update of apps triggered');
-        $items = Item::whereNotNull('appid')->get('appid')->toArray();
-        $items = array_unique($items, SORT_REGULAR);
-
-        // We onl update the apps that are actually in use by items
-        // 1 sec delay after each update to throttle the requests
-        // Todo: move this to some background task?
-        foreach ($items as $itemKey => $item) {
-            Application::getApp($item['appid']);
-            usleep(250000);
-        }
+        UpdateApps::dispatchAfterResponse();
     }
 }
