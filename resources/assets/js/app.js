@@ -258,5 +258,13 @@ $.when( $.ready ).then(function() {
             current.toggleClass('active');
         });
     });
+    $('#itemform').on('submit', function(e) {
+        var passwordField = $('input[name="config[password]"]').first();
+        if (passwordField.length > 0) {
+            if (passwordField.attr('value') === fakePassword) {
+                passwordField.attr('value', '');
+            }
+        }
+    });
 
 });
