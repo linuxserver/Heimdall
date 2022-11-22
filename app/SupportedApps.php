@@ -126,14 +126,24 @@ abstract class SupportedApps
         }
     }
 
-    public static function getFiles($app)
+    /**
+     * @param $app
+     * @return bool|false
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public static function getFiles($app): bool
     {
-        Log::debug("Download triggered for $app->name");
+        Log::debug("Download triggered for ".print_r($app, true));
 
         $zipurl = config('app.appsource').'files/'.$app->sha.'.zip';
 
         $client = new Client(['http_errors' => false, 'timeout' => 60, 'connect_timeout' => 15, 'verify' => false]);
         $res = $client->request('GET', $zipurl);
+
+        // Something went wrong?
+        if ($res->getStatusCode() !== 200) {
+            return false;
+        }
 
         if (! file_exists(app_path('SupportedApps'))) {
             mkdir(app_path('SupportedApps'), 0777, true);
@@ -150,7 +160,9 @@ abstract class SupportedApps
             unlink($src); //Deleting the Zipped file
         } else {
             var_dump($x);
+            return false;
         }
+        return true;
     }
 
     public static function saveApp($details, $app)

@@ -120,18 +120,14 @@ class Application extends Model
 
         $application = ($localapp) ? $localapp : new self;
 
-        if (! file_exists(app_path('SupportedApps/'.className($app->name)))) {
-            SupportedApps::getFiles($app);
-            SupportedApps::saveApp($app, $application);
-        } else {
-            // check if there has been an update for this app
-            if ($localapp) {
-                if ($localapp->sha !== $app->sha) {
-                    SupportedApps::getFiles($app);
-                    $app = SupportedApps::saveApp($app, $application);
-                }
-            } else {
-                SupportedApps::getFiles($app);
+        // Files missing? || app not in db || old sha version
+        if (
+            ! file_exists(app_path('SupportedApps/'.className($app->name))) ||
+            ! $localapp ||
+            $localapp->sha !== $app->sha
+        ) {
+            $gotFiles = SupportedApps::getFiles($app);
+            if($gotFiles) {
                 $app = SupportedApps::saveApp($app, $application);
             }
         }
