@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class UpdateApps implements ShouldQueue, ShouldBeUnique
@@ -41,5 +42,17 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
             Application::getApp($app['appid']);
             sleep(1);
         }
+
+        Log::debug('Update of all apps finished!');
+
+        Cache::lock('updateApps')->forceRelease();
+    }
+
+    /**
+     * @return void
+     */
+    public function failed($exception)
+    {
+        Cache::lock('updateApps')->forceRelease();
     }
 }

@@ -8,6 +8,7 @@ use App\Jobs\UpdateApps;
 use App\Setting;
 use App\User;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -170,6 +171,12 @@ class AppServiceProvider extends ServiceProvider
      */
     private function updateApps()
     {
-        UpdateApps::dispatchAfterResponse();
+        // This lock ensures that the job is not invoked multiple times.
+        // In 5 minutes all app updates should be finished.
+        $lock = Cache::lock('updateApps', 5*60);
+
+        if ($lock->get()) {
+            UpdateApps::dispatchAfterResponse();
+        }
     }
 }
