@@ -470,6 +470,9 @@ body {
 		z-index: 1;
 		padding-right: 10px;
 	}
+	.link:focus {
+		background-color: rgba(10,10,10,.4);
+	}
 	.title {
 		font-size: 16px;
 	}
