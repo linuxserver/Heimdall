@@ -191,15 +191,31 @@ body {
 		width: 50px;
 		height: 50px;
 		background: rgba(0,0,0,0.8);
-		text-align: center;
-		line-height: 50px;
 		color: white;
 		margin-top: 1px;
+		position: relative;
+		border: 1px solid transparent;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		img {
 			width: 26px;
 			height: 26px;
 			margin-top: 12px;
 		}
+		.tooltip {
+			bottom: 50%;
+			left: auto;
+			right: 55px;
+			padding: 10px 15px;
+			line-height: 1.2;
+			transform: translate(200px, 50%);
+			white-space: nowrap;
+			&.active {
+				transform: translate(0, 50%);
+			}
+		}
+	
 	}
 }
 
@@ -262,29 +278,29 @@ body {
 		display: none;
 		z-index: 1;
 	}
-
-	.tooltip {
-		padding: 25px;
-		border-radius: 5px;
-		background: #000000c8;
-		color: white;
-		position: absolute;
-		bottom: 120px;
-		left: 0;
-		right: 0;
-		font-size: 13px;
-		backdrop-filter: blur(8px);
-		z-index: 0;
-		opacity: 0;
-		transform: translateY(-20px);
-		transition: all 0.3s;
-		&.active {
-			transform: translateY(0);
-			opacity: 1;
-			z-index: 4;
-		}
+}
+.tooltip {
+	padding: 25px;
+	border-radius: 5px;
+	background: #000000c8;
+	color: white;
+	position: absolute;
+	bottom: 120px;
+	left: 0;
+	right: 0;
+	font-size: 13px;
+	backdrop-filter: blur(8px);
+	z-index: 0;
+	opacity: 0;
+	transform: translateY(-20px);
+	transition: all 0.3s;
+	&.active {
+		transform: translateY(0);
+		opacity: 1;
+		z-index: 4;
 	}
 }
+
 .tile-actions {
     position: absolute;
     top: 0px;
@@ -469,9 +485,6 @@ body {
 		font-size: 24px;
 		z-index: 1;
 		padding-right: 10px;
-	}
-	.link:focus {
-		background-color: rgba(10,10,10,.4);
 	}
 	.title {
 		font-size: 16px;
@@ -1110,4 +1123,22 @@ select:-webkit-autofill:focus {
   -webkit-box-shadow: inherit;
   transition: inherit;
   color: $app-text!important;
+}
+
+#sortable:focus-within {
+	.item:focus-within {
+		outline: 1px solid #ffffff91;
+	}
+	.item:not(:focus-within) {
+		opacity: 0.4;
+	}
+}
+#config-buttons:focus-within {
+	a:focus {
+		outline: 0;
+		border: 1px solid #ffffff91;
+	}
+	a:not(:focus-within) {
+		opacity: 0.4;
+	}
 }

@@ -1,6 +1,8 @@
 <?php
 
 return array (
+  'dashboard.reorder' => 'Reorder and pin items',
+  'dashboard.settings' => 'Settings',
   'settings.system' => 'System',
   'settings.appearance' => 'Appearance',
   'settings.miscellaneous' => 'Miscellaneous',
