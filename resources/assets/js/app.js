@@ -152,6 +152,12 @@ $.when( $.ready ).then(function() {
         $(this).siblings('.tooltip').removeClass('active')
         $('.refresh', this).removeClass('active')
     })
+    $('#config-buttons').on('mouseenter', 'a', function () {
+        $('.tooltip', this).addClass('active');
+    }).on('mouseleave', 'a', function () {
+        $('.tooltip', this).removeClass('active');
+    })
+
 
     $('#search-container').on('input', 'input[name=q]', function () {
         const search = this.value
