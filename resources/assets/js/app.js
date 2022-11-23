@@ -158,6 +158,11 @@ $.when( $.ready ).then(function() {
         $('.tooltip', this).removeClass('active');
     })
 
+    $('.searchform > form').on('submit', function (event) {
+        if ($('#search-container select[name=provider]').val() === 'tiles') {
+            event.preventDefault();
+        }
+    });
 
     $('#search-container').on('input', 'input[name=q]', function () {
         const search = this.value
