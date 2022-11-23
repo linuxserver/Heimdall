@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => '사용자를 성공적으로 업데이트했습니다',
   'alert.success.user_deleted' => '사용자를 성공적으로 제거했습니다',
   'alert.success.user_restored' => '사용자를 성공적으로 복원했습니다',
+  'dashboard.reorder' => '항목 재정렬 및 고정',
+  'dashboard.settings' => '설정',
 );

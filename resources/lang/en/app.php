@@ -1,8 +1,6 @@
 <?php
 
 return array (
-  'dashboard.reorder' => 'Reorder and pin items',
-  'dashboard.settings' => 'Settings',
   'settings.system' => 'System',
   'settings.appearance' => 'Appearance',
   'settings.miscellaneous' => 'Miscellaneous',
@@ -103,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'User updated successfully',
   'alert.success.user_deleted' => 'User deleted successfully',
   'alert.success.user_restored' => 'User restored successfully',
+  'dashboard.reorder' => 'Reorder and pin items',
+  'dashboard.settings' => 'Settings',
 );

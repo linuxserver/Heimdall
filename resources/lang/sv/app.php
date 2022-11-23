@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Anvädare uppdaterad',
   'alert.success.user_deleted' => 'Användare borttagen',
   'alert.success.user_restored' => 'Användare återställd',
+  'dashboard.reorder' => 'Ordna om och fäst föremål',
+  'dashboard.settings' => 'inställningar',
 );
