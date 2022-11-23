@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Użytkownik został pomyślnie zaktualizowany',
   'alert.success.user_deleted' => 'Użytkownik został pomyślnie usunięty',
   'alert.success.user_restored' => 'Pomyślnie przywrócono użytkownika',
+  'dashboard.reorder' => 'Zmień kolejność i przypnij elementy',
+  'dashboard.settings' => 'Ustawienia',
 );

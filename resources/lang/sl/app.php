@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Uporabnik uspešno posodobljen',
   'alert.success.user_deleted' => 'Uporabnik uspešno izbrisan',
   'alert.success.user_restored' => 'Uporabnik uspešno obnovljen',
+  'dashboard.reorder' => 'Preuredite in pripnite elemente',
+  'dashboard.settings' => 'nastavitve',
 );

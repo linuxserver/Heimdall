@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Uživatel úspěšně aktualizován',
   'alert.success.user_deleted' => 'Uživatel úspěšně smazán',
   'alert.success.user_restored' => 'Uživatel úspěšně obnoven',
+  'dashboard.reorder' => 'Změňte pořadí a připněte položky',
+  'dashboard.settings' => 'Nastavení',
 );

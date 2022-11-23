@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Kullanıcı başarıyla güncellendi',
   'alert.success.user_deleted' => 'Kullanıcı başarıyla silindi',
   'alert.success.user_restored' => 'Kullanıcı başarıyla geri yüklendi',
+  'dashboard.reorder' => 'Öğeleri yeniden sırala ve sabitle',
+  'dashboard.settings' => 'Ayarlar',
 );

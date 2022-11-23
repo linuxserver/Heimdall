@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Пользователь обновлен успешно',
   'alert.success.user_deleted' => 'Пользователь удален успешно',
   'alert.success.user_restored' => 'Пользователь восстановлен успешно',
+  'dashboard.reorder' => 'Изменить порядок и закрепить элементы',
+  'dashboard.settings' => 'Настройки',
 );
