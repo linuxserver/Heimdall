@@ -195,11 +195,25 @@ body {
 		line-height: 50px;
 		color: white;
 		margin-top: 1px;
+		position: relative;
 		img {
 			width: 26px;
 			height: 26px;
 			margin-top: 12px;
 		}
+		.tooltip {
+			bottom: 50%;
+			left: auto;
+			right: 55px;
+			padding: 10px 15px;
+			line-height: 1.2;
+			transform: translate(-20px, 50%);
+			white-space: nowrap;
+			&.active {
+				transform: translate(0, 50%);
+			}
+		}
+	
 	}
 }
 
@@ -262,29 +276,29 @@ body {
 		display: none;
 		z-index: 1;
 	}
-
-	.tooltip {
-		padding: 25px;
-		border-radius: 5px;
-		background: #000000c8;
-		color: white;
-		position: absolute;
-		bottom: 120px;
-		left: 0;
-		right: 0;
-		font-size: 13px;
-		backdrop-filter: blur(8px);
-		z-index: 0;
-		opacity: 0;
-		transform: translateY(-20px);
-		transition: all 0.3s;
-		&.active {
-			transform: translateY(0);
-			opacity: 1;
-			z-index: 4;
-		}
+}
+.tooltip {
+	padding: 25px;
+	border-radius: 5px;
+	background: #000000c8;
+	color: white;
+	position: absolute;
+	bottom: 120px;
+	left: 0;
+	right: 0;
+	font-size: 13px;
+	backdrop-filter: blur(8px);
+	z-index: 0;
+	opacity: 0;
+	transform: translateY(-20px);
+	transition: all 0.3s;
+	&.active {
+		transform: translateY(0);
+		opacity: 1;
+		z-index: 4;
 	}
 }
+
 .tile-actions {
     position: absolute;
     top: 0px;

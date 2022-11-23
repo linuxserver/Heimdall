@@ -98,16 +98,17 @@
 
                         
                         @if(Route::is('dash') || Route::is('tags.show'))
-                        <a id="config-button" class="config" href="" title="Configuration"><i class="fas fa-exchange"></i></a>
+                        <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i><div class="tooltip left">Reorder and pin items</div></a>
+                        
                         @endif
     
-                        <a id="dash" class="config" href="{{ route('dash', []) }}" title="Dashboard"><i class="fas fa-th"></i></a>
+                        <a id="dash" class="config" href="{{ route('dash', []) }}"><i class="fas fa-th"></i><div class="tooltip left">Dashboard</div></a>
                         @if($current_user->id === 1)
-                        <a id="users" class="config" href="{{ route('users.index', []) }}" title="Users"><i class="fas fa-user"></i></a>
+                        <a id="users" class="config" href="{{ route('users.index', []) }}"><i class="fas fa-user"></i><div class="tooltip left">Users</div></a>
                         @endif
-                        <a id="items" class="config" href="{{ route('items.index', []) }}" title="Items"><i class="fas fa-list"></i></a>
-                        <a id="folder" class="config" href="{{ route('tags.index', []) }}" title="Tags"><i class="fas fa-tag"></i></a>
-                        <a id="settings" class="config" href="{{ route('settings.index', []) }}" title="Settings"><i class="fas fa-cogs"></i></a>
+                        <a id="items" class="config" href="{{ route('items.index', []) }}"><i class="fas fa-list"></i><div class="tooltip left">List and edit all items</div></a>
+                        <a id="folder" class="config" href="{{ route('tags.index', []) }}"><i class="fas fa-tag"></i><div class="tooltip left">List and edit all tags</div></a>
+                        <a id="settings" class="config" href="{{ route('settings.index', []) }}"><i class="fas fa-cogs"></i><div class="tooltip left">Settings</div></a>
                     </div>
                 </main>
 
