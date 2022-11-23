@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => '用户修改成功',
   'alert.success.user_deleted' => '用户移除成功',
   'alert.success.user_restored' => '用户恢复成功',
+  'dashboard.reorder' => '重新排序和固定項目',
+  'dashboard.settings' => '設置',
 );

@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Felhasználó sikeresen frissítve',
   'alert.success.user_deleted' => 'Felhasználó sikeresen törölve',
   'alert.success.user_restored' => 'Felhasználó sikeresen visszaállítva',
+  'dashboard.reorder' => 'Elemek átrendezése és rögzítése',
+  'dashboard.settings' => 'Beállítások',
 );

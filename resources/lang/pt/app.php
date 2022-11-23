@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Utilizador atualizada com sucesso',
   'alert.success.user_deleted' => 'Utilizador apagada com sucesso',
   'alert.success.user_restored' => 'Utilizador restaurada com sucesso',
+  'dashboard.reorder' => 'Reordenar e fixar itens',
+  'dashboard.settings' => 'Definições',
 );

@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Brukeren er oppdatert',
   'alert.success.user_deleted' => 'Brukeren ble slettet',
   'alert.success.user_restored' => 'Brukeren ble gjenopprettet',
+  'dashboard.reorder' => 'Ombestill og fest varer',
+  'dashboard.settings' => 'Innstillinger',
 );
