@@ -191,11 +191,13 @@ body {
 		width: 50px;
 		height: 50px;
 		background: rgba(0,0,0,0.8);
-		text-align: center;
-		line-height: 50px;
 		color: white;
 		margin-top: 1px;
 		position: relative;
+		border: 1px solid transparent;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		img {
 			width: 26px;
 			height: 26px;
@@ -483,9 +485,6 @@ body {
 		font-size: 24px;
 		z-index: 1;
 		padding-right: 10px;
-	}
-	.link:focus {
-		background-color: rgba(10,10,10,.4);
 	}
 	.title {
 		font-size: 16px;
@@ -1124,4 +1123,22 @@ select:-webkit-autofill:focus {
   -webkit-box-shadow: inherit;
   transition: inherit;
   color: $app-text!important;
+}
+
+#sortable:focus-within {
+	.item:focus-within {
+		outline: 1px solid #ffffff91;
+	}
+	.item:not(:focus-within) {
+		opacity: 0.4;
+	}
+}
+#config-buttons:focus-within {
+	a:focus {
+		outline: 0;
+		border: 1px solid #ffffff91;
+	}
+	a:not(:focus-within) {
+		opacity: 0.4;
+	}
 }
