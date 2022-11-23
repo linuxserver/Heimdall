@@ -2,22 +2,21 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "production": "mix --production"
     },
     "devDependencies": {
-        "bootstrap-sass": "^3.4.1",
-        "cross-env": "^5.2.0",
-        "jquery": "^3.4.1",
-        "laravel-mix": "^4.0.16",
-        "sass": "^1.21.0",
-        "sass-loader": "7.*"
+        "bootstrap-sass": "^3.4.3",
+        "jquery": "^3.6.1",
+        "laravel-mix": "^6.0.49",
+        "sass": "^1.56.1",
+        "sass-loader": "13.*"
     },
     "dependencies": {
-        "select2": "^4.0.7"
+        "select2": "^4.0.13"
     }
 }
