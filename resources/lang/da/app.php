@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Bruger opdateret med succes',
   'alert.success.user_deleted' => 'Bruger slettet med succes',
   'alert.success.user_restored' => 'Bruger genskabt med succes',
+  'dashboard.reorder' => 'Genbestil og fastgør varer',
+  'dashboard.settings' => 'Indstillinger',
 );

@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Ο χρήστης ενημερώθηκε επιτυχώς',
   'alert.success.user_deleted' => 'Ο χρήστης διαγράφηκε επιτυχώς',
   'alert.success.user_restored' => 'Ο χρήστης επαναφέρθηκε επιτυχώς',
+  'dashboard.reorder' => 'Παραγγείλετε ξανά και καρφιτσώστε αντικείμενα',
+  'dashboard.settings' => 'Ρυθμίσεις',
 );

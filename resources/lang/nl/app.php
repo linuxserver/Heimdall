@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Gebruiker met succes bewerkt',
   'alert.success.user_deleted' => 'Gebruiker met succes verwijderd',
   'alert.success.user_restored' => 'Gebruiker met succes hersteld',
+  'dashboard.reorder' => 'Items opnieuw ordenen en vastzetten',
+  'dashboard.settings' => 'Instellingen',
 );

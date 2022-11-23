@@ -101,4 +101,6 @@ return array (
   'alert.success.user_updated' => 'Käyttäjä päivitetty onnistuneesti',
   'alert.success.user_deleted' => 'Käyttäjä poistettu onnistuneesti',
   'alert.success.user_restored' => 'Käyttäjä palautettu onnistuneesti',
+  'dashboard.reorder' => 'Järjestä ja kiinnitä kohteita uudelleen',
+  'dashboard.settings' => 'asetukset',
 );
