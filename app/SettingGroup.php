@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SettingGroup extends Model
 {
@@ -20,7 +21,10 @@ class SettingGroup extends Model
      */
     public $timestamps = false;
 
-    public function settings()
+    /**
+     * @return HasMany
+     */
+    public function settings(): HasMany
     {
         return $this->hasMany(\App\Setting::class, 'group_id');
     }

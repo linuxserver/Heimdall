@@ -54,7 +54,12 @@ class RegisterApp extends Command
         }
     }
 
-    public function addApp($folder, $remove = false)
+    /**
+     * @param $folder
+     * @param bool $remove
+     * @return void
+     */
+    public function addApp($folder, bool $remove = false)
     {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
 
@@ -88,7 +93,13 @@ class RegisterApp extends Command
         $this->info('Application Added - ' . $app->name . ' - ' . $app->appid);
     }
 
-    private function saveIcon($appFolder, $icon) {
+    /**
+     * @param $appFolder
+     * @param $icon
+     * @return void
+     */
+    private function saveIcon($appFolder, $icon)
+    {
         $iconPath = app_path('SupportedApps/' . $appFolder . '/' . $icon);
         $contents = file_get_contents($iconPath);
         Storage::disk('public')->put('icons/'.$icon, $contents);

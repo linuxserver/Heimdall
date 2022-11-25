@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Application;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,6 +31,7 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
      * Execute the job.
      *
      * @return void
+     * @throws GuzzleException
      */
     public function handle()
     {

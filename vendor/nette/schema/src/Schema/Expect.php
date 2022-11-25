@@ -40,6 +40,7 @@ final class Expect
 		if ($args) {
 			$type->default($args[0]);
 		}
+
 		return $type;
 	}
 
@@ -93,6 +94,7 @@ final class Expect
 				}
 			}
 		}
+
 		return (new Structure($items))->castTo($ro->getName());
 	}
 

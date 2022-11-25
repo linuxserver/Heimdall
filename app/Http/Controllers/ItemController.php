@@ -9,6 +9,7 @@ use App\User;
 use Artisan;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -204,7 +205,7 @@ class ItemController extends Controller
                     "verify_peer"=>false,
                     "verify_peer_name"=>false,
                 ),
-            );  
+            );
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
 
             if ($application) {
@@ -219,9 +220,9 @@ class ItemController extends Controller
 
             // Private apps could have here duplicated icons folder
             if (strpos($path, 'icons/icons/') !== false) {
-                $path = str_replace('icons/icons/','icons/',$path);
+                $path = str_replace('icons/icons/', 'icons/', $path);
             }
-            if(! Storage::disk('public')->exists($path)) {
+            if (! Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->put($path, $contents);
             }
             $request->merge([
@@ -360,6 +361,7 @@ class ItemController extends Controller
      *
      * @param Request $request
      * @return string|null
+     * @throws GuzzleException
      */
     public function appload(Request $request): ?string
     {
@@ -386,9 +388,9 @@ class ItemController extends Controller
 
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
 
-        if(strpos($app->icon, '://') !== false) {
+        if (strpos($app->icon, '://') !== false) {
             $output['iconview'] = $app->icon;
-        } elseif(strpos($app->icon, 'icons/') !== false) {
+        } elseif (strpos($app->icon, 'icons/') !== false) {
             // Private apps have the icon locally
             $output['iconview'] = URL::to('/').'/storage/'.$app->icon;
             $output['icon'] = str_replace('icons/', '', $output['icon']);
