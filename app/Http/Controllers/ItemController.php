@@ -408,7 +408,10 @@ class ItemController extends Controller
         $app = $single->class;
 
         // If password is not resubmitted fill it from the database when in edit mode
-        if ($data['password'] === null && array_key_exists('id', $data)) {
+        if (array_key_exists('password', $data) &&
+            $data['password'] === null &&
+            array_key_exists('id', $data)
+        ) {
             $item = Item::find($data['id']);
             if ($item) {
                 $itemConfig = $item->getConfig();
