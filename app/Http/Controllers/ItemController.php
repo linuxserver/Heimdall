@@ -105,12 +105,20 @@ class ItemController extends Controller
         $item->pinned = $new;
         $item->save();
         if ($ajax) {
-            if (is_numeric($tag) && $tag > 0) {
-                $item = Item::whereId($tag)->first();
-                $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
-            } else {
-                $data['apps'] = Item::pinned()->orderBy('order', 'asc')->get();
+
+            $item = Item::whereId($tag)->first();
+
+            $data['apps'] = new \Illuminate\Database\Eloquent\Collection;
+
+            if ((int)$tag === 0) {
+                $tags = Item::where('type', 1)->pinned()->orderBy('order', 'asc')->get();
+                $data['apps'] = $data['apps']->merge($tags);
             }
+
+            $apps = $item->children()->pinned()->orderBy('order', 'asc')->get();
+            $data['apps'] = $data['apps']->merge($apps);
+
+
             $data['ajax'] = true;
 
             return view('sortable', $data);
@@ -199,12 +207,12 @@ class ItemController extends Controller
                 'icon' => $path,
             ]);
         } elseif (strpos($request->input('icon'), 'http') === 0) {
-            $options=array(
-                "ssl"=>array(
-                    "verify_peer"=>false,
-                    "verify_peer_name"=>false,
+            $options = array(
+                "ssl" => array(
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
                 ),
-            );  
+            );
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
 
             if ($application) {
@@ -213,15 +221,15 @@ class ItemController extends Controller
                 $file = $request->input('icon');
                 $path_parts = pathinfo($file);
                 $icon = md5($contents);
-                $icon .= '.'.$path_parts['extension'];
+                $icon .= '.' . $path_parts['extension'];
             }
-            $path = 'icons/'.$icon;
+            $path = 'icons/' . $icon;
 
             // Private apps could have here duplicated icons folder
             if (strpos($path, 'icons/icons/') !== false) {
-                $path = str_replace('icons/icons/','icons/',$path);
+                $path = str_replace('icons/icons/', 'icons/', $path);
             }
-            if(! Storage::disk('public')->exists($path)) {
+            if (!Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->put($path, $contents);
             }
             $request->merge([
@@ -346,8 +354,8 @@ class ItemController extends Controller
     {
         //
         Item::withTrashed()
-                ->where('id', $id)
-                ->restore();
+            ->where('id', $id)
+            ->restore();
 
         $route = route('items.index', []);
 
@@ -380,20 +388,20 @@ class ItemController extends Controller
 
         if ((bool) $app->enhanced === true) {
             // if(!isset($app->config)) { // class based config
-            $output['custom'] = className($appdetails->name).'.config';
+            $output['custom'] = className($appdetails->name) . '.config';
             // }
         }
 
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
 
-        if(strpos($app->icon, '://') !== false) {
+        if (strpos($app->icon, '://') !== false) {
             $output['iconview'] = $app->icon;
-        } elseif(strpos($app->icon, 'icons/') !== false) {
+        } elseif (strpos($app->icon, 'icons/') !== false) {
             // Private apps have the icon locally
-            $output['iconview'] = URL::to('/').'/storage/'.$app->icon;
+            $output['iconview'] = URL::to('/') . '/storage/' . $app->icon;
             $output['icon'] = str_replace('icons/', '', $output['icon']);
         } else {
-            $output['iconview'] = config('app.appsource').'icons/'.$app->icon;
+            $output['iconview'] = config('app.appsource') . 'icons/' . $app->icon;
         }
 
 
@@ -408,7 +416,8 @@ class ItemController extends Controller
         $app = $single->class;
 
         // If password is not resubmitted fill it from the database when in edit mode
-        if (array_key_exists('password', $data) &&
+        if (
+            array_key_exists('password', $data) &&
             $data['password'] === null &&
             array_key_exists('id', $data)
         ) {
@@ -429,12 +438,12 @@ class ItemController extends Controller
         $res = null;
 
         $vars = ($overridevars !== false) ?
-        $overridevars : [
-            'http_errors' => false,
-            'timeout' => 15,
-            'connect_timeout' => 15,
-            'verify' => false,
-        ];
+            $overridevars : [
+                'http_errors' => false,
+                'timeout' => 15,
+                'connect_timeout' => 15,
+                'verify' => false,
+            ];
 
         $client = new Client($vars);
 
