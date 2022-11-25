@@ -105,10 +105,12 @@ final class Structure implements Schema
 					array_pop($context->path);
 				}
 			}
+
 			if ($prevent) {
 				$value[Helpers::PREVENT_MERGING] = true;
 			}
 		}
+
 		return $value;
 	}
 
@@ -135,6 +137,7 @@ final class Structure implements Schema
 					$base[$key] = $val;
 				}
 			}
+
 			return $base;
 		}
 
@@ -184,6 +187,7 @@ final class Structure implements Schema
 					$value[$itemKey] = $default;
 				}
 			}
+
 			array_pop($context->path);
 		}
 

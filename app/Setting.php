@@ -4,7 +4,11 @@ namespace App;
 
 use Form;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
+use Illuminate\Session\SessionManager;
+use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Input;
 
 class Setting extends Model
@@ -57,7 +61,11 @@ class Setting extends Model
         switch ($this->type) {
             case 'image':
                 if (! empty($this->value)) {
-                    $value = '<a href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank">'.__('app.settings.view').'</a>';
+                    $value = '<a href="'.asset('storage/'.$this->value).'" title="'.
+                        __('app.settings.view').
+                        '" target="_blank">'.
+                        __('app.settings.view').
+                        '</a>';
                 } else {
                     $value = __('app.options.none');
                 }
@@ -75,7 +83,9 @@ class Setting extends Model
                     if ($this->key === 'search_provider') {
                         $options = Search::providers()->pluck('name', 'id')->toArray();
                     }
-                    $value = (array_key_exists($this->value, $options)) ? __($options[$this->value]) : __('app.options.none');
+                    $value = (array_key_exists($this->value, $options))
+                        ? __($options[$this->value])
+                        : __('app.options.none');
                 } else {
                     $value = __('app.options.none');
                 }
@@ -100,11 +110,24 @@ class Setting extends Model
             case 'image':
                 $value = '';
                 if (isset($this->value) && ! empty($this->value)) {
-                    $value .= '<a class="setting-view-image" href="'.asset('storage/'.$this->value).'" title="'.__('app.settings.view').'" target="_blank"><img src="'.asset('storage/'.$this->value).'" /></a>';
+                    $value .= '<a class="setting-view-image" href="'.
+                        asset('storage/'.$this->value).
+                        '" title="'.
+                        __('app.settings.view').
+                        '" target="_blank"><img src="'.
+                        asset('storage/'.
+                            $this->value).
+                        '" /></a>';
                 }
                 $value .= Form::file('value', ['class' => 'form-control']);
                 if (isset($this->value) && ! empty($this->value)) {
-                    $value .= '<a class="settinglink" href="'.route('settings.clear', $this->id).'" title="'.__('app.settings.remove').'">'.__('app.settings.reset').'</a>';
+                    $value .= '<a class="settinglink" href="'.
+                        route('settings.clear', $this->id).
+                        '" title="'.
+                        __('app.settings.remove').
+                        '">'.
+                        __('app.settings.reset').
+                        '</a>';
                 }
 
                 break;
@@ -143,7 +166,10 @@ class Setting extends Model
         return $value;
     }
 
-    public function group()
+    /**
+     * @return BelongsTo
+     */
+    public function group(): BelongsTo
     {
         return $this->belongsTo(\App\SettingGroup::class, 'group_id');
     }
@@ -153,7 +179,7 @@ class Setting extends Model
      *
      * @return mixed
      */
-    public static function fetch($key)
+    public static function fetch(string $key)
     {
         $user = self::user();
 
@@ -220,7 +246,7 @@ class Setting extends Model
      *
      * @return bool
      */
-    public static function cached($key)
+    public static function cached($key): bool
     {
         return array_key_exists($key, self::$cache);
     }
@@ -228,11 +254,14 @@ class Setting extends Model
     /**
      * The users that belong to the setting.
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(\App\User::class)->using(\App\SettingUser::class)->withPivot('uservalue');
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|SessionManager|Store|mixed
+     */
     public static function user()
     {
         return User::currentUser();

@@ -2,7 +2,14 @@
 
 use Illuminate\Support\Str;
 
-function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afterunit = '')
+/**
+ * @param $bytes
+ * @param bool $is_drive_size
+ * @param string $beforeunit
+ * @param string $afterunit
+ * @return string
+ */
+function format_bytes($bytes, bool $is_drive_size = true, string $beforeunit = '', string $afterunit = ''): string
 {
     $btype = ($is_drive_size === true) ? 1000 : 1024;
     $labels = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -18,7 +25,13 @@ function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afteruni
     }
 }
 
-function str_slug($title, $separator = '-', $language = 'en')
+/**
+ * @param $title
+ * @param string $separator
+ * @param string $language
+ * @return string
+ */
+function str_slug($title, string $separator = '-', string $language = 'en'): string
 {
     return Str::slug($title, $separator, $language);
 }
@@ -28,17 +41,21 @@ if (! function_exists('str_is')) {
      * Determine if a given string matches a given pattern.
      *
      * @param  string|array  $pattern
-     * @param  string  $value
+     * @param string $value
      * @return bool
      *
      * @deprecated Str::is() should be used directly instead. Will be removed in Laravel 6.0.
      */
-    function str_is($pattern, $value)
+    function str_is($pattern, string $value): bool
     {
         return Str::is($pattern, $value);
     }
 }
 
+/**
+ * @param $hex
+ * @return float|int
+ */
 function get_brightness($hex)
 {
     // returns brightness value from 0 to 255
@@ -56,7 +73,11 @@ function get_brightness($hex)
     return (($c_r * 299) + ($c_g * 587) + ($c_b * 114)) / 1000;
 }
 
-function title_color($hex)
+/**
+ * @param $hex
+ * @return string
+ */
+function title_color($hex): string
 {
     if (get_brightness($hex) > 130) {
         return ' black';
@@ -65,7 +86,10 @@ function title_color($hex)
     }
 }
 
-function getLinkTargetAttribute()
+/**
+ * @return string
+ */
+function getLinkTargetAttribute(): string
 {
     $target = \App\Setting::fetch('window_target');
 
@@ -76,9 +100,11 @@ function getLinkTargetAttribute()
     }
 }
 
+/**
+ * @param $name
+ * @return array|string|string[]|null
+ */
 function className($name)
 {
-    $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
-
-    return $name;
+    return preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 }

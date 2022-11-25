@@ -2,15 +2,22 @@
 
 namespace App;
 
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use stdClass;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
 class Item extends Model
 {
     use SoftDeletes;
 
+    /**
+     * @return void
+     */
     protected static function boot()
     {
         parent::boot();
@@ -25,9 +32,20 @@ class Item extends Model
         });
     }
 
-    //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'appdescription', 'description', 'pinned', 'order', 'type', 'class', 'user_id', 'tag_id', 'appid',
+        'title',
+        'url',
+        'colour',
+        'icon',
+        'appdescription',
+        'description',
+        'pinned',
+        'order',
+        'type',
+        'class',
+        'user_id',
+        'tag_id',
+        'appid',
     ];
 
 
@@ -35,10 +53,10 @@ class Item extends Model
     /**
      * Scope a query to only include pinned items.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query
+     * @return Builder
      */
-    public function scopePinned($query)
+    public function scopePinned(Builder $query): Builder
     {
         return $query->where('pinned', 1);
     }
@@ -74,16 +92,25 @@ class Item extends Model
         return $tagdetails;
     }
 
-    public function parents()
+    /**
+     * @return BelongsToMany
+     */
+    public function parents(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Item::class, 'item_tag', 'item_id', 'tag_id');
+        return $this->belongsToMany(Item::class, 'item_tag', 'item_id', 'tag_id');
     }
 
-    public function children()
+    /**
+     * @return BelongsToMany
+     */
+    public function children(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Item::class, 'item_tag', 'tag_id', 'item_id');
+        return $this->belongsToMany(Item::class, 'item_tag', 'tag_id', 'item_id');
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|UrlGenerator|mixed|string
+     */
     public function getLinkAttribute()
     {
         if ((int) $this->type === 1) {
@@ -93,7 +120,10 @@ class Item extends Model
         }
     }
 
-    public function getDroppableAttribute()
+    /**
+     * @return string
+     */
+    public function getDroppableAttribute(): string
     {
         if ((int) $this->type === 1) {
             return ' droppable';
@@ -102,7 +132,10 @@ class Item extends Model
         }
     }
 
-    public function getLinkTargetAttribute()
+    /**
+     * @return string
+     */
+    public function getLinkTargetAttribute(): string
     {
         $target = Setting::fetch('window_target');
 
@@ -113,7 +146,10 @@ class Item extends Model
         }
     }
 
-    public function getLinkIconAttribute()
+    /**
+     * @return string
+     */
+    public function getLinkIconAttribute(): string
     {
         if ((int) $this->type === 1) {
             return 'fa-tag';
@@ -122,7 +158,10 @@ class Item extends Model
         }
     }
 
-    public function getLinkTypeAttribute()
+    /**
+     * @return string
+     */
+    public function getLinkTypeAttribute(): string
     {
         if ((int) $this->type === 1) {
             return 'tags';
@@ -131,6 +170,10 @@ class Item extends Model
         }
     }
 
+    /**
+     * @param $class
+     * @return false|mixed|string
+     */
     public static function nameFromClass($class)
     {
         $explode = explode('\\', $class);
@@ -139,6 +182,11 @@ class Item extends Model
         return $name;
     }
 
+    /**
+     * @param $query
+     * @param $type
+     * @return mixed
+     */
     public function scopeOfType($query, $type)
     {
         switch ($type) {
@@ -153,7 +201,10 @@ class Item extends Model
         return $query->where('type', $typeid);
     }
 
-    public function enhanced()
+    /**
+     * @return bool
+     */
+    public function enhanced(): bool
     {
         /*if(isset($this->class) && !empty($this->class)) {
             $app = new $this->class;
@@ -164,16 +215,24 @@ class Item extends Model
         return $this->description !== null;
     }
 
-    public static function isEnhanced($class)
+    /**
+     * @param $class
+     * @return bool
+     */
+    public static function isEnhanced($class): bool
     {
         if (!class_exists($class, false) || $class === null || $class === 'null') {
             return false;
         }
         $app = new $class;
 
-        return (bool) ($app instanceof \App\EnhancedApps);
+        return (bool) ($app instanceof EnhancedApps);
     }
 
+    /**
+     * @param $class
+     * @return false|mixed
+     */
     public static function isSearchProvider($class)
     {
         if (!class_exists($class, false) || $class === null || $class === 'null') {
@@ -181,10 +240,13 @@ class Item extends Model
         }
         $app = new $class;
 
-        return ((bool) ($app instanceof \App\SearchInterface)) ? $app : false;
+        return ((bool) ($app instanceof SearchInterface)) ? $app : false;
     }
 
-    public function enabled()
+    /**
+     * @return bool
+     */
+    public function enabled(): bool
     {
         if ($this->enhanced()) {
             $config = $this->getconfig();
@@ -196,12 +258,15 @@ class Item extends Model
         return false;
     }
 
+    /**
+     * @return mixed|stdClass
+     */
     public function getconfig()
     {
         // $explode = explode('\\', $this->class);
 
         if (! isset($this->description) || empty($this->description)) {
-            $config = new \stdClass;
+            $config = new stdClass;
             // $config->name = end($explode);
             $config->enabled = false;
             $config->override_url = null;
@@ -224,7 +289,11 @@ class Item extends Model
         return $config;
     }
 
-    public static function applicationDetails($class)
+    /**
+     * @param $class
+     * @return false
+     */
+    public static function applicationDetails($class): bool
     {
         if (! empty($class)) {
             $name = self::nameFromClass($class);
@@ -237,7 +306,11 @@ class Item extends Model
         return false;
     }
 
-    public static function getApplicationDescription($class)
+    /**
+     * @param $class
+     * @return string
+     */
+    public static function getApplicationDescription($class): string
     {
         $details = self::applicationDetails($class);
         if ($details !== false) {
@@ -249,9 +322,11 @@ class Item extends Model
 
     /**
      * Get the user that owns the item.
+     *
+     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 }
