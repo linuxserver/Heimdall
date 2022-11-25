@@ -52,6 +52,10 @@ class TinkerCommand extends Command
             $this->getCasters()
         );
 
+        if ($this->option('execute')) {
+            $config->setRawOutput(true);
+        }
+
         $shell = new Shell($config);
         $shell->addCommands($this->getCommands());
         $shell->setIncludes($this->argument('include'));

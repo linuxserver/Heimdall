@@ -2,6 +2,7 @@
 
 namespace App;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
@@ -61,16 +62,14 @@ class Application extends Model
         $name = $this->name;
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
-        $class = '\App\SupportedApps\\'.$name.'\\'.$name;
-
-        return $class;
+        return '\App\SupportedApps\\'.$name.'\\'.$name;
     }
 
     /**
      * @param $name
      * @return string
      */
-    public static function classFromName($name)
+    public static function classFromName($name): string
     {
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
@@ -110,6 +109,7 @@ class Application extends Model
     /**
      * @param $appid
      * @return mixed|null
+     * @throws GuzzleException
      */
     public static function getApp($appid)
     {
@@ -121,13 +121,12 @@ class Application extends Model
         $application = ($localapp) ? $localapp : new self;
 
         // Files missing? || app not in db || old sha version
-        if (
-            ! file_exists(app_path('SupportedApps/'.className($app->name))) ||
+        if (! file_exists(app_path('SupportedApps/'.className($app->name))) ||
             ! $localapp ||
             $localapp->sha !== $app->sha
         ) {
             $gotFiles = SupportedApps::getFiles($app);
-            if($gotFiles) {
+            if ($gotFiles) {
                 $app = SupportedApps::saveApp($app, $application);
             }
         }
@@ -147,7 +146,7 @@ class Application extends Model
         if ($app === null) {
             // Try in db for Private App
             $appModel = self::where('appid', $appid)->first();
-            if($appModel) {
+            if ($appModel) {
                 $app = json_decode($appModel->toJson());
             }
         }
@@ -176,7 +175,7 @@ class Application extends Model
         // Check for private apps in the db
         $appsListFromDB = self::all(['appid', 'name']);
 
-        foreach($appsListFromDB as $app) {
+        foreach ($appsListFromDB as $app) {
             // Already existing keys are overwritten,
             // only private apps should be added at the end
             $list[$app->appid] = $app->name;

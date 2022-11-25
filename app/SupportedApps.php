@@ -3,7 +3,9 @@
 namespace App;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class SupportedApps
 {
@@ -13,7 +15,13 @@ abstract class SupportedApps
 
     protected $error;
 
-    public function appTest($url, $attrs = [], $overridevars = false)
+    /**
+     * @param $url
+     * @param array $attrs
+     * @param bool $overridevars
+     * @return object
+     */
+    public function appTest($url, array $attrs = [], bool $overridevars = false): object
     {
         if (empty($this->config->url)) {
             return (object) [
@@ -52,8 +60,20 @@ abstract class SupportedApps
         ];
     }
 
-    public function execute($url, $attrs = [], $overridevars = false, $overridemethod = false)
-    {
+    /**
+     * @param $url
+     * @param array $attrs
+     * @param bool $overridevars
+     * @param bool $overridemethod
+     * @return ResponseInterface|null
+     * @throws GuzzleException
+     */
+    public function execute(
+        $url,
+        array $attrs = [],
+        bool $overridevars = false,
+        bool $overridemethod = false
+    ): ?ResponseInterface {
         $res = null;
 
         $vars = ($overridevars !== false) ?
@@ -82,11 +102,19 @@ abstract class SupportedApps
         return $res;
     }
 
+    /**
+     * @return void
+     */
     public function login()
     {
     }
 
-    public function normaliseurl($url, $addslash = true)
+    /**
+     * @param string $url
+     * @param bool $addslash
+     * @return string
+     */
+    public function normaliseurl(string $url, bool $addslash = true): string
     {
         $url = rtrim($url, '/');
         if ($addslash) {
@@ -96,6 +124,11 @@ abstract class SupportedApps
         return $url;
     }
 
+    /**
+     * @param $status
+     * @param $data
+     * @return false|string
+     */
     public function getLiveStats($status, $data)
     {
         $className = get_class($this);
@@ -108,7 +141,11 @@ abstract class SupportedApps
         //return
     }
 
-    public static function getList()
+    /**
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    public static function getList(): ResponseInterface
     {
         // $list_url = 'https://apps.heimdall.site/list';
         $list_url = config('app.appsource').'list.json';
@@ -129,7 +166,7 @@ abstract class SupportedApps
     /**
      * @param $app
      * @return bool|false
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public static function getFiles($app): bool
     {
@@ -165,6 +202,11 @@ abstract class SupportedApps
         return true;
     }
 
+    /**
+     * @param $details
+     * @param $app
+     * @return mixed
+     */
     public static function saveApp($details, $app)
     {
         $app->appid = $details->appid;

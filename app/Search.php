@@ -4,6 +4,7 @@ namespace App;
 
 use Cache;
 use Form;
+use Illuminate\Support\Collection;
 use Yaml;
 
 abstract class Search
@@ -11,7 +12,7 @@ abstract class Search
     /**
      * List of all search providers
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public static function providers()
     {
@@ -121,7 +122,15 @@ abstract class Search
                     $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
                 }
                 $output .= '</select>';
-                $output .= Form::text('q', null, ['class' => 'homesearch', 'autofocus' => 'autofocus', 'placeholder' => __('app.settings.search').'...']);
+                $output .= Form::text(
+                    'q',
+                    null,
+                    [
+                        'class' => 'homesearch',
+                        'autofocus' => 'autofocus',
+                        'placeholder' => __('app.settings.search').'...'
+                    ]
+                );
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
                 $output .= '</form>';

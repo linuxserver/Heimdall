@@ -44,6 +44,7 @@ final class Helpers
 					$base[$key] = static::merge($val, $base[$key] ?? null);
 				}
 			}
+
 			return $base;
 
 		} elseif ($value === null && is_array($base)) {
@@ -67,6 +68,7 @@ final class Helpers
 				return Reflection::expandClassName($m[0], $class);
 			}, $type);
 		}
+
 		return null;
 	}
 
@@ -80,10 +82,12 @@ final class Helpers
 		if (!Reflection::areCommentsAvailable()) {
 			throw new Nette\InvalidStateException('You have to enable phpDoc comments in opcode cache.');
 		}
+
 		$re = '#[\s*]@' . preg_quote($name, '#') . '(?=\s|$)(?:[ \t]+([^@\s]\S*))?#';
 		if ($ref->getDocComment() && preg_match($re, trim($ref->getDocComment(), '/*'), $m)) {
 			return $m[1] ?? '';
 		}
+
 		return null;
 	}
 

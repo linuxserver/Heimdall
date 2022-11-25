@@ -630,6 +630,7 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'App\\Item' => __DIR__ . '/../..' . '/app/Item.php',
         'App\\ItemTag' => __DIR__ . '/../..' . '/app/ItemTag.php',
         'App\\Jobs\\ProcessApps' => __DIR__ . '/../..' . '/app/Jobs/ProcessApps.php',
+        'App\\Jobs\\UpdateApps' => __DIR__ . '/../..' . '/app/Jobs/UpdateApps.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',

@@ -42,7 +42,7 @@ final class Type implements Schema
 
 	public function __construct(string $type)
 	{
-		static $defaults = ['list' => [], 'array' => []];
+		$defaults = ['list' => [], 'array' => []];
 		$this->type = $type;
 		$this->default = strpos($type, '[]') ? [] : $defaults[$type] ?? null;
 	}
@@ -129,11 +129,14 @@ final class Type implements Schema
 				$res[$key] = $this->itemsValue->normalize($val, $context);
 				array_pop($context->path);
 			}
+
 			$value = $res;
 		}
+
 		if ($prevent && is_array($value)) {
 			$value[Helpers::PREVENT_MERGING] = true;
 		}
+
 		return $value;
 	}
 
@@ -144,6 +147,7 @@ final class Type implements Schema
 			unset($value[Helpers::PREVENT_MERGING]);
 			return $value;
 		}
+
 		if (is_array($value) && is_array($base) && $this->itemsValue) {
 			$index = 0;
 			foreach ($value as $key => $val) {
@@ -156,6 +160,7 @@ final class Type implements Schema
 						: $val;
 				}
 			}
+
 			return $base;
 		}
 
@@ -208,15 +213,18 @@ final class Type implements Schema
 				$res[$key] = $this->itemsValue->complete($val, $context);
 				array_pop($context->path);
 			}
+
 			if (count($context->errors) > $errCount) {
 				return null;
 			}
+
 			$value = $res;
 		}
 
 		if ($merge) {
 			$value = Helpers::merge($value, $this->default);
 		}
+
 		return $this->doFinalize($value, $context);
 	}
 }

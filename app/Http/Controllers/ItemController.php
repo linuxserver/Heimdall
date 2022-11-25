@@ -9,6 +9,7 @@ use App\User;
 use Artisan;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -368,6 +369,7 @@ class ItemController extends Controller
      *
      * @param Request $request
      * @return string|null
+     * @throws GuzzleException
      */
     public function appload(Request $request): ?string
     {

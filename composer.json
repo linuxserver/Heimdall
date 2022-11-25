@@ -27,7 +27,8 @@
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "~1.0",
         "phpunit/phpunit": "~9.0",
-        "symfony/thanks": "^1.0"
+        "symfony/thanks": "^1.0",
+        "squizlabs/php_codesniffer": "3.*"
     },
     "autoload": {
         "classmap": [

@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
@@ -30,7 +36,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected string $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -43,7 +49,10 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function username()
+    /**
+     * @return string
+     */
+    public function username(): string
     {
         return 'username';
     }
@@ -51,12 +60,12 @@ class LoginController extends Controller
     /**
      * Handle a login request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return Response
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
-    public function login(Request $request)
+    public function login(Request $request): Response
     {
         $current_user = User::currentUser();
         $request->merge(['username' => $current_user->username, 'remember' => true]);
@@ -88,7 +97,11 @@ class LoginController extends Controller
     {
     }
 
-    public function setUser(User $user)
+    /**
+     * @param User $user
+     * @return RedirectResponse
+     */
+    public function setUser(User $user): RedirectResponse
     {
         Auth::logout();
         session(['current_user' => $user]);
@@ -96,7 +109,11 @@ class LoginController extends Controller
         return redirect()->route('dash');
     }
 
-    public function autologin($uuid)
+    /**
+     * @param $uuid
+     * @return RedirectResponse
+     */
+    public function autologin($uuid): RedirectResponse
     {
         $user = User::where('autologin', $uuid)->first();
         Auth::login($user, true);
@@ -108,18 +125,26 @@ class LoginController extends Controller
     /**
      * Show the application's login form.
      *
-     * @return \Illuminate\Http\Response
+     * @return Application|Factory|View
      */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    protected function authenticated(Request $request, $user)
+    /**
+     * @param Request $request
+     * @param $user
+     * @return RedirectResponse
+     */
+    protected function authenticated(Request $request, $user): RedirectResponse
     {
         return back();
     }
 
+    /**
+     * @return mixed|string
+     */
     public function redirectTo()
     {
         return Session::get('url.intended') ? Session::get('url.intended') : $this->redirectTo;
