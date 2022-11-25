@@ -26,6 +26,14 @@ ddg:
    method: get
    target: _blank
    query: q
+   
+ecosia:
+   id: ecosia
+   url: https://www.ecosia.org/search
+   name: Ecosia
+   method: get
+   target: _blank
+   query: q
 
 google:
    id: google
