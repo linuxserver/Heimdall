@@ -81,3 +81,6 @@ Route::group([
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::resource('api/item', 'ItemRestController');
+Route::get('import', 'ImportController')->name('items.import');

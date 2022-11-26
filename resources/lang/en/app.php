@@ -86,6 +86,8 @@ return array (
   'delete' => 'Delete',
   'optional' => 'Optional',
   'restore' => 'Restore',
+  'export' => 'Export',
+  'import' => 'Import',
   'alert.success.item_created' => 'Item created successfully',
   'alert.success.item_updated' => 'Item updated successfully',
   'alert.success.item_deleted' => 'Item deleted successfully',

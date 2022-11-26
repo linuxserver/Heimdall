@@ -12,9 +12,9 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -191,10 +191,10 @@ class ItemController extends Controller
 
     /**
      * @param Request $request
-     * @param $id
-     * @return void
+     * @param null $id
+     * @return Item
      */
-    public function storelogic(Request $request, $id = null)
+    public static function storelogic(Request $request, $id = null): Item
     {
         $application = Application::single($request->input('appid'));
         $validatedData = $request->validate([
@@ -275,6 +275,7 @@ class ItemController extends Controller
         }
 
         $item->parents()->sync($request->tags);
+        return $item;
     }
 
     /**
@@ -285,7 +286,7 @@ class ItemController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->storelogic($request);
+        self::storelogic($request);
 
         $route = route('dash', []);
 
@@ -313,7 +314,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $this->storelogic($request, $id);
+        self::storelogic($request, $id);
         $route = route('dash', []);
 
         return redirect($route)
