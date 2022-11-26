@@ -1,4 +1,4 @@
-let mix = require('laravel-mix');
+const mix = require("laravel-mix");
 
 /*
  |--------------------------------------------------------------------------
@@ -11,12 +11,20 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.babel([
-      //'resources/assets/js/jquery-ui.min.js',
-      'resources/assets/js/huebee.js',
-      'resources/assets/js/app.js',
-      'resources/assets/js/keyBindings.js',
-      ], 'public/js/app.js')
-   .sass('resources/assets/sass/app.scss', 'public/css').options({
-      processCssUrls: false
-   }).version();
+mix
+  .babel(
+    [
+      // 'resources/assets/js/jquery-ui.min.js',
+      "resources/assets/js/huebee.js",
+      "resources/assets/js/app.js",
+      "resources/assets/js/keyBindings.js",
+      "resources/assets/js/itemExport.js",
+      "resources/assets/js/itemImport.js",
+    ],
+    "public/js/app.js"
+  )
+  .sass("resources/assets/sass/app.scss", "public/css")
+  .options({
+    processCssUrls: false,
+  })
+  .version();
