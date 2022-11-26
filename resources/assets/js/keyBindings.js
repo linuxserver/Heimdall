@@ -11,6 +11,10 @@ const openFirstNonHiddenItem = event => {
         return;
     }
 
+    if (document.querySelector('#search-container select[name=provider]').value !== 'tiles') {
+        return;
+    }
+
     const item = document.querySelector('#sortable section.item-container:not([style="display: none;"]) a');
 
     if ('href' in item) {
@@ -30,6 +34,5 @@ document.addEventListener('keydown', function (event) {
             KEY_BINDINGS[event.key](event);
         }
     } catch (e) {
-
     }
 });
