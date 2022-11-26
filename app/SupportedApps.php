@@ -18,10 +18,10 @@ abstract class SupportedApps
     /**
      * @param $url
      * @param array $attrs
-     * @param bool $overridevars
      * @return object
+     * @throws GuzzleException
      */
-    public function appTest($url, array $attrs = [], bool $overridevars = false): object
+    public function appTest($url, array $attrs = []): object
     {
         if (empty($this->config->url)) {
             return (object) [
@@ -63,20 +63,20 @@ abstract class SupportedApps
     /**
      * @param $url
      * @param array $attrs
-     * @param bool $overridevars
-     * @param bool $overridemethod
+     * @param array|null $overridevars
+     * @param string|null $overridemethod
      * @return ResponseInterface|null
      * @throws GuzzleException
      */
     public function execute(
         $url,
         array $attrs = [],
-        bool $overridevars = false,
-        bool $overridemethod = false
+        array $overridevars = null,
+        string $overridemethod = null
     ): ?ResponseInterface {
         $res = null;
 
-        $vars = ($overridevars !== false) ?
+        $vars = ($overridevars !== null) ?
         $overridevars : [
             'http_errors' => false,
             'timeout' => 15,
@@ -85,7 +85,7 @@ abstract class SupportedApps
 
         $client = new Client($vars);
 
-        $method = ($overridemethod !== false) ? $overridemethod : $this->method;
+        $method = ($overridemethod !== null) ? $overridemethod : $this->method;
 
         try {
             return $client->request($method, $url, $attrs);
