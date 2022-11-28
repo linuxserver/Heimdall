@@ -7,10 +7,16 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production",
+        "lint": "eslint 'resources/assets/js/*'"
     },
     "devDependencies": {
         "bootstrap-sass": "^3.4.3",
+        "eslint": "^8.28.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-prettier": "^4.2.1",
         "jquery": "^3.6.1",
         "laravel-mix": "^6.0.49",
         "sass": "^1.56.1",
