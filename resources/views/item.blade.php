@@ -13,7 +13,7 @@
                                 <div data-id="{{ $app->id }}" data-dataonly="{{ $app->getconfig()->dataonly ?? '0' }}" class="livestats-container{{ title_color($app->colour) }}"></div>
                                 @endif
                             </div>
-                            <a rel="noopener noreferrer" onclick="this.blur();" class="link{{ title_color($app->colour) }}"{!! $app->link_target !!} href="{{ $app->link }}"><i class="fas {{ $app->link_icon }}"></i></a>
+                            <a rel="noopener noreferrer" onauxclick="this.blur();" onclick="this.blur();" class="link{{ title_color($app->colour) }}"{!! $app->link_target !!} href="{{ $app->link }}"><i class="fas {{ $app->link_icon }}"></i></a>
                             <?php /*
                             @if($app->enhanced() === true && (bool)$app->getConfig()->enabled === true)
                             <div class="tile-actions refresh">
