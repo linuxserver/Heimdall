@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\User;
 use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,7 @@ class CheckAllowed
      * @param Request $request
      * @param Closure $next
      * @return mixed
+     * @throws AuthenticationException
      */
     public function handle(Request $request, Closure $next)
     {

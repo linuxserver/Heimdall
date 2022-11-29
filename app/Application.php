@@ -3,9 +3,42 @@
 namespace App;
 
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * App\Application
+ *
+ * @property string $appid
+ * @property string $name
+ * @property string|null $sha
+ * @property string|null $icon
+ * @property string|null $website
+ * @property string|null $license
+ * @property string|null $description
+ * @property int $enhanced
+ * @property string $tile_background
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $class
+ * @method static Builder|Application newModelQuery()
+ * @method static Builder|Application newQuery()
+ * @method static Builder|Application query()
+ * @method static Builder|Application whereAppid($value)
+ * @method static Builder|Application whereClass($value)
+ * @method static Builder|Application whereCreatedAt($value)
+ * @method static Builder|Application whereDescription($value)
+ * @method static Builder|Application whereEnhanced($value)
+ * @method static Builder|Application whereIcon($value)
+ * @method static Builder|Application whereLicense($value)
+ * @method static Builder|Application whereName($value)
+ * @method static Builder|Application whereSha($value)
+ * @method static Builder|Application whereTileBackground($value)
+ * @method static Builder|Application whereUpdatedAt($value)
+ * @method static Builder|Application whereWebsite($value)
+ */
 class Application extends Model
 {
     /**
@@ -79,9 +112,9 @@ class Application extends Model
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function apps(): \Illuminate\Support\Collection
+    public static function apps(): Collection
     {
         $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];
         $apps = collect($json->apps);

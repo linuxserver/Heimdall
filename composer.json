@@ -23,12 +23,13 @@
         "ext-intl": "*"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.12",
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "~1.0",
         "phpunit/phpunit": "~9.0",
-        "symfony/thanks": "^1.0",
-        "squizlabs/php_codesniffer": "3.*"
+        "squizlabs/php_codesniffer": "3.*",
+        "symfony/thanks": "^1.0"
     },
     "autoload": {
         "classmap": [
@@ -52,6 +53,7 @@
     "extra": {
         "laravel": {
             "dont-discover": [
+                "barryvdh/laravel-ide-helper"
             ]
         }
     },
@@ -65,6 +67,11 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover"
+        ],
+        "post-update-cmd": [
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ]
     },
     "config": {

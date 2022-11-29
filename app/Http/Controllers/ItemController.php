@@ -6,18 +6,20 @@ use App\Application;
 use App\Item;
 use App\Jobs\ProcessApps;
 use App\User;
-use Artisan;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 class ItemController extends Controller
 {
@@ -105,11 +107,11 @@ class ItemController extends Controller
         $new = !(((bool)$item->pinned === true));
         $item->pinned = $new;
         $item->save();
-        if ($ajax) {
 
+        if ($ajax) {
             $item = Item::whereId($tag)->first();
 
-            $data['apps'] = new \Illuminate\Database\Eloquent\Collection;
+            $data['apps'] = new Collection;
 
             if ((int)$tag === 0) {
                 $tags = Item::where('type', 1)->pinned()->orderBy('order', 'asc')->get();
@@ -133,9 +135,10 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $trash = (bool) $request->input('trash');
 
@@ -411,6 +414,10 @@ class ItemController extends Controller
         return json_encode($output);
     }
 
+    /**
+     * @param Request $request
+     * @return void
+     */
     public function testConfig(Request $request)
     {
         $data = $request->input('data');
@@ -419,8 +426,7 @@ class ItemController extends Controller
         $app = $single->class;
 
         // If password is not resubmitted fill it from the database when in edit mode
-        if (
-            array_key_exists('password', $data) &&
+        if (array_key_exists('password', $data) &&
             $data['password'] === null &&
             array_key_exists('id', $data)
         ) {
@@ -436,10 +442,15 @@ class ItemController extends Controller
         $app_details->test();
     }
 
-    public function execute($url, $attrs = [], $overridevars = false)
+    /**
+     * @param $url
+     * @param array $attrs
+     * @param array|bool $overridevars
+     * @return ResponseInterface|null
+     * @throws GuzzleException
+     */
+    public function execute($url, array $attrs = [], $overridevars = false): ?ResponseInterface
     {
-        $res = null;
-
         $vars = ($overridevars !== false) ?
             $overridevars : [
                 'http_errors' => false,
@@ -461,10 +472,15 @@ class ItemController extends Controller
             Log::debug($e->getMessage());
         }
 
-        return $res;
+        return null;
     }
 
-    public function websitelookup($url)
+    /**
+     * @param $url
+     * @return StreamInterface
+     * @throws GuzzleException
+     */
+    public function websitelookup($url): StreamInterface
     {
         $url = base64_decode($url);
         $data = $this->execute($url);
@@ -472,6 +488,10 @@ class ItemController extends Controller
         return $data->getBody();
     }
 
+    /**
+     * @param $id
+     * @return void
+     */
     public function getStats($id)
     {
         $item = Item::find($id);
@@ -484,6 +504,9 @@ class ItemController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|RedirectResponse|Redirector
+     */
     public function checkAppList()
     {
         ProcessApps::dispatch();

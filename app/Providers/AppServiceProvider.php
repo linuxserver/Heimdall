@@ -7,6 +7,7 @@ use App\Jobs\ProcessApps;
 use App\Jobs\UpdateApps;
 use App\Setting;
 use App\User;
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -116,6 +117,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        if ($this->app->isLocal()) {
+            $this->app->register(IdeHelperServiceProvider::class);
+        }
+
         $this->app->singleton('settings', function () {
             return new Setting();
         });

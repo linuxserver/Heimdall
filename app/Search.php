@@ -14,7 +14,7 @@ abstract class Search
      *
      * @return Collection
      */
-    public static function providers()
+    public static function providers(): Collection
     {
         $providers = self::standardProviders();
         $providers = $providers + self::appProviders();
@@ -62,7 +62,7 @@ abstract class Search
      *
      * @return array
      */
-    public static function appProviders()
+    public static function appProviders(): array
     {
         $providers = [];
         $userapps = Item::all();
