@@ -3,7 +3,9 @@
 namespace App;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 
@@ -76,24 +78,25 @@ abstract class SupportedApps
     ): ?ResponseInterface {
         $res = null;
 
-        $vars = ($overridevars !== null || $overridevars !== false) ?
-        $overridevars : [
+        $vars = ($overridevars === null || $overridevars === false) ?
+         [
             'http_errors' => false,
             'timeout' => 15,
             'connect_timeout' => 15,
-        ];
+        ] : $overridevars;
 
         $client = new Client($vars);
 
-        $method = ($overridemethod !== null || $overridemethod !== false) ? $overridemethod : $this->method;
+        $method = ($overridemethod === null || $overridemethod === false) ? $this->method : $overridemethod;
+
 
         try {
             return $client->request($method, $url, $attrs);
-        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+        } catch (ConnectException $e) {
             Log::error('Connection refused');
             Log::debug($e->getMessage());
             $this->error = 'Connection refused - '.(string) $e->getMessage();
-        } catch (\GuzzleHttp\Exception\ServerException $e) {
+        } catch (ServerException $e) {
             Log::debug($e->getMessage());
             $this->error = (string) $e->getResponse()->getBody();
         }
