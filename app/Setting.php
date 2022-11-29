@@ -3,6 +3,7 @@
 namespace App;
 
 use Form;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,37 @@ use Illuminate\Session\SessionManager;
 use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Input;
 
+/**
+ * App\Setting
+ *
+ * @mixin Builder
+ * @property int $id
+ * @property int $group_id
+ * @property string $key
+ * @property string $type
+ * @property string|null $options
+ * @property string $label
+ * @property string|null $value
+ * @property string $order
+ * @property int $system
+ * @property-read mixed $edit_value
+ * @property-read mixed $list_value
+ * @property-read \App\SettingGroup|null $group
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
+ * @property-read int|null $users_count
+ * @method static Builder|Setting newModelQuery()
+ * @method static Builder|Setting newQuery()
+ * @method static Builder|Setting query()
+ * @method static Builder|Setting whereGroupId($value)
+ * @method static Builder|Setting whereId($value)
+ * @method static Builder|Setting whereKey($value)
+ * @method static Builder|Setting whereLabel($value)
+ * @method static Builder|Setting whereOptions($value)
+ * @method static Builder|Setting whereOrder($value)
+ * @method static Builder|Setting whereSystem($value)
+ * @method static Builder|Setting whereType($value)
+ * @method static Builder|Setting whereValue($value)
+ */
 class Setting extends Model
 {
     /**

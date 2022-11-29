@@ -10,8 +10,8 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -87,6 +87,7 @@ Route::get('titlecolour', function (Request $request) {
     if ($color) {
         return title_color($color);
     }
+    return '';
 })->name('titlecolour');
 
 Route::resource('users', UserController::class);

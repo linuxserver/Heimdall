@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class ItemRestController extends Controller
 {
@@ -17,7 +18,7 @@ class ItemRestController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Collection
      */
     public function index()
     {

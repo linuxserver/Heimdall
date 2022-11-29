@@ -12,6 +12,62 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
+/**
+ * App\Item
+ *
+ * @property int $id
+ * @property string $title
+ * @property string|null $colour
+ * @property string|null $icon
+ * @property string $url
+ * @property string|null $description
+ * @property int $pinned
+ * @property int $order
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $type
+ * @property int $user_id
+ * @property string|null $class
+ * @property string|null $appid
+ * @property string|null $appdescription
+ * @property-read \Illuminate\Database\Eloquent\Collection|Item[] $children
+ * @property-read int|null $children_count
+ * @property-read string $droppable
+ * @property-read \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\UrlGenerator|mixed|string $link
+ * @property-read string $link_icon
+ * @property-read string $link_target
+ * @property-read string $link_type
+ * @property-read \Illuminate\Database\Eloquent\Collection|Item[] $parents
+ * @property-read int|null $parents_count
+ * @property-read \App\User|null $user
+ * @method static \Database\Factories\ItemFactory factory(...$parameters)
+ * @method static Builder|Item newModelQuery()
+ * @method static Builder|Item newQuery()
+ * @method static Builder|Item ofType($type)
+ * @method static \Illuminate\Database\Query\Builder|Item onlyTrashed()
+ * @method static Builder|Item pinned()
+ * @method static Builder|Item query()
+ * @method static Builder|Item whereAppdescription($value)
+ * @method static Builder|Item whereAppid($value)
+ * @method static Builder|Item whereClass($value)
+ * @method static Builder|Item whereColour($value)
+ * @method static Builder|Item whereCreatedAt($value)
+ * @method static Builder|Item whereDeletedAt($value)
+ * @method static Builder|Item whereDescription($value)
+ * @method static Builder|Item whereIcon($value)
+ * @method static Builder|Item whereId($value)
+ * @method static Builder|Item whereOrder($value)
+ * @method static Builder|Item wherePinned($value)
+ * @method static Builder|Item whereTitle($value)
+ * @method static Builder|Item whereType($value)
+ * @method static Builder|Item whereUpdatedAt($value)
+ * @method static Builder|Item whereUrl($value)
+ * @method static Builder|Item whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|Item withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Item withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Item extends Model
 {
     use SoftDeletes;
@@ -294,9 +350,9 @@ class Item extends Model
 
     /**
      * @param $class
-     * @return false
+     * @return Application|null
      */
-    public static function applicationDetails($class): bool
+    public static function applicationDetails($class): ?Application
     {
         if (! empty($class)) {
             $name = self::nameFromClass($class);
@@ -306,7 +362,7 @@ class Item extends Model
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -316,7 +372,7 @@ class Item extends Model
     public static function getApplicationDescription($class): string
     {
         $details = self::applicationDetails($class);
-        if ($details !== false) {
+        if ($details !== null) {
             return $details->description.' - '.$details->license;
         }
 
