@@ -1,6 +1,18 @@
 <?php
 
+use App\Application;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemRestController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,37 +29,54 @@ if (config('app.url') !== 'http://localhost') {
     URL::forceRootUrl(config('app.url'));
 }
 
-Route::get('/userselect/{user}', 'Auth\LoginController@setUser')->name('user.set');
-Route::get('/userselect', 'UserController@selectUser')->name('user.select');
-Route::get('/autologin/{uuid}', 'Auth\LoginController@autologin')->name('user.autologin');
+Route::get('/userselect/{user}', [LoginController::class, 'setUser'])->name('user.set');
+Route::get('/userselect', [UserController::class, 'selectUser'])->name('user.select');
+Route::get('/autologin/{uuid}', [LoginController::class, 'autologin'])->name('user.autologin');
 
-Route::get('/', 'ItemController@dash')->name('dash');
-Route::get('check_app_list', 'ItemController@checkAppList')->name('applist');
+Route::get('/', [ItemController::class,'dash'])->name('dash');
+Route::get('check_app_list', [ItemController::class,'checkAppList'])->name('applist');
+
 Route::get('single/{appid}', function ($appid) {
-    return json_encode(\App\Application::single($appid));
+    return json_encode(Application::single($appid));
 })->name('single');
 
-Route::resources([
-    'items' => 'ItemController',
-    'tags' => 'TagController',
-]);
+/**
+ * Tag Routes
+ */
+Route::resource('tags', TagController::class);
 
-Route::get('tag/{slug}', 'TagController@show')->name('tags.show');
-Route::get('tag/add/{tag}/{item}', 'TagController@add')->name('tags.add');
-Route::get('tag/restore/{id}', 'TagController@restore')->name('tags.restore');
+Route::group([
+    'as'     => 'tags.',
+    'prefix' => 'tag',
+], function () {
+    Route::get('/{slug}', [TagController::class, 'show'])->name('show');
+    Route::get('/add/{tag}/{item}', [TagController::class, 'add'])->name('add');
+    Route::get('/restore/{id}', [TagController::class, 'restore'])->name('restore');
+});
 
-Route::get('items/websitelookup/{url}', 'ItemController@websitelookup')->name('items.lookup');
-Route::get('items/pin/{id}', 'ItemController@pin')->name('items.pin');
-Route::get('items/restore/{id}', 'ItemController@restore')->name('items.restore');
-Route::get('items/unpin/{id}', 'ItemController@unpin')->name('items.unpin');
-Route::get('items/pintoggle/{id}/{ajax?}/{tag?}', 'ItemController@pinToggle')->name('items.pintoggle');
-Route::post('order', 'ItemController@setOrder')->name('items.order');
 
-Route::post('appload', 'ItemController@appload')->name('appload');
-Route::post('test_config', 'ItemController@testConfig')->name('test_config');
-Route::get('get_stats/{id}', 'ItemController@getStats')->name('get_stats');
+/**
+ * Item Routes
+ */
+Route::resource('items', ItemController::class);
 
-Route::get('/search', 'SearchController@index')->name('search');
+Route::group([
+    'as'     => 'items.',
+    'prefix' => 'items',
+], function () {
+    Route::get('/websitelookup/{url}', [ItemController::class, 'websitelookup'])->name('lookup');
+    Route::get('/pin/{id}', [ItemController::class, 'pin'])->name('pin');
+    Route::get('/restore/{id}', [ItemController::class, 'restore'])->name('restore');
+    Route::get('/unpin/{id}', [ItemController::class, 'unpin'])->name('unpin');
+    Route::get('/pintoggle/{id}/{ajax?}/{tag?}', [ItemController::class, 'pinToggle'])->name('pintoggle');
+});
+
+Route::post('order', [ItemController::class,'setOrder'])->name('items.order');
+Route::post('appload', [ItemController::class,'appload'])->name('appload');
+Route::post('test_config', [ItemController::class,'testConfig'])->name('test_config');
+Route::get('get_stats/{id}', [ItemController::class,'getStats'])->name('get_stats');
+
+Route::get('/search', [SearchController::class,'index'])->name('search');
 
 Route::get('view/{name_view}', function ($name_view) {
     return view('SupportedApps::'.$name_view)->render();
@@ -60,7 +89,7 @@ Route::get('titlecolour', function (Request $request) {
     }
 })->name('titlecolour');
 
-Route::resource('users', 'UserController');
+Route::resource('users', UserController::class);
 
 /**
  * Settings.
@@ -69,18 +98,15 @@ Route::group([
     'as'     => 'settings.',
     'prefix' => 'settings',
 ], function () {
-    Route::get('/', 'SettingsController@index')
-        ->name('index');
-    Route::get('edit/{id}', 'SettingsController@edit')
-        ->name('edit');
-    Route::get('clear/{id}', 'SettingsController@clear')
-        ->name('clear');
-
-    Route::patch('edit/{id}', 'SettingsController@update');
+    Route::get('/', [SettingsController::class,'index'])->name('index');
+    Route::get('edit/{id}', [SettingsController::class,'edit'])->name('edit');
+    Route::get('clear/{id}', [SettingsController::class,'clear'])->name('clear');
+    Route::patch('edit/{id}', [SettingsController::class,'update']);
 });
+
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', [HomeController::class,'index'])->name('home');
 
-Route::resource('api/item', 'ItemRestController');
-Route::get('import', 'ImportController')->name('items.import');
+Route::resource('api/item', ItemRestController::class);
+Route::get('import', ImportController::class)->name('items.import');
