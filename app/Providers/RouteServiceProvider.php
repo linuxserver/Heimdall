@@ -12,9 +12,9 @@ class RouteServiceProvider extends ServiceProvider
      *
      * In addition, it is set as the URL generator's root namespace.
      *
-     * @var string
+     * REMOVED WITH LARAVEL 8 UPGRADE
      */
-    protected $namespace = 'App\Http\Controllers';
+//    protected $namespace = 'App\Http\Controllers';
 
     /**
      * Define your route model bindings, pattern filters, etc.
