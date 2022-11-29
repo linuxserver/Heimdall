@@ -63,20 +63,20 @@ abstract class SupportedApps
     /**
      * @param $url
      * @param array $attrs
-     * @param array|null $overridevars
-     * @param string|null $overridemethod
+     * @param array|bool|null $overridevars
+     * @param string|bool|null $overridemethod
      * @return ResponseInterface|null
      * @throws GuzzleException
      */
     public function execute(
         $url,
         array $attrs = [],
-        array $overridevars = null,
-        string $overridemethod = null
+        $overridevars = null,
+        $overridemethod = null
     ): ?ResponseInterface {
         $res = null;
 
-        $vars = ($overridevars !== null) ?
+        $vars = ($overridevars !== null || $overridevars !== false) ?
         $overridevars : [
             'http_errors' => false,
             'timeout' => 15,
@@ -85,7 +85,7 @@ abstract class SupportedApps
 
         $client = new Client($vars);
 
-        $method = ($overridemethod !== null) ? $overridemethod : $this->method;
+        $method = ($overridemethod !== null || $overridemethod !== false) ? $overridemethod : $this->method;
 
         try {
             return $client->request($method, $url, $attrs);
