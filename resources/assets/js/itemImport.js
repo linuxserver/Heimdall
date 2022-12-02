@@ -3,33 +3,27 @@ const APP_LOAD_URL = "appload";
 
 /**
  *
- * @param {string|null} appId
- * @returns {Promise<{}>|Promise<any>}
+ * @param {object} item
+ * @param {array} errors
  */
-const fetchAppDetails = (appId) => {
-  if (appId === null) {
-    return Promise.resolve({});
+const updateStatus = ({ item, errors }) => {
+  console.log(item, errors);
+  let statusLine;
+  if (errors.length === 0) {
+    statusLine = `<li>✅ Imported: ${item.title} </li>`;
+  } else {
+    statusLine = `<li>❌ Failed: ${item.title} - ${errors[0]} </li>`;
   }
-
-  return fetch(APP_LOAD_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ app: appId }),
-  })
-    .then((response) => response.json())
-    .catch(() => ({}));
+  document.querySelector(".import-status").innerHTML += statusLine;
 };
 
 /**
  *
- * @returns {string}
  */
-const getCSRFToken = () => {
-  const tokenSelector = 'input[name="_token"]';
-  return document.querySelector(tokenSelector).value;
-};
+function clearStatus() {
+  const statusContainer = document.querySelector(".import-status");
+  statusContainer.innerHTML = "";
+}
 
 /**
  *
@@ -50,9 +44,18 @@ const postToApi = (data, csrfToken) =>
 
 /**
  *
+ * @returns {string}
+ */
+const getCSRFToken = () => {
+  const tokenSelector = 'input[name="_token"]';
+  return document.querySelector(tokenSelector).value;
+};
+
+/**
+ *
  * @param {object} item
  * @param {object} appDetails
- * @returns {undefined}
+ * @returns {object}
  */
 const mergeItemWithAppDetails = (item, appDetails) => ({
   pinned: 1,
@@ -74,19 +77,49 @@ const mergeItemWithAppDetails = (item, appDetails) => ({
 
 /**
  *
+ * @param {string|null} appId
+ * @returns {Promise<{}>|Promise<any>}
+ */
+const fetchAppDetails = (appId) => {
+  if (appId === null || appId === "null") {
+    return Promise.resolve({});
+  }
+
+  return fetch(APP_LOAD_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ app: appId }),
+  }).then((response) => response.json());
+};
+
+/**
+ *
  * @param {array} items
  */
 const importItems = (items) => {
   items.forEach((item) => {
+    const errors = [];
+
     fetchAppDetails(item.appid)
+      .catch(() =>
+        errors.push(new Error(`Failed to find app id: ${item.appid}`))
+      )
       .then((appDetails) => {
         const itemWithAppDetails = mergeItemWithAppDetails(item, appDetails);
         const csrfToken = getCSRFToken();
 
         return postToApi(itemWithAppDetails, csrfToken);
       })
-      .then((response) => {
-        console.log(response);
+      .catch(() =>
+        errors.push(new Error(`Failed to create item: ${item.title}`))
+      )
+      .finally(() => {
+        updateStatus({
+          item,
+          errors,
+        });
       });
   });
 };
@@ -97,32 +130,47 @@ const importItems = (items) => {
  * @returns {Promise<unknown>}
  */
 const readJSON = (file) =>
-  new Promise((resolve) => {
-    const reader = new FileReader();
+  new Promise((resolve, reject) => {
+    try {
+      const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const contents = e.target.result;
-      resolve(JSON.parse(contents));
-    };
+      reader.onload = (event) => {
+        const contents = event.target.result;
+        resolve(JSON.parse(contents));
+      };
 
-    reader.readAsText(file);
+      reader.readAsText(file);
+    } catch (e) {
+      reject(new Error("Unable to read file"));
+    }
   });
 
 /**
  *
  * @param {Event} event
  */
-const openFileForImport = (event) => {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
+const openFileForImport = (file) => {
+  clearStatus();
 
-  readJSON(file).then(importItems);
+  return readJSON(file)
+    .catch((error) => {
+      console.error(error);
+    })
+    .then(importItems);
 };
 
 const fileInput = document.querySelector("input[name='import']");
+const importButton = document.querySelectorAll(".import-button");
 
-if (fileInput) {
+if (fileInput && importButton) {
+  importButton.forEach((importButton) => {
+    importButton.addEventListener("click", () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        return;
+      }
+      openFileForImport(file);
+    });
+  });
   fileInput.addEventListener("change", openFileForImport, false);
 }
