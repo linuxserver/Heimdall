@@ -20,6 +20,7 @@ mix
       "resources/assets/js/keyBindings.js",
       "resources/assets/js/itemExport.js",
       "resources/assets/js/itemImport.js",
+      "resources/assets/js/liveStatRefresh.js",
     ],
     "public/js/app.js"
   )
