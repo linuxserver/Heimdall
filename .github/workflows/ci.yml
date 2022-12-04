@@ -41,7 +41,7 @@ jobs:
         run: yarn && yarn dev
 
       - name: Run tests
-        run: ./vendor/bin/phpunit
+        run: php artisan test
         env:
           APP_ENV: testing
 

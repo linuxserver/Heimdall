@@ -137,8 +137,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $db_type = config()->get('database.default');
 
-        if ($db_type == 'sqlite' && ! is_file(database_path('app.sqlite'))) {
-            touch(database_path('app.sqlite'));
+        if ($db_type == 'sqlite') {
+            $db_file = database_path(env('DB_DATABASE', 'app.sqlite'));
+            if (! is_file($db_file)) {
+                touch($db_file);
+            }
         }
 
         if ($this->needsDBUpdate()) {

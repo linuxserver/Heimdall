@@ -1,0 +1,32 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class SettingsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_displays_the_settings_page()
+    {
+        $this->seed();
+
+        $response = $this->get('/settings');
+
+        $response->assertStatus(200);
+        $response->assertSeeInOrder([
+            'Version',
+            'Language',
+            'Support',
+            'Donate',
+            'Background Image',
+            'Homepage Search',
+            'Default Search Provider',
+            'Link opens in',
+            'Custom CSS',
+            'Custom JavaScript',
+        ]);
+    }
+}
