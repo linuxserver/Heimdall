@@ -29,7 +29,6 @@ class ItemExportTest extends TestCase
             "title" => "Item Title",
             "url" => "http://gorczany.com/nihil-rerum-distinctio-voluptate-assumenda-accusantium-exercitationem"
         ];
-
         Item::factory()
             ->create($exampleItem);
 
@@ -55,7 +54,6 @@ class ItemExportTest extends TestCase
             ->create([
                 'deleted_at' => Date::create('1970')
             ]);
-
         Item::factory()
             ->create();
 
@@ -70,7 +68,6 @@ class ItemExportTest extends TestCase
             ->create([
                 'type' => 1
             ]);
-
         Item::factory()
             ->create();
 
