@@ -72,6 +72,7 @@ return array (
   'apps.only_admin_account' => 'Only if you have admin-account!',
   'apps.autologin_url' => 'Auto login url',
   'apps.show_deleted' => 'Showing Deleted Applications',
+  'app.import' => 'Import',
   'dashboard' => 'Home dashboard',
   'user.user_list' => 'Users',
   'user.add_user' => 'Add user',

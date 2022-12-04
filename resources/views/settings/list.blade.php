@@ -2,17 +2,18 @@
 
 @section('content')
 
-    @foreach ($groups as $group)
+    @foreach ($groups as $index => $group)
         <section class="module-container">
             <header>
                 <div class="section-title">
                     {{ __($group->title) }}
-
                 </div>
+                @if($index === 0)
                 <div class="module-actions">
                     <a href="{{ route('items.import', []) }}" id="item-import" class="button"><i class="fas fa-file-arrow-up"></i><span>{{ __('import') }}</span></a>
                     <a href="#export" id="item-export" class="button"><i class="fas fa-file-arrow-down"></i><span>{{ __('export') }}</span></a>
                 </div>
+                @endif
             </header>
 
             <table class="table table-hover">
