@@ -11,8 +11,6 @@
 
                 </div>
                 <div class="module-actions">
-{{--                    <a href="import" id="item-import" class="button"><i class="fa fa-upload"></i><span>{{ __('import') }}</span></a>--}}
-                    <a href="#export" id="item-export" class="button"><i class="fa fa-download"></i><span>{{ __('export') }}</span></a>
                     <a href="{{ route('applist', []) }}" class="button"><i class="fa fa-cloud-download"></i><span>{{ __('app.buttons.downloadapps') }}</span></a>
                     <a href="{{ route('items.create', []) }}" title="" class="button"><i class="fa fa-plus"></i><span>{{ __('app.buttons.add') }}</span></a>
                     <a href="{{ route('dash', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
