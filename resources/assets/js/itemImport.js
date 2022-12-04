@@ -10,9 +10,9 @@ const updateStatus = ({ item, errors }) => {
   console.log(item, errors);
   let statusLine;
   if (errors.length === 0) {
-    statusLine = `<li>✅ Imported: ${item.title} </li>`;
+    statusLine = `<li class="success"><i class="fas fa-circle-check"></i> Imported: ${item.title} </li>`;
   } else {
-    statusLine = `<li>❌ Failed: ${item.title} - ${errors[0]} </li>`;
+    statusLine = `<li class="fail"><i class="fas fa-circle-xmark"></i> Failed: ${item.title} - ${errors[0]} </li>`;
   }
   document.querySelector(".import-status").innerHTML += statusLine;
 };

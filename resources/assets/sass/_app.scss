@@ -1142,3 +1142,21 @@ select:-webkit-autofill:focus {
 		opacity: 0.4;
 	}
 }
+
+.import-status {
+	list-style: none;
+	li {
+		display: flex;
+    	align-items: center;
+		margin: 6px 0;
+		svg {
+			margin-right: 8px;
+		}
+		&.success svg {
+			color: $app-green;
+		}
+		&.fail svg {
+			color: $app-red;
+		}
+	}
+}
