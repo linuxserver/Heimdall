@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -22,4 +23,5 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class ItemTag extends Pivot
 {
+    use HasFactory;
 }

@@ -3,16 +3,17 @@
 namespace Database\Factories;
 
 use App\Item;
+use App\ItemTag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ItemFactory extends Factory
+class ItemTagFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Item::class;
+    protected $model = ItemTag::class;
 
     /**
      * Define the model's default state.
@@ -21,9 +22,6 @@ class ItemFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'title' => $this->faker->unique()->text(),
-            'url' => $this->faker->unique()->url(),
-        ];
+        return [];
     }
 }
