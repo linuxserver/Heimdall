@@ -36,6 +36,24 @@ function getContainers() {
 }
 
 /**
+ *
+ * @param {boolean} dataOnly
+ * @param {boolean} active
+ * @returns {number}
+ */
+function getQueueInterval(dataOnly, active) {
+  if (dataOnly) {
+    return REFRESH_INTERVAL_BIG;
+  }
+
+  if (active) {
+    return REFRESH_INTERVAL_SMALL;
+  }
+
+  return REFRESH_INTERVAL_BIG;
+}
+
+/**
  * @param {HTMLElement} container
  * @param {array} queue
  * @returns {function(): Promise<Response>}
@@ -44,7 +62,6 @@ function createUpdateJob(container, queue) {
   const id = container.getAttribute("data-id");
   // Data only attribute seems to indicate that the item should not be updated that often
   const isDataOnly = container.getAttribute("data-dataonly") === "1";
-  const interval = isDataOnly ? REFRESH_INTERVAL_BIG : REFRESH_INTERVAL_SMALL;
 
   return () =>
     fetch(`get_stats/${id}`)
@@ -55,14 +72,16 @@ function createUpdateJob(container, queue) {
 
         throw new Error(`Network response was not ok: ${response.status}`);
       })
-      .then((response) => {
+      .then((data) => {
         // eslint-disable-next-line no-param-reassign
-        container.innerHTML = response.html;
+        container.innerHTML = data.html;
+
+        const isActive = data.status === "active";
 
         if (queue) {
           setTimeout(() => {
             queue.push(createUpdateJob(container, queue));
-          }, interval);
+          }, getQueueInterval(isDataOnly, isActive));
         }
       })
       .catch((error) => {
