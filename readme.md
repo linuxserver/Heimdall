@@ -83,27 +83,27 @@ When you are finished, create a pull request.
 
 Currently added languages are
 
-- English
 - Breton
+- Chinese
 - Danish
-- German
-- Greek
-- Spanish
+- Dutch
+- English
 - Finnish
 - French
+- German
+- Greek
 - Hungarian
 - Italian
 - Korean
 - Lombard
-- Dutch
 - Norwegian
 - Polish
 - Portuguese
 - Russian
 - Slovenian
+- Spanish
 - Swedish
 - Turkish
-- Chinese
 
 ## Web Server Configuration
 
