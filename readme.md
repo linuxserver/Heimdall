@@ -94,6 +94,7 @@ Currently added languages are
 - Greek
 - Hungarian
 - Italian
+- Japanese
 - Korean
 - Lombard
 - Norwegian
