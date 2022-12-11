@@ -2,6 +2,7 @@
 
 use App\Application;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ItemController;
@@ -111,3 +112,5 @@ Route::get('/home', [HomeController::class,'index'])->name('home');
 
 Route::resource('api/item', ItemRestController::class);
 Route::get('import', ImportController::class)->name('items.import');
+
+Route::get('/health', HealthController::class)->name('health');
