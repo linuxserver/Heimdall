@@ -9,9 +9,10 @@
     <file>database</file>
     <file>resources</file>
     <file>routes</file>
-    <file>tests</file>
 
     <exclude-pattern>bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>app/SupportedApps/*</exclude-pattern>
+    <exclude-pattern>resources/lang/*</exclude-pattern>
     <exclude-pattern>bootstrap/autoload.php</exclude-pattern>
     <exclude-pattern>*/migrations/*</exclude-pattern>
     <exclude-pattern>*/seeds/*</exclude-pattern>

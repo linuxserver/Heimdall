@@ -45,6 +45,9 @@ jobs:
         env:
           APP_ENV: testing
 
+      - name: Php code sniffer
+        run: ./vendor/bin/phpcs
+
       - name: Upload artifacts
         uses: actions/upload-artifact@master
         if: failure()

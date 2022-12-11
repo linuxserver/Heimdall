@@ -18,5 +18,4 @@ class VerifyCsrfToken extends Middleware
         'test_config',
         //'get_stats'
     ];
-
 }

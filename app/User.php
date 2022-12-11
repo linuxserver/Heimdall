@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// @codingStandardsIgnoreStart
 /**
  * App\User
  *
@@ -42,6 +43,7 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
  * @mixin \Eloquent
  */
+// @codingStandardsIgnoreEnd
 class User extends Authenticatable
 {
     use Notifiable;
