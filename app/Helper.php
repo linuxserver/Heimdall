@@ -13,7 +13,8 @@ function format_bytes($bytes, bool $is_drive_size = true, string $beforeunit = '
 {
     $btype = ($is_drive_size === true) ? 1000 : 1024;
     $labels = ['B', 'KB', 'MB', 'GB', 'TB'];
-    for ($x = 0; $bytes >= $btype && $x < (count($labels) - 1); $bytes /= $btype, $x++); // use 1000 rather than 1024 to simulate HD size not real size
+    // use 1000 rather than 1024 to simulate HD size not real size
+    for ($x = 0; $bytes >= $btype && $x < (count($labels) - 1); $bytes /= $btype, $x++);
     if ($labels[$x] == 'TB') {
         return round($bytes, 3).$beforeunit.$labels[$x].$afterunit;
     } elseif ($labels[$x] == 'GB') {

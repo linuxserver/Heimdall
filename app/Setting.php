@@ -218,6 +218,7 @@ class Setting extends Model
         return self::_fetch($key, $user);
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * @param string $key
      *
@@ -225,6 +226,7 @@ class Setting extends Model
      */
     public static function _fetch($key, $user = null)
     {
+        // @codingStandardsIgnoreEnd
         //$cachekey = ($user === null) ? $key : $key.'-'.$user->id;
         //if (Setting::cached($cachekey)) {
         //    return Setting::$cache[$cachekey];

@@ -27,7 +27,11 @@ class SettingsSeeder extends Seeder
 
         foreach ($languageDirectories as $languageDirectory) {
             $language = self::getLanguageFromDirectory($languageDirectory);
-            $resultNative = mb_convert_case(Locale::getDisplayLanguage($language.'-', $language), MB_CASE_TITLE, 'UTF-8');
+            $resultNative = mb_convert_case(
+                Locale::getDisplayLanguage($language.'-', $language),
+                MB_CASE_TITLE,
+                'UTF-8'
+            );
             $resultEn = ucfirst(Locale::getDisplayLanguage($language, 'en'));
             $result[$language] = "$resultNative ($resultEn)";
         }
@@ -201,7 +205,12 @@ class SettingsSeeder extends Seeder
 
         if ($support = Setting::find(8)) {
             $support->label = 'app.settings.support';
-            $support->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $support->value =
+                '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a>'.
+                ' | '.
+                '<a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a>'.
+                ' | '.
+                '<a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
             $support->save();
         } else {
             $setting = new Setting;
@@ -210,7 +219,11 @@ class SettingsSeeder extends Seeder
             $setting->key = 'support';
             $setting->type = 'text';
             $setting->label = 'app.settings.support';
-            $setting->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $setting->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a>'.
+                ' | '.
+                '<a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a>'.
+                ' | '.
+                '<a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
             $setting->system = true;
             $setting->save();
         }
@@ -275,7 +288,7 @@ class SettingsSeeder extends Seeder
             $home_tag->save();
             $home_tag_id = $home_tag->id;
 
-            if($home_tag_id != 0) {
+            if ($home_tag_id != 0) {
                 Log::info("Home Tag returned with id $home_tag_id from db! Changing to 0.");
 
                 DB::update('update items set id = 0 where id = ?', [$home_tag_id]);

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
+// @codingStandardsIgnoreStart
 /**
  * App\Item
  *
@@ -68,6 +69,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @method static \Illuminate\Database\Query\Builder|Item withoutTrashed()
  * @mixin \Eloquent
  */
+// @codingStandardsIgnoreEnd
 class Item extends Model
 {
     use SoftDeletes;
