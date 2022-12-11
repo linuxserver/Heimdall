@@ -40,6 +40,9 @@ jobs:
       - name: Run yarn
         run: yarn && yarn dev
 
+      - name: Run ESLint
+        run: yarn lint
+
       - name: Run tests
         run: php artisan test
         env:

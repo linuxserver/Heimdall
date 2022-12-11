@@ -7,6 +7,7 @@ const APP_LOAD_URL = "appload";
  * @param {array} errors
  */
 const updateStatus = ({ item, errors }) => {
+  // eslint-disable-next-line no-console
   console.log(item, errors);
   let statusLine;
   if (errors.length === 0) {
@@ -147,23 +148,24 @@ const readJSON = (file) =>
 
 /**
  *
- * @param {Event} event
+ * @param {Blob} file
  */
 const openFileForImport = (file) => {
   clearStatus();
 
   return readJSON(file)
     .catch((error) => {
+      // eslint-disable-next-line no-console
       console.error(error);
     })
     .then(importItems);
 };
 
 const fileInput = document.querySelector("input[name='import']");
-const importButton = document.querySelectorAll(".import-button");
+const importButtons = document.querySelectorAll(".import-button");
 
-if (fileInput && importButton) {
-  importButton.forEach((importButton) => {
+if (fileInput && importButtons) {
+  importButtons.forEach((importButton) => {
     importButton.addEventListener("click", () => {
       const file = fileInput.files[0];
       if (!file) {

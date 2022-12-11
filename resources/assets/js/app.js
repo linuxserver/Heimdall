@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 $.when($.ready).then(() => {
   const base = (document.querySelector("base") || {}).href;
 
@@ -183,6 +184,7 @@ $.when($.ready).then(() => {
       }
 
       $.post(`${base}test_config`, { data }, (responseData) => {
+        // eslint-disable-next-line no-alert
         alert(responseData);
       });
     });
