@@ -29,6 +29,7 @@ const exportItems = (event) => {
   fetch(EXPORT_API_URL)
     .then((response) => {
       if (response.status !== 200) {
+        // eslint-disable-next-line no-alert
         window.alert("An error occurred while exporting...");
       }
 
