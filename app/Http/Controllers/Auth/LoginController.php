@@ -46,7 +46,7 @@ class LoginController extends Controller
     public function __construct()
     {
         Session::put('backUrl', URL::previous());
-        $this->middleware('guest')->except('logout');
+        $this->middleware('guest')->except(['logout','autologin']);
     }
 
     /**
@@ -115,8 +115,16 @@ class LoginController extends Controller
      */
     public function autologin($uuid): RedirectResponse
     {
+        Auth::logout();
+
         $user = User::where('autologin', $uuid)->first();
+
+        if (!$user) {
+            return redirect()->route('dash');
+        }
+
         Auth::login($user, true);
+
         session(['current_user' => $user]);
 
         return redirect()->route('dash');
