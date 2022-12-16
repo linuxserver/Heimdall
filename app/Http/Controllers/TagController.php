@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Item;
 use App\User;
-use DB;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class TagController extends Controller
 {
@@ -68,7 +66,7 @@ class TagController extends Controller
             ]);
         }
 
-        $slug = str_slug($request->title, '-');
+        $slug = str_slug($request->title, '-', 'en_US');
 
         $current_user = User::currentUser();
 
@@ -140,7 +138,7 @@ class TagController extends Controller
             ]);
         }
 
-        $slug = str_slug($request->title, '-');
+        $slug = str_slug($request->title, '-', 'en_US');
         // set item type to tag
         $request->merge([
             'url' => $slug,
