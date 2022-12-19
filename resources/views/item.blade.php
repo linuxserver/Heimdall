@@ -1,4 +1,4 @@
-                    <section class="item-container{{ $app->droppable }}" data-name="{{ $app->title }}" data-id="{{ $app->id }}">
+                    <section class="item-container{{ $app->droppable . ' ' . $app->getTagClass()}}" data-name="{{ $app->title }}" data-id="{{ $app->id }}">
                         <div class="item" style="background-color: {{ $app->colour }}">
                             <div class="app-icon-container">
                                 @if($app->icon)

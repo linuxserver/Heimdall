@@ -154,6 +154,23 @@ class Item extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getTagClass(): string
+    {
+        $tags = $this->tags();
+        $slugs = [];
+
+        foreach ($tags as $tag) {
+            if ($tag->url) {
+                $slugs[] = 'tag-'.$tag->url;
+            }
+        }
+
+        return implode(' ', $slugs);
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function parents(): BelongsToMany
