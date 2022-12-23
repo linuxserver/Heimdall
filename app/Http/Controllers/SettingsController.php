@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Setting;
 use App\SettingGroup;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class SettingsController extends Controller
 
             return redirect($route)
             ->with([
-                'error' => __('app.alert.error.not_exist'),
+                'errors' => collect([__('app.alert.error.not_exist')]),
             ]);
         }
     }
@@ -68,37 +69,44 @@ class SettingsController extends Controller
     {
         $setting = Setting::find($id);
         $user = $this->user();
+        $route = route('settings.index', []);
 
-        if (! is_null($setting)) {
-            $data = Setting::getInput($request);
+        try {
+            if (is_null($setting)) {
+                throw new Exception('not_exists');
+            }
 
-            $setting_value = null;
-
-            if ($setting->type == 'image') {
-                if ($request->hasFile('value')) {
-                    $path = $request->file('value')->store('backgrounds');
-                    $setting_value = $path;
+            if ($setting->type === 'image') {
+                if (!$request->hasFile('value')) {
+                    throw new \Exception(
+                        'file_too_big'
+                    );
                 }
+
+                $path = $request->file('value')->store('backgrounds');
+
+                if ($path === null) {
+                    throw new \Exception('file_not_stored');
+                }
+
+                $setting_value = $path;
             } else {
+                $data = Setting::getInput($request);
                 $setting_value = $data->value;
             }
 
             $user->settings()->detach($setting->id);
             $user->settings()->save($setting, ['uservalue' => $setting_value]);
 
-            $route = route('settings.index', []);
-
             return redirect($route)
-            ->with([
-                'success' => __('app.alert.success.setting_updated'),
-            ]);
-        } else {
-            $route = route('settings.index', []);
-
+                ->with([
+                    'success' => __('app.alert.success.setting_updated'),
+                ]);
+        } catch (Exception $e) {
             return redirect($route)
-            ->with([
-                'error' => __('app.alert.error.not_exist'),
-            ]);
+                ->with([
+                    'errors' => collect([__('app.alert.error.'.$e->getMessage())]),
+                ]);
         }
     }
 
