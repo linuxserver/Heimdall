@@ -100,6 +100,8 @@ return array (
   'alert.success.tag_restored' => 'Tag restored successfully',
   'alert.success.setting_updated' => 'You have successfully edited this setting',
   'alert.error.not_exist' => 'This setting does not exist.',
+  'alert.error.file_too_big' => 'File is too big.',
+  'alert.error.file_not_stored' => 'File could not be stored.',
   'alert.success.user_created' => 'User created successfully',
   'alert.success.user_updated' => 'User updated successfully',
   'alert.success.user_deleted' => 'User deleted successfully',
