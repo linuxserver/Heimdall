@@ -32,4 +32,15 @@ class TagListTest extends TestCase
         $response->assertSee('Tag 2');
         $response->assertSee('Tag 3');
     }
+
+    public function test_escapes_xss_on_the_tag_list_page()
+    {
+        $this->addTagWithTitleToDB('<script>alert("XSS")</script>');
+
+        $response = $this->get('/tags');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('<script>alert("XSS")</script>', false);
+        $response->assertSee('<script>alert("XSS")</script>');
+    }
 }
