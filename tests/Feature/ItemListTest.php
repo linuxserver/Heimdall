@@ -31,4 +31,15 @@ class ItemListTest extends TestCase
         $response->assertSee('Item 2');
         $response->assertSee('Item 3');
     }
+
+    public function test_escapes_xss_on_the_item_list_page()
+    {
+        $this->addItemWithTitleToDB('<script>alert("XSS")</script>');
+
+        $response = $this->get('/items');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('<script>alert("XSS")</script>', false);
+        $response->assertSee('<script>alert("XSS")</script>');
+    }
 }

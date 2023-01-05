@@ -31,13 +31,13 @@
                 }
             });
             // initial load
-            $('#tile-preview .title').html($('#appname').val());
+            $('#tile-preview .title').text($('#appname').val());
             $('#tile-preview .item').css('backgroundColor', $('#appcolour').val());
             $('#tile-preview .app-icon').attr('src', $('#appimage img').attr('src'));
 
             // Updates
             $('#appname').on('keyup change', function(e) {
-                $('#tile-preview .title').html($(this).val());
+                $('#tile-preview .title').text($(this).val());
             })
             $('#apptype').on('change', function(e) {
                 appload($(this).find('option:selected').val());
@@ -178,7 +178,7 @@
                         if($('#appname').val() === '') {
                             $('#appname').val(data.name)
                         }
-                        $('#tile-preview .title').html($('#appname').val());
+                        $('#tile-preview .title').text($('#appname').val());
                         if(data.custom != null) {
                             $.get(base+'view/'+data.custom, function(getdata) {
                                 $('#sapconfig').html(getdata).show();

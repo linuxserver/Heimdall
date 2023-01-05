@@ -32,7 +32,7 @@
                             <tr>
                                 <td>{{ $app->title }}</td>
                                 <td><a href="{{ $app->url }}">{{ $app->link }}</a></td>
-                                <td class="text-center"><a{{ $app->target }} href="{!! route('items.edit', [$app->id]) !!}" title="{{ __('app.settings.edit') }} {!! $app->title !!}"><i class="fas fa-edit"></i></a></td>
+                                <td class="text-center"><a{{ $app->target }} href="{!! route('items.edit', [$app->id]) !!}" title="{{ __('app.settings.edit') }} {{ $app->title }}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
                                         <button class="link" type="submit"><i class="fa fa-trash-alt"></i></button>
