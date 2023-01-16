@@ -28,6 +28,9 @@ return [
     'settings.remove' => 'Remover',
     'settings.search' => 'busca',
     'settings.no_items' => 'Nenhum item encontrado',
+    'settings.advanced' => 'Avançado',
+    'settings.custom_css' => 'CSS Customizado',
+    'settings.custom_js' => 'JavaScript Customizado',
 
     'settings.label' => 'Rótulo',
     'settings.value' => 'Valor',
@@ -42,11 +45,18 @@ return [
     'options.startpage' => 'Página inicial',
     'options.yes' => 'Sim',
     'options.no' => 'Não',
+    'options.nzbhydra' => 'NZBHydra',
+    'options.jackett' => 'Jackett',
 
     'buttons.save' => 'Salvar',
     'buttons.cancel' => 'Cancelar',
     'buttons.add' => 'Adicionar',
     'buttons.upload' => 'Carregar um arquivo',
+    'buttons.downloadapps' => 'Atualizar lista de Apps',
+
+    'dashboard' => 'Página Inicial do dashboard',
+    'dashboard.reorder' => 'Reordenar e fixar itens',
+    'dashboard.settings' => 'Configurações',
 
     'dash.pin_item' => 'Fixar o item na dashboard',
     'dash.no_apps' => 'Atualmente não há aplicativos fixados, :link1 ou :link2',
@@ -60,6 +70,7 @@ return [
     'apps.application_name' => 'Nome do aplicativo',
     'apps.colour' => 'Cor',
     'apps.icon' => 'Ícone',
+    'app.import' => 'Importar',
     'apps.pinned' => 'Fixado',
     'apps.title' => 'Título',
     'apps.hex' => 'Cor hexadecimal',
@@ -73,6 +84,13 @@ return [
     'apps.tag_name' => 'Nome da tag',
     'apps.tags' => 'Tags',
     'apps.override' => 'Se diferente do URL principal',
+    'apps.preview' => 'Vizualizar',
+    'apps.apptype' => 'Tipo de Aplicativo',
+    'apps.website' => 'Website',
+    'apps.description' => 'Descrição',
+    'apps.only_admin_account' => 'Somente se tiver conta admin!',
+    'apps.autologin_url' => 'URL de login automático',
+    'apps.show_deleted' => 'Mostrando Aplicativos Apagados',
 
     'user.user_list' => 'Comercial',
     'user.add_user' => 'Adicionar usuários',
@@ -88,6 +106,8 @@ return [
     'delete' => 'Apagar',
     'optional' => 'Opcional',
     'restore' => 'Restaurar',
+    'export' => 'Exportar',
+    'import' => 'Importar',
 
     'alert.success.item_created' => 'Item criado com sucesso',
     'alert.success.item_updated' => 'Item atualizado com sucesso',
@@ -98,9 +118,10 @@ return [
     'alert.success.tag_updated' => 'Tag atualizada com sucesso',
     'alert.success.tag_deleted' => 'Tag apagada com sucesso',
     'alert.success.tag_restored' => 'Tag restaurada com sucesso',
-
+    'alert.success.updating'=> 'Atualizando lista de apps',
     'alert.success.setting_updated' => 'Você editou com sucesso essa configuração',
     'alert.error.not_exist' => 'Essa configuração não existe.',
+    'alert.success.updating' => 'Atualizando lista de Apps',
 
     'alert.success.user_created' => 'Usuário criado com sucesso',
     'alert.success.user_updated' => 'Usuário atualizado com sucesso',
