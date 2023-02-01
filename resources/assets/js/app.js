@@ -166,7 +166,8 @@ $.when($.ready).then(() => {
       const overrideUrl = $(
         '#sapconfig input[name="config[override_url]"]'
       ).val();
-      if (overrideUrl.length && overrideUrl !== "") {
+
+      if (typeof overrideUrl === "string" && overrideUrl !== "") {
         apiurl = overrideUrl;
       }
 
@@ -183,10 +184,20 @@ $.when($.ready).then(() => {
         data.password = "";
       }
 
-      $.post(`${base}test_config`, { data }, (responseData) => {
-        // eslint-disable-next-line no-alert
-        alert(responseData);
-      });
+      $.post(`${base}test_config`, { data })
+        .done((responseData) => {
+          // eslint-disable-next-line no-alert
+          alert(responseData);
+        })
+        .fail((responseData) => {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Something went wrong: ${responseData.responseText.substring(
+              0,
+              100
+            )}`
+          );
+        });
     });
   $("#pinlist").on("click", "a", function (e) {
     e.preventDefault();
