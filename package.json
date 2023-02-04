@@ -17,7 +17,7 @@
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-prettier": "^4.2.1",
-        "jquery": "^3.6.1",
+        "jquery": "^3.6.3",
         "laravel-mix": "^6.0.49",
         "prettier": "^2.8.1",
         "sass": "^1.56.1",

@@ -114,8 +114,7 @@
 
             </div>
         </div>
-        <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-        <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+        <script src="{{ asset('js/jquery.min.js') }}"></script>
         <script src="{{ asset(mix('js/app.js')) }}"></script>
         @yield('scripts')
         
