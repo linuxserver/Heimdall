@@ -14,7 +14,8 @@ const mix = require("laravel-mix");
 mix
   .babel(
     [
-      "resources/assets/js/jquery-ui.min.js",
+      "node_modules/sortablejs/Sortable.min.js",
+      "node_modules/jquery-sortablejs/jquery-sortable.js",
       "resources/assets/js/huebee.js",
       "resources/assets/js/app.js",
       "resources/assets/js/keyBindings.js",

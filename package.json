@@ -24,6 +24,8 @@
         "sass-loader": "13.*"
     },
     "dependencies": {
-        "select2": "^4.0.13"
+        "jquery-sortablejs": "^1.0.1",
+        "select2": "^4.0.13",
+        "sortablejs": "^1.15.0"
     }
 }

@@ -53,14 +53,15 @@ $.when($.ready).then(() => {
       }); */
 
   $("#sortable").sortable({
-    stop() {
-      const idsInOrder = $("#sortable").sortable("toArray", {
-        attribute: "data-id",
-      });
+    disabled: true,
+    animation: 150,
+    forceFallback: true,
+    draggable: ".item-container",
+    onEnd() {
+      const idsInOrder = $("#sortable").sortable("toArray");
       $.post(`${base}order`, { order: idsInOrder });
     },
   });
-  $("#sortable").sortable("disable");
 
   $("#main")
     .on("mouseenter", "#sortable.ui-sortable-disabled .item", function () {
@@ -138,10 +139,10 @@ $.when($.ready).then(() => {
         $(".item-edit").hide();
         $("#app").removeClass("sidebar");
         $("#sortable .tooltip").css("display", "");
-        $("#sortable").sortable("disable");
+        $("#sortable").sortable("disabled", true);
       } else {
         $("#sortable .tooltip").css("display", "none");
-        $("#sortable").sortable("enable");
+        $("#sortable").sortable("disabled", false);
         setTimeout(() => {
           $(".add-item").fadeIn();
           $(".item-edit").fadeIn();
