@@ -52,13 +52,15 @@ $.when($.ready).then(() => {
         }
       }); */
 
-  $("#sortable").sortable({
+  const sortableEl = document.getElementById("sortable");
+  // eslint-disable-next-line no-undef
+  const sortable = Sortable.create(sortableEl, {
     disabled: true,
     animation: 150,
     forceFallback: true,
     draggable: ".item-container",
     onEnd() {
-      const idsInOrder = $("#sortable").sortable("toArray");
+      const idsInOrder = sortable.toArray();
       $.post(`${base}order`, { order: idsInOrder });
     },
   });
@@ -139,10 +141,10 @@ $.when($.ready).then(() => {
         $(".item-edit").hide();
         $("#app").removeClass("sidebar");
         $("#sortable .tooltip").css("display", "");
-        $("#sortable").sortable("disabled", true);
+        sortable.option("disabled", true);
       } else {
         $("#sortable .tooltip").css("display", "none");
-        $("#sortable").sortable("disabled", false);
+        sortable.option("disabled", false);
         setTimeout(() => {
           $(".add-item").fadeIn();
           $(".item-edit").fadeIn();
