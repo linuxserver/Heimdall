@@ -57,13 +57,28 @@ $.when($.ready).then(() => {
   const sortable = Sortable.create(sortableEl, {
     disabled: true,
     animation: 150,
-    forceFallback: true,
+    forceFallback: !/Windows.+Firefox/.test(navigator.userAgent),
     draggable: ".item-container",
     onEnd() {
       const idsInOrder = sortable.toArray();
       $.post(`${base}order`, { order: idsInOrder });
     },
   });
+  // prevent Firefox drag behavior
+  if (/Windows.+Firefox/.test(navigator.userAgent)) {
+    sortable.option("setData", (dataTransfer) => {
+      dataTransfer.setData("Text", "");
+    });
+
+    sortableEl.addEventListener("dragstart", (event) => {
+      const { target } = event;
+      if (target.nodeName.toLowerCase() === "a") {
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.setData("Text", "");
+      }
+    });
+  }
 
   $("#main")
     .on("mouseenter", "#sortable.ui-sortable-disabled .item", function () {
