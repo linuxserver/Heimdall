@@ -69,7 +69,7 @@ return array (
   'apps.apptype' => '앱 형식',
   'apps.website' => '웹사이트',
   'apps.description' => '설명',
-  'apps.only_admin_account' => '관리자 계정이 있는 경우에만!',
+  'apps.only_admin_account' => '관리자 계정이 있는 경우에만 가능합니다!',
   'apps.autologin_url' => '자동 로그인 URL',
   'apps.show_deleted' => '삭제된 애플리케이션 표시',
   'dashboard' => '홈 대시보드',
