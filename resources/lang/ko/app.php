@@ -4,7 +4,7 @@ return array (
   'settings.system' => '시스템',
   'settings.appearance' => '외관',
   'settings.miscellaneous' => '잡동사니',
-  'settings.advanced' => '고급의',
+  'settings.advanced' => '고급',
   'settings.support' => '지원',
   'settings.donate' => '기부',
   'settings.version' => '버전',
