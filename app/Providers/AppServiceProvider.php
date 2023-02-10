@@ -43,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
             ProcessApps::dispatch();
         }
 
+        $lang = Setting::fetch('language');
+        \App::setLocale($lang);
+
         // User specific settings need to go here as session isn't available at this point in the app
         view()->composer('*', function ($view) {
             if (isset($_SERVER['HTTP_AUTHORIZATION']) && ! empty($_SERVER['HTTP_AUTHORIZATION'])) {
@@ -76,9 +79,6 @@ class AppServiceProvider extends ServiceProvider
 
             $allusers = User::all();
             $current_user = User::currentUser();
-
-            $lang = Setting::fetch('language');
-            \App::setLocale($lang);
 
             $view->with('alt_bg', $alt_bg);
             $view->with('allusers', $allusers);
