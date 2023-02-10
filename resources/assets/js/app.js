@@ -57,7 +57,7 @@ $.when($.ready).then(() => {
   const sortable = Sortable.create(sortableEl, {
     disabled: true,
     animation: 150,
-    forceFallback: !/Windows.+Firefox/.test(navigator.userAgent),
+    forceFallback: !(navigator.userAgent.toLowerCase().indexOf("firefox") > -1),
     draggable: ".item-container",
     onEnd() {
       const idsInOrder = sortable.toArray();
