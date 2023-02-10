@@ -65,7 +65,7 @@ $.when($.ready).then(() => {
     },
   });
   // prevent Firefox drag behavior
-  if (/Windows.+Firefox/.test(navigator.userAgent)) {
+  if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
     sortable.option("setData", (dataTransfer) => {
       dataTransfer.setData("Text", "");
     });
