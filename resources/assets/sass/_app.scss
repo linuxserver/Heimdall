@@ -1125,6 +1125,16 @@ select:-webkit-autofill:focus {
   color: $app-text!important;
 }
 
+.sortable-drag {
+	opacity: 1!important;
+}
+
+#sortable {
+	.sortable-ghost:not(.sortable-drag) {
+		opacity: 0;
+	}
+}
+
 #sortable:focus-within {
 	.item:focus-within {
 		outline: 1px solid #ffffff91;
