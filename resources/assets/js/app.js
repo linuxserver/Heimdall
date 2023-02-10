@@ -53,31 +53,36 @@ $.when($.ready).then(() => {
       }); */
 
   const sortableEl = document.getElementById("sortable");
-  // eslint-disable-next-line no-undef
-  const sortable = Sortable.create(sortableEl, {
-    disabled: true,
-    animation: 150,
-    forceFallback: !(navigator.userAgent.toLowerCase().indexOf("firefox") > -1),
-    draggable: ".item-container",
-    onEnd() {
-      const idsInOrder = sortable.toArray();
-      $.post(`${base}order`, { order: idsInOrder });
-    },
-  });
-  // prevent Firefox drag behavior
-  if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
-    sortable.option("setData", (dataTransfer) => {
-      dataTransfer.setData("Text", "");
+  let sortable;
+  if (sortableEl !== null) {
+    // eslint-disable-next-line no-undef
+    sortable = Sortable.create(sortableEl, {
+      disabled: true,
+      animation: 150,
+      forceFallback: !(
+        navigator.userAgent.toLowerCase().indexOf("firefox") > -1
+      ),
+      draggable: ".item-container",
+      onEnd() {
+        const idsInOrder = sortable.toArray();
+        $.post(`${base}order`, { order: idsInOrder });
+      },
     });
+    // prevent Firefox drag behavior
+    if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
+      sortable.option("setData", (dataTransfer) => {
+        dataTransfer.setData("Text", "");
+      });
 
-    sortableEl.addEventListener("dragstart", (event) => {
-      const { target } = event;
-      if (target.nodeName.toLowerCase() === "a") {
-        event.preventDefault();
-        event.stopPropagation();
-        event.dataTransfer.setData("Text", "");
-      }
-    });
+      sortableEl.addEventListener("dragstart", (event) => {
+        const { target } = event;
+        if (target.nodeName.toLowerCase() === "a") {
+          event.preventDefault();
+          event.stopPropagation();
+          event.dataTransfer.setData("Text", "");
+        }
+      });
+    }
   }
 
   $("#main")
@@ -156,10 +161,10 @@ $.when($.ready).then(() => {
         $(".item-edit").hide();
         $("#app").removeClass("sidebar");
         $("#sortable .tooltip").css("display", "");
-        sortable.option("disabled", true);
+        if (sortable !== undefined) sortable.option("disabled", true);
       } else {
         $("#sortable .tooltip").css("display", "none");
-        sortable.option("disabled", false);
+        if (sortable !== undefined) sortable.option("disabled", false);
         setTimeout(() => {
           $(".add-item").fadeIn();
           $(".item-edit").fadeIn();
