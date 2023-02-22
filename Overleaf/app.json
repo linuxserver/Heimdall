@@ -1,0 +1,10 @@
+{
+    "appid": "b9c04e18537f46a9eaea5dc4cc4edf8734c34251",
+    "name": "Overleaf",
+    "website": "https://github.com/overleaf/overleaf",
+    "license": "GNU Affero General Public License v3.0 or later",
+    "description": "An open-source online real-time collaborative LaTeX editor.",
+    "enhanced": true,
+    "tile_background": "light",
+    "icon": "overleaf.png"
+}
