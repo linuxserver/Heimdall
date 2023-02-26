@@ -89,6 +89,7 @@ return [
     'apps.only_admin_account' => '您必须拥有管理员账户！',
     'apps.autologin_url' => '自动登录网址',
     'apps.show_deleted' => '显示已移除的应用',
+    'app.import' => '导入',
 
     'dashboard' => '仪表盘',
 
@@ -106,6 +107,8 @@ return [
     'delete' => '移除',
     'optional' => '可选',
     'restore' => '恢复',
+    'export' => '导出',
+    'import' => '导入',
 
     'alert.success.item_created' => '应用创建成功',
     'alert.success.item_updated' => '应用修改成功',
@@ -120,10 +123,14 @@ return [
 
     'alert.success.setting_updated' => '您成功编辑了此设置',
     'alert.error.not_exist' => '此设置项不存在',
+    'alert.error.file_too_big' => '文件过大',
+    'alert.error.file_not_stored' => '文件无法保存',
 
     'alert.success.user_created' => '用户创建成功',
     'alert.success.user_updated' => '用户修改成功',
     'alert.success.user_deleted' => '用户移除成功',
     'alert.success.user_restored' => '用户恢复成功',
 
+    'dashboard.reorder' => '重新排序和固定应用',
+    'dashboard.settings' => '设置',
 ];
