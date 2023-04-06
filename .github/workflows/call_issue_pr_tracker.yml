@@ -1,0 +1,14 @@
+name: Issue & PR Tracker
+
+on:
+  issues:
+    types: [opened,reopened,labeled,unlabeled]
+  pull_request_target:
+    types: [opened,reopened,review_requested,review_request_removed,labeled,unlabeled]
+
+jobs:
+  manage-project:
+    permissions:
+      issues: write
+    uses: linuxserver/github-workflows/.github/workflows/issue-pr-tracker.yml@v1
+    secrets: inherit
