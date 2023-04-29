@@ -26,7 +26,7 @@
                 </div>
                 <div class="appoptions">
                     <div class="optdetails">
-                        <div><button class="dark">{{ __('app.apps.apptype') }}</button></div>
+                        <div><button id="optdetails-button" class="dark">{{ __('app.apps.apptype') }}</button></div>
                         <div class="optvalue">
                             <div class="input">
                                 {!! Form::select('appid', App\Application::applist(), null, array('class' => 'form-control config-item', 'id' => 'apptype', 'data-config' => 'type')) !!}
