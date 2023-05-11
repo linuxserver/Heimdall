@@ -1,0 +1,56 @@
+{
+    "name": "graham-campbell/github",
+    "description": "GitHub Is A GitHub Bridge For Laravel",
+    "keywords": ["laravel", "framework", "github", "php-github-api", "PHP GitHub API", "github bridge", "bridge", "GitHub", "Laravel GitHub", "Laravel-GitHub", "Graham Campbell", "GrahamCampbell"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Graham Campbell",
+            "email": "hello@gjcampbell.co.uk",
+            "homepage": "https://github.com/GrahamCampbell"
+        }
+    ],
+    "require": {
+        "php": "^7.2.5 || ^8.0",
+        "graham-campbell/bounded-cache": "^1.1",
+        "graham-campbell/manager": "^4.7",
+        "illuminate/contracts": "^6.0 || ^7.0 || ^8.0 || ^9.0",
+        "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0",
+        "knplabs/github-api": "3.5.*",
+        "symfony/cache": "^4.3 || ^5.0 || ^6.0"
+    },
+    "require-dev": {
+        "graham-campbell/analyzer": "^3.0",
+        "graham-campbell/testbench": "^5.7",
+        "guzzlehttp/guzzle": "^7.4",
+        "http-interop/http-factory-guzzle": "^1.0",
+        "lcobucci/jwt": "^3.4 || ^4.0",
+        "mockery/mockery": "^1.3.1",
+        "phpunit/phpunit": "^8.5.8 || ^9.3.7"
+    },
+    "suggest": {
+        "lcobucci/jwt": "Allows using the private key authenticator (^3.4 || ^4.0)"
+    },
+    "autoload": {
+        "psr-4": {
+            "GrahamCampbell\\GitHub\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GrahamCampbell\\Tests\\GitHub\\": "tests/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GrahamCampbell\\GitHub\\GitHubServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

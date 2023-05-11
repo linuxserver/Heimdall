@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afterunit = '')
 {
 	$btype = ($is_drive_size === true) ? 1000 : 1024;
@@ -10,3 +12,68 @@ function format_bytes($bytes, $is_drive_size = true, $beforeunit = '', $afteruni
     elseif($labels[$x] == "MB") return(round($bytes, 2).$beforeunit.$labels[$x].$afterunit);
     else return(round($bytes, 0).$beforeunit.$labels[$x].$afterunit);
 }
+
+function str_slug($title, $separator = '-', $language = 'en')
+{
+    return Str::slug($title, $separator, $language);
+}
+
+if (! function_exists('str_is')) {
+    /**
+     * Determine if a given string matches a given pattern.
+     *
+     * @param  string|array  $pattern
+     * @param  string  $value
+     * @return bool
+     *
+     * @deprecated Str::is() should be used directly instead. Will be removed in Laravel 6.0.
+     */
+    function str_is($pattern, $value)
+    {
+        return Str::is($pattern, $value);
+    }
+}
+
+function get_brightness($hex) {
+    // returns brightness value from 0 to 255
+    // strip off any leading #
+    $hex = str_replace('#', '', $hex);
+    if(strlen($hex) == 3) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+   
+    $c_r = hexdec(substr($hex, 0, 2));
+    $c_g = hexdec(substr($hex, 2, 2));
+    $c_b = hexdec(substr($hex, 4, 2));
+   
+    return (($c_r * 299) + ($c_g * 587) + ($c_b * 114)) / 1000;
+}
+
+function title_color($hex)
+{
+    if(get_brightness($hex) > 130) {
+        return ' black';
+    } else {
+        return ' white';
+    }
+}
+
+function getLinkTargetAttribute()
+{
+    $target = \App\Setting::fetch('window_target');
+
+    if($target === 'current') {
+        return '';
+    } else {
+        return ' target="' . $target . '"';
+    }
+}
+
+
+
+function className($name)
+{
+    $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name); 
+    return $name;
+}
+

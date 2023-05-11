@@ -3,7 +3,7 @@
     "description":       "A small, lightweight utility to instantiate objects in PHP without invoking their constructors",
     "type":              "library",
     "license":           "MIT",
-    "homepage":          "https://github.com/doctrine/instantiator",
+    "homepage":          "https://www.doctrine-project.org/projects/instantiator.html",
     "keywords":          [
         "instantiate",
         "constructor"
@@ -12,18 +12,21 @@
         {
             "name":     "Marco Pivetta",
             "email":    "ocramius@gmail.com",
-            "homepage": "http://ocramius.github.com/"
+            "homepage": "https://ocramius.github.io/"
         }
     ],
     "require": {
-        "php": ">=5.3,<8.0-DEV"
+        "php": "^7.1 || ^8.0"
     },
     "require-dev": {
         "ext-phar":                  "*",
         "ext-pdo":                   "*",
-        "phpunit/phpunit":           "~4.0",
-        "squizlabs/php_codesniffer": "~2.0",
-        "athletic/athletic":         "~0.1.8"
+        "doctrine/coding-standard":  "^9",
+        "phpbench/phpbench":         "^0.16 || ^1",
+        "phpstan/phpstan":           "^1.4",
+        "phpstan/phpstan-phpunit":   "^1",
+        "phpunit/phpunit":           "^7.5 || ^8.5 || ^9.5",
+        "vimeo/psalm": "^4.22"
     },
     "autoload": {
         "psr-4": {
@@ -37,9 +40,9 @@
             "DoctrineTest\\InstantiatorTestAsset\\": "tests"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

@@ -100,7 +100,7 @@ with a strict format, you only need to pass a DateTimeInterface instance to
 +-------------------------------+------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------+
 | ``Date``                      | Specifies the date at which the message was sent                                                                                   | ``getDate()`` / ``setDate()``               |
 +-------------------------------+------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------+
-| ``Content-Type``              | Specifies the format of the message (usually text/plain or text/html)                                                              | ``getContentType()`` / ``setContentType()`` |
+| ``Content-Type``              | Specifies the format of the message (usually ``text/plain`` or ``text/html``)                                                      | ``getContentType()`` / ``setContentType()`` |
 +-------------------------------+------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------+
 | ``Content-Transfer-Encoding`` | Specifies the encoding scheme in the message                                                                                       | ``getEncoder()`` / ``setEncoder()``         |
 +-------------------------------+------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------+
@@ -223,10 +223,8 @@ the same filename as the one you attached::
     // Attach it to the message
     $message->attach($attachment);
 
-
     // The two statements above could be written in one line instead
     $message->attach(Swift_Attachment::fromPath('/path/to/image.jpg'));
-
 
     // You can attach files from a URL if allow_url_fopen is on in php.ini
     $message->attach(Swift_Attachment::fromPath('http://site.tld/logo.png'));
@@ -244,7 +242,6 @@ the email will rename the file to something else::
     // Create the attachment and call its setFilename() method
     $attachment = Swift_Attachment::fromPath('/path/to/image.jpg')
       ->setFilename('cool.jpg');
-
 
     // Because there's a fluid interface, you can do this in one statement
     $message->attach(
@@ -482,11 +479,13 @@ Mailer will throw a ``Swift_RfcComplianceException``.
 If you add recipients automatically based on a data source that may contain
 invalid email addresses, you can prevent possible exceptions by validating the
 addresses using::
-        use Egulias\EmailValidator\EmailValidator;
-        use Egulias\EmailValidator\Validation\RFCValidation;
 
-        $validator = new EmailValidator();
-        $validator->isValid("example@example.com", new RFCValidation()); //true
+    use Egulias\EmailValidator\EmailValidator;
+    use Egulias\EmailValidator\Validation\RFCValidation;
+
+    $validator = new EmailValidator();
+    $validator->isValid("example@example.com", new RFCValidation()); //true
+
 and only adding addresses that validate. Another way would be to wrap your ``setTo()``, ``setCc()`` and
 ``setBcc()`` calls in a try-catch block and handle the
 ``Swift_RfcComplianceException`` in the catch block.
@@ -523,9 +522,8 @@ Setting ``To:`` Recipients
 or ``addTo()`` methods of the message.
 
 To set ``To:`` recipients, create the message object using either ``new
-Swift_Message( ... )`` or ``new Swift_Message( ... )``, then call the
-``setTo()`` method with a complete array of addresses, or use the ``addTo()``
-method to iteratively add recipients.
+Swift_Message( ... )``, then call the ``setTo()`` method with a complete array
+of addresses, or use the ``addTo()`` method to iteratively add recipients.
 
 The ``setTo()`` method accepts input in various formats as described earlier in
 this chapter. The ``addTo()`` method takes either one or two parameters. The
@@ -561,9 +559,8 @@ Setting ``Cc:`` Recipients
 message.
 
 To set ``Cc:`` recipients, create the message object using either ``new
-Swift_Message( ... )`` or ``new Swift_Message( ... )``, then call the
-``setCc()`` method with a complete array of addresses, or use the ``addCc()``
-method to iteratively add recipients.
+Swift_Message( ... )``, then call the ``setCc()`` method with a complete array
+of addresses, or use the ``addCc()`` method to iteratively add recipients.
 
 The ``setCc()`` method accepts input in various formats as described earlier in
 this chapter. The ``addCc()`` method takes either one or two parameters. The
@@ -599,9 +596,8 @@ Setting ``Bcc:`` Recipients
 it, and are set with the ``setBcc()`` or ``addBcc()`` methods of the message.
 
 To set ``Bcc:`` recipients, create the message object using either ``new
-Swift_Message( ... )`` or ``new Swift_Message( ... )``, then call the
-``setBcc()`` method with a complete array of addresses, or use the ``addBcc()``
-method to iteratively add recipients.
+Swift_Message( ... )``, then call the ``setBcc()`` method with a complete array
+of addresses, or use the ``addBcc()`` method to iteratively add recipients.
 
 The ``setBcc()`` method accepts input in various formats as described earlier
 in this chapter. The ``addBcc()`` method takes either one or two parameters.
@@ -630,6 +626,26 @@ the address::
         // Using addBcc() to add recipients iteratively
         $message->addBcc('person1@example.org');
         $message->addBcc('person2@example.org', 'Person 2 Name');
+
+.. sidebar:: Internationalized Email Addresses
+
+    Traditionally only ASCII characters have been allowed in email addresses.
+    With the introduction of internationalized domain names (IDNs), non-ASCII
+    characters may appear in the domain name. By default, Swiftmailer encodes
+    such domain names in Punycode (e.g. xn--xample-ova.invalid). This is
+    compatible with all mail servers.
+
+    RFC 6531 introduced an SMTP extension, SMTPUTF8, that allows non-ASCII
+    characters in email addresses on both sides of the @ sign. To send to such
+    addresses, your outbound SMTP server must support the SMTPUTF8 extension.
+    You should use the ``Swift_AddressEncoder_Utf8AddressEncoder`` address
+    encoder and enable the ``Swift_Transport_Esmtp_SmtpUtf8Handler`` SMTP
+    extension handler::
+
+        $smtpUtf8 = new Swift_Transport_Esmtp_SmtpUtf8Handler();
+        $transport->setExtensionHandlers([$smtpUtf8]);
+        $utf8Encoder = new Swift_AddressEncoder_Utf8AddressEncoder();
+        $transport->setAddressEncoder($utf8Encoder);
 
 Specifying Sender Details
 -------------------------
@@ -789,7 +805,7 @@ Using both signing and encrypting is also possible::
 The used encryption cipher can be set as the second parameter of
 setEncryptCertificate()
 
-See http://php.net/manual/openssl.ciphers for a list of supported ciphers.
+See https://secure.php.net/manual/openssl.ciphers for a list of supported ciphers.
 
 By default the message is first signed and then encrypted, this can be changed
 by adding::
@@ -806,7 +822,7 @@ Requesting a Read Receipt
 
 It is possible to request a read-receipt to be sent to an address when the
 email is opened. To request a read receipt set the address with
-``setReadReceiptTo()``:
+``setReadReceiptTo()``::
 
     $message->setReadReceiptTo('your@address.tld');
 
@@ -822,7 +838,7 @@ sent to this address.
 Setting the Character Set
 -------------------------
 
-The character set of the message (and it's MIME parts) is set with the
+The character set of the message (and its MIME parts) is set with the
 ``setCharset()`` method. You can also change the global default of UTF-8 by
 working with the ``Swift_Preferences`` class.
 
@@ -859,6 +875,31 @@ To set the character set of your Message:
 
     // Approach 4: Specify the charset for each part added
     $message->addPart('My part', 'text/plain', 'iso-8859-2');
+
+Setting the Encoding
+--------------------
+
+The body of each MIME part needs to be encoded. Binary attachments are encoded
+in base64 using the ``Swift_Mime_ContentEncoder_Base64ContentEncoder``. Text
+parts are traditionally encoded in quoted-printable using
+``Swift_Mime_ContentEncoder_QpContentEncoder`` or
+``Swift_Mime_ContentEncoder_NativeQpContentEncoder``.
+
+The encoder of the message or MIME part is set with the ``setEncoder()`` method.
+
+Quoted-printable is the safe choice, because it converts 8-bit text as 7-bit.
+Most modern SMTP servers support 8-bit text. This is advertised via the 8BITMIME
+SMTP extension. If your outbound SMTP server supports this SMTP extension, and
+it supports downgrading the message (e.g converting to quoted-printable on the
+fly) when delivering to a downstream server that does not support the extension,
+you may wish to use ``Swift_Mime_ContentEncoder_PlainContentEncoder`` in
+``8bit`` mode instead. This has the advantage that the source data is slightly
+more readable and compact, especially for non-Western languages.
+
+        $eightBitMime = new Swift_Transport_Esmtp_EightBitMimeHandler();
+        $transport->setExtensionHandlers([$eightBitMime]);
+        $plainEncoder = new Swift_Mime_ContentEncoder_PlainContentEncoder('8bit');
+        $message->setEncoder($plainEncoder);
 
 Setting the Line Length
 -----------------------

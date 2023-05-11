@@ -11,6 +11,9 @@
 
 namespace Symfony\Component\HttpFoundation;
 
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+
 /**
  * Request stack that controls the lifecycle of requests.
  *
@@ -21,7 +24,7 @@ class RequestStack
     /**
      * @var Request[]
      */
-    private $requests = array();
+    private $requests = [];
 
     /**
      * Pushes a Request on the stack.
@@ -47,7 +50,7 @@ class RequestStack
     public function pop()
     {
         if (!$this->requests) {
-            return;
+            return null;
         }
 
         return array_pop($this->requests);
@@ -62,21 +65,33 @@ class RequestStack
     }
 
     /**
-     * Gets the master Request.
+     * Gets the main request.
      *
-     * Be warned that making your code aware of the master request
+     * Be warned that making your code aware of the main request
      * might make it un-compatible with other features of your framework
      * like ESI support.
-     *
-     * @return Request|null
      */
-    public function getMasterRequest()
+    public function getMainRequest(): ?Request
     {
         if (!$this->requests) {
-            return;
+            return null;
         }
 
         return $this->requests[0];
+    }
+
+    /**
+     * Gets the master request.
+     *
+     * @return Request|null
+     *
+     * @deprecated since symfony/http-foundation 5.3, use getMainRequest() instead
+     */
+    public function getMasterRequest()
+    {
+        trigger_deprecation('symfony/http-foundation', '5.3', '"%s()" is deprecated, use "getMainRequest()" instead.', __METHOD__);
+
+        return $this->getMainRequest();
     }
 
     /**
@@ -86,18 +101,28 @@ class RequestStack
      * might make it un-compatible with other features of your framework
      * like ESI support.
      *
-     * If current Request is the master request, it returns null.
+     * If current Request is the main request, it returns null.
      *
      * @return Request|null
      */
     public function getParentRequest()
     {
-        $pos = count($this->requests) - 2;
+        $pos = \count($this->requests) - 2;
 
-        if (!isset($this->requests[$pos])) {
-            return;
+        return $this->requests[$pos] ?? null;
+    }
+
+    /**
+     * Gets the current session.
+     *
+     * @throws SessionNotFoundException
+     */
+    public function getSession(): SessionInterface
+    {
+        if ((null !== $request = end($this->requests) ?: null) && $request->hasSession()) {
+            return $request->getSession();
         }
 
-        return $this->requests[$pos];
+        throw new SessionNotFoundException();
     }
 }

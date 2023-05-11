@@ -81,7 +81,7 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
 
             // If we read one byte after reaching the end of the file
             // feof() will return false and an empty string is returned
-            if ($bytes === '' && feof($fp)) {
+            if ((false === $bytes || '' === $bytes) && feof($fp)) {
                 $this->resetReadHandle();
 
                 return false;
@@ -131,7 +131,7 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
                 throw new Swift_IoException('Unable to open file for reading ['.$this->path.']');
             }
             $this->reader = $pointer;
-            if ($this->offset != 0) {
+            if (0 != $this->offset) {
                 $this->getReadStreamSeekableStatus();
                 $this->seekReadStreamToPosition($this->offset);
             }
@@ -145,9 +145,7 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
     {
         if (!isset($this->writer)) {
             if (!$this->writer = fopen($this->path, $this->mode)) {
-                throw new Swift_IoException(
-                    'Unable to open file for writing ['.$this->path.']'
-                );
+                throw new Swift_IoException('Unable to open file for writing ['.$this->path.']');
             }
         }
 
@@ -173,10 +171,10 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
     /** Streams in a readOnly stream ensuring copy if needed */
     private function seekReadStreamToPosition($offset)
     {
-        if ($this->seekable === null) {
+        if (null === $this->seekable) {
             $this->getReadStreamSeekableStatus();
         }
-        if ($this->seekable === false) {
+        if (false === $this->seekable) {
             $currentPos = ftell($this->reader);
             if ($currentPos < $offset) {
                 $toDiscard = $offset - $currentPos;
@@ -194,7 +192,7 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
     {
         if ($tmpFile = fopen('php://temp/maxmemory:4096', 'w+b')) {
             /* We have opened a php:// Stream Should work without problem */
-        } elseif (function_exists('sys_get_temp_dir') && is_writable(sys_get_temp_dir()) && ($tmpFile = tmpfile())) {
+        } elseif (\function_exists('sys_get_temp_dir') && is_writable(sys_get_temp_dir()) && ($tmpFile = tmpfile())) {
             /* We have opened a tmpfile */
         } else {
             throw new Swift_IoException('Unable to copy the file to make it seekable, sys_temp_dir is not writable, php://memory not available');

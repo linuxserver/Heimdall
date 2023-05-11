@@ -47,10 +47,20 @@ class Configuration
      */
     protected $_internalClassParamMap = array();
 
+    protected $_constantsMap = array();
+
+    /**
+     * Boolean assertion is reflection caching enabled or not. It should be
+     * always enabled, except when using PHPUnit's --static-backup option.
+     *
+     * @see https://github.com/mockery/mockery/issues/268
+     */
+    protected $_reflectionCacheEnabled = true;
+
     /**
      * Set boolean to allow/prevent mocking of non-existent methods
      *
-     * @param bool
+     * @param bool $flag
      */
     public function allowMockingNonExistentMethods($flag = true)
     {
@@ -68,12 +78,16 @@ class Configuration
     }
 
     /**
+     * @deprecated
+     *
      * Set boolean to allow/prevent unnecessary mocking of methods
      *
-     * @param bool
+     * @param bool $flag
      */
     public function allowMockingMethodsUnnecessarily($flag = true)
     {
+        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+
         $this->_allowMockingMethodsUnnecessarily = (bool) $flag;
     }
 
@@ -84,6 +98,8 @@ class Configuration
      */
     public function mockingMethodsUnnecessarilyAllowed()
     {
+        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+
         return $this->_allowMockingMethodsUnnecessarily;
     }
 
@@ -97,6 +113,10 @@ class Configuration
      */
     public function setInternalClassMethodParamMap($class, $method, array $map)
     {
+        if (\PHP_MAJOR_VERSION > 7) {
+            throw new \LogicException('Internal class parameter overriding is not available in PHP 8. Incompatible signatures have been reclassified as fatal errors.');
+        }
+
         if (!isset($this->_internalClassParamMap[strtolower($class)])) {
             $this->_internalClassParamMap[strtolower($class)] = array();
         }
@@ -104,7 +124,7 @@ class Configuration
     }
 
     /**
-     * Remove all overriden parameter maps from internal PHP classes.
+     * Remove all overridden parameter maps from internal PHP classes.
      */
     public function resetInternalClassMethodParamMaps()
     {
@@ -114,7 +134,7 @@ class Configuration
     /**
      * Get the parameter map of an internal PHP class method
      *
-     * @return array
+     * @return array|null
      */
     public function getInternalClassMethodParamMap($class, $method)
     {
@@ -126,5 +146,49 @@ class Configuration
     public function getInternalClassMethodParamMaps()
     {
         return $this->_internalClassParamMap;
+    }
+
+    public function setConstantsMap(array $map)
+    {
+        $this->_constantsMap = $map;
+    }
+
+    public function getConstantsMap()
+    {
+        return $this->_constantsMap;
+    }
+
+    /**
+     * Disable reflection caching
+     *
+     * It should be always enabled, except when using
+     * PHPUnit's --static-backup option.
+     *
+     * @see https://github.com/mockery/mockery/issues/268
+     */
+    public function disableReflectionCache()
+    {
+        $this->_reflectionCacheEnabled = false;
+    }
+
+    /**
+     * Enable reflection caching
+     *
+     * It should be always enabled, except when using
+     * PHPUnit's --static-backup option.
+     *
+     * @see https://github.com/mockery/mockery/issues/268
+     */
+    public function enableReflectionCache()
+    {
+        $this->_reflectionCacheEnabled = true;
+    }
+
+    /**
+     * Is reflection cache enabled?
+     */
+    public function reflectionCacheEnabled()
+    {
+        return $this->_reflectionCacheEnabled;
     }
 }

@@ -20,35 +20,44 @@ final class SessionBagProxy implements SessionBagInterface
 {
     private $bag;
     private $data;
-    private $hasBeenStarted;
+    private $usageIndex;
+    private $usageReporter;
 
-    public function __construct(SessionBagInterface $bag, array &$data, &$hasBeenStarted)
+    public function __construct(SessionBagInterface $bag, array &$data, ?int &$usageIndex, ?callable $usageReporter)
     {
         $this->bag = $bag;
         $this->data = &$data;
-        $this->hasBeenStarted = &$hasBeenStarted;
+        $this->usageIndex = &$usageIndex;
+        $this->usageReporter = $usageReporter;
     }
 
-    /**
-     * @return SessionBagInterface
-     */
-    public function getBag()
+    public function getBag(): SessionBagInterface
     {
+        ++$this->usageIndex;
+        if ($this->usageReporter && 0 <= $this->usageIndex) {
+            ($this->usageReporter)();
+        }
+
         return $this->bag;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
+        if (!isset($this->data[$this->bag->getStorageKey()])) {
+            return true;
+        }
+        ++$this->usageIndex;
+        if ($this->usageReporter && 0 <= $this->usageIndex) {
+            ($this->usageReporter)();
+        }
+
         return empty($this->data[$this->bag->getStorageKey()]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->bag->getName();
     }
@@ -56,9 +65,13 @@ final class SessionBagProxy implements SessionBagInterface
     /**
      * {@inheritdoc}
      */
-    public function initialize(array &$array)
+    public function initialize(array &$array): void
     {
-        $this->hasBeenStarted = true;
+        ++$this->usageIndex;
+        if ($this->usageReporter && 0 <= $this->usageIndex) {
+            ($this->usageReporter)();
+        }
+
         $this->data[$this->bag->getStorageKey()] = &$array;
 
         $this->bag->initialize($array);
@@ -67,7 +80,7 @@ final class SessionBagProxy implements SessionBagInterface
     /**
      * {@inheritdoc}
      */
-    public function getStorageKey()
+    public function getStorageKey(): string
     {
         return $this->bag->getStorageKey();
     }

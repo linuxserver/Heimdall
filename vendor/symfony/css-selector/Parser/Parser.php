@@ -31,13 +31,13 @@ class Parser implements ParserInterface
 
     public function __construct(Tokenizer $tokenizer = null)
     {
-        $this->tokenizer = $tokenizer ?: new Tokenizer();
+        $this->tokenizer = $tokenizer ?? new Tokenizer();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function parse($source)
+    public function parse(string $source): array
     {
         $reader = new Reader($source);
         $stream = $this->tokenizer->tokenize($reader);
@@ -50,11 +50,9 @@ class Parser implements ParserInterface
      *
      * @param Token[] $tokens
      *
-     * @return array
-     *
      * @throws SyntaxErrorException
      */
-    public static function parseSeries(array $tokens)
+    public static function parseSeries(array $tokens): array
     {
         foreach ($tokens as $token) {
             if ($token->isString()) {
@@ -76,38 +74,33 @@ class Parser implements ParserInterface
 
         switch (true) {
             case 'odd' === $joined:
-                return array(2, 1);
+                return [2, 1];
             case 'even' === $joined:
-                return array(2, 0);
+                return [2, 0];
             case 'n' === $joined:
-                return array(1, 0);
-            case false === strpos($joined, 'n'):
-                return array(0, $int($joined));
+                return [1, 0];
+            case !str_contains($joined, 'n'):
+                return [0, $int($joined)];
         }
 
         $split = explode('n', $joined);
-        $first = isset($split[0]) ? $split[0] : null;
+        $first = $split[0] ?? null;
 
-        return array(
+        return [
             $first ? ('-' === $first || '+' === $first ? $int($first.'1') : $int($first)) : 1,
             isset($split[1]) && $split[1] ? $int($split[1]) : 0,
-        );
+        ];
     }
 
-    /**
-     * Parses selector nodes.
-     *
-     * @return array
-     */
-    private function parseSelectorList(TokenStream $stream)
+    private function parseSelectorList(TokenStream $stream): array
     {
         $stream->skipWhitespace();
-        $selectors = array();
+        $selectors = [];
 
         while (true) {
             $selectors[] = $this->parserSelectorNode($stream);
 
-            if ($stream->getPeek()->isDelimiter(array(','))) {
+            if ($stream->getPeek()->isDelimiter([','])) {
                 $stream->getNext();
                 $stream->skipWhitespace();
             } else {
@@ -118,22 +111,15 @@ class Parser implements ParserInterface
         return $selectors;
     }
 
-    /**
-     * Parses next selector or combined node.
-     *
-     * @return Node\SelectorNode
-     *
-     * @throws SyntaxErrorException
-     */
-    private function parserSelectorNode(TokenStream $stream)
+    private function parserSelectorNode(TokenStream $stream): Node\SelectorNode
     {
-        list($result, $pseudoElement) = $this->parseSimpleSelector($stream);
+        [$result, $pseudoElement] = $this->parseSimpleSelector($stream);
 
         while (true) {
             $stream->skipWhitespace();
             $peek = $stream->getPeek();
 
-            if ($peek->isFileEnd() || $peek->isDelimiter(array(','))) {
+            if ($peek->isFileEnd() || $peek->isDelimiter([','])) {
                 break;
             }
 
@@ -141,14 +127,14 @@ class Parser implements ParserInterface
                 throw SyntaxErrorException::pseudoElementFound($pseudoElement, 'not at the end of a selector');
             }
 
-            if ($peek->isDelimiter(array('+', '>', '~'))) {
+            if ($peek->isDelimiter(['+', '>', '~'])) {
                 $combinator = $stream->getNext()->getValue();
                 $stream->skipWhitespace();
             } else {
                 $combinator = ' ';
             }
 
-            list($nextSelector, $pseudoElement) = $this->parseSimpleSelector($stream);
+            [$nextSelector, $pseudoElement] = $this->parseSimpleSelector($stream);
             $result = new Node\CombinedSelectorNode($result, $combinator, $nextSelector);
         }
 
@@ -158,18 +144,13 @@ class Parser implements ParserInterface
     /**
      * Parses next simple node (hash, class, pseudo, negation).
      *
-     * @param TokenStream $stream
-     * @param bool        $insideNegation
-     *
-     * @return array
-     *
      * @throws SyntaxErrorException
      */
-    private function parseSimpleSelector(TokenStream $stream, $insideNegation = false)
+    private function parseSimpleSelector(TokenStream $stream, bool $insideNegation = false): array
     {
         $stream->skipWhitespace();
 
-        $selectorStart = count($stream->getUsed());
+        $selectorStart = \count($stream->getUsed());
         $result = $this->parseElementNode($stream);
         $pseudoElement = null;
 
@@ -177,8 +158,8 @@ class Parser implements ParserInterface
             $peek = $stream->getPeek();
             if ($peek->isWhitespace()
                 || $peek->isFileEnd()
-                || $peek->isDelimiter(array(',', '+', '>', '~'))
-                || ($insideNegation && $peek->isDelimiter(array(')')))
+                || $peek->isDelimiter([',', '+', '>', '~'])
+                || ($insideNegation && $peek->isDelimiter([')']))
             ) {
                 break;
             }
@@ -189,16 +170,16 @@ class Parser implements ParserInterface
 
             if ($peek->isHash()) {
                 $result = new Node\HashNode($result, $stream->getNext()->getValue());
-            } elseif ($peek->isDelimiter(array('.'))) {
+            } elseif ($peek->isDelimiter(['.'])) {
                 $stream->getNext();
                 $result = new Node\ClassNode($result, $stream->getNextIdentifier());
-            } elseif ($peek->isDelimiter(array('['))) {
+            } elseif ($peek->isDelimiter(['['])) {
                 $stream->getNext();
                 $result = $this->parseAttributeNode($result, $stream);
-            } elseif ($peek->isDelimiter(array(':'))) {
+            } elseif ($peek->isDelimiter([':'])) {
                 $stream->getNext();
 
-                if ($stream->getPeek()->isDelimiter(array(':'))) {
+                if ($stream->getPeek()->isDelimiter([':'])) {
                     $stream->getNext();
                     $pseudoElement = $stream->getNextIdentifier();
 
@@ -206,7 +187,7 @@ class Parser implements ParserInterface
                 }
 
                 $identifier = $stream->getNextIdentifier();
-                if (in_array(strtolower($identifier), array('first-line', 'first-letter', 'before', 'after'))) {
+                if (\in_array(strtolower($identifier), ['first-line', 'first-letter', 'before', 'after'])) {
                     // Special case: CSS 2.1 pseudo-elements can have a single ':'.
                     // Any new pseudo-element must have two.
                     $pseudoElement = $identifier;
@@ -214,7 +195,7 @@ class Parser implements ParserInterface
                     continue;
                 }
 
-                if (!$stream->getPeek()->isDelimiter(array('('))) {
+                if (!$stream->getPeek()->isDelimiter(['('])) {
                     $result = new Node\PseudoNode($result, $identifier);
 
                     continue;
@@ -228,20 +209,20 @@ class Parser implements ParserInterface
                         throw SyntaxErrorException::nestedNot();
                     }
 
-                    list($argument, $argumentPseudoElement) = $this->parseSimpleSelector($stream, true);
+                    [$argument, $argumentPseudoElement] = $this->parseSimpleSelector($stream, true);
                     $next = $stream->getNext();
 
                     if (null !== $argumentPseudoElement) {
                         throw SyntaxErrorException::pseudoElementFound($argumentPseudoElement, 'inside ::not()');
                     }
 
-                    if (!$next->isDelimiter(array(')'))) {
+                    if (!$next->isDelimiter([')'])) {
                         throw SyntaxErrorException::unexpectedToken('")"', $next);
                     }
 
                     $result = new Node\NegationNode($result, $argument);
                 } else {
-                    $arguments = array();
+                    $arguments = [];
                     $next = null;
 
                     while (true) {
@@ -251,10 +232,10 @@ class Parser implements ParserInterface
                         if ($next->isIdentifier()
                             || $next->isString()
                             || $next->isNumber()
-                            || $next->isDelimiter(array('+', '-'))
+                            || $next->isDelimiter(['+', '-'])
                         ) {
                             $arguments[] = $next;
-                        } elseif ($next->isDelimiter(array(')'))) {
+                        } elseif ($next->isDelimiter([')'])) {
                             break;
                         } else {
                             throw SyntaxErrorException::unexpectedToken('an argument', $next);
@@ -272,23 +253,18 @@ class Parser implements ParserInterface
             }
         }
 
-        if (count($stream->getUsed()) === $selectorStart) {
+        if (\count($stream->getUsed()) === $selectorStart) {
             throw SyntaxErrorException::unexpectedToken('selector', $stream->getPeek());
         }
 
-        return array($result, $pseudoElement);
+        return [$result, $pseudoElement];
     }
 
-    /**
-     * Parses next element node.
-     *
-     * @return Node\ElementNode
-     */
-    private function parseElementNode(TokenStream $stream)
+    private function parseElementNode(TokenStream $stream): Node\ElementNode
     {
         $peek = $stream->getPeek();
 
-        if ($peek->isIdentifier() || $peek->isDelimiter(array('*'))) {
+        if ($peek->isIdentifier() || $peek->isDelimiter(['*'])) {
             if ($peek->isIdentifier()) {
                 $namespace = $stream->getNext()->getValue();
             } else {
@@ -296,7 +272,7 @@ class Parser implements ParserInterface
                 $namespace = null;
             }
 
-            if ($stream->getPeek()->isDelimiter(array('|'))) {
+            if ($stream->getPeek()->isDelimiter(['|'])) {
                 $stream->getNext();
                 $element = $stream->getNextIdentifierOrStar();
             } else {
@@ -310,26 +286,19 @@ class Parser implements ParserInterface
         return new Node\ElementNode($namespace, $element);
     }
 
-    /**
-     * Parses next attribute node.
-     *
-     * @return Node\AttributeNode
-     *
-     * @throws SyntaxErrorException
-     */
-    private function parseAttributeNode(Node\NodeInterface $selector, TokenStream $stream)
+    private function parseAttributeNode(Node\NodeInterface $selector, TokenStream $stream): Node\AttributeNode
     {
         $stream->skipWhitespace();
         $attribute = $stream->getNextIdentifierOrStar();
 
-        if (null === $attribute && !$stream->getPeek()->isDelimiter(array('|'))) {
+        if (null === $attribute && !$stream->getPeek()->isDelimiter(['|'])) {
             throw SyntaxErrorException::unexpectedToken('"|"', $stream->getPeek());
         }
 
-        if ($stream->getPeek()->isDelimiter(array('|'))) {
+        if ($stream->getPeek()->isDelimiter(['|'])) {
             $stream->getNext();
 
-            if ($stream->getPeek()->isDelimiter(array('='))) {
+            if ($stream->getPeek()->isDelimiter(['='])) {
                 $namespace = null;
                 $stream->getNext();
                 $operator = '|=';
@@ -346,12 +315,12 @@ class Parser implements ParserInterface
             $stream->skipWhitespace();
             $next = $stream->getNext();
 
-            if ($next->isDelimiter(array(']'))) {
+            if ($next->isDelimiter([']'])) {
                 return new Node\AttributeNode($selector, $namespace, $attribute, 'exists', null);
-            } elseif ($next->isDelimiter(array('='))) {
+            } elseif ($next->isDelimiter(['='])) {
                 $operator = '=';
-            } elseif ($next->isDelimiter(array('^', '$', '*', '~', '|', '!'))
-                && $stream->getPeek()->isDelimiter(array('='))
+            } elseif ($next->isDelimiter(['^', '$', '*', '~', '|', '!'])
+                && $stream->getPeek()->isDelimiter(['='])
             ) {
                 $operator = $next->getValue().'=';
                 $stream->getNext();
@@ -375,7 +344,7 @@ class Parser implements ParserInterface
         $stream->skipWhitespace();
         $next = $stream->getNext();
 
-        if (!$next->isDelimiter(array(']'))) {
+        if (!$next->isDelimiter([']'])) {
             throw SyntaxErrorException::unexpectedToken('"]"', $next);
         }
 

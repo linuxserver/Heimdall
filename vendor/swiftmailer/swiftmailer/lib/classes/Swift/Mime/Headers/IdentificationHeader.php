@@ -9,6 +9,7 @@
  */
 
 use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\MessageIDValidation;
 use Egulias\EmailValidator\Validation\RFCValidation;
 
 /**
@@ -25,7 +26,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      *
      * @var string[]
      */
-    private $ids = array();
+    private $ids = [];
 
     /**
      * The strict EmailValidator.
@@ -34,16 +35,18 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      */
     private $emailValidator;
 
+    private $addressEncoder;
+
     /**
      * Creates a new IdentificationHeader with the given $name and $id.
      *
-     * @param string         $name
-     * @param EmailValidator $emailValidator
+     * @param string $name
      */
-    public function __construct($name, EmailValidator $emailValidator)
+    public function __construct($name, EmailValidator $emailValidator, Swift_AddressEncoder $addressEncoder = null)
     {
         $this->setFieldName($name);
         $this->emailValidator = $emailValidator;
+        $this->addressEncoder = $addressEncoder ?? new Swift_AddressEncoder_IdnAddressEncoder();
     }
 
     /**
@@ -94,7 +97,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      */
     public function setId($id)
     {
-        $this->setIds(is_array($id) ? $id : array($id));
+        $this->setIds(\is_array($id) ? $id : [$id]);
     }
 
     /**
@@ -106,7 +109,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      */
     public function getId()
     {
-        if (count($this->ids) > 0) {
+        if (\count($this->ids) > 0) {
             return $this->ids[0];
         }
     }
@@ -120,7 +123,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      */
     public function setIds(array $ids)
     {
-        $actualIds = array();
+        $actualIds = [];
 
         foreach ($ids as $id) {
             $this->assertValidId($id);
@@ -156,10 +159,10 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
     public function getFieldBody()
     {
         if (!$this->getCachedValue()) {
-            $angleAddrs = array();
+            $angleAddrs = [];
 
             foreach ($this->ids as $id) {
-                $angleAddrs[] = '<'.$id.'>';
+                $angleAddrs[] = '<'.$this->addressEncoder->encodeString($id).'>';
             }
 
             $this->setCachedValue(implode(' ', $angleAddrs));
@@ -177,7 +180,9 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      */
     private function assertValidId($id)
     {
-        if (!$this->emailValidator->isValid($id, new RFCValidation())) {
+        $emailValidation = class_exists(MessageIDValidation::class) ? new MessageIDValidation() : new RFCValidation();
+
+        if (!$this->emailValidator->isValid($id, $emailValidation)) {
             throw new Swift_RfcComplianceException('Invalid ID given <'.$id.'>');
         }
     }

@@ -68,10 +68,11 @@ class MockConfigurationBuilder
     protected $mockOriginalDestructor = false;
     protected $targets = array();
 
+    protected $constantsMap = array();
 
     public function __construct()
     {
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+        if (\PHP_VERSION_ID >= 70000) {
             $this->blackListedMethods = array_diff($this->blackListedMethods, $this->php7SemiReservedKeywords);
         }
     }
@@ -154,6 +155,11 @@ class MockConfigurationBuilder
         return $this;
     }
 
+    public function setConstantsMap(array $map)
+    {
+        $this->constantsMap = $map;
+    }
+
     public function getMockConfiguration()
     {
         return new MockConfiguration(
@@ -163,7 +169,8 @@ class MockConfigurationBuilder
             $this->name,
             $this->instanceMock,
             $this->parameterOverrides,
-            $this->mockOriginalDestructor
+            $this->mockOriginalDestructor,
+            $this->constantsMap
         );
     }
 }

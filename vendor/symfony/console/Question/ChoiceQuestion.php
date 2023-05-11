@@ -30,7 +30,7 @@ class ChoiceQuestion extends Question
      * @param array  $choices  The list of available choices
      * @param mixed  $default  The default answer to return
      */
-    public function __construct($question, array $choices, $default = null)
+    public function __construct(string $question, array $choices, $default = null)
     {
         if (!$choices) {
             throw new \LogicException('Choice question must have at least 1 choice available.');
@@ -58,11 +58,9 @@ class ChoiceQuestion extends Question
      *
      * When multiselect is set to true, multiple choices can be answered.
      *
-     * @param bool $multiselect
-     *
      * @return $this
      */
-    public function setMultiselect($multiselect)
+    public function setMultiselect(bool $multiselect)
     {
         $this->multiselect = $multiselect;
         $this->setValidator($this->getDefaultValidator());
@@ -93,11 +91,9 @@ class ChoiceQuestion extends Question
     /**
      * Sets the prompt for choices.
      *
-     * @param string $prompt
-     *
      * @return $this
      */
-    public function setPrompt($prompt)
+    public function setPrompt(string $prompt)
     {
         $this->prompt = $prompt;
 
@@ -109,11 +105,9 @@ class ChoiceQuestion extends Question
      *
      * The error message has a string placeholder (%s) for the invalid value.
      *
-     * @param string $errorMessage
-     *
      * @return $this
      */
-    public function setErrorMessage($errorMessage)
+    public function setErrorMessage(string $errorMessage)
     {
         $this->errorMessage = $errorMessage;
         $this->setValidator($this->getDefaultValidator());
@@ -121,12 +115,7 @@ class ChoiceQuestion extends Question
         return $this;
     }
 
-    /**
-     * Returns the default answer validator.
-     *
-     * @return callable
-     */
-    private function getDefaultValidator()
+    private function getDefaultValidator(): callable
     {
         $choices = $this->choices;
         $errorMessage = $this->errorMessage;
@@ -134,30 +123,34 @@ class ChoiceQuestion extends Question
         $isAssoc = $this->isAssoc($choices);
 
         return function ($selected) use ($choices, $errorMessage, $multiselect, $isAssoc) {
-            // Collapse all spaces.
-            $selectedChoices = str_replace(' ', '', $selected);
-
             if ($multiselect) {
                 // Check for a separated comma values
-                if (!preg_match('/^[^,]+(?:,[^,]+)*$/', $selectedChoices, $matches)) {
+                if (!preg_match('/^[^,]+(?:,[^,]+)*$/', (string) $selected, $matches)) {
                     throw new InvalidArgumentException(sprintf($errorMessage, $selected));
                 }
-                $selectedChoices = explode(',', $selectedChoices);
+
+                $selectedChoices = explode(',', (string) $selected);
             } else {
-                $selectedChoices = array($selected);
+                $selectedChoices = [$selected];
             }
 
-            $multiselectChoices = array();
+            if ($this->isTrimmable()) {
+                foreach ($selectedChoices as $k => $v) {
+                    $selectedChoices[$k] = trim((string) $v);
+                }
+            }
+
+            $multiselectChoices = [];
             foreach ($selectedChoices as $value) {
-                $results = array();
+                $results = [];
                 foreach ($choices as $key => $choice) {
                     if ($choice === $value) {
                         $results[] = $key;
                     }
                 }
 
-                if (count($results) > 1) {
-                    throw new InvalidArgumentException(sprintf('The provided answer is ambiguous. Value should be one of %s.', implode(' or ', $results)));
+                if (\count($results) > 1) {
+                    throw new InvalidArgumentException(sprintf('The provided answer is ambiguous. Value should be one of "%s".', implode('" or "', $results)));
                 }
 
                 $result = array_search($value, $choices);
@@ -176,7 +169,8 @@ class ChoiceQuestion extends Question
                     throw new InvalidArgumentException(sprintf($errorMessage, $value));
                 }
 
-                $multiselectChoices[] = (string) $result;
+                // For associative choices, consistently return the key as string:
+                $multiselectChoices[] = $isAssoc ? (string) $result : $result;
             }
 
             if ($multiselect) {

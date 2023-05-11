@@ -144,7 +144,7 @@ class ClassMirror
         }
 
         if (version_compare(PHP_VERSION, '7.0', '>=') && $method->hasReturnType()) {
-            $returnType = (string) $method->getReturnType();
+            $returnType = PHP_VERSION_ID >= 70100 ? $method->getReturnType()->getName() : (string) $method->getReturnType();
             $returnTypeLower = strtolower($returnType);
 
             if ('self' === $returnTypeLower) {
@@ -189,6 +189,8 @@ class ClassMirror
             $node->setAsPassedByReference();
         }
 
+        $node->setAsNullable($this->isNullable($parameter));
+
         $methodNode->addArgument($node);
     }
 
@@ -229,7 +231,7 @@ class ClassMirror
         }
 
         if (version_compare(PHP_VERSION, '7.0', '>=') && true === $parameter->hasType()) {
-            return (string) $parameter->getType();
+            return PHP_VERSION_ID >= 70100 ? $parameter->getType()->getName() : (string) $parameter->getType();
         }
 
         return null;

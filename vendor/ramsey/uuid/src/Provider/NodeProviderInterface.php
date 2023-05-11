@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -7,23 +8,23 @@
  *
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
- * @link https://benramsey.com/projects/ramsey-uuid/ Documentation
- * @link https://packagist.org/packages/ramsey/uuid Packagist
- * @link https://github.com/ramsey/uuid GitHub
  */
+
+declare(strict_types=1);
 
 namespace Ramsey\Uuid\Provider;
 
+use Ramsey\Uuid\Type\Hexadecimal;
+
 /**
- * NodeProviderInterface provides functionality to get the node ID (or host ID
- * in the form of the system's MAC address) from a specific type of node provider
+ * A node provider retrieves or generates a node ID
  */
 interface NodeProviderInterface
 {
     /**
-     * Returns the system node ID
+     * Returns a node ID
      *
-     * @return string System node ID as a hexadecimal string
+     * @return Hexadecimal The node ID as a hexadecimal string
      */
-    public function getNode();
+    public function getNode(): Hexadecimal;
 }

@@ -15,10 +15,12 @@ if (!function_exists('dump')) {
     /**
      * @author Nicolas Grekas <p@tchwork.com>
      */
-    function dump($var)
+    function dump($var, ...$moreVars)
     {
-        foreach (func_get_args() as $var) {
-            VarDumper::dump($var);
+        VarDumper::dump($var);
+
+        foreach ($moreVars as $v) {
+            VarDumper::dump($v);
         }
 
         if (1 < func_num_args()) {
@@ -26,5 +28,23 @@ if (!function_exists('dump')) {
         }
 
         return $var;
+    }
+}
+
+if (!function_exists('dd')) {
+    /**
+     * @return never
+     */
+    function dd(...$vars)
+    {
+        if (!in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) && !headers_sent()) {
+            header('HTTP/1.1 500 Internal Server Error');
+        }
+
+        foreach ($vars as $v) {
+            VarDumper::dump($v);
+        }
+
+        exit(1);
     }
 }

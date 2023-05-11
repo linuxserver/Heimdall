@@ -1,26 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node;
 
-use PhpParser\NodeAbstract;
-
-class NullableType extends NodeAbstract
+class NullableType extends ComplexType
 {
-    /** @var string|Name Type */
+    /** @var Identifier|Name Type */
     public $type;
 
     /**
      * Constructs a nullable type (wrapping another type).
      *
-     * @param string|Name $type       Type
-     * @param array       $attributes Additional attributes
+     * @param string|Identifier|Name $type       Type
+     * @param array                  $attributes Additional attributes
      */
-    public function __construct($type, array $attributes = array()) {
-        parent::__construct($attributes);
-        $this->type = $type;
+    public function __construct($type, array $attributes = []) {
+        $this->attributes = $attributes;
+        $this->type = \is_string($type) ? new Identifier($type) : $type;
     }
 
-    public function getSubNodeNames() {
-        return array('type');
+    public function getSubNodeNames() : array {
+        return ['type'];
+    }
+    
+    public function getType() : string {
+        return 'NullableType';
     }
 }

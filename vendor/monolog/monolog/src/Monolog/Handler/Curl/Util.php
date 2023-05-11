@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the Monolog package.
@@ -11,9 +11,17 @@
 
 namespace Monolog\Handler\Curl;
 
-class Util
+use CurlHandle;
+
+/**
+ * This class is marked as internal and it is not under the BC promise of the package.
+ *
+ * @internal
+ */
+final class Util
 {
-    private static $retriableErrorCodes = array(
+    /** @var array<int> */
+    private static $retriableErrorCodes = [
         CURLE_COULDNT_RESOLVE_HOST,
         CURLE_COULDNT_CONNECT,
         CURLE_HTTP_NOT_FOUND,
@@ -21,18 +29,21 @@ class Util
         CURLE_OPERATION_TIMEOUTED,
         CURLE_HTTP_POST_ERROR,
         CURLE_SSL_CONNECT_ERROR,
-    );
+    ];
 
     /**
      * Executes a CURL request with optional retries and exception on failure
      *
-     * @param  resource          $ch curl handler
-     * @throws \RuntimeException
+     * @param  resource|CurlHandle $ch             curl handler
+     * @param  int                 $retries
+     * @param  bool                $closeAfterDone
+     * @return bool|string         @see curl_exec
      */
-    public static function execute($ch, $retries = 5, $closeAfterDone = true)
+    public static function execute($ch, int $retries = 5, bool $closeAfterDone = true)
     {
         while ($retries--) {
-            if (curl_exec($ch) === false) {
+            $curlResponse = curl_exec($ch);
+            if ($curlResponse === false) {
                 $curlErrno = curl_errno($ch);
 
                 if (false === in_array($curlErrno, self::$retriableErrorCodes, true) || !$retries) {
@@ -42,7 +53,7 @@ class Util
                         curl_close($ch);
                     }
 
-                    throw new \RuntimeException(sprintf('Curl error (code %s): %s', $curlErrno, $curlError));
+                    throw new \RuntimeException(sprintf('Curl error (code %d): %s', $curlErrno, $curlError));
                 }
 
                 continue;
@@ -51,7 +62,10 @@ class Util
             if ($closeAfterDone) {
                 curl_close($ch);
             }
-            break;
+
+            return $curlResponse;
         }
+
+        return false;
     }
 }

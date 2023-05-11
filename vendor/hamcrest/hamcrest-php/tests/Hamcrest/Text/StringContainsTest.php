@@ -8,7 +8,7 @@ class StringContainsTest extends \Hamcrest\AbstractMatcherTest
 
     private $_stringContains;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_stringContains = \Hamcrest\Text\StringContains::containsString(self::EXCERPT);
     }

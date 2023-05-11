@@ -2,9 +2,9 @@
 
 namespace Illuminate\Routing;
 
+use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Routing\Exceptions\UrlGenerationException;
 
 class RouteUrlGenerator
 {
@@ -83,7 +83,8 @@ class RouteUrlGenerator
         // will need to throw the exception to let the developers know one was not given.
         $uri = $this->addQueryString($this->url->format(
             $root = $this->replaceRootParameters($route, $domain, $parameters),
-            $this->replaceRouteParameters($route->uri(), $parameters)
+            $this->replaceRouteParameters($route->uri(), $parameters),
+            $route
         ), $parameters);
 
         if (preg_match('/\{.*?\}/', $uri)) {
@@ -96,7 +97,13 @@ class RouteUrlGenerator
         $uri = strtr(rawurlencode($uri), $this->dontEncode);
 
         if (! $absolute) {
-            return '/'.ltrim(str_replace($root, '', $uri), '/');
+            $uri = preg_replace('#^(//|[^/?])+#', '', $uri);
+
+            if ($base = $this->request->getBaseUrl()) {
+                $uri = preg_replace('#^'.$base.'#i', '', $uri);
+            }
+
+            return '/'.ltrim($uri, '/');
         }
 
         return $uri;
@@ -142,7 +149,7 @@ class RouteUrlGenerator
             return 'https://';
         }
 
-        return $this->url->formatScheme(null);
+        return $this->url->formatScheme();
     }
 
     /**
@@ -190,9 +197,12 @@ class RouteUrlGenerator
         $path = $this->replaceNamedParameters($path, $parameters);
 
         $path = preg_replace_callback('/\{.*?\}/', function ($match) use (&$parameters) {
-            return (empty($parameters) && ! Str::endsWith($match[0], '?}'))
+            // Reset only the numeric keys...
+            $parameters = array_merge($parameters);
+
+            return (! isset($parameters[0]) && ! Str::endsWith($match[0], '?}'))
                         ? $match[0]
-                        : array_shift($parameters);
+                        : Arr::pull($parameters, 0);
         }, $path);
 
         return trim(preg_replace('/\{.*?\?\}/', '', $path), '/');
@@ -207,11 +217,13 @@ class RouteUrlGenerator
      */
     protected function replaceNamedParameters($path, &$parameters)
     {
-        return preg_replace_callback('/\{(.*?)\??\}/', function ($m) use (&$parameters) {
-            if (isset($parameters[$m[1]])) {
+        return preg_replace_callback('/\{(.*?)(\?)?\}/', function ($m) use (&$parameters) {
+            if (isset($parameters[$m[1]]) && $parameters[$m[1]] !== '') {
                 return Arr::pull($parameters, $m[1]);
             } elseif (isset($this->defaultParameters[$m[1]])) {
                 return $this->defaultParameters[$m[1]];
+            } elseif (isset($parameters[$m[1]])) {
+                Arr::pull($parameters, $m[1]);
             }
 
             return $m[0];
@@ -250,11 +262,11 @@ class RouteUrlGenerator
         // First we will get all of the string parameters that are remaining after we
         // have replaced the route wildcards. We'll then build a query string from
         // these string parameters then use it as a starting point for the rest.
-        if (count($parameters) == 0) {
+        if (count($parameters) === 0) {
             return '';
         }
 
-        $query = http_build_query(
+        $query = Arr::query(
             $keyed = $this->getStringParameters($parameters)
         );
 
@@ -267,7 +279,9 @@ class RouteUrlGenerator
             );
         }
 
-        return '?'.trim($query, '&');
+        $query = trim($query, '&');
+
+        return $query === '' ? '' : "?{$query}";
     }
 
     /**

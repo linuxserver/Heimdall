@@ -23,10 +23,10 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
     private $originalBody;
 
     /** The original headers of the message, before replacements */
-    private $originalHeaders = array();
+    private $originalHeaders = [];
 
     /** Bodies of children before they are replaced */
-    private $originalChildBodies = array();
+    private $originalChildBodies = [];
 
     /** The Message that was last replaced */
     private $lastMessage;
@@ -74,8 +74,6 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
 
     /**
      * Invoked immediately before the Message is sent.
-     *
-     * @param Swift_Events_SendEvent $evt
      */
     public function beforeSendPerformed(Swift_Events_SendEvent $evt)
     {
@@ -98,20 +96,20 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
             foreach ($message->getHeaders()->getAll() as $header) {
                 $body = $header->getFieldBodyModel();
                 $count = 0;
-                if (is_array($body)) {
-                    $bodyReplaced = array();
+                if (\is_array($body)) {
+                    $bodyReplaced = [];
                     foreach ($body as $key => $value) {
                         $count1 = 0;
                         $count2 = 0;
-                        $key = is_string($key) ? str_replace($search, $replace, $key, $count1) : $key;
-                        $value = is_string($value) ? str_replace($search, $replace, $value, $count2) : $value;
+                        $key = \is_string($key) ? str_replace($search, $replace, $key, $count1) : $key;
+                        $value = \is_string($value) ? str_replace($search, $replace, $value, $count2) : $value;
                         $bodyReplaced[$key] = $value;
 
                         if (!$count && ($count1 || $count2)) {
                             $count = 1;
                         }
                     }
-                } elseif (is_string($body)) {
+                } elseif (\is_string($body)) {
                     $bodyReplaced = str_replace($search, $replace, $body, $count);
                 }
 
@@ -164,8 +162,6 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
 
     /**
      * Invoked immediately after the Message is sent.
-     *
-     * @param Swift_Events_SendEvent $evt
      */
     public function sendPerformed(Swift_Events_SendEvent $evt)
     {
@@ -182,21 +178,21 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
             }
             if (!empty($this->originalHeaders)) {
                 foreach ($message->getHeaders()->getAll() as $header) {
-                    if (array_key_exists($header->getFieldName(), $this->originalHeaders)) {
+                    if (\array_key_exists($header->getFieldName(), $this->originalHeaders)) {
                         $header->setFieldBodyModel($this->originalHeaders[$header->getFieldName()]);
                     }
                 }
-                $this->originalHeaders = array();
+                $this->originalHeaders = [];
             }
             if (!empty($this->originalChildBodies)) {
                 $children = (array) $message->getChildren();
                 foreach ($children as $child) {
                     $id = $child->getId();
-                    if (array_key_exists($id, $this->originalChildBodies)) {
+                    if (\array_key_exists($id, $this->originalChildBodies)) {
                         $child->setBody($this->originalChildBodies[$id]);
                     }
                 }
-                $this->originalChildBodies = array();
+                $this->originalChildBodies = [];
             }
             $this->lastMessage = null;
         }

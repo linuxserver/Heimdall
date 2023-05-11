@@ -37,9 +37,9 @@ class CompiledRoute implements \Serializable
      * @param array       $hostVariables An array of host variables
      * @param array       $variables     An array of variables (variables defined in the path and in the host patterns)
      */
-    public function __construct($staticPrefix, $regex, array $tokens, array $pathVariables, $hostRegex = null, array $hostTokens = array(), array $hostVariables = array(), array $variables = array())
+    public function __construct(string $staticPrefix, string $regex, array $tokens, array $pathVariables, string $hostRegex = null, array $hostTokens = [], array $hostVariables = [], array $variables = [])
     {
-        $this->staticPrefix = (string) $staticPrefix;
+        $this->staticPrefix = $staticPrefix;
         $this->regex = $regex;
         $this->tokens = $tokens;
         $this->pathVariables = $pathVariables;
@@ -49,12 +49,9 @@ class CompiledRoute implements \Serializable
         $this->variables = $variables;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function serialize()
+    public function __serialize(): array
     {
-        return serialize(array(
+        return [
             'vars' => $this->variables,
             'path_prefix' => $this->staticPrefix,
             'path_regex' => $this->regex,
@@ -63,20 +60,19 @@ class CompiledRoute implements \Serializable
             'host_regex' => $this->hostRegex,
             'host_tokens' => $this->hostTokens,
             'host_vars' => $this->hostVariables,
-        ));
+        ];
     }
 
     /**
-     * {@inheritdoc}
+     * @internal
      */
-    public function unserialize($serialized)
+    final public function serialize(): string
     {
-        if (\PHP_VERSION_ID >= 70000) {
-            $data = unserialize($serialized, array('allowed_classes' => false));
-        } else {
-            $data = unserialize($serialized);
-        }
+        return serialize($this->__serialize());
+    }
 
+    public function __unserialize(array $data): void
+    {
         $this->variables = $data['vars'];
         $this->staticPrefix = $data['path_prefix'];
         $this->regex = $data['path_regex'];
@@ -88,9 +84,17 @@ class CompiledRoute implements \Serializable
     }
 
     /**
+     * @internal
+     */
+    final public function unserialize($serialized)
+    {
+        $this->__unserialize(unserialize($serialized, ['allowed_classes' => false]));
+    }
+
+    /**
      * Returns the static prefix.
      *
-     * @return string The static prefix
+     * @return string
      */
     public function getStaticPrefix()
     {
@@ -100,7 +104,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the regex.
      *
-     * @return string The regex
+     * @return string
      */
     public function getRegex()
     {
@@ -110,7 +114,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the host regex.
      *
-     * @return string|null The host regex or null
+     * @return string|null
      */
     public function getHostRegex()
     {
@@ -120,7 +124,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the tokens.
      *
-     * @return array The tokens
+     * @return array
      */
     public function getTokens()
     {
@@ -130,7 +134,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the host tokens.
      *
-     * @return array The tokens
+     * @return array
      */
     public function getHostTokens()
     {
@@ -140,7 +144,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the variables.
      *
-     * @return array The variables
+     * @return array
      */
     public function getVariables()
     {
@@ -150,7 +154,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the path variables.
      *
-     * @return array The variables
+     * @return array
      */
     public function getPathVariables()
     {
@@ -160,7 +164,7 @@ class CompiledRoute implements \Serializable
     /**
      * Returns the host variables.
      *
-     * @return array The variables
+     * @return array
      */
     public function getHostVariables()
     {

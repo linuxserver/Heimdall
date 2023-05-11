@@ -43,14 +43,13 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      *
      * @var array
      */
-    private $keys = array();
+    private $keys = [];
 
     /**
      * Create a new DiskKeyCache with the given $stream for cloning to make
      * InputByteStreams, and the given $path to save to.
      *
-     * @param Swift_KeyCache_KeyCacheInputStream $stream
-     * @param string                             $path   to save to
+     * @param string $path to save to
      */
     public function __construct(Swift_KeyCache_KeyCacheInputStream $stream, $path)
     {
@@ -81,10 +80,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
                 $fp = $this->getHandle($nsKey, $itemKey, self::POSITION_END);
                 break;
             default:
-                throw new Swift_SwiftException(
-                    'Invalid mode ['.$mode.'] used to set nsKey='.
-                    $nsKey.', itemKey='.$itemKey
-                    );
+                throw new Swift_SwiftException('Invalid mode ['.$mode.'] used to set nsKey='.$nsKey.', itemKey='.$itemKey);
                 break;
         }
         fwrite($fp, $string);
@@ -96,10 +92,9 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      *
      * @see MODE_WRITE, MODE_APPEND
      *
-     * @param string                 $nsKey
-     * @param string                 $itemKey
-     * @param Swift_OutputByteStream $os
-     * @param int                    $mode
+     * @param string $nsKey
+     * @param string $itemKey
+     * @param int    $mode
      *
      * @throws Swift_IoException
      */
@@ -114,10 +109,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
                 $fp = $this->getHandle($nsKey, $itemKey, self::POSITION_END);
                 break;
             default:
-                throw new Swift_SwiftException(
-                    'Invalid mode ['.$mode.'] used to set nsKey='.
-                    $nsKey.', itemKey='.$itemKey
-                    );
+                throw new Swift_SwiftException('Invalid mode ['.$mode.'] used to set nsKey='.$nsKey.', itemKey='.$itemKey);
                 break;
         }
         while (false !== $bytes = $os->read(8192)) {
@@ -131,9 +123,8 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      *
      * NOTE: The stream will always write in append mode.
      *
-     * @param string                $nsKey
-     * @param string                $itemKey
-     * @param Swift_InputByteStream $writeThrough
+     * @param string $nsKey
+     * @param string $itemKey
      *
      * @return Swift_InputByteStream
      */
@@ -227,7 +218,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      */
     public function clearAll($nsKey)
     {
-        if (array_key_exists($nsKey, $this->keys)) {
+        if (\array_key_exists($nsKey, $this->keys)) {
             foreach ($this->keys[$nsKey] as $itemKey => $null) {
                 $this->clearKey($nsKey, $itemKey);
             }
@@ -250,7 +241,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
             if (!mkdir($cacheDir)) {
                 throw new Swift_IoException('Failed to create cache directory '.$cacheDir);
             }
-            $this->keys[$nsKey] = array();
+            $this->keys[$nsKey] = [];
         }
     }
 
@@ -294,5 +285,10 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
         foreach ($this->keys as $nsKey => $null) {
             $this->clearAll($nsKey);
         }
+    }
+
+    public function __wakeup()
+    {
+        $this->keys = [];
     }
 }

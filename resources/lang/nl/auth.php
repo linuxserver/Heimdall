@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'failed' => 'De door u opgegeven referenties komen niet overeen met onze gegevens.',
+    'failed' => 'De door u opgegeven inloggegevens komen niet overeen met onze gegevens.',
     'throttle' => 'Te veel aanmeldpogingen. Probeer het over :seconds seconden opnieuw.',
 
 ];

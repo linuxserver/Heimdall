@@ -16,7 +16,7 @@ our tests more clear.
 
 Spies also allow us to follow the more familiar Arrange-Act-Assert or
 Given-When-Then style within our tests. With mocks, we have to follow a less
-familiar style, something a long the lines of Arrange-Expect-Act-Assert, where
+familiar style, something along the lines of Arrange-Expect-Act-Assert, where
 we have to tell our mocks what to expect before we act on the sut, then assert
 that those expectations where met:
 
@@ -150,5 +150,5 @@ We can set expectation on number of calls as well:
         ->foo('bar')
         ->twice();
 
-Unfortunatelly, due to limitations we can't support the same syntax for the
+Unfortunately, due to limitations we can't support the same syntax for the
 ``shouldNotHaveReceived()`` method.

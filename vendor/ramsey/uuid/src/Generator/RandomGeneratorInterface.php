@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -7,24 +8,23 @@
  *
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
- * @link https://benramsey.com/projects/ramsey-uuid/ Documentation
- * @link https://packagist.org/packages/ramsey/uuid Packagist
- * @link https://github.com/ramsey/uuid GitHub
  */
+
+declare(strict_types=1);
 
 namespace Ramsey\Uuid\Generator;
 
 /**
- * RandomGeneratorInterface provides functionality to generate strings of random
- * binary data
+ * A random generator generates strings of random binary data
  */
 interface RandomGeneratorInterface
 {
     /**
-     * Generates a string of random binary data of the specified length
+     * Generates a string of randomized binary data
      *
-     * @param integer $length The number of bytes of random binary data to generate
+     * @param int $length The number of bytes of random binary data to generate
+     *
      * @return string A binary string
      */
-    public function generate($length);
+    public function generate(int $length): string;
 }

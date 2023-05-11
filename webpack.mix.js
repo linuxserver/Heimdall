@@ -11,9 +11,11 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.scripts([
-    //'resources/assets/js/jquery-ui.min.js',
-    'resources/assets/js/huebee.js',
-    'resources/assets/js/app.js'
-    ], 'public/js/app.js')
-   .sass('resources/assets/sass/app.scss', 'public/css').version();
+mix.babel([
+      //'resources/assets/js/jquery-ui.min.js',
+      'resources/assets/js/huebee.js',
+      'resources/assets/js/app.js'
+      ], 'public/js/app.js')
+   .sass('resources/assets/sass/app.scss', 'public/css').options({
+      processCssUrls: false
+   }).version();

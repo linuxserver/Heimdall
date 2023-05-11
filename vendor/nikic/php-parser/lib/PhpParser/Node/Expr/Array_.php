@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Expr;
 
@@ -10,21 +10,25 @@ class Array_ extends Expr
     const KIND_LONG = 1;  // array() syntax
     const KIND_SHORT = 2; // [] syntax
 
-    /** @var ArrayItem[] Items */
+    /** @var (ArrayItem|null)[] Items */
     public $items;
 
     /**
      * Constructs an array node.
      *
-     * @param ArrayItem[] $items      Items of the array
+     * @param (ArrayItem|null)[] $items      Items of the array
      * @param array       $attributes Additional attributes
      */
-    public function __construct(array $items = array(), array $attributes = array()) {
-        parent::__construct($attributes);
+    public function __construct(array $items = [], array $attributes = []) {
+        $this->attributes = $attributes;
         $this->items = $items;
     }
 
-    public function getSubNodeNames() {
-        return array('items');
+    public function getSubNodeNames() : array {
+        return ['items'];
+    }
+    
+    public function getType() : string {
+        return 'Expr_Array';
     }
 }

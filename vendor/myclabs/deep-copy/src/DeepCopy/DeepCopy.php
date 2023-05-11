@@ -2,19 +2,21 @@
 
 namespace DeepCopy;
 
+use ArrayObject;
 use DateInterval;
 use DateTimeInterface;
 use DateTimeZone;
 use DeepCopy\Exception\CloneException;
 use DeepCopy\Filter\Filter;
 use DeepCopy\Matcher\Matcher;
+use DeepCopy\Reflection\ReflectionHelper;
 use DeepCopy\TypeFilter\Date\DateIntervalFilter;
+use DeepCopy\TypeFilter\Spl\ArrayObjectFilter;
 use DeepCopy\TypeFilter\Spl\SplDoublyLinkedListFilter;
 use DeepCopy\TypeFilter\TypeFilter;
 use DeepCopy\TypeMatcher\TypeMatcher;
 use ReflectionObject;
 use ReflectionProperty;
-use DeepCopy\Reflection\ReflectionHelper;
 use SplDoublyLinkedList;
 
 /**
@@ -59,6 +61,7 @@ class DeepCopy
     {
         $this->useCloneMethod = $useCloneMethod;
 
+        $this->addTypeFilter(new ArrayObjectFilter($this), new TypeMatcher(ArrayObject::class));
         $this->addTypeFilter(new DateIntervalFilter(), new TypeMatcher(DateInterval::class));
         $this->addTypeFilter(new SplDoublyLinkedListFilter($this), new TypeMatcher(SplDoublyLinkedList::class));
     }
@@ -99,6 +102,14 @@ class DeepCopy
         ];
     }
 
+    public function prependFilter(Filter $filter, Matcher $matcher)
+    {
+        array_unshift($this->filters, [
+            'matcher' => $matcher,
+            'filter'  => $filter,
+        ]);
+    }
+
     public function addTypeFilter(TypeFilter $filter, TypeMatcher $matcher)
     {
         $this->typeFilters[] = [
@@ -126,6 +137,11 @@ class DeepCopy
 
         // Scalar
         if (! is_object($var)) {
+            return $var;
+        }
+
+        // Enum
+        if (PHP_VERSION_ID >= 80100 && enum_exists(get_class($var))) {
             return $var;
         }
 
@@ -229,6 +245,12 @@ class DeepCopy
         }
 
         $property->setAccessible(true);
+
+        // Ignore uninitialized properties (for PHP >7.4)
+        if (method_exists($property, 'isInitialized') && !$property->isInitialized($object)) {
+            return;
+        }
+
         $propertyValue = $property->getValue($object);
 
         // Copy the property

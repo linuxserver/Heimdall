@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Expr;
 
@@ -19,12 +19,16 @@ class Exit_ extends Expr
      * @param null|Expr $expr       Expression
      * @param array                    $attributes Additional attributes
      */
-    public function __construct(Expr $expr = null, array $attributes = array()) {
-        parent::__construct($attributes);
+    public function __construct(Expr $expr = null, array $attributes = []) {
+        $this->attributes = $attributes;
         $this->expr = $expr;
     }
 
-    public function getSubNodeNames() {
-        return array('expr');
+    public function getSubNodeNames() : array {
+        return ['expr'];
+    }
+    
+    public function getType() : string {
+        return 'Expr_Exit';
     }
 }

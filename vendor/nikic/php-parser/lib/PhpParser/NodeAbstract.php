@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser;
 
@@ -11,66 +11,115 @@ abstract class NodeAbstract implements Node, \JsonSerializable
      *
      * @param array $attributes Array of attributes
      */
-    public function __construct(array $attributes = array()) {
+    public function __construct(array $attributes = []) {
         $this->attributes = $attributes;
     }
 
     /**
-     * Gets the type of the node.
+     * Gets line the node started in (alias of getStartLine).
      *
-     * @return string Type of the node
+     * @return int Start line (or -1 if not available)
      */
-    public function getType() {
-        $className = rtrim(get_class($this), '_');
-        return strtr(
-            substr(
-                $className,
-                strpos($className, 'PhpParser\Node') + 15
-            ),
-            '\\',
-            '_'
-        );
+    public function getLine() : int {
+        return $this->attributes['startLine'] ?? -1;
     }
 
     /**
      * Gets line the node started in.
      *
-     * @return int Line
+     * Requires the 'startLine' attribute to be enabled in the lexer (enabled by default).
+     *
+     * @return int Start line (or -1 if not available)
      */
-    public function getLine() {
-        return $this->getAttribute('startLine', -1);
+    public function getStartLine() : int {
+        return $this->attributes['startLine'] ?? -1;
     }
 
     /**
-     * Sets line the node started in.
+     * Gets the line the node ended in.
      *
-     * @param int $line Line
+     * Requires the 'endLine' attribute to be enabled in the lexer (enabled by default).
      *
-     * @deprecated
+     * @return int End line (or -1 if not available)
      */
-    public function setLine($line) {
-        $this->setAttribute('startLine', (int) $line);
+    public function getEndLine() : int {
+        return $this->attributes['endLine'] ?? -1;
+    }
+
+    /**
+     * Gets the token offset of the first token that is part of this node.
+     *
+     * The offset is an index into the array returned by Lexer::getTokens().
+     *
+     * Requires the 'startTokenPos' attribute to be enabled in the lexer (DISABLED by default).
+     *
+     * @return int Token start position (or -1 if not available)
+     */
+    public function getStartTokenPos() : int {
+        return $this->attributes['startTokenPos'] ?? -1;
+    }
+
+    /**
+     * Gets the token offset of the last token that is part of this node.
+     *
+     * The offset is an index into the array returned by Lexer::getTokens().
+     *
+     * Requires the 'endTokenPos' attribute to be enabled in the lexer (DISABLED by default).
+     *
+     * @return int Token end position (or -1 if not available)
+     */
+    public function getEndTokenPos() : int {
+        return $this->attributes['endTokenPos'] ?? -1;
+    }
+
+    /**
+     * Gets the file offset of the first character that is part of this node.
+     *
+     * Requires the 'startFilePos' attribute to be enabled in the lexer (DISABLED by default).
+     *
+     * @return int File start position (or -1 if not available)
+     */
+    public function getStartFilePos() : int {
+        return $this->attributes['startFilePos'] ?? -1;
+    }
+
+    /**
+     * Gets the file offset of the last character that is part of this node.
+     *
+     * Requires the 'endFilePos' attribute to be enabled in the lexer (DISABLED by default).
+     *
+     * @return int File end position (or -1 if not available)
+     */
+    public function getEndFilePos() : int {
+        return $this->attributes['endFilePos'] ?? -1;
+    }
+
+    /**
+     * Gets all comments directly preceding this node.
+     *
+     * The comments are also available through the "comments" attribute.
+     *
+     * @return Comment[]
+     */
+    public function getComments() : array {
+        return $this->attributes['comments'] ?? [];
     }
 
     /**
      * Gets the doc comment of the node.
      *
-     * The doc comment has to be the last comment associated with the node.
-     *
      * @return null|Comment\Doc Doc comment object or null
      */
     public function getDocComment() {
-        $comments = $this->getAttribute('comments');
-        if (!$comments) {
-            return null;
+        $comments = $this->getComments();
+        for ($i = count($comments) - 1; $i >= 0; $i--) {
+            $comment = $comments[$i];
+            if ($comment instanceof Comment\Doc) {
+                return $comment;
+            }
         }
 
-        $lastComment = $comments[count($comments) - 1];
-        if (!$lastComment instanceof Comment\Doc) {
-            return null;
-        }
-
-        return $lastComment;
+        return null;
     }
 
     /**
@@ -81,41 +130,49 @@ abstract class NodeAbstract implements Node, \JsonSerializable
      * @param Comment\Doc $docComment Doc comment to set
      */
     public function setDocComment(Comment\Doc $docComment) {
-        $comments = $this->getAttribute('comments', []);
-
-        $numComments = count($comments);
-        if ($numComments > 0 && $comments[$numComments - 1] instanceof Comment\Doc) {
-            // Replace existing doc comment
-            $comments[$numComments - 1] = $docComment;
-        } else {
-            // Append new comment
-            $comments[] = $docComment;
+        $comments = $this->getComments();
+        for ($i = count($comments) - 1; $i >= 0; $i--) {
+            if ($comments[$i] instanceof Comment\Doc) {
+                // Replace existing doc comment.
+                $comments[$i] = $docComment;
+                $this->setAttribute('comments', $comments);
+                return;
+            }
         }
 
+        // Append new doc comment.
+        $comments[] = $docComment;
         $this->setAttribute('comments', $comments);
     }
 
-    public function setAttribute($key, $value) {
+    public function setAttribute(string $key, $value) {
         $this->attributes[$key] = $value;
     }
 
-    public function hasAttribute($key) {
+    public function hasAttribute(string $key) : bool {
         return array_key_exists($key, $this->attributes);
     }
 
-    public function &getAttribute($key, $default = null) {
-        if (!array_key_exists($key, $this->attributes)) {
-            return $default;
-        } else {
+    public function getAttribute(string $key, $default = null) {
+        if (array_key_exists($key, $this->attributes)) {
             return $this->attributes[$key];
         }
+
+        return $default;
     }
 
-    public function getAttributes() {
+    public function getAttributes() : array {
         return $this->attributes;
     }
 
-    public function jsonSerialize() {
+    public function setAttributes(array $attributes) {
+        $this->attributes = $attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize() : array {
         return ['nodeType' => $this->getType()] + get_object_vars($this);
     }
 }

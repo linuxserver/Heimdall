@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'username', 'email', 'password',
     ];
 
     /**
@@ -26,4 +26,38 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Get the items for the user.
+     */
+    public function items()
+    {
+        return $this->hasMany('App\Item');
+    }
+
+    /**
+     * The settings that belong to the user.
+     */
+    public function settings()
+    {
+        return $this->belongsToMany('App\Setting')->withPivot('uservalue');
+    }
+
+    public static function currentUser()
+    {
+        $current_user = session('current_user');
+        if ($current_user) { // if logged in, set this user
+            return $current_user;
+        } else { // not logged in, get first user
+            $user = User::where('public_front',true)->first();
+            if(!$user) {
+                $user = User::first();
+            }
+            session(['current_user' => $user]);
+            return $user;
+        }
+
+    }
+
+
 }

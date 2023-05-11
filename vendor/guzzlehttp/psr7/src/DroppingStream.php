@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GuzzleHttp\Psr7;
 
 use Psr\Http\Message\StreamInterface;
@@ -7,23 +10,24 @@ use Psr\Http\Message\StreamInterface;
  * Stream decorator that begins dropping data once the size of the underlying
  * stream becomes too full.
  */
-class DroppingStream implements StreamInterface
+final class DroppingStream implements StreamInterface
 {
     use StreamDecoratorTrait;
 
+    /** @var int */
     private $maxLength;
 
     /**
      * @param StreamInterface $stream    Underlying stream to decorate.
      * @param int             $maxLength Maximum size before dropping data.
      */
-    public function __construct(StreamInterface $stream, $maxLength)
+    public function __construct(StreamInterface $stream, int $maxLength)
     {
         $this->stream = $stream;
         $this->maxLength = $maxLength;
     }
 
-    public function write($string)
+    public function write($string): int
     {
         $diff = $this->maxLength - $this->stream->getSize();
 

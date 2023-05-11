@@ -11,12 +11,12 @@
 
 namespace Symfony\Component\HttpKernel\EventListener;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\UriSigner;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\UriSigner;
 
 /**
  * Handles content fragments represented by special URIs.
@@ -24,10 +24,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * All URL paths starting with /_fragment are handled as
  * content fragments by this listener.
  *
- * If throws an AccessDeniedHttpException exception if the request
+ * Throws an AccessDeniedHttpException exception if the request
  * is not signed or if it is not an internal sub-request.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final
  */
 class FragmentListener implements EventSubscriberInterface
 {
@@ -35,10 +37,9 @@ class FragmentListener implements EventSubscriberInterface
     private $fragmentPath;
 
     /**
-     * @param UriSigner $signer       A UriSigner instance
-     * @param string    $fragmentPath The path that triggers this listener
+     * @param string $fragmentPath The path that triggers this listener
      */
-    public function __construct(UriSigner $signer, $fragmentPath = '/_fragment')
+    public function __construct(UriSigner $signer, string $fragmentPath = '/_fragment')
     {
         $this->signer = $signer;
         $this->fragmentPath = $fragmentPath;
@@ -49,7 +50,7 @@ class FragmentListener implements EventSubscriberInterface
      *
      * @throws AccessDeniedHttpException if the request does not come from a trusted IP
      */
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         $request = $event->getRequest();
 
@@ -64,36 +65,35 @@ class FragmentListener implements EventSubscriberInterface
             return;
         }
 
-        if ($event->isMasterRequest()) {
+        if ($event->isMainRequest()) {
             $this->validateRequest($request);
         }
 
         parse_str($request->query->get('_path', ''), $attributes);
         $request->attributes->add($attributes);
-        $request->attributes->set('_route_params', array_replace($request->attributes->get('_route_params', array()), $attributes));
+        $request->attributes->set('_route_params', array_replace($request->attributes->get('_route_params', []), $attributes));
         $request->query->remove('_path');
     }
 
     protected function validateRequest(Request $request)
     {
         // is the Request safe?
-        if (!$request->isMethodSafe(false)) {
+        if (!$request->isMethodSafe()) {
             throw new AccessDeniedHttpException();
         }
 
         // is the Request signed?
-        // we cannot use $request->getUri() here as we want to work with the original URI (no query string reordering)
-        if ($this->signer->check($request->getSchemeAndHttpHost().$request->getBaseUrl().$request->getPathInfo().(null !== ($qs = $request->server->get('QUERY_STRING')) ? '?'.$qs : ''))) {
+        if ($this->signer->checkRequest($request)) {
             return;
         }
 
         throw new AccessDeniedHttpException();
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
-        return array(
-            KernelEvents::REQUEST => array(array('onKernelRequest', 48)),
-        );
+        return [
+            KernelEvents::REQUEST => [['onKernelRequest', 48]],
+        ];
     }
 }

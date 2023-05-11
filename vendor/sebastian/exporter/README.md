@@ -1,8 +1,6 @@
 Exporter
 ========
 
-[![Build Status](https://secure.travis-ci.org/sebastianbergmann/exporter.png?branch=master)](https://travis-ci.org/sebastianbergmann/exporter)
-
 This component provides the functionality to export PHP variables for visualization.
 
 ## Usage
@@ -22,7 +20,6 @@ Exception Object &0000000078de0f0d000000002003a261 (
     'code' => 0
     'file' => '/home/sebastianbergmann/test.php'
     'line' => 34
-    'trace' => Array &0 ()
     'previous' => null
 )
 */

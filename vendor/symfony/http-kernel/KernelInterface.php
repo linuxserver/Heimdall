@@ -11,23 +11,27 @@
 
 namespace Symfony\Component\HttpKernel;
 
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\Config\Loader\LoaderInterface;
 
 /**
  * The Kernel is the heart of the Symfony system.
  *
- * It manages an environment made of bundles.
+ * It manages an environment made of application kernel and bundles.
+ *
+ * @method string getBuildDir() Returns the build directory - not implementing it is deprecated since Symfony 5.2.
+ *                              This directory should be used to store build artifacts, and can be read-only at runtime.
+ *                              Caches written at runtime should be stored in the "cache directory" ({@see KernelInterface::getCacheDir()}).
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface KernelInterface extends HttpKernelInterface, \Serializable
+interface KernelInterface extends HttpKernelInterface
 {
     /**
      * Returns an array of bundles to register.
      *
-     * @return BundleInterface[] An array of bundle instances
+     * @return iterable<mixed, BundleInterface>
      */
     public function registerBundles();
 
@@ -51,27 +55,21 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
     /**
      * Gets the registered bundle instances.
      *
-     * @return BundleInterface[] An array of registered bundle instances
+     * @return array<string, BundleInterface>
      */
     public function getBundles();
 
     /**
-     * Returns a bundle and optionally its descendants by its name.
+     * Returns a bundle.
      *
-     * The second argument is deprecated as of 3.4 and will be removed in 4.0. This method
-     * will always return an instance of BundleInterface in 4.0.
-     *
-     * @param string $name  Bundle name
-     * @param bool   $first Whether to return the first bundle only or together with its descendants
-     *
-     * @return BundleInterface|BundleInterface[] A BundleInterface instance or an array of BundleInterface instances if $first is false
+     * @return BundleInterface
      *
      * @throws \InvalidArgumentException when the bundle is not enabled
      */
-    public function getBundle($name, $first = true);
+    public function getBundle(string $name);
 
     /**
-     * Returns the file path for a given resource.
+     * Returns the file path for a given bundle resource.
      *
      * A Resource can be a file or a directory.
      *
@@ -82,84 +80,70 @@ interface KernelInterface extends HttpKernelInterface, \Serializable
      * where BundleName is the name of the bundle
      * and the remaining part is the relative path in the bundle.
      *
-     * If $dir is passed, and the first segment of the path is "Resources",
-     * this method will look for a file named:
-     *
-     *     $dir/<BundleName>/path/without/Resources
-     *
-     * before looking in the bundle resource folder.
-     *
-     * @param string $name  A resource name to locate
-     * @param string $dir   A directory where to look for the resource first
-     * @param bool   $first Whether to return the first path or paths for all matching bundles
-     *
-     * @return string|array The absolute path of the resource or an array if $first is false
+     * @return string
      *
      * @throws \InvalidArgumentException if the file cannot be found or the name is not valid
      * @throws \RuntimeException         if the name contains invalid/unsafe characters
      */
-    public function locateResource($name, $dir = null, $first = true);
-
-    /**
-     * Gets the name of the kernel.
-     *
-     * @return string The kernel name
-     */
-    public function getName();
+    public function locateResource(string $name);
 
     /**
      * Gets the environment.
      *
-     * @return string The current environment
+     * @return string
      */
     public function getEnvironment();
 
     /**
      * Checks if debug mode is enabled.
      *
-     * @return bool true if debug mode is enabled, false otherwise
+     * @return bool
      */
     public function isDebug();
 
     /**
-     * Gets the application root dir (path of the project's Kernel class).
+     * Gets the project dir (path of the project's composer file).
      *
-     * @return string The Kernel root dir
+     * @return string
      */
-    public function getRootDir();
+    public function getProjectDir();
 
     /**
      * Gets the current container.
      *
-     * @return ContainerInterface A ContainerInterface instance
+     * @return ContainerInterface
      */
     public function getContainer();
 
     /**
      * Gets the request start time (not available if debug is disabled).
      *
-     * @return int The request start timestamp
+     * @return float
      */
     public function getStartTime();
 
     /**
      * Gets the cache directory.
      *
-     * @return string The cache directory
+     * Since Symfony 5.2, the cache directory should be used for caches that are written at runtime.
+     * For caches and artifacts that can be warmed at compile-time and deployed as read-only,
+     * use the new "build directory" returned by the {@see getBuildDir()} method.
+     *
+     * @return string
      */
     public function getCacheDir();
 
     /**
      * Gets the log directory.
      *
-     * @return string The log directory
+     * @return string
      */
     public function getLogDir();
 
     /**
      * Gets the charset of the application.
      *
-     * @return string The charset
+     * @return string
      */
     public function getCharset();
 }

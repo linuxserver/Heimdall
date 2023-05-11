@@ -26,16 +26,10 @@ trait ConditionallyLoadsAttributes
             }
 
             if (is_numeric($key) && $value instanceof MergeValue) {
-                return $this->merge($data, $index, $this->filter($value->data));
-            }
-
-            if (($value instanceof PotentiallyMissing && $value->isMissing()) ||
-                ($value instanceof self &&
-                $value->resource instanceof PotentiallyMissing &&
-                $value->isMissing())) {
-                unset($data[$key]);
-
-                $index--;
+                return $this->mergeData(
+                    $data, $index, $this->filter($value->data),
+                    array_values($value->data) === $value->data
+                );
             }
 
             if ($value instanceof self && is_null($value->resource)) {
@@ -43,7 +37,7 @@ trait ConditionallyLoadsAttributes
             }
         }
 
-        return $data;
+        return $this->removeMissingValues($data);
     }
 
     /**
@@ -52,20 +46,49 @@ trait ConditionallyLoadsAttributes
      * @param  array  $data
      * @param  int  $index
      * @param  array  $merge
+     * @param  bool  $numericKeys
      * @return array
      */
-    protected function merge($data, $index, $merge)
+    protected function mergeData($data, $index, $merge, $numericKeys)
     {
-        if (array_values($data) === $data) {
-            return array_merge(
+        if ($numericKeys) {
+            return $this->removeMissingValues(array_merge(
                 array_merge(array_slice($data, 0, $index, true), $merge),
-                $this->filter(array_slice($data, $index + 1, null, true))
-            );
+                $this->filter(array_values(array_slice($data, $index + 1, null, true)))
+            ));
         }
 
-        return array_slice($data, 0, $index, true) +
+        return $this->removeMissingValues(array_slice($data, 0, $index, true) +
                 $merge +
-                $this->filter(array_slice($data, $index + 1, null, true));
+                $this->filter(array_slice($data, $index + 1, null, true)));
+    }
+
+    /**
+     * Remove the missing values from the filtered data.
+     *
+     * @param  array  $data
+     * @return array
+     */
+    protected function removeMissingValues($data)
+    {
+        $numericKeys = true;
+
+        foreach ($data as $key => $value) {
+            if (($value instanceof PotentiallyMissing && $value->isMissing()) ||
+                ($value instanceof self &&
+                $value->resource instanceof PotentiallyMissing &&
+                $value->isMissing())) {
+                unset($data[$key]);
+            } else {
+                $numericKeys = $numericKeys && is_numeric($key);
+            }
+        }
+
+        if (property_exists($this, 'preserveKeys') && $this->preserveKeys === true) {
+            return $data;
+        }
+
+        return $numericKeys ? array_values($data) : $data;
     }
 
     /**
@@ -86,11 +109,22 @@ trait ConditionallyLoadsAttributes
     }
 
     /**
+     * Merge a value into the array.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Http\Resources\MergeValue|mixed
+     */
+    protected function merge($value)
+    {
+        return $this->mergeWhen(true, $value);
+    }
+
+    /**
      * Merge a value based on a given condition.
      *
      * @param  bool  $condition
      * @param  mixed  $value
-     * @return \Illuminate\Http\Resources\MissingValue|mixed
+     * @return \Illuminate\Http\Resources\MergeValue|mixed
      */
     protected function mergeWhen($condition, $value)
     {
@@ -111,6 +145,23 @@ trait ConditionallyLoadsAttributes
     }
 
     /**
+     * Retrieve an accessor when it has been appended.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @param  mixed  $default
+     * @return \Illuminate\Http\Resources\MissingValue|mixed
+     */
+    protected function whenAppended($attribute, $value = null, $default = null)
+    {
+        if ($this->resource->hasAppended($attribute)) {
+            return func_num_args() >= 2 ? value($value) : $this->resource->$attribute;
+        }
+
+        return func_num_args() === 3 ? value($default) : new MissingValue;
+    }
+
+    /**
      * Retrieve a relationship if it has been loaded.
      *
      * @param  string  $relationship
@@ -125,7 +176,7 @@ trait ConditionallyLoadsAttributes
         }
 
         if (! $this->resource->relationLoaded($relationship)) {
-            return $default;
+            return value($default);
         }
 
         if (func_num_args() === 1) {
@@ -133,7 +184,7 @@ trait ConditionallyLoadsAttributes
         }
 
         if ($this->resource->{$relationship} === null) {
-            return null;
+            return;
         }
 
         return value($value);
@@ -149,14 +200,28 @@ trait ConditionallyLoadsAttributes
      */
     protected function whenPivotLoaded($table, $value, $default = null)
     {
-        if (func_num_args() === 2) {
+        return $this->whenPivotLoadedAs('pivot', ...func_get_args());
+    }
+
+    /**
+     * Execute a callback if the given pivot table with a custom accessor has been loaded.
+     *
+     * @param  string  $accessor
+     * @param  string  $table
+     * @param  mixed  $value
+     * @param  mixed  $default
+     * @return \Illuminate\Http\Resources\MissingValue|mixed
+     */
+    protected function whenPivotLoadedAs($accessor, $table, $value, $default = null)
+    {
+        if (func_num_args() === 3) {
             $default = new MissingValue;
         }
 
         return $this->when(
-            $this->resource->pivot &&
-            ($this->resource->pivot instanceof $table ||
-             $this->resource->pivot->getTable() === $table),
+            $this->resource->$accessor &&
+            ($this->resource->$accessor instanceof $table ||
+            $this->resource->$accessor->getTable() === $table),
             ...[$value, $default]
         );
     }

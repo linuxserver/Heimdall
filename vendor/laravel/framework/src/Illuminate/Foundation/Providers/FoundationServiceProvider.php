@@ -4,6 +4,8 @@ namespace Illuminate\Foundation\Providers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\AggregateServiceProvider;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
 
 class FoundationServiceProvider extends AggregateServiceProvider
 {
@@ -17,6 +19,20 @@ class FoundationServiceProvider extends AggregateServiceProvider
     ];
 
     /**
+     * Boot the service provider.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../Exceptions/views' => $this->app->resourcePath('views/errors/'),
+            ], 'laravel-errors');
+        }
+    }
+
+    /**
      * Register the service provider.
      *
      * @return void
@@ -25,22 +41,43 @@ class FoundationServiceProvider extends AggregateServiceProvider
     {
         parent::register();
 
-        $this->registerRequestValidate();
+        $this->registerRequestValidation();
+        $this->registerRequestSignatureValidation();
     }
 
     /**
      * Register the "validate" macro on the request.
      *
      * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function registerRequestValidate()
+    public function registerRequestValidation()
     {
         Request::macro('validate', function (array $rules, ...$params) {
-            validator()->validate($this->all(), $rules, ...$params);
+            return validator()->validate($this->all(), $rules, ...$params);
+        });
 
-            return $this->only(collect($rules)->keys()->map(function ($rule) {
-                return str_contains($rule, '.') ? explode('.', $rule)[0] : $rule;
-            })->unique()->toArray());
+        Request::macro('validateWithBag', function (string $errorBag, array $rules, ...$params) {
+            try {
+                return $this->validate($rules, ...$params);
+            } catch (ValidationException $e) {
+                $e->errorBag = $errorBag;
+
+                throw $e;
+            }
+        });
+    }
+
+    /**
+     * Register the "hasValidSignature" macro on the request.
+     *
+     * @return void
+     */
+    public function registerRequestSignatureValidation()
+    {
+        Request::macro('hasValidSignature', function ($absolute = true) {
+            return URL::hasValidSignature($this, $absolute);
         });
     }
 }

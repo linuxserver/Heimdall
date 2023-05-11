@@ -1,10 +1,9 @@
 Mockery
 =======
 
-[![Build Status](https://travis-ci.org/mockery/mockery.png?branch=master)](https://travis-ci.org/mockery/mockery)
-[![Latest Stable Version](https://poser.pugx.org/mockery/mockery/v/stable.png)](https://packagist.org/packages/mockery/mockery)
-[![Coverage Status](https://coveralls.io/repos/github/mockery/mockery/badge.svg)](https://coveralls.io/github/mockery/mockery)
-[![Total Downloads](https://poser.pugx.org/mockery/mockery/downloads.png)](https://packagist.org/packages/mockery/mockery)
+[![Build Status](https://github.com/mockery/mockery/workflows/tests/badge.svg)](https://github.com/mockery/mockery/actions)
+[![Latest Stable Version](https://poser.pugx.org/mockery/mockery/v/stable.svg)](https://packagist.org/packages/mockery/mockery)
+[![Total Downloads](https://poser.pugx.org/mockery/mockery/downloads.svg)](https://packagist.org/packages/mockery/mockery)
 
 Mockery is a simple yet flexible PHP mock object framework for use in unit testing
 with PHPUnit, PHPSpec or any other testing framework. Its core goal is to offer a
@@ -24,8 +23,6 @@ version
 ```sh
 composer require --dev mockery/mockery
 ```
-
-⚠️️ The remainder of this README refers specifically to the master branch (1.0-dev).
 
 ## Documentation
 
@@ -237,7 +234,7 @@ $spy->shouldHaveReceived()
 
 All of the global helpers are wrapped in a `!function_exists` call to avoid
 conflicts. So if you already have a global function called `spy`, Mockery will
-silently skip the declaring it's own `spy` function.
+silently skip the declaring its own `spy` function.
 
 ### Testing Traits
 

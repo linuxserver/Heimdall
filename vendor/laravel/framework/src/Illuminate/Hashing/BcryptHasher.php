@@ -2,23 +2,42 @@
 
 namespace Illuminate\Hashing;
 
-use RuntimeException;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use RuntimeException;
 
-class BcryptHasher implements HasherContract
+class BcryptHasher extends AbstractHasher implements HasherContract
 {
     /**
-     * Default crypt cost factor.
+     * The default cost factor.
      *
      * @var int
      */
     protected $rounds = 10;
 
     /**
+     * Indicates whether to perform an algorithm check.
+     *
+     * @var bool
+     */
+    protected $verifyAlgorithm = false;
+
+    /**
+     * Create a new hasher instance.
+     *
+     * @param  array  $options
+     * @return void
+     */
+    public function __construct(array $options = [])
+    {
+        $this->rounds = $options['rounds'] ?? $this->rounds;
+        $this->verifyAlgorithm = $options['verify'] ?? $this->verifyAlgorithm;
+    }
+
+    /**
      * Hash the given value.
      *
      * @param  string  $value
-     * @param  array   $options
+     * @param  array  $options
      * @return string
      *
      * @throws \RuntimeException
@@ -41,23 +60,25 @@ class BcryptHasher implements HasherContract
      *
      * @param  string  $value
      * @param  string  $hashedValue
-     * @param  array   $options
+     * @param  array  $options
      * @return bool
+     *
+     * @throws \RuntimeException
      */
     public function check($value, $hashedValue, array $options = [])
     {
-        if (strlen($hashedValue) === 0) {
-            return false;
+        if ($this->verifyAlgorithm && $this->info($hashedValue)['algoName'] !== 'bcrypt') {
+            throw new RuntimeException('This password does not use the Bcrypt algorithm.');
         }
 
-        return password_verify($value, $hashedValue);
+        return parent::check($value, $hashedValue, $options);
     }
 
     /**
      * Check if the given hash has been hashed using the given options.
      *
      * @param  string  $hashedValue
-     * @param  array   $options
+     * @param  array  $options
      * @return bool
      */
     public function needsRehash($hashedValue, array $options = [])

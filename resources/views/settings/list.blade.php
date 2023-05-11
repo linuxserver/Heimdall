@@ -1,4 +1,4 @@
-@extends('app')
+@extends('layouts.app')
 
 @section('content')
 
@@ -25,11 +25,15 @@
                             <tr>
                                 <td>{{ __($setting->label) }}</td>
                                 <td>
+                                    @if($setting->type === "textarea")
+                                    <pre>{{ $setting->list_value }}</pre>
+                                    @else
                                     {!! $setting->list_value !!}
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if((bool)$setting->system !== true)
-                                    <a href="{!! route('settings.edit', ['id' => $setting->id], false) !!}" title="{{ __('app.settings.edit') }} {!! $setting->label !!}" class="secondary"><i class="fa fa-pencil"></i></a>
+                                    <a href="{!! route('settings.edit', ['id' => $setting->id]) !!}" title="{{ __('app.settings.edit') }} {!! $setting->label !!}" class="secondary"><i class="fa fa-pencil"></i></a>
                                     @endif
                                 </td>
                             </tr>

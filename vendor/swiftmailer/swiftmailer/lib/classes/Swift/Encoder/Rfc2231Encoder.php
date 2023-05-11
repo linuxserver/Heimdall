@@ -24,8 +24,6 @@ class Swift_Encoder_Rfc2231Encoder implements Swift_Encoder
 
     /**
      * Creates a new Rfc2231Encoder using the given character stream instance.
-     *
-     * @param Swift_CharacterStream
      */
     public function __construct(Swift_CharacterStream $charStream)
     {
@@ -44,7 +42,7 @@ class Swift_Encoder_Rfc2231Encoder implements Swift_Encoder
      */
     public function encodeString($string, $firstLineOffset = 0, $maxLineLength = 0)
     {
-        $lines = array();
+        $lines = [];
         $lineCount = 0;
         $lines[] = '';
         $currentLine = &$lines[$lineCount++];
@@ -60,8 +58,8 @@ class Swift_Encoder_Rfc2231Encoder implements Swift_Encoder
 
         while (false !== $char = $this->charStream->read(4)) {
             $encodedChar = rawurlencode($char);
-            if (0 != strlen($currentLine)
-                && strlen($currentLine.$encodedChar) > $thisLineLength) {
+            if (0 != \strlen($currentLine)
+                && \strlen($currentLine.$encodedChar) > $thisLineLength) {
                 $lines[] = '';
                 $currentLine = &$lines[$lineCount++];
                 $thisLineLength = $maxLineLength;

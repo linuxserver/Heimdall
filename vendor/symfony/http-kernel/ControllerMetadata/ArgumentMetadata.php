@@ -11,6 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\ControllerMetadata;
 
+use Symfony\Component\HttpKernel\Attribute\ArgumentInterface;
+
 /**
  * Responsible for storing metadata of an argument.
  *
@@ -18,22 +20,20 @@ namespace Symfony\Component\HttpKernel\ControllerMetadata;
  */
 class ArgumentMetadata
 {
+    public const IS_INSTANCEOF = 2;
+
     private $name;
     private $type;
     private $isVariadic;
     private $hasDefaultValue;
     private $defaultValue;
     private $isNullable;
+    private $attributes;
 
     /**
-     * @param string $name
-     * @param string $type
-     * @param bool   $isVariadic
-     * @param bool   $hasDefaultValue
-     * @param mixed  $defaultValue
-     * @param bool   $isNullable
+     * @param object[] $attributes
      */
-    public function __construct($name, $type, $isVariadic, $hasDefaultValue, $defaultValue, $isNullable = false)
+    public function __construct(string $name, ?string $type, bool $isVariadic, bool $hasDefaultValue, $defaultValue, bool $isNullable = false, $attributes = [])
     {
         $this->name = $name;
         $this->type = $type;
@@ -41,6 +41,13 @@ class ArgumentMetadata
         $this->hasDefaultValue = $hasDefaultValue;
         $this->defaultValue = $defaultValue;
         $this->isNullable = $isNullable || null === $type || ($hasDefaultValue && null === $defaultValue);
+
+        if (null === $attributes || $attributes instanceof ArgumentInterface) {
+            trigger_deprecation('symfony/http-kernel', '5.3', 'The "%s" constructor expects an array of PHP attributes as last argument, %s given.', __CLASS__, get_debug_type($attributes));
+            $attributes = $attributes ? [$attributes] : [];
+        }
+
+        $this->attributes = $attributes;
     }
 
     /**
@@ -58,7 +65,7 @@ class ArgumentMetadata
      *
      * The type is the PHP class in 5.5+ and additionally the basic type in PHP 7.0+.
      *
-     * @return string
+     * @return string|null
      */
     public function getType()
     {
@@ -107,9 +114,50 @@ class ArgumentMetadata
     public function getDefaultValue()
     {
         if (!$this->hasDefaultValue) {
-            throw new \LogicException(sprintf('Argument $%s does not have a default value. Use %s::hasDefaultValue() to avoid this exception.', $this->name, __CLASS__));
+            throw new \LogicException(sprintf('Argument $%s does not have a default value. Use "%s::hasDefaultValue()" to avoid this exception.', $this->name, __CLASS__));
         }
 
         return $this->defaultValue;
+    }
+
+    /**
+     * Returns the attribute (if any) that was set on the argument.
+     */
+    public function getAttribute(): ?ArgumentInterface
+    {
+        trigger_deprecation('symfony/http-kernel', '5.3', 'Method "%s()" is deprecated, use "getAttributes()" instead.', __METHOD__);
+
+        if (!$this->attributes) {
+            return null;
+        }
+
+        return $this->attributes[0] instanceof ArgumentInterface ? $this->attributes[0] : null;
+    }
+
+    /**
+     * @return object[]
+     */
+    public function getAttributes(string $name = null, int $flags = 0): array
+    {
+        if (!$name) {
+            return $this->attributes;
+        }
+
+        $attributes = [];
+        if ($flags & self::IS_INSTANCEOF) {
+            foreach ($this->attributes as $attribute) {
+                if ($attribute instanceof $name) {
+                    $attributes[] = $attribute;
+                }
+            }
+        } else {
+            foreach ($this->attributes as $attribute) {
+                if (\get_class($attribute) === $name) {
+                    $attributes[] = $attribute;
+                }
+            }
+        }
+
+        return $attributes;
     }
 }

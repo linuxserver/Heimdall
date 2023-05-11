@@ -11,14 +11,16 @@
 
 namespace Symfony\Component\HttpKernel\DataCollector;
 
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\VarDumper\Caster\LinkStub;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\VarDumper\Caster\ClassStub;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final
  */
 class ConfigDataCollector extends DataCollector implements LateDataCollectorInterface
 {
@@ -26,20 +28,6 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
      * @var KernelInterface
      */
     private $kernel;
-    private $name;
-    private $version;
-    private $hasVarDumper;
-
-    /**
-     * @param string $name    The name of the application using the web profiler
-     * @param string $version The version of the application using the web profiler
-     */
-    public function __construct($name = null, $version = null)
-    {
-        $this->name = $name;
-        $this->version = $version;
-        $this->hasVarDumper = class_exists(LinkStub::class);
-    }
 
     /**
      * Sets the Kernel associated with this Request.
@@ -52,39 +40,36 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
     /**
      * {@inheritdoc}
      */
-    public function collect(Request $request, Response $response, \Exception $exception = null)
+    public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
-        $this->data = array(
-            'app_name' => $this->name,
-            'app_version' => $this->version,
+        $eom = \DateTime::createFromFormat('d/m/Y', '01/'.Kernel::END_OF_MAINTENANCE);
+        $eol = \DateTime::createFromFormat('d/m/Y', '01/'.Kernel::END_OF_LIFE);
+
+        $this->data = [
             'token' => $response->headers->get('X-Debug-Token'),
             'symfony_version' => Kernel::VERSION,
-            'symfony_state' => 'unknown',
-            'name' => isset($this->kernel) ? $this->kernel->getName() : 'n/a',
+            'symfony_minor_version' => sprintf('%s.%s', Kernel::MAJOR_VERSION, Kernel::MINOR_VERSION),
+            'symfony_lts' => 4 === Kernel::MINOR_VERSION,
+            'symfony_state' => $this->determineSymfonyState(),
+            'symfony_eom' => $eom->format('F Y'),
+            'symfony_eol' => $eol->format('F Y'),
             'env' => isset($this->kernel) ? $this->kernel->getEnvironment() : 'n/a',
             'debug' => isset($this->kernel) ? $this->kernel->isDebug() : 'n/a',
-            'php_version' => PHP_VERSION,
-            'php_architecture' => PHP_INT_SIZE * 8,
-            'php_intl_locale' => class_exists('Locale', false) && \Locale::getDefault() ? \Locale::getDefault() : 'n/a',
+            'php_version' => \PHP_VERSION,
+            'php_architecture' => \PHP_INT_SIZE * 8,
+            'php_intl_locale' => class_exists(\Locale::class, false) && \Locale::getDefault() ? \Locale::getDefault() : 'n/a',
             'php_timezone' => date_default_timezone_get(),
-            'xdebug_enabled' => extension_loaded('xdebug'),
-            'apcu_enabled' => extension_loaded('apcu') && ini_get('apc.enabled'),
-            'zend_opcache_enabled' => extension_loaded('Zend OPcache') && ini_get('opcache.enable'),
-            'bundles' => array(),
-            'sapi_name' => PHP_SAPI,
-        );
+            'xdebug_enabled' => \extension_loaded('xdebug'),
+            'apcu_enabled' => \extension_loaded('apcu') && filter_var(ini_get('apc.enabled'), \FILTER_VALIDATE_BOOLEAN),
+            'zend_opcache_enabled' => \extension_loaded('Zend OPcache') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN),
+            'bundles' => [],
+            'sapi_name' => \PHP_SAPI,
+        ];
 
         if (isset($this->kernel)) {
             foreach ($this->kernel->getBundles() as $name => $bundle) {
-                $this->data['bundles'][$name] = $this->hasVarDumper ? new LinkStub($bundle->getPath()) : $bundle->getPath();
+                $this->data['bundles'][$name] = new ClassStub(\get_class($bundle));
             }
-
-            $this->data['symfony_state'] = $this->determineSymfonyState();
-            $this->data['symfony_minor_version'] = sprintf('%s.%s', Kernel::MAJOR_VERSION, Kernel::MINOR_VERSION);
-            $eom = \DateTime::createFromFormat('m/Y', Kernel::END_OF_MAINTENANCE);
-            $eol = \DateTime::createFromFormat('m/Y', Kernel::END_OF_LIFE);
-            $this->data['symfony_eom'] = $eom->format('F Y');
-            $this->data['symfony_eol'] = $eol->format('F Y');
         }
 
         if (preg_match('~^(\d+(?:\.\d+)*)(.+)?$~', $this->data['php_version'], $matches) && isset($matches[2])) {
@@ -98,7 +83,7 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
      */
     public function reset()
     {
-        $this->data = array();
+        $this->data = [];
     }
 
     public function lateCollect()
@@ -106,32 +91,18 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
         $this->data = $this->cloneVar($this->data);
     }
 
-    public function getApplicationName()
-    {
-        return $this->data['app_name'];
-    }
-
-    public function getApplicationVersion()
-    {
-        return $this->data['app_version'];
-    }
-
     /**
      * Gets the token.
-     *
-     * @return string The token
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return $this->data['token'];
     }
 
     /**
      * Gets the Symfony version.
-     *
-     * @return string The Symfony version
      */
-    public function getSymfonyVersion()
+    public function getSymfonyVersion(): string
     {
         return $this->data['symfony_version'];
     }
@@ -141,7 +112,7 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
      *
      * @return string One of: unknown, dev, stable, eom, eol
      */
-    public function getSymfonyState()
+    public function getSymfonyState(): string
     {
         return $this->data['symfony_state'];
     }
@@ -149,96 +120,76 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
     /**
      * Returns the minor Symfony version used (without patch numbers of extra
      * suffix like "RC", "beta", etc.).
-     *
-     * @return string
      */
-    public function getSymfonyMinorVersion()
+    public function getSymfonyMinorVersion(): string
     {
         return $this->data['symfony_minor_version'];
     }
 
     /**
-     * Returns the human redable date when this Symfony version ends its
-     * maintenance period.
-     *
-     * @return string
+     * Returns if the current Symfony version is a Long-Term Support one.
      */
-    public function getSymfonyEom()
+    public function isSymfonyLts(): bool
+    {
+        return $this->data['symfony_lts'];
+    }
+
+    /**
+     * Returns the human readable date when this Symfony version ends its
+     * maintenance period.
+     */
+    public function getSymfonyEom(): string
     {
         return $this->data['symfony_eom'];
     }
 
     /**
-     * Returns the human redable date when this Symfony version reaches its
+     * Returns the human readable date when this Symfony version reaches its
      * "end of life" and won't receive bugs or security fixes.
-     *
-     * @return string
      */
-    public function getSymfonyEol()
+    public function getSymfonyEol(): string
     {
         return $this->data['symfony_eol'];
     }
 
     /**
      * Gets the PHP version.
-     *
-     * @return string The PHP version
      */
-    public function getPhpVersion()
+    public function getPhpVersion(): string
     {
         return $this->data['php_version'];
     }
 
     /**
      * Gets the PHP version extra part.
-     *
-     * @return string|null The extra part
      */
-    public function getPhpVersionExtra()
+    public function getPhpVersionExtra(): ?string
     {
-        return isset($this->data['php_version_extra']) ? $this->data['php_version_extra'] : null;
+        return $this->data['php_version_extra'] ?? null;
     }
 
     /**
      * @return int The PHP architecture as number of bits (e.g. 32 or 64)
      */
-    public function getPhpArchitecture()
+    public function getPhpArchitecture(): int
     {
         return $this->data['php_architecture'];
     }
 
-    /**
-     * @return string
-     */
-    public function getPhpIntlLocale()
+    public function getPhpIntlLocale(): string
     {
         return $this->data['php_intl_locale'];
     }
 
-    /**
-     * @return string
-     */
-    public function getPhpTimezone()
+    public function getPhpTimezone(): string
     {
         return $this->data['php_timezone'];
     }
 
     /**
-     * Gets the application name.
-     *
-     * @return string The application name
-     */
-    public function getAppName()
-    {
-        return $this->data['name'];
-    }
-
-    /**
      * Gets the environment.
-     *
-     * @return string The environment
      */
-    public function getEnv()
+    public function getEnv(): string
     {
         return $this->data['env'];
     }
@@ -246,7 +197,7 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
     /**
      * Returns true if the debug is enabled.
      *
-     * @return bool true if debug is enabled, false otherwise
+     * @return bool|string true if debug is enabled, false otherwise or a string if no kernel was set
      */
     public function isDebug()
     {
@@ -255,30 +206,24 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
 
     /**
      * Returns true if the XDebug is enabled.
-     *
-     * @return bool true if XDebug is enabled, false otherwise
      */
-    public function hasXDebug()
+    public function hasXDebug(): bool
     {
         return $this->data['xdebug_enabled'];
     }
 
     /**
      * Returns true if APCu is enabled.
-     *
-     * @return bool true if APCu is enabled, false otherwise
      */
-    public function hasApcu()
+    public function hasApcu(): bool
     {
         return $this->data['apcu_enabled'];
     }
 
     /**
      * Returns true if Zend OPcache is enabled.
-     *
-     * @return bool true if Zend OPcache is enabled, false otherwise
      */
-    public function hasZendOpcache()
+    public function hasZendOpcache(): bool
     {
         return $this->data['zend_opcache_enabled'];
     }
@@ -290,10 +235,8 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
 
     /**
      * Gets the PHP SAPI name.
-     *
-     * @return string The environment
      */
-    public function getSapiName()
+    public function getSapiName(): string
     {
         return $this->data['sapi_name'];
     }
@@ -301,7 +244,7 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'config';
     }
@@ -311,11 +254,11 @@ class ConfigDataCollector extends DataCollector implements LateDataCollectorInte
      *
      * @return string One of: dev, stable, eom, eol
      */
-    private function determineSymfonyState()
+    private function determineSymfonyState(): string
     {
         $now = new \DateTime();
-        $eom = \DateTime::createFromFormat('m/Y', Kernel::END_OF_MAINTENANCE)->modify('last day of this month');
-        $eol = \DateTime::createFromFormat('m/Y', Kernel::END_OF_LIFE)->modify('last day of this month');
+        $eom = \DateTime::createFromFormat('d/m/Y', '01/'.Kernel::END_OF_MAINTENANCE)->modify('last day of this month');
+        $eol = \DateTime::createFromFormat('d/m/Y', '01/'.Kernel::END_OF_LIFE)->modify('last day of this month');
 
         if ($now > $eol) {
             $versionState = 'eol';

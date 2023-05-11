@@ -1,6 +1,38 @@
 CHANGELOG
 =========
 
+5.4.0
+-----
+
+ * Deprecate `Comparator::setTarget()` and `Comparator::setOperator()`
+ * Add a constructor to `Comparator` that allows setting target and operator
+ * Finder's iterator has now `Symfony\Component\Finder\SplFileInfo` inner type specified
+ * Add recursive .gitignore files support
+
+5.0.0
+-----
+
+ * added `$useNaturalSort` argument to `Finder::sortByName()`
+
+4.3.0
+-----
+
+ * added Finder::ignoreVCSIgnored() to ignore files based on rules listed in .gitignore
+
+4.2.0
+-----
+
+ * added $useNaturalSort option to Finder::sortByName() method
+ * the `Finder::sortByName()` method will have a new `$useNaturalSort`
+   argument in version 5.0, not defining it is deprecated
+ * added `Finder::reverseSorting()` to reverse the sorting
+
+4.0.0
+-----
+
+ * removed `ExceptionInterface`
+ * removed `Symfony\Component\Finder\Iterator\FilterIterator`
+
 3.4.0
 -----
 

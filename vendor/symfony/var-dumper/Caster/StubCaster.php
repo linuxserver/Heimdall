@@ -17,10 +17,12 @@ use Symfony\Component\VarDumper\Cloner\Stub;
  * Casts a caster's Stub.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @final
  */
 class StubCaster
 {
-    public static function castStub(Stub $c, array $a, Stub $stub, $isNested)
+    public static function castStub(Stub $c, array $a, Stub $stub, bool $isNested)
     {
         if ($isNested) {
             $stub->type = $c->type;
@@ -30,34 +32,34 @@ class StubCaster
             $stub->cut = $c->cut;
             $stub->attr = $c->attr;
 
-            if (Stub::TYPE_REF === $c->type && !$c->class && is_string($c->value) && !preg_match('//u', $c->value)) {
+            if (Stub::TYPE_REF === $c->type && !$c->class && \is_string($c->value) && !preg_match('//u', $c->value)) {
                 $stub->type = Stub::TYPE_STRING;
                 $stub->class = Stub::STRING_BINARY;
             }
 
-            $a = array();
+            $a = [];
         }
 
         return $a;
     }
 
-    public static function castCutArray(CutArrayStub $c, array $a, Stub $stub, $isNested)
+    public static function castCutArray(CutArrayStub $c, array $a, Stub $stub, bool $isNested)
     {
         return $isNested ? $c->preservedSubset : $a;
     }
 
-    public static function cutInternals($obj, array $a, Stub $stub, $isNested)
+    public static function cutInternals($obj, array $a, Stub $stub, bool $isNested)
     {
         if ($isNested) {
-            $stub->cut += count($a);
+            $stub->cut += \count($a);
 
-            return array();
+            return [];
         }
 
         return $a;
     }
 
-    public static function castEnum(EnumStub $c, array $a, Stub $stub, $isNested)
+    public static function castEnum(EnumStub $c, array $a, Stub $stub, bool $isNested)
     {
         if ($isNested) {
             $stub->class = $c->dumpKeys ? '' : null;
@@ -66,7 +68,7 @@ class StubCaster
             $stub->cut = $c->cut;
             $stub->attr = $c->attr;
 
-            $a = array();
+            $a = [];
 
             if ($c->value) {
                 foreach (array_keys($c->value) as $k) {

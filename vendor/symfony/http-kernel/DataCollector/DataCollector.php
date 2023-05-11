@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\DataCollector;
 
-use Symfony\Component\HttpKernel\DataCollector\Util\ValueExporter;
 use Symfony\Component\VarDumper\Caster\CutStub;
+use Symfony\Component\VarDumper\Caster\ReflectionCaster;
 use Symfony\Component\VarDumper\Cloner\ClonerInterface;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Cloner\Stub;
@@ -26,29 +26,17 @@ use Symfony\Component\VarDumper\Cloner\VarCloner;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Bernhard Schussek <bschussek@symfony.com>
  */
-abstract class DataCollector implements DataCollectorInterface, \Serializable
+abstract class DataCollector implements DataCollectorInterface
 {
-    protected $data = array();
-
     /**
-     * @var ValueExporter
+     * @var array|Data
      */
-    private $valueExporter;
+    protected $data = [];
 
     /**
      * @var ClonerInterface
      */
     private $cloner;
-
-    public function serialize()
-    {
-        return serialize($this->data);
-    }
-
-    public function unserialize($data)
-    {
-        $this->data = unserialize($data);
-    }
 
     /**
      * Converts the variable into a serializable Data instance.
@@ -66,44 +54,12 @@ abstract class DataCollector implements DataCollectorInterface, \Serializable
             return $var;
         }
         if (null === $this->cloner) {
-            if (class_exists(CutStub::class)) {
-                $this->cloner = new VarCloner();
-                $this->cloner->setMaxItems(-1);
-                $this->cloner->addCasters($this->getCasters());
-            } else {
-                @trigger_error(sprintf('Using the %s() method without the VarDumper component is deprecated since Symfony 3.2 and won\'t be supported in 4.0. Install symfony/var-dumper version 3.2 or above.', __METHOD__), E_USER_DEPRECATED);
-                $this->cloner = false;
-            }
-        }
-        if (false === $this->cloner) {
-            if (null === $this->valueExporter) {
-                $this->valueExporter = new ValueExporter();
-            }
-
-            return $this->valueExporter->exportValue($var);
+            $this->cloner = new VarCloner();
+            $this->cloner->setMaxItems(-1);
+            $this->cloner->addCasters($this->getCasters());
         }
 
         return $this->cloner->cloneVar($var);
-    }
-
-    /**
-     * Converts a PHP variable to a string.
-     *
-     * @param mixed $var A PHP variable
-     *
-     * @return string The string representation of the variable
-     *
-     * @deprecated since version 3.2, to be removed in 4.0. Use cloneVar() instead.
-     */
-    protected function varToString($var)
-    {
-        @trigger_error(sprintf('The %s() method is deprecated since Symfony 3.2 and will be removed in 4.0. Use cloneVar() instead.', __METHOD__), E_USER_DEPRECATED);
-
-        if (null === $this->valueExporter) {
-            $this->valueExporter = new ValueExporter();
-        }
-
-        return $this->valueExporter->exportValue($var);
     }
 
     /**
@@ -111,11 +67,11 @@ abstract class DataCollector implements DataCollectorInterface, \Serializable
      */
     protected function getCasters()
     {
-        return array(
+        $casters = [
             '*' => function ($v, array $a, Stub $s, $isNested) {
                 if (!$v instanceof Stub) {
                     foreach ($a as $k => $v) {
-                        if (is_object($v) && !$v instanceof \DateTimeInterface && !$v instanceof Stub) {
+                        if (\is_object($v) && !$v instanceof \DateTimeInterface && !$v instanceof Stub) {
                             $a[$k] = new CutStub($v);
                         }
                     }
@@ -123,6 +79,34 @@ abstract class DataCollector implements DataCollectorInterface, \Serializable
 
                 return $a;
             },
-        );
+        ] + ReflectionCaster::UNSET_CLOSURE_FILE_INFO;
+
+        return $casters;
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+        return ['data'];
+    }
+
+    public function __wakeup()
+    {
+    }
+
+    /**
+     * @internal to prevent implementing \Serializable
+     */
+    final protected function serialize()
+    {
+    }
+
+    /**
+     * @internal to prevent implementing \Serializable
+     */
+    final protected function unserialize($data)
+    {
     }
 }

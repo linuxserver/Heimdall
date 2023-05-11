@@ -20,17 +20,19 @@ use Symfony\Component\Config\Resource\ResourceInterface;
  */
 interface MessageCatalogueInterface
 {
+    public const INTL_DOMAIN_SUFFIX = '+intl-icu';
+
     /**
      * Gets the catalogue locale.
      *
-     * @return string The locale
+     * @return string
      */
     public function getLocale();
 
     /**
      * Gets the domains.
      *
-     * @return array An array of domains
+     * @return array
      */
     public function getDomains();
 
@@ -41,9 +43,9 @@ interface MessageCatalogueInterface
      *
      * @param string $domain The domain name
      *
-     * @return array An array of messages
+     * @return array
      */
-    public function all($domain = null);
+    public function all(string $domain = null);
 
     /**
      * Sets a message translation.
@@ -52,7 +54,7 @@ interface MessageCatalogueInterface
      * @param string $translation The messages translation
      * @param string $domain      The domain name
      */
-    public function set($id, $translation, $domain = 'messages');
+    public function set(string $id, string $translation, string $domain = 'messages');
 
     /**
      * Checks if a message has a translation.
@@ -60,9 +62,9 @@ interface MessageCatalogueInterface
      * @param string $id     The message id
      * @param string $domain The domain name
      *
-     * @return bool true if the message has a translation, false otherwise
+     * @return bool
      */
-    public function has($id, $domain = 'messages');
+    public function has(string $id, string $domain = 'messages');
 
     /**
      * Checks if a message has a translation (it does not take into account the fallback mechanism).
@@ -70,9 +72,9 @@ interface MessageCatalogueInterface
      * @param string $id     The message id
      * @param string $domain The domain name
      *
-     * @return bool true if the message has a translation, false otherwise
+     * @return bool
      */
-    public function defines($id, $domain = 'messages');
+    public function defines(string $id, string $domain = 'messages');
 
     /**
      * Gets a message translation.
@@ -80,9 +82,9 @@ interface MessageCatalogueInterface
      * @param string $id     The message id
      * @param string $domain The domain name
      *
-     * @return string The message translation
+     * @return string
      */
-    public function get($id, $domain = 'messages');
+    public function get(string $id, string $domain = 'messages');
 
     /**
      * Sets translations for a given domain.
@@ -90,7 +92,7 @@ interface MessageCatalogueInterface
      * @param array  $messages An array of translations
      * @param string $domain   The domain name
      */
-    public function replace($messages, $domain = 'messages');
+    public function replace(array $messages, string $domain = 'messages');
 
     /**
      * Adds translations for a given domain.
@@ -98,14 +100,14 @@ interface MessageCatalogueInterface
      * @param array  $messages An array of translations
      * @param string $domain   The domain name
      */
-    public function add($messages, $domain = 'messages');
+    public function add(array $messages, string $domain = 'messages');
 
     /**
      * Merges translations from the given Catalogue into the current one.
      *
      * The two catalogues must have the same locale.
      */
-    public function addCatalogue(MessageCatalogueInterface $catalogue);
+    public function addCatalogue(self $catalogue);
 
     /**
      * Merges translations from the given Catalogue into the current one
@@ -113,19 +115,19 @@ interface MessageCatalogueInterface
      *
      * This is used to provide default translations when they do not exist for the current locale.
      */
-    public function addFallbackCatalogue(MessageCatalogueInterface $catalogue);
+    public function addFallbackCatalogue(self $catalogue);
 
     /**
      * Gets the fallback catalogue.
      *
-     * @return self|null A MessageCatalogueInterface instance or null when no fallback has been set
+     * @return self|null
      */
     public function getFallbackCatalogue();
 
     /**
      * Returns an array of resources loaded to build this collection.
      *
-     * @return ResourceInterface[] An array of resources
+     * @return ResourceInterface[]
      */
     public function getResources();
 

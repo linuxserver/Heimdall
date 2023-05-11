@@ -37,7 +37,7 @@ class Test
     const REGEX_REQUIRES_VERSION            = '/@requires\s+(?P<name>PHP(?:Unit)?)\s+(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+(dev|(RC|alpha|beta)[\d\.])?)[ \t]*\r?$/m';
     const REGEX_REQUIRES_VERSION_CONSTRAINT = '/@requires\s+(?P<name>PHP(?:Unit)?)\s+(?P<constraint>[\d\t -.|~^]+)[ \t]*\r?$/m';
     const REGEX_REQUIRES_OS                 = '/@requires\s+(?P<name>OS(?:FAMILY)?)\s+(?P<value>.+?)[ \t]*\r?$/m';
-    const REGEX_REQUIRES                    = '/@requires\s+(?P<name>function|extension)\s+(?P<value>([^ ]+?))\s*(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+[\d\.]?)?[ \t]*\r?$/m';
+    const REGEX_REQUIRES                    = '/@requires\s+(?P<name>function|extension)\s+(?P<value>([^\s<>=!]+))\s*(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+[\d\.]?)?[ \t]*\r?$/m';
 
     const UNKNOWN = -1;
     const SMALL   = 0;
@@ -967,22 +967,22 @@ class Test
             $methodName
         );
 
-        if (isset($annotations['class'][$settingName])) {
-            if ($annotations['class'][$settingName][0] == 'enabled') {
+        if (isset($annotations['method'][$settingName])) {
+            if ($annotations['method'][$settingName][0] === 'enabled') {
                 return true;
             }
 
-            if ($annotations['class'][$settingName][0] == 'disabled') {
+            if ($annotations['method'][$settingName][0] === 'disabled') {
                 return false;
             }
         }
 
-        if (isset($annotations['method'][$settingName])) {
-            if ($annotations['method'][$settingName][0] == 'enabled') {
+        if (isset($annotations['class'][$settingName])) {
+            if ($annotations['class'][$settingName][0] === 'enabled') {
                 return true;
             }
 
-            if ($annotations['method'][$settingName][0] == 'disabled') {
+            if ($annotations['class'][$settingName][0] === 'disabled') {
                 return false;
             }
         }

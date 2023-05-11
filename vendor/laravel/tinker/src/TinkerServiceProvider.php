@@ -2,17 +2,31 @@
 
 namespace Laravel\Tinker;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
+use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Lumen\Application as LumenApplication;
 use Laravel\Tinker\Console\TinkerCommand;
 
-class TinkerServiceProvider extends ServiceProvider
+class TinkerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
+     * Boot the service provider.
      *
-     * @var bool
+     * @return void
      */
-    protected $defer = true;
+    public function boot()
+    {
+        $source = realpath($raw = __DIR__.'/../config/tinker.php') ?: $raw;
+
+        if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
+            $this->publishes([$source => config_path('tinker.php')]);
+        } elseif ($this->app instanceof LumenApplication) {
+            $this->app->configure('tinker');
+        }
+
+        $this->mergeConfigFrom($source, 'tinker');
+    }
 
     /**
      * Register the service provider.

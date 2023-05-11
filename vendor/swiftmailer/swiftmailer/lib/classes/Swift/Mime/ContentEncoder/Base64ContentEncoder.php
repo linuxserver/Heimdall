@@ -18,10 +18,7 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
     /**
      * Encode stream $in to stream $out.
      *
-     * @param Swift_OutputByteStream $os
-     * @param Swift_InputByteStream  $is
-     * @param int                    $firstLineOffset
-     * @param int                    $maxLineLength,  optional, 0 indicates the default of 76 bytes
+     * @param int $firstLineOffset
      */
     public function encodeByteStream(Swift_OutputByteStream $os, Swift_InputByteStream $is, $firstLineOffset = 0, $maxLineLength = 0)
     {
@@ -30,7 +27,7 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
         }
 
         $remainder = 0;
-        $base64ReadBufferRemainderBytes = null;
+        $base64ReadBufferRemainderBytes = '';
 
         // To reduce memory usage, the output buffer is streamed to the input buffer like so:
         //   Output Stream => base64encode => wrap line length => Input Stream
@@ -41,17 +38,17 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
         // When the OutputStream is empty, we must flush any remainder bytes.
         while (true) {
             $readBytes = $os->read(8192);
-            $atEOF = ($readBytes === false);
+            $atEOF = (false === $readBytes);
 
             if ($atEOF) {
                 $streamTheseBytes = $base64ReadBufferRemainderBytes;
             } else {
                 $streamTheseBytes = $base64ReadBufferRemainderBytes.$readBytes;
             }
-            $base64ReadBufferRemainderBytes = null;
-            $bytesLength = strlen($streamTheseBytes);
+            $base64ReadBufferRemainderBytes = '';
+            $bytesLength = \strlen($streamTheseBytes);
 
-            if ($bytesLength === 0) { // no data left to encode
+            if (0 === $bytesLength) { // no data left to encode
                 break;
             }
 
@@ -59,7 +56,7 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
             // and carry over remainder 1-2 bytes to the next loop iteration
             if (!$atEOF) {
                 $excessBytes = $bytesLength % 3;
-                if ($excessBytes !== 0) {
+                if (0 !== $excessBytes) {
                     $base64ReadBufferRemainderBytes = substr($streamTheseBytes, -$excessBytes);
                     $streamTheseBytes = substr($streamTheseBytes, 0, $bytesLength - $excessBytes);
                 }
@@ -69,7 +66,7 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
             $encodedTransformed = '';
             $thisMaxLineLength = $maxLineLength - $remainder - $firstLineOffset;
 
-            while ($thisMaxLineLength < strlen($encoded)) {
+            while ($thisMaxLineLength < \strlen($encoded)) {
                 $encodedTransformed .= substr($encoded, 0, $thisMaxLineLength)."\r\n";
                 $firstLineOffset = 0;
                 $encoded = substr($encoded, $thisMaxLineLength);
@@ -77,7 +74,7 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoder extends Swift_Encoder_Base6
                 $remainder = 0;
             }
 
-            if (0 < $remainingLength = strlen($encoded)) {
+            if (0 < $remainingLength = \strlen($encoded)) {
                 $remainder += $remainingLength;
                 $encodedTransformed .= $encoded;
                 $encoded = null;

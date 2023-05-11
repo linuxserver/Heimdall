@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\Controller;
 
-use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -31,7 +31,7 @@ class TraceableArgumentResolver implements ArgumentResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function getArguments(Request $request, $controller)
+    public function getArguments(Request $request, callable $controller)
     {
         $e = $this->stopwatch->start('controller.get_arguments');
 

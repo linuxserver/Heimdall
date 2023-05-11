@@ -13,7 +13,6 @@ namespace Symfony\Component\HttpKernel\Debug;
 
 use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcher as BaseTraceableEventDispatcher;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Collects some data about event listeners.
@@ -27,10 +26,11 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
     /**
      * {@inheritdoc}
      */
-    protected function preDispatch($eventName, Event $event)
+    protected function beforeDispatch(string $eventName, object $event)
     {
         switch ($eventName) {
             case KernelEvents::REQUEST:
+                $event->getRequest()->attributes->set('_stopwatch_token', substr(hash('sha256', uniqid(mt_rand(), true)), 0, 6));
                 $this->stopwatch->openSection();
                 break;
             case KernelEvents::VIEW:
@@ -41,14 +41,17 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
                 }
                 break;
             case KernelEvents::TERMINATE:
-                $token = $event->getResponse()->headers->get('X-Debug-Token');
+                $sectionId = $event->getRequest()->attributes->get('_stopwatch_token');
+                if (null === $sectionId) {
+                    break;
+                }
                 // There is a very special case when using built-in AppCache class as kernel wrapper, in the case
                 // of an ESI request leading to a `stale` response [B]  inside a `fresh` cached response [A].
                 // In this case, `$token` contains the [B] debug token, but the  open `stopwatch` section ID
                 // is equal to the [A] debug token. Trying to reopen section with the [B] token throws an exception
                 // which must be caught.
                 try {
-                    $this->stopwatch->openSection($token);
+                    $this->stopwatch->openSection($sectionId);
                 } catch (\LogicException $e) {
                 }
                 break;
@@ -58,22 +61,28 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
     /**
      * {@inheritdoc}
      */
-    protected function postDispatch($eventName, Event $event)
+    protected function afterDispatch(string $eventName, object $event)
     {
         switch ($eventName) {
             case KernelEvents::CONTROLLER_ARGUMENTS:
                 $this->stopwatch->start('controller', 'section');
                 break;
             case KernelEvents::RESPONSE:
-                $token = $event->getResponse()->headers->get('X-Debug-Token');
-                $this->stopwatch->stopSection($token);
+                $sectionId = $event->getRequest()->attributes->get('_stopwatch_token');
+                if (null === $sectionId) {
+                    break;
+                }
+                $this->stopwatch->stopSection($sectionId);
                 break;
             case KernelEvents::TERMINATE:
                 // In the special case described in the `preDispatch` method above, the `$token` section
                 // does not exist, then closing it throws an exception which must be caught.
-                $token = $event->getResponse()->headers->get('X-Debug-Token');
+                $sectionId = $event->getRequest()->attributes->get('_stopwatch_token');
+                if (null === $sectionId) {
+                    break;
+                }
                 try {
-                    $this->stopwatch->stopSection($token);
+                    $this->stopwatch->stopSection($sectionId);
                 } catch (\LogicException $e) {
                 }
                 break;

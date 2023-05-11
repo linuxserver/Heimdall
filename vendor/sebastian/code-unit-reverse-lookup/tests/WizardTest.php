@@ -22,7 +22,7 @@ class WizardTest extends TestCase
      */
     private $wizard;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->wizard = new Wizard;
     }

@@ -2,10 +2,10 @@
 
 namespace Illuminate\Notifications\Events;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Queue\SerializesModels;
 
 class BroadcastNotificationCreated implements ShouldBroadcast
 {
@@ -60,7 +60,29 @@ class BroadcastNotificationCreated implements ShouldBroadcast
             return $channels;
         }
 
-        return [new PrivateChannel($this->channelName())];
+        if (is_string($channels = $this->channelName())) {
+            return [new PrivateChannel($channels)];
+        }
+
+        return collect($channels)->map(function ($channel) {
+            return new PrivateChannel($channel);
+        })->all();
+    }
+
+    /**
+     * Get the broadcast channel name for the event.
+     *
+     * @return array|string
+     */
+    protected function channelName()
+    {
+        if (method_exists($this->notifiable, 'receivesBroadcastNotificationsOn')) {
+            return $this->notifiable->receivesBroadcastNotificationsOn($this->notification);
+        }
+
+        $class = str_replace('\\', '.', get_class($this->notifiable));
+
+        return $class.'.'.$this->notifiable->getKey();
     }
 
     /**
@@ -72,23 +94,19 @@ class BroadcastNotificationCreated implements ShouldBroadcast
     {
         return array_merge($this->data, [
             'id' => $this->notification->id,
-            'type' => get_class($this->notification),
+            'type' => $this->broadcastType(),
         ]);
     }
 
     /**
-     * Get the broadcast channel name for the event.
+     * Get the type of the notification being broadcast.
      *
      * @return string
      */
-    protected function channelName()
+    public function broadcastType()
     {
-        if (method_exists($this->notifiable, 'receivesBroadcastNotificationsOn')) {
-            return $this->notifiable->receivesBroadcastNotificationsOn($this->notification);
-        }
-
-        $class = str_replace('\\', '.', get_class($this->notifiable));
-
-        return $class.'.'.$this->notifiable->getKey();
+        return method_exists($this->notification, 'broadcastType')
+                    ? $this->notification->broadcastType()
+                    : get_class($this->notification);
     }
 }

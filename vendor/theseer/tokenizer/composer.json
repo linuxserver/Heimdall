@@ -13,7 +13,7 @@
     "issues": "https://github.com/theseer/tokenizer/issues"
   },
   "require": {
-    "php": "^7.0",
+    "php": "^7.2 || ^8.0",
     "ext-xmlwriter": "*",
     "ext-dom": "*",
     "ext-tokenizer": "*"

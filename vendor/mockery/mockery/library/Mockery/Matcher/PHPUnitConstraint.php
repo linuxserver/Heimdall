@@ -28,7 +28,7 @@ class PHPUnitConstraint extends MatcherAbstract
     protected $rethrow;
 
     /**
-     * @param \PHPUnit\Framework\Constraint $constraint
+     * @param mixed $constraint
      * @param bool $rethrow
      */
     public function __construct($constraint, $rethrow = false)
@@ -36,7 +36,7 @@ class PHPUnitConstraint extends MatcherAbstract
         if (!($constraint instanceof \PHPUnit_Framework_Constraint)
         && !($constraint instanceof \PHPUnit\Framework\Constraint)) {
             throw new InvalidArgumentException(
-                'Constraint must be one of \PHPUnit\Framework\Constraint or '.
+                'Constraint must be one of \PHPUnit\Framework\Constraint or ' .
                 '\PHPUnit_Framework_Constraint'
             );
         }
@@ -63,7 +63,7 @@ class PHPUnitConstraint extends MatcherAbstract
                 throw $e;
             }
             return false;
-        } 
+        }
     }
 
     /**

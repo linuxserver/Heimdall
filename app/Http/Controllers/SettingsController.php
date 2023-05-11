@@ -5,10 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\SettingGroup;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 class SettingsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('allowed');
+    }
+
     /**
      * @return \Illuminate\View\View
      */
@@ -31,6 +38,7 @@ class SettingsController extends Controller
     public function edit($id)
     {
         $setting = Setting::find($id);
+        //die("s: ".$setting->label);
 
         if((bool)$setting->system === true) return abort(404);
 
@@ -39,7 +47,7 @@ class SettingsController extends Controller
                 'setting' => $setting,
             ]);
         } else {
-            $route = route('settings.list', [], false);
+            $route = route('settings.list', []);
             return redirect($route) 
             ->with([
                 'error' => __('app.alert.error.not_exist'),
@@ -55,33 +63,35 @@ class SettingsController extends Controller
     public function update(Request $request, $id)
     {
         $setting = Setting::find($id);
+        $user = $this->user();
 
         if (!is_null($setting)) {
-            $data = Setting::getInput();
+            $data = Setting::getInput($request);
+
+            $setting_value = null;
 
             if ($setting->type == 'image') {
 
 
                 if($request->hasFile('value')) {
                     $path = $request->file('value')->store('backgrounds');
-                    $setting->value = $path;
+                    $setting_value = $path;
                 }
             
-
-
             } else {
-                $setting->value = $data->value;
+                $setting_value = $data->value;
             }
 
-            $setting->save();
-
-            $route = route('settings.index', [], false);
+            $user->settings()->detach($setting->id);
+            $user->settings()->save($setting, ['uservalue' => $setting_value]);
+            
+            $route = route('settings.index', []);
             return redirect($route) 
             ->with([
                 'success' => __('app.alert.success.setting_updated'),
             ]);
         } else {
-            $route = route('settings.index', [], false);
+            $route = route('settings.index', []);
             return redirect($route) 
             ->with([
                 'error' => __('app.alert.error.not_exist'),
@@ -95,16 +105,23 @@ class SettingsController extends Controller
      */
     public function clear($id)
     {
+        $user = $this->user();
         $setting = Setting::find($id);
         if((bool)$setting->system !== true) {
-            $setting->value = '';
-            $setting->save();
+            $user->settings()->detach($setting->id);
+            $user->settings()->save($setting, ['uservalue' => '']);
         }
-        $route = route('settings.index', [], false);
+        $route = route('settings.index', []);
         return redirect($route) 
         ->with([
             'success' => __('app.alert.success.setting_updated'),
         ]);
     
     }
+
+    public function search(Request $request)
+    {
+        
+    }
+
 }

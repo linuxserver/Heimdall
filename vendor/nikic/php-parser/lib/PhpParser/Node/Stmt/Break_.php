@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Node\Stmt;
 
@@ -15,12 +15,16 @@ class Break_ extends Node\Stmt
      * @param null|Node\Expr $num        Number of loops to break
      * @param array          $attributes Additional attributes
      */
-    public function __construct(Node\Expr $num = null, array $attributes = array()) {
-        parent::__construct($attributes);
+    public function __construct(Node\Expr $num = null, array $attributes = []) {
+        $this->attributes = $attributes;
         $this->num = $num;
     }
 
-    public function getSubNodeNames() {
-        return array('num');
+    public function getSubNodeNames() : array {
+        return ['num'];
+    }
+    
+    public function getType() : string {
+        return 'Stmt_Break';
     }
 }

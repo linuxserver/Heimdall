@@ -26,10 +26,9 @@
         <property name="prepare.done" value="true"/>
     </target>
 
-    <target name="validate-composer-json" unless="validate-composer-json.done" description="Validate composer.json">
+    <target name="validate-composer-json" depends="clean" unless="validate-composer-json.done" description="Validate composer.json">
         <exec executable="${basedir}/build/tools/composer" failonerror="true" taskname="composer">
             <arg value="validate"/>
-            <arg value="--no-check-lock"/>
             <arg value="--strict"/>
             <arg value="${basedir}/composer.json"/>
         </exec>
@@ -48,6 +47,17 @@
             <arg value="--no-progress"/>
             <arg value="--no-ansi"/>
             <arg value="--no-suggest"/>
+        </exec>
+    </target>
+
+    <target name="check-dependencies" description="Performs check for outdated dependencies">
+        <exec executable="${basedir}/build/tools/composer" taskname="composer">
+            <arg value="show"/>
+            <arg value="--minor-only"/>
+            <arg value="--latest"/>
+            <arg value="--direct"/>
+            <arg value="--outdated"/>
+            <arg value="--strict"/>
         </exec>
     </target>
 
@@ -100,7 +110,7 @@
         </exec>
     </target>
 
-    <target name="phar" depends="-phar-determine-version,-phar-prepare" description="Create PHAR archive of PHPUnit and all its dependencies">
+    <target name="phar" depends="-phar-prepare,-phar-determine-version" description="Create PHAR archive of PHPUnit and all its dependencies">
         <antcall target="-phar-build">
             <param name="type" value="release"/>
         </antcall>
@@ -116,15 +126,14 @@
         <mkdir dir="${basedir}/build/phar"/>
         <copy file="${basedir}/composer.json" tofile="${basedir}/composer.json.bak"/>
 
-        <exec executable="${basedir}/build/tools/composer">
+        <exec executable="${basedir}/build/tools/composer" failonerror="true">
             <arg value="require"/>
             <arg value="phpunit/php-invoker:~1.1"/>
         </exec>
 
         <move file="${basedir}/composer.json.bak" tofile="${basedir}/composer.json"/>
 
-        <exec executable="${basedir}/build/phar-manifest.php" output="${basedir}/build/phar/manifest.txt"/>
-        <copy todir="${basedir}/build/phar" file="${basedir}/build/ca.pem" />
+        <exec executable="${basedir}/build/phar-manifest.php" output="${basedir}/build/phar/manifest.txt" failonerror="true"/>
 
         <copy file="${basedir}/vendor/phpunit/php-code-coverage/LICENSE" tofile="${basedir}/build/phar/php-code-coverage/LICENSE"/>
         <copy todir="${basedir}/build/phar/php-code-coverage">
@@ -330,12 +339,12 @@
             </fileset>
         </copy>
 
-        <exec executable="${basedir}/build/phar-version.php" outputproperty="_version">
+        <exec executable="${basedir}/build/phar-version.php" outputproperty="_version" failonerror="true">
             <arg value="${version}"/>
             <arg value="${type}"/>
         </exec>
 
-        <exec executable="${basedir}/build/tools/phpab" taskname="phpab">
+        <exec executable="${basedir}/build/tools/phpab" taskname="phpab" failonerror="true">
             <arg value="--all" />
             <arg value="--static" />
             <arg value="--once" />
@@ -352,7 +361,7 @@
         <copy file="${basedir}/build/binary-phar-autoload.php.in" tofile="${basedir}/build/binary-phar-autoload.php"/>
         <replace file="${basedir}/build/binary-phar-autoload.php" token="X.Y.Z" value="${_version}"/>
 
-        <exec executable="${basedir}/build/tools/phpab" taskname="phpab">
+        <exec executable="${basedir}/build/tools/phpab" taskname="phpab" failonerror="true">
             <arg value="--all" />
             <arg value="--nolower" />
             <arg value="--static" />
@@ -373,11 +382,22 @@
     </target>
 
     <target name="-phar-determine-version">
-        <exec executable="${basedir}/build/version.php" outputproperty="version" />
+        <exec executable="${basedir}/build/version.php" outputproperty="version" failonerror="true" />
     </target>
 
-    <target name="generate-project-documentation" depends="-phploc,-phpcs,-phpmd,-phpunit">
+    <target name="generate-project-documentation" depends="-phploc,-checkstyle,-phpunit">
         <exec executable="${basedir}/build/tools/phpdox" dir="${basedir}/build" taskname="phpdox"/>
+    </target>
+
+    <target name="update-tools">
+        <exec executable="phive">
+            <arg value="--no-progress"/>
+            <arg value="update"/>
+        </exec>
+
+        <exec executable="${basedir}/build/tools/composer">
+            <arg value="self-update"/>
+        </exec>
     </target>
 
     <target name="-phploc" depends="prepare">
@@ -390,31 +410,12 @@
         </exec>
     </target>
 
-    <target name="phpcs">
-        <exec executable="${basedir}/build/tools/phpcs" taskname="phpcs">
-            <arg value="--standard=${basedir}/build/phpcs.xml"/>
-            <arg value="--extensions=php"/>
-            <arg value="--cache"/>
-        </exec>
-    </target>
-
-    <target name="-phpcs" depends="prepare">
-        <exec executable="${basedir}/build/tools/phpcs" output="/dev/null" taskname="phpcs">
-            <arg value="--standard=${basedir}/build/phpcs.xml"/>
-            <arg value="--extensions=php"/>
-            <arg value="--cache"/>
-            <arg value="--report=checkstyle"/>
-            <arg value="--report-file=${basedir}/build/logfiles/checkstyle.xml"/>
-        </exec>
-    </target>
-
-    <target name="-phpmd" depends="prepare">
-        <exec executable="${basedir}/build/tools/phpmd" taskname="phpmd">
-            <arg path="${basedir}/src"/>
-            <arg value="xml"/>
-            <arg path="${basedir}/build/phpmd.xml"/>
-            <arg value="--reportfile"/>
-            <arg path="${basedir}/build/logfiles/pmd.xml"/>
+    <target name="-checkstyle" depends="prepare">
+        <exec executable="${basedir}/build/tools/php-cs-fixer" output="${basedir}/build/logfiles/checkstyle.xml" error="/dev/null" taskname="php-cs-fixer">
+            <arg value="--diff"/>
+            <arg value="--dry-run"/>
+            <arg value="fix"/>
+            <arg value="--format=checkstyle"/>
         </exec>
     </target>
 

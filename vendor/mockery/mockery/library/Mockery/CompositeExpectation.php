@@ -41,7 +41,7 @@ class CompositeExpectation implements ExpectationInterface
     }
 
     /**
-     * @param mixed ...
+     * @param mixed ...$args
      */
     public function andReturn(...$args)
     {
@@ -51,7 +51,7 @@ class CompositeExpectation implements ExpectationInterface
     /**
      * Set a return value, or sequential queue of return values
      *
-     * @param mixed ...
+     * @param mixed ...$args
      * @return self
      */
     public function andReturns(...$args)
@@ -89,7 +89,7 @@ class CompositeExpectation implements ExpectationInterface
     /**
      * Return the parent mock of the first expectation
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\MockInterface|\Mockery\LegacyMockInterface
      */
     public function getMock()
     {
@@ -101,7 +101,7 @@ class CompositeExpectation implements ExpectationInterface
     /**
      * Mockery API alias to getMock
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\LegacyMockInterface|\Mockery\MockInterface
      */
     public function mock()
     {
@@ -112,7 +112,7 @@ class CompositeExpectation implements ExpectationInterface
      * Starts a new expectation addition on the first mock which is the primary
      * target outside of a demeter chain
      *
-     * @param mixed ...
+     * @param mixed ...$args
      * @return \Mockery\Expectation
      */
     public function shouldReceive(...$args)
@@ -120,6 +120,20 @@ class CompositeExpectation implements ExpectationInterface
         reset($this->_expectations);
         $first = current($this->_expectations);
         return call_user_func_array(array($first->getMock(), 'shouldReceive'), $args);
+    }
+
+    /**
+     * Starts a new expectation addition on the first mock which is the primary
+     * target outside of a demeter chain
+     *
+     * @param mixed ...$args
+     * @return \Mockery\Expectation
+     */
+    public function shouldNotReceive(...$args)
+    {
+        reset($this->_expectations);
+        $first = current($this->_expectations);
+        return call_user_func_array(array($first->getMock(), 'shouldNotReceive'), $args);
     }
 
     /**

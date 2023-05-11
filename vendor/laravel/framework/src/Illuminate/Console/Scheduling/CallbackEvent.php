@@ -2,9 +2,10 @@
 
 namespace Illuminate\Console\Scheduling;
 
-use LogicException;
-use InvalidArgumentException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Reflector;
+use InvalidArgumentException;
+use LogicException;
 
 class CallbackEvent extends Event
 {
@@ -25,16 +26,17 @@ class CallbackEvent extends Event
     /**
      * Create a new event instance.
      *
-     * @param  \Illuminate\Console\Scheduling\Mutex  $mutex
+     * @param  \Illuminate\Console\Scheduling\EventMutex  $mutex
      * @param  string  $callback
      * @param  array  $parameters
+     * @param  \DateTimeZone|string|null  $timezone
      * @return void
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(Mutex $mutex, $callback, array $parameters = [])
+    public function __construct(EventMutex $mutex, $callback, array $parameters = [], $timezone = null)
     {
-        if (! is_string($callback) && ! is_callable($callback)) {
+        if (! is_string($callback) && ! Reflector::isCallable($callback)) {
             throw new InvalidArgumentException(
                 'Invalid scheduled callback event. Must be a string or callable.'
             );
@@ -43,6 +45,7 @@ class CallbackEvent extends Event
         $this->mutex = $mutex;
         $this->callback = $callback;
         $this->parameters = $parameters;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -60,14 +63,20 @@ class CallbackEvent extends Event
             return;
         }
 
-        register_shutdown_function(function () {
-            $this->removeMutex();
+        $pid = getmypid();
+
+        register_shutdown_function(function () use ($pid) {
+            if ($pid === getmypid()) {
+                $this->removeMutex();
+            }
         });
 
         parent::callBeforeCallbacks($container);
 
         try {
-            $response = $container->call($this->callback, $this->parameters);
+            $response = is_object($this->callback)
+                        ? $container->call([$this->callback, '__invoke'], $this->parameters)
+                        : $container->call($this->callback, $this->parameters);
         } finally {
             $this->removeMutex();
 
@@ -84,7 +93,7 @@ class CallbackEvent extends Event
      */
     protected function removeMutex()
     {
-        if ($this->description) {
+        if ($this->description && $this->withoutOverlapping) {
             $this->mutex->forget($this);
         }
     }
@@ -94,6 +103,8 @@ class CallbackEvent extends Event
      *
      * @param  int  $expiresAt
      * @return $this
+     *
+     * @throws \LogicException
      */
     public function withoutOverlapping($expiresAt = 1440)
     {
@@ -110,6 +121,26 @@ class CallbackEvent extends Event
         return $this->skip(function () {
             return $this->mutex->exists($this);
         });
+    }
+
+    /**
+     * Allow the event to only run on one server for each cron expression.
+     *
+     * @return $this
+     *
+     * @throws \LogicException
+     */
+    public function onOneServer()
+    {
+        if (! isset($this->description)) {
+            throw new LogicException(
+                "A scheduled event name is required to only run on one server. Use the 'name' method before 'onOneServer'."
+            );
+        }
+
+        $this->onOneServer = true;
+
+        return $this;
     }
 
     /**
@@ -133,6 +164,6 @@ class CallbackEvent extends Event
             return $this->description;
         }
 
-        return is_string($this->callback) ? $this->callback : 'Closure';
+        return is_string($this->callback) ? $this->callback : 'Callback';
     }
 }

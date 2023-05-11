@@ -23,15 +23,20 @@
         },
         {
             "name": "Bernhard Schussek",
-            "email": "bschussek@2bepublished.at"
+            "email": "bschussek@gmail.com"
         }
     ],
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "prefer-stable": true,
     "require": {
-        "php": "^7.0",
+        "php": ">=7.0",
         "sebastian/recursion-context": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.0",
+        "phpunit/phpunit": "^8.5",
         "ext-mbstring": "*"
     },
     "autoload": {

@@ -2,8 +2,6 @@
 
 namespace Illuminate\View\Compilers\Concerns;
 
-use Illuminate\View\Factory as ViewFactory;
-
 trait CompilesLayouts
 {
     /**
@@ -23,7 +21,7 @@ trait CompilesLayouts
     {
         $expression = $this->stripParentheses($expression);
 
-        $echo = "<?php echo \$__env->make({$expression}, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>";
+        $echo = "<?php echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>";
 
         $this->footer[] = $echo;
 
@@ -50,7 +48,9 @@ trait CompilesLayouts
      */
     protected function compileParent()
     {
-        return ViewFactory::parentPlaceholder($this->lastSection ?: '');
+        $escapedLastSection = strtr($this->lastSection, ['\\' => '\\\\', "'" => "\\'"]);
+
+        return "<?php echo \Illuminate\View\Factory::parentPlaceholder('{$escapedLastSection}'); ?>";
     }
 
     /**

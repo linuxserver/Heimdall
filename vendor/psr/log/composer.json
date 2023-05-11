@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "PHP-FIG",
-            "homepage": "http://www.php-fig.org/"
+            "homepage": "https://www.php-fig.org/"
         }
     ],
     "require": {
@@ -20,7 +20,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "1.1.x-dev"
         }
     }
 }

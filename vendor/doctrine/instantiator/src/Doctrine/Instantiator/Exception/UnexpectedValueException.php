@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\Instantiator\Exception;
 
@@ -23,21 +6,22 @@ use Exception;
 use ReflectionClass;
 use UnexpectedValueException as BaseUnexpectedValueException;
 
+use function sprintf;
+
 /**
  * Exception for given parameters causing invalid/unexpected state on instantiation
- *
- * @author Marco Pivetta <ocramius@gmail.com>
  */
 class UnexpectedValueException extends BaseUnexpectedValueException implements ExceptionInterface
 {
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param Exception       $exception
+     * @phpstan-param ReflectionClass<T> $reflectionClass
      *
-     * @return self
+     * @template T of object
      */
-    public static function fromSerializationTriggeredException(ReflectionClass $reflectionClass, Exception $exception)
-    {
+    public static function fromSerializationTriggeredException(
+        ReflectionClass $reflectionClass,
+        Exception $exception
+    ): self {
         return new self(
             sprintf(
                 'An exception was raised while trying to instantiate an instance of "%s" via un-serialization',
@@ -49,21 +33,17 @@ class UnexpectedValueException extends BaseUnexpectedValueException implements E
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param string          $errorString
-     * @param int             $errorCode
-     * @param string          $errorFile
-     * @param int             $errorLine
+     * @phpstan-param ReflectionClass<T> $reflectionClass
      *
-     * @return UnexpectedValueException
+     * @template T of object
      */
     public static function fromUncleanUnSerialization(
         ReflectionClass $reflectionClass,
-        $errorString,
-        $errorCode,
-        $errorFile,
-        $errorLine
-    ) {
+        string $errorString,
+        int $errorCode,
+        string $errorFile,
+        int $errorLine
+    ): self {
         return new self(
             sprintf(
                 'Could not produce an instance of "%s" via un-serialization, since an error was triggered '

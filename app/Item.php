@@ -5,15 +5,32 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Builder;
+use App\User;
+use App\ItemTag;
+use App\Application;
 
 class Item extends Model
 {
     use SoftDeletes;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('user_id', function (Builder $builder) {
+            $current_user = User::currentUser();
+            if($current_user) {
+                $builder->where('user_id', $current_user->id)->orWhere('user_id', 0);
+            } else {
+                $builder->where('user_id', 0);
+            }
+        });
+    }
+
     //
     protected $fillable = [
-        'title', 'url', 'colour', 'icon', 'description', 'pinned', 'order', 'type'
+        'title', 'url', 'colour', 'icon', 'appdescription', 'description', 'pinned', 'order', 'type', 'class', 'user_id', 'appid'
     ];
 
     /**
@@ -22,70 +39,6 @@ class Item extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
-
-    public static function supportedList()
-    {
-        return [
-            'AirSonic' => \App\SupportedApps\AirSonic::class,
-            'Cardigann' => \App\SupportedApps\Cardigann::class,
-            'CouchPotato' => \App\SupportedApps\CouchPotato::class,
-            'Booksonic' => \App\SupportedApps\Booksonic::class,
-            'Deluge' => \App\SupportedApps\Deluge::class,
-            'Dokuwiki' => \App\SupportedApps\Dokuwiki::class,
-            'Duplicati' => \App\SupportedApps\Duplicati::class,
-            'Emby' => \App\SupportedApps\Emby::class,
-            'Gitea' => \App\SupportedApps\Gitea::class,
-            'Glances' => \App\SupportedApps\Glances::class,
-            'Grafana' => \App\SupportedApps\Grafana::class,
-            'Graylog' => \App\SupportedApps\Graylog::class,
-            'Home Assistant' => \App\SupportedApps\HomeAssistant::class,
-            'Jackett' => \App\SupportedApps\Jackett::class,
-            'Jdownloader' => \App\SupportedApps\Jdownloader::class,
-            'Krusader' => \App\SupportedApps\Krusader::class,
-            'LibreNMS' => \App\SupportedApps\LibreNMS::class,
-            'Lidarr' => \App\SupportedApps\Lidarr::class,
-            'Mcmyadmin' => \App\SupportedApps\Mcmyadmin::class,
-            'Medusa' => \App\SupportedApps\Medusa::class,
-            'MusicBrainz' => \App\SupportedApps\MusicBrainz::class,
-            'NZBGet' => \App\SupportedApps\Nzbget::class,
-            'Netdata' => \App\SupportedApps\Netdata::class,
-            'Nextcloud' => \App\SupportedApps\Nextcloud::class,
-            'Now Showing' => \App\SupportedApps\NowShowing::class,
-            'Nzbhydra' => \App\SupportedApps\Nzbhydra::class,
-            'OPNSense' => \App\SupportedApps\Opnsense::class,
-            'Ombi' => \App\SupportedApps\Ombi::class,
-            'Openhab' => \App\SupportedApps\Openhab::class,
-            'OpenMediaVault' => \App\SupportedApps\OpenMediaVault::class,
-            'Pihole' => \App\SupportedApps\Pihole::class,
-            'Plex' => \App\SupportedApps\Plex::class,
-            'Plexpy' => \App\SupportedApps\Plexpy::class,
-            'Plexrequests' => \App\SupportedApps\Plexrequests::class,
-            'Portainer' => \App\SupportedApps\Portainer::class,
-            'Proxmox' => \App\SupportedApps\Proxmox::class,
-            'Radarr' => \App\SupportedApps\Radarr::class,
-            'Rancher' => \App\SupportedApps\Rancher::class,
-            'Runeaudio' => \App\SupportedApps\Runeaudio::class,
-            'Sabnzbd' => \App\SupportedApps\Sabnzbd::class,
-            'Sickrage' => \App\SupportedApps\Sickrage::class,
-            'Sonarr' => \App\SupportedApps\Sonarr::class,
-            'Syncthing' => \App\SupportedApps\Syncthing::class,
-            'Tautulli' => \App\SupportedApps\Tautulli::class,
-            'Transmission' => \App\SupportedApps\Transmission::class,
-            'Traefik' => \App\SupportedApps\Traefik::class,
-            'tt-rss' => \App\SupportedApps\Ttrss::class,
-            'UniFi' => \App\SupportedApps\Unifi::class,
-            'unRAID' => \App\SupportedApps\Unraid::class,
-            'pfSense' => \App\SupportedApps\Pfsense::class,
-            'pyLoad' => \App\SupportedApps\pyLoad::class,
-            'ruTorrent' => \App\SupportedApps\ruTorrent::class,
-            'Watcher3' => \App\SupportedApps\Watcher3::class,
-            'WebTools' => \App\SupportedApps\WebTools::class,
-        ];
-    }
-    public static function supportedOptions()
-    {
-        return array_keys(self::supportedList());
-    }
 
     /**
      * Scope a query to only include pinned items.
@@ -98,46 +51,35 @@ class Item extends Model
         return $query->where('pinned', 1);
     }
 
-    public function getConfigAttribute()
-    {
-        $output = null;
-        $view = null;
-        if(isset($this->description) && !empty($this->description)){
-            $output = json_decode($this->description);
-            $output = is_object($output) ? $output : new \stdClass();
-            if(isset($output->type) && !empty($output->type)) {
-                $class = $output->type;
-                $sap = new $class();
-                $view = $sap->configDetails();
-                $output->view = $view;
-            }
-            if(!isset($output->dataonly)) $output->dataonly = '0';
-            
-        }
-        return (object)$output;
-    }
     public static function checkConfig($config)
     {
+        // die(print_r($config));
         if(empty($config)) {
             $config = null;
         } else {
-            $store = false;
-            //die(var_dump($config));
-            foreach($config as $key => $check) {
-                if($key == 'type') continue;
-                if($key == 'dataonly') continue;
-                if(!empty($check) && $check != '0') {
-                    $store = true;
-                    break;
-                }
-            }
-            //die(var_dump($store))
-            
-            $config['enabled'] = ($store) ? true : false;
             $config = json_encode($config);
         }
         return $config;
 
+    }
+
+
+    public function tags()
+    {
+        $id = $this->id;
+        $tags = ItemTag::select('tag_id')->where('item_id', $id)->pluck('tag_id')->toArray();
+        $tagdetails = Item::select('id', 'title', 'url', 'pinned')->whereIn('id', $tags)->get();
+        //print_r($tags);
+        if(in_array(0, $tags)) {
+            $details = new Item([
+                "id" => 0,
+                "title" => __('app.dashboard'),
+                "url" => '',
+                "pinned" => 0
+            ]);
+            $tagdetails->prepend($details);
+        }
+        return $tagdetails;
     }
 
     public function parents()
@@ -152,7 +94,7 @@ class Item extends Model
     public function getLinkAttribute()
     {
         if((int)$this->type === 1) {
-            return '/tag/'.$this->url;
+            return url('tag/'.$this->url);
         } else {
             return $this->url;
         }
@@ -195,6 +137,14 @@ class Item extends Model
         }
     }
 
+    public static function nameFromClass($class)
+    {
+        $explode = explode('\\', $class);
+        $name = end($explode);
+        
+        return $name;
+    }
+
     public function scopeOfType($query, $type)
     {
         switch($type) {
@@ -208,6 +158,101 @@ class Item extends Model
 
         return $query->where('type', $typeid);
     }
+
+    public function enhanced()
+    {
+        /*if(isset($this->class) && !empty($this->class)) {
+            $app = new $this->class;
+        } else {
+            return false;
+        }
+        return (bool)($app instanceof \App\EnhancedApps);*/
+        return $this->description !== null;
+    }
+
+    public static function isEnhanced($class)
+    {
+        if($class === null || $class === 'null') return false;
+        $app = new $class;
+        return (bool)($app instanceof \App\EnhancedApps);
+    }
+
+    public static function isSearchProvider($class)
+    {
+        $app = new $class;
+        return ((bool)($app instanceof \App\SearchInterface)) ? $app : false;
+    }
+
+    public function enabled()
+    {
+        if($this->enhanced()) {
+            $config = $this->getconfig();
+            if($config) {
+                return (bool) $config->enabled;
+            }
+        }
+        return false;
+    }
+
+    public function getconfig()
+    {
+        // $explode = explode('\\', $this->class);
+        
+
+        if(!isset($this->description) || empty($this->description)) {
+            $config = new \stdClass;
+            // $config->name = end($explode);
+            $config->enabled = false;
+            $config->override_url = null;
+            $config->apikey = null;
+            return $config;
+        }
+
+        
+
+        $config = json_decode($this->description);
+
+        // $config->name = end($explode);
+
+        
+        $config->url = $this->url;
+        if(isset($config->override_url) && !empty($config->override_url)) {
+            $config->url = $config->override_url;
+        } else {
+            $config->override_url = null;
+        }
+    
+        return $config;
+    }
+
+    public static function applicationDetails($class)
+    {
+        if(!empty($class)) {
+            $name = self::nameFromClass($class);
+            $application = Application::where('name', $name)->first();
+            if($application) return $application;
+        }
+
+        return false;
+
+    }
+
+    public static function getApplicationDescription($class)
+    {
+        $details = self::applicationDetails($class);
+        if($details !== false) {
+            return $details->description.' - '.$details->license;
+        }
+        return '';
+    }
+
+    /**
+     * Get the user that owns the item.
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }   
 
 
 }

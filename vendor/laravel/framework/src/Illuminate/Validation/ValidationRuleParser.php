@@ -3,11 +3,11 @@
 namespace Illuminate\Validation;
 
 use Closure;
+use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\Unique;
-use Illuminate\Contracts\Validation\Rule as RuleContract;
 
 class ValidationRuleParser
 {
@@ -231,7 +231,7 @@ class ValidationRuleParser
         // easy {rule}:{parameters} formatting convention. For instance the
         // rule "Max:3" states that the value may only be three letters.
         if (strpos($rules, ':') !== false) {
-            list($rules, $parameter) = explode(':', $rules, 2);
+            [$rules, $parameter] = explode(':', $rules, 2);
 
             $parameters = static::parseParameters($rules, $parameter);
         }
@@ -248,7 +248,9 @@ class ValidationRuleParser
      */
     protected static function parseParameters($rule, $parameter)
     {
-        if (strtolower($rule) == 'regex') {
+        $rule = strtolower($rule);
+
+        if (in_array($rule, ['regex', 'not_regex', 'notregex'], true)) {
             return [$parameter];
         }
 

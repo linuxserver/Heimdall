@@ -20,14 +20,14 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
      *
      * @var Swift_Transport[]
      */
-    private $deadTransports = array();
+    private $deadTransports = [];
 
     /**
      * The Transports which are used in rotation.
      *
      * @var Swift_Transport[]
      */
-    protected $transports = array();
+    protected $transports = [];
 
     /**
      * The Transport used in the last successful send operation.
@@ -49,7 +49,7 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
     public function setTransports(array $transports)
     {
         $this->transports = $transports;
-        $this->deadTransports = array();
+        $this->deadTransports = [];
     }
 
     /**
@@ -79,7 +79,7 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
      */
     public function isStarted()
     {
-        return count($this->transports) > 0;
+        return \count($this->transports) > 0;
     }
 
     /**
@@ -111,7 +111,7 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
             }
         }
 
-        return count($this->transports) > 0;
+        return \count($this->transports) > 0;
     }
 
     /**
@@ -120,14 +120,13 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
      * Recipient/sender data will be retrieved from the Message API.
      * The return value is the number of recipients who were accepted for delivery.
      *
-     * @param Swift_Mime_SimpleMessage $message
-     * @param string[]           $failedRecipients An array of failures by-reference
+     * @param string[] $failedRecipients An array of failures by-reference
      *
      * @return int
      */
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
-        $maxTransports = count($this->transports);
+        $maxTransports = \count($this->transports);
         $sent = 0;
         $this->lastUsedTransport = null;
 
@@ -146,10 +145,8 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
             }
         }
 
-        if (count($this->transports) == 0) {
-            throw new Swift_TransportException(
-                'All Transports in LoadBalancedTransport failed, or no Transports available'
-                );
+        if (0 == \count($this->transports)) {
+            throw new Swift_TransportException('All Transports in LoadBalancedTransport failed, or no Transports available');
         }
 
         return $sent;
@@ -157,8 +154,6 @@ class Swift_Transport_LoadBalancedTransport implements Swift_Transport
 
     /**
      * Register a plugin.
-     *
-     * @param Swift_Events_EventListener $plugin
      */
     public function registerPlugin(Swift_Events_EventListener $plugin)
     {

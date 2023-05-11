@@ -1,5 +1,49 @@
+# Configuration file for Git attributes
+
+# Core Settings {{{
+# .gitattributes
+.gitattributes !filter !diff
+
+# Line Endings
 * text=auto
+
+# Set binary to none-text files
+*.png -text
+
+# }}}
+
+
+# GitHub Linguist {{{
+
+# Exclude files/folder from being detected by the GitHub linguist
+# statistic.
+node_modules/* linguist-vendored
+public/*  linguist-generated=true
+vendor/* linguist-vendored
+
+# Remove Vue as it's currently not used in the project.
+resources/assets/js/components/ExampleComponent.vue linguist-vendored
+
+# System Wide
 *.css linguist-vendored
 *.scss linguist-vendored
 *.js linguist-vendored
+
+# Include user generated files that's removed bu the setting above.
+resources/assets/js/app.js linguist-vendored=false
+resources/assets/sass/_app.scss linguist-vendored=false
+resources/assets/sass/_rune.scss linguist-vendored=false
+resources/assets/sass/_variables.scss linguist-vendored=false
+
+# }}}
+
+
+# Archive Exlude {{{
+# Exclude files/folders from being exported when creating an archive.
+
+.gitattributes export-ignore
+.gitignore export-ignore
+.travis.yml export-ignore
 CHANGELOG.md export-ignore
+
+# }}}

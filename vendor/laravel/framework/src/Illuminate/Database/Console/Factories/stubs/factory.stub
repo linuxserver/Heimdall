@@ -1,8 +1,11 @@
 <?php
 
-use Faker\Generator as Faker;
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-$factory->define(DummyModel::class, function (Faker $faker) {
+use Faker\Generator as Faker;
+use {{ namespacedModel }};
+
+$factory->define({{ model }}::class, function (Faker $faker) {
     return [
         //
     ];

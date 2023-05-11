@@ -44,6 +44,16 @@ class SettingsSeeder extends Seeder
             $setting_group->title = 'app.settings.miscellaneous';
             $setting_group->save();
         }
+        if(!$setting_group = SettingGroup::find(4)) {
+            $setting_group = new SettingGroup;
+            $setting_group->id = 4;
+            $setting_group->title = 'app.settings.advanced';
+            $setting_group->order = 3;
+            $setting_group->save();
+        } else {
+            $setting_group->title = 'app.settings.advanced';
+            $setting_group->save();
+        }
 
         if($version = Setting::find(1)) {
             $version->label = 'app.settings.version';
@@ -90,12 +100,13 @@ class SettingsSeeder extends Seeder
             'none' => 'app.options.none',
             'google' => 'app.options.google',
             'ddg' => 'app.options.ddg',
+            'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
             'startpage' => 'app.options.startpage',
         ]);
 
         if(!$setting = Setting::find(4)) {
-            
+
             $setting = new Setting;
             $setting->id = 4;
             $setting->group_id = 3;
@@ -116,9 +127,10 @@ class SettingsSeeder extends Seeder
             'en' => 'English',
             'fi' => 'Suomi (Finnish)',
             'fr' => 'Français (French)',
+            'el' => 'Ελληνικά (Greek)',
             'it' => 'Italiano (Italian)',
-            'no' => 'Norsk (Norwegian)',   
-            'pl' => 'Polski (Polish)',            
+            'no' => 'Norsk (Norwegian)',
+            'pl' => 'Polski (Polish)',
             'sv' => 'Svenska (Swedish)',
             'es' => 'Español (Spanish)',
             'tr' => 'Türkçe (Turkish)',
@@ -158,7 +170,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         if(!$setting = Setting::find(7)) {
-            
+
             $setting = new Setting;
             $setting->id = 7;
             $setting->group_id = 3;
@@ -173,5 +185,87 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.window_target';
             $setting->save();
         }
+
+        if($support = Setting::find(8)) {
+            $support->label = 'app.settings.support';
+            $support->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $support->save();
+        } else {
+            $setting = new Setting;
+            $setting->id = 8;
+            $setting->group_id = 1;
+            $setting->key = 'support';
+            $setting->type = 'text';
+            $setting->label = 'app.settings.support';
+            $setting->value = '<a rel="noopener" target="_blank" href="https://discord.gg/CCjHKn4">Discord</a> | <a rel="noopener" target="_blank" href="https://github.com/linuxserver/Heimdall">Github</a> | <a rel="noopener" target="_blank" href="https://blog.heimdall.site/">Blog</a>';
+            $setting->system = true;
+            $setting->save();
+        }
+
+        if($donate = Setting::find(9)) {
+            $donate->label = 'app.settings.donate';
+            $donate->value = '<a rel="noopener" target="_blank" href="https://www.paypal.me/heimdall">Paypal</a>';
+            $donate->save();
+        } else {
+            $setting = new Setting;
+            $setting->id = 9;
+            $setting->group_id = 1;
+            $setting->key = 'donate';
+            $setting->type = 'text';
+            $setting->label = 'app.settings.donate';
+            $setting->value = '<a rel="noopener" target="_blank" href="https://www.paypal.me/heimdall">Paypal</a>';
+            $setting->system = true;
+            $setting->save();
+        }
+        
+        if(!$setting = Setting::find(10)) {
+            $setting = new Setting;
+            $setting->id = 10;
+            $setting->group_id = 4;
+            $setting->key = 'custom_css';
+            $setting->type = 'textarea';
+            $setting->label = 'app.settings.custom_css';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->type = 'textarea';
+            $setting->group_id = 4;
+            $setting->label = 'app.settings.custom_css';
+            $setting->save();
+        }
+
+        if(!$setting = Setting::find(11)) {
+            $setting = new Setting;
+            $setting->id = 11;
+            $setting->group_id = 4;
+            $setting->key = 'custom_js';
+            $setting->type = 'textarea';
+            $setting->label = 'app.settings.custom_js';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->type = 'textarea';
+            $setting->group_id = 4;
+            $setting->label = 'app.settings.custom_js';
+            $setting->save();
+        }
+
+        if(!$home_tag = \App\Item::find(0)) {
+            $home_tag = new \App\Item;
+            $home_tag->id = 0;
+            $home_tag->title = 'app.dashboard';
+            $home_tag->pinned = 0;
+            $home_tag->url = '';
+            $home_tag->type = 1;
+            $home_tag->user_id = 0;
+            $home_tag->save();
+
+            $homeapps = \App\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
+            foreach($homeapps as $app) {
+                if($app->id === 0) continue;
+                $app->parents()->attach(0);
+            }
+        }
+
     }
 }

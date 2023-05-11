@@ -5,12 +5,15 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.0.0",
-        "fideloper/proxy": "~3.3",
-        "guzzlehttp/guzzle": "^6.3",
-        "laravel/framework": "5.5.*",
-        "laravel/tinker": "~1.0",
-        "laravelcollective/html": "^5.5"
+        "php": ">=7.2.5",
+        "fideloper/proxy": "^4.0",
+        "graham-campbell/github": "^10.5",
+        "guzzlehttp/guzzle": "^7.4",
+        "laravel/framework": "^7.0",
+        "laravel/tinker": "^2.0",
+        "laravel/ui": "^2.4",
+        "laravelcollective/html": "^6.0",
+        "symfony/yaml": "^5.4"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
@@ -57,6 +60,10 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true,
+            "symfony/thanks": true
+        }
     }
 }

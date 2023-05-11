@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GuzzleHttp\Psr7;
 
 use Psr\Http\Message\ResponseInterface;
@@ -11,8 +14,8 @@ class Response implements ResponseInterface
 {
     use MessageTrait;
 
-    /** @var array Map of standard HTTP status code/reason phrases */
-    private static $phrases = [
+    /** Map of standard HTTP status code/reason phrases */
+    private const PHRASES = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -33,6 +36,7 @@ class Response implements ResponseInterface
         305 => 'Use Proxy',
         306 => 'Switch Proxy',
         307 => 'Temporary Redirect',
+        308 => 'Permanent Redirect',
         400 => 'Bad Request',
         401 => 'Unauthorized',
         402 => 'Payment Required',
@@ -70,38 +74,41 @@ class Response implements ResponseInterface
         506 => 'Variant Also Negotiates',
         507 => 'Insufficient Storage',
         508 => 'Loop Detected',
+        510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
 
     /** @var string */
-    private $reasonPhrase = '';
+    private $reasonPhrase;
 
     /** @var int */
-    private $statusCode = 200;
+    private $statusCode;
 
     /**
      * @param int                                  $status  Status code
-     * @param array                                $headers Response headers
-     * @param string|null|resource|StreamInterface $body    Response body
+     * @param array<string, string|string[]>       $headers Response headers
+     * @param string|resource|StreamInterface|null $body    Response body
      * @param string                               $version Protocol version
      * @param string|null                          $reason  Reason phrase (when empty a default will be used based on the status code)
      */
     public function __construct(
-        $status = 200,
+        int $status = 200,
         array $headers = [],
         $body = null,
-        $version = '1.1',
-        $reason = null
+        string $version = '1.1',
+        string $reason = null
     ) {
-        $this->statusCode = (int) $status;
+        $this->assertStatusCodeRange($status);
+
+        $this->statusCode = $status;
 
         if ($body !== '' && $body !== null) {
-            $this->stream = stream_for($body);
+            $this->stream = Utils::streamFor($body);
         }
 
         $this->setHeaders($headers);
-        if ($reason == '' && isset(self::$phrases[$this->statusCode])) {
-            $this->reasonPhrase = self::$phrases[$this->statusCode];
+        if ($reason == '' && isset(self::PHRASES[$this->statusCode])) {
+            $this->reasonPhrase = self::PHRASES[$this->statusCode];
         } else {
             $this->reasonPhrase = (string) $reason;
         }
@@ -109,24 +116,45 @@ class Response implements ResponseInterface
         $this->protocol = $version;
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->statusCode;
     }
 
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->reasonPhrase;
     }
 
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): ResponseInterface
     {
+        $this->assertStatusCodeIsInteger($code);
+        $code = (int) $code;
+        $this->assertStatusCodeRange($code);
+
         $new = clone $this;
-        $new->statusCode = (int) $code;
-        if ($reasonPhrase == '' && isset(self::$phrases[$new->statusCode])) {
-            $reasonPhrase = self::$phrases[$new->statusCode];
+        $new->statusCode = $code;
+        if ($reasonPhrase == '' && isset(self::PHRASES[$new->statusCode])) {
+            $reasonPhrase = self::PHRASES[$new->statusCode];
         }
-        $new->reasonPhrase = $reasonPhrase;
+        $new->reasonPhrase = (string) $reasonPhrase;
         return $new;
+    }
+
+    /**
+     * @param mixed $statusCode
+     */
+    private function assertStatusCodeIsInteger($statusCode): void
+    {
+        if (filter_var($statusCode, FILTER_VALIDATE_INT) === false) {
+            throw new \InvalidArgumentException('Status code must be an integer value.');
+        }
+    }
+
+    private function assertStatusCodeRange(int $statusCode): void
+    {
+        if ($statusCode < 100 || $statusCode >= 600) {
+            throw new \InvalidArgumentException('Status code must be an integer value between 1xx and 5xx.');
+        }
     }
 }

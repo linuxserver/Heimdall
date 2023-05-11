@@ -1,6 +1,88 @@
 CHANGELOG
 =========
 
+5.4
+---
+
+ * Add `github` format & autodetection to render errors as annotations when
+   running the XLIFF linter command in a Github Actions environment.
+ * Translation providers are not experimental anymore
+
+5.3
+---
+
+ * Add `translation:pull` and `translation:push` commands to manage translations with third-party providers
+ * Add `TranslatorBagInterface::getCatalogues` method
+ * Add support to load XLIFF string in `XliffFileLoader`
+
+5.2.0
+-----
+
+ * added support for calling `trans` with ICU formatted messages
+ * added `PseudoLocalizationTranslator`
+ * added `TranslatableMessage` objects that represent a message that can be translated
+ * added the `t()` function to easily create `TranslatableMessage` objects
+ * Added support for extracting messages from `TranslatableMessage` objects
+
+5.1.0
+-----
+
+ * added support for `name` attribute on `unit` element from xliff2 to be used as a translation key instead of always the `source` element
+
+5.0.0
+-----
+
+ * removed support for using `null` as the locale in `Translator`
+ * removed `TranslatorInterface`
+ * removed `MessageSelector`
+ * removed `ChoiceMessageFormatterInterface`
+ * removed `PluralizationRule`
+ * removed `Interval`
+ * removed `transChoice()` methods, use the trans() method instead with a %count% parameter
+ * removed `FileDumper::setBackup()` and `TranslationWriter::disableBackup()`
+ * removed `MessageFormatter::choiceFormat()`
+ * added argument `$filename` to `PhpExtractor::parseTokens()`
+ * removed support for implicit STDIN usage in the `lint:xliff` command, use `lint:xliff -` (append a dash) instead to make it explicit.
+
+4.4.0
+-----
+
+ * deprecated support for using `null` as the locale in `Translator`
+ * deprecated accepting STDIN implicitly when using the `lint:xliff` command, use `lint:xliff -` (append a dash) instead to make it explicit.
+ * Marked the `TranslationDataCollector` class as `@final`.
+
+4.3.0
+-----
+
+ * Improved Xliff 1.2 loader to load the original file's metadata
+ * Added `TranslatorPathsPass`
+
+4.2.0
+-----
+
+ * Started using ICU parent locales as fallback locales.
+ * allow using the ICU message format using domains with the "+intl-icu" suffix
+ * deprecated `Translator::transChoice()` in favor of using `Translator::trans()` with a `%count%` parameter
+ * deprecated `TranslatorInterface` in favor of `Symfony\Contracts\Translation\TranslatorInterface`
+ * deprecated `MessageSelector`, `Interval` and `PluralizationRules`; use `IdentityTranslator` instead
+ * Added `IntlFormatter` and `IntlFormatterInterface`
+ * added support for multiple files and directories in `XliffLintCommand`
+ * Marked `Translator::getFallbackLocales()` and `TranslationDataCollector::getFallbackLocales()` as internal
+
+4.1.0
+-----
+
+ * The `FileDumper::setBackup()` method is deprecated.
+ * The `TranslationWriter::disableBackup()` method is deprecated.
+ * The `XliffFileDumper` will write "name" on the "unit" node when dumping XLIFF 2.0.
+
+4.0.0
+-----
+
+ * removed the backup feature of the `FileDumper` class
+ * removed `TranslationWriter::writeTranslations()` method
+ * removed support for passing `MessageSelector` instances to the constructor of the `Translator` class
+
 3.4.0
 -----
 

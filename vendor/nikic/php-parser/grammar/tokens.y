@@ -1,6 +1,7 @@
 /* We currently rely on the token ID mapping to be the same between PHP 5 and PHP 7 - so the same lexer can be used for
  * both. This is enforced by sharing this token file. */
 
+%right T_THROW
 %left T_INCLUDE T_INCLUDE_ONCE T_EVAL T_REQUIRE T_REQUIRE_ONCE
 %left ','
 %left T_LOGICAL_OR
@@ -10,14 +11,14 @@
 %right T_YIELD
 %right T_DOUBLE_ARROW
 %right T_YIELD_FROM
-%left '=' T_PLUS_EQUAL T_MINUS_EQUAL T_MUL_EQUAL T_DIV_EQUAL T_CONCAT_EQUAL T_MOD_EQUAL T_AND_EQUAL T_OR_EQUAL T_XOR_EQUAL T_SL_EQUAL T_SR_EQUAL T_POW_EQUAL
+%left '=' T_PLUS_EQUAL T_MINUS_EQUAL T_MUL_EQUAL T_DIV_EQUAL T_CONCAT_EQUAL T_MOD_EQUAL T_AND_EQUAL T_OR_EQUAL T_XOR_EQUAL T_SL_EQUAL T_SR_EQUAL T_POW_EQUAL T_COALESCE_EQUAL
 %left '?' ':'
 %right T_COALESCE
 %left T_BOOLEAN_OR
 %left T_BOOLEAN_AND
 %left '|'
 %left '^'
-%left '&'
+%left T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG T_AMPERSAND_FOLLOWED_BY_VAR_OR_VARARG
 %nonassoc T_IS_EQUAL T_IS_NOT_EQUAL T_IS_IDENTICAL T_IS_NOT_IDENTICAL T_SPACESHIP
 %nonassoc '<' T_IS_SMALLER_OR_EQUAL '>' T_IS_GREATER_OR_EQUAL
 %left T_SL T_SR
@@ -41,8 +42,6 @@
 %token T_VARIABLE
 %token T_NUM_STRING
 %token T_INLINE_HTML
-%token T_CHARACTER
-%token T_BAD_CHARACTER
 %token T_ENCAPSED_AND_WHITESPACE
 %token T_CONSTANT_ENCAPSED_STRING
 %token T_ECHO
@@ -57,6 +56,7 @@
 %token T_ENDDECLARE
 %token T_AS
 %token T_SWITCH
+%token T_MATCH
 %token T_ENDSWITCH
 %token T_CASE
 %token T_DEFAULT
@@ -64,6 +64,7 @@
 %token T_CONTINUE
 %token T_GOTO
 %token T_FUNCTION
+%token T_FN
 %token T_CONST
 %token T_RETURN
 %token T_TRY
@@ -73,7 +74,7 @@
 %token T_USE
 %token T_INSTEADOF
 %token T_GLOBAL
-%right T_STATIC T_ABSTRACT T_FINAL T_PRIVATE T_PROTECTED T_PUBLIC
+%right T_STATIC T_ABSTRACT T_FINAL T_PRIVATE T_PROTECTED T_PUBLIC T_READONLY
 %token T_VAR
 %token T_UNSET
 %token T_ISSET
@@ -82,9 +83,11 @@
 %token T_CLASS
 %token T_TRAIT
 %token T_INTERFACE
+%token T_ENUM
 %token T_EXTENDS
 %token T_IMPLEMENTS
 %token T_OBJECT_OPERATOR
+%token T_NULLSAFE_OBJECT_OPERATOR
 %token T_DOUBLE_ARROW
 %token T_LIST
 %token T_ARRAY
@@ -95,12 +98,6 @@
 %token T_FUNC_C
 %token T_LINE
 %token T_FILE
-%token T_COMMENT
-%token T_DOC_COMMENT
-%token T_OPEN_TAG
-%token T_OPEN_TAG_WITH_ECHO
-%token T_CLOSE_TAG
-%token T_WHITESPACE
 %token T_START_HEREDOC
 %token T_END_HEREDOC
 %token T_DOLLAR_OPEN_CURLY_BRACES
@@ -111,3 +108,8 @@
 %token T_DIR
 %token T_NS_SEPARATOR
 %token T_ELLIPSIS
+%token T_NAME_FULLY_QUALIFIED
+%token T_NAME_QUALIFIED
+%token T_NAME_RELATIVE
+%token T_ATTRIBUTE
+%token T_ENUM

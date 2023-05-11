@@ -1,3 +1,73 @@
+1.10.3 / 2020/03/05
+===================
+
+* [fixed] removed fatal error when phpdocumentor/reflection-docblock 5 parses an invalid `@method` tag (@stof)
+
+1.10.2 / 2020/01/20
+===================
+
+* [added] support for new versions of `sebastian/comparator` and `sebastian/recursion-context` (@sebastianbergmann)
+
+1.10.1 / 2019/12/22
+===================
+
+* [fixed] identical callables no longer match as arguments (@ciaranmcnulty)
+
+1.10.0 / 2019/12/17
+===================
+
+* [added] shouldHaveBeenCalled evaluation happens later so un-stubbed calls don't throw (@elvetemedve)
+* [added] methods can now be doubled case-insensitively to match PHP semantics (@michalbundyra)
+* [fixed] reduced memory usage by optimising CachedDoubler (@DonCallisto)
+* [fixed] removed fatal error nesting level when comparing large objects (@scroach)
+
+1.9.0 / 2019/10/03
+==================
+
+* [added] Add willYield feature to Method Prophecy(@tkotosz)
+* [fixed] Allow `MethodProphecy::willThrow()` to accept Throwable as string (@timoschinkel )
+* [fixed] Allow new version of phpdocumentor/reflection-docblock (@ricpelo)
+
+1.8.1 / 2019/06/13
+==================
+
+* [fixed] Don't try to patch final constructors (@NiR)
+
+1.8.0 / 2018/08/05
+==================
+
+* Support for void return types without explicit will (@crellbar)
+* Clearer error message for unexpected method calls (@meridius)
+* Clearer error message for aggregate exceptions (@meridius)
+* More verbose `shouldBeCalledOnce` expectation (@olvlvl)
+* Ability to double Throwable, or methods that extend it (@ciaranmcnulty)
+* [fixed] Doubling methods where class has additional arguments to interface (@webimpress)
+* [fixed] Doubling methods where arguments are nullable but default is not null (@webimpress)
+* [fixed] Doubling magic methods on parent class (@dsnopek)
+* [fixed] Check method predictions only once (@dontub)
+* [fixed] Argument::containingString throwing error when called with non-string (@dcabrejas)
+
+1.7.6 / 2018/04/18
+==================
+
+* Allow sebastian/comparator ^3.0 (@sebastianbergmann)
+
+1.7.5 / 2018/02/11
+==================
+
+* Support for object return type hints (thanks @greg0ire)
+
+1.7.4 / 2018/02/11
+==================
+
+* Fix issues with PHP 7.2 (thanks @greg0ire)
+* Support object type hints in PHP 7.2 (thanks @@jansvoboda11)
+
+1.7.3 / 2017/11/24
+==================
+
+* Fix SplInfo ClassPatch to work with Symfony 4 (Thanks @gnugat)
+
 1.7.2 / 2017-10-04
 ==================
 

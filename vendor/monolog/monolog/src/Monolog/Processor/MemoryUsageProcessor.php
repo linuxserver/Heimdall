@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the Monolog package.
@@ -20,15 +20,17 @@ namespace Monolog\Processor;
 class MemoryUsageProcessor extends MemoryProcessor
 {
     /**
-     * @param  array $record
-     * @return array
+     * {@inheritDoc}
      */
-    public function __invoke(array $record)
+    public function __invoke(array $record): array
     {
-        $bytes = memory_get_usage($this->realUsage);
-        $formatted = $this->formatBytes($bytes);
+        $usage = memory_get_usage($this->realUsage);
 
-        $record['extra']['memory_usage'] = $formatted;
+        if ($this->useFormatting) {
+            $usage = $this->formatBytes($usage);
+        }
+
+        $record['extra']['memory_usage'] = $usage;
 
         return $record;
     }

@@ -1,0 +1,40 @@
+{
+    "name": "dragonmantank/cron-expression",
+    "type": "library",
+    "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
+    "keywords": ["cron", "schedule"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Dowling",
+            "email": "mtdowling@gmail.com",
+            "homepage": "https://github.com/mtdowling"
+        },
+        {
+            "name": "Chris Tankersley",
+            "email": "chris@ctankersley.com",
+            "homepage": "https://github.com/dragonmantank"
+        }
+    ],
+    "require": {
+        "php": "^7.0|^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.4|^7.0|^8.0|^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cron\\": "src/Cron/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/Cron/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.3-dev"
+        }
+    }
+}

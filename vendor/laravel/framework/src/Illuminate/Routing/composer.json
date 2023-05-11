@@ -14,17 +14,17 @@
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "illuminate/container": "5.5.*",
-        "illuminate/contracts": "5.5.*",
-        "illuminate/http": "5.5.*",
-        "illuminate/pipeline": "5.5.*",
-        "illuminate/session": "5.5.*",
-        "illuminate/support": "5.5.*",
-        "symfony/debug": "~3.3",
-        "symfony/http-foundation": "~3.3",
-        "symfony/http-kernel": "~3.3",
-        "symfony/routing": "~3.3"
+        "php": "^7.2.5|^8.0",
+        "ext-json": "*",
+        "illuminate/container": "^7.0",
+        "illuminate/contracts": "^7.0",
+        "illuminate/http": "^7.0",
+        "illuminate/pipeline": "^7.0",
+        "illuminate/session": "^7.0",
+        "illuminate/support": "^7.0",
+        "symfony/http-foundation": "^5.0",
+        "symfony/http-kernel": "^5.0",
+        "symfony/routing": "^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -33,12 +33,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.5-dev"
+            "dev-master": "7.x-dev"
         }
     },
     "suggest": {
-        "illuminate/console": "Required to use the make commands (5.5.*).",
-        "symfony/psr-http-message-bridge": "Required to psr7 bridging features (~1.0)."
+        "illuminate/console": "Required to use the make commands (^7.0).",
+        "nyholm/psr7": "Required to use PSR-7 bridging features (^1.2).",
+        "symfony/psr-http-message-bridge": "Required to use PSR-7 bridging features (^2.0)."
     },
     "config": {
         "sort-packages": true

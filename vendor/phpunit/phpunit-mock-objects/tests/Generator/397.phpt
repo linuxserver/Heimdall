@@ -1,5 +1,8 @@
 --TEST--
 https://github.com/sebastianbergmann/phpunit-mock-objects/issues/397
+--SKIPIF--
+<?php
+if (!version_compare(PHP_VERSION, '7.1', '>=')) print 'skip: PHP >= 7.1 required';
 --FILE--
 <?php
 class C

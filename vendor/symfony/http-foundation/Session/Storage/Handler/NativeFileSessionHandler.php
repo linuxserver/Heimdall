@@ -16,19 +16,19 @@ namespace Symfony\Component\HttpFoundation\Session\Storage\Handler;
  *
  * @author Drak <drak@zikula.org>
  */
-class NativeFileSessionHandler extends NativeSessionHandler
+class NativeFileSessionHandler extends \SessionHandler
 {
     /**
      * @param string $savePath Path of directory to save session files
      *                         Default null will leave setting as defined by PHP.
      *                         '/path', 'N;/path', or 'N;octal-mode;/path
      *
-     * @see http://php.net/session.configuration.php#ini.session.save-path for further details.
+     * @see https://php.net/session.configuration#ini.session.save-path for further details.
      *
      * @throws \InvalidArgumentException On invalid $savePath
      * @throws \RuntimeException         When failing to create the save directory
      */
-    public function __construct($savePath = null)
+    public function __construct(string $savePath = null)
     {
         if (null === $savePath) {
             $savePath = ini_get('session.save_path');
@@ -38,7 +38,7 @@ class NativeFileSessionHandler extends NativeSessionHandler
 
         if ($count = substr_count($savePath, ';')) {
             if ($count > 2) {
-                throw new \InvalidArgumentException(sprintf('Invalid argument $savePath \'%s\'', $savePath));
+                throw new \InvalidArgumentException(sprintf('Invalid argument $savePath \'%s\'.', $savePath));
             }
 
             // characters after last ';' are the path
@@ -46,7 +46,7 @@ class NativeFileSessionHandler extends NativeSessionHandler
         }
 
         if ($baseDir && !is_dir($baseDir) && !@mkdir($baseDir, 0777, true) && !is_dir($baseDir)) {
-            throw new \RuntimeException(sprintf('Session Storage was not able to create directory "%s"', $baseDir));
+            throw new \RuntimeException(sprintf('Session Storage was not able to create directory "%s".', $baseDir));
         }
 
         ini_set('session.save_path', $savePath);

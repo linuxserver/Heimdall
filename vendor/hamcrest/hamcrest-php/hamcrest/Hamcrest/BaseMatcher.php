@@ -22,4 +22,9 @@ abstract class BaseMatcher implements Matcher
     {
         return StringDescription::toString($this);
     }
+
+    public function __invoke()
+    {
+        return call_user_func_array(array($this, 'matches'), func_get_args());
+    }
 }

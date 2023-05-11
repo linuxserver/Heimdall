@@ -2,18 +2,15 @@
 
 DeepCopy helps you create deep copies (clones) of your objects. It is designed to handle cycles in the association graph.
 
-[![Build Status](https://travis-ci.org/myclabs/DeepCopy.png?branch=master)](https://travis-ci.org/myclabs/DeepCopy)
-[![Coverage Status](https://coveralls.io/repos/myclabs/DeepCopy/badge.png?branch=master)](https://coveralls.io/r/myclabs/DeepCopy?branch=master)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/myclabs/DeepCopy/badges/quality-score.png?s=2747100c19b275f93a777e3297c6c12d1b68b934)](https://scrutinizer-ci.com/g/myclabs/DeepCopy/)
 [![Total Downloads](https://poser.pugx.org/myclabs/deep-copy/downloads.svg)](https://packagist.org/packages/myclabs/deep-copy)
-
+[![Integrate](https://github.com/myclabs/DeepCopy/workflows/ci/badge.svg?branch=1.x)](https://github.com/myclabs/DeepCopy/actions)
 
 ## Table of Contents
 
 1. [How](#how)
 1. [Why](#why)
     1. [Using simply `clone`](#using-simply-clone)
-    1. [Overridding `__clone()`](#overridding-__clone)
+    1. [Overriding `__clone()`](#overriding-__clone)
     1. [With `DeepCopy`](#with-deepcopy)
 1. [How it works](#how-it-works)
 1. [Going further](#going-further)
@@ -28,7 +25,7 @@ DeepCopy helps you create deep copies (clones) of your objects. It is designed t
         1. [`DoctrineEmptyCollectionFilter`](#doctrineemptycollectionfilter-filter)
         1. [`DoctrineProxyFilter`](#doctrineproxyfilter-filter)
         1. [`ReplaceFilter`](#replacefilter-type-filter)
-        1. [`ShallowCopyFilter`](#doctrinecollectionfilter-type-filter)
+        1. [`ShallowCopyFilter`](#shallowcopyfilter-type-filter)
 1. [Edge cases](#edge-cases)
 1. [Contributing](#contributing)
     1. [Tests](#tests)
@@ -38,11 +35,11 @@ DeepCopy helps you create deep copies (clones) of your objects. It is designed t
 
 Install with Composer:
 
-```json
+```
 composer require myclabs/deep-copy
 ```
 
-Use simply:
+Use it:
 
 ```php
 use DeepCopy\DeepCopy;
@@ -77,9 +74,9 @@ Now you're in for a big mess :(
 ![Using clone](doc/clone.png)
 
 
-### Overridding `__clone()`
+### Overriding `__clone()`
 
-![Overridding __clone](doc/deep-clone.png)
+![Overriding __clone](doc/deep-clone.png)
 
 
 ### With `DeepCopy`
@@ -370,3 +367,7 @@ Running the tests is simple:
 ```php
 vendor/bin/phpunit
 ```
+
+### Support
+
+Get professional support via [the Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-myclabs-deep-copy?utm_source=packagist-myclabs-deep-copy&utm_medium=referral&utm_campaign=readme).

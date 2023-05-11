@@ -78,7 +78,7 @@ class HtmlBuilder
     {
         $attributes['src'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<script' . $this->attributes($attributes) . '></script>' . PHP_EOL);
+        return $this->toHtmlString('<script' . $this->attributes($attributes) . '></script>');
     }
 
     /**
@@ -94,11 +94,11 @@ class HtmlBuilder
     {
         $defaults = ['media' => 'all', 'type' => 'text/css', 'rel' => 'stylesheet'];
 
-        $attributes = $attributes + $defaults;
+        $attributes = array_merge($defaults, $attributes);
 
         $attributes['href'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -132,11 +132,11 @@ class HtmlBuilder
     {
         $defaults = ['rel' => 'shortcut icon', 'type' => 'image/x-icon'];
 
-        $attributes = $attributes + $defaults;
+        $attributes = array_merge($defaults, $attributes);
 
         $attributes['href'] = $this->url->asset($url, $secure);
 
-        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<link' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -162,7 +162,7 @@ class HtmlBuilder
             $title = $this->entities($title);
         }
 
-        return $this->toHtmlString('<a href="' . $url . '"' . $this->attributes($attributes) . '>' . $title . '</a>');
+        return $this->toHtmlString('<a href="' . $this->entities($url) . '"' . $this->attributes($attributes) . '>' . $title . '</a>');
     }
 
     /**
@@ -171,12 +171,13 @@ class HtmlBuilder
      * @param string $url
      * @param string $title
      * @param array  $attributes
+     * @param bool   $escape
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function secureLink($url, $title = null, $attributes = [])
+    public function secureLink($url, $title = null, $attributes = [], $escape = true)
     {
-        return $this->link($url, $title, $attributes, true);
+        return $this->link($url, $title, $attributes, true, $escape);
     }
 
     /**
@@ -186,14 +187,15 @@ class HtmlBuilder
      * @param string $title
      * @param array  $attributes
      * @param bool   $secure
+     * @param bool   $escape
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function linkAsset($url, $title = null, $attributes = [], $secure = null)
+    public function linkAsset($url, $title = null, $attributes = [], $secure = null, $escape = true)
     {
         $url = $this->url->asset($url, $secure);
 
-        return $this->link($url, $title ?: $url, $attributes, $secure);
+        return $this->link($url, $title ?: $url, $attributes, $secure, $escape);
     }
 
     /**
@@ -202,12 +204,13 @@ class HtmlBuilder
      * @param string $url
      * @param string $title
      * @param array  $attributes
+     * @param bool   $escape
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function linkSecureAsset($url, $title = null, $attributes = [])
+    public function linkSecureAsset($url, $title = null, $attributes = [], $escape = true)
     {
-        return $this->linkAsset($url, $title, $attributes, true);
+        return $this->linkAsset($url, $title, $attributes, true, $escape);
     }
 
     /**
@@ -217,12 +220,14 @@ class HtmlBuilder
      * @param string $title
      * @param array  $parameters
      * @param array  $attributes
+     * @param bool   $secure
+     * @param bool   $escape
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function linkRoute($name, $title = null, $parameters = [], $attributes = [])
+    public function linkRoute($name, $title = null, $parameters = [], $attributes = [], $secure = null, $escape = true)
     {
-        return $this->link($this->url->route($name, $parameters), $title, $attributes);
+        return $this->link($this->url->route($name, $parameters), $title, $attributes, $secure, $escape);
     }
 
     /**
@@ -232,12 +237,14 @@ class HtmlBuilder
      * @param string $title
      * @param array  $parameters
      * @param array  $attributes
+     * @param bool   $secure
+     * @param bool   $escape
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function linkAction($action, $title = null, $parameters = [], $attributes = [])
+    public function linkAction($action, $title = null, $parameters = [], $attributes = [], $secure = null, $escape = true)
     {
-        return $this->link($this->url->action($action, $parameters), $title, $attributes);
+        return $this->link($this->url->action($action, $parameters), $title, $attributes, $secure, $escape);
     }
 
     /**
@@ -357,7 +364,7 @@ class HtmlBuilder
     {
         $html = '';
 
-        if (count($list) == 0) {
+        if (count($list) === 0) {
             return $html;
         }
 
@@ -387,7 +394,7 @@ class HtmlBuilder
         if (is_array($value)) {
             return $this->nestedListing($key, $type, $value);
         } else {
-            return '<li>' . e($value) . '</li>';
+            return '<li>' . e($value, false) . '</li>';
         }
     }
 
@@ -451,12 +458,16 @@ class HtmlBuilder
         }
 
         // Treat boolean attributes as HTML properties
-        if (is_bool($value) && $key != 'value') {
+        if (is_bool($value) && $key !== 'value') {
             return $value ? $key : '';
         }
 
+        if (is_array($value) && $key === 'class') {
+            return 'class="' . implode(' ', $value) . '"';
+        }
+
         if (! is_null($value)) {
-            return $key . '="' . e($value) . '"';
+            return $key . '="' . e($value, false) . '"';
         }
     }
 
@@ -511,7 +522,7 @@ class HtmlBuilder
 
         $attributes = array_merge($defaults, $attributes);
 
-        return $this->toHtmlString('<meta' . $this->attributes($attributes) . '>' . PHP_EOL);
+        return $this->toHtmlString('<meta' . $this->attributes($attributes) . '>');
     }
 
     /**
@@ -525,8 +536,8 @@ class HtmlBuilder
      */
     public function tag($tag, $content, array $attributes = [])
     {
-        $content = is_array($content) ? implode(PHP_EOL, $content) : $content;
-        return $this->toHtmlString('<' . $tag . $this->attributes($attributes) . '>' . PHP_EOL . $this->toHtmlString($content) . PHP_EOL . '</' . $tag . '>' . PHP_EOL);
+        $content = is_array($content) ? implode('', $content) : $content;
+        return $this->toHtmlString('<' . $tag . $this->attributes($attributes) . '>' . $this->toHtmlString($content) . '</' . $tag . '>');
     }
 
     /**

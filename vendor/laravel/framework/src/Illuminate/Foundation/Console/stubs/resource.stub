@@ -1,10 +1,10 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{ namespace }};
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class DummyClass extends Resource
+class {{ class }} extends JsonResource
 {
     /**
      * Transform the resource into an array.

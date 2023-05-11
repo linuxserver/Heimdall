@@ -14,7 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Heimdall'),  
-    'version' => '1.4.13',
+    'version' => '2.4.0',
 
     /*
     |--------------------------------------------------------------------------
@@ -54,6 +54,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -228,6 +230,10 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Yaml' => Symfony\Component\Yaml\Yaml::class,
+
+        'SupportedApps' => App\SupportedApps::class,
+        'EnhancedApps' => App\EnhancedApps::class,
 
     ],
 

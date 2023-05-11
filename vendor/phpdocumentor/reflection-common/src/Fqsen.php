@@ -1,51 +1,60 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5.5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2015 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\Reflection;
 
+use InvalidArgumentException;
+use function assert;
+use function end;
+use function explode;
+use function is_string;
+use function preg_match;
+use function sprintf;
+use function trim;
+
 /**
  * Value Object for Fqsen.
  *
  * @link https://github.com/phpDocumentor/fig-standards/blob/master/proposed/phpdoc-meta.md
+ *
+ * @psalm-immutable
  */
 final class Fqsen
 {
-    /**
-     * @var string full quallified class name
-     */
+    /** @var string full quallified class name */
     private $fqsen;
 
-    /**
-     * @var string name of the element without path.
-     */
+    /** @var string name of the element without path. */
     private $name;
 
     /**
      * Initializes the object.
      *
-     * @param string $fqsen
-     *
-     * @throws \InvalidArgumentException when $fqsen is not matching the format.
+     * @throws InvalidArgumentException when $fqsen is not matching the format.
      */
-    public function __construct($fqsen)
+    public function __construct(string $fqsen)
     {
-        $matches = array();
+        $matches = [];
+
         $result = preg_match(
+            //phpcs:ignore Generic.Files.LineLength.TooLong
             '/^\\\\([a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff\\\\]*)?(?:[:]{2}\\$?([a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*))?(?:\\(\\))?$/',
-                $fqsen,
-                $matches
+            $fqsen,
+            $matches
         );
 
         if ($result === 0) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('"%s" is not a valid Fqsen.', $fqsen)
             );
         }
@@ -56,26 +65,24 @@ final class Fqsen
             $this->name = $matches[2];
         } else {
             $matches = explode('\\', $fqsen);
-            $this->name = trim(end($matches), '()');
+            $name = end($matches);
+            assert(is_string($name));
+            $this->name = trim($name, '()');
         }
     }
 
     /**
      * converts this class to string.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         return $this->fqsen;
     }
 
     /**
      * Returns the name of the element without path.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }

@@ -32,12 +32,12 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
 
     public function __sleep()
     {
-        return array('charStream', 'filter', 'dotEscape');
+        return ['charStream', 'filter', 'dotEscape'];
     }
 
     protected function getSafeMapShareId()
     {
-        return get_class($this).($this->dotEscape ? '.dotEscape' : '');
+        return static::class.($this->dotEscape ? '.dotEscape' : '');
     }
 
     protected function initSafeMap()
@@ -97,7 +97,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
             $enc = $this->encodeByteSequence($bytes, $size);
 
             $i = strpos($enc, '=0D=0A');
-            $newLineLength = $lineLen + ($i === false ? $size : $i);
+            $newLineLength = $lineLen + (false === $i ? $size : $i);
 
             if ($currentLine && $newLineLength >= $thisLineLength) {
                 $is->write($prepend.$this->standardize($currentLine));
@@ -109,14 +109,14 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
 
             $currentLine .= $enc;
 
-            if ($i === false) {
+            if (false === $i) {
                 $lineLen += $size;
             } else {
                 // 6 is the length of '=0D=0A'.
                 $lineLen = $size - strrpos($enc, '=0D=0A') - 6;
             }
         }
-        if (strlen($currentLine)) {
+        if (\strlen($currentLine)) {
             $is->write($prepend.$this->standardize($currentLine));
         }
     }

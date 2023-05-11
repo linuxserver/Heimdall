@@ -2,104 +2,199 @@
 
 namespace Dotenv;
 
-/**
- * This is the dotenv class.
- *
- * It's responsible for loading a `.env` file in the given directory and
- * setting the environment vars.
- */
+use Dotenv\Exception\InvalidPathException;
+use Dotenv\Loader\Loader;
+use Dotenv\Loader\LoaderInterface;
+use Dotenv\Repository\Adapter\ArrayAdapter;
+use Dotenv\Repository\RepositoryBuilder;
+use Dotenv\Repository\RepositoryInterface;
+use Dotenv\Store\FileStore;
+use Dotenv\Store\StoreBuilder;
+use Dotenv\Store\StringStore;
+
 class Dotenv
 {
     /**
-     * The file path.
-     *
-     * @var string
-     */
-    protected $filePath;
-
-    /**
      * The loader instance.
      *
-     * @var \Dotenv\Loader|null
+     * @var \Dotenv\Loader\LoaderInterface
      */
     protected $loader;
 
     /**
+     * The repository instance.
+     *
+     * @var \Dotenv\Repository\RepositoryInterface
+     */
+    protected $repository;
+
+    /**
+     * The store instance.
+     *
+     * @var \Dotenv\Store\StoreInterface
+     */
+    protected $store;
+
+    /**
      * Create a new dotenv instance.
      *
-     * @param string $path
-     * @param string $file
+     * @param \Dotenv\Loader\LoaderInterface         $loader
+     * @param \Dotenv\Repository\RepositoryInterface $repository
+     * @param \Dotenv\Store\StoreInterface|string[]  $store
      *
      * @return void
      */
-    public function __construct($path, $file = '.env')
+    public function __construct(LoaderInterface $loader, RepositoryInterface $repository, $store)
     {
-        $this->filePath = $this->getFilePath($path, $file);
-        $this->loader = new Loader($this->filePath, true);
+        $this->loader = $loader;
+        $this->repository = $repository;
+        $this->store = is_array($store) ? new FileStore($store, true) : $store;
     }
 
     /**
-     * Load environment file in given directory.
+     * Create a new dotenv instance.
      *
-     * @return array
+     * @param \Dotenv\Repository\RepositoryInterface $repository
+     * @param string|string[]                        $paths
+     * @param string|string[]|null                   $names
+     * @param bool                                   $shortCircuit
+     *
+     * @return \Dotenv\Dotenv
+     */
+    public static function create(RepositoryInterface $repository, $paths, $names = null, $shortCircuit = true)
+    {
+        $builder = StoreBuilder::create()->withPaths($paths)->withNames($names);
+
+        if ($shortCircuit) {
+            $builder = $builder->shortCircuit();
+        }
+
+        return new self(new Loader(), $repository, $builder->make());
+    }
+
+    /**
+     * Create a new mutable dotenv instance with default repository.
+     *
+     * @param string|string[]      $paths
+     * @param string|string[]|null $names
+     * @param bool                 $shortCircuit
+     *
+     * @return \Dotenv\Dotenv
+     */
+    public static function createMutable($paths, $names = null, $shortCircuit = true)
+    {
+        $repository = RepositoryBuilder::create()->make();
+
+        return self::create($repository, $paths, $names, $shortCircuit);
+    }
+
+    /**
+     * Create a new immutable dotenv instance with default repository.
+     *
+     * @param string|string[]      $paths
+     * @param string|string[]|null $names
+     * @param bool                 $shortCircuit
+     *
+     * @return \Dotenv\Dotenv
+     */
+    public static function createImmutable($paths, $names = null, $shortCircuit = true)
+    {
+        $repository = RepositoryBuilder::create()->immutable()->make();
+
+        return self::create($repository, $paths, $names, $shortCircuit);
+    }
+
+    /**
+     * Create a new dotenv instance with an array backed repository.
+     *
+     * @param string|string[]      $paths
+     * @param string|string[]|null $names
+     * @param bool                 $shortCircuit
+     *
+     * @return \Dotenv\Dotenv
+     */
+    public static function createArrayBacked($paths, $names = null, $shortCircuit = true)
+    {
+        $adapter = new ArrayAdapter();
+
+        $repository = RepositoryBuilder::create()->withReaders([$adapter])->withWriters([$adapter])->make();
+
+        return self::create($repository, $paths, $names, $shortCircuit);
+    }
+
+    /**
+     * Parse the given content and resolve nested variables.
+     *
+     * This method behaves just like load(), only without mutating your actual
+     * environment. We do this by using an array backed repository.
+     *
+     * @param string $content
+     *
+     * @throws \Dotenv\Exception\InvalidFileException
+     *
+     * @return array<string,string|null>
+     */
+    public static function parse($content)
+    {
+        $adapter = new ArrayAdapter();
+
+        $repository = RepositoryBuilder::create()->withReaders([$adapter])->withWriters([$adapter])->make();
+
+        $phpdotenv = new self(new Loader(), $repository, new StringStore($content));
+
+        return $phpdotenv->load();
+    }
+
+    /**
+     * Read and load environment file(s).
+     *
+     * @throws \Dotenv\Exception\InvalidPathException|\Dotenv\Exception\InvalidFileException
+     *
+     * @return array<string,string|null>
      */
     public function load()
     {
-        return $this->loadData();
+        return $this->loader->load($this->repository, $this->store->read());
     }
 
     /**
-     * Load environment file in given directory.
+     * Read and load environment file(s), silently failing if no files can be read.
      *
-     * @return array
+     * @throws \Dotenv\Exception\InvalidFileException
+     *
+     * @return array<string,string|null>
      */
-    public function overload()
+    public function safeLoad()
     {
-        return $this->loadData(true);
-    }
-
-    /**
-     * Returns the full path to the file.
-     *
-     * @param string $path
-     * @param string $file
-     *
-     * @return string
-     */
-    protected function getFilePath($path, $file)
-    {
-        if (!is_string($file)) {
-            $file = '.env';
+        try {
+            return $this->load();
+        } catch (InvalidPathException $e) {
+            // suppressing exception
+            return [];
         }
-
-        $filePath = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
-
-        return $filePath;
-    }
-
-    /**
-     * Actually load the data.
-     *
-     * @param bool $overload
-     *
-     * @return array
-     */
-    protected function loadData($overload = false)
-    {
-        $this->loader = new Loader($this->filePath, !$overload);
-
-        return $this->loader->load();
     }
 
     /**
      * Required ensures that the specified variables exist, and returns a new validator object.
      *
-     * @param string|string[] $variable
+     * @param string|string[] $variables
      *
      * @return \Dotenv\Validator
      */
-    public function required($variable)
+    public function required($variables)
     {
-        return new Validator((array) $variable, $this->loader);
+        return new Validator($this->repository, (array) $variables);
+    }
+
+    /**
+     * Returns a new validator object that won't check if the specified variables exist.
+     *
+     * @param string|string[] $variables
+     *
+     * @return \Dotenv\Validator
+     */
+    public function ifPresent($variables)
+    {
+        return new Validator($this->repository, (array) $variables, false);
     }
 }

@@ -21,9 +21,9 @@ use Symfony\Component\Console\Exception\LogicException;
  */
 class InputArgument
 {
-    const REQUIRED = 1;
-    const OPTIONAL = 2;
-    const IS_ARRAY = 4;
+    public const REQUIRED = 1;
+    public const OPTIONAL = 2;
+    public const IS_ARRAY = 4;
 
     private $name;
     private $mode;
@@ -31,18 +31,18 @@ class InputArgument
     private $description;
 
     /**
-     * @param string $name        The argument name
-     * @param int    $mode        The argument mode: self::REQUIRED or self::OPTIONAL
-     * @param string $description A description text
-     * @param mixed  $default     The default value (for self::OPTIONAL mode only)
+     * @param string                           $name        The argument name
+     * @param int|null                         $mode        The argument mode: self::REQUIRED or self::OPTIONAL
+     * @param string                           $description A description text
+     * @param string|bool|int|float|array|null $default     The default value (for self::OPTIONAL mode only)
      *
      * @throws InvalidArgumentException When argument mode is not valid
      */
-    public function __construct($name, $mode = null, $description = '', $default = null)
+    public function __construct(string $name, int $mode = null, string $description = '', $default = null)
     {
         if (null === $mode) {
             $mode = self::OPTIONAL;
-        } elseif (!is_int($mode) || $mode > 7 || $mode < 1) {
+        } elseif ($mode > 7 || $mode < 1) {
             throw new InvalidArgumentException(sprintf('Argument mode "%s" is not valid.', $mode));
         }
 
@@ -56,7 +56,7 @@ class InputArgument
     /**
      * Returns the argument name.
      *
-     * @return string The argument name
+     * @return string
      */
     public function getName()
     {
@@ -86,7 +86,7 @@ class InputArgument
     /**
      * Sets the default value.
      *
-     * @param mixed $default The default value
+     * @param string|bool|int|float|array|null $default
      *
      * @throws LogicException When incorrect default value is given
      */
@@ -98,8 +98,8 @@ class InputArgument
 
         if ($this->isArray()) {
             if (null === $default) {
-                $default = array();
-            } elseif (!is_array($default)) {
+                $default = [];
+            } elseif (!\is_array($default)) {
                 throw new LogicException('A default value for an array argument must be an array.');
             }
         }
@@ -110,7 +110,7 @@ class InputArgument
     /**
      * Returns the default value.
      *
-     * @return mixed The default value
+     * @return string|bool|int|float|array|null
      */
     public function getDefault()
     {
@@ -120,7 +120,7 @@ class InputArgument
     /**
      * Returns the description text.
      *
-     * @return string The description text
+     * @return string
      */
     public function getDescription()
     {

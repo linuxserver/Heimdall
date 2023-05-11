@@ -30,7 +30,8 @@ if (!function_exists('assertThat')) {
     }
 }
 
-if (!function_exists('anArray')) {    /**
+if (!function_exists('anArray')) {
+    /**
      * Evaluates to true only if each $matcher[$i] is satisfied by $array[$i].
      */
     function anArray(/* args... */)
@@ -40,7 +41,8 @@ if (!function_exists('anArray')) {    /**
     }
 }
 
-if (!function_exists('hasItemInArray')) {    /**
+if (!function_exists('hasItemInArray')) {
+    /**
      * Evaluates to true if any item in an array satisfies the given matcher.
      *
      * @param mixed $item as a {@link Hamcrest\Matcher} or a value.
@@ -53,7 +55,8 @@ if (!function_exists('hasItemInArray')) {    /**
     }
 }
 
-if (!function_exists('hasValue')) {    /**
+if (!function_exists('hasValue')) {
+    /**
      * Evaluates to true if any item in an array satisfies the given matcher.
      *
      * @param mixed $item as a {@link Hamcrest\Matcher} or a value.
@@ -66,7 +69,8 @@ if (!function_exists('hasValue')) {    /**
     }
 }
 
-if (!function_exists('arrayContainingInAnyOrder')) {    /**
+if (!function_exists('arrayContainingInAnyOrder')) {
+    /**
      * An array with elements that match the given matchers.
      */
     function arrayContainingInAnyOrder(/* args... */)
@@ -76,7 +80,8 @@ if (!function_exists('arrayContainingInAnyOrder')) {    /**
     }
 }
 
-if (!function_exists('containsInAnyOrder')) {    /**
+if (!function_exists('containsInAnyOrder')) {
+    /**
      * An array with elements that match the given matchers.
      */
     function containsInAnyOrder(/* args... */)
@@ -86,7 +91,8 @@ if (!function_exists('containsInAnyOrder')) {    /**
     }
 }
 
-if (!function_exists('arrayContaining')) {    /**
+if (!function_exists('arrayContaining')) {
+    /**
      * An array with elements that match the given matchers in the same order.
      */
     function arrayContaining(/* args... */)
@@ -96,7 +102,8 @@ if (!function_exists('arrayContaining')) {    /**
     }
 }
 
-if (!function_exists('contains')) {    /**
+if (!function_exists('contains')) {
+    /**
      * An array with elements that match the given matchers in the same order.
      */
     function contains(/* args... */)
@@ -106,7 +113,8 @@ if (!function_exists('contains')) {    /**
     }
 }
 
-if (!function_exists('hasKeyInArray')) {    /**
+if (!function_exists('hasKeyInArray')) {
+    /**
      * Evaluates to true if any key in an array matches the given matcher.
      *
      * @param mixed $key as a {@link Hamcrest\Matcher} or a value.
@@ -119,7 +127,8 @@ if (!function_exists('hasKeyInArray')) {    /**
     }
 }
 
-if (!function_exists('hasKey')) {    /**
+if (!function_exists('hasKey')) {
+    /**
      * Evaluates to true if any key in an array matches the given matcher.
      *
      * @param mixed $key as a {@link Hamcrest\Matcher} or a value.
@@ -132,7 +141,8 @@ if (!function_exists('hasKey')) {    /**
     }
 }
 
-if (!function_exists('hasKeyValuePair')) {    /**
+if (!function_exists('hasKeyValuePair')) {
+    /**
      * Test if an array has both an key and value in parity with each other.
      */
     function hasKeyValuePair($key, $value)
@@ -141,7 +151,8 @@ if (!function_exists('hasKeyValuePair')) {    /**
     }
 }
 
-if (!function_exists('hasEntry')) {    /**
+if (!function_exists('hasEntry')) {
+    /**
      * Test if an array has both an key and value in parity with each other.
      */
     function hasEntry($key, $value)
@@ -150,7 +161,8 @@ if (!function_exists('hasEntry')) {    /**
     }
 }
 
-if (!function_exists('arrayWithSize')) {    /**
+if (!function_exists('arrayWithSize')) {
+    /**
      * Does array size satisfy a given matcher?
      *
      * @param \Hamcrest\Matcher|int $size as a {@link Hamcrest\Matcher} or a value.
@@ -163,7 +175,8 @@ if (!function_exists('arrayWithSize')) {    /**
     }
 }
 
-if (!function_exists('emptyArray')) {    /**
+if (!function_exists('emptyArray')) {
+    /**
      * Matches an empty array.
      */
     function emptyArray()
@@ -172,7 +185,8 @@ if (!function_exists('emptyArray')) {    /**
     }
 }
 
-if (!function_exists('nonEmptyArray')) {    /**
+if (!function_exists('nonEmptyArray')) {
+    /**
      * Matches an empty array.
      */
     function nonEmptyArray()
@@ -181,7 +195,8 @@ if (!function_exists('nonEmptyArray')) {    /**
     }
 }
 
-if (!function_exists('emptyTraversable')) {    /**
+if (!function_exists('emptyTraversable')) {
+    /**
      * Returns true if traversable is empty.
      */
     function emptyTraversable()
@@ -190,7 +205,8 @@ if (!function_exists('emptyTraversable')) {    /**
     }
 }
 
-if (!function_exists('nonEmptyTraversable')) {    /**
+if (!function_exists('nonEmptyTraversable')) {
+    /**
      * Returns true if traversable is not empty.
      */
     function nonEmptyTraversable()
@@ -199,7 +215,8 @@ if (!function_exists('nonEmptyTraversable')) {    /**
     }
 }
 
-if (!function_exists('traversableWithSize')) {    /**
+if (!function_exists('traversableWithSize')) {
+    /**
      * Does traversable size satisfy a given matcher?
      */
     function traversableWithSize($size)
@@ -208,7 +225,8 @@ if (!function_exists('traversableWithSize')) {    /**
     }
 }
 
-if (!function_exists('allOf')) {    /**
+if (!function_exists('allOf')) {
+    /**
      * Evaluates to true only if ALL of the passed in matchers evaluate to true.
      */
     function allOf(/* args... */)
@@ -218,7 +236,8 @@ if (!function_exists('allOf')) {    /**
     }
 }
 
-if (!function_exists('anyOf')) {    /**
+if (!function_exists('anyOf')) {
+    /**
      * Evaluates to true if ANY of the passed in matchers evaluate to true.
      */
     function anyOf(/* args... */)
@@ -228,7 +247,8 @@ if (!function_exists('anyOf')) {    /**
     }
 }
 
-if (!function_exists('noneOf')) {    /**
+if (!function_exists('noneOf')) {
+    /**
      * Evaluates to false if ANY of the passed in matchers evaluate to true.
      */
     function noneOf(/* args... */)
@@ -238,7 +258,8 @@ if (!function_exists('noneOf')) {    /**
     }
 }
 
-if (!function_exists('both')) {    /**
+if (!function_exists('both')) {
+    /**
      * This is useful for fluently combining matchers that must both pass.
      * For example:
      * <pre>
@@ -251,7 +272,8 @@ if (!function_exists('both')) {    /**
     }
 }
 
-if (!function_exists('either')) {    /**
+if (!function_exists('either')) {
+    /**
      * This is useful for fluently combining matchers where either may pass,
      * for example:
      * <pre>
@@ -264,7 +286,8 @@ if (!function_exists('either')) {    /**
     }
 }
 
-if (!function_exists('describedAs')) {    /**
+if (!function_exists('describedAs')) {
+    /**
      * Wraps an existing matcher and overrides the description when it fails.
      */
     function describedAs(/* args... */)
@@ -274,7 +297,8 @@ if (!function_exists('describedAs')) {    /**
     }
 }
 
-if (!function_exists('everyItem')) {    /**
+if (!function_exists('everyItem')) {
+    /**
      * @param Matcher $itemMatcher
      *   A matcher to apply to every element in an array.
      *
@@ -287,7 +311,8 @@ if (!function_exists('everyItem')) {    /**
     }
 }
 
-if (!function_exists('hasToString')) {    /**
+if (!function_exists('hasToString')) {
+    /**
      * Does array size satisfy a given matcher?
      */
     function hasToString($matcher)
@@ -296,7 +321,8 @@ if (!function_exists('hasToString')) {    /**
     }
 }
 
-if (!function_exists('is')) {    /**
+if (!function_exists('is')) {
+    /**
      * Decorates another Matcher, retaining the behavior but allowing tests
      * to be slightly more expressive.
      *
@@ -309,7 +335,8 @@ if (!function_exists('is')) {    /**
     }
 }
 
-if (!function_exists('anything')) {    /**
+if (!function_exists('anything')) {
+    /**
      * This matcher always evaluates to true.
      *
      * @param string $description A meaningful string used when describing itself.
@@ -322,7 +349,8 @@ if (!function_exists('anything')) {    /**
     }
 }
 
-if (!function_exists('hasItem')) {    /**
+if (!function_exists('hasItem')) {
+    /**
      * Test if the value is an array containing this matcher.
      *
      * Example:
@@ -339,7 +367,8 @@ if (!function_exists('hasItem')) {    /**
     }
 }
 
-if (!function_exists('hasItems')) {    /**
+if (!function_exists('hasItems')) {
+    /**
      * Test if the value is an array containing elements that match all of these
      * matchers.
      *
@@ -355,7 +384,8 @@ if (!function_exists('hasItems')) {    /**
     }
 }
 
-if (!function_exists('equalTo')) {    /**
+if (!function_exists('equalTo')) {
+    /**
      * Is the value equal to another value, as tested by the use of the "=="
      * comparison operator?
      */
@@ -365,7 +395,8 @@ if (!function_exists('equalTo')) {    /**
     }
 }
 
-if (!function_exists('identicalTo')) {    /**
+if (!function_exists('identicalTo')) {
+    /**
      * Tests of the value is identical to $value as tested by the "===" operator.
      */
     function identicalTo($value)
@@ -374,7 +405,8 @@ if (!function_exists('identicalTo')) {    /**
     }
 }
 
-if (!function_exists('anInstanceOf')) {    /**
+if (!function_exists('anInstanceOf')) {
+    /**
      * Is the value an instance of a particular type?
      * This version assumes no relationship between the required type and
      * the signature of the method that sets it up, for example in
@@ -386,7 +418,8 @@ if (!function_exists('anInstanceOf')) {    /**
     }
 }
 
-if (!function_exists('any')) {    /**
+if (!function_exists('any')) {
+    /**
      * Is the value an instance of a particular type?
      * This version assumes no relationship between the required type and
      * the signature of the method that sets it up, for example in
@@ -398,7 +431,8 @@ if (!function_exists('any')) {    /**
     }
 }
 
-if (!function_exists('not')) {    /**
+if (!function_exists('not')) {
+    /**
      * Matches if value does not match $value.
      */
     function not($value)
@@ -407,7 +441,8 @@ if (!function_exists('not')) {    /**
     }
 }
 
-if (!function_exists('nullValue')) {    /**
+if (!function_exists('nullValue')) {
+    /**
      * Matches if value is null.
      */
     function nullValue()
@@ -416,7 +451,8 @@ if (!function_exists('nullValue')) {    /**
     }
 }
 
-if (!function_exists('notNullValue')) {    /**
+if (!function_exists('notNullValue')) {
+    /**
      * Matches if value is not null.
      */
     function notNullValue()
@@ -425,7 +461,8 @@ if (!function_exists('notNullValue')) {    /**
     }
 }
 
-if (!function_exists('sameInstance')) {    /**
+if (!function_exists('sameInstance')) {
+    /**
      * Creates a new instance of IsSame.
      *
      * @param mixed $object
@@ -440,7 +477,8 @@ if (!function_exists('sameInstance')) {    /**
     }
 }
 
-if (!function_exists('typeOf')) {    /**
+if (!function_exists('typeOf')) {
+    /**
      * Is the value a particular built-in type?
      */
     function typeOf($theType)
@@ -449,7 +487,8 @@ if (!function_exists('typeOf')) {    /**
     }
 }
 
-if (!function_exists('set')) {    /**
+if (!function_exists('set')) {
+    /**
      * Matches if value (class, object, or array) has named $property.
      */
     function set($property)
@@ -458,7 +497,8 @@ if (!function_exists('set')) {    /**
     }
 }
 
-if (!function_exists('notSet')) {    /**
+if (!function_exists('notSet')) {
+    /**
      * Matches if value (class, object, or array) does not have named $property.
      */
     function notSet($property)
@@ -467,7 +507,8 @@ if (!function_exists('notSet')) {    /**
     }
 }
 
-if (!function_exists('closeTo')) {    /**
+if (!function_exists('closeTo')) {
+    /**
      * Matches if value is a number equal to $value within some range of
      * acceptable error $delta.
      */
@@ -477,7 +518,8 @@ if (!function_exists('closeTo')) {    /**
     }
 }
 
-if (!function_exists('comparesEqualTo')) {    /**
+if (!function_exists('comparesEqualTo')) {
+    /**
      * The value is not > $value, nor < $value.
      */
     function comparesEqualTo($value)
@@ -486,7 +528,8 @@ if (!function_exists('comparesEqualTo')) {    /**
     }
 }
 
-if (!function_exists('greaterThan')) {    /**
+if (!function_exists('greaterThan')) {
+    /**
      * The value is > $value.
      */
     function greaterThan($value)
@@ -495,7 +538,8 @@ if (!function_exists('greaterThan')) {    /**
     }
 }
 
-if (!function_exists('greaterThanOrEqualTo')) {    /**
+if (!function_exists('greaterThanOrEqualTo')) {
+    /**
      * The value is >= $value.
      */
     function greaterThanOrEqualTo($value)
@@ -504,7 +548,8 @@ if (!function_exists('greaterThanOrEqualTo')) {    /**
     }
 }
 
-if (!function_exists('atLeast')) {    /**
+if (!function_exists('atLeast')) {
+    /**
      * The value is >= $value.
      */
     function atLeast($value)
@@ -513,7 +558,8 @@ if (!function_exists('atLeast')) {    /**
     }
 }
 
-if (!function_exists('lessThan')) {    /**
+if (!function_exists('lessThan')) {
+    /**
      * The value is < $value.
      */
     function lessThan($value)
@@ -522,7 +568,8 @@ if (!function_exists('lessThan')) {    /**
     }
 }
 
-if (!function_exists('lessThanOrEqualTo')) {    /**
+if (!function_exists('lessThanOrEqualTo')) {
+    /**
      * The value is <= $value.
      */
     function lessThanOrEqualTo($value)
@@ -531,7 +578,8 @@ if (!function_exists('lessThanOrEqualTo')) {    /**
     }
 }
 
-if (!function_exists('atMost')) {    /**
+if (!function_exists('atMost')) {
+    /**
      * The value is <= $value.
      */
     function atMost($value)
@@ -540,7 +588,8 @@ if (!function_exists('atMost')) {    /**
     }
 }
 
-if (!function_exists('isEmptyString')) {    /**
+if (!function_exists('isEmptyString')) {
+    /**
      * Matches if value is a zero-length string.
      */
     function isEmptyString()
@@ -549,7 +598,8 @@ if (!function_exists('isEmptyString')) {    /**
     }
 }
 
-if (!function_exists('emptyString')) {    /**
+if (!function_exists('emptyString')) {
+    /**
      * Matches if value is a zero-length string.
      */
     function emptyString()
@@ -558,7 +608,8 @@ if (!function_exists('emptyString')) {    /**
     }
 }
 
-if (!function_exists('isEmptyOrNullString')) {    /**
+if (!function_exists('isEmptyOrNullString')) {
+    /**
      * Matches if value is null or a zero-length string.
      */
     function isEmptyOrNullString()
@@ -567,7 +618,8 @@ if (!function_exists('isEmptyOrNullString')) {    /**
     }
 }
 
-if (!function_exists('nullOrEmptyString')) {    /**
+if (!function_exists('nullOrEmptyString')) {
+    /**
      * Matches if value is null or a zero-length string.
      */
     function nullOrEmptyString()
@@ -576,7 +628,8 @@ if (!function_exists('nullOrEmptyString')) {    /**
     }
 }
 
-if (!function_exists('isNonEmptyString')) {    /**
+if (!function_exists('isNonEmptyString')) {
+    /**
      * Matches if value is a non-zero-length string.
      */
     function isNonEmptyString()
@@ -585,7 +638,8 @@ if (!function_exists('isNonEmptyString')) {    /**
     }
 }
 
-if (!function_exists('nonEmptyString')) {    /**
+if (!function_exists('nonEmptyString')) {
+    /**
      * Matches if value is a non-zero-length string.
      */
     function nonEmptyString()
@@ -594,7 +648,8 @@ if (!function_exists('nonEmptyString')) {    /**
     }
 }
 
-if (!function_exists('equalToIgnoringCase')) {    /**
+if (!function_exists('equalToIgnoringCase')) {
+    /**
      * Matches if value is a string equal to $string, regardless of the case.
      */
     function equalToIgnoringCase($string)
@@ -603,7 +658,8 @@ if (!function_exists('equalToIgnoringCase')) {    /**
     }
 }
 
-if (!function_exists('equalToIgnoringWhiteSpace')) {    /**
+if (!function_exists('equalToIgnoringWhiteSpace')) {
+    /**
      * Matches if value is a string equal to $string, regardless of whitespace.
      */
     function equalToIgnoringWhiteSpace($string)
@@ -612,7 +668,8 @@ if (!function_exists('equalToIgnoringWhiteSpace')) {    /**
     }
 }
 
-if (!function_exists('matchesPattern')) {    /**
+if (!function_exists('matchesPattern')) {
+    /**
      * Matches if value is a string that matches regular expression $pattern.
      */
     function matchesPattern($pattern)
@@ -621,7 +678,8 @@ if (!function_exists('matchesPattern')) {    /**
     }
 }
 
-if (!function_exists('containsString')) {    /**
+if (!function_exists('containsString')) {
+    /**
      * Matches if value is a string that contains $substring.
      */
     function containsString($substring)
@@ -630,7 +688,8 @@ if (!function_exists('containsString')) {    /**
     }
 }
 
-if (!function_exists('containsStringIgnoringCase')) {    /**
+if (!function_exists('containsStringIgnoringCase')) {
+    /**
      * Matches if value is a string that contains $substring regardless of the case.
      */
     function containsStringIgnoringCase($substring)
@@ -639,7 +698,8 @@ if (!function_exists('containsStringIgnoringCase')) {    /**
     }
 }
 
-if (!function_exists('stringContainsInOrder')) {    /**
+if (!function_exists('stringContainsInOrder')) {
+    /**
      * Matches if value contains $substrings in a constrained order.
      */
     function stringContainsInOrder(/* args... */)
@@ -649,7 +709,8 @@ if (!function_exists('stringContainsInOrder')) {    /**
     }
 }
 
-if (!function_exists('endsWith')) {    /**
+if (!function_exists('endsWith')) {
+    /**
      * Matches if value is a string that ends with $substring.
      */
     function endsWith($substring)
@@ -658,7 +719,8 @@ if (!function_exists('endsWith')) {    /**
     }
 }
 
-if (!function_exists('startsWith')) {    /**
+if (!function_exists('startsWith')) {
+    /**
      * Matches if value is a string that starts with $substring.
      */
     function startsWith($substring)
@@ -667,7 +729,8 @@ if (!function_exists('startsWith')) {    /**
     }
 }
 
-if (!function_exists('arrayValue')) {    /**
+if (!function_exists('arrayValue')) {
+    /**
      * Is the value an array?
      */
     function arrayValue()
@@ -676,7 +739,8 @@ if (!function_exists('arrayValue')) {    /**
     }
 }
 
-if (!function_exists('booleanValue')) {    /**
+if (!function_exists('booleanValue')) {
+    /**
      * Is the value a boolean?
      */
     function booleanValue()
@@ -685,7 +749,8 @@ if (!function_exists('booleanValue')) {    /**
     }
 }
 
-if (!function_exists('boolValue')) {    /**
+if (!function_exists('boolValue')) {
+    /**
      * Is the value a boolean?
      */
     function boolValue()
@@ -694,7 +759,8 @@ if (!function_exists('boolValue')) {    /**
     }
 }
 
-if (!function_exists('callableValue')) {    /**
+if (!function_exists('callableValue')) {
+    /**
      * Is the value callable?
      */
     function callableValue()
@@ -703,7 +769,8 @@ if (!function_exists('callableValue')) {    /**
     }
 }
 
-if (!function_exists('doubleValue')) {    /**
+if (!function_exists('doubleValue')) {
+    /**
      * Is the value a float/double?
      */
     function doubleValue()
@@ -712,7 +779,8 @@ if (!function_exists('doubleValue')) {    /**
     }
 }
 
-if (!function_exists('floatValue')) {    /**
+if (!function_exists('floatValue')) {
+    /**
      * Is the value a float/double?
      */
     function floatValue()
@@ -721,7 +789,8 @@ if (!function_exists('floatValue')) {    /**
     }
 }
 
-if (!function_exists('integerValue')) {    /**
+if (!function_exists('integerValue')) {
+    /**
      * Is the value an integer?
      */
     function integerValue()
@@ -730,7 +799,8 @@ if (!function_exists('integerValue')) {    /**
     }
 }
 
-if (!function_exists('intValue')) {    /**
+if (!function_exists('intValue')) {
+    /**
      * Is the value an integer?
      */
     function intValue()
@@ -739,7 +809,8 @@ if (!function_exists('intValue')) {    /**
     }
 }
 
-if (!function_exists('numericValue')) {    /**
+if (!function_exists('numericValue')) {
+    /**
      * Is the value a numeric?
      */
     function numericValue()
@@ -748,7 +819,8 @@ if (!function_exists('numericValue')) {    /**
     }
 }
 
-if (!function_exists('objectValue')) {    /**
+if (!function_exists('objectValue')) {
+    /**
      * Is the value an object?
      */
     function objectValue()
@@ -757,7 +829,8 @@ if (!function_exists('objectValue')) {    /**
     }
 }
 
-if (!function_exists('anObject')) {    /**
+if (!function_exists('anObject')) {
+    /**
      * Is the value an object?
      */
     function anObject()
@@ -766,7 +839,8 @@ if (!function_exists('anObject')) {    /**
     }
 }
 
-if (!function_exists('resourceValue')) {    /**
+if (!function_exists('resourceValue')) {
+    /**
      * Is the value a resource?
      */
     function resourceValue()
@@ -775,7 +849,8 @@ if (!function_exists('resourceValue')) {    /**
     }
 }
 
-if (!function_exists('scalarValue')) {    /**
+if (!function_exists('scalarValue')) {
+    /**
      * Is the value a scalar (boolean, integer, double, or string)?
      */
     function scalarValue()
@@ -784,7 +859,8 @@ if (!function_exists('scalarValue')) {    /**
     }
 }
 
-if (!function_exists('stringValue')) {    /**
+if (!function_exists('stringValue')) {
+    /**
      * Is the value a string?
      */
     function stringValue()
@@ -793,7 +869,8 @@ if (!function_exists('stringValue')) {    /**
     }
 }
 
-if (!function_exists('hasXPath')) {    /**
+if (!function_exists('hasXPath')) {
+    /**
      * Wraps <code>$matcher</code> with {@link Hamcrest\Core\IsEqual)
      * if it's not a matcher and the XPath in <code>count()</code>
      * if it's an integer.

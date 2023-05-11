@@ -1,4 +1,9 @@
 <?php
+
 namespace GuzzleHttp\Exception;
 
-interface GuzzleException {}
+use Psr\Http\Client\ClientExceptionInterface;
+
+interface GuzzleException extends ClientExceptionInterface
+{
+}

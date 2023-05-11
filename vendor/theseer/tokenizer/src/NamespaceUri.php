@@ -6,9 +6,6 @@ class NamespaceUri {
     /** @var string */
     private $value;
 
-    /**
-     * @param string $value
-     */
     public function __construct(string $value) {
         $this->ensureValidUri($value);
         $this->value = $value;
@@ -18,10 +15,10 @@ class NamespaceUri {
         return $this->value;
     }
 
-    private function ensureValidUri($value) {
-        if (strpos($value, ':') === false) {
+    private function ensureValidUri($value): void {
+        if (\strpos($value, ':') === false) {
             throw new NamespaceUriException(
-                sprintf("Namespace URI '%s' must contain at least one colon", $value)
+                \sprintf("Namespace URI '%s' must contain at least one colon", $value)
             );
         }
     }

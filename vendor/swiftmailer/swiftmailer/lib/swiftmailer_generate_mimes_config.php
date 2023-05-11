@@ -1,8 +1,8 @@
 #!/usr/bin/php
 
 <?php
-define('APACHE_MIME_TYPES_URL', 'https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types');
-define('FREEDESKTOP_XML_URL', 'https://raw.github.com/minad/mimemagic/master/script/freedesktop.org.xml');
+\define('APACHE_MIME_TYPES_URL', 'https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types');
+\define('FREEDESKTOP_XML_URL', 'https://raw.github.com/minad/mimemagic/master/script/freedesktop.org.xml');
 
 function generateUpToDateMimeArray()
 {
@@ -25,12 +25,12 @@ function generateUpToDateMimeArray()
     $mime_xml = @file_get_contents(FREEDESKTOP_XML_URL);
 
     // prepare valid mime types
-    $valid_mime_types = array();
+    $valid_mime_types = [];
 
     // split mime type and extensions eg. "video/x-matroska        mkv mk3d mks"
-    if (preg_match_all('/^#?([a-z0-9\-\+\/\.]+)[\t]+(.*)$/miu', $mime_types, $matches) !== false) {
+    if (false !== preg_match_all('/^#?([a-z0-9\-\+\/\.]+)[\t]+(.*)$/miu', $mime_types, $matches)) {
         // collection of predefined mimetypes (bugfix for wrong resolved or missing mime types)
-        $valid_mime_types_preset = array(
+        $valid_mime_types_preset = [
             'php' => 'application/x-php',
             'php3' => 'application/x-php',
             'php4' => 'application/x-php',
@@ -95,7 +95,7 @@ function generateUpToDateMimeArray()
             'xls' => 'application/vnd.ms-excel',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'xml' => 'application/xml',
-        );
+        ];
 
         // wrap array for generating file
         foreach ($valid_mime_types_preset as $extension => $mime_type) {
@@ -103,17 +103,14 @@ function generateUpToDateMimeArray()
             $valid_mime_types[$extension] = "'{$extension}' => '{$mime_type}'";
         }
 
-        // collect extensions
-        $valid_extensions = array();
-
         // all extensions from second match
         foreach ($matches[2] as $i => $extensions) {
             // explode multiple extensions from string
-            $extensions = explode(' ', strtolower($extensions));
+            $extensions = explode(' ', strtolower($extensions ?? ''));
 
             // force array for foreach
-            if (!is_array($extensions)) {
-                $extensions = array($extensions);
+            if (!\is_array($extensions)) {
+                $extensions = [$extensions];
             }
 
             foreach ($extensions as $extension) {
@@ -121,10 +118,7 @@ function generateUpToDateMimeArray()
                 $mime_type = $matches[1][$i];
 
                 // check if string length lower than 10
-                if (strlen($extension) < 10) {
-                    // add extension
-                    $valid_extensions[] = $extension;
-
+                if (\strlen($extension) < 10) {
                     if (!isset($valid_mime_types[$mime_type])) {
                         // generate array for mimetype to extension resolver (only first match)
                         $valid_mime_types[$extension] = "'{$extension}' => '{$mime_type}'";
@@ -145,29 +139,24 @@ function generateUpToDateMimeArray()
         // get all matching extensions from match
         foreach ((array) $node->glob['pattern'] as $extension) {
             // skip none glob extensions
-            if (strpos($extension, '.') === false) {
+            if (false === strpos($extension ?? '', '.')) {
                 continue;
             }
 
             // remove get only last part
-            $extension = explode('.', strtolower($extension));
+            $extension = explode('.', strtolower($extension ?? ''));
             $extension = end($extension);
-
-            // maximum length in database column
-            if (strlen($extension) <= 9) {
-                $valid_extensions[] = $extension;
-            }
         }
 
         if (isset($node->glob['pattern'][0])) {
             // mime type
-            $mime_type = strtolower((string) $node['type']);
+            $mime_type = strtolower((string) $node['type'] ?? '');
 
             // get first extension
-            $extension = strtolower(trim($node->glob['ddpattern'][0], '*.'));
+            $extension = strtolower(trim($node->glob['ddpattern'][0] ?? '', '*.'));
 
             // skip none glob extensions and check if string length between 1 and 10
-            if (strpos($extension, '.') !== false || strlen($extension) < 1 || strlen($extension) > 9) {
+            if (false !== strpos($extension, '.') || \strlen($extension) < 1 || \strlen($extension) > 9) {
                 continue;
             }
 
@@ -184,7 +173,7 @@ function generateUpToDateMimeArray()
     ksort($valid_mime_types);
 
     // combine mime types and extensions array
-    $output = "$preamble\$swift_mime_types = array(\n    ".implode($valid_mime_types, ",\n    ")."\n);";
+    $output = "$preamble\$swift_mime_types = array(\n    ".implode(",\n    ", $valid_mime_types)."\n);";
 
     // write mime_types.php config file
     @file_put_contents('./mime_types.php', $output);

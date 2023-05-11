@@ -25,17 +25,16 @@ class TranslationReader implements TranslationReaderInterface
     /**
      * Loaders used for import.
      *
-     * @var array
+     * @var array<string, LoaderInterface>
      */
-    private $loaders = array();
+    private $loaders = [];
 
     /**
      * Adds a loader to the translation extractor.
      *
-     * @param string          $format The format of the loader
-     * @param LoaderInterface $loader
+     * @param string $format The format of the loader
      */
-    public function addLoader($format, LoaderInterface $loader)
+    public function addLoader(string $format, LoaderInterface $loader)
     {
         $this->loaders[$format] = $loader;
     }
@@ -43,7 +42,7 @@ class TranslationReader implements TranslationReaderInterface
     /**
      * {@inheritdoc}
      */
-    public function read($directory, MessageCatalogue $catalogue)
+    public function read(string $directory, MessageCatalogue $catalogue)
     {
         if (!is_dir($directory)) {
             return;
@@ -55,7 +54,7 @@ class TranslationReader implements TranslationReaderInterface
             $extension = $catalogue->getLocale().'.'.$format;
             $files = $finder->files()->name('*.'.$extension)->in($directory);
             foreach ($files as $file) {
-                $domain = substr($file->getFilename(), 0, -1 * strlen($extension) - 1);
+                $domain = substr($file->getFilename(), 0, -1 * \strlen($extension) - 1);
                 $catalogue->addCatalogue($loader->load($file->getPathname(), $catalogue->getLocale(), $domain));
             }
         }

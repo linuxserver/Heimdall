@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of the Monolog package.
@@ -16,13 +16,12 @@ namespace Monolog\Processor;
  *
  * @author Andreas Hörnicke
  */
-class ProcessIdProcessor
+class ProcessIdProcessor implements ProcessorInterface
 {
     /**
-     * @param  array $record
-     * @return array
+     * {@inheritDoc}
      */
-    public function __invoke(array $record)
+    public function __invoke(array $record): array
     {
         $record['extra']['process_id'] = getmypid();
 

@@ -27,16 +27,23 @@ use Symfony\Component\CssSelector\XPath\Translator;
 class CssSelectorConverter
 {
     private $translator;
+    private $cache;
+
+    private static $xmlCache = [];
+    private static $htmlCache = [];
 
     /**
      * @param bool $html Whether HTML support should be enabled. Disable it for XML documents
      */
-    public function __construct($html = true)
+    public function __construct(bool $html = true)
     {
         $this->translator = new Translator();
 
         if ($html) {
             $this->translator->registerExtension(new HtmlExtension($this->translator));
+            $this->cache = &self::$htmlCache;
+        } else {
+            $this->cache = &self::$xmlCache;
         }
 
         $this->translator
@@ -53,13 +60,10 @@ class CssSelectorConverter
      * Optionally, a prefix can be added to the resulting XPath
      * expression with the $prefix parameter.
      *
-     * @param string $cssExpr The CSS expression
-     * @param string $prefix  An optional prefix for the XPath expression
-     *
      * @return string
      */
-    public function toXPath($cssExpr, $prefix = 'descendant-or-self::')
+    public function toXPath(string $cssExpr, string $prefix = 'descendant-or-self::')
     {
-        return $this->translator->cssToXPath($cssExpr, $prefix);
+        return $this->cache[$prefix][$cssExpr] ?? $this->cache[$prefix][$cssExpr] = $this->translator->cssToXPath($cssExpr, $prefix);
     }
 }

@@ -14,10 +14,11 @@
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "illuminate/contracts": "5.5.*",
-        "illuminate/support": "5.5.*",
-        "symfony/console": "~3.3"
+        "php": "^7.2.5|^8.0",
+        "illuminate/contracts": "^7.0",
+        "illuminate/support": "^7.0",
+        "symfony/console": "^5.0",
+        "symfony/process": "^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -26,13 +27,16 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.5-dev"
+            "dev-master": "7.x-dev"
         }
     },
     "suggest": {
-        "guzzlehttp/guzzle": "Required to use the ping methods on schedules (~6.0).",
-        "mtdowling/cron-expression": "Required to use scheduling component (~1.0).",
-        "symfony/process": "Required to use scheduling component (~3.3)."
+        "dragonmantank/cron-expression": "Required to use scheduler (^2.3.1).",
+        "guzzlehttp/guzzle": "Required to use the ping methods on schedules (^6.3.1|^7.0.1).",
+        "illuminate/bus": "Required to use the scheduled job dispatcher (^7.0).",
+        "illuminate/container": "Required to use the scheduler (^7.0).",
+        "illuminate/filesystem": "Required to use the generator command (^7.0).",
+        "illuminate/queue": "Required to use closures for scheduled jobs (^7.0)."
     },
     "config": {
         "sort-packages": true

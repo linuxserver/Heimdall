@@ -12,6 +12,10 @@ return [
     'settings.system' => 'System',
     'settings.appearance' => 'Appearance',
     'settings.miscellaneous' => 'Miscellaneous',
+    'settings.advanced' => 'Advanced',
+    
+    'settings.support' => 'Support',
+    'settings.donate' => 'Donate',
 
     'settings.version' => 'Version',
     'settings.background_image' => 'Background Image',
@@ -21,31 +25,37 @@ return [
     'settings.window_target.one' => 'Open in the same tab',
     'settings.window_target.new' => 'Open in a new tab',
     'settings.homepage_search' => 'Homepage Search',
-    'settings.search_provider' => 'Search Provider',
+    'settings.search_provider' => 'Default Search Provider',
     'settings.language' => 'Language',
     'settings.reset' => 'Reset back to default',
     'settings.remove' => 'Remove',
     'settings.search' => 'search',
     'settings.no_items' => 'No items found',
 
-
     'settings.label' => 'Label',
     'settings.value' => 'Value',
     'settings.edit' => 'Edit',
     'settings.view' => 'View',
+    
+    'settings.custom_css' => 'Custom CSS',
+    'settings.custom_js' => 'Custom JavaScript',
 
     'options.none' => '- not set -',
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
+    'options.qwant' => 'Qwant',
     'options.startpage' => 'StartPage',
     'options.yes' => 'Yes',
     'options.no' => 'No',
+    'options.nzbhydra' => 'NZBHydra',
+    'options.jackett' => 'Jackett',
 
     'buttons.save' => 'Save',
     'buttons.cancel' => 'Cancel',
     'buttons.add' => 'Add',
-    'buttons.upload' => 'Upload a file',
+    'buttons.upload' => 'Upload an icon',
+    'buttons.downloadapps' => 'Update Apps List',
 
     'dash.pin_item' => 'Pin item to dashboard',
     'dash.no_apps' => 'There are currently no pinned applications, :link1 or :link2',
@@ -72,6 +82,24 @@ return [
     'apps.tag_name' => 'Tag name',
     'apps.tags' => 'Tags',
     'apps.override' => 'If different to main url',
+    'apps.preview' => 'Preview',
+    'apps.apptype' => 'Application Type',
+    'apps.website' => 'Website',
+    'apps.description' => 'Description',
+    'apps.only_admin_account' => 'Only if you have admin-account!',
+    'apps.autologin_url' => 'Auto login url',
+    'apps.show_deleted' => 'Showing Deleted Applications',
+
+    'dashboard' => 'Home dashboard',
+
+    'user.user_list' => 'Users',
+    'user.add_user' => 'Add user',
+    'user.username' => 'Username',
+    'user.avatar' => 'Avatar',
+    'user.email' => 'Email',
+    'user.password_confirm' => 'Confirm Password',
+    'user.secure_front' => 'Allow public access to front - Only enforced if a password is set.',
+    'user.autologin' => 'Allow logging in from a specific URL. Anyone with the link can login.',
 
     'url' => 'URL',
     'title' => 'Title',
@@ -83,6 +111,7 @@ return [
     'alert.success.item_updated' => 'Item updated successfully',
     'alert.success.item_deleted' => 'Item deleted successfully',
     'alert.success.item_restored' => 'Item restored successfully',
+    'alert.success.updating' => 'Updating apps list',
 
     'alert.success.tag_created' => 'Tag created successfully',
     'alert.success.tag_updated' => 'Tag updated successfully',
@@ -91,6 +120,11 @@ return [
 
     'alert.success.setting_updated' => 'You have successfully edited this setting',
     'alert.error.not_exist' => 'This setting does not exist.',
+
+    'alert.success.user_created' => 'User created successfully',
+    'alert.success.user_updated' => 'User updated successfully',
+    'alert.success.user_deleted' => 'User deleted successfully',
+    'alert.success.user_restored' => 'User restored successfully',
 
 
 ];

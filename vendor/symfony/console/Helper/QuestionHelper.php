@@ -11,16 +11,20 @@
 
 namespace Symfony\Component\Console\Helper;
 
-use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Cursor;
+use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Terminal;
+use function Symfony\Component\String\s;
 
 /**
  * The QuestionHelper class provides helpers to interact with the user.
@@ -29,9 +33,13 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
  */
 class QuestionHelper extends Helper
 {
+    /**
+     * @var resource|null
+     */
     private $inputStream;
-    private static $shell;
-    private static $stty;
+
+    private static $stty = true;
+    private static $stdinIsInteractive;
 
     /**
      * Asks a question to the user.
@@ -47,68 +55,32 @@ class QuestionHelper extends Helper
         }
 
         if (!$input->isInteractive()) {
-            if ($question instanceof ChoiceQuestion) {
-                $choices = $question->getChoices();
-
-                return $choices[$question->getDefault()];
-            }
-
-            return $question->getDefault();
+            return $this->getDefaultAnswer($question);
         }
 
         if ($input instanceof StreamableInputInterface && $stream = $input->getStream()) {
             $this->inputStream = $stream;
         }
 
-        if (!$question->getValidator()) {
-            return $this->doAsk($output, $question);
+        try {
+            if (!$question->getValidator()) {
+                return $this->doAsk($output, $question);
+            }
+
+            $interviewer = function () use ($output, $question) {
+                return $this->doAsk($output, $question);
+            };
+
+            return $this->validateAttempts($interviewer, $output, $question);
+        } catch (MissingInputException $exception) {
+            $input->setInteractive(false);
+
+            if (null === $fallbackOutput = $this->getDefaultAnswer($question)) {
+                throw $exception;
+            }
+
+            return $fallbackOutput;
         }
-
-        $interviewer = function () use ($output, $question) {
-            return $this->doAsk($output, $question);
-        };
-
-        return $this->validateAttempts($interviewer, $output, $question);
-    }
-
-    /**
-     * Sets the input stream to read from when interacting with the user.
-     *
-     * This is mainly useful for testing purpose.
-     *
-     * @deprecated since version 3.2, to be removed in 4.0. Use
-     *             StreamableInputInterface::setStream() instead.
-     *
-     * @param resource $stream The input stream
-     *
-     * @throws InvalidArgumentException In case the stream is not a resource
-     */
-    public function setInputStream($stream)
-    {
-        @trigger_error(sprintf('The %s() method is deprecated since Symfony 3.2 and will be removed in 4.0. Use %s::setStream() instead.', __METHOD__, StreamableInputInterface::class), E_USER_DEPRECATED);
-
-        if (!is_resource($stream)) {
-            throw new InvalidArgumentException('Input stream must be a valid resource.');
-        }
-
-        $this->inputStream = $stream;
-    }
-
-    /**
-     * Returns the helper's input stream.
-     *
-     * @deprecated since version 3.2, to be removed in 4.0. Use
-     *             StreamableInputInterface::getStream() instead.
-     *
-     * @return resource
-     */
-    public function getInputStream()
-    {
-        if (0 === func_num_args() || func_get_arg(0)) {
-            @trigger_error(sprintf('The %s() method is deprecated since Symfony 3.2 and will be removed in 4.0. Use %s::getStream() instead.', __METHOD__, StreamableInputInterface::class), E_USER_DEPRECATED);
-        }
-
-        return $this->inputStream;
     }
 
     /**
@@ -130,7 +102,7 @@ class QuestionHelper extends Helper
     /**
      * Asks the question to the user.
      *
-     * @return bool|mixed|null|string
+     * @return mixed
      *
      * @throws RuntimeException In case the fallback is deactivated and the response cannot be hidden
      */
@@ -138,14 +110,15 @@ class QuestionHelper extends Helper
     {
         $this->writePrompt($output, $question);
 
-        $inputStream = $this->inputStream ?: STDIN;
-        $autocomplete = $question->getAutocompleterValues();
+        $inputStream = $this->inputStream ?: \STDIN;
+        $autocomplete = $question->getAutocompleterCallback();
 
-        if (null === $autocomplete || !$this->hasSttyAvailable()) {
+        if (null === $autocomplete || !self::$stty || !Terminal::hasSttyAvailable()) {
             $ret = false;
             if ($question->isHidden()) {
                 try {
-                    $ret = trim($this->getHiddenResponse($output, $inputStream));
+                    $hiddenResponse = $this->getHiddenResponse($output, $inputStream, $question->isTrimmable());
+                    $ret = $question->isTrimmable() ? trim($hiddenResponse) : $hiddenResponse;
                 } catch (RuntimeException $e) {
                     if (!$question->isHiddenFallback()) {
                         throw $e;
@@ -154,23 +127,60 @@ class QuestionHelper extends Helper
             }
 
             if (false === $ret) {
-                $ret = fgets($inputStream, 4096);
+                $ret = $this->readInput($inputStream, $question);
                 if (false === $ret) {
-                    throw new RuntimeException('Aborted');
+                    throw new MissingInputException('Aborted.');
                 }
-                $ret = trim($ret);
+                if ($question->isTrimmable()) {
+                    $ret = trim($ret);
+                }
             }
         } else {
-            $ret = trim($this->autocomplete($output, $question, $inputStream, is_array($autocomplete) ? $autocomplete : iterator_to_array($autocomplete, false)));
+            $autocomplete = $this->autocomplete($output, $question, $inputStream, $autocomplete);
+            $ret = $question->isTrimmable() ? trim($autocomplete) : $autocomplete;
         }
 
-        $ret = strlen($ret) > 0 ? $ret : $question->getDefault();
+        if ($output instanceof ConsoleSectionOutput) {
+            $output->addContent($ret);
+        }
+
+        $ret = \strlen($ret) > 0 ? $ret : $question->getDefault();
 
         if ($normalizer = $question->getNormalizer()) {
             return $normalizer($ret);
         }
 
         return $ret;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getDefaultAnswer(Question $question)
+    {
+        $default = $question->getDefault();
+
+        if (null === $default) {
+            return $default;
+        }
+
+        if ($validator = $question->getValidator()) {
+            return \call_user_func($question->getValidator(), $default);
+        } elseif ($question instanceof ChoiceQuestion) {
+            $choices = $question->getChoices();
+
+            if (!$question->isMultiselect()) {
+                return $choices[$default] ?? $default;
+            }
+
+            $default = explode(',', $default);
+            foreach ($default as $k => $v) {
+                $v = $question->isTrimmable() ? trim($v) : $v;
+                $default[$k] = $choices[$v] ?? $v;
+            }
+        }
+
+        return $default;
     }
 
     /**
@@ -181,20 +191,32 @@ class QuestionHelper extends Helper
         $message = $question->getQuestion();
 
         if ($question instanceof ChoiceQuestion) {
-            $maxWidth = max(array_map(array($this, 'strlen'), array_keys($question->getChoices())));
-
-            $messages = (array) $question->getQuestion();
-            foreach ($question->getChoices() as $key => $value) {
-                $width = $maxWidth - $this->strlen($key);
-                $messages[] = '  [<info>'.$key.str_repeat(' ', $width).'</info>] '.$value;
-            }
-
-            $output->writeln($messages);
+            $output->writeln(array_merge([
+                $question->getQuestion(),
+            ], $this->formatChoiceQuestionChoices($question, 'info')));
 
             $message = $question->getPrompt();
         }
 
         $output->write($message);
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function formatChoiceQuestionChoices(ChoiceQuestion $question, string $tag)
+    {
+        $messages = [];
+
+        $maxWidth = max(array_map([__CLASS__, 'width'], array_keys($choices = $question->getChoices())));
+
+        foreach ($choices as $key => $value) {
+            $padding = str_repeat(' ', $maxWidth - self::width($key));
+
+            $messages[] = sprintf("  [<$tag>%s$padding</$tag>] %s", $key, $value);
+        }
+
+        return $messages;
     }
 
     /**
@@ -214,23 +236,24 @@ class QuestionHelper extends Helper
     /**
      * Autocompletes a question.
      *
-     * @param OutputInterface $output
-     * @param Question        $question
-     * @param resource        $inputStream
-     * @param array           $autocomplete
-     *
-     * @return string
+     * @param resource $inputStream
      */
-    private function autocomplete(OutputInterface $output, Question $question, $inputStream, array $autocomplete)
+    private function autocomplete(OutputInterface $output, Question $question, $inputStream, callable $autocomplete): string
     {
+        $cursor = new Cursor($output, $inputStream);
+
+        $fullChoice = '';
         $ret = '';
 
         $i = 0;
         $ofs = -1;
-        $matches = $autocomplete;
-        $numMatches = count($matches);
+        $matches = $autocomplete($ret);
+        $numMatches = \count($matches);
 
         $sttyMode = shell_exec('stty -g');
+        $isStdin = 'php://stdin' === (stream_get_meta_data($inputStream)['uri'] ?? null);
+        $r = [$inputStream];
+        $w = [];
 
         // Disable icanon (so we can fread each keypress) and echo (we'll do echoing here instead)
         shell_exec('stty -icanon -echo');
@@ -240,26 +263,34 @@ class QuestionHelper extends Helper
 
         // Read a keypress
         while (!feof($inputStream)) {
+            while ($isStdin && 0 === @stream_select($r, $w, $w, 0, 100)) {
+                // Give signal handlers a chance to run
+                $r = [$inputStream];
+            }
             $c = fread($inputStream, 1);
 
-            // Backspace Character
-            if ("\177" === $c) {
+            // as opposed to fgets(), fread() returns an empty string when the stream content is empty, not false.
+            if (false === $c || ('' === $ret && '' === $c && null === $question->getDefault())) {
+                shell_exec('stty '.$sttyMode);
+                throw new MissingInputException('Aborted.');
+            } elseif ("\177" === $c) { // Backspace Character
                 if (0 === $numMatches && 0 !== $i) {
                     --$i;
-                    // Move cursor backwards
-                    $output->write("\033[1D");
+                    $cursor->moveLeft(s($fullChoice)->slice(-1)->width(false));
+
+                    $fullChoice = self::substr($fullChoice, 0, $i);
                 }
 
                 if (0 === $i) {
                     $ofs = -1;
-                    $matches = $autocomplete;
-                    $numMatches = count($matches);
+                    $matches = $autocomplete($ret);
+                    $numMatches = \count($matches);
                 } else {
                     $numMatches = 0;
                 }
 
                 // Pop the last character off the end of our string
-                $ret = substr($ret, 0, $i);
+                $ret = self::substr($ret, 0, $i);
             } elseif ("\033" === $c) {
                 // Did we read an escape sequence?
                 $c .= fread($inputStream, 2);
@@ -277,13 +308,24 @@ class QuestionHelper extends Helper
                     $ofs += ('A' === $c[2]) ? -1 : 1;
                     $ofs = ($numMatches + $ofs) % $numMatches;
                 }
-            } elseif (ord($c) < 32) {
+            } elseif (\ord($c) < 32) {
                 if ("\t" === $c || "\n" === $c) {
                     if ($numMatches > 0 && -1 !== $ofs) {
-                        $ret = $matches[$ofs];
+                        $ret = (string) $matches[$ofs];
                         // Echo out remaining chars for current match
-                        $output->write(substr($ret, $i));
-                        $i = strlen($ret);
+                        $remainingCharacters = substr($ret, \strlen(trim($this->mostRecentlyEnteredValue($fullChoice))));
+                        $output->write($remainingCharacters);
+                        $fullChoice .= $remainingCharacters;
+                        $i = (false === $encoding = mb_detect_encoding($fullChoice, null, true)) ? \strlen($fullChoice) : mb_strlen($fullChoice, $encoding);
+
+                        $matches = array_filter(
+                            $autocomplete($ret),
+                            function ($match) use ($ret) {
+                                return '' === $ret || str_starts_with($match, $ret);
+                            }
+                        );
+                        $numMatches = \count($matches);
+                        $ofs = -1;
                     }
 
                     if ("\n" === $c) {
@@ -296,53 +338,75 @@ class QuestionHelper extends Helper
 
                 continue;
             } else {
+                if ("\x80" <= $c) {
+                    $c .= fread($inputStream, ["\xC0" => 1, "\xD0" => 1, "\xE0" => 2, "\xF0" => 3][$c & "\xF0"]);
+                }
+
                 $output->write($c);
                 $ret .= $c;
+                $fullChoice .= $c;
                 ++$i;
+
+                $tempRet = $ret;
+
+                if ($question instanceof ChoiceQuestion && $question->isMultiselect()) {
+                    $tempRet = $this->mostRecentlyEnteredValue($fullChoice);
+                }
 
                 $numMatches = 0;
                 $ofs = 0;
 
-                foreach ($autocomplete as $value) {
+                foreach ($autocomplete($ret) as $value) {
                     // If typed characters match the beginning chunk of value (e.g. [AcmeDe]moBundle)
-                    if (0 === strpos($value, $ret) && $i !== strlen($value)) {
+                    if (str_starts_with($value, $tempRet)) {
                         $matches[$numMatches++] = $value;
                     }
                 }
             }
 
-            // Erase characters from cursor to end of line
-            $output->write("\033[K");
+            $cursor->clearLineAfter();
 
             if ($numMatches > 0 && -1 !== $ofs) {
-                // Save cursor position
-                $output->write("\0337");
-                // Write highlighted text
-                $output->write('<hl>'.OutputFormatter::escapeTrailingBackslash(substr($matches[$ofs], $i)).'</hl>');
-                // Restore cursor position
-                $output->write("\0338");
+                $cursor->savePosition();
+                // Write highlighted text, complete the partially entered response
+                $charactersEntered = \strlen(trim($this->mostRecentlyEnteredValue($fullChoice)));
+                $output->write('<hl>'.OutputFormatter::escapeTrailingBackslash(substr($matches[$ofs], $charactersEntered)).'</hl>');
+                $cursor->restorePosition();
             }
         }
 
         // Reset stty so it behaves normally again
-        shell_exec(sprintf('stty %s', $sttyMode));
+        shell_exec('stty '.$sttyMode);
 
-        return $ret;
+        return $fullChoice;
+    }
+
+    private function mostRecentlyEnteredValue(string $entered): string
+    {
+        // Determine the most recent value that the user entered
+        if (!str_contains($entered, ',')) {
+            return $entered;
+        }
+
+        $choices = explode(',', $entered);
+        if ('' !== $lastChoice = trim($choices[\count($choices) - 1])) {
+            return $lastChoice;
+        }
+
+        return $entered;
     }
 
     /**
      * Gets a hidden response from user.
      *
-     * @param OutputInterface $output      An Output instance
-     * @param resource        $inputStream The handler resource
-     *
-     * @return string The answer
+     * @param resource $inputStream The handler resource
+     * @param bool     $trimmable   Is the answer trimmable
      *
      * @throws RuntimeException In case the fallback is deactivated and the response cannot be hidden
      */
-    private function getHiddenResponse(OutputInterface $output, $inputStream)
+    private function getHiddenResponse(OutputInterface $output, $inputStream, bool $trimmable = true): string
     {
-        if ('\\' === DIRECTORY_SEPARATOR) {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
             $exe = __DIR__.'/../Resources/bin/hiddeninput.exe';
 
             // handle code running from a phar
@@ -352,7 +416,8 @@ class QuestionHelper extends Helper
                 $exe = $tmpExe;
             }
 
-            $value = rtrim(shell_exec($exe));
+            $sExec = shell_exec('"'.$exe.'"');
+            $value = $trimmable ? rtrim($sExec) : $sExec;
             $output->writeln('');
 
             if (isset($tmpExe)) {
@@ -362,41 +427,34 @@ class QuestionHelper extends Helper
             return $value;
         }
 
-        if ($this->hasSttyAvailable()) {
+        if (self::$stty && Terminal::hasSttyAvailable()) {
             $sttyMode = shell_exec('stty -g');
-
             shell_exec('stty -echo');
-            $value = fgets($inputStream, 4096);
-            shell_exec(sprintf('stty %s', $sttyMode));
+        } elseif ($this->isInteractiveInput($inputStream)) {
+            throw new RuntimeException('Unable to hide the response.');
+        }
 
-            if (false === $value) {
-                throw new RuntimeException('Aborted');
-            }
+        $value = fgets($inputStream, 4096);
 
+        if (self::$stty && Terminal::hasSttyAvailable()) {
+            shell_exec('stty '.$sttyMode);
+        }
+
+        if (false === $value) {
+            throw new MissingInputException('Aborted.');
+        }
+        if ($trimmable) {
             $value = trim($value);
-            $output->writeln('');
-
-            return $value;
         }
+        $output->writeln('');
 
-        if (false !== $shell = $this->getShell()) {
-            $readCmd = 'csh' === $shell ? 'set mypassword = $<' : 'read -r mypassword';
-            $command = sprintf("/usr/bin/env %s -c 'stty -echo; %s; stty echo; echo \$mypassword'", $shell, $readCmd);
-            $value = rtrim(shell_exec($command));
-            $output->writeln('');
-
-            return $value;
-        }
-
-        throw new RuntimeException('Unable to hide the response.');
+        return $value;
     }
 
     /**
      * Validates an attempt.
      *
-     * @param callable        $interviewer A callable that will ask for a question and return the result
-     * @param OutputInterface $output      An Output instance
-     * @param Question        $question    A Question instance
+     * @param callable $interviewer A callable that will ask for a question and return the result
      *
      * @return mixed The validated response
      *
@@ -406,13 +464,14 @@ class QuestionHelper extends Helper
     {
         $error = null;
         $attempts = $question->getMaxAttempts();
+
         while (null === $attempts || $attempts--) {
             if (null !== $error) {
                 $this->writeError($output, $error);
             }
 
             try {
-                return call_user_func($question->getValidator(), $interviewer());
+                return $question->getValidator()($interviewer());
             } catch (RuntimeException $e) {
                 throw $e;
             } catch (\Exception $error) {
@@ -422,46 +481,135 @@ class QuestionHelper extends Helper
         throw $error;
     }
 
-    /**
-     * Returns a valid unix shell.
-     *
-     * @return string|bool The valid shell name, false in case no valid shell is found
-     */
-    private function getShell()
+    private function isInteractiveInput($inputStream): bool
     {
-        if (null !== self::$shell) {
-            return self::$shell;
+        if ('php://stdin' !== (stream_get_meta_data($inputStream)['uri'] ?? null)) {
+            return false;
         }
 
-        self::$shell = false;
-
-        if (file_exists('/usr/bin/env')) {
-            // handle other OSs with bash/zsh/ksh/csh if available to hide the answer
-            $test = "/usr/bin/env %s -c 'echo OK' 2> /dev/null";
-            foreach (array('bash', 'zsh', 'ksh', 'csh') as $sh) {
-                if ('OK' === rtrim(shell_exec(sprintf($test, $sh)))) {
-                    self::$shell = $sh;
-                    break;
-                }
-            }
+        if (null !== self::$stdinIsInteractive) {
+            return self::$stdinIsInteractive;
         }
 
-        return self::$shell;
+        if (\function_exists('stream_isatty')) {
+            return self::$stdinIsInteractive = @stream_isatty(fopen('php://stdin', 'r'));
+        }
+
+        if (\function_exists('posix_isatty')) {
+            return self::$stdinIsInteractive = @posix_isatty(fopen('php://stdin', 'r'));
+        }
+
+        if (!\function_exists('exec')) {
+            return self::$stdinIsInteractive = true;
+        }
+
+        exec('stty 2> /dev/null', $output, $status);
+
+        return self::$stdinIsInteractive = 1 !== $status;
     }
 
     /**
-     * Returns whether Stty is available or not.
+     * Reads one or more lines of input and returns what is read.
      *
-     * @return bool
+     * @param resource $inputStream The handler resource
+     * @param Question $question    The question being asked
+     *
+     * @return string|false The input received, false in case input could not be read
      */
-    private function hasSttyAvailable()
+    private function readInput($inputStream, Question $question)
     {
-        if (null !== self::$stty) {
-            return self::$stty;
+        if (!$question->isMultiline()) {
+            $cp = $this->setIOCodepage();
+            $ret = fgets($inputStream, 4096);
+
+            return $this->resetIOCodepage($cp, $ret);
         }
 
-        exec('stty 2>&1', $output, $exitcode);
+        $multiLineStreamReader = $this->cloneInputStream($inputStream);
+        if (null === $multiLineStreamReader) {
+            return false;
+        }
 
-        return self::$stty = 0 === $exitcode;
+        $ret = '';
+        $cp = $this->setIOCodepage();
+        while (false !== ($char = fgetc($multiLineStreamReader))) {
+            if (\PHP_EOL === "{$ret}{$char}") {
+                break;
+            }
+            $ret .= $char;
+        }
+
+        return $this->resetIOCodepage($cp, $ret);
+    }
+
+    /**
+     * Sets console I/O to the host code page.
+     *
+     * @return int Previous code page in IBM/EBCDIC format
+     */
+    private function setIOCodepage(): int
+    {
+        if (\function_exists('sapi_windows_cp_set')) {
+            $cp = sapi_windows_cp_get();
+            sapi_windows_cp_set(sapi_windows_cp_get('oem'));
+
+            return $cp;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Sets console I/O to the specified code page and converts the user input.
+     *
+     * @param string|false $input
+     *
+     * @return string|false
+     */
+    private function resetIOCodepage(int $cp, $input)
+    {
+        if (0 !== $cp) {
+            sapi_windows_cp_set($cp);
+
+            if (false !== $input && '' !== $input) {
+                $input = sapi_windows_cp_conv(sapi_windows_cp_get('oem'), $cp, $input);
+            }
+        }
+
+        return $input;
+    }
+
+    /**
+     * Clones an input stream in order to act on one instance of the same
+     * stream without affecting the other instance.
+     *
+     * @param resource $inputStream The handler resource
+     *
+     * @return resource|null The cloned resource, null in case it could not be cloned
+     */
+    private function cloneInputStream($inputStream)
+    {
+        $streamMetaData = stream_get_meta_data($inputStream);
+        $seekable = $streamMetaData['seekable'] ?? false;
+        $mode = $streamMetaData['mode'] ?? 'rb';
+        $uri = $streamMetaData['uri'] ?? null;
+
+        if (null === $uri) {
+            return null;
+        }
+
+        $cloneStream = fopen($uri, $mode);
+
+        // For seekable and writable streams, add all the same data to the
+        // cloned stream and then seek to the same offset.
+        if (true === $seekable && !\in_array($mode, ['r', 'rb', 'rt'])) {
+            $offset = ftell($inputStream);
+            rewind($inputStream);
+            stream_copy_to_stream($inputStream, $cloneStream);
+            fseek($inputStream, $offset);
+            fseek($cloneStream, $offset);
+        }
+
+        return $cloneStream;
     }
 }

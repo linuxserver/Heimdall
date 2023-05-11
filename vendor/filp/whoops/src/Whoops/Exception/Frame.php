@@ -112,19 +112,18 @@ class Frame implements Serializable
     public function getFileContents()
     {
         if ($this->fileContentsCache === null && $filePath = $this->getFile()) {
-            // Leave the stage early when 'Unknown' is passed
+            // Leave the stage early when 'Unknown' or '[internal]' is passed
             // this would otherwise raise an exception when
             // open_basedir is enabled.
-            if ($filePath === "Unknown") {
+            if ($filePath === "Unknown" || $filePath === '[internal]') {
                 return null;
             }
 
-            // Return null if the file doesn't actually exist.
-            if (!is_file($filePath)) {
-                return null;
+            try {
+                $this->fileContentsCache = file_get_contents($filePath);
+            } catch (ErrorException $exception) {
+                // Internal file paths of PHP extensions cannot be opened
             }
-
-            $this->fileContentsCache = file_get_contents($filePath);
         }
 
         return $this->fileContentsCache;
@@ -192,7 +191,7 @@ class Frame implements Serializable
      *     $frame->getFileLines(); // => array( 0 => '<?php', 1 => '...', ...)
      * @example
      *     Get one line for this file, starting at line 10 (zero-indexed, remember!)
-     *     $frame->getFileLines(9, 1); // array( 10 => '...', 11 => '...')
+     *     $frame->getFileLines(9, 1); // array( 9 => '...' )
      *
      * @throws InvalidArgumentException if $length is less than or equal to 0
      * @param  int                      $start
@@ -242,6 +241,15 @@ class Frame implements Serializable
         return serialize($frame);
     }
 
+    public function __serialize()
+    {
+        $frame = $this->frame;
+        if (!empty($this->comments)) {
+            $frame['_comments'] = $this->comments;
+        }
+        return $frame;
+    }
+
     /**
      * Unserializes the frame data, while also preserving
      * any existing comment data.
@@ -253,6 +261,16 @@ class Frame implements Serializable
     {
         $frame = unserialize($serializedFrame);
 
+        if (!empty($frame['_comments'])) {
+            $this->comments = $frame['_comments'];
+            unset($frame['_comments']);
+        }
+
+        $this->frame = $frame;
+    }
+
+    public function __unserialize($frame)
+    {
         if (!empty($frame['_comments'])) {
             $this->comments = $frame['_comments'];
             unset($frame['_comments']);

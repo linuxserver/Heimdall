@@ -15,6 +15,25 @@
   <div class="exc-message">
     <?php if (!empty($message)): ?>
       <span><?php echo $tpl->escape($message) ?></span>
+
+
+      <?php if (count($previousMessages)): ?>
+        <div class="exc-title prev-exc-title">
+          <span class="exc-title-secondary">Previous exceptions</span>
+        </div>
+
+        <ul>
+          <?php foreach ($previousMessages as $i => $previousMessage): ?>
+            <li>
+              <?php echo $tpl->escape($previousMessage) ?>
+              <span class="prev-exc-code">(<?php echo $previousCodes[$i] ?>)</span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif ?>
+
+
+
     <?php else: ?>
       <span class="exc-message-empty-notice">No message</span>
     <?php endif ?>
@@ -67,8 +86,11 @@
     </ul>
 
     <span id="plain-exception"><?php echo $tpl->escape($plain_exception) ?></span>
-    <button id="copy-button" class="clipboard" data-clipboard-text="<?php echo $tpl->escape($plain_exception) ?>" title="Copy exception details to clipboard">
+    <button id="copy-button" class="rightButton clipboard" data-clipboard-text="<?php echo $tpl->escape($plain_exception) ?>" title="Copy exception details to clipboard">
       COPY
+    </button>
+    <button id="hide-error" class="rightButton" title="Hide error message" onclick="document.getElementsByClassName('Whoops')[0].style.display = 'none';">
+      HIDE
     </button>
   </div>
 </div>

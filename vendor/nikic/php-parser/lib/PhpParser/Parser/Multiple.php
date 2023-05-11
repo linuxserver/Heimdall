@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PhpParser\Parser;
 
@@ -6,7 +6,8 @@ use PhpParser\Error;
 use PhpParser\ErrorHandler;
 use PhpParser\Parser;
 
-class Multiple implements Parser {
+class Multiple implements Parser
+{
     /** @var Parser[] List of parsers to try, in order of preference */
     private $parsers;
 
@@ -23,7 +24,7 @@ class Multiple implements Parser {
         $this->parsers = $parsers;
     }
 
-    public function parse($code, ErrorHandler $errorHandler = null) {
+    public function parse(string $code, ErrorHandler $errorHandler = null) {
         if (null === $errorHandler) {
             $errorHandler = new ErrorHandler\Throwing;
         }

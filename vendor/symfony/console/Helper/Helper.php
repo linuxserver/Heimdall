@@ -12,6 +12,7 @@
 namespace Symfony\Component\Console\Helper;
 
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Symfony\Component\String\UnicodeString;
 
 /**
  * Helper is the base class for all helper classes.
@@ -41,30 +42,64 @@ abstract class Helper implements HelperInterface
     /**
      * Returns the length of a string, using mb_strwidth if it is available.
      *
-     * @param string $string The string to check its length
+     * @deprecated since Symfony 5.3
      *
-     * @return int The length of the string
+     * @return int
      */
-    public static function strlen($string)
+    public static function strlen(?string $string)
     {
+        trigger_deprecation('symfony/console', '5.3', 'Method "%s()" is deprecated and will be removed in Symfony 6.0. Use Helper::width() or Helper::length() instead.', __METHOD__);
+
+        return self::width($string);
+    }
+
+    /**
+     * Returns the width of a string, using mb_strwidth if it is available.
+     * The width is how many characters positions the string will use.
+     */
+    public static function width(?string $string): int
+    {
+        $string ?? $string = '';
+
+        if (preg_match('//u', $string)) {
+            return (new UnicodeString($string))->width(false);
+        }
+
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
-            return strlen($string);
+            return \strlen($string);
         }
 
         return mb_strwidth($string, $encoding);
     }
 
     /**
+     * Returns the length of a string, using mb_strlen if it is available.
+     * The length is related to how many bytes the string will use.
+     */
+    public static function length(?string $string): int
+    {
+        $string ?? $string = '';
+
+        if (preg_match('//u', $string)) {
+            return (new UnicodeString($string))->length();
+        }
+
+        if (false === $encoding = mb_detect_encoding($string, null, true)) {
+            return \strlen($string);
+        }
+
+        return mb_strlen($string, $encoding);
+    }
+
+    /**
      * Returns the subset of a string, using mb_substr if it is available.
      *
-     * @param string   $string String to subset
-     * @param int      $from   Start offset
-     * @param int|null $length Length to read
-     *
-     * @return string The string subset
+     * @return string
      */
-    public static function substr($string, $from, $length = null)
+    public static function substr(?string $string, int $from, int $length = null)
     {
+        $string ?? $string = '';
+
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
             return substr($string, $from, $length);
         }
@@ -74,24 +109,24 @@ abstract class Helper implements HelperInterface
 
     public static function formatTime($secs)
     {
-        static $timeFormats = array(
-            array(0, '< 1 sec'),
-            array(1, '1 sec'),
-            array(2, 'secs', 1),
-            array(60, '1 min'),
-            array(120, 'mins', 60),
-            array(3600, '1 hr'),
-            array(7200, 'hrs', 3600),
-            array(86400, '1 day'),
-            array(172800, 'days', 86400),
-        );
+        static $timeFormats = [
+            [0, '< 1 sec'],
+            [1, '1 sec'],
+            [2, 'secs', 1],
+            [60, '1 min'],
+            [120, 'mins', 60],
+            [3600, '1 hr'],
+            [7200, 'hrs', 3600],
+            [86400, '1 day'],
+            [172800, 'days', 86400],
+        ];
 
         foreach ($timeFormats as $index => $format) {
             if ($secs >= $format[0]) {
                 if ((isset($timeFormats[$index + 1]) && $secs < $timeFormats[$index + 1][0])
-                    || $index == count($timeFormats) - 1
+                    || $index == \count($timeFormats) - 1
                 ) {
-                    if (2 == count($format)) {
+                    if (2 == \count($format)) {
                         return $format[1];
                     }
 
@@ -101,7 +136,7 @@ abstract class Helper implements HelperInterface
         }
     }
 
-    public static function formatMemory($memory)
+    public static function formatMemory(int $memory)
     {
         if ($memory >= 1024 * 1024 * 1024) {
             return sprintf('%.1f GiB', $memory / 1024 / 1024 / 1024);
@@ -118,19 +153,24 @@ abstract class Helper implements HelperInterface
         return sprintf('%d B', $memory);
     }
 
-    public static function strlenWithoutDecoration(OutputFormatterInterface $formatter, $string)
+    /**
+     * @deprecated since Symfony 5.3
+     */
+    public static function strlenWithoutDecoration(OutputFormatterInterface $formatter, ?string $string)
     {
-        return self::strlen(self::removeDecoration($formatter, $string));
+        trigger_deprecation('symfony/console', '5.3', 'Method "%s()" is deprecated and will be removed in Symfony 6.0. Use Helper::removeDecoration() instead.', __METHOD__);
+
+        return self::width(self::removeDecoration($formatter, $string));
     }
 
-    public static function removeDecoration(OutputFormatterInterface $formatter, $string)
+    public static function removeDecoration(OutputFormatterInterface $formatter, ?string $string)
     {
         $isDecorated = $formatter->isDecorated();
         $formatter->setDecorated(false);
         // remove <...> formatting
-        $string = $formatter->format($string);
+        $string = $formatter->format($string ?? '');
         // remove already formatted characters
-        $string = preg_replace("/\033\[[^m]*m/", '', $string);
+        $string = preg_replace("/\033\[[^m]*m/", '', $string ?? '');
         $formatter->setDecorated($isDecorated);
 
         return $string;
