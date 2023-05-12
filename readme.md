@@ -205,6 +205,7 @@ If you would like to show your appreciation, feel free to use the link below.
 - JavaScript - [jQuery](https://jquery.com/)
 - Colour picker - [Huebee](http://huebee.buzz/)
 - Background image - [pexels](https://www.pexels.com)
+- Trianglify library - [Trianglify](https://github.com/qrohlf/trianglify)
 - Everyone at Linuxserver.io that has helped with the app and let's not forget IronicBadger for the following question that started it all:
 ```
 you know, i would love something like this landing page for all my servers apps
