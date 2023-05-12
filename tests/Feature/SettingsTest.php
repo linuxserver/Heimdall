@@ -22,6 +22,8 @@ class SettingsTest extends TestCase
             'Support',
             'Donate',
             'Background Image',
+            'Trianglify',
+            'Trianglify Random Seed',
             'Homepage Search',
             'Default Search Provider',
             'Link opens in',
