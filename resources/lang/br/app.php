@@ -17,6 +17,8 @@ return [
 
     'settings.version' => 'Versão',
     'settings.background_image' => 'Imagem de fundo',
+    'settings.trianglify' => 'Trianglify',
+    'settings.trianglify_seed' => 'Trianglify Random Seed',
     'settings.window_target' => 'Link é aberto em',
     'settings.window_target.current' => 'Abra nesta aba',
     'settings.window_target.one' => 'Abra na mesma aba',

@@ -9,6 +9,8 @@ return array (
   'settings.donate' => '捐赠',
   'settings.version' => '版本',
   'settings.background_image' => '背景图片',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => '链接打开方式',
   'settings.window_target.current' => '在当前选项卡中打开',
   'settings.window_target.one' => '在同一个选项卡中打开',

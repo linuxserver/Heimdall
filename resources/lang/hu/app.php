@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Adomány',
   'settings.version' => 'Verzió',
   'settings.background_image' => 'Háttérkép',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Link megnyitása',
   'settings.window_target.current' => 'Ezen a lapon',
   'settings.window_target.one' => 'Azonos lapon',

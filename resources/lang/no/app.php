@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Donere',
   'settings.version' => 'Versjon',
   'settings.background_image' => 'Bakgrunnsbilde',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Link åpnes inn',
   'settings.window_target.current' => 'Åpne i denne fanen',
   'settings.window_target.one' => 'Åpne i samme fane',

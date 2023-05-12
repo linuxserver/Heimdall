@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Podarować',
   'settings.version' => 'Wersja',
   'settings.background_image' => 'Tapeta Pulpitu',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Link otwiera się w',
   'settings.window_target.current' => 'Otwórz w tej zakładce',
   'settings.window_target.one' => 'Otwórz w tej samej zakładce',

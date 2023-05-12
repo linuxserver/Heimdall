@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Podpořte nás',
   'settings.version' => 'Verze',
   'settings.background_image' => 'Obrázek pozadí',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Odkazy otevírat v',
   'settings.window_target.current' => 'Otevřít v této záložce',
   'settings.window_target.one' => 'Otevřít ve stejné záložce',

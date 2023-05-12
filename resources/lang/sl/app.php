@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Doniraj',
   'settings.version' => 'Verzija',
   'settings.background_image' => 'Slika za ozadje',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Povezava se odpre v',
   'settings.window_target.current' => 'Odpri v tem zavihku',
   'settings.window_target.one' => 'Odpri v istem zavihku',
