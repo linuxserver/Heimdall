@@ -86,7 +86,7 @@ $.when($.ready).then(() => {
   }
 
   $("#main")
-    .on("mouseenter", "#sortable.ui-sortable-disabled .item", function () {
+    .on("mouseenter", "#sortable .item", function () {
       $(this).siblings(".tooltip").addClass("active");
       $(".refresh", this).addClass("active");
     })
