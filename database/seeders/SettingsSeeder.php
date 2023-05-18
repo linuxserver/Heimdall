@@ -181,9 +181,9 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
         
-        if (! $languages = Setting::find(6)) {
+        if (! $languages = Setting::find(12)) {
             $setting = new Setting;
-            $setting->id = 6;
+            $setting->id = 12;
             $setting->group_id = 2;
             $setting->key = 'trianglify';
             $setting->type = 'boolean';
@@ -194,9 +194,9 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
         
-        if (! $languages = Setting::find(12)) {
+        if (! $languages = Setting::find(13)) {
             $setting = new Setting;
-            $setting->id = 12;
+            $setting->id = 13;
             $setting->group_id = 2;
             $setting->key = 'trianglify_seed';
             $setting->type = 'text';
