@@ -75,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
             $alt_bg = '';
             $trianglify = 'false';
             $trianglify_seed = null;
-            if(Setting::fetch('trianglify')) {
+            if (Setting::fetch('trianglify')) {
                 $trianglify = 'true';
                 $trianglify_seed = Setting::fetch('trianglify_seed');
             } elseif ($bg_image = Setting::fetch('background_image')) {
