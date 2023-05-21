@@ -181,7 +181,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
         
-        if (! $languages = Setting::find(12)) {
+        if (! $setting = Setting::find(12)) {
             $setting = new Setting;
             $setting->id = 12;
             $setting->group_id = 2;
@@ -194,7 +194,7 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
         
-        if (! $languages = Setting::find(13)) {
+        if (! $setting = Setting::find(13)) {
             $setting = new Setting;
             $setting->id = 13;
             $setting->group_id = 2;
