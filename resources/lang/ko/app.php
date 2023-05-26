@@ -9,6 +9,8 @@ return array (
   'settings.donate' => '기부',
   'settings.version' => '버전',
   'settings.background_image' => '배경 이미지',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => '다음에서 링크 열기',
   'settings.window_target.current' => '현재 탭에서 열기',
   'settings.window_target.one' => '같은 탭에서 열기',

@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Donar',
   'settings.version' => 'Versión',
   'settings.background_image' => 'Imagen de Fondo',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Vínculo abre en',
   'settings.window_target.current' => 'Abrir en ésta pestaña',
   'settings.window_target.one' => 'Abrir en la misma pestaña',

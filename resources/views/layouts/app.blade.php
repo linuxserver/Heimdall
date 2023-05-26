@@ -116,6 +116,34 @@
         </div>
         <script src="{{ asset('js/jquery.min.js') }}"></script>
         <script src="{{ asset(mix('js/app.js')) }}"></script>
+        @if($trianglify == 'true')
+        <script src="{{ asset(mix('js/trianglify.js')) }}"></script>
+        <script>
+            function addTriangleTo(target) {
+               var dimensions = target.getClientRects()[0];
+               var pattern = Trianglify({
+                  width: dimensions.width,
+                  height: dimensions.height
+                  @if($trianglify_seed <> '')
+                  , seed: '{!! $trianglify_seed !!}'
+                  @endif
+               });
+               target.style['background-image'] = 'url(' + pattern.png() + ')';
+               target.style['background-size'] = 'cover';
+               target.style['-webkit-background-size'] = 'cover';
+               target.style['-moz-background-size'] = 'cover';
+               target.style['-o-background-size'] = 'cover';
+            }
+            var resizeTimer;
+            $(window).on('resize', function(e) {
+               clearTimeout(resizeTimer);
+               resizeTimer = setTimeout(function() {
+                  addTriangleTo(app);
+               }, 400);
+            });
+        </script>
+        <script>addTriangleTo(app);</script>
+        @endif
         @yield('scripts')
         
         <script id="custom_js">

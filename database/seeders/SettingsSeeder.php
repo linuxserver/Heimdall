@@ -180,6 +180,33 @@ class SettingsSeeder extends Seeder
             $setting->value = 'en';
             $setting->save();
         }
+        
+        if (! $setting = Setting::find(12)) {
+            $setting = new Setting;
+            $setting->id = 12;
+            $setting->group_id = 2;
+            $setting->key = 'trianglify';
+            $setting->type = 'boolean';
+            $setting->label = 'app.settings.trianglify';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.trianglify';
+            $setting->save();
+        }
+        
+        if (! $setting = Setting::find(13)) {
+            $setting = new Setting;
+            $setting->id = 13;
+            $setting->group_id = 2;
+            $setting->key = 'trianglify_seed';
+            $setting->type = 'text';
+            $setting->value = 'heimdall';
+            $setting->label = 'app.settings.trianglify_seed';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.trianglify_seed';
+            $setting->save();
+        }
 
         $window_target_options = json_encode([
             'current' => 'app.settings.window_target.current',

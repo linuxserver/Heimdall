@@ -30,6 +30,10 @@ return [
 
     'settings.background_image' => 'Imagin dedree',
 
+    'settings.trianglify' => 'Trianglify',
+
+    'settings.trianglify_seed' => 'Trianglify Random Seed',
+
     'settings.window_target' => 'I link se derven...',
 
     'settings.window_target.current' => 'In quella scheda chi',

@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Contribuer',
   'settings.version' => 'Version',
   'settings.background_image' => 'Image d\'arrière-plan',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Ouverture des liens',
   'settings.window_target.current' => 'Dans l\'onglet courant',
   'settings.window_target.one' => 'Dans le même nouvel onglet',

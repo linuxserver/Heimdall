@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Пожертвования',
   'settings.version' => 'Версия',
   'settings.background_image' => 'Фоновое изображение',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Открывать ссылки в',
   'settings.window_target.current' => 'Открывать в этой же закладке',
   'settings.window_target.one' => 'Открывать в той же закладке',

@@ -9,6 +9,8 @@ return array (
   'settings.donate' => '寄付',
   'settings.version' => 'バージョン',
   'settings.background_image' => '背景画像',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'リンクを開く',
   'settings.window_target.current' => 'このタブで開く',
   'settings.window_target.one' => '同じタブで開く',

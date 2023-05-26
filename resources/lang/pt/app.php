@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Doar',
   'settings.version' => 'Versão',
   'settings.background_image' => 'Imagem de fundo',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'O link abre em',
   'settings.window_target.current' => 'Abrir neste separador',
   'settings.window_target.one' => 'Abrir no mesmo separador',

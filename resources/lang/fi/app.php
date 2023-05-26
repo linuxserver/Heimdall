@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Lahjoita',
   'settings.version' => 'Versio',
   'settings.background_image' => 'Taustakuva',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Linkit aukeaa',
   'settings.window_target.current' => 'Avaa tässä välilehdessä',
   'settings.window_target.one' => 'Avaa samassa välilehdessä',

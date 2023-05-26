@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Bağış yapmak',
   'settings.version' => 'Versiyon',
   'settings.background_image' => 'Arkaplan Resmi',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Bağlantı açılır',
   'settings.window_target.current' => 'Bu sekmede aç',
   'settings.window_target.one' => 'Aynı sekmede aç',

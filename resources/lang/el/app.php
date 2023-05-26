@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Δωρεά',
   'settings.version' => 'Έκδοση',
   'settings.background_image' => 'Εικόνα Παρασκηνίου',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Ο Σύνδεσμος ανοίγει σε',
   'settings.window_target.current' => 'Άνοιγμα σε αυτή την καρτέλα',
   'settings.window_target.one' => 'Άνοιγμα στην ίδια καρτέλα',

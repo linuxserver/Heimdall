@@ -73,7 +73,12 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $alt_bg = '';
-            if ($bg_image = Setting::fetch('background_image')) {
+            $trianglify = 'false';
+            $trianglify_seed = null;
+            if (Setting::fetch('trianglify')) {
+                $trianglify = 'true';
+                $trianglify_seed = Setting::fetch('trianglify_seed');
+            } elseif ($bg_image = Setting::fetch('background_image')) {
                 $alt_bg = ' style="background-image: url(storage/'.$bg_image.')"';
             }
 
@@ -81,6 +86,8 @@ class AppServiceProvider extends ServiceProvider
             $current_user = User::currentUser();
 
             $view->with('alt_bg', $alt_bg);
+            $view->with('trianglify', $trianglify);
+            $view->with('trianglify_seed', $trianglify_seed);
             $view->with('allusers', $allusers);
             $view->with('current_user', $current_user);
         });

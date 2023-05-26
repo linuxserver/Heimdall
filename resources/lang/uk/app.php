@@ -9,6 +9,8 @@ return array (
   'settings.donate' => 'Пожертви',
   'settings.version' => 'Версія',
   'settings.background_image' => 'Фонове зображення',
+  'settings.trianglify' => 'Trianglify',
+  'settings.trianglify_seed' => 'Trianglify Random Seed',
   'settings.window_target' => 'Відкривати посилання в',
   'settings.window_target.current' => 'Відкривати в цій вкладці',
   'settings.window_target.one' => 'Відкривати у тій самій вкладці',
