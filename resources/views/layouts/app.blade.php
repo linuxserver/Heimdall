@@ -117,7 +117,7 @@
         <script src="{{ asset('js/jquery.min.js') }}"></script>
         <script src="{{ asset(mix('js/app.js')) }}"></script>
         @if($trianglify == 'true')
-        <script src="{{ asset(mix('js/trianglify.js')) }}"></script>
+        <script src="{{ asset('js/trianglify.js') }}"></script>
         <script>
             function addTriangleTo(target) {
                var dimensions = target.getClientRects()[0];
