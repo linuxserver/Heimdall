@@ -18,6 +18,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -203,6 +204,7 @@ class ItemController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|max:255',
             'url' => 'required',
+            'file' => 'image'
         ]);
 
         if ($request->hasFile('file')) {
@@ -218,6 +220,10 @@ class ItemController extends Controller
                 ),
             );
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
+
+            if (!isImage($contents)) {
+                throw ValidationException::withMessages(['file' => 'Icon must be an image.']);
+            }
 
             if ($application) {
                 $icon = $application->icon;

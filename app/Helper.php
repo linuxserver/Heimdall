@@ -109,3 +109,21 @@ function className($name)
 {
     return preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 }
+
+/**
+ * @param string $file
+ * @return bool
+ */
+function isImage(string $file):bool
+{
+    $tempFileName = tempnam("/tmp", "image-check-");
+    $handle = fopen($tempFileName, "w");
+
+    fwrite($handle, $file);
+
+    $size = @getimagesize($tempFileName);
+
+    fclose($handle);
+
+    return is_array($size) && str_starts_with($size['mime'], 'image');
+}

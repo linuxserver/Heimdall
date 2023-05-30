@@ -62,7 +62,7 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable',
-
+            'file' => 'image'
         ]);
         $user = new User;
         $user->username = $request->input('username');
@@ -129,6 +129,7 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'nullable|confirmed',
             'password_confirmation' => 'nullable',
+            'file' => 'image'
         ]);
         //die(print_r($request->all()));
 
