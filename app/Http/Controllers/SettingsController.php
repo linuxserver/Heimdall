@@ -77,6 +77,10 @@ class SettingsController extends Controller
             }
 
             if ($setting->type === 'image') {
+                $validatedData = $request->validate([
+                    'value' => 'image'
+                ]);
+
                 if (!$request->hasFile('value')) {
                     throw new \Exception(
                         'file_too_big'

@@ -57,6 +57,7 @@ class TagController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
+            'file' => 'image'
         ]);
 
         if ($request->hasFile('file')) {
@@ -129,6 +130,7 @@ class TagController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|max:255',
+            'file' => 'image'
         ]);
 
         if ($request->hasFile('file')) {
