@@ -14,15 +14,15 @@ function format_bytes($bytes, bool $is_drive_size = true, string $beforeunit = '
     $btype = ($is_drive_size === true) ? 1000 : 1024;
     $labels = ['B', 'KB', 'MB', 'GB', 'TB'];
     // use 1000 rather than 1024 to simulate HD size not real size
-    for ($x = 0; $bytes >= $btype && $x < (count($labels) - 1); $bytes /= $btype, $x++);
+    for ($x = 0; $bytes >= $btype && $x < (count($labels) - 1); $bytes /= $btype, $x++) ;
     if ($labels[$x] == 'TB') {
-        return round($bytes, 3).$beforeunit.$labels[$x].$afterunit;
+        return round($bytes, 3) . $beforeunit . $labels[$x] . $afterunit;
     } elseif ($labels[$x] == 'GB') {
-        return round($bytes, 2).$beforeunit.$labels[$x].$afterunit;
+        return round($bytes, 2) . $beforeunit . $labels[$x] . $afterunit;
     } elseif ($labels[$x] == 'MB') {
-        return round($bytes, 2).$beforeunit.$labels[$x].$afterunit;
+        return round($bytes, 2) . $beforeunit . $labels[$x] . $afterunit;
     } else {
-        return round($bytes, 0).$beforeunit.$labels[$x].$afterunit;
+        return round($bytes, 0) . $beforeunit . $labels[$x] . $afterunit;
     }
 }
 
@@ -37,11 +37,11 @@ function str_slug($title, string $separator = '-', string $language = 'en'): str
     return Str::slug($title, $separator, $language);
 }
 
-if (! function_exists('str_is')) {
+if (!function_exists('str_is')) {
     /**
      * Determine if a given string matches a given pattern.
      *
-     * @param  string|array  $pattern
+     * @param string|array $pattern
      * @param string $value
      * @return bool
      *
@@ -64,7 +64,7 @@ function get_brightness($hex)
     // $hex = str_replace('#', '', $hex);
     $hex = preg_replace("/[^0-9A-Fa-f]/", '', $hex);
     if (strlen($hex) == 3) {
-        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
     }
 
     $c_r = hexdec(substr($hex, 0, 2));
@@ -97,7 +97,7 @@ function getLinkTargetAttribute(): string
     if ($target === 'current') {
         return '';
     } else {
-        return ' target="'.$target.'"';
+        return ' target="' . $target . '"';
     }
 }
 
@@ -112,10 +112,17 @@ function className($name)
 
 /**
  * @param string $file
+ * @param string $extension
  * @return bool
  */
-function isImage(string $file):bool
+function isImage(string $file, string $extension): bool
 {
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg', 'webp'];
+
+    if (!in_array($extension, $allowedExtensions)) {
+        return false;
+    }
+
     $tempFileName = tempnam("/tmp", "image-check-");
     $handle = fopen($tempFileName, "w");
 
