@@ -141,7 +141,7 @@ class ItemController extends Controller
      */
     public function index(Request $request): View
     {
-        $trash = (bool) $request->input('trash');
+        $trash = (bool)$request->input('trash');
 
         $data['apps'] = Item::ofType('item')->orderBy('title', 'asc')->get();
         $data['trash'] = Item::ofType('item')->onlyTrashed()->get();
@@ -197,6 +197,7 @@ class ItemController extends Controller
      * @param Request $request
      * @param null $id
      * @return Item
+     * @throws ValidationException
      */
     public static function storelogic(Request $request, $id = null): Item
     {
@@ -219,21 +220,18 @@ class ItemController extends Controller
                     "verify_peer_name" => false,
                 ),
             );
+
+            $file = $request->input('icon');
+            $path_parts = pathinfo($file);
+            $extension = $path_parts['extension'];
+
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
 
-            if (!isImage($contents)) {
+            if (!isImage($contents, $extension)) {
                 throw ValidationException::withMessages(['file' => 'Icon must be an image.']);
             }
 
-            if ($application) {
-                $icon = $application->icon;
-            } else {
-                $file = $request->input('icon');
-                $path_parts = pathinfo($file);
-                $icon = md5($contents);
-                $icon .= '.' . $path_parts['extension'];
-            }
-            $path = 'icons/' . $icon;
+            $path = 'icons/' . ($application ? $application->icon : md5($contents) . '.' . $extension);
 
             // Private apps could have here duplicated icons folder
             if (strpos($path, 'icons/icons/') !== false) {
@@ -340,7 +338,7 @@ class ItemController extends Controller
     public function destroy(Request $request, int $id): RedirectResponse
     {
         //
-        $force = (bool) $request->input('force');
+        $force = (bool)$request->input('force');
         if ($force) {
             Item::withTrashed()
                 ->where('id', $id)
@@ -394,11 +392,11 @@ class ItemController extends Controller
         $output['custom'] = null;
 
         $app = Application::single($appid);
-        $output = (array) $app;
+        $output = (array)$app;
 
         $appdetails = Application::getApp($appid);
 
-        if ((bool) $app->enhanced === true) {
+        if ((bool)$app->enhanced === true) {
             // if(!isset($app->config)) { // class based config
             $output['custom'] = className($appdetails->name) . '.config';
             // }
@@ -444,7 +442,7 @@ class ItemController extends Controller
         }
 
         $app_details = new $app();
-        $app_details->config = (object) $data;
+        $app_details->config = (object)$data;
         $app_details->test();
     }
 

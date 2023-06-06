@@ -9,9 +9,21 @@ class IsImageTest extends TestCase
     /**
      * @return void
      */
-    public function test_isImage_returns_false_when_file_is_not_image()
+    public function test_returns_true_when_file_is_image()
     {
-        $actual = isImage("<?php ?>");
+        $file = file_get_contents(__DIR__ . '/fixtures/heimdall-icon-small.png');
+
+        $actual = isImage($file, 'png');
+
+        $this->assertTrue($actual);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_returns_false_when_file_extension_is_image_but_content_is_not()
+    {
+        $actual = isImage("<?php ?>", "png");
 
         $this->assertFalse($actual);
     }
@@ -19,24 +31,12 @@ class IsImageTest extends TestCase
     /**
      * @return void
      */
-    public function test_isImage_returns_true_when_file_is_image()
+    public function test_returns_false_when_file_extension_is_not_image_but_content_is()
     {
         $file = file_get_contents(__DIR__ . '/fixtures/heimdall-icon-small.png');
 
-        $actual = isImage($file);
+        $actual = isImage($file, 'php');
 
-        $this->assertTrue($actual);
-    }
-
-    /**
-     * @return void
-     */
-    public function test_isImage_returns_false_when_file_is_php_but_png()
-    {
-        $file = file_get_contents(__DIR__ . '/fixtures/heimdall-icon-small-php.php');
-
-        $actual = isImage($file);
-
-        $this->assertTrue($actual);
+        $this->assertFalse($actual);
     }
 }
