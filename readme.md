@@ -22,10 +22,10 @@ Why not use it as your browser start page? It even has the ability to include a 
 ![Heimdall demo animation](https://i.imgur.com/MrC4QpN.gif)
 
 ## Video
-If you want to see a quick video of it in use, go to https://youtu.be/GXnnMAxPzMc
+If you want to see a quick video of Heimdall in use, go to https://youtu.be/GXnnMAxPzMc
 
 ## Supported applications
-You can use the app to link to any site or application, but Foundation apps will auto fill in the icon for the app and supply a default color for the tile. In addition Enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad. For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size and download speed while something is downloading.
+You can use the app to link to any site or application, but Foundation apps will auto fill in the icon for the app and supply a default color for the tile. In addition, Enhanced apps allow you provide details to an apps API, allowing you to view live stats directly on the dashboad. For example, the NZBGet and Sabnzbd Enhanced apps will display the queue size, and download speed while something is downloading.
 
 Supported applications are recognized by the title of the application as entered in the title field when adding an application. For example, to add a link to pfSense, begin by typing "p" in the title field and then select "pfSense" from the list of supported applications.
 
@@ -36,7 +36,7 @@ Supported applications are recognized by the title of the application as entered
 ## Installing
 Apart from the Laravel 8 dependencies, namely PHP >= 7.4.32, BCMath PHP Extension, INTL PHP Extension, Ctype PHP Extension, Fileinfo PHP extension, JSON PHP Extension, Mbstring PHP Extension, OpenSSL PHP Extension, PDO PHP Extension, Tokenizer PHP Extension, XML PHP Extension, the only other thing Heimdall needs is sqlite support and zip support (php-zip).
 
-If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe it should be by default, but one user came across the issue on a windows system.
+If you find you can't change the background make sure `php_fileinfo` is enabled in your php.ini. I believe `php_fileinfo` should be enabled by default, but one user came across the issue on a windows system.
 
 Installation is as simple as cloning the repository somewhere, or downloading and extracting the zip/tar and pointing your httpd document root to the `/public` folder then creating the .env file and generating an encryption key (this is all taken care of for you with the docker). 
 
@@ -62,10 +62,10 @@ Options are stored in `/storage/app/searchproviders.yaml` (`/config/www/searchpr
 
 Consider contributing to https://github.com/linuxserver/Heimdall/discussions/categories/search-providers to help others add new ones.
 
-The item at the top of the list `Tiles` allows you to search for apps on your dashboard by name, helpful when you have lots of icons.
+The item at the top of the list `Tiles` allows you to search for apps on your dashboard by name, this can be helpful when you have lots of icons.
 
 ## New background image not being set
-If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
+If you are using the docker image or a default php install you may find images over 2MB won't get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
 
 If you are using the linuxserver.io docker image simply edit `/path/to/config/php/php-local.ini` and add `upload_max_filesize = 30M` to the end.
 
@@ -75,7 +75,7 @@ If you are running the docker and the EnhancedApps you are using are also in doc
 You can do this by using `http(s)://docker_name:port` in the config section. Instead of the name you can use the internal docker ip, this usually starts with `172.`
 
 ## Languages
-The app has been translated into several languages; however, the quality of the translations could do with work. If you would like to improve them, or help with other translations, they are stored in `/resources/lang/`.
+The app has been translated into several languages; however, the quality of the translations could benefit from some work. If you would like to improve them, or help with other translations, they are stored in `/resources/lang/`.
 
 To create a new language translation, make a new folder with the ISO 3166-1 alpha-2 code as the name, copy `app.php` from `/resources/lang/en/app.php` into your new folder and replace the English strings.
 
@@ -145,15 +145,15 @@ location / {
     try_files $uri $uri/ /index.php?$query_string;
 }
 ```
-Someone was using the same nginx setup to both run this and reverse proxy Plex, Plex is served from `/web` so their location was interfering with the `/webfonts`.
+Someone was using the same Nginx setup to both run this and reverse proxy Plex. Plex is served from `/web` so their location was interfering with the `/webfonts`.
 
-Therefore, if your fonts aren't showing because you have a location for `/web`, add the following
+Therefore, if your fonts aren't showing because you have a location for `/web`, add the following:
 ```
 location /webfonts {
     try_files $uri $uri/;
 }
 ```
-If there are any other locations which might interfere with any of the folders in the `/public` folder, you might have to do the same for those as well, but it's a super fringe case.
+If there are any other locations that might interfere with any of the folders in the `/public` folder, you might have to do the same for those as well, however it's a super fringe case.
 
 ### Reverse proxy
 If you'd like to reverse proxy this app, we recommend using our letsencrypt/nginx docker image: [SWAG - Secure Web Application Gateway](https://hub.docker.com/r/linuxserver/swag)
@@ -181,12 +181,12 @@ Per default Heimdall uses the standard certificate bundle file (`ca-certificates
 openssl.cafile = /config/heimdall.pem
 ```
 
-Restart the container and the enhanced apps should now be able to access your local HTTP websites. This configuration will survive updating or recreating the Heimdall container.
+Restart the container and the Enhanced apps should now be able to access your local HTTP websites. This configuration will survive updating or recreating the Heimdall container.
 
 ## Running offline
 The apps list is hosted on github, you have a couple of options if you want to run without a connection to the outside world:
 1) Clone the repository and host it yourself, look at the .github actions file to see how to generate the apps list.
-2) Download the apps list and store it as a json accessible to heimdall named `list.json`
+2) Download the apps list and store it as a JSON accessible to Heimdall named `list.json`
 
 With both options all you need to do is add the following to your `.env`
 `APP_SOURCE=http://localhost/` Where `http://localhost/` is the path to the apps list without the name of the file, so if your file is stored at `https://heimdall.local/list.json` you would put `APP_SOURCE=https://heimdall.local/`
@@ -208,10 +208,10 @@ If you would like to show your appreciation, feel free to use the link below.
 - Trianglify library - [Trianglify](https://github.com/qrohlf/trianglify)
 - Everyone at Linuxserver.io that has helped with the app and let's not forget IronicBadger for the following question that started it all:
 ```
-you know, i would love something like this landing page for all my servers apps
+You know, I would love something like this landing page for all my servers' apps
 that gives me the ability to pin favourites
 and / or search
-@Stark @Kode do either of you think you'd be able to rustle something like this up ?
+@Stark @Kode do either of you think you'd be able to rustle something like this up?
 ```
 
 ## License
