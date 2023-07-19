@@ -30,3 +30,5 @@ storage/app/public/avatars/*
 .env
 .phpunit.result.cache
 /vendor/
+/.phpunit.cache/test-results
+/phpunit.xml.bak
