@@ -1,7 +1,0 @@
-<?php
-
-
-function TestFirstFunctionInFileCorrectSpacing()
-{
-    // Code
-}

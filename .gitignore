@@ -29,3 +29,4 @@ yarn-error.log
 storage/app/public/avatars/*
 .env
 .phpunit.result.cache
+/vendor/

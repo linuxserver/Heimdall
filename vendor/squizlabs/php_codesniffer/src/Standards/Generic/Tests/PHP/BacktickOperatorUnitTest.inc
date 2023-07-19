@@ -1,2 +1,0 @@
-<?php
-$output = `ls -al`;

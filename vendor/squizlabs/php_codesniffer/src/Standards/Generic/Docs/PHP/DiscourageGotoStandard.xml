@@ -1,7 +1,0 @@
-<documentation title="Goto">
-    <standard>
-    <![CDATA[
-    Discourage the use of the PHP `goto` language construct.
-    ]]>
-    </standard>
-</documentation>
