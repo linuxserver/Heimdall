@@ -65,9 +65,13 @@ Consider contributing to https://github.com/linuxserver/Heimdall/discussions/cat
 The item at the top of the list `Tiles` allows you to search for apps on your dashboard by name, helpful when you have lots of icons.
 
 ## New background image not being set
-If you are using the docker image or a default php install you may find images over 2MB wont get set as the background image, you just need to change the `upload_max_filesize` in the php.ini.
+If you are using the docker image or a default php install, then you may find images over 2MB won't get set as the background image.
 
-If you are using the linuxserver.io docker image simply edit `/path/to/config/php/php-local.ini` and add `upload_max_filesize = 30M` to the end.
+If you are using the linuxserver.io docker image simply edit `/path/to/config/php/php-local.ini` and add the following two lines to the end. Reference the maximum size of image you want to allow. The below example allows up to 30 MB images.
+```
+upload_max_filesize = 30M
+post_max_size = 30M
+```
 
 ## Docker and enhanced apps
 If you are running the docker and the EnhancedApps you are using are also in dockers, you may need to use the docker networking addresses to communicate with them.
