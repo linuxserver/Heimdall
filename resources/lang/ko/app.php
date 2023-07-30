@@ -32,6 +32,7 @@ return array (
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
+  'options.kagi' => 'Kagi',
   'options.qwant' => 'Qwant',
   'options.startpage' => '시작 페이지',
   'options.yes' => '예',

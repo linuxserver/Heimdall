@@ -46,6 +46,7 @@ return [
     'options.baidu' => '百度',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
+    'options.kagi' => 'Kagi',
     'options.qwant' => 'Qwant',
     'options.startpage' => '起始页',
     'options.yes' => '是',

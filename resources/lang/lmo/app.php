@@ -75,6 +75,7 @@ return [
     'options.ddg' => 'DuckDuckGo',
 
     'options.bing' => 'Bing',
+    'options.kagi' => 'Kagi',
 
     'options.qwant' => 'Qwant',
 
@@ -219,4 +220,3 @@ return [
     'alert.success.user_restored' => 'Utent ripescad',
 
 ];
-

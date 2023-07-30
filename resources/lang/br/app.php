@@ -43,6 +43,7 @@ return [
     'options.google' => 'Google',
     'options.ddg' => 'DuckDuckGo',
     'options.bing' => 'Bing',
+    'options.kagi' => 'Kagi',
     'options.qwant' => 'Qwant',
     'options.startpage' => 'Página inicial',
     'options.yes' => 'Sim',
