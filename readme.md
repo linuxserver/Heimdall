@@ -74,6 +74,23 @@ If you are running the docker and the EnhancedApps you are using are also in doc
 
 You can do this by using `http(s)://docker_name:port` in the config section. Instead of the name you can use the internal docker ip, this usually starts with `172.`
 
+## Use Docker Run
+
+```bash
+# image 
+# linuxserver/heimdall in hub.docker https://hub.docker.com/r/linuxserver/heimdall/
+
+# https://lscr.io/linuxserver/heimdall:laster  in lscr
+
+
+docker run -d   --name=heimdall   -e PUID=1000   -e PGID=1000   -e TZ=UTC   -p 80:80    --restart unless-stopped  linuxserver/heimdall:latest
+
+
+docker stop heimdall
+docker rm heimdall
+  
+
+```
 ## Languages
 The app has been translated into several languages; however, the quality of the translations could benefit from some work. If you would like to improve them, or help with other translations, they are stored in `/resources/lang/`.
 
