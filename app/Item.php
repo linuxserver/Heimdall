@@ -101,6 +101,7 @@ class Item extends Model
         'appdescription',
         'description',
         'pinned',
+        'pinned_line',
         'order',
         'type',
         'class',
@@ -132,6 +133,16 @@ class Item extends Model
         }
 
         return $config;
+    }
+
+    /**
+     * get all pin labels
+     * @return Item[]|\Illuminate\Database\Eloquent\Collection
+     */
+    static public function getAllPinTags()
+    {
+        $tags = self::query()->where('pinned_line','=',1)->get();
+        return $tags;
     }
 
     public function tags()

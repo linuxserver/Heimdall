@@ -12,6 +12,8 @@ use Locale;
 class SettingsSeeder extends Seeder
 {
 
+    const KEY_SHOW_TAG_LINE = 14;
+
     /**
      * @return false|string
      */
@@ -35,7 +37,6 @@ class SettingsSeeder extends Seeder
             $resultEn = ucfirst(Locale::getDisplayLanguage($language, 'en'));
             $result[$language] = "$resultNative ($resultEn)";
         }
-
         return json_encode($result);
     }
 
@@ -165,7 +166,6 @@ class SettingsSeeder extends Seeder
         }
 
         $language_options = SettingsSeeder::getSupportedLanguageMap();
-
         if ($languages = Setting::find(5)) {
             $languages->options = $language_options;
             $languages->save();
@@ -329,5 +329,28 @@ class SettingsSeeder extends Seeder
                 $app->parents()->attach(0);
             }
         }
+        $this->createOrEditSettingTagLine();
+    }
+
+    /**
+     * 是否显示 tag 行
+     */
+    private function createOrEditSettingTagLine()
+    {
+        if (! $setting = Setting::find(self::KEY_SHOW_TAG_LINE)) {
+            $setting = new Setting;
+            $setting->id = self::KEY_SHOW_TAG_LINE;
+            $setting->group_id = 2;
+            $setting->key = 'show_tag_line';
+            $setting->type = 'boolean';
+            $setting->label = 'app.settings.show_tag_line';
+            $setting->value = 1;
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.show_tag_line';
+            $setting->save();
+        }
+
+        echo("Settings 'show_tag_line' ok.\r\n");
     }
 }

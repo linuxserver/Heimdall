@@ -2,6 +2,7 @@
 
 @section('content')
     @include('partials.search')
+    @include('partials.tag_line')
 
     @if($apps->first())
         @include('sortable')        

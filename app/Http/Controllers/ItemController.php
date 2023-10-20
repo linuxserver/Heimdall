@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Application;
 use App\Item;
 use App\Jobs\ProcessApps;
+use App\Setting;
 use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
@@ -44,6 +45,9 @@ class ItemController extends Controller
         $data['all_apps'] = Item::whereHas('parents', function ($query) {
             $query->where('id', 0);
         })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+
+        $data['show_tag_line'] = Setting::fetch('show_tag_line');
+        $data['pin_tags'] = Item::getAllPinTags();
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
         //die(print_r($data['apps']));

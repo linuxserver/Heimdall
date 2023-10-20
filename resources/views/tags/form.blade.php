@@ -25,6 +25,25 @@
                     <span class="slider round"></span>
                 </label>
             </div>
+
+            <div class="input">
+                <label>{{ __('app.apps.tag_name') }} *</label>
+                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'class' => 'form-control')) !!}
+                <hr />
+                <label>{{ __('app.apps.pinned_line') }}</label>
+                {!! Form::hidden('pinned_line', '0') !!}
+                <label class="switch">
+                    <?php
+                    $checked = false;
+                    if(isset($item->pinned_line) && (bool)$item->pinned_line === true) $checked = true;
+                    $set_checked = ($checked) ? ' checked="checked"' : '';
+                    ?>
+                    <input type="checkbox" name="pinned_line" value="1"<?php echo $set_checked;?> />
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+
             <div class="input">
                 <label>{{ __('app.apps.colour') }} *</label>
                 {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}

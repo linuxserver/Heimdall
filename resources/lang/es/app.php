@@ -28,6 +28,7 @@ return array (
   'settings.view' => 'Ver',
   'settings.custom_css' => 'CSS Personalizado',
   'settings.custom_js' => 'JavaScript Personalizado',
+  'settings.show_tag_line' => 'Mostrar etiquetas fijas en una sola línea',
   'options.none' => '- no establecido -',
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',

@@ -40,7 +40,7 @@ return [
 
     'settings.custom_css' => '自定义 CSS',
     'settings.custom_js' => '自定义 JavaScript',
-
+    'settings.show_tag_line' => '页面显示标签行',
     'options.none' => '- 未设置 -',
     'options.google' => 'Google',
     'options.baidu' => '百度',
@@ -72,6 +72,7 @@ return [
     'apps.colour' => '颜色',
     'apps.icon' => '图标',
     'apps.pinned' => '固定',
+    'apps.pinned_line' => '固定-标签行',
     'apps.title' => '标题',
     'apps.hex' => 'Hex色值',
     'apps.username' => '用户名',

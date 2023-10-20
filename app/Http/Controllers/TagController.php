@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Item;
+use App\Setting;
 use App\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -99,6 +100,9 @@ class TagController extends Controller
         $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
         $data['tag'] = $item->id;
         $data['all_apps'] = $item->children;
+
+        $data['show_tag_line'] = Setting::fetch('show_tag_line');
+        $data['pin_tags'] = Item::getAllPinTags();
 
         return view('welcome', $data);
     }
