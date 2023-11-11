@@ -123,14 +123,16 @@ function isImage(string $file, string $extension): bool
         return false;
     }
 
-    $tempFileName = tempnam("/tmp", "image-check-");
+    $tempFileName = @tempnam("/tmp", "image-check-");
     $handle = fopen($tempFileName, "w");
 
     fwrite($handle, $file);
-
-    $size = @getimagesize($tempFileName);
-
     fclose($handle);
 
+    if ($extension == 'svg') {
+        return 'image/svg+xml' === mime_content_type($tempFileName);
+    }
+
+    $size = @getimagesize($tempFileName);
     return is_array($size) && str_starts_with($size['mime'], 'image');
 }
