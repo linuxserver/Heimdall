@@ -1,0 +1,10 @@
+{
+    "appid": "f5b1fb770977dca3fa174e80e7ba31f67feb16f0",
+    "name": "daloRadius",
+    "website": "https://www.daloradius.com/",
+    "license": "GNU General Public License v2.0 only",
+    "description": "daloRADIUS is an advanced RADIUS web management application aimed at managing hotspots and general-purpose ISP deployments. It features user management, graphical reporting, accounting, a billing engine and integrates with GoogleMaps for geo-locating.",
+    "enhanced": false,
+    "tile_background": "light",
+    "icon": "daloradius.png"
+}
