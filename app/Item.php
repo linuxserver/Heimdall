@@ -32,6 +32,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @property string|null $class
  * @property string|null $appid
  * @property string|null $appdescription
+ * @property string|null $role
  * @property-read \Illuminate\Database\Eloquent\Collection|Item[] $children
  * @property-read int|null $children_count
  * @property-read string $droppable
@@ -50,6 +51,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @method static Builder|Item pinned()
  * @method static Builder|Item query()
  * @method static Builder|Item whereAppdescription($value)
+ * @method static Builder|Item whereRole($value)
  * @method static Builder|Item whereAppid($value)
  * @method static Builder|Item whereClass($value)
  * @method static Builder|Item whereColour($value)
@@ -107,6 +109,7 @@ class Item extends Model
         'user_id',
         'tag_id',
         'appid',
+        'role',
     ];
 
 

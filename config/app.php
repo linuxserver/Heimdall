@@ -237,4 +237,8 @@ return [
 
     ],
 
+    'auth_roles_enable' =>  (bool) env('AUTH_ROLES_ENABLE', false),
+    'auth_roles_header' =>  env('AUTH_ROLES_HEADER', 'remote-groups'),
+    'auth_roles_admin' =>  env('AUTH_ROLES_ADMIN', 'admin'),
+
 ];

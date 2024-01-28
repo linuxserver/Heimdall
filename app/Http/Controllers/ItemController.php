@@ -35,15 +35,27 @@ class ItemController extends Controller
      *
      * @return View
      */
-    public function dash(): View
+    public function dash(Request $request): View
     {
-        $data['apps'] = Item::whereHas('parents', function ($query) {
-            $query->where('id', 0);
-        })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+        if (config('app.auth_roles_enable')) {
+            $roles = explode(',', $request->header(config('app.auth_roles_header')));
 
-        $data['all_apps'] = Item::whereHas('parents', function ($query) {
-            $query->where('id', 0);
-        })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+            $data['apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->whereIn('role', $roles)->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+    
+            $data['all_apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+        } else {
+            $data['apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+    
+            $data['all_apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+        }
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
         //die(print_r($data['apps']));

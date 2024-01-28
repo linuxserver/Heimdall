@@ -105,4 +105,5 @@ return array (
   'alert.success.user_restored' => 'Nutzer erfolgreich wiederhergestellt',
   'dashboard.reorder' => 'Elemente neu anordnen und anheften',
   'dashboard.settings' => 'Einstellungen',
+  'role' => 'Authentifizierungsrolle',
 );
