@@ -38,7 +38,7 @@ class ItemController extends Controller
     public function dash(Request $request): View
     {
         if (config('app.auth_roles_enable')) {
-            $roles = explode(',', $request->header(config('app.auth_roles_header')));
+            $roles = explode(config('app.auth_roles_delimiter'), $request->header(config('app.auth_roles_header')));
 
             $data['apps'] = Item::whereHas('parents', function ($query) {
                 $query->where('id', 0);
