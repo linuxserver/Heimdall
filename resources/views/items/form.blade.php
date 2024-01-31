@@ -1,4 +1,5 @@
 <section class="module-container">
+        @if($enable_auth_admin_controles)
         <header>
             <div class="section-title">{{ __('app.apps.preview') }}</div>
             <div class="module-actions">
@@ -144,6 +145,13 @@
                 <a href="{{ route('items.index', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </footer>
+        @else
+        <header>
+            <div class="section-title">
+                {{ __('app.unauthorized_for_form') }}
+            </div>
+        </header>
+        @endif
 
     </section>
 
