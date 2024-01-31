@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
+
 @section('content')
+@if(!$app['config']->get('app.auth_roles_enable', false))
 <?php
 $user = \App\User::currentUser();
 ?>
@@ -21,5 +23,14 @@ $user = \App\User::currentUser();
     </div>
         
 </form>
+@else
+<section class="module-container">
+<header>
+    <div class="section-title">
+        {{ __('app.diabled_feature') }}
+    </div>
+</header>
+</section>
+@endif
 
 @endsection

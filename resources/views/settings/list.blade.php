@@ -2,6 +2,7 @@
 
 @section('content')
 
+    @if($enable_auth_admin_controles)
     @foreach ($groups as $index => $group)
         <section class="module-container">
             <header>
@@ -57,5 +58,14 @@
             </table>
         </section>
     @endforeach
+    @else
+    <section class="module-container">
+        <header>
+            <div class="section-title">
+                {{ __('app.unauthorized_for_form') }}
+            </div>
+        </header>
+    </section>
+    @endif
 
 @endsection
