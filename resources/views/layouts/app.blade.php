@@ -94,7 +94,7 @@
                     </div>
                     @endif
                     @yield('content')
-                    @if($enable_config_buttons)
+                    @if($enable_auth_admin_controles)
                     <div id="config-buttons">
                         @if(Route::is('dash') || Route::is('tags.show'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i><div class="tooltip left">{{ __('app.dashboard.reorder') }}</div></a>

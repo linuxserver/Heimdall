@@ -89,9 +89,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with('allusers', $allusers);
             $view->with('current_user', $current_user);
             if (config('app.auth_roles_enable')){
-                $view->with('enable_config_buttons', in_array(config('app.auth_roles_admin'),explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
+                $view->with('enable_auth_admin_controles', in_array(config('app.auth_roles_admin'),explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
             } else {
-                $view->with('enable_config_buttons', true);
+                $view->with('enable_auth_admin_controles', true);
             }
         });
 
