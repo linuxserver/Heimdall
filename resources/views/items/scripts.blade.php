@@ -56,6 +56,13 @@
             })
 
             $('.tags').select2();
+            document.getElementById('optdetails-button').addEventListener("click", function(event) {
+                $('#apptype').select2({
+                    placeholder: "Select...",
+                    allowClear: true,
+                    width: "100%"
+                });
+                }, {once: true});
 
             if($('#appurl').val() !== '') {
                 if ($('#appurl').val().indexOf("://") !== -1) {
