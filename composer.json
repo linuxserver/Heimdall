@@ -8,28 +8,28 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.4.32",
-        "facade/ignition": "^2.3.6",
-        "fideloper/proxy": "^4.0",
+        "php": "^8.0",
         "graham-campbell/github": "^10.5",
         "guzzlehttp/guzzle": "^7.4",
-        "laravel/framework": "^8.0",
-        "laravel/tinker": "^2.0",
-        "laravel/ui": "^3.0",
-        "laravelcollective/html": "^6.0",
-        "nunomaduro/collision": "^5.0",
-        "symfony/yaml": "^5.4",
+        "laravel/framework": "^9.52",
+        "laravel/tinker": "^2.7",
+        "laravel/ui": "^3.3",
+        "laravelcollective/html": "^6.3",
+        "nunomaduro/collision": "^6.3",
+        "symfony/yaml": "^6.0",
         "ext-json": "*",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "spatie/laravel-ignition": "^1.4"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
-        "filp/whoops": "~2.0",
-        "fzaninotto/faker": "~1.4",
-        "mockery/mockery": "~1.0",
-        "phpunit/phpunit": "~9.0",
+        "filp/whoops": "^2.8",
+        "mockery/mockery": "^1.4.4",
+        "phpunit/phpunit": "^9.5.10",
         "squizlabs/php_codesniffer": "3.*",
-        "symfony/thanks": "^1.0"
+        "symfony/thanks": "^1.2",
+        "fakerphp/faker": "^1.9.1"
     },
     "autoload": {
         "classmap": [
@@ -71,7 +71,8 @@
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
             "@php artisan ide-helper:generate",
-            "@php artisan ide-helper:meta"
+            "@php artisan ide-helper:meta",
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ]
     },
     "config": {
