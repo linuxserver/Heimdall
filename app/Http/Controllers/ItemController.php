@@ -214,12 +214,12 @@ class ItemController extends Controller
                 'icon' => $path,
             ]);
         } elseif (strpos($request->input('icon'), 'http') === 0) {
-            $options = array(
-                "ssl" => array(
+            $options = [
+                "ssl" => [
                     "verify_peer" => false,
                     "verify_peer_name" => false,
-                ),
-            );
+                ],
+            ];
 
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
