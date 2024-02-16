@@ -18,7 +18,7 @@ class UserListTest extends TestCase
             ]);
     }
 
-    public function test_displays_admin_on_user_list_page_when_default_install()
+    public function test_displays_admin_on_user_list_page_when_default_install(): void
     {
         $this->seed();
 
@@ -28,7 +28,7 @@ class UserListTest extends TestCase
         $response->assertSee('admin');
     }
 
-    public function test_displays_users_on_user_list_page()
+    public function test_displays_users_on_user_list_page(): void
     {
         $this->seed();
 

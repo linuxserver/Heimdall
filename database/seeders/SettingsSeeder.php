@@ -55,7 +55,7 @@ class SettingsSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         // Groups
         if (! $setting_group = SettingGroup::find(1)) {

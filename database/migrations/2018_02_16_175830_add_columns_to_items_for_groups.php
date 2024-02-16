@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('items', function (Blueprint $table) {
             $table->integer('type')->default(0)->index(); // 0 = item, 1 = category
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {
             $table->dropColumn(['type']);

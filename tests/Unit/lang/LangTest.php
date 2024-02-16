@@ -11,7 +11,7 @@ class LangTest extends TestCase
      *
      * @return void
      */
-    public function test_all_language_keys_are_defined()
+    public function test_all_language_keys_are_defined(): void
     {
         $this->markTestSkipped('2022-11-14 Lot of keys missing. Enable this test to see them all.');
         $languageDirectories = array_filter(glob(resource_path().'/lang/*'), 'is_dir');

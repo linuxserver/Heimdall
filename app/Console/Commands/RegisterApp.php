@@ -38,7 +38,7 @@ class RegisterApp extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $folder = $this->argument('folder');
         if ($folder == 'all') {

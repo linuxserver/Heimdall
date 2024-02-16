@@ -12,14 +12,14 @@ class ItemExportTest extends TestCase
 
     use RefreshDatabase;
 
-    public function test_returns_empty_jsonarray_when_there_are_no_items_in_the_db()
+    public function test_returns_empty_jsonarray_when_there_are_no_items_in_the_db(): void
     {
         $response = $this->get('api/item');
 
         $response->assertJsonCount(0);
     }
 
-    public function test_returns_exactly_the_defined_fields()
+    public function test_returns_exactly_the_defined_fields(): void
     {
         $exampleItem = [
             "appdescription" => "Description",
@@ -37,7 +37,7 @@ class ItemExportTest extends TestCase
         $response->assertExactJson([(object)$exampleItem]);
     }
 
-    public function test_returns_all_items()
+    public function test_returns_all_items(): void
     {
         Item::factory()
             ->count(3)
@@ -48,7 +48,7 @@ class ItemExportTest extends TestCase
         $response->assertJsonCount(3);
     }
 
-    public function test_does_not_return_deleted_item()
+    public function test_does_not_return_deleted_item(): void
     {
         Item::factory()
             ->create([
@@ -62,7 +62,7 @@ class ItemExportTest extends TestCase
         $response->assertJsonCount(1);
     }
 
-    public function test_does_not_return_tags()
+    public function test_does_not_return_tags(): void
     {
         Item::factory()
             ->create([

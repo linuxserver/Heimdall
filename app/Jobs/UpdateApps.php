@@ -33,7 +33,7 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
      * @return void
      * @throws GuzzleException
      */
-    public function handle()
+    public function handle(): void
     {
         Log::debug('Update of all apps triggered!');
         $apps = Application::all('appid')->toArray();

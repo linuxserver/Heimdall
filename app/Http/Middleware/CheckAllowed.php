@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\User;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
@@ -20,7 +21,7 @@ class CheckAllowed
      * @return mixed
      * @throws AuthenticationException
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $route = Route::currentRouteName();
         $current_user = User::currentUser();

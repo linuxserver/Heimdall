@@ -35,7 +35,7 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
      * @return void
      * @throws GuzzleException
      */
-    public function handle()
+    public function handle(): void
     {
         Log::debug('Process Apps dispatched');
         $localapps = Application::whereNull('class')->get();

@@ -12,7 +12,7 @@ class UsersSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         // Groups
         if (!User::find(1)) {
