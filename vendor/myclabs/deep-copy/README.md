@@ -186,6 +186,9 @@ $matcher = new TypeMatcher('Doctrine\Common\Collections\Collection');
 - `DeepCopy\Filter` applies a transformation to the object attribute matched by `DeepCopy\Matcher`
 - `DeepCopy\TypeFilter` applies a transformation to any element matched by `DeepCopy\TypeMatcher`
 
+By design, matching a filter will stop the chain of filters (i.e. the next ones will not be applied).
+Using the ([`ChainableFilter`](#chainablefilter-filter)) won't stop the chain of filters.
+
 
 #### `SetNullFilter` (filter)
 
@@ -223,6 +226,34 @@ $copier->addFilter(new KeepFilter(), new PropertyMatcher('MyClass', 'category'))
 
 $copy = $copier->copy($object);
 // $copy->category has not been touched
+```
+
+
+#### `ChainableFilter` (filter)
+
+If you use cloning on proxy classes, you might want to apply two filters for:
+1. loading the data
+2. applying a transformation
+
+You can use the `ChainableFilter` as a decorator of the proxy loader filter, which won't stop the chain of filters (i.e. 
+the next ones may be applied).
+
+
+```php
+use DeepCopy\DeepCopy;
+use DeepCopy\Filter\ChainableFilter;
+use DeepCopy\Filter\Doctrine\DoctrineProxyFilter;
+use DeepCopy\Filter\SetNullFilter;
+use DeepCopy\Matcher\Doctrine\DoctrineProxyMatcher;
+use DeepCopy\Matcher\PropertyNameMatcher;
+
+$copier = new DeepCopy();
+$copier->addFilter(new ChainableFilter(new DoctrineProxyFilter()), new DoctrineProxyMatcher());
+$copier->addFilter(new SetNullFilter(), new PropertyNameMatcher('id'));
+
+$copy = $copier->copy($object);
+
+echo $copy->id; // null
 ```
 
 
@@ -268,6 +299,8 @@ Doctrine proxy class (...\\\_\_CG\_\_\Proxy).
 You can use the `DoctrineProxyFilter` to load the actual entity behind the Doctrine proxy class.
 **Make sure, though, to put this as one of your very first filters in the filter chain so that the entity is loaded
 before other filters are applied!**
+We recommend to decorate the `DoctrineProxyFilter` with the `ChainableFilter` to allow applying other filters to the
+cloned lazy loaded entities.
 
 ```php
 use DeepCopy\DeepCopy;
@@ -275,7 +308,7 @@ use DeepCopy\Filter\Doctrine\DoctrineProxyFilter;
 use DeepCopy\Matcher\Doctrine\DoctrineProxyMatcher;
 
 $copier = new DeepCopy();
-$copier->addFilter(new DoctrineProxyFilter(), new DoctrineProxyMatcher());
+$copier->addFilter(new ChainableFilter(new DoctrineProxyFilter()), new DoctrineProxyMatcher());
 
 $copy = $copier->copy($object);
 

@@ -20,7 +20,8 @@ Only the latest major version of Laravel UI receives bug fixes. The table below 
 |---- |----|
 | [1.x](https://github.com/laravel/ui/tree/1.x) | 5.8, 6.x |
 | [2.x](https://github.com/laravel/ui/tree/2.x) | 7.x |
-| [3.x](https://github.com/laravel/ui/tree/3.x) | 8.x, 9.x |
+| [3.x](https://github.com/laravel/ui/tree/3.x) | 8.x |
+| [4.x](https://github.com/laravel/ui/tree/4.x) | 9.x, 10.x, 11.x |
 
 ### Installation
 
@@ -46,11 +47,11 @@ php artisan ui react --auth
 
 #### CSS
 
-[Laravel Mix](https://laravel.com/docs/mix) provides a clean, expressive API over compiling SASS or Less, which are extensions of plain CSS that add variables, mixins, and other powerful features that make working with CSS much more enjoyable. In this document, we will briefly discuss CSS compilation in general; however, you should consult the full [Laravel Mix documentation](https://laravel.com/docs/mix) for more information on compiling SASS or Less.
+Laravel officially supports [Vite](https://laravel.com/docs/vite), a modern frontend build tool that provides an extremely fast development environment and bundles your code for production. Vite supports a variety of CSS preprocessor languages, including SASS and Less, which are extensions of plain CSS that add variables, mixins, and other powerful features that make working with CSS much more enjoyable. In this document, we will briefly discuss CSS compilation in general; however, you should consult the full [Vite documentation](https://laravel.com/docs/vite#working-with-stylesheets) for more information on compiling SASS or Less.
 
 #### JavaScript
 
-Laravel does not require you to use a specific JavaScript framework or library to build your applications. In fact, you don't have to use JavaScript at all. However, Laravel does include some basic scaffolding to make it easier to get started writing modern JavaScript using the [Vue](https://vuejs.org) library. Vue provides an expressive API for building robust JavaScript applications using components. As with CSS, we may use Laravel Mix to easily compile JavaScript components into a single, browser-ready JavaScript file.
+Laravel does not require you to use a specific JavaScript framework or library to build your applications. In fact, you don't have to use JavaScript at all. However, Laravel does include some basic scaffolding to make it easier to get started writing modern JavaScript using the [Vue](https://vuejs.org) library. Vue provides an expressive API for building robust JavaScript applications using components. As with CSS, we may use Vite to easily compile JavaScript components into a single, browser-ready JavaScript file.
 
 ### Writing CSS
 
@@ -62,13 +63,13 @@ Before compiling your CSS, install your project's frontend dependencies using th
 npm install
 ```
 
-Once the dependencies have been installed using `npm install`, you can compile your SASS files to plain CSS using [Laravel Mix](https://laravel.com/docs/mix#working-with-stylesheets). The `npm run dev` command will process the instructions in your `webpack.mix.js` file. Typically, your compiled CSS will be placed in the `public/css` directory:
+Once the dependencies have been installed using `npm install`, you can compile your SASS files to plain CSS using [Vite](https://laravel.com/docs/vite#working-with-stylesheets). The `npm run dev` command will process the instructions in your `vite.config.js` file. Typically, your compiled CSS will be placed in the `public/build/assets` directory:
 
 ```bash
 npm run dev
 ```
 
-The `webpack.mix.js` file included with Laravel's frontend scaffolding will compile the `resources/sass/app.scss` SASS file. This `app.scss` file imports a file of SASS variables and loads Bootstrap, which provides a good starting point for most applications. Feel free to customize the `app.scss` file however you wish or even use an entirely different pre-processor by [configuring Laravel Mix](https://laravel.com/docs/mix).
+The `vite.config.js` file included with Laravel's frontend scaffolding will compile the `resources/sass/app.scss` SASS file. This `app.scss` file imports a file of SASS variables and loads Bootstrap, which provides a good starting point for most applications. Feel free to customize the `app.scss` file however you wish or even use an entirely different pre-processor by [configuring Vite](https://laravel.com/docs/vite#working-with-stylesheets).
 
 ### Writing JavaScript
 
@@ -80,13 +81,13 @@ npm install
 
 > By default, the Laravel `package.json` file includes a few packages such as `lodash` and `axios` to help you get started building your JavaScript application. Feel free to add or remove from the `package.json` file as needed for your own application.
 
-Once the packages are installed, you can use the `npm run dev` command to [compile your assets](https://laravel.com/docs/mix). Webpack is a module bundler for modern JavaScript applications. When you run the `npm run dev` command, Webpack will execute the instructions in your `webpack.mix.js` file:
+Once the packages are installed, you can use the `npm run dev` command to [compile your assets](https://laravel.com/docs/vite). Vite is a module bundler for modern JavaScript applications. When you run the `npm run dev` command, Vite will execute the instructions in your `vite.config.js` file:
 
 ```bash
 npm run dev
 ```
 
-By default, the Laravel `webpack.mix.js` file compiles your SASS and the `resources/js/app.js` file. Within the `app.js` file you may register your Vue components or, if you prefer a different framework, configure your own JavaScript application. Your compiled JavaScript will typically be placed in the `public/js` directory.
+By default, the Laravel `vite.config.js` file compiles your SASS and the `resources/js/app.js` file. Within the `app.js` file you may register your Vue components or, if you prefer a different framework, configure your own JavaScript application. Your compiled JavaScript will typically be placed in the `public/build/assets` directory.
 
 > The `app.js` file will load the `resources/js/bootstrap.js` file which bootstraps and configures Vue, Axios, jQuery, and all other JavaScript dependencies. If you have additional JavaScript dependencies to configure, you may do so in this file.
 
@@ -95,10 +96,8 @@ By default, the Laravel `webpack.mix.js` file compiles your SASS and the `resour
 When using the `laravel/ui` package to scaffold your frontend, an `ExampleComponent.vue` Vue component will be placed in the `resources/js/components` directory. The `ExampleComponent.vue` file is an example of a [single file Vue component](https://vuejs.org/guide/single-file-components) which defines its JavaScript and HTML template in the same file. Single file components provide a very convenient approach to building JavaScript driven applications. The example component is registered in your `app.js` file:
 
 ```javascript
-Vue.component(
-    'example-component',
-    require('./components/ExampleComponent.vue').default
-);
+import ExampleComponent from './components/ExampleComponent.vue';
+Vue.component('example-component', ExampleComponent);
 ```
 
 To use the component in your application, you may drop it into one of your HTML templates. For example, after running the `php artisan ui vue --auth` Artisan command to scaffold your application's authentication and registration screens, you could drop the component into the `home.blade.php` Blade template:

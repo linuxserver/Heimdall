@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace GrahamCampbell\GitHub\Cache;
 
+use GrahamCampbell\BoundedCache\BoundedCacheInterface;
+use GrahamCampbell\Manager\ConnectorInterface;
 use Illuminate\Contracts\Cache\Factory;
 use InvalidArgumentException;
 
@@ -28,7 +30,7 @@ class ConnectionFactory
      *
      * @var \Illuminate\Contracts\Cache\Factory|null
      */
-    protected $cache;
+    private ?Factory $cache;
 
     /**
      * Create a new connection factory instance.
@@ -51,7 +53,7 @@ class ConnectionFactory
      *
      * @return \GrahamCampbell\BoundedCache\BoundedCacheInterface
      */
-    public function make(array $config)
+    public function make(array $config): BoundedCacheInterface
     {
         return $this->createConnector($config)->connect($config);
     }
@@ -65,7 +67,7 @@ class ConnectionFactory
      *
      * @return \GrahamCampbell\Manager\ConnectorInterface
      */
-    public function createConnector(array $config)
+    public function createConnector(array $config): ConnectorInterface
     {
         if (!isset($config['driver'])) {
             throw new InvalidArgumentException('A driver must be specified.');

@@ -1,0 +1,21 @@
+<documentation title="PHP Syntax">
+    <standard>
+    <![CDATA[
+    The code should use valid PHP syntax.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No PHP syntax errors.">
+        <![CDATA[
+<em>echo "Hello!";</em>
+<em>$array = [1, 2, 3];</em>
+        ]]>
+        </code>
+        <code title="Invalid: Code contains PHP syntax errors.">
+        <![CDATA[
+echo "Hello!"<em></em> // Missing semicolon.
+$array = [1, 2, 3<em></em>; // Missing closing bracket.
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

@@ -46,7 +46,7 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
         }
 
         $this->total = $total;
-        $this->perPage = $perPage;
+        $this->perPage = (int) $perPage;
         $this->lastPage = max((int) ceil($total / $perPage), 1);
         $this->path = $this->path !== '/' ? rtrim($this->path, '/') : $this->path;
         $this->currentPage = $this->setCurrentPage($currentPage, $this->pageName);
@@ -213,8 +213,7 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
      *
      * @return array
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

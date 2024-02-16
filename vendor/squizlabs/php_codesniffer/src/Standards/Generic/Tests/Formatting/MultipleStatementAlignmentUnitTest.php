@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\Formatting;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the MultipleStatementAlignment sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Formatting\MultipleStatementAlignmentSniff
+ */
+final class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -40,7 +45,7 @@ class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getWarningList($testFile='MultipleStatementAlignmentUnitTest.inc')
+    public function getWarningList($testFile='')
     {
         switch ($testFile) {
         case 'MultipleStatementAlignmentUnitTest.inc':
@@ -122,7 +127,7 @@ class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest
                 499 => 1,
                 500 => 1,
             ];
-        break;
+
         case 'MultipleStatementAlignmentUnitTest.js':
             return [
                 11  => 1,
@@ -154,10 +159,9 @@ class MultipleStatementAlignmentUnitTest extends AbstractSniffUnitTest
                 114 => 1,
                 117 => 1,
             ];
-            break;
+
         default:
             return [];
-            break;
         }//end switch
 
     }//end getWarningList()

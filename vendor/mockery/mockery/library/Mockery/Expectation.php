@@ -1,21 +1,11 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery;
@@ -26,9 +16,11 @@ use Mockery\Matcher\AnyArgs;
 use Mockery\Matcher\AndAnyOtherArgs;
 use Mockery\Matcher\ArgumentListMatcher;
 use Mockery\Matcher\MultiArgumentClosure;
+use PHPUnit\Framework\Constraint\Constraint;
 
 class Expectation implements ExpectationInterface
 {
+    public const ERROR_ZERO_INVOCATION = 'shouldNotReceive(), never(), times(0) chaining additional invocation count methods has been deprecated and will throw an exception in a future version of Mockery';
     /**
      * Mock object to which this expectation belongs
      *
@@ -49,6 +41,13 @@ class Expectation implements ExpectationInterface
      * @var string|null
      */
     protected $_because = null;
+
+    /**
+     * Expected count of calls to this expectation
+     *
+     * @var int
+     */
+    protected $_expectedCount = -1;
 
     /**
      * Arguments expected by this expectation
@@ -395,10 +394,18 @@ class Expectation implements ExpectationInterface
                 $expected = new $matcher($expected);
             }
         }
-        if ($expected instanceof \Mockery\Matcher\MatcherAbstract) {
+
+        if ($expected instanceof \Mockery\Matcher\MatcherInterface) {
             return $expected->match($actual);
         }
+
+        if ($expected instanceof Constraint) {
+            return (bool) $expected->evaluate($actual, '', true);
+        }
+
         if ($expected instanceof \Hamcrest\Matcher || $expected instanceof \Hamcrest_Matcher) {
+            @trigger_error('Hamcrest package has been deprecated and will be removed in 2.0', E_USER_DEPRECATED);
+
             return $expected->matches($actual);
         }
         return false;
@@ -727,6 +734,18 @@ class Expectation implements ExpectationInterface
         if (!is_int($limit)) {
             throw new \InvalidArgumentException('The passed Times limit should be an integer value');
         }
+
+        if ($this->_expectedCount === 0) {
+            @trigger_error(self::ERROR_ZERO_INVOCATION, E_USER_DEPRECATED);
+            // throw new \InvalidArgumentException(self::ERROR_ZERO_INVOCATION);
+        }
+
+        if ($limit === 0) {
+            $this->_countValidators = [];
+        }
+
+        $this->_expectedCount = $limit;
+
         $this->_countValidators[$this->_countValidatorClass] = new $this->_countValidatorClass($this, $limit);
 
         if ('Mockery\CountValidator\Exact' !== $this->_countValidatorClass) {

@@ -46,10 +46,7 @@ Route::get('single/{appid}', function ($appid) {
  */
 Route::resource('tags', TagController::class);
 
-Route::group([
-    'as'     => 'tags.',
-    'prefix' => 'tag',
-], function () {
+Route::name('tags.')->prefix('tag')->group(function () {
     Route::get('/{slug}', [TagController::class, 'show'])->name('show');
     Route::get('/add/{tag}/{item}', [TagController::class, 'add'])->name('add');
     Route::get('/restore/{id}', [TagController::class, 'restore'])->name('restore');
@@ -61,10 +58,7 @@ Route::group([
  */
 Route::resource('items', ItemController::class);
 
-Route::group([
-    'as'     => 'items.',
-    'prefix' => 'items',
-], function () {
+Route::name('items.')->prefix('items')->group(function () {
     Route::get('/websitelookup/{url}', [ItemController::class, 'websitelookup'])->name('lookup');
     Route::get('/pin/{id}', [ItemController::class, 'pin'])->name('pin');
     Route::get('/restore/{id}', [ItemController::class, 'restore'])->name('restore');
@@ -96,10 +90,7 @@ Route::resource('users', UserController::class);
 /**
  * Settings.
  */
-Route::group([
-    'as'     => 'settings.',
-    'prefix' => 'settings',
-], function () {
+Route::name('settings.')->prefix('settings')->group(function () {
     Route::get('/', [SettingsController::class,'index'])->name('index');
     Route::get('edit/{id}', [SettingsController::class,'edit'])->name('edit');
     Route::get('clear/{id}', [SettingsController::class,'clear'])->name('clear');

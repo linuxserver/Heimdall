@@ -1,5 +1,87 @@
 # Changelog
 
+## 3.13.0
+
+### Added
+- Test against php 8.3 ([sergiy-petrov](https://github.com/sergiy-petrov)) [#1124](https://github.com/KnpLabs/php-github-api/issues/1124)
+- feat: Secret Scanning Alerts ([haridarshan](https://github.com/haridarshan)) [#1114](https://github.com/KnpLabs/php-github-api/issues/1114)
+- feat: User Migration ([haridarshan](https://github.com/haridarshan)) [#1115](https://github.com/KnpLabs/php-github-api/issues/1115)
+
+### Changed
+- General chores ([acrobat](https://github.com/acrobat)) [#1125](https://github.com/KnpLabs/php-github-api/issues/1125)
+
+### Fixed
+- Fix detection of secondary rate limit ([mathieudz](https://github.com/mathieudz)) [#1126](https://github.com/KnpLabs/php-github-api/issues/1126)
+
+## 3.12.0
+
+### Added
+- feat: Support for Organization Runners ([haridarshan](https://github.com/haridarshan), [renovate](https://github.com/renovate)[[bot](https://github.com/bot)]) [#1101](https://github.com/KnpLabs/php-github-api/issues/1101)
+- allow psr/http-message v2 ([LordSimal](https://github.com/LordSimal)) [#1122](https://github.com/KnpLabs/php-github-api/issues/1122)
+
+### Changed
+- Fixed branch alias ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1109](https://github.com/KnpLabs/php-github-api/issues/1109)
+
+## 3.11.0
+
+### Added
+- Added environment variables & secrets ([Froxz](https://github.com/Froxz)) [#1104](https://github.com/KnpLabs/php-github-api/issues/1104)
+- Added Org & Repository variables ([Froxz](https://github.com/Froxz)) [#1106](https://github.com/KnpLabs/php-github-api/issues/1106)
+- Deployment branch policies ([Froxz](https://github.com/Froxz)) [#1108](https://github.com/KnpLabs/php-github-api/issues/1108)
+
+### Changed
+- Test on PHP 8.2 ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1105](https://github.com/KnpLabs/php-github-api/issues/1105)
+
+### Fixed
+- Bugfix creating env ([Froxz](https://github.com/Froxz)) [#1107](https://github.com/KnpLabs/php-github-api/issues/1107)
+
+## 3.10.0
+
+### Added
+- Add vulnerability alerts endpoints ([andreia](https://github.com/andreia)) [#1096](https://github.com/KnpLabs/php-github-api/issues/1096)
+- Added environments ([Froxz](https://github.com/Froxz)) [#1103](https://github.com/KnpLabs/php-github-api/issues/1103)
+
+### Changed
+- Create authorization removed from docs ([rafasashi](https://github.com/rafasashi)) [#1090](https://github.com/KnpLabs/php-github-api/issues/1090)
+- Setup dependabot for github action workflows ([acrobat](https://github.com/acrobat)) [#1098](https://github.com/KnpLabs/php-github-api/issues/1098)
+- Bump actions/checkout from 2 to 3 ([dependabot](https://github.com/dependabot)[[bot](https://github.com/bot)]) [#1099](https://github.com/KnpLabs/php-github-api/issues/1099)
+- Bump ramsey/composer-install from 1 to 2 ([dependabot](https://github.com/dependabot)[[bot](https://github.com/bot)]) [#1100](https://github.com/KnpLabs/php-github-api/issues/1100)
+
+## 3.9.0
+
+### Added
+- Add the ability to download raw file, needed when size > 1MB ([genintho](https://github.com/genintho)) [#1075](https://github.com/KnpLabs/php-github-api/issues/1075)
+- Feat: Support new Team Repositories Endpoint ([iBotPeaches](https://github.com/iBotPeaches)) [#1082](https://github.com/KnpLabs/php-github-api/issues/1082)
+- App: add hook endpoints ([glaubinix](https://github.com/glaubinix)) [#1086](https://github.com/KnpLabs/php-github-api/issues/1086)
+- Add sync a fork branch with the upstream repository  ([DAGpro](https://github.com/DAGpro)) [#1084](https://github.com/KnpLabs/php-github-api/issues/1084)
+
+### Changed
+- Fix return types in phpdoc for `Assignees` and `ReviewRequest` ([rob006](https://github.com/rob006)) [#1078](https://github.com/KnpLabs/php-github-api/issues/1078)
+- Fixed several typos and grammar errors ([AndrewDawes](https://github.com/AndrewDawes)) [#1088](https://github.com/KnpLabs/php-github-api/issues/1088)
+
+## 3.8.0
+
+### Added
+- API rate limit error status can be 403 ([matthewnessworthy](https://github.com/matthewnessworthy)) [#1072](https://github.com/KnpLabs/php-github-api/issues/1072)
+- Add method to use generate release notes endpoint ([GuySartorelli](https://github.com/GuySartorelli)) [#1074](https://github.com/KnpLabs/php-github-api/issues/1074)
+- Fix typehint for repository dispatch method ([cweagans](https://github.com/cweagans)) [#1066](https://github.com/KnpLabs/php-github-api/issues/1066)
+
+### Changed
+- Update security.md ([secalith-code](https://github.com/secalith-code)) [#1076](https://github.com/KnpLabs/php-github-api/issues/1076)
+
+### Fixed
+- dont require encoding ([gemal](https://github.com/gemal)) [#1071](https://github.com/KnpLabs/php-github-api/issues/1071)
+
+## 3.7.0
+
+### Added
+- added phpdocs ([staabm](https://github.com/staabm)) [#1068](https://github.com/KnpLabs/php-github-api/issues/1068)
+- added missing magic method phpdocs for deployments ([staabm](https://github.com/staabm)) [#1069](https://github.com/KnpLabs/php-github-api/issues/1069)
+- Fix issue https://github.com/KnpLabs/php-github-api/issues/1061 ([mruell](https://github.com/mruell)) [#1062](https://github.com/KnpLabs/php-github-api/issues/1062)
+
+### Changed
+- Updates ReviewRequest Create method to return type Array ([ejntaylor](https://github.com/ejntaylor)) [#1060](https://github.com/KnpLabs/php-github-api/issues/1060)
+
 ## 3.6.0
 
 ### Added

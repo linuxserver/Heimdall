@@ -1,7 +1,7 @@
 {
     "name": "sebastian/recursion-context",
     "description": "Provides functionality to recursively process PHP variables",
-    "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
+    "homepage": "https://github.com/sebastianbergmann/recursion-context",
     "license": "BSD-3-Clause",
     "authors": [
         {

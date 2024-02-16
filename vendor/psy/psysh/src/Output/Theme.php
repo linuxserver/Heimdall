@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -57,21 +57,22 @@ class Theme
         'default'   => [null],
 
         // Types
-        'number'   => ['magenta'],
-        'integer'  => ['magenta'],
-        'float'    => ['yellow'],
-        'string'   => ['green'],
-        'bool'     => ['cyan'],
-        'keyword'  => ['yellow'],
-        'comment'  => ['blue'],
-        'object'   => ['blue'],
-        'resource' => ['yellow'],
+        'number'       => ['magenta'],
+        'integer'      => ['magenta'],
+        'float'        => ['yellow'],
+        'string'       => ['green'],
+        'bool'         => ['cyan'],
+        'keyword'      => ['yellow'],
+        'comment'      => ['blue'],
+        'code_comment' => ['gray'],
+        'object'       => ['blue'],
+        'resource'     => ['yellow'],
 
         // Code-specific formatting
         'inline_html' => ['cyan'],
     ];
 
-    const ERROR_STYLES = ['info', 'warning', 'error', 'whisper'];
+    const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
 
     private $compact = false;
 
@@ -95,7 +96,7 @@ class Theme
                     $config = static::MODERN_THEME;
                     break;
 
-                    case 'compact':
+                case 'compact':
                     $config = static::COMPACT_THEME;
                     break;
 
@@ -138,10 +139,6 @@ class Theme
 
                 case 'grayFallback':
                     $this->setGrayFallback($value);
-                    break;
-
-                case 'compact':
-                    $this->setCompact($value);
                     break;
             }
         }

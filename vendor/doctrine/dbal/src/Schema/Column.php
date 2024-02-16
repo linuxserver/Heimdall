@@ -36,7 +36,7 @@ class Column extends AbstractAsset
     /** @var bool */
     protected $_notnull = true;
 
-    /** @var string|null */
+    /** @var mixed */
     protected $_default;
 
     /** @var bool */
@@ -52,7 +52,7 @@ class Column extends AbstractAsset
     protected $_comment;
 
     /**
-     * @deprecated Use {@link $_platformOptions instead}
+     * @deprecated Use {@link $_platformOptions} instead
      *
      * @var mixed[]
      */
@@ -278,7 +278,7 @@ class Column extends AbstractAsset
         return $this->_notnull;
     }
 
-    /** @return string|null */
+    /** @return mixed */
     public function getDefault()
     {
         return $this->_default;
@@ -353,7 +353,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link setPlatformOption() instead}
+     * @deprecated Use {@link setPlatformOption()} instead
      *
      * @param string $name
      * @param mixed  $value
@@ -374,7 +374,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link hasPlatformOption() instead}
+     * @deprecated Use {@link hasPlatformOption()} instead
      *
      * @param string $name
      *
@@ -392,7 +392,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link getPlatformOption() instead}
+     * @deprecated Use {@link getPlatformOption()} instead
      *
      * @param string $name
      *
@@ -410,7 +410,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link setPlatformOptions() instead}
+     * @deprecated Use {@link setPlatformOptions()} instead
      *
      * @param mixed[] $customSchemaOptions
      *
@@ -430,13 +430,13 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link getPlatformOptions() instead}
+     * @deprecated Use {@link getPlatformOptions()} instead
      *
      * @return mixed[]
      */
     public function getCustomSchemaOptions()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5476',
             'Column::getCustomSchemaOptions() is deprecated. Use getPlatformOptions() instead.',

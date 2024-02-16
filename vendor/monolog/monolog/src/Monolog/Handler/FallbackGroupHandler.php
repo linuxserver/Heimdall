@@ -12,6 +12,7 @@
 namespace Monolog\Handler;
 
 use Throwable;
+use Monolog\LogRecord;
 
 /**
  * Forwards records to at most one handler
@@ -19,23 +20,20 @@ use Throwable;
  * If a handler fails, the exception is suppressed and the record is forwarded to the next handler.
  *
  * As soon as one handler handles a record successfully, the handling stops there.
- *
- * @phpstan-import-type Record from \Monolog\Logger
  */
 class FallbackGroupHandler extends GroupHandler
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function handle(array $record): bool
+    public function handle(LogRecord $record): bool
     {
-        if ($this->processors) {
-            /** @var Record $record */
+        if (\count($this->processors) > 0) {
             $record = $this->processRecord($record);
         }
         foreach ($this->handlers as $handler) {
             try {
-                $handler->handle($record);
+                $handler->handle(clone $record);
                 break;
             } catch (Throwable $e) {
                 // What throwable?
@@ -46,22 +44,21 @@ class FallbackGroupHandler extends GroupHandler
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function handleBatch(array $records): void
     {
-        if ($this->processors) {
+        if (\count($this->processors) > 0) {
             $processed = [];
             foreach ($records as $record) {
                 $processed[] = $this->processRecord($record);
             }
-            /** @var Record[] $records */
             $records = $processed;
         }
 
         foreach ($this->handlers as $handler) {
             try {
-                $handler->handleBatch($records);
+                $handler->handleBatch(array_map(fn ($record) => clone $record, $records));
                 break;
             } catch (Throwable $e) {
                 // What throwable?

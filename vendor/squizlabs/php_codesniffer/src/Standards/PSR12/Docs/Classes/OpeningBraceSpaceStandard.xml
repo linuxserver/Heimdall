@@ -1,0 +1,32 @@
+<documentation title="Opening Brace Space">
+    <standard>
+    <![CDATA[
+    The opening brace of an object-oriented construct must not be followed by a blank line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No blank lines after opening brace.">
+        <![CDATA[
+class Foo
+{<em></em>
+    public function bar()
+    {
+        // Method content.
+    }
+}
+        ]]>
+        </code>
+        <code title="Invalid: Blank line after opening brace.">
+        <![CDATA[
+class Foo
+{
+<em></em>
+    public function bar()
+    {
+        // Method content.
+    }
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

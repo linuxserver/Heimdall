@@ -40,3 +40,17 @@ $expected[($i + 1)]['sort_order'] = ($i + 1);
 $id = $id.($obj->i++).$id;
 $id = $obj?->i++.$id;
 $id = $obj?->i++*10;
+
+$var+=1;
+$var-=1;
+
+$var=$var+1;
+$var=$var-1;
+
+$var /*comment*/ +=1;
+$var
+    // phpcs:ignore Something
+    -=1;
+
+$var += /*comment*/ 1;
+$var = ( $var /*comment*/ - 1 /*comment*/);

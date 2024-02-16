@@ -1,0 +1,26 @@
+<documentation title="Increment Decrement Spacing">
+    <standard>
+    <![CDATA[
+    There should be no whitespace between variables and increment/decrement operators.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No whitespace between variables and increment/decrement operators.">
+        <![CDATA[
+++<em></em>$i;
+--<em></em>$i['key']['id'];
+ClassName::$prop<em></em>++;
+$obj->prop<em></em>--;
+        ]]>
+        </code>
+        <code title="Invalid: Whitespace between variables and increment/decrement operators.">
+        <![CDATA[
+++<em> </em>$i;
+--<em>   </em>$i['key']['id'];
+ClassName::$prop<em>    </em>++;
+$obj->prop<em>
+</em>--;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

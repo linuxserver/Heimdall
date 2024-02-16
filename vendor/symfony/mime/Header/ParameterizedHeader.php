@@ -25,8 +25,8 @@ final class ParameterizedHeader extends UnstructuredHeader
      */
     public const TOKEN_REGEX = '(?:[\x21\x23-\x27\x2A\x2B\x2D\x2E\x30-\x39\x41-\x5A\x5E-\x7E]+)';
 
-    private $encoder;
-    private $parameters = [];
+    private ?Rfc2231Encoder $encoder = null;
+    private array $parameters = [];
 
     public function __construct(string $name, string $value, array $parameters = [])
     {
@@ -41,7 +41,7 @@ final class ParameterizedHeader extends UnstructuredHeader
         }
     }
 
-    public function setParameter(string $parameter, ?string $value)
+    public function setParameter(string $parameter, ?string $value): void
     {
         $this->setParameters(array_merge($this->getParameters(), [$parameter => $value]));
     }
@@ -54,7 +54,7 @@ final class ParameterizedHeader extends UnstructuredHeader
     /**
      * @param string[] $parameters
      */
-    public function setParameters(array $parameters)
+    public function setParameters(array $parameters): void
     {
         $this->parameters = $parameters;
     }
@@ -85,7 +85,7 @@ final class ParameterizedHeader extends UnstructuredHeader
      * This doesn't need to be overridden in theory, but it is for implementation
      * reasons to prevent potential breakage of attributes.
      */
-    protected function toTokens(string $string = null): array
+    protected function toTokens(?string $string = null): array
     {
         $tokens = parent::toTokens(parent::getBodyAsString());
 

@@ -5,14 +5,19 @@
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @author    Sam Graham <php-codesniffer@illusori.co.uk>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\Commenting;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class FixmeUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the Fixme sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Commenting\FixmeSniff
+ */
+final class FixmeUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -22,11 +27,9 @@ class FixmeUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of errors that should occur on that line.
      *
-     * @param string $testFile The name of the file being tested.
-     *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='FixmeUnitTest.inc')
+    public function getErrorList()
     {
         return [
             3  => 1,
@@ -48,11 +51,9 @@ class FixmeUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of warnings that should occur on that line.
      *
-     * @param string $testFile The name of the file being tested.
-     *
      * @return array<int, int>
      */
-    public function getWarningList($testFile='FixmeUnitTest.inc')
+    public function getWarningList()
     {
         return [];
 

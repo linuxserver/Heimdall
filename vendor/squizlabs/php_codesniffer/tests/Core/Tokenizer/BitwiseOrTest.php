@@ -4,14 +4,12 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
-
-class BitwiseOrTest extends AbstractMethodUnitTest
+final class BitwiseOrTest extends AbstractTokenizerTestCase
 {
 
 
@@ -27,11 +25,12 @@ class BitwiseOrTest extends AbstractMethodUnitTest
      */
     public function testBitwiseOr($testMarker)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens     = $this->phpcsFile->getTokens();
+        $target     = $this->getTargetToken($testMarker, [T_BITWISE_OR, T_TYPE_UNION]);
+        $tokenArray = $tokens[$target];
 
-        $opener = $this->getTargetToken($testMarker, [T_BITWISE_OR, T_TYPE_UNION]);
-        $this->assertSame(T_BITWISE_OR, $tokens[$opener]['code']);
-        $this->assertSame('T_BITWISE_OR', $tokens[$opener]['type']);
+        $this->assertSame(T_BITWISE_OR, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_BITWISE_OR (code)');
+        $this->assertSame('T_BITWISE_OR', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_BITWISE_OR (type)');
 
     }//end testBitwiseOr()
 
@@ -41,26 +40,27 @@ class BitwiseOrTest extends AbstractMethodUnitTest
      *
      * @see testBitwiseOr()
      *
-     * @return array
+     * @return array<string, array<string>>
      */
-    public function dataBitwiseOr()
+    public static function dataBitwiseOr()
     {
         return [
-            ['/* testBitwiseOr1 */'],
-            ['/* testBitwiseOr2 */'],
-            ['/* testBitwiseOrPropertyDefaultValue */'],
-            ['/* testBitwiseOrParamDefaultValue */'],
-            ['/* testBitwiseOr3 */'],
-            ['/* testBitwiseOrClosureParamDefault */'],
-            ['/* testBitwiseOrArrowParamDefault */'],
-            ['/* testBitwiseOrArrowExpression */'],
-            ['/* testBitwiseOrInArrayKey */'],
-            ['/* testBitwiseOrInArrayValue */'],
-            ['/* testBitwiseOrInShortArrayKey */'],
-            ['/* testBitwiseOrInShortArrayValue */'],
-            ['/* testBitwiseOrTryCatch */'],
-            ['/* testBitwiseOrNonArrowFnFunctionCall */'],
-            ['/* testLiveCoding */'],
+            'in simple assignment 1'                    => ['/* testBitwiseOr1 */'],
+            'in simple assignment 2'                    => ['/* testBitwiseOr2 */'],
+            'in OO constant default value'              => ['/* testBitwiseOrOOConstDefaultValue */'],
+            'in property default value'                 => ['/* testBitwiseOrPropertyDefaultValue */'],
+            'in method parameter default value'         => ['/* testBitwiseOrParamDefaultValue */'],
+            'in return statement'                       => ['/* testBitwiseOr3 */'],
+            'in closure parameter default value'        => ['/* testBitwiseOrClosureParamDefault */'],
+            'in arrow function parameter default value' => ['/* testBitwiseOrArrowParamDefault */'],
+            'in arrow function return expression'       => ['/* testBitwiseOrArrowExpression */'],
+            'in long array key'                         => ['/* testBitwiseOrInArrayKey */'],
+            'in long array value'                       => ['/* testBitwiseOrInArrayValue */'],
+            'in short array key'                        => ['/* testBitwiseOrInShortArrayKey */'],
+            'in short array value'                      => ['/* testBitwiseOrInShortArrayValue */'],
+            'in catch condition'                        => ['/* testBitwiseOrTryCatch */'],
+            'in parameter in function call'             => ['/* testBitwiseOrNonArrowFnFunctionCall */'],
+            'live coding / undetermined'                => ['/* testLiveCoding */'],
         ];
 
     }//end dataBitwiseOr()
@@ -78,11 +78,12 @@ class BitwiseOrTest extends AbstractMethodUnitTest
      */
     public function testTypeUnion($testMarker)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens     = $this->phpcsFile->getTokens();
+        $target     = $this->getTargetToken($testMarker, [T_BITWISE_OR, T_TYPE_UNION]);
+        $tokenArray = $tokens[$target];
 
-        $opener = $this->getTargetToken($testMarker, [T_BITWISE_OR, T_TYPE_UNION]);
-        $this->assertSame(T_TYPE_UNION, $tokens[$opener]['code']);
-        $this->assertSame('T_TYPE_UNION', $tokens[$opener]['type']);
+        $this->assertSame(T_TYPE_UNION, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_TYPE_UNION (code)');
+        $this->assertSame('T_TYPE_UNION', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_TYPE_UNION (type)');
 
     }//end testTypeUnion()
 
@@ -92,44 +93,56 @@ class BitwiseOrTest extends AbstractMethodUnitTest
      *
      * @see testTypeUnion()
      *
-     * @return array
+     * @return array<string, array<string>>
      */
-    public function dataTypeUnion()
+    public static function dataTypeUnion()
     {
         return [
-            ['/* testTypeUnionPropertySimple */'],
-            ['/* testTypeUnionPropertyReverseModifierOrder */'],
-            ['/* testTypeUnionPropertyMulti1 */'],
-            ['/* testTypeUnionPropertyMulti2 */'],
-            ['/* testTypeUnionPropertyMulti3 */'],
-            ['/* testTypeUnionPropertyNamespaceRelative */'],
-            ['/* testTypeUnionPropertyPartiallyQualified */'],
-            ['/* testTypeUnionPropertyFullyQualified */'],
-            ['/* testTypeUnionPropertyWithReadOnlyKeyword */'],
-            ['/* testTypeUnionPropertyWithReadOnlyKeywordFirst */'],
-            ['/* testTypeUnionPropertyWithStaticAndReadOnlyKeywords */'],
-            ['/* testTypeUnionPropertyWithVarAndReadOnlyKeywords */'],
-            ['/* testTypeUnionPropertyWithOnlyReadOnlyKeyword */'],
-            ['/* testTypeUnionParam1 */'],
-            ['/* testTypeUnionParam2 */'],
-            ['/* testTypeUnionParam3 */'],
-            ['/* testTypeUnionParamNamespaceRelative */'],
-            ['/* testTypeUnionParamPartiallyQualified */'],
-            ['/* testTypeUnionParamFullyQualified */'],
-            ['/* testTypeUnionReturnType */'],
-            ['/* testTypeUnionConstructorPropertyPromotion */'],
-            ['/* testTypeUnionAbstractMethodReturnType1 */'],
-            ['/* testTypeUnionAbstractMethodReturnType2 */'],
-            ['/* testTypeUnionReturnTypeNamespaceRelative */'],
-            ['/* testTypeUnionReturnPartiallyQualified */'],
-            ['/* testTypeUnionReturnFullyQualified */'],
-            ['/* testTypeUnionClosureParamIllegalNullable */'],
-            ['/* testTypeUnionWithReference */'],
-            ['/* testTypeUnionWithSpreadOperator */'],
-            ['/* testTypeUnionClosureReturn */'],
-            ['/* testTypeUnionArrowParam */'],
-            ['/* testTypeUnionArrowReturnType */'],
-            ['/* testTypeUnionNonArrowFunctionDeclaration */'],
+            'type for OO constant'                                     => ['/* testTypeUnionOOConstSimple */'],
+            'type for OO constant, reversed modifier order'            => ['/* testTypeUnionOOConstReverseModifierOrder */'],
+            'type for OO constant, first of multi-union'               => ['/* testTypeUnionOOConstMulti1 */'],
+            'type for OO constant, middle of multi-union + comments'   => ['/* testTypeUnionOOConstMulti2 */'],
+            'type for OO constant, last of multi-union'                => ['/* testTypeUnionOOConstMulti3 */'],
+            'type for OO constant, using namespace relative names'     => ['/* testTypeUnionOOConstNamespaceRelative */'],
+            'type for OO constant, using partially qualified names'    => ['/* testTypeUnionOOConstPartiallyQualified */'],
+            'type for OO constant, using fully qualified names'        => ['/* testTypeUnionOOConstFullyQualified */'],
+            'type for static property'                                 => ['/* testTypeUnionPropertySimple */'],
+            'type for static property, reversed modifier order'        => ['/* testTypeUnionPropertyReverseModifierOrder */'],
+            'type for property, first of multi-union'                  => ['/* testTypeUnionPropertyMulti1 */'],
+            'type for property, middle of multi-union, also comments'  => ['/* testTypeUnionPropertyMulti2 */'],
+            'type for property, last of multi-union'                   => ['/* testTypeUnionPropertyMulti3 */'],
+            'type for property using namespace relative names'         => ['/* testTypeUnionPropertyNamespaceRelative */'],
+            'type for property using partially qualified names'        => ['/* testTypeUnionPropertyPartiallyQualified */'],
+            'type for property using fully qualified names'            => ['/* testTypeUnionPropertyFullyQualified */'],
+            'type for readonly property'                               => ['/* testTypeUnionPropertyWithReadOnlyKeyword */'],
+            'type for static readonly property'                        => ['/* testTypeUnionPropertyWithStaticAndReadOnlyKeywords */'],
+            'type for readonly property using var keyword'             => ['/* testTypeUnionPropertyWithVarAndReadOnlyKeywords */'],
+            'type for readonly property, reversed modifier order'      => ['/* testTypeUnionPropertyWithReadOnlyKeywordFirst */'],
+            'type for readonly property, no visibility'                => ['/* testTypeUnionPropertyWithOnlyReadOnlyKeyword */'],
+            'type for static property, no visibility'                  => ['/* testTypeUnionPropertyWithOnlyStaticKeyword */'],
+            'type for method parameter'                                => ['/* testTypeUnionParam1 */'],
+            'type for method parameter, first in multi-union'          => ['/* testTypeUnionParam2 */'],
+            'type for method parameter, last in multi-union'           => ['/* testTypeUnionParam3 */'],
+            'type for method parameter with namespace relative names'  => ['/* testTypeUnionParamNamespaceRelative */'],
+            'type for method parameter with partially qualified names' => ['/* testTypeUnionParamPartiallyQualified */'],
+            'type for method parameter with fully qualified names'     => ['/* testTypeUnionParamFullyQualified */'],
+            'type for property in constructor property promotion'      => ['/* testTypeUnionConstructorPropertyPromotion */'],
+            'return type for method'                                   => ['/* testTypeUnionReturnType */'],
+            'return type for method, first of multi-union'             => ['/* testTypeUnionAbstractMethodReturnType1 */'],
+            'return type for method, last of multi-union'              => ['/* testTypeUnionAbstractMethodReturnType2 */'],
+            'return type for method with namespace relative names'     => ['/* testTypeUnionReturnTypeNamespaceRelative */'],
+            'return type for method with partially qualified names'    => ['/* testTypeUnionReturnPartiallyQualified */'],
+            'return type for method with fully qualified names'        => ['/* testTypeUnionReturnFullyQualified */'],
+            'type for function parameter with reference'               => ['/* testTypeUnionWithReference */'],
+            'type for function parameter with spread operator'         => ['/* testTypeUnionWithSpreadOperator */'],
+            'type for closure parameter with illegal nullable'         => ['/* testTypeUnionClosureParamIllegalNullable */'],
+            'return type for closure'                                  => ['/* testTypeUnionClosureReturn */'],
+            'type for arrow function parameter'                        => ['/* testTypeUnionArrowParam */'],
+            'return type for arrow function'                           => ['/* testTypeUnionArrowReturnType */'],
+            'type for function parameter, return by ref'               => ['/* testTypeUnionNonArrowFunctionDeclaration */'],
+            'type for function param with true type first'             => ['/* testTypeUnionPHP82TrueFirst */'],
+            'type for function param with true type middle'            => ['/* testTypeUnionPHP82TrueMiddle */'],
+            'type for function param with true type last'              => ['/* testTypeUnionPHP82TrueLast */'],
         ];
 
     }//end dataTypeUnion()

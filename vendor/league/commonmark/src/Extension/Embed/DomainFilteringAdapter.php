@@ -17,6 +17,7 @@ class DomainFilteringAdapter implements EmbedAdapterInterface
 {
     private EmbedAdapterInterface $decorated;
 
+    /** @psalm-var non-empty-string */
     private string $regex;
 
     /**
@@ -40,6 +41,8 @@ class DomainFilteringAdapter implements EmbedAdapterInterface
 
     /**
      * @param string[] $allowedDomains
+     *
+     * @psalm-return non-empty-string
      */
     private static function createRegex(array $allowedDomains): string
     {

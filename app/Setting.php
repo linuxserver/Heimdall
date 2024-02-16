@@ -70,10 +70,6 @@ class Setting extends Model
      */
     protected static $cache = [];
 
-    /**
-     * @param Request $request
-     * @return object
-     */
     public static function getInput(Request $request): object
     {
         return (object) [
@@ -198,16 +194,12 @@ class Setting extends Model
         return $value;
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function group(): BelongsTo
     {
         return $this->belongsTo(\App\SettingGroup::class, 'group_id');
     }
 
     /**
-     * @param string $key
      *
      * @return mixed
      */
@@ -220,11 +212,10 @@ class Setting extends Model
 
     // @codingStandardsIgnoreStart
     /**
-     * @param string $key
      *
      * @return mixed
      */
-    public static function _fetch($key, $user = null)
+    public static function _fetch(string $key, $user = null)
     {
         // @codingStandardsIgnoreEnd
         //$cachekey = ($user === null) ? $key : $key.'-'.$user->id;
@@ -267,20 +258,14 @@ class Setting extends Model
     }
 
     /**
-     * @param string $key
      * @param $value
      */
-    public static function add($key, $value)
+    public static function add(string $key, $value)
     {
         self::$cache[$key] = $value;
     }
 
-    /**
-     * @param string $key
-     *
-     * @return bool
-     */
-    public static function cached($key): bool
+    public static function cached(string $key): bool
     {
         return array_key_exists($key, self::$cache);
     }

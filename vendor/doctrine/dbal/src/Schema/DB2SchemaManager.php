@@ -50,7 +50,7 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
@@ -85,7 +85,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws Exception
      */
@@ -148,17 +148,13 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $options = [
             'length'        => $length,
-            'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
             'notnull'       => $tableColumn['nulls'] === 'N',
-            'scale'         => null,
-            'precision'     => null,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-            'platformOptions' => [],
         ];
 
         if ($scale !== null && $precision !== null) {
@@ -170,7 +166,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -180,7 +176,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
@@ -193,7 +189,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
@@ -207,7 +203,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
@@ -255,7 +251,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition($view)
     {

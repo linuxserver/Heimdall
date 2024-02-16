@@ -215,7 +215,7 @@ abstract class AbstractSchemaManager
         if ($database === null) {
             $database = $this->getDatabase(__METHOD__);
         } else {
-            Deprecation::trigger(
+            Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/5284',
                 'Passing $database to AbstractSchemaManager::listTableColumns() is deprecated.',
@@ -242,10 +242,10 @@ abstract class AbstractSchemaManager
         if ($database === null) {
             $database = $this->getDatabase(__METHOD__);
         } else {
-            Deprecation::trigger(
+            Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/5284',
-                'Passing $database to AbstractSchemaManager::listTableColumns() is deprecated.',
+                'Passing $database to AbstractSchemaManager::doListTableColumns() is deprecated.',
             );
         }
 
@@ -442,7 +442,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',

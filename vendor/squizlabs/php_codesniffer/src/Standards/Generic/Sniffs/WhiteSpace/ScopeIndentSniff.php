@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\WhiteSpace;
@@ -80,7 +80,7 @@ class ScopeIndentSniff implements Sniff
      * This is a cached copy of the public version of this var, which
      * can be set in a ruleset file, and some core ignored tokens.
      *
-     * @var int[]
+     * @var array<int|string, bool>
      */
     private $ignoreIndentation = [];
 
@@ -102,7 +102,7 @@ class ScopeIndentSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -142,12 +142,13 @@ class ScopeIndentSniff implements Sniff
             }
         }
 
-        $lastOpenTag     = $stackPtr;
-        $lastCloseTag    = null;
-        $openScopes      = [];
-        $adjustments     = [];
-        $setIndents      = [];
-        $disableExactEnd = 0;
+        $lastOpenTag       = $stackPtr;
+        $lastCloseTag      = null;
+        $openScopes        = [];
+        $adjustments       = [];
+        $setIndents        = [];
+        $disableExactStack = [];
+        $disableExactEnd   = 0;
 
         $tokens  = $phpcsFile->getTokens();
         $first   = $phpcsFile->findFirstOnLine(T_INLINE_HTML, $stackPtr);
@@ -232,6 +233,7 @@ class ScopeIndentSniff implements Sniff
             if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS
                 && isset($tokens[$i]['parenthesis_closer']) === true
             ) {
+                $disableExactStack[$tokens[$i]['parenthesis_closer']] = $tokens[$i]['parenthesis_closer'];
                 $disableExactEnd = max($disableExactEnd, $tokens[$i]['parenthesis_closer']);
                 if ($this->debug === true) {
                     $line = $tokens[$i]['line'];
@@ -616,11 +618,11 @@ class ScopeIndentSniff implements Sniff
 
             // Scope closers reset the required indent to the same level as the opening condition.
             if (($checkToken !== null
-                && isset($openScopes[$checkToken]) === true
+                && (isset($openScopes[$checkToken]) === true
                 || (isset($tokens[$checkToken]['scope_condition']) === true
                 && isset($tokens[$checkToken]['scope_closer']) === true
                 && $tokens[$checkToken]['scope_closer'] === $checkToken
-                && $tokens[$checkToken]['line'] !== $tokens[$tokens[$checkToken]['scope_opener']]['line']))
+                && $tokens[$checkToken]['line'] !== $tokens[$tokens[$checkToken]['scope_opener']]['line'])))
                 || ($checkToken === null
                 && isset($openScopes[$i]) === true)
             ) {
@@ -802,9 +804,17 @@ class ScopeIndentSniff implements Sniff
                 && isset($tokens[$checkToken]['scope_opener']) === true
             ) {
                 $exact = true;
+
                 if ($disableExactEnd > $checkToken) {
-                    if ($tokens[$checkToken]['conditions'] === $tokens[$disableExactEnd]['conditions']) {
-                        $exact = false;
+                    foreach ($disableExactStack as $disableExactStackEnd) {
+                        if ($disableExactStackEnd < $checkToken) {
+                            continue;
+                        }
+
+                        if ($tokens[$checkToken]['conditions'] === $tokens[$disableExactStackEnd]['conditions']) {
+                            $exact = false;
+                            break;
+                        }
                     }
                 }
 
@@ -1035,6 +1045,7 @@ class ScopeIndentSniff implements Sniff
 
             // Don't check indents exactly between arrays as they tend to have custom rules.
             if ($tokens[$i]['code'] === T_OPEN_SHORT_ARRAY) {
+                $disableExactStack[$tokens[$i]['bracket_closer']] = $tokens[$i]['bracket_closer'];
                 $disableExactEnd = max($disableExactEnd, $tokens[$i]['bracket_closer']);
                 if ($this->debug === true) {
                     $line    = $tokens[$i]['line'];
@@ -1056,7 +1067,6 @@ class ScopeIndentSniff implements Sniff
             ) {
                 if ($this->debug === true) {
                     $line = $tokens[$i]['line'];
-                    $type = $tokens[$disableExactEnd]['type'];
                     echo "Here/nowdoc found on line $line".PHP_EOL;
                 }
 
@@ -1080,8 +1090,11 @@ class ScopeIndentSniff implements Sniff
             if ($tokens[$i]['code'] === T_CONSTANT_ENCAPSED_STRING
                 || $tokens[$i]['code'] === T_DOUBLE_QUOTED_STRING
             ) {
-                $i = $phpcsFile->findNext($tokens[$i]['code'], ($i + 1), null, true);
-                $i--;
+                $nextNonTextString = $phpcsFile->findNext($tokens[$i]['code'], ($i + 1), null, true);
+                if ($nextNonTextString !== false) {
+                    $i = ($nextNonTextString - 1);
+                }
+
                 continue;
             }
 

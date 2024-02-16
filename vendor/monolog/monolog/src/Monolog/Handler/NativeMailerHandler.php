@@ -11,7 +11,7 @@
 
 namespace Monolog\Handler;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Monolog\Formatter\LineFormatter;
 
 /**
@@ -26,43 +26,39 @@ class NativeMailerHandler extends MailHandler
      * The email addresses to which the message will be sent
      * @var string[]
      */
-    protected $to;
+    protected array $to;
 
     /**
      * The subject of the email
-     * @var string
      */
-    protected $subject;
+    protected string $subject;
 
     /**
      * Optional headers for the message
      * @var string[]
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * Optional parameters for the message
      * @var string[]
      */
-    protected $parameters = [];
+    protected array $parameters = [];
 
     /**
      * The wordwrap length for the message
-     * @var int
      */
-    protected $maxColumnWidth;
+    protected int $maxColumnWidth;
 
     /**
      * The Content-type for the message
-     * @var string|null
      */
-    protected $contentType;
+    protected string|null $contentType = null;
 
     /**
      * The encoding for the message
-     * @var string
      */
-    protected $encoding = 'utf-8';
+    protected string $encoding = 'utf-8';
 
     /**
      * @param string|string[] $to             The receiver of the mail
@@ -70,7 +66,7 @@ class NativeMailerHandler extends MailHandler
      * @param string          $from           The sender of the mail
      * @param int             $maxColumnWidth The maximum column width that the message lines will have
      */
-    public function __construct($to, string $subject, string $from, $level = Logger::ERROR, bool $bubble = true, int $maxColumnWidth = 70)
+    public function __construct(string|array $to, string $subject, string $from, int|string|Level $level = Level::Error, bool $bubble = true, int $maxColumnWidth = 70)
     {
         parent::__construct($level, $bubble);
         $this->to = (array) $to;
@@ -83,6 +79,7 @@ class NativeMailerHandler extends MailHandler
      * Add headers to the message
      *
      * @param string|string[] $headers Custom added headers
+     * @return $this
      */
     public function addHeader($headers): self
     {
@@ -100,6 +97,7 @@ class NativeMailerHandler extends MailHandler
      * Add parameters to the message
      *
      * @param string|string[] $parameters Custom added parameters
+     * @return $this
      */
     public function addParameter($parameters): self
     {
@@ -109,11 +107,11 @@ class NativeMailerHandler extends MailHandler
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function send(string $content, array $records): void
     {
-        $contentType = $this->getContentType() ?: ($this->isHtmlBody($content) ? 'text/html' : 'text/plain');
+        $contentType = $this->getContentType() ?? ($this->isHtmlBody($content) ? 'text/html' : 'text/plain');
 
         if ($contentType !== 'text/html') {
             $content = wordwrap($content, $this->maxColumnWidth);
@@ -125,11 +123,8 @@ class NativeMailerHandler extends MailHandler
             $headers .= 'MIME-Version: 1.0' . "\r\n";
         }
 
-        $subject = $this->subject;
-        if ($records) {
-            $subjectFormatter = new LineFormatter($this->subject);
-            $subject = $subjectFormatter->format($this->getHighestRecord($records));
-        }
+        $subjectFormatter = new LineFormatter($this->subject);
+        $subject = $subjectFormatter->format($this->getHighestRecord($records));
 
         $parameters = implode(' ', $this->parameters);
         foreach ($this->to as $to) {
@@ -149,6 +144,7 @@ class NativeMailerHandler extends MailHandler
 
     /**
      * @param string $contentType The content type of the email - Defaults to text/plain. Use text/html for HTML messages.
+     * @return $this
      */
     public function setContentType(string $contentType): self
     {
@@ -161,6 +157,9 @@ class NativeMailerHandler extends MailHandler
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setEncoding(string $encoding): self
     {
         if (strpos($encoding, "\n") !== false || strpos($encoding, "\r") !== false) {

@@ -77,7 +77,7 @@ final class TeamCity extends DefaultResultPrinter
                 'message'  => self::getMessage($t),
                 'details'  => self::getDetails($t),
                 'duration' => self::toMilliseconds($time),
-            ]
+            ],
         );
     }
 
@@ -169,7 +169,7 @@ final class TeamCity extends DefaultResultPrinter
                 'message'  => self::getMessage($t),
                 'details'  => self::getDetails($t),
                 'duration' => self::toMilliseconds($time),
-            ]
+            ],
         );
     }
 
@@ -189,7 +189,7 @@ final class TeamCity extends DefaultResultPrinter
 
             $this->printEvent(
                 'testCount',
-                ['count' => count($suite)]
+                ['count' => count($suite)],
             );
         }
 
@@ -271,7 +271,7 @@ final class TeamCity extends DefaultResultPrinter
             [
                 'name'     => $test->getName(),
                 'duration' => self::toMilliseconds($time),
-            ]
+            ],
         );
     }
 
@@ -351,7 +351,7 @@ final class TeamCity extends DefaultResultPrinter
         return str_replace(
             ['|', "'", "\n", "\r", ']', '['],
             ['||', "|'", '|n', '|r', '|]', '|['],
-            $text
+            $text,
         );
     }
 
@@ -366,8 +366,8 @@ final class TeamCity extends DefaultResultPrinter
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                $e->getCode(),
+                $e,
             );
         }
         // @codeCoverageIgnoreEnd

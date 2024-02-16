@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,8 @@ use Symfony\Component\Console\Input\StringInput;
  */
 class ShellInput extends StringInput
 {
+    public const REGEX_STRING = '([^\s]+?)(?:\s|(?<!\\\\)"|(?<!\\\\)\'|$)';
+
     private $hasCodeArgument = false;
 
     /**
@@ -45,7 +47,7 @@ class ShellInput extends StringInput
      *
      * @throws \InvalidArgumentException if $definition has CodeArgument before the final argument position
      */
-    public function bind(InputDefinition $definition)
+    public function bind(InputDefinition $definition): void
     {
         $hasCodeArgument = false;
 
@@ -66,7 +68,7 @@ class ShellInput extends StringInput
 
         $this->hasCodeArgument = $hasCodeArgument;
 
-        return parent::bind($definition);
+        parent::bind($definition);
     }
 
     /**
@@ -98,7 +100,7 @@ class ShellInput extends StringInput
                     \stripcslashes(\substr($match[0], 1, \strlen($match[0]) - 2)),
                     \stripcslashes(\substr($input, $cursor)),
                 ];
-            } elseif (\preg_match('/'.StringInput::REGEX_STRING.'/A', $input, $match, 0, $cursor)) {
+            } elseif (\preg_match('/'.self::REGEX_STRING.'/A', $input, $match, 0, $cursor)) {
                 $tokens[] = [
                     \stripcslashes($match[1]),
                     \stripcslashes(\substr($input, $cursor)),
@@ -119,7 +121,7 @@ class ShellInput extends StringInput
     /**
      * Same as parent, but with some bonus handling for code arguments.
      */
-    protected function parse()
+    protected function parse(): void
     {
         $parseOptions = true;
         $this->parsed = $this->tokenPairs;

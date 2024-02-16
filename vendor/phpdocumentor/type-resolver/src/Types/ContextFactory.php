@@ -45,14 +45,15 @@ use const T_NAME_QUALIFIED;
 use const T_NAMESPACE;
 use const T_NS_SEPARATOR;
 use const T_STRING;
+use const T_TRAIT;
 use const T_USE;
 
 if (!defined('T_NAME_QUALIFIED')) {
-    define('T_NAME_QUALIFIED', 'T_NAME_QUALIFIED');
+    define('T_NAME_QUALIFIED', 10001);
 }
 
 if (!defined('T_NAME_FULLY_QUALIFIED')) {
-    define('T_NAME_FULLY_QUALIFIED', 'T_NAME_FULLY_QUALIFIED');
+    define('T_NAME_FULLY_QUALIFIED', 10002);
 }
 
 /**
@@ -181,6 +182,7 @@ final class ContextFactory
                     $currentNamespace = $this->parseNamespace($tokens);
                     break;
                 case T_CLASS:
+                case T_TRAIT:
                     // Fast-forward the iterator through the class so that any
                     // T_USE tokens found within are skipped - these are not
                     // valid namespace use statements so should be ignored.

@@ -8,10 +8,24 @@ functionality like query string parsing.
 ![Static analysis](https://github.com/guzzle/psr7/workflows/Static%20analysis/badge.svg)
 
 
-# Stream implementation
+## Features
 
 This package comes with a number of stream implementations and stream
 decorators.
+
+
+## Installation
+
+```shell
+composer require guzzlehttp/psr7
+```
+
+## Version Guidance
+
+| Version | Status              | PHP Version  |
+|---------|---------------------|--------------|
+| 1.x     | Security fixes only | >=5.4,<8.1   |
+| 2.x     | Latest              | >=7.2.5,<8.4 |
 
 
 ## AppendStream
@@ -245,6 +259,8 @@ class EofCallbackStream implements StreamInterface
 
     private $callback;
 
+    private $stream;
+
     public function __construct(StreamInterface $stream, callable $cb)
     {
         $this->stream = $stream;
@@ -257,7 +273,7 @@ class EofCallbackStream implements StreamInterface
 
         // Invoke the callback when EOF is hit.
         if ($this->eof()) {
-            call_user_func($this->callback);
+            ($this->callback)();
         }
 
         return $result;
@@ -621,7 +637,7 @@ this library also provides additional functionality when working with URIs as st
 An instance of `Psr\Http\Message\UriInterface` can either be an absolute URI or a relative reference.
 An absolute URI has a scheme. A relative reference is used to express a URI relative to another URI,
 the base URI. Relative references can be divided into several forms according to
-[RFC 3986 Section 4.2](https://tools.ietf.org/html/rfc3986#section-4.2):
+[RFC 3986 Section 4.2](https://datatracker.ietf.org/doc/html/rfc3986#section-4.2):
 
 - network-path references, e.g. `//example.com/path`
 - absolute-path references, e.g. `/path`
@@ -680,8 +696,8 @@ or the standard port. This method can be used independently of the implementatio
 `public static function composeComponents($scheme, $authority, $path, $query, $fragment): string`
 
 Composes a URI reference string from its various components according to
-[RFC 3986 Section 5.3](https://tools.ietf.org/html/rfc3986#section-5.3). Usually this method does not need to be called
-manually but instead is used indirectly via `Psr\Http\Message\UriInterface::__toString`.
+[RFC 3986 Section 5.3](https://datatracker.ietf.org/doc/html/rfc3986#section-5.3). Usually this method does not need
+to be called manually but instead is used indirectly via `Psr\Http\Message\UriInterface::__toString`.
 
 ### `GuzzleHttp\Psr7\Uri::fromParts`
 
@@ -725,8 +741,8 @@ Determines if a modified URL should be considered cross-origin with respect to a
 ## Reference Resolution
 
 `GuzzleHttp\Psr7\UriResolver` provides methods to resolve a URI reference in the context of a base URI according
-to [RFC 3986 Section 5](https://tools.ietf.org/html/rfc3986#section-5). This is for example also what web browsers
-do when resolving a link in a website based on the current request URI.
+to [RFC 3986 Section 5](https://datatracker.ietf.org/doc/html/rfc3986#section-5). This is for example also what web
+browsers do when resolving a link in a website based on the current request URI.
 
 ### `GuzzleHttp\Psr7\UriResolver::resolve`
 
@@ -739,7 +755,7 @@ Converts the relative URI into a new URI that is resolved against the base URI.
 `public static function removeDotSegments(string $path): string`
 
 Removes dot segments from a path and returns the new path according to
-[RFC 3986 Section 5.2.4](https://tools.ietf.org/html/rfc3986#section-5.2.4).
+[RFC 3986 Section 5.2.4](https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4).
 
 ### `GuzzleHttp\Psr7\UriResolver::relativize`
 
@@ -765,7 +781,7 @@ echo UriResolver::relativize($base, new Uri('http://example.org/a/b/'));   // pr
 ## Normalization and Comparison
 
 `GuzzleHttp\Psr7\UriNormalizer` provides methods to normalize and compare URIs according to
-[RFC 3986 Section 6](https://tools.ietf.org/html/rfc3986#section-6).
+[RFC 3986 Section 6](https://datatracker.ietf.org/doc/html/rfc3986#section-6).
 
 ### `GuzzleHttp\Psr7\UriNormalizer::normalize`
 
@@ -845,14 +861,6 @@ Whether two URIs can be considered equivalent. Both URIs are normalized automati
 `$normalizations` bitmask. The method also accepts relative URI references and returns true when they are equivalent.
 This of course assumes they will be resolved against the same base URI. If this is not the case, determination of
 equivalence or difference of relative references does not mean anything.
-
-
-## Version Guidance
-
-| Version | Status         | PHP Version      |
-|---------|----------------|------------------|
-| 1.x     | Security fixes | >=5.4,<8.1       |
-| 2.x     | Latest         | ^7.2.5 \|\| ^8.0 |
 
 
 ## Security

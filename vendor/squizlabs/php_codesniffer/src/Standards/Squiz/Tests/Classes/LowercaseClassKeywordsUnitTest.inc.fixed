@@ -5,10 +5,12 @@ interface MyInterface {}
 trait MyTrait {}
 enum MyEnum implements Colorful {}
 
-class MyClass
+readonly class MyClass
 {
     var $myVar = null;
     const myConst = true;
 }
 
 $a = new class() {};
+
+$anon = new readonly class() {};

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,8 +34,6 @@ class GNUReadline implements Readline
      *
      * NOTE: As of PHP 7.4, PHP sometimes has history support in the Libedit
      * wrapper, so that will use the GNUReadline implementation as well!
-     *
-     * @return bool
      */
     public static function isSupported(): bool
     {
@@ -46,8 +44,6 @@ class GNUReadline implements Readline
      * Check whether this readline implementation supports bracketed paste.
      *
      * Currently, the GNU readline implementation does, but the libedit wrapper does not.
-     *
-     * @return bool
      */
     public static function supportsBracketedPaste(): bool
     {

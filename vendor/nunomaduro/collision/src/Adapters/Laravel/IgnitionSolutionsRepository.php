@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace NunoMaduro\Collision\Adapters\Laravel;
 
-use Facade\IgnitionContracts\SolutionProviderRepository;
 use NunoMaduro\Collision\Contracts\SolutionsRepository;
+use Spatie\Ignition\Contracts\SolutionProviderRepository;
 use Throwable;
 
 /**
@@ -16,7 +16,7 @@ final class IgnitionSolutionsRepository implements SolutionsRepository
     /**
      * Holds an instance of ignition solutions provider repository.
      *
-     * @var \Facade\IgnitionContracts\SolutionProviderRepository
+     * @var \Spatie\Ignition\Contracts\SolutionProviderRepository
      */
     protected $solutionProviderRepository;
 

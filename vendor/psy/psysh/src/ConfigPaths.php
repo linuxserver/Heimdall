@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,7 +34,8 @@ class ConfigPaths
     public function __construct(array $overrides = [], EnvInterface $env = null)
     {
         $this->overrideDirs($overrides);
-        $this->env = $env ?: new SuperglobalsEnv();
+
+        $this->env = $env ?: (\PHP_SAPI === 'cli-server' ? new SystemEnv() : new SuperglobalsEnv());
     }
 
     /**
@@ -120,32 +121,6 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
-     */
-    public static function getConfigDirs(): array
-    {
-        return (new self())->configDirs();
-    }
-
-    /**
-     * Get potential home config directory paths.
-     *
-     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and the
-     * XDG Base Directory home config directory:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @deprecated
-     *
-     * @return string[]
-     */
-    public static function getHomeConfigDirs(): array
-    {
-        // Not quite the same, but this is deprecated anyway /shrug
-        return self::getConfigDirs();
-    }
-
-    /**
      * Get the current home config directory.
      *
      * Returns the highest precedence home config directory which actually
@@ -154,8 +129,6 @@ class ConfigPaths
      * everywhere else).
      *
      * @see self::homeConfigDir
-     *
-     * @return string
      */
     public function currentConfigDir(): string
     {
@@ -175,14 +148,6 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
-     */
-    public static function getCurrentConfigDir(): string
-    {
-        return (new self())->currentConfigDir();
-    }
-
-    /**
      * Find real config files in config directories.
      *
      * @param string[] $names Config file names
@@ -192,14 +157,6 @@ class ConfigPaths
     public function configFiles(array $names): array
     {
         return $this->allRealFiles($this->configDirs(), $names);
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getConfigFiles(array $names, $configDir = null): array
-    {
-        return (new self(['configDir' => $configDir]))->configFiles($names);
     }
 
     /**
@@ -227,14 +184,6 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
-     */
-    public static function getDataDirs(): array
-    {
-        return (new self())->dataDirs();
-    }
-
-    /**
      * Find real data files in config directories.
      *
      * @param string[] $names Config file names
@@ -247,19 +196,9 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
-     */
-    public static function getDataFiles(array $names, $dataDir = null): array
-    {
-        return (new self(['dataDir' => $dataDir]))->dataFiles($names);
-    }
-
-    /**
      * Get a runtime directory.
      *
      * Defaults to `/psysh` inside the system's temp dir.
-     *
-     * @return string
      */
     public function runtimeDir(): string
     {
@@ -271,14 +210,6 @@ class ConfigPaths
         $runtimeDir = $this->getEnv('XDG_RUNTIME_DIR') ?: \sys_get_temp_dir();
 
         return \strtr($runtimeDir, '\\', '/').'/psysh';
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getRuntimeDir(): string
-    {
-        return (new self())->runtimeDir();
     }
 
     /**

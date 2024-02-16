@@ -14,22 +14,22 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
+use PHP_CodeSniffer\Util\Tokens;
 
-class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
+final class UndoNamespacedNameSingleTokenTest extends AbstractTokenizerTestCase
 {
 
 
     /**
      * Test that identifier names are tokenized the same across PHP versions, based on the PHP 5/7 tokenization.
      *
-     * @param string $testMarker     The comment prefacing the test.
-     * @param array  $expectedTokens The tokenization expected.
+     * @param string                       $testMarker     The comment prefacing the test.
+     * @param array<array<string, string>> $expectedTokens The tokenization expected.
      *
      * @dataProvider dataIdentifierTokenization
      * @covers       PHP_CodeSniffer\Tokenizers\PHP::tokenize
@@ -38,12 +38,20 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
      */
     public function testIdentifierTokenization($testMarker, $expectedTokens)
     {
-        $tokens     = self::$phpcsFile->getTokens();
+        $tokens     = $this->phpcsFile->getTokens();
         $identifier = $this->getTargetToken($testMarker, constant($expectedTokens[0]['type']));
 
         foreach ($expectedTokens as $key => $tokenInfo) {
-            $this->assertSame(constant($tokenInfo['type']), $tokens[$identifier]['code']);
-            $this->assertSame($tokenInfo['type'], $tokens[$identifier]['type']);
+            $this->assertSame(
+                constant($tokenInfo['type']),
+                $tokens[$identifier]['code'],
+                'Token tokenized as '.Tokens::tokenName($tokens[$identifier]['code']).', not '.$tokenInfo['type'].' (code)'
+            );
+            $this->assertSame(
+                $tokenInfo['type'],
+                $tokens[$identifier]['type'],
+                'Token tokenized as '.$tokens[$identifier]['type'].', not '.$tokenInfo['type'].' (type)'
+            );
             $this->assertSame($tokenInfo['content'], $tokens[$identifier]['content']);
 
             ++$identifier;
@@ -57,14 +65,14 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
      *
      * @see testIdentifierTokenization()
      *
-     * @return array
+     * @return array<string, array<string, string|array<array<string, string>>>>
      */
-    public function dataIdentifierTokenization()
+    public static function dataIdentifierTokenization()
     {
         return [
-            [
-                '/* testNamespaceDeclaration */',
-                [
+            'namespace declaration'                                                                       => [
+                'testMarker'     => '/* testNamespaceDeclaration */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Package',
@@ -75,9 +83,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testNamespaceDeclarationWithLevels */',
-                [
+            'namespace declaration, multi-level'                                                          => [
+                'testMarker'     => '/* testNamespaceDeclarationWithLevels */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Vendor',
@@ -104,9 +112,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testUseStatement */',
-                [
+            'import use statement, class'                                                                 => [
+                'testMarker'     => '/* testUseStatement */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'ClassName',
@@ -117,9 +125,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testUseStatementWithLevels */',
-                [
+            'import use statement, class, multi-level'                                                    => [
+                'testMarker'     => '/* testUseStatementWithLevels */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Vendor',
@@ -146,9 +154,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionUseStatement */',
-                [
+            'import use statement, function'                                                              => [
+                'testMarker'     => '/* testFunctionUseStatement */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'function',
@@ -167,9 +175,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionUseStatementWithLevels */',
-                [
+            'import use statement, function, multi-level'                                                 => [
+                'testMarker'     => '/* testFunctionUseStatementWithLevels */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'function',
@@ -204,9 +212,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testConstantUseStatement */',
-                [
+            'import use statement, constant'                                                              => [
+                'testMarker'     => '/* testConstantUseStatement */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'const',
@@ -225,9 +233,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testConstantUseStatementWithLevels */',
-                [
+            'import use statement, constant, multi-level'                                                 => [
+                'testMarker'     => '/* testConstantUseStatementWithLevels */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'const',
@@ -262,9 +270,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testMultiUseUnqualified */',
-                [
+            'import use statement, multi-statement, unqualified class'                                    => [
+                'testMarker'     => '/* testMultiUseUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'UnqualifiedClassName',
@@ -275,9 +283,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testMultiUsePartiallyQualified */',
-                [
+            'import use statement, multi-statement, partially qualified class'                            => [
+                'testMarker'     => '/* testMultiUsePartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Sublevel',
@@ -296,9 +304,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testGroupUseStatement */',
-                [
+            'group use statement, multi-level prefix, mix inside group'                                   => [
+                'testMarker'     => '/* testGroupUseStatement */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Vendor',
@@ -492,9 +500,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testClassName */',
-                [
+            'class declaration'                                                                           => [
+                'testMarker'     => '/* testClassName */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'MyClass',
@@ -506,9 +514,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testExtendedFQN */',
-                [
+            'class declaration, extends fully qualified name'                                             => [
+                'testMarker'     => '/* testExtendedFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -540,9 +548,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testImplementsRelative */',
-                [
+            'class declaration, implements namespace relative name'                                       => [
+                'testMarker'     => '/* testImplementsRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -561,9 +569,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testImplementsFQN */',
-                [
+            'class declaration, implements fully qualified name'                                          => [
+                'testMarker'     => '/* testImplementsFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -586,9 +594,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testImplementsUnqualified */',
-                [
+            'class declaration, implements unqualified name'                                              => [
+                'testMarker'     => '/* testImplementsUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Unqualified',
@@ -599,9 +607,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testImplementsPartiallyQualified */',
-                [
+            'class declaration, implements partially qualified name'                                      => [
+                'testMarker'     => '/* testImplementsPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Sub',
@@ -629,9 +637,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionName */',
-                [
+            'method declaration'                                                                          => [
+                'testMarker'     => '/* testFunctionName */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'function_name',
@@ -642,9 +650,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testTypeDeclarationRelative */',
-                [
+            'param type declaration, namespace relative name'                                             => [
+                'testMarker'     => '/* testTypeDeclarationRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -667,9 +675,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testTypeDeclarationFQN */',
-                [
+            'param type declaration, fully qualified name'                                                => [
+                'testMarker'     => '/* testTypeDeclarationFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -700,9 +708,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testTypeDeclarationUnqualified */',
-                [
+            'param type declaration, unqualified name'                                                    => [
+                'testMarker'     => '/* testTypeDeclarationUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Unqualified',
@@ -717,9 +725,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testTypeDeclarationPartiallyQualified */',
-                [
+            'param type declaration, partially qualified name'                                            => [
+                'testMarker'     => '/* testTypeDeclarationPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NULLABLE',
                         'content' => '?',
@@ -742,9 +750,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testReturnTypeFQN */',
-                [
+            'return type declaration, fully qualified name'                                               => [
+                'testMarker'     => '/* testReturnTypeFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NULLABLE',
                         'content' => '?',
@@ -763,9 +771,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionCallRelative */',
-                [
+            'function call, namespace relative name'                                                      => [
+                'testMarker'     => '/* testFunctionCallRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'NameSpace',
@@ -784,9 +792,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionCallFQN */',
-                [
+            'function call, fully qualified name'                                                         => [
+                'testMarker'     => '/* testFunctionCallFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -817,9 +825,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionCallUnqualified */',
-                [
+            'function call, unqualified name'                                                             => [
+                'testMarker'     => '/* testFunctionCallUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'function_name',
@@ -830,9 +838,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testFunctionPartiallyQualified */',
-                [
+            'function call, partially qualified name'                                                     => [
+                'testMarker'     => '/* testFunctionCallPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Level',
@@ -851,9 +859,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testCatchRelative */',
-                [
+            'catch, namespace relative name'                                                              => [
+                'testMarker'     => '/* testCatchRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -880,9 +888,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testCatchFQN */',
-                [
+            'catch, fully qualified name'                                                                 => [
+                'testMarker'     => '/* testCatchFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -897,9 +905,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testCatchUnqualified */',
-                [
+            'catch, unqualified name'                                                                     => [
+                'testMarker'     => '/* testCatchUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Exception',
@@ -910,9 +918,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testCatchPartiallyQualified */',
-                [
+            'catch, partially qualified name'                                                             => [
+                'testMarker'     => '/* testCatchPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Level',
@@ -931,9 +939,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testNewRelative */',
-                [
+            'class instantiation, namespace relative name'                                                => [
+                'testMarker'     => '/* testNewRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -952,9 +960,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testNewFQN */',
-                [
+            'class instantiation, fully qualified name'                                                   => [
+                'testMarker'     => '/* testNewFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -977,9 +985,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testNewUnqualified */',
-                [
+            'class instantiation, unqualified name'                                                       => [
+                'testMarker'     => '/* testNewUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'ClassName',
@@ -990,9 +998,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testNewPartiallyQualified */',
-                [
+            'class instantiation, partially qualified name'                                               => [
+                'testMarker'     => '/* testNewPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Level',
@@ -1011,9 +1019,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testDoubleColonRelative */',
-                [
+            'double colon class access, namespace relative name'                                          => [
+                'testMarker'     => '/* testDoubleColonRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -1032,9 +1040,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testDoubleColonFQN */',
-                [
+            'double colon class access, fully qualified name'                                             => [
+                'testMarker'     => '/* testDoubleColonFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -1049,9 +1057,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testDoubleColonUnqualified */',
-                [
+            'double colon class access, unqualified name'                                                 => [
+                'testMarker'     => '/* testDoubleColonUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'ClassName',
@@ -1062,9 +1070,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testDoubleColonPartiallyQualified */',
-                [
+            'double colon class access, partially qualified name'                                         => [
+                'testMarker'     => '/* testDoubleColonPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Level',
@@ -1083,9 +1091,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInstanceOfRelative */',
-                [
+            'instanceof, namespace relative name'                                                         => [
+                'testMarker'     => '/* testInstanceOfRelative */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -1104,9 +1112,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInstanceOfFQN */',
-                [
+            'instanceof, fully qualified name'                                                            => [
+                'testMarker'     => '/* testInstanceOfFQN */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',
@@ -1129,9 +1137,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInstanceOfUnqualified */',
-                [
+            'instanceof, unqualified name'                                                                => [
+                'testMarker'     => '/* testInstanceOfUnqualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'ClassName',
@@ -1142,9 +1150,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInstanceOfPartiallyQualified */',
-                [
+            'instanceof, partially qualified name'                                                        => [
+                'testMarker'     => '/* testInstanceOfPartiallyQualified */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_STRING',
                         'content' => 'Partially',
@@ -1163,9 +1171,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalidInPHP8Whitespace */',
-                [
+            'function call, namespace relative, with whitespace (invalid in PHP 8)'                       => [
+                'testMarker'     => '/* testInvalidInPHP8Whitespace */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NAMESPACE',
                         'content' => 'namespace',
@@ -1213,9 +1221,9 @@ class UndoNamespacedNameSingleTokenTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalidInPHP8Comments */',
-                [
+            'double colon class access, fully qualified, with whitespace and comments (invalid in PHP 8)' => [
+                'testMarker'     => '/* testInvalidInPHP8Comments */',
+                'expectedTokens' => [
                     [
                         'type'    => 'T_NS_SEPARATOR',
                         'content' => '\\',

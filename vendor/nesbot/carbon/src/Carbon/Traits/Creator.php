@@ -19,6 +19,8 @@ use Carbon\Exceptions\InvalidFormatException;
 use Carbon\Exceptions\OutOfRangeException;
 use Carbon\Translator;
 use Closure;
+use DateMalformedStringException;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
@@ -112,7 +114,7 @@ trait Creator
             $safeTz = static::safeCreateDateTimeZone($tz);
 
             if ($safeTz) {
-                return $date->setTimezone($safeTz);
+                return ($date instanceof DateTimeImmutable ? $date : clone $date)->setTimezone($safeTz);
             }
 
             return $date;
@@ -184,7 +186,13 @@ trait Creator
         try {
             return new static($time, $tz);
         } catch (Exception $exception) {
-            $date = @static::now($tz)->change($time);
+            // @codeCoverageIgnoreStart
+            try {
+                $date = @static::now($tz)->change($time);
+            } catch (DateMalformedStringException $ignoredException) {
+                $date = null;
+            }
+            // @codeCoverageIgnoreEnd
 
             if (!$date) {
                 throw new InvalidFormatException("Could not parse '$time': ".$exception->getMessage(), 0, $exception);
@@ -354,13 +362,13 @@ trait Creator
      * If $hour is not null then the default values for $minute and $second
      * will be 0.
      *
-     * @param int|null                 $year
-     * @param int|null                 $month
-     * @param int|null                 $day
-     * @param int|null                 $hour
-     * @param int|null                 $minute
-     * @param int|null                 $second
-     * @param DateTimeZone|string|null $tz
+     * @param DateTimeInterface|int|null $year
+     * @param int|null                   $month
+     * @param int|null                   $day
+     * @param int|null                   $hour
+     * @param int|null                   $minute
+     * @param int|null                   $second
+     * @param DateTimeZone|string|null   $tz
      *
      * @throws InvalidFormatException
      *
@@ -634,6 +642,10 @@ trait Creator
             $time = preg_replace('/^(.*)(am|pm|AM|PM)(.*)$/U', '$1$3 $2', $time);
         }
 
+        if ($tz === false) {
+            $tz = null;
+        }
+
         // First attempt to create an instance, so that error messages are based on the unmodified format.
         $date = self::createFromFormatAndTimezone($format, $time, $tz);
         $lastErrors = parent::getLastErrors();
@@ -651,12 +663,14 @@ trait Creator
                 $tz = clone $mock->getTimezone();
             }
 
-            // Set microseconds to zero to match behavior of DateTime::createFromFormat()
-            // See https://bugs.php.net/bug.php?id=74332
-            $mock = $mock->copy()->microsecond(0);
+            $mock = $mock->copy();
 
             // Prepend mock datetime only if the format does not contain non escaped unix epoch reset flag.
             if (!preg_match("/{$nonEscaped}[!|]/", $format)) {
+                if (preg_match('/[HhGgisvuB]/', $format)) {
+                    $mock = $mock->setTime(0, 0);
+                }
+
                 $format = static::MOCK_DATETIME_FORMAT.' '.$format;
                 $time = ($mock instanceof self ? $mock->rawFormat(static::MOCK_DATETIME_FORMAT) : $mock->format(static::MOCK_DATETIME_FORMAT)).' '.$time;
             }
@@ -862,6 +876,19 @@ trait Creator
      */
     public static function createFromLocaleFormat($format, $locale, $time, $tz = null)
     {
+        $format = preg_replace_callback(
+            '/(?:\\\\[a-zA-Z]|[bfkqCEJKQRV]){2,}/',
+            static function (array $match) use ($locale): string {
+                $word = str_replace('\\', '', $match[0]);
+                $translatedWord = static::translateTimeString($word, $locale, 'en');
+
+                return $word === $translatedWord
+                    ? $match[0]
+                    : preg_replace('/[a-zA-Z]/', '\\\\$0', $translatedWord);
+            },
+            $format
+        );
+
         return static::rawCreateFromFormat($format, static::translateTimeString($time, $locale, 'en'), $tz);
     }
 

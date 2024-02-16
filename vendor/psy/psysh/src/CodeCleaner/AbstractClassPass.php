@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,8 @@ class AbstractClassPass extends CodeCleanerPass
      * @throws FatalErrorException if the node is an abstract function with a body
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -41,7 +43,7 @@ class AbstractClassPass extends CodeCleanerPass
 
                 if ($node->stmts !== null) {
                     $msg = \sprintf('Abstract function %s cannot contain body', $name);
-                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
         }
@@ -51,6 +53,8 @@ class AbstractClassPass extends CodeCleanerPass
      * @throws FatalErrorException if the node is a non-abstract class with abstract methods
      *
      * @param Node $node
+     *
+     * @return int|Node|Node[]|null Replacement node (or special return value)
      */
     public function leaveNode(Node $node)
     {
@@ -64,7 +68,7 @@ class AbstractClassPass extends CodeCleanerPass
                     ($count === 1) ? '' : 's',
                     \implode(', ', $this->abstractMethods)
                 );
-                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
     }

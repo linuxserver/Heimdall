@@ -62,6 +62,8 @@ use Psr\Http\Message\ResponseInterface;
  * @method Api\Authorizations                    authorizations()
  * @method Api\Meta                              meta()
  * @method Api\GraphQL                           graphql()
+ * @method Api\Deployment                        deployment()
+ * @method Api\Deployment                        deployments()
  *
  * @author Joseph Bielawski <stloyd@gmail.com>
  *

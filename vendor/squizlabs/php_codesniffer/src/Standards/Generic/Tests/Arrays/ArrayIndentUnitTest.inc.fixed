@@ -99,3 +99,54 @@ $array = [
     match ($test) { 1 => 'a', 2 => 'b' }
        => 'dynamic keys, woho!',
 ];
+
+// Ensure that PHP 8.0 named parameters don't affect the sniff.
+$array = [
+    functionCall(
+        name: $value
+    ),
+];
+
+$array = [
+    functionCall(
+    name: $value
+    ),
+];
+
+// phpcs:set Generic.Arrays.ArrayIndent indent 1
+
+// Testing pluralization of indent text - open brace indent.
+ $var =
+ [
+  1 => 'one',
+ ];
+
+// Testing pluralization of indent text - array item indent.
+$var = [
+ 1 => 'one',
+ 2 => 'two',
+ /* three */ 3 => 'three',
+];
+
+// Testing pluralization of indent text - close brace indent.
+ $var = [
+  1 => 'one',
+ ];
+
+// phpcs:set Generic.Arrays.ArrayIndent indent 0
+
+// No test for open brace indent as that is _minimum_ and any actual value will be 0 or more, so with indent 0, this will never yield an error.
+
+// Testing pluralization of indent text - array item indent.
+$var = [
+1 => 'one',
+2 => 'two',
+/* three */ 3 => 'three',
+];
+
+// Testing pluralization of indent text - close brace indent.
+$var = [
+1 => 'one',
+];
+
+// phpcs:set Generic.Arrays.ArrayIndent indent 4

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\Mention\Generator;
 
+use League\CommonMark\Exception\LogicException;
 use League\CommonMark\Extension\Mention\Mention;
 use League\CommonMark\Node\Inline\AbstractInline;
 
@@ -30,6 +31,9 @@ final class CallbackGenerator implements MentionGeneratorInterface
         $this->callback = $callback;
     }
 
+    /**
+     * @throws LogicException
+     */
     public function generateMention(Mention $mention): ?AbstractInline
     {
         $result = \call_user_func($this->callback, $mention);
@@ -45,6 +49,6 @@ final class CallbackGenerator implements MentionGeneratorInterface
             return $mention;
         }
 
-        throw new \RuntimeException('CallbackGenerator callable must set the URL on the passed mention and return the mention, return a new AbstractInline based object or null if the mention is not a match');
+        throw new LogicException('CallbackGenerator callable must set the URL on the passed mention and return the mention, return a new AbstractInline based object or null if the mention is not a match');
     }
 }

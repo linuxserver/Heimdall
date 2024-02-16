@@ -2,11 +2,14 @@
 
 namespace Illuminate\Http\Resources;
 
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use LogicException;
 use ReflectionClass;
+use Traversable;
 
 trait CollectsResources
 {
@@ -44,15 +47,21 @@ trait CollectsResources
      */
     protected function collects()
     {
-        if ($this->collects) {
-            return $this->collects;
-        }
+        $collects = null;
 
-        if (Str::endsWith(class_basename($this), 'Collection') &&
+        if ($this->collects) {
+            $collects = $this->collects;
+        } elseif (str_ends_with(class_basename($this), 'Collection') &&
             (class_exists($class = Str::replaceLast('Collection', '', get_class($this))) ||
              class_exists($class = Str::replaceLast('Collection', 'Resource', get_class($this))))) {
-            return $class;
+            $collects = $class;
         }
+
+        if (! $collects || is_a($collects, JsonResource::class, true)) {
+            return $collects;
+        }
+
+        throw new LogicException('Resource collections must collect instances of '.JsonResource::class.'.');
     }
 
     /**
@@ -78,8 +87,7 @@ trait CollectsResources
      *
      * @return \ArrayIterator
      */
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return $this->collection->getIterator();
     }

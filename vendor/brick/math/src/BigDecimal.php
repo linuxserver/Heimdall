@@ -22,19 +22,15 @@ final class BigDecimal extends BigNumber
      * This is a string of digits with an optional leading minus sign.
      * No leading zero must be present.
      * No leading minus sign must be present if the value is 0.
-     *
-     * @var string
      */
-    private $value;
+    private string $value;
 
     /**
      * The scale (number of digits after the decimal point) of this decimal number.
      *
      * This must be zero or more.
-     *
-     * @var int
      */
-    private $scale;
+    private int $scale;
 
     /**
      * Protected constructor. Use a factory method to obtain an instance.
@@ -51,15 +47,11 @@ final class BigDecimal extends BigNumber
     /**
      * Creates a BigDecimal of the given value.
      *
-     * @param BigNumber|int|float|string $value
-     *
-     * @return BigDecimal
-     *
      * @throws MathException If the value cannot be converted to a BigDecimal.
      *
      * @psalm-pure
      */
-    public static function of($value) : BigNumber
+    public static function of(BigNumber|int|float|string $value) : BigDecimal
     {
         return parent::of($value)->toBigDecimal();
     }
@@ -72,13 +64,11 @@ final class BigDecimal extends BigNumber
      * @param BigNumber|int|float|string $value The unscaled value. Must be convertible to a BigInteger.
      * @param int                        $scale The scale of the number, positive or zero.
      *
-     * @return BigDecimal
-     *
      * @throws \InvalidArgumentException If the scale is negative.
      *
      * @psalm-pure
      */
-    public static function ofUnscaledValue($value, int $scale = 0) : BigDecimal
+    public static function ofUnscaledValue(BigNumber|int|float|string $value, int $scale = 0) : BigDecimal
     {
         if ($scale < 0) {
             throw new \InvalidArgumentException('The scale cannot be negative.');
@@ -89,8 +79,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns a BigDecimal representing zero, with a scale of zero.
-     *
-     * @return BigDecimal
      *
      * @psalm-pure
      */
@@ -112,8 +100,6 @@ final class BigDecimal extends BigNumber
     /**
      * Returns a BigDecimal representing one, with a scale of zero.
      *
-     * @return BigDecimal
-     *
      * @psalm-pure
      */
     public static function one() : BigDecimal
@@ -133,8 +119,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns a BigDecimal representing ten, with a scale of zero.
-     *
-     * @return BigDecimal
      *
      * @psalm-pure
      */
@@ -160,11 +144,9 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The number to add. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The result.
-     *
      * @throws MathException If the number is not valid, or is not convertible to a BigDecimal.
      */
-    public function plus($that) : BigDecimal
+    public function plus(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -191,11 +173,9 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The number to subtract. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The result.
-     *
      * @throws MathException If the number is not valid, or is not convertible to a BigDecimal.
      */
-    public function minus($that) : BigDecimal
+    public function minus(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -218,11 +198,9 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The multiplier. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The result.
-     *
      * @throws MathException If the multiplier is not a valid number, or is not convertible to a BigDecimal.
      */
-    public function multipliedBy($that) : BigDecimal
+    public function multipliedBy(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -247,12 +225,10 @@ final class BigDecimal extends BigNumber
      * @param int|null                   $scale        The desired scale, or null to use the scale of this number.
      * @param int                        $roundingMode An optional rounding mode.
      *
-     * @return BigDecimal
-     *
      * @throws \InvalidArgumentException If the scale or rounding mode is invalid.
      * @throws MathException             If the number is invalid, is zero, or rounding was necessary.
      */
-    public function dividedBy($that, ?int $scale = null, int $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
+    public function dividedBy(BigNumber|int|float|string $that, ?int $scale = null, int $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -285,12 +261,10 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The result.
-     *
      * @throws MathException If the divisor is not a valid number, is not convertible to a BigDecimal, is zero,
      *                       or the result yields an infinite number of digits.
      */
-    public function exactlyDividedBy($that) : BigDecimal
+    public function exactlyDividedBy(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -326,10 +300,6 @@ final class BigDecimal extends BigNumber
      *
      * The result has a scale of `$this->scale * $exponent`.
      *
-     * @param int $exponent The exponent.
-     *
-     * @return BigDecimal The result.
-     *
      * @throws \InvalidArgumentException If the exponent is not in the range 0 to 1,000,000.
      */
     public function power(int $exponent) : BigDecimal
@@ -360,11 +330,9 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The quotient.
-     *
      * @throws MathException If the divisor is not a valid decimal number, or is zero.
      */
-    public function quotient($that) : BigDecimal
+    public function quotient(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -387,11 +355,9 @@ final class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigDecimal.
      *
-     * @return BigDecimal The remainder.
-     *
      * @throws MathException If the divisor is not a valid decimal number, or is zero.
      */
-    public function remainder($that) : BigDecimal
+    public function remainder(BigNumber|int|float|string $that) : BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -420,7 +386,7 @@ final class BigDecimal extends BigNumber
      *
      * @throws MathException If the divisor is not a valid decimal number, or is zero.
      */
-    public function quotientAndRemainder($that) : array
+    public function quotientAndRemainder(BigNumber|int|float|string $that) : array
     {
         $that = BigDecimal::of($that);
 
@@ -443,10 +409,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns the square root of this number, rounded down to the given number of decimals.
-     *
-     * @param int $scale
-     *
-     * @return BigDecimal
      *
      * @throws \InvalidArgumentException If the scale is negative.
      * @throws NegativeNumberException If this number is negative.
@@ -488,10 +450,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns a copy of this BigDecimal with the decimal point moved $n places to the left.
-     *
-     * @param int $n
-     *
-     * @return BigDecimal
      */
     public function withPointMovedLeft(int $n) : BigDecimal
     {
@@ -508,10 +466,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns a copy of this BigDecimal with the decimal point moved $n places to the right.
-     *
-     * @param int $n
-     *
-     * @return BigDecimal
      */
     public function withPointMovedRight(int $n) : BigDecimal
     {
@@ -538,8 +492,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns a copy of this BigDecimal with any trailing zeros removed from the fractional part.
-     *
-     * @return BigDecimal
      */
     public function stripTrailingZeros() : BigDecimal
     {
@@ -571,8 +523,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns the absolute value of this number.
-     *
-     * @return BigDecimal
      */
     public function abs() : BigDecimal
     {
@@ -581,18 +531,13 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns the negated value of this number.
-     *
-     * @return BigDecimal
      */
     public function negated() : BigDecimal
     {
         return new BigDecimal(Calculator::get()->neg($this->value), $this->scale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function compareTo($that) : int
+    public function compareTo(BigNumber|int|float|string $that) : int
     {
         $that = BigNumber::of($that);
 
@@ -609,25 +554,16 @@ final class BigDecimal extends BigNumber
         return - $that->compareTo($this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSign() : int
     {
         return ($this->value === '0') ? 0 : (($this->value[0] === '-') ? -1 : 1);
     }
 
-    /**
-     * @return BigInteger
-     */
     public function getUnscaledValue() : BigInteger
     {
-        return BigInteger::create($this->value);
+        return self::newBigInteger($this->value);
     }
 
-    /**
-     * @return int
-     */
     public function getScale() : int
     {
         return $this->scale;
@@ -637,8 +573,6 @@ final class BigDecimal extends BigNumber
      * Returns a string representing the integral part of this decimal number.
      *
      * Example: `-123.456` => `-123`.
-     *
-     * @return string
      */
     public function getIntegralPart() : string
     {
@@ -657,8 +591,6 @@ final class BigDecimal extends BigNumber
      * If the scale is zero, an empty string is returned.
      *
      * Examples: `-123.456` => '456', `123` => ''.
-     *
-     * @return string
      */
     public function getFractionalPart() : string
     {
@@ -673,46 +605,32 @@ final class BigDecimal extends BigNumber
 
     /**
      * Returns whether this decimal number has a non-zero fractional part.
-     *
-     * @return bool
      */
     public function hasNonZeroFractionalPart() : bool
     {
         return $this->getFractionalPart() !== \str_repeat('0', $this->scale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toBigInteger() : BigInteger
     {
         $zeroScaleDecimal = $this->scale === 0 ? $this : $this->dividedBy(1, 0);
 
-        return BigInteger::create($zeroScaleDecimal->value);
+        return self::newBigInteger($zeroScaleDecimal->value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toBigDecimal() : BigDecimal
     {
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toBigRational() : BigRational
     {
-        $numerator = BigInteger::create($this->value);
-        $denominator = BigInteger::create('1' . \str_repeat('0', $this->scale));
+        $numerator = self::newBigInteger($this->value);
+        $denominator = self::newBigInteger('1' . \str_repeat('0', $this->scale));
 
-        return BigRational::create($numerator, $denominator, false);
+        return self::newBigRational($numerator, $denominator, false);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toScale(int $scale, int $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
     {
         if ($scale === $this->scale) {
@@ -722,25 +640,16 @@ final class BigDecimal extends BigNumber
         return $this->dividedBy(BigDecimal::one(), $scale, $roundingMode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toInt() : int
     {
         return $this->toBigInteger()->toInt();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toFloat() : float
     {
         return (float) (string) $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __toString() : string
     {
         if ($this->scale === 0) {
@@ -772,8 +681,6 @@ final class BigDecimal extends BigNumber
      *
      * @param array{value: string, scale: int} $data
      *
-     * @return void
-     *
      * @throws \LogicException
      */
     public function __unserialize(array $data): void
@@ -790,8 +697,6 @@ final class BigDecimal extends BigNumber
      * This method is required by interface Serializable and SHOULD NOT be accessed directly.
      *
      * @internal
-     *
-     * @return string
      */
     public function serialize() : string
     {
@@ -803,10 +708,6 @@ final class BigDecimal extends BigNumber
      *
      * @internal
      * @psalm-suppress RedundantPropertyInitializationCheck
-     *
-     * @param string $value
-     *
-     * @return void
      *
      * @throws \LogicException
      */
@@ -825,9 +726,6 @@ final class BigDecimal extends BigNumber
     /**
      * Puts the internal values of the given decimal numbers on the same scale.
      *
-     * @param BigDecimal $x The first decimal number.
-     * @param BigDecimal $y The second decimal number.
-     *
      * @return array{string, string} The scaled integer values of $x and $y.
      */
     private function scaleValues(BigDecimal $x, BigDecimal $y) : array
@@ -844,11 +742,6 @@ final class BigDecimal extends BigNumber
         return [$a, $b];
     }
 
-    /**
-     * @param int $scale
-     *
-     * @return string
-     */
     private function valueWithMinScale(int $scale) : string
     {
         $value = $this->value;
@@ -862,8 +755,6 @@ final class BigDecimal extends BigNumber
 
     /**
      * Adds leading zeros if necessary to the unscaled value to represent the full decimal number.
-     *
-     * @return string
      */
     private function getUnscaledValueWithLeadingZeros() : string
     {

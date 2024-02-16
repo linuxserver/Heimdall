@@ -15,16 +15,13 @@ final class FulfilledPromise implements Promise
     private $result;
 
     /**
-     * @param $result
+     * @param mixed $result
      */
     public function __construct($result)
     {
         $this->result = $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function then(callable $onFulfilled = null, callable $onRejected = null)
     {
         if (null === $onFulfilled) {
@@ -38,21 +35,17 @@ final class FulfilledPromise implements Promise
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getState()
     {
         return Promise::FULFILLED;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function wait($unwrap = true)
     {
         if ($unwrap) {
             return $this->result;
         }
+
+        return null;
     }
 }

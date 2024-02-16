@@ -15,19 +15,11 @@
 ## Intro
 
 HTTP client standard built on [PSR-7](http://www.php-fig.org/psr/psr-7/) HTTP
-messages. The HTTPlug client interface is compatible with the official standard
-for the HTTP client interface, [PSR-18](http://www.php-fig.org/psr/psr-18/).
-HTTPlug adds an interface for asynchronous HTTP requests, which PSR-18 does not
-cover.
+messages. The HttpAsyncClient defines an asynchronous HTTP client for PHP.
 
-Since HTTPlug has already been widely adopted and a whole ecosystem has been
-built around it, we will keep maintaining this package for the time being.
-HTTPlug 2.0 and newer extend the PSR-18 interface to allow for a convenient
-migration path.
-
-New client implementations and consumers should use the PSR-18 interfaces
-directly. In the long term, we expect PSR-18 to completely replace the need
-for HTTPlug.
+This package also provides a synchronous HttpClient interface with the same
+method signature as the [PSR-18](http://www.php-fig.org/psr/psr-18/) client.
+For synchronous requests, we recommend using PSR-18 directly.
 
 
 ## History

@@ -29,7 +29,7 @@ interface ManagerInterface
      *
      * @return object
      */
-    public function connection(string $name = null);
+    public function connection(string $name = null): object;
 
     /**
      * Reconnect to the given connection.
@@ -40,7 +40,7 @@ interface ManagerInterface
      *
      * @return object
      */
-    public function reconnect(string $name = null);
+    public function reconnect(string $name = null): object;
 
     /**
      * Disconnect from the given connection.
@@ -49,7 +49,7 @@ interface ManagerInterface
      *
      * @return void
      */
-    public function disconnect(string $name = null);
+    public function disconnect(string $name = null): void;
 
     /**
      * Get the configuration for a connection.
@@ -60,14 +60,14 @@ interface ManagerInterface
      *
      * @return array
      */
-    public function getConnectionConfig(string $name = null);
+    public function getConnectionConfig(string $name = null): array;
 
     /**
      * Get the default connection name.
      *
      * @return string
      */
-    public function getDefaultConnection();
+    public function getDefaultConnection(): string;
 
     /**
      * Set the default connection name.
@@ -76,7 +76,7 @@ interface ManagerInterface
      *
      * @return void
      */
-    public function setDefaultConnection(string $name);
+    public function setDefaultConnection(string $name): void;
 
     /**
      * Register an extension connection resolver.
@@ -86,12 +86,12 @@ interface ManagerInterface
      *
      * @return void
      */
-    public function extend(string $name, callable $resolver);
+    public function extend(string $name, callable $resolver): void;
 
     /**
      * Return all of the created connections.
      *
      * @return array<string,object>
      */
-    public function getConnections();
+    public function getConnections(): array;
 }

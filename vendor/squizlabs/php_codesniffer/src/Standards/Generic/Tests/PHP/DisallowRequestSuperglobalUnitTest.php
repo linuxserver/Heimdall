@@ -4,13 +4,18 @@
  *
  * @author    Jeantwan Teuma <jeant.m24@gmail.com>
  * @copyright 2006-2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 namespace PHP_CodeSniffer\Standards\Generic\Tests\PHP;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class DisallowRequestSuperglobalUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the DisallowRequestSuperglobal sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\PHP\DisallowRequestSuperglobalSniff
+ */
+final class DisallowRequestSuperglobalUnitTest extends AbstractSniffUnitTest
 {
 
 

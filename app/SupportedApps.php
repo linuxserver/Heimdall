@@ -134,7 +134,7 @@ abstract class SupportedApps
      */
     public function getLiveStats($status, $data)
     {
-        $className = get_class($this);
+        $className = $this::class;
         $explode = explode('\\', $className);
         $name = end($explode);
 

@@ -76,10 +76,7 @@ class Item extends Model
 
     use HasFactory;
 
-    /**
-     * @return void
-     */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -113,9 +110,6 @@ class Item extends Model
 
     /**
      * Scope a query to only include pinned items.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopePinned(Builder $query): Builder
     {
@@ -153,9 +147,6 @@ class Item extends Model
         return $tagdetails;
     }
 
-    /**
-     * @return string
-     */
     public function getTagClass(): string
     {
         $tags = $this->tags();
@@ -170,17 +161,11 @@ class Item extends Model
         return implode(' ', $slugs);
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function parents(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'item_tag', 'item_id', 'tag_id');
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function children(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'item_tag', 'tag_id', 'item_id');
@@ -198,9 +183,6 @@ class Item extends Model
         }
     }
 
-    /**
-     * @return string
-     */
     public function getDroppableAttribute(): string
     {
         if ((int) $this->type === 1) {
@@ -210,9 +192,6 @@ class Item extends Model
         }
     }
 
-    /**
-     * @return string
-     */
     public function getLinkTargetAttribute(): string
     {
         $target = Setting::fetch('window_target');
@@ -224,9 +203,6 @@ class Item extends Model
         }
     }
 
-    /**
-     * @return string
-     */
     public function getLinkIconAttribute(): string
     {
         if ((int) $this->type === 1) {
@@ -236,9 +212,6 @@ class Item extends Model
         }
     }
 
-    /**
-     * @return string
-     */
     public function getLinkTypeAttribute(): string
     {
         if ((int) $this->type === 1) {
@@ -279,9 +252,6 @@ class Item extends Model
         return $query->where('type', $typeid);
     }
 
-    /**
-     * @return bool
-     */
     public function enhanced(): bool
     {
         /*if(isset($this->class) && !empty($this->class)) {
@@ -295,7 +265,6 @@ class Item extends Model
 
     /**
      * @param $class
-     * @return bool
      */
     public static function isEnhanced($class): bool
     {
@@ -321,9 +290,6 @@ class Item extends Model
         return ((bool) ($app instanceof SearchInterface)) ? $app : false;
     }
 
-    /**
-     * @return bool
-     */
     public function enabled(): bool
     {
         if ($this->enhanced()) {
@@ -369,7 +335,6 @@ class Item extends Model
 
     /**
      * @param $class
-     * @return Application|null
      */
     public static function applicationDetails($class): ?Application
     {
@@ -386,7 +351,6 @@ class Item extends Model
 
     /**
      * @param $class
-     * @return string
      */
     public static function getApplicationDescription($class): string
     {
@@ -400,8 +364,6 @@ class Item extends Model
 
     /**
      * Get the user that owns the item.
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {

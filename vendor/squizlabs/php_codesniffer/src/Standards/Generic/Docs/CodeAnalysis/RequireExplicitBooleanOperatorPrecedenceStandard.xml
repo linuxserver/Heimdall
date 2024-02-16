@@ -1,0 +1,44 @@
+<documentation title="Require Explicit Boolean Operator Precedence"
+    >
+    <standard>
+    <![CDATA[
+    Forbids mixing different binary boolean operators (&&, ||, and, or, xor) within a single expression without making precedence clear using parentheses.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Making precedence clear with parentheses.">
+        <![CDATA[
+$one = false;
+$two = false;
+$three = true;
+
+$result = <em>($one && $two) || $three</em>;
+$result2 = <em>$one && ($two || $three)</em>;
+$result3 = <em>($one && !$two) xor $three</em>;
+$result4 = <em>$one && (!$two xor $three)</em>;
+
+if (
+    <em>($result && !$result3)
+    || (!$result && $result3)</em>
+) {}
+        ]]>
+        </code>
+        <code title="Invalid: Not using parentheses.">
+        <![CDATA[
+$one = false;
+$two = false;
+$three = true;
+
+$result = <em>$one && $two || $three</em>;
+
+$result3 = <em>$one && !$two xor $three</em>;
+
+
+if (
+    <em>$result && !$result3
+    || !$result && $result3</em>
+) {}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

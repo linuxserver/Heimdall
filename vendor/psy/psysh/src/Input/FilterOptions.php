@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,8 +73,6 @@ class FilterOptions
 
     /**
      * Check whether the bound input has filter options.
-     *
-     * @return bool
      */
     public function hasFilter(): bool
     {
@@ -86,8 +84,6 @@ class FilterOptions
      *
      * @param string $string
      * @param array  $matches
-     *
-     * @return bool
      */
     public function match(string $string, array &$matches = null): bool
     {
@@ -116,8 +112,6 @@ class FilterOptions
      * Check whether a string appears to be a regular expression.
      *
      * @param string $string
-     *
-     * @return bool
      */
     private function stringIsRegex(string $string): bool
     {

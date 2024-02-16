@@ -88,7 +88,6 @@ final class GithubExceptionThrower implements Plugin
                                     $errors[] = $error['message'];
                                 }
                                 break;
-
                         }
                     }
 
@@ -118,6 +117,21 @@ final class GithubExceptionThrower implements Plugin
                 $url = substr((string) ResponseMediator::getHeader($response, 'X-GitHub-SSO'), 14);
 
                 throw new SsoRequiredException($url);
+            }
+
+            $remaining = ResponseMediator::getHeader($response, 'X-RateLimit-Remaining');
+            if ((403 === $response->getStatusCode()) && null !== $remaining && 1 > $remaining && isset($content['message']) && (0 === strpos($content['message'], 'API rate limit exceeded'))) {
+                $limit = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Limit');
+                $reset = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Reset');
+
+                throw new ApiLimitExceedException($limit, $reset);
+            }
+
+            $reset = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Reset');
+            if ((403 === $response->getStatusCode()) && 0 < $reset && isset($content['message']) && (0 === strpos($content['message'], 'You have exceeded a secondary rate limit'))) {
+                $limit = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Limit');
+
+                throw new ApiLimitExceedException($limit, $reset);
             }
 
             throw new RuntimeException(isset($content['message']) ? $content['message'] : $content, $response->getStatusCode());

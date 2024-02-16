@@ -9,17 +9,19 @@
  */
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
+use function array_merge;
 use function array_unique;
 use function assert;
 use function file_get_contents;
 use function is_array;
 use function max;
+use function range;
+use function sort;
 use function sprintf;
 use function substr_count;
 use function token_get_all;
 use function trim;
 use PhpParser\Error;
-use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;
@@ -139,10 +141,7 @@ final class ParsingFileAnalyser implements FileAnalyser
             $linesOfCode = 1;
         }
 
-        $parser = (new ParserFactory)->create(
-            ParserFactory::PREFER_PHP7,
-            new Lexer
-        );
+        $parser = (new ParserFactory)->createForHostVersion();
 
         try {
             $nodes = $parser->parse($source);
@@ -153,7 +152,7 @@ final class ParsingFileAnalyser implements FileAnalyser
             $codeUnitFindingVisitor        = new CodeUnitFindingVisitor;
             $lineCountingVisitor           = new LineCountingVisitor($linesOfCode);
             $ignoredLinesFindingVisitor    = new IgnoredLinesFindingVisitor($this->useAnnotationsForIgnoringCode, $this->ignoreDeprecatedCode);
-            $executableLinesFindingVisitor = new ExecutableLinesFindingVisitor;
+            $executableLinesFindingVisitor = new ExecutableLinesFindingVisitor($source);
 
             $traverser->addVisitor(new NameResolver);
             $traverser->addVisitor(new ParentConnectingVisitor);
@@ -172,7 +171,7 @@ final class ParsingFileAnalyser implements FileAnalyser
                     $filename,
                     $error->getMessage()
                 ),
-                (int) $error->getCode(),
+                $error->getCode(),
                 $error
             );
         }
@@ -181,7 +180,7 @@ final class ParsingFileAnalyser implements FileAnalyser
         $this->classes[$filename]         = $codeUnitFindingVisitor->classes();
         $this->traits[$filename]          = $codeUnitFindingVisitor->traits();
         $this->functions[$filename]       = $codeUnitFindingVisitor->functions();
-        $this->executableLines[$filename] = $executableLinesFindingVisitor->executableLines();
+        $this->executableLines[$filename] = $executableLinesFindingVisitor->executableLinesGroupedByBranch();
         $this->ignoredLines[$filename]    = [];
 
         $this->findLinesIgnoredByLineBasedAnnotations($filename, $source, $this->useAnnotationsForIgnoringCode);
@@ -206,45 +205,44 @@ final class ParsingFileAnalyser implements FileAnalyser
 
     private function findLinesIgnoredByLineBasedAnnotations(string $filename, string $source, bool $useAnnotationsForIgnoringCode): void
     {
-        $ignore = false;
-        $stop   = false;
+        if (!$useAnnotationsForIgnoringCode) {
+            return;
+        }
+
+        $start = false;
 
         foreach (token_get_all($source) as $token) {
-            if (!is_array($token)) {
+            if (!is_array($token) ||
+                !(T_COMMENT === $token[0] || T_DOC_COMMENT === $token[0])) {
                 continue;
             }
 
-            switch ($token[0]) {
-                case T_COMMENT:
-                case T_DOC_COMMENT:
-                    if (!$useAnnotationsForIgnoringCode) {
-                        break;
-                    }
+            $comment = trim($token[1]);
 
-                    $comment = trim($token[1]);
-
-                    if ($comment === '// @codeCoverageIgnore' ||
-                        $comment === '//@codeCoverageIgnore') {
-                        $ignore = true;
-                        $stop   = true;
-                    } elseif ($comment === '// @codeCoverageIgnoreStart' ||
-                        $comment === '//@codeCoverageIgnoreStart') {
-                        $ignore = true;
-                    } elseif ($comment === '// @codeCoverageIgnoreEnd' ||
-                        $comment === '//@codeCoverageIgnoreEnd') {
-                        $stop = true;
-                    }
-
-                    break;
-            }
-
-            if ($ignore) {
+            if ($comment === '// @codeCoverageIgnore' ||
+                $comment === '//@codeCoverageIgnore') {
                 $this->ignoredLines[$filename][] = $token[2];
 
-                if ($stop) {
-                    $ignore = false;
-                    $stop   = false;
+                continue;
+            }
+
+            if ($comment === '// @codeCoverageIgnoreStart' ||
+                $comment === '//@codeCoverageIgnoreStart') {
+                $start = $token[2];
+
+                continue;
+            }
+
+            if ($comment === '// @codeCoverageIgnoreEnd' ||
+                $comment === '//@codeCoverageIgnoreEnd') {
+                if (false === $start) {
+                    $start = $token[2];
                 }
+
+                $this->ignoredLines[$filename] = array_merge(
+                    $this->ignoredLines[$filename],
+                    range($start, $token[2])
+                );
             }
         }
     }

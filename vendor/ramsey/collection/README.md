@@ -9,7 +9,7 @@
     <a href="https://packagist.org/packages/ramsey/collection"><img src="https://img.shields.io/packagist/v/ramsey/collection.svg?style=flat-square&label=release" alt="Download Package"></a>
     <a href="https://php.net"><img src="https://img.shields.io/packagist/php-v/ramsey/collection.svg?style=flat-square&colorB=%238892BF" alt="PHP Programming Language"></a>
     <a href="https://github.com/ramsey/collection/blob/master/LICENSE"><img src="https://img.shields.io/packagist/l/ramsey/collection.svg?style=flat-square&colorB=darkcyan" alt="Read License"></a>
-    <a href="https://github.com/ramsey/collection/actions?query=workflow%3ACI"><img src="https://img.shields.io/github/workflow/status/ramsey/collection/CI?label=CI&logo=github&style=flat-square" alt="Build Status"></a>
+    <a href="https://github.com/ramsey/collection/actions/workflows/continuous-integration.yml"><img src="https://img.shields.io/github/actions/workflow/status/ramsey/collection/continuous-integration.yml?branch=main&logo=github&style=flat-square" alt="Build Status"></a>
     <a href="https://codecov.io/gh/ramsey/collection"><img src="https://img.shields.io/codecov/c/gh/ramsey/collection?label=codecov&logo=codecov&style=flat-square" alt="Codecov Code Coverage"></a>
     <a href="https://shepherd.dev/github/ramsey/collection"><img src="https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fshepherd.dev%2Fgithub%2Framsey%2Fcollection%2Fcoverage" alt="Psalm Type Coverage"></a>
 </p>
@@ -34,25 +34,13 @@ composer require ramsey/collection
 
 ## Usage
 
-Examples of how to use this framework can be found in the
+Examples of how to use this library may be found in the
 [Wiki pages](https://github.com/ramsey/collection/wiki/Examples).
 
 ## Contributing
 
-Contributions are welcome! Before contributing to this project, familiarize
-yourself with [CONTRIBUTING.md](CONTRIBUTING.md).
-
-To develop this project, you will need [PHP](https://www.php.net) 7.3 or greater
-and [Composer](https://getcomposer.org).
-
-After cloning this repository locally, execute the following commands:
-
-``` bash
-cd /path/to/repository
-composer install
-```
-
-Now, you are ready to develop!
+Contributions are welcome! To contribute, please familiarize yourself with
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Coordinated Disclosure
 
@@ -79,4 +67,4 @@ MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
 
 
 [java]: http://docs.oracle.com/javase/8/docs/technotes/guides/collections/index.html
-[security.md]: https://github.com/ramsey/collection/blob/master/SECURITY.md
+[security.md]: https://github.com/ramsey/collection/blob/main/SECURITY.md

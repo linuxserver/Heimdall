@@ -31,7 +31,7 @@ final class AndExpr implements ExpressionInterface
      */
     public function __construct(callable ...$expressions)
     {
-        $this->conditions = $expressions;
+        $this->conditions = \array_values($expressions);
     }
 
     /**

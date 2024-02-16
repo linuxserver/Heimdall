@@ -6,6 +6,7 @@ use Http\Discovery\Exception\ClassInstantiationFailedException;
 use Http\Discovery\Exception\DiscoveryFailedException;
 use Http\Discovery\Exception\NoCandidateFoundException;
 use Http\Discovery\Exception\StrategyUnavailableException;
+use Http\Discovery\Strategy\DiscoveryStrategy;
 
 /**
  * Registry that based find results on class existence.
@@ -19,9 +20,10 @@ abstract class ClassDiscovery
     /**
      * A list of strategies to find classes.
      *
-     * @var array
+     * @var DiscoveryStrategy[]
      */
     private static $strategies = [
+        Strategy\GeneratedDiscoveryStrategy::class,
         Strategy\CommonClassesStrategy::class,
         Strategy\CommonPsr17ClassesStrategy::class,
         Strategy\PuliBetaStrategy::class,
@@ -54,10 +56,17 @@ abstract class ClassDiscovery
             return $class;
         }
 
+        static $skipStrategy;
+        $skipStrategy ?? $skipStrategy = self::safeClassExists(Strategy\GeneratedDiscoveryStrategy::class) ? false : Strategy\GeneratedDiscoveryStrategy::class;
+
         $exceptions = [];
         foreach (self::$strategies as $strategy) {
+            if ($skipStrategy === $strategy) {
+                continue;
+            }
+
             try {
-                $candidates = call_user_func($strategy.'::getCandidates', $type);
+                $candidates = $strategy::getCandidates($type);
             } catch (StrategyUnavailableException $e) {
                 if (!isset(self::$deprecatedStrategies[$strategy])) {
                     $exceptions[] = $e;
@@ -122,7 +131,7 @@ abstract class ClassDiscovery
     /**
      * Set new strategies and clear the cache.
      *
-     * @param array $strategies string array of fully qualified class name to a DiscoveryStrategy
+     * @param string[] $strategies list of fully qualified class names that implement DiscoveryStrategy
      */
     public static function setStrategies(array $strategies)
     {
@@ -143,7 +152,7 @@ abstract class ClassDiscovery
     /**
      * Append a strategy at the end of the strategy queue.
      *
-     * @param string $strategy Fully qualified class name to a DiscoveryStrategy
+     * @param string $strategy Fully qualified class name of a DiscoveryStrategy
      */
     public static function appendStrategy($strategy)
     {
@@ -162,9 +171,6 @@ abstract class ClassDiscovery
         self::clearCache();
     }
 
-    /**
-     * Clear the cache.
-     */
     public static function clearCache()
     {
         self::$cache = [];
@@ -172,8 +178,6 @@ abstract class ClassDiscovery
 
     /**
      * Evaluates conditions to boolean.
-     *
-     * @param mixed $condition
      *
      * @return bool
      */
@@ -230,14 +234,13 @@ abstract class ClassDiscovery
     }
 
     /**
-     * We want to do a "safe" version of PHP's "class_exists" because Magento has a bug
+     * We need a "safe" version of PHP's "class_exists" because Magento has a bug
      * (or they call it a "feature"). Magento is throwing an exception if you do class_exists()
      * on a class that ends with "Factory" and if that file does not exits.
      *
-     * This function will catch all potential exceptions and make sure it returns a boolean.
+     * This function catches all potential exceptions and makes sure to always return a boolean.
      *
      * @param string $class
-     * @param bool   $autoload
      *
      * @return bool
      */

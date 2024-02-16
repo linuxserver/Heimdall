@@ -9,6 +9,7 @@
  */
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
+use function assert;
 use function implode;
 use function rtrim;
 use function trim;
@@ -25,6 +26,7 @@ use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\UnionType;
+use PhpParser\NodeAbstract;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
@@ -179,8 +181,12 @@ final class CodeUnitFindingVisitor extends NodeVisitorAbstract
             return '?' . $type->type;
         }
 
-        if ($type instanceof UnionType || $type instanceof IntersectionType) {
-            return $this->unionOrIntersectionAsString($type);
+        if ($type instanceof UnionType) {
+            return $this->unionTypeAsString($type);
+        }
+
+        if ($type instanceof IntersectionType) {
+            return $this->intersectionTypeAsString($type);
         }
 
         return $type->toString();
@@ -297,27 +303,43 @@ final class CodeUnitFindingVisitor extends NodeVisitorAbstract
         return trim(rtrim($namespacedName, $name), '\\');
     }
 
-    /**
-     * @psalm-param UnionType|IntersectionType $type
-     */
-    private function unionOrIntersectionAsString(ComplexType $type): string
+    private function unionTypeAsString(UnionType $node): string
     {
-        if ($type instanceof UnionType) {
-            $separator = '|';
-        } else {
-            $separator = '&';
-        }
-
         $types = [];
 
-        foreach ($type->types as $_type) {
-            if ($_type instanceof Name) {
-                $types[] = $_type->toCodeString();
-            } else {
-                $types[] = $_type->toString();
+        foreach ($node->types as $type) {
+            if ($type instanceof IntersectionType) {
+                $types[] = '(' . $this->intersectionTypeAsString($type) . ')';
+
+                continue;
             }
+
+            $types[] = $this->typeAsString($type);
         }
 
-        return implode($separator, $types);
+        return implode('|', $types);
+    }
+
+    private function intersectionTypeAsString(IntersectionType $node): string
+    {
+        $types = [];
+
+        foreach ($node->types as $type) {
+            $types[] = $this->typeAsString($type);
+        }
+
+        return implode('&', $types);
+    }
+
+    /**
+     * @psalm-param Identifier|Name $node $node
+     */
+    private function typeAsString(NodeAbstract $node): string
+    {
+        if ($node instanceof Name) {
+            return $node->toCodeString();
+        }
+
+        return $node->toString();
     }
 }

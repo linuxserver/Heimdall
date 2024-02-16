@@ -72,7 +72,7 @@ final class HtmlRenderer implements DocumentRendererInterface, ChildNodeRenderer
     /**
      * @return \Stringable|string
      *
-     * @throws \RuntimeException
+     * @throws NoMatchingRendererException
      */
     private function renderNode(Node $node)
     {
@@ -85,7 +85,7 @@ final class HtmlRenderer implements DocumentRendererInterface, ChildNodeRenderer
             }
         }
 
-        throw new \RuntimeException('Unable to find corresponding renderer for node type ' . \get_class($node));
+        throw new NoMatchingRendererException('Unable to find corresponding renderer for node type ' . \get_class($node));
     }
 
     public function getBlockSeparator(): string

@@ -23,9 +23,9 @@ final class Utils
     {
         switch (\gettype($input)) {
             case 'object':
-                return 'object(' . \get_class($input) . ')';
+                return 'object('.\get_class($input).')';
             case 'array':
-                return 'array(' . \count($input) . ')';
+                return 'array('.\count($input).')';
             default:
                 \ob_start();
                 \var_dump($input);
@@ -79,9 +79,9 @@ final class Utils
      *
      * The returned handler is not wrapped by any default middlewares.
      *
-     * @throws \RuntimeException if no viable Handler is available.
-     *
      * @return callable(\Psr\Http\Message\RequestInterface, array): \GuzzleHttp\Promise\PromiseInterface Returns the best handler for the given system.
+     *
+     * @throws \RuntimeException if no viable Handler is available.
      */
     public static function chooseHandler(): callable
     {
@@ -176,14 +176,13 @@ No system CA bundle could be found in any of the the common system locations.
 PHP versions earlier than 5.6 are not properly configured to use the system's
 CA bundle by default. In order to verify peer certificates, you will need to
 supply the path on disk to a certificate bundle to the 'verify' request
-option: http://docs.guzzlephp.org/en/latest/clients.html#verify. If you do not
-need a specific certificate bundle, then Mozilla provides a commonly used CA
-bundle which can be downloaded here (provided by the maintainer of cURL):
-https://curl.haxx.se/ca/cacert.pem. Once
-you have a CA bundle available on disk, you can set the 'openssl.cafile' PHP
-ini setting to point to the path to the file, allowing you to omit the 'verify'
-request option. See https://curl.haxx.se/docs/sslcerts.html for more
-information.
+option: https://docs.guzzlephp.org/en/latest/request-options.html#verify. If
+you do not need a specific certificate bundle, then Mozilla provides a commonly
+used CA bundle which can be downloaded here (provided by the maintainer of
+cURL): https://curl.haxx.se/ca/cacert.pem. Once you have a CA bundle available
+on disk, you can set the 'openssl.cafile' PHP ini setting to point to the path
+to the file, allowing you to omit the 'verify' request option. See
+https://curl.haxx.se/docs/sslcerts.html for more information.
 EOT
         );
     }
@@ -247,8 +246,8 @@ EOT
             }
             // Special match if the area when prefixed with ".". Remove any
             // existing leading "." and add a new leading ".".
-            $area = '.' . \ltrim($area, '.');
-            if (\substr($host, -(\strlen($area))) === $area) {
+            $area = '.'.\ltrim($area, '.');
+            if (\substr($host, -\strlen($area)) === $area) {
                 return true;
             }
         }
@@ -269,13 +268,13 @@ EOT
      *
      * @throws InvalidArgumentException if the JSON cannot be decoded.
      *
-     * @link https://www.php.net/manual/en/function.json-decode.php
+     * @see https://www.php.net/manual/en/function.json-decode.php
      */
     public static function jsonDecode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
     {
         $data = \json_decode($json, $assoc, $depth, $options);
         if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_decode error: ' . \json_last_error_msg());
+            throw new InvalidArgumentException('json_decode error: '.\json_last_error_msg());
         }
 
         return $data;
@@ -290,13 +289,13 @@ EOT
      *
      * @throws InvalidArgumentException if the JSON cannot be encoded.
      *
-     * @link https://www.php.net/manual/en/function.json-encode.php
+     * @see https://www.php.net/manual/en/function.json-encode.php
      */
     public static function jsonEncode($value, int $options = 0, int $depth = 512): string
     {
         $json = \json_encode($value, $options, $depth);
         if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_encode error: ' . \json_last_error_msg());
+            throw new InvalidArgumentException('json_encode error: '.\json_last_error_msg());
         }
 
         /** @var string */
@@ -341,7 +340,7 @@ EOT
 
                 $errorMessage = 'IDN conversion failed';
                 if ($errors) {
-                    $errorMessage .= ' (errors: ' . implode(', ', $errors) . ')';
+                    $errorMessage .= ' (errors: '.implode(', ', $errors).')';
                 }
 
                 throw new InvalidArgumentException($errorMessage);

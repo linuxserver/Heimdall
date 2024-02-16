@@ -4,21 +4,26 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2019 Juliette Reinders Folmer. All rights reserved.
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\VersionControl;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class SubversionPropertiesUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the SubversionProperties sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\VersionControl\SubversionPropertiesSniff
+ */
+final class SubversionPropertiesUnitTest extends AbstractSniffUnitTest
 {
 
 
     /**
      * Should this test be skipped for some reason.
      *
-     * @return void
+     * @return bool
      */
     protected function shouldSkipTest()
     {

@@ -2,6 +2,8 @@
 
 namespace Github\Api;
 
+use Github\Api\App\Hook;
+
 /**
  * @link   https://developer.github.com/v3/apps/
  *
@@ -197,5 +199,17 @@ class Apps extends AbstractApi
     public function getAuthenticatedApp()
     {
         return $this->get('/app');
+    }
+
+    /**
+     * Manage the hook of an app.
+     *
+     * @link https://docs.github.com/en/rest/apps/webhooks
+     *
+     * @return Hook
+     */
+    public function hook()
+    {
+        return new Hook($this->getClient());
     }
 }

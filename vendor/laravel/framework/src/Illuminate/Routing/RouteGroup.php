@@ -45,7 +45,7 @@ class RouteGroup
     protected static function formatNamespace($new, $old)
     {
         if (isset($new['namespace'])) {
-            return isset($old['namespace']) && strpos($new['namespace'], '\\') !== 0
+            return isset($old['namespace']) && ! str_starts_with($new['namespace'], '\\')
                     ? trim($old['namespace'], '\\').'\\'.trim($new['namespace'], '\\')
                     : trim($new['namespace'], '\\');
         }
@@ -67,9 +67,9 @@ class RouteGroup
 
         if ($prependExistingPrefix) {
             return isset($new['prefix']) ? trim($old, '/').'/'.trim($new['prefix'], '/') : $old;
-        } else {
-            return isset($new['prefix']) ? trim($new['prefix'], '/').'/'.trim($old, '/') : $old;
         }
+
+        return isset($new['prefix']) ? trim($new['prefix'], '/').'/'.trim($old, '/') : $old;
     }
 
     /**

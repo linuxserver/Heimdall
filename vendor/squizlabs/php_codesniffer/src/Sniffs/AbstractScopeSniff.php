@@ -21,7 +21,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Sniffs;
@@ -42,7 +42,7 @@ abstract class AbstractScopeSniff implements Sniff
     /**
      * The type of scope opener tokens that this test wishes to listen to.
      *
-     * @var string
+     * @var array<int|string>
      */
     private $scopeTokens = [];
 
@@ -104,7 +104,7 @@ abstract class AbstractScopeSniff implements Sniff
      * DO NOT OVERRIDE THIS METHOD. Use the constructor of this class to register
      * for the desired tokens and scope.
      *
-     * @return int[]
+     * @return array<int|string>
      * @see    __constructor()
      */
     final public function register()
@@ -147,8 +147,6 @@ abstract class AbstractScopeSniff implements Sniff
         if (empty($skipTokens) === false) {
             return min($skipTokens);
         }
-
-        return;
 
     }//end process()
 

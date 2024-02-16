@@ -12,7 +12,7 @@ use Doctrine\Deprecations\Deprecation;
 class TimeImmutableType extends TimeType
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -20,7 +20,13 @@ class TimeImmutableType extends TimeType
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
@@ -40,7 +46,13 @@ class TimeImmutableType extends TimeType
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeImmutable)
+     *
+     * @template T
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
@@ -50,19 +62,19 @@ class TimeImmutableType extends TimeType
 
         $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            throw ConversionException::conversionFailedFormat(
-                $value,
-                $this->getName(),
-                $platform->getTimeFormatString(),
-            );
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        return $dateTime;
+        throw ConversionException::conversionFailedFormat(
+            $value,
+            $this->getName(),
+            $platform->getTimeFormatString(),
+        );
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */

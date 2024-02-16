@@ -2,16 +2,23 @@
 
 namespace Illuminate\Queue\Console;
 
+use Carbon\CarbonInterval;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Events\JobReleasedAfterException;
 use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
 use Illuminate\Support\Carbon;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Terminal;
 
+use function Termwind\terminal;
+
+#[AsCommand(name: 'queue:work')]
 class WorkCommand extends Command
 {
     /**
@@ -59,6 +66,13 @@ class WorkCommand extends Command
     protected $cache;
 
     /**
+     * Holds the start time of the last processed job, if any.
+     *
+     * @var float|null
+     */
+    protected $latestStartedAt;
+
+    /**
      * Create a new queue work command.
      *
      * @param  \Illuminate\Queue\Worker  $worker
@@ -97,6 +111,12 @@ class WorkCommand extends Command
         // connection being run for the queue operation currently being executed.
         $queue = $this->getQueue($connection);
 
+        if (Terminal::hasSttyAvailable()) {
+            $this->components->info(
+                sprintf('Processing jobs from the [%s] %s.', $queue, str('queue')->plural(explode(',', $queue)))
+            );
+        }
+
         return $this->runWorker(
             $connection, $queue
         );
@@ -111,11 +131,12 @@ class WorkCommand extends Command
      */
     protected function runWorker($connection, $queue)
     {
-        return $this->worker->setName($this->option('name'))
-                     ->setCache($this->cache)
-                     ->{$this->option('once') ? 'runNextJob' : 'daemon'}(
-            $connection, $queue, $this->gatherWorkerOptions()
-        );
+        return $this->worker
+            ->setName($this->option('name'))
+            ->setCache($this->cache)
+            ->{$this->option('once') ? 'runNextJob' : 'daemon'}(
+                $connection, $queue, $this->gatherWorkerOptions()
+            );
     }
 
     /**
@@ -155,6 +176,10 @@ class WorkCommand extends Command
             $this->writeOutput($event->job, 'success');
         });
 
+        $this->laravel['events']->listen(JobReleasedAfterException::class, function ($event) {
+            $this->writeOutput($event->job, 'released_after_exception');
+        });
+
         $this->laravel['events']->listen(JobFailed::class, function ($event) {
             $this->writeOutput($event->job, 'failed');
 
@@ -171,32 +196,73 @@ class WorkCommand extends Command
      */
     protected function writeOutput(Job $job, $status)
     {
-        switch ($status) {
-            case 'starting':
-                return $this->writeStatus($job, 'Processing', 'comment');
-            case 'success':
-                return $this->writeStatus($job, 'Processed', 'info');
-            case 'failed':
-                return $this->writeStatus($job, 'Failed', 'error');
+        $this->output->write(sprintf(
+            '  <fg=gray>%s</> %s%s',
+            $this->now()->format('Y-m-d H:i:s'),
+            $job->resolveName(),
+            $this->output->isVerbose()
+                ? sprintf(' <fg=gray>%s</>', $job->getJobId())
+                : ''
+        ));
+
+        if ($status == 'starting') {
+            $this->latestStartedAt = microtime(true);
+
+            $dots = max(terminal()->width() - mb_strlen($job->resolveName()) - (
+                $this->output->isVerbose() ? (mb_strlen($job->getJobId()) + 1) : 0
+            ) - 33, 0);
+
+            $this->output->write(' '.str_repeat('<fg=gray>.</>', $dots));
+
+            return $this->output->writeln(' <fg=yellow;options=bold>RUNNING</>');
         }
+
+        $runTime = $this->formatRunTime($this->latestStartedAt);
+
+        $dots = max(terminal()->width() - mb_strlen($job->resolveName()) - (
+            $this->output->isVerbose() ? (mb_strlen($job->getJobId()) + 1) : 0
+        ) - mb_strlen($runTime) - 31, 0);
+
+        $this->output->write(' '.str_repeat('<fg=gray>.</>', $dots));
+        $this->output->write(" <fg=gray>$runTime</>");
+
+        $this->output->writeln(match ($status) {
+            'success' => ' <fg=green;options=bold>DONE</>',
+            'released_after_exception' => ' <fg=yellow;options=bold>FAIL</>',
+            default => ' <fg=red;options=bold>FAIL</>',
+        });
     }
 
     /**
-     * Format the status output for the queue worker.
+     * Get the current date / time.
      *
-     * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  string  $status
-     * @param  string  $type
-     * @return void
+     * @return \Illuminate\Support\Carbon
      */
-    protected function writeStatus(Job $job, $status, $type)
+    protected function now()
     {
-        $this->output->writeln(sprintf(
-            "<{$type}>[%s][%s] %s</{$type}> %s",
-            Carbon::now()->format('Y-m-d H:i:s'),
-            $job->getJobId(),
-            str_pad("{$status}:", 11), $job->resolveName()
-        ));
+        $queueTimezone = $this->laravel['config']->get('queue.output_timezone');
+
+        if ($queueTimezone &&
+            $queueTimezone !== $this->laravel['config']->get('app.timezone')) {
+            return Carbon::now()->setTimezone($queueTimezone);
+        }
+
+        return Carbon::now();
+    }
+
+    /**
+     * Given a start time, format the total run time for human readability.
+     *
+     * @param  float  $startTime
+     * @return string
+     */
+    protected function formatRunTime($startTime)
+    {
+        $runTime = (microtime(true) - $startTime) * 1000;
+
+        return $runTime > 1000
+            ? CarbonInterval::milliseconds($runTime)->cascade()->forHumans(short: true)
+            : number_format($runTime, 2).'ms';
     }
 
     /**

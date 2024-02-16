@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures;
@@ -34,7 +34,7 @@ class ControlStructureSpacingSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -44,7 +44,6 @@ class ControlStructureSpacingSniff implements Sniff
             T_FOREACH,
             T_FOR,
             T_SWITCH,
-            T_ELSE,
             T_ELSEIF,
             T_CATCH,
             T_MATCH,

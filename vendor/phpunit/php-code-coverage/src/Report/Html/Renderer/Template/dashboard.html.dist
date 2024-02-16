@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>Dashboard for {{full_path}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{path_to_root}}_css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="{{path_to_root}}_css/nv.d3.min.css" rel="stylesheet" type="text/css">
-  <link href="{{path_to_root}}_css/style.css" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/bootstrap.min.css?v={{version}}" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/nv.d3.min.css?v={{version}}" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/style.css?v={{version}}" rel="stylesheet" type="text/css">
   <link href="{{path_to_root}}_css/custom.css" rel="stylesheet" type="text/css">
  </head>
  <body>
@@ -137,9 +137,9 @@
     </p>
    </footer>
   </div>
-  <script src="{{path_to_root}}_js/jquery.min.js" type="text/javascript"></script>
-  <script src="{{path_to_root}}_js/d3.min.js" type="text/javascript"></script>
-  <script src="{{path_to_root}}_js/nv.d3.min.js" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/jquery.min.js?v={{version}}" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/d3.min.js?v={{version}}" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/nv.d3.min.js?v={{version}}" type="text/javascript"></script>
   <script type="text/javascript">
 $(document).ready(function() {
   nv.addGraph(function() {

@@ -84,4 +84,4 @@ Projects that Use cron-expression
 =================================
 * Part of the [Laravel Framework](https://github.com/laravel/framework/)
 * Available as a [Symfony Bundle - setono/cron-expression-bundle](https://github.com/Setono/CronExpressionBundle)
-* Framework agnostic, PHP-based job scheduler - [Crunz](https://github.com/lavary/crunz)
+* Framework agnostic, PHP-based job scheduler - [Crunz](https://github.com/crunzphp/crunz)

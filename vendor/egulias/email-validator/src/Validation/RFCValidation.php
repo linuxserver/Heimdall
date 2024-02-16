@@ -4,45 +4,50 @@ namespace Egulias\EmailValidator\Validation;
 
 use Egulias\EmailValidator\EmailLexer;
 use Egulias\EmailValidator\EmailParser;
-use Egulias\EmailValidator\Exception\InvalidEmail;
+use Egulias\EmailValidator\Result\InvalidEmail;
+use Egulias\EmailValidator\Result\Reason\ExceptionFound;
+use Egulias\EmailValidator\Warning\Warning;
 
 class RFCValidation implements EmailValidation
 {
     /**
-     * @var EmailParser|null
+     * @var Warning[]
      */
-    private $parser;
+    private array $warnings = [];
 
     /**
-     * @var array
-     */
-    private $warnings = [];
-
-    /**
-     * @var InvalidEmail|null
+     * @var ?InvalidEmail
      */
     private $error;
 
-    public function isValid($email, EmailLexer $emailLexer)
+    public function isValid(string $email, EmailLexer $emailLexer): bool
     {
-        $this->parser = new EmailParser($emailLexer);
+        $parser = new EmailParser($emailLexer);
         try {
-            $this->parser->parse((string)$email);
-        } catch (InvalidEmail $invalid) {
-            $this->error = $invalid;
+            $result = $parser->parse($email);
+            $this->warnings = $parser->getWarnings();
+            if ($result->isInvalid()) {
+                /** @psalm-suppress PropertyTypeCoercion */
+                $this->error = $result;
+                return false;
+            }
+        } catch (\Exception $invalid) {
+            $this->error = new InvalidEmail(new ExceptionFound($invalid), '');
             return false;
         }
 
-        $this->warnings = $this->parser->getWarnings();
         return true;
     }
 
-    public function getError()
+    public function getError(): ?InvalidEmail
     {
         return $this->error;
     }
 
-    public function getWarnings()
+    /**
+     * @return Warning[]
+     */
+    public function getWarnings(): array
     {
         return $this->warnings;
     }

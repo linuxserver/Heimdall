@@ -5,6 +5,7 @@ namespace Github\Api;
 use Github\Api\Repository\Actions\Artifacts;
 use Github\Api\Repository\Actions\Secrets;
 use Github\Api\Repository\Actions\SelfHostedRunners;
+use Github\Api\Repository\Actions\Variables;
 use Github\Api\Repository\Actions\WorkflowJobs;
 use Github\Api\Repository\Actions\WorkflowRuns;
 use Github\Api\Repository\Actions\Workflows;
@@ -23,6 +24,7 @@ use Github\Api\Repository\Pages;
 use Github\Api\Repository\Projects;
 use Github\Api\Repository\Protection;
 use Github\Api\Repository\Releases;
+use Github\Api\Repository\SecretScanning;
 use Github\Api\Repository\Stargazers;
 use Github\Api\Repository\Statuses;
 use Github\Api\Repository\Traffic;
@@ -206,13 +208,16 @@ class Repo extends AbstractApi
             'description'   => $description,
             'homepage'      => $homepage,
             'private'       => ($visibility ?? ($public ? 'public' : 'private')) === 'private',
-            'visibility'    => $visibility ?? ($public ? 'public' : 'private'),
             'has_issues'    => $hasIssues,
             'has_wiki'      => $hasWiki,
             'has_downloads' => $hasDownloads,
             'auto_init'     => $autoInit,
             'has_projects' => $hasProjects,
         ];
+
+        if ($visibility) {
+            $parameters['visibility'] = $visibility;
+        }
 
         if ($organization && $teamId) {
             $parameters['team_id'] = $teamId;
@@ -283,14 +288,19 @@ class Repo extends AbstractApi
      *
      * @link https://developer.github.com/v3/repos/#create-a-repository-dispatch-event
      *
-     * @param string $username   the user who owns the repository
-     * @param string $repository the name of the repository
-     * @param string $eventType  A custom webhook event name
+     * @param string       $username      the user who owns the repository
+     * @param string       $repository    the name of the repository
+     * @param string       $eventType     A custom webhook event name
+     * @param array|object $clientPayload The payload to pass to Github.
      *
      * @return mixed null on success, array on error with 'message'
      */
-    public function dispatch($username, $repository, $eventType, array $clientPayload)
+    public function dispatch($username, $repository, $eventType, $clientPayload)
     {
+        if (is_array($clientPayload)) {
+            $clientPayload = (object) $clientPayload;
+        }
+
         return $this->post(\sprintf('/repos/%s/%s/dispatches', rawurlencode($username), rawurlencode($repository)), [
             'event_type' => $eventType,
             'client_payload' => $clientPayload,
@@ -395,6 +405,14 @@ class Repo extends AbstractApi
     public function secrets(): Secrets
     {
         return new Secrets($this->getClient());
+    }
+
+    /**
+     * @link https://docs.github.com/en/rest/reference/actions#secrets
+     */
+    public function variables(): Variables
+    {
+        return new Variables($this->getClient());
     }
 
     /**
@@ -525,6 +543,21 @@ class Repo extends AbstractApi
         }
 
         return $this->get($url, $parameters);
+    }
+
+    /**
+     * Sync a fork branch with the upstream repository.
+     *
+     * @link https://docs.github.com/en/rest/branches/branches#sync-a-fork-branch-with-the-upstream-repository
+     *
+     * @return array|string
+     */
+    public function mergeUpstream(string $username, string $repository, string $branchName)
+    {
+        return $this->post(
+            '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/merge-upstream',
+            ['branch' => $branchName]
+        );
     }
 
     /**
@@ -819,5 +852,58 @@ class Repo extends AbstractApi
         $this->acceptHeaderValue = 'application/vnd.github.baptiste-preview+json';
 
         return $this->post('/repos/'.rawurldecode($templateOwner).'/'.rawurldecode($templateRepo).'/generate', $parameters);
+    }
+
+    /**
+     * Check if vulnerability alerts are enabled for a repository.
+     *
+     * @link https://developer.github.com/v3/repos/#check-if-vulnerability-alerts-are-enabled-for-a-repository
+     *
+     * @param string $username   the username
+     * @param string $repository the repository
+     *
+     * @return array|string
+     */
+    public function isVulnerabilityAlertsEnabled(string $username, string $repository)
+    {
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/vulnerability-alerts');
+    }
+
+    /**
+     * Enable vulnerability alerts for a repository.
+     *
+     * @link https://developer.github.com/v3/repos/#enable-vulnerability-alerts
+     *
+     * @param string $username   the username
+     * @param string $repository the repository
+     *
+     * @return array|string
+     */
+    public function enableVulnerabilityAlerts(string $username, string $repository)
+    {
+        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/vulnerability-alerts');
+    }
+
+    /**
+     * Disable vulnerability alerts for a repository.
+     *
+     * @link https://developer.github.com/v3/repos/#disable-vulnerability-alerts
+     *
+     * @param string $username   the username
+     * @param string $repository the repository
+     *
+     * @return array|string
+     */
+    public function disableVulnerabilityAlerts(string $username, string $repository)
+    {
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/vulnerability-alerts');
+    }
+
+    /**
+     * @return SecretScanning
+     */
+    public function secretScanning(): SecretScanning
+    {
+        return new SecretScanning($this->getClient());
     }
 }

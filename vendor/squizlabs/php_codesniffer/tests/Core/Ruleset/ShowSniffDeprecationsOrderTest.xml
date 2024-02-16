@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="SniffDeprecationTest" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/"/>
+
+    <!-- This list is non-alphabetic on purpose. The display order is what is being tested. -->
+    <rule ref="Fixtures.Deprecated.WithReplacement"/>
+    <rule ref="Fixtures.Deprecated.WithoutReplacement"/>
+
+</ruleset>

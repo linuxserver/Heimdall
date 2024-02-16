@@ -2,6 +2,9 @@ Mockery
 =======
 
 [![Build Status](https://github.com/mockery/mockery/actions/workflows/tests.yml/badge.svg)](https://github.com/mockery/mockery/actions)
+[![Supported PHP Version](https://badgen.net/packagist/php/mockery/mockery?color=8892bf)](https://www.php.net/supported-versions)
+[![Code Coverage](https://codecov.io/gh/mockery/mockery/branch/1.6.x/graph/badge.svg?token=oxHwVM56bT)](https://codecov.io/gh/mockery/mockery)
+[![Type Coverage](https://shepherd.dev/github/mockery/mockery/coverage.svg)](https://shepherd.dev/github/mockery/mockery)
 [![Latest Stable Version](https://poser.pugx.org/mockery/mockery/v/stable.svg)](https://packagist.org/packages/mockery/mockery)
 [![Total Downloads](https://poser.pugx.org/mockery/mockery/downloads.svg)](https://packagist.org/packages/mockery/mockery)
 
@@ -167,7 +170,7 @@ $double->expects()->add($book)->twice();
 If you have used Mockery before, you might see something new in the example
 above &mdash; we created a method expectation using `expects`, instead of the "old"
 `shouldReceive` syntax. This is a new feature of Mockery v1, but same as with
-`accepts` in the previous section, it can be written in the "old" style.
+`allows` in the previous section, it can be written in the "old" style.
 
 For new users of Mockery, the above example can also be written as:
 

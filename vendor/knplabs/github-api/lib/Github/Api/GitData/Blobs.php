@@ -59,8 +59,8 @@ class Blobs extends AbstractApi
      */
     public function create($username, $repository, array $params)
     {
-        if (!isset($params['content'], $params['encoding'])) {
-            throw new MissingArgumentException(['content', 'encoding']);
+        if (!isset($params['content'])) {
+            throw new MissingArgumentException('content');
         }
 
         return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/blobs', $params);

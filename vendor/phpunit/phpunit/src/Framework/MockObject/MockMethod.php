@@ -140,7 +140,7 @@ final class MockMethod
             $reference,
             $callOriginalMethod,
             $method->isStatic(),
-            $deprecation
+            $deprecation,
         );
     }
 
@@ -157,7 +157,7 @@ final class MockMethod
             '',
             false,
             false,
-            null
+            null,
         );
     }
 
@@ -191,12 +191,12 @@ final class MockMethod
         } elseif ($this->returnType->isNever() || $this->returnType->isVoid()) {
             $templateFile = sprintf(
                 '%s_method_never_or_void.tpl',
-                $this->callOriginalMethod ? 'proxied' : 'mocked'
+                $this->callOriginalMethod ? 'proxied' : 'mocked',
             );
         } else {
             $templateFile = sprintf(
                 '%s_method.tpl',
-                $this->callOriginalMethod ? 'proxied' : 'mocked'
+                $this->callOriginalMethod ? 'proxied' : 'mocked',
             );
         }
 
@@ -209,7 +209,7 @@ final class MockMethod
             $deprecationTemplate->setVar(
                 [
                     'deprecation' => var_export($deprecation, true),
-                ]
+                ],
             );
 
             $deprecation = $deprecationTemplate->render();
@@ -230,7 +230,7 @@ final class MockMethod
                 'reference'          => $this->reference,
                 'clone_arguments'    => $this->cloneArguments ? 'true' : 'false',
                 'deprecation'        => $deprecation,
-            ]
+            ],
         );
 
         return $template->render();
@@ -254,8 +254,8 @@ final class MockMethod
             } catch (TemplateException $e) {
                 throw new RuntimeException(
                     $e->getMessage(),
-                    (int) $e->getCode(),
-                    $e
+                    $e->getCode(),
+                    $e,
                 );
             }
         }
@@ -361,18 +361,18 @@ final class MockMethod
                 substr(
                     substr(
                         $parameterAsString,
-                        strpos($parameterAsString, '<optional> ') + strlen('<optional> ')
+                        strpos($parameterAsString, '<optional> ') + strlen('<optional> '),
                     ),
                     0,
-                    -2
-                )
+                    -2,
+                ),
             )[1];
             // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                $e->getCode(),
+                $e,
             );
         }
         // @codeCoverageIgnoreEnd

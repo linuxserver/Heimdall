@@ -27,8 +27,7 @@ use SebastianBergmann\Environment\Console;
 final class Help
 {
     private const LEFT_MARGIN = '  ';
-
-    private const HELP_TEXT = [
+    private const HELP_TEXT   = [
         'Usage' => [
             ['text' => 'phpunit [options] UnitTest.php'],
             ['text' => 'phpunit [options] <directory>'],
@@ -247,7 +246,7 @@ final class Help
                         {
                             return Color::colorize('fg-cyan', $matches[0]);
                         },
-                        $arg
+                        $arg,
                     );
                     $desc = explode(PHP_EOL, wordwrap($option['desc'], $this->maxDescLength, PHP_EOL));
 

@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\PHP;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class DisallowInlineIfUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the DisallowObEndFlush sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\PHP\DisallowInlineIfSniff
+ */
+final class DisallowInlineIfUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,7 +30,7 @@ class DisallowInlineIfUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='DisallowInlineIfUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
         case 'DisallowInlineIfUnitTest.inc':
@@ -33,13 +38,12 @@ class DisallowInlineIfUnitTest extends AbstractSniffUnitTest
                 8  => 1,
                 18 => 1,
             ];
-            break;
+
         case 'DisallowInlineIfUnitTest.js':
             return [1 => 1];
-            break;
+
         default:
             return [];
-            break;
         }//end switch
 
     }//end getErrorList()

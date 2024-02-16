@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR12\Tests\Files;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class FileHeaderUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the FileHeader sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\PSR12\Sniffs\Files\FileHeaderSniff
+ */
+final class FileHeaderUnitTest extends AbstractSniffUnitTest
 {
 
 

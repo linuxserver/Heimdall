@@ -4,14 +4,12 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2021 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
-
-class ArrayKeywordTest extends AbstractMethodUnitTest
+final class ArrayKeywordTest extends AbstractTokenizerTestCase
 {
 
 
@@ -29,7 +27,7 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      */
     public function testArrayKeyword($testMarker, $testContent='array')
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
 
         $token      = $this->getTargetToken($testMarker, [T_ARRAY, T_STRING], $testContent);
         $tokenArray = $tokens[$token];
@@ -49,19 +47,30 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      *
      * @see testArrayKeyword()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataArrayKeyword()
+    public static function dataArrayKeyword()
     {
         return [
-            'empty array'                           => ['/* testEmptyArray */'],
-            'array with space before parenthesis'   => ['/* testArrayWithSpace */'],
-            'array with comment before parenthesis' => [
-                '/* testArrayWithComment */',
-                'Array',
+            'empty array'                           => [
+                'testMarker' => '/* testEmptyArray */',
             ],
-            'nested: outer array'                   => ['/* testNestingArray */'],
-            'nested: inner array'                   => ['/* testNestedArray */'],
+            'array with space before parenthesis'   => [
+                'testMarker' => '/* testArrayWithSpace */',
+            ],
+            'array with comment before parenthesis' => [
+                'testMarker'  => '/* testArrayWithComment */',
+                'testContent' => 'Array',
+            ],
+            'nested: outer array'                   => [
+                'testMarker' => '/* testNestingArray */',
+            ],
+            'nested: inner array'                   => [
+                'testMarker' => '/* testNestedArray */',
+            ],
+            'OO constant default value'             => [
+                'testMarker' => '/* testOOConstDefault */',
+            ],
         ];
 
     }//end dataArrayKeyword()
@@ -81,7 +90,7 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      */
     public function testArrayType($testMarker, $testContent='array')
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
 
         $token      = $this->getTargetToken($testMarker, [T_ARRAY, T_STRING], $testContent);
         $tokenArray = $tokens[$token];
@@ -101,17 +110,27 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      *
      * @see testArrayType()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataArrayType()
+    public static function dataArrayType()
     {
         return [
             'closure return type'        => [
-                '/* testClosureReturnType */',
-                'Array',
+                'testMarker'  => '/* testClosureReturnType */',
+                'testContent' => 'Array',
             ],
-            'function param type'        => ['/* testFunctionDeclarationParamType */'],
-            'function union return type' => ['/* testFunctionDeclarationReturnType */'],
+            'function param type'        => [
+                'testMarker' => '/* testFunctionDeclarationParamType */',
+            ],
+            'function union return type' => [
+                'testMarker' => '/* testFunctionDeclarationReturnType */',
+            ],
+            'OO constant type'           => [
+                'testMarker' => '/* testOOConstType */',
+            ],
+            'OO property type'           => [
+                'testMarker' => '/* testOOPropertyType */',
+            ],
         ];
 
     }//end dataArrayType()
@@ -132,7 +151,7 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      */
     public function testNotArrayKeyword($testMarker, $testContent='array')
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
 
         $token      = $this->getTargetToken($testMarker, [T_ARRAY, T_STRING], $testContent);
         $tokenArray = $tokens[$token];
@@ -152,16 +171,22 @@ class ArrayKeywordTest extends AbstractMethodUnitTest
      *
      * @see testNotArrayKeyword()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataNotArrayKeyword()
+    public static function dataNotArrayKeyword()
     {
         return [
-            'class-constant-name' => [
-                '/* testClassConst */',
-                'ARRAY',
+            'class-constant-name'            => [
+                'testMarker'  => '/* testClassConst */',
+                'testContent' => 'ARRAY',
             ],
-            'class-method-name'   => ['/* testClassMethod */'],
+            'class-method-name'              => [
+                'testMarker' => '/* testClassMethod */',
+            ],
+            'class-constant-name-after-type' => [
+                'testMarker'  => '/* testTypedOOConstName */',
+                'testContent' => 'ARRAY',
+            ],
         ];
 
     }//end dataNotArrayKeyword()

@@ -22,6 +22,10 @@ class ViewServiceProvider extends ServiceProvider
         $this->registerViewFinder();
         $this->registerBladeCompiler();
         $this->registerEngineResolver();
+
+        $this->app->terminating(static function () {
+            Component::flushCache();
+        });
     }
 
     /**
@@ -47,6 +51,10 @@ class ViewServiceProvider extends ServiceProvider
             $factory->setContainer($app);
 
             $factory->share('app', $app);
+
+            $app->terminating(static function () {
+                Component::forgetFactory();
+            });
 
             return $factory;
         });
@@ -85,7 +93,13 @@ class ViewServiceProvider extends ServiceProvider
     public function registerBladeCompiler()
     {
         $this->app->singleton('blade.compiler', function ($app) {
-            return tap(new BladeCompiler($app['files'], $app['config']['view.compiled']), function ($blade) {
+            return tap(new BladeCompiler(
+                $app['files'],
+                $app['config']['view.compiled'],
+                $app['config']->get('view.relative_hash', false) ? $app->basePath() : '',
+                $app['config']->get('view.cache', true),
+                $app['config']->get('view.compiled_extension', 'php'),
+            ), function ($blade) {
                 $blade->component('dynamic-component', DynamicComponent::class);
             });
         });
@@ -147,7 +161,13 @@ class ViewServiceProvider extends ServiceProvider
     public function registerBladeEngine($resolver)
     {
         $resolver->register('blade', function () {
-            return new CompilerEngine($this->app['blade.compiler'], $this->app['files']);
+            $compiler = new CompilerEngine($this->app['blade.compiler'], $this->app['files']);
+
+            $this->app->terminating(static function () use ($compiler) {
+                $compiler->forgetCompiledOrNotExpired();
+            });
+
+            return $compiler;
         });
     }
 }

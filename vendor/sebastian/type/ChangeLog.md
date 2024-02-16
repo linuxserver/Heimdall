@@ -2,6 +2,12 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [3.2.1] - 2023-02-03
+
+### Fixed
+
+* [#28](https://github.com/sebastianbergmann/type/pull/28): Potential undefined offset warning/notice
+
 ## [3.2.0] - 2022-09-12
 
 ### Added
@@ -37,6 +43,8 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Removed `TypeName::getQualifiedName()` (use `TypeName::qualifiedName()` instead)
 
 ## [2.3.4] - 2021-06-15
+
+### Fixed
 
 * Fixed regression introduced in 2.3.3
 
@@ -139,6 +147,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Initial release based on [code contributed by Michel Hartmann to PHPUnit](https://github.com/sebastianbergmann/phpunit/pull/3673)
 
+[3.2.1]: https://github.com/sebastianbergmann/type/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/sebastianbergmann/type/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/sebastianbergmann/type/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/sebastianbergmann/type/compare/2.3.4...3.0.0

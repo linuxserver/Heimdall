@@ -95,6 +95,22 @@ class TinkerCaster
     }
 
     /**
+     * Get an array representing the properties of a process result.
+     *
+     * @param  \Illuminate\Process\ProcessResult  $result
+     * @return array
+     */
+    public static function castProcessResult($result)
+    {
+        return [
+            Caster::PREFIX_VIRTUAL.'output' => $result->output(),
+            Caster::PREFIX_VIRTUAL.'errorOutput' => $result->errorOutput(),
+            Caster::PREFIX_VIRTUAL.'exitCode' => $result->exitCode(),
+            Caster::PREFIX_VIRTUAL.'successful' => $result->successful(),
+        ];
+    }
+
+    /**
      * Get an array representing the properties of a model.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
@@ -113,7 +129,7 @@ class TinkerCaster
         $hidden = array_flip($model->getHidden());
 
         $appends = (function () {
-            return array_combine($this->appends, $this->appends);
+            return array_combine($this->appends, $this->appends); // @phpstan-ignore-line
         })->bindTo($model, $model)();
 
         foreach ($appends as $appended) {

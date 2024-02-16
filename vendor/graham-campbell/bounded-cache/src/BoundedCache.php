@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace GrahamCampbell\BoundedCache;
 
+use DateInterval;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -24,31 +25,21 @@ final class BoundedCache implements BoundedCacheInterface
 {
     /**
      * The underlying cache instance.
-     *
-     * @var \Psr\SimpleCache\CacheInterface
      */
-    private $cache;
+    private CacheInterface $cache;
 
     /**
      * The minimum cache lifetime.
-     *
-     * @var int
      */
-    private $min;
+    private int $min;
 
     /**
      * The maximum cache lifetime.
-     *
-     * @var int
      */
-    private $max;
+    private int $max;
 
     /**
      * Create a bounded cache instance.
-     *
-     * @param \Psr\SimpleCache\CacheInterface $cache
-     * @param int                             $min
-     * @param int                             $max
      *
      * @return void
      */
@@ -61,20 +52,16 @@ final class BoundedCache implements BoundedCacheInterface
 
     /**
      * Get the minimum cache lifetime.
-     *
-     * @return int
      */
-    public function getMinimumLifetime()
+    public function getMinimumLifetime(): int
     {
         return $this->min;
     }
 
     /**
-     * Get the maximum cache lfetime.
-     *
-     * @return int
+     * Get the maximum cache lifetime.
      */
-    public function getMaximumLifetime()
+    public function getMaximumLifetime(): int
     {
         return $this->max;
     }
@@ -82,14 +69,9 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Fetches a value from the cache.
      *
-     * @param string $key
-     * @param mixed  $default
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *
-     * @return mixed
      */
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->cache->get($key, $default);
     }
@@ -97,15 +79,11 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Persists data in the cache, uniquely referenced by a key.
      *
-     * @param string                 $key
-     * @param mixed                  $value
-     * @param null|int|\DateInterval $ttl
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
      *
      * @return bool
      */
-    public function set($key, $value, $ttl = null)
+    public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
     {
         return $this->cache->set($key, $value, $this->computeTtl($ttl));
     }
@@ -113,13 +91,9 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Delete an item from the cache by its unique key.
      *
-     * @param string $key
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *
-     * @return bool
      */
-    public function delete($key)
+    public function delete(string $key): bool
     {
         return $this->cache->delete($key);
     }
@@ -129,7 +103,7 @@ final class BoundedCache implements BoundedCacheInterface
      *
      * @return bool
      */
-    public function clear()
+    public function clear(): bool
     {
         return $this->cache->clear();
     }
@@ -137,14 +111,13 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Obtains multiple cache items by their unique keys.
      *
-     * @param iterable $keys
-     * @param mixed    $default
+     * @param iterable<string> $keys
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
      *
-     * @return iterable
+     * @return iterable<string, mixed>
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         return $this->cache->getMultiple($keys, $default);
     }
@@ -152,14 +125,9 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Persists a set of key => value pairs in the cache.
      *
-     * @param iterable               $values
-     * @param null|int|\DateInterval $ttl
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *
-     * @return bool
      */
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
     {
         return $this->cache->setMultiple($values, $this->computeTtl($ttl));
     }
@@ -167,13 +135,11 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Deletes multiple cache items in a single operation.
      *
-     * @param iterable $keys
+     * @param iterable<string> $keys
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *
-     * @return bool
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple(iterable $keys): bool
     {
         return $this->cache->deleteMultiple($keys);
     }
@@ -181,25 +147,17 @@ final class BoundedCache implements BoundedCacheInterface
     /**
      * Determines whether an item is present in the cache.
      *
-     * @param string $key
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *
-     * @return bool
      */
-    public function has($key)
+    public function has(string $key): bool
     {
         return $this->cache->has($key);
     }
 
     /**
      * Computes the TTL to use.
-     *
-     * @param null|int|\DateInterval $ttl
-     *
-     * @return int
      */
-    private function computeTtl($ttl)
+    private function computeTtl(null|int|DateInterval $ttl): int
     {
         return TtlHelper::computeTtl($this->min, $this->max, $ttl);
     }

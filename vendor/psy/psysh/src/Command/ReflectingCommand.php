@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,14 +11,16 @@
 
 namespace Psy\Command;
 
+use PhpParser\NodeTraverser;
+use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\CodeCleaner\NoReturnValue;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
+use Psy\Sudo\SudoVisitor;
 use Psy\Util\Mirror;
 
 /**
@@ -37,6 +39,25 @@ abstract class ReflectingCommand extends Command implements ContextAware
      * @var Context
      */
     protected $context;
+
+    private $parser;
+    private $traverser;
+    private $printer;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($name = null)
+    {
+        $this->parser = new CodeArgumentParser();
+
+        $this->traverser = new NodeTraverser();
+        $this->traverser->addVisitor(new SudoVisitor());
+
+        $this->printer = new Printer();
+
+        parent::__construct($name);
+    }
 
     /**
      * ContextAware interface.
@@ -92,8 +113,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
      *
      * @param string $name
      * @param bool   $includeFunctions (default: false)
-     *
-     * @return string
      */
     protected function resolveName(string $name, bool $includeFunctions = false): string
     {
@@ -172,7 +191,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
     protected function resolveCode(string $code)
     {
         try {
-            $value = $this->getApplication()->execute($code, true);
+            // Add an implicit `sudo` to target resolution.
+            $nodes = $this->traverser->traverse($this->parser->parse($code));
+            $sudoCode = $this->printer->prettyPrint($nodes);
+            $value = $this->getApplication()->execute($sudoCode, true);
         } catch (\Throwable $e) {
             // Swallow all exceptions?
         }
@@ -202,20 +224,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         return $value;
-    }
-
-    /**
-     * @deprecated Use `resolveCode` instead
-     *
-     * @param string $name
-     *
-     * @return mixed Variable instance
-     */
-    protected function resolveInstance(string $name)
-    {
-        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
-
-        return $this->resolveCode($name);
     }
 
     /**
@@ -291,7 +299,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
             case \ReflectionProperty::class:
             case \ReflectionClassConstant::class:
-            case ReflectionClassConstant::class:
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
@@ -304,7 +311,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }

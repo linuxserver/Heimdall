@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\Commenting;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class ClassCommentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ClassComment sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting\ClassCommentSniff
+ */
+final class ClassCommentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -26,10 +31,12 @@ class ClassCommentUnitTest extends AbstractSniffUnitTest
     public function getErrorList()
     {
         return [
-            2  => 1,
-            15 => 1,
-            31 => 1,
-            54 => 1,
+            2   => 1,
+            15  => 1,
+            31  => 1,
+            54  => 1,
+            143 => 1,
+            145 => 1,
         ];
 
     }//end getErrorList()

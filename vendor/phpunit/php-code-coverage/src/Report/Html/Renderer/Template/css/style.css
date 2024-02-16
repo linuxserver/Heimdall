@@ -1,4 +1,9 @@
 body {
+ font-family: sans-serif;
+ font-size: 1em;
+ font-kerning: normal;
+ font-variant-ligatures: common-ligatures;
+ text-rendering: optimizeLegibility;
  padding-top: 10px;
 }
 
@@ -8,6 +13,8 @@ body {
 
 .octicon {
  margin-right:.25em;
+ vertical-align: baseline;
+ width: 0.75em;
 }
 
 .table-bordered>thead>tr>td {
@@ -57,6 +64,7 @@ body {
 }
 
 td.big {
+ vertical-align: middle;
  width: 117px;
 }
 
@@ -112,11 +120,39 @@ svg text {
 
 .scrollbox {
  height:245px;
- overflow-x:hidden;
+ overflow-x:scroll;
  overflow-y:scroll;
 }
 
 table + .structure-heading {
  border-top: 1px solid lightgrey;
  padding-top: 0.5em;
+}
+
+.legend {
+ font-weight: bold;
+ margin-right: 2px;
+ padding-left: 10px;
+ padding-right: 10px;
+ text-align: center;
+}
+
+.covered-by-small-tests {
+ background-color: #99cb84;
+}
+
+.covered-by-medium-tests {
+ background-color: #c3e3b5;
+}
+
+.covered-by-large-tests {
+ background-color: #dff0d8;
+}
+
+.not-covered {
+ background-color: #f2dede;
+}
+
+.not-coverable {
+ background-color: #fcf8e3;
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,13 +31,10 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
 
     /**
      * No class here.
-     *
-     * @todo remove \ReturnTypeWillChange attribute after dropping support for PHP 7.0 (when we can use nullable types)
      */
-    #[\ReturnTypeWillChange]
-    public function getClass()
+    public function getClass(): ?\ReflectionClass
     {
-        return;
+        return null;
     }
 
     /**

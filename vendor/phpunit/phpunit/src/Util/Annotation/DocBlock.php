@@ -67,17 +67,12 @@ final class DocBlock
      */
     public const REGEX_DATA_PROVIDER = '/@dataProvider\s+([a-zA-Z0-9._:-\\\\x7f-\xff]+)/';
 
-    private const REGEX_REQUIRES_VERSION = '/@requires\s+(?P<name>PHP(?:Unit)?)\s+(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+(dev|(RC|alpha|beta)[\d\.])?)[ \t]*\r?$/m';
-
+    private const REGEX_REQUIRES_VERSION            = '/@requires\s+(?P<name>PHP(?:Unit)?)\s+(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+(dev|(RC|alpha|beta)[\d\.])?)[ \t]*\r?$/m';
     private const REGEX_REQUIRES_VERSION_CONSTRAINT = '/@requires\s+(?P<name>PHP(?:Unit)?)\s+(?P<constraint>[\d\t \-.|~^]+)[ \t]*\r?$/m';
-
-    private const REGEX_REQUIRES_OS = '/@requires\s+(?P<name>OS(?:FAMILY)?)\s+(?P<value>.+?)[ \t]*\r?$/m';
-
-    private const REGEX_REQUIRES_SETTING = '/@requires\s+(?P<name>setting)\s+(?P<setting>([^ ]+?))\s*(?P<value>[\w\.-]+[\w\.]?)?[ \t]*\r?$/m';
-
-    private const REGEX_REQUIRES = '/@requires\s+(?P<name>function|extension)\s+(?P<value>([^\s<>=!]+))\s*(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+[\d\.]?)?[ \t]*\r?$/m';
-
-    private const REGEX_TEST_WITH = '/@testWith\s+/';
+    private const REGEX_REQUIRES_OS                 = '/@requires\s+(?P<name>OS(?:FAMILY)?)\s+(?P<value>.+?)[ \t]*\r?$/m';
+    private const REGEX_REQUIRES_SETTING            = '/@requires\s+(?P<name>setting)\s+(?P<setting>([^ ]+?))\s*(?P<value>[\w\.-]+[\w\.]?)?[ \t]*\r?$/m';
+    private const REGEX_REQUIRES                    = '/@requires\s+(?P<name>function|extension)\s+(?P<value>([^\s<>=!]+))\s*(?P<operator>[<>=!]{0,2})\s*(?P<version>[\d\.-]+[\d\.]?)?[ \t]*\r?$/m';
+    private const REGEX_TEST_WITH                   = '/@testWith\s+/';
 
     /** @var string */
     private $docComment;
@@ -133,7 +128,7 @@ final class DocBlock
             $class->getEndLine(),
             $class->getFileName(),
             $className,
-            $className
+            $className,
         );
     }
 
@@ -150,7 +145,7 @@ final class DocBlock
             $method->getEndLine(),
             $method->getFileName(),
             $method->getName(),
-            $classNameInHierarchy
+            $classNameInHierarchy,
         );
     }
 
@@ -268,7 +263,7 @@ final class DocBlock
             array_filter([
                 'setting'            => $recordedSettings,
                 'extension_versions' => $extensionVersions,
-            ])
+            ]),
         );
     }
 
@@ -295,8 +290,8 @@ final class DocBlock
                 throw new InvalidDataSetException(
                     sprintf(
                         'Data set %s is invalid.',
-                        is_int($key) ? '#' . $key : '"' . $key . '"'
-                    )
+                        is_int($key) ? '#' . $key : '"' . $key . '"',
+                    ),
                 );
             }
         }
@@ -404,14 +399,14 @@ final class DocBlock
                 $dataProviderClass = new ReflectionClass($dataProviderClassName);
 
                 $dataProviderMethod = $dataProviderClass->getMethod(
-                    $dataProviderMethodName
+                    $dataProviderMethodName,
                 );
                 // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new Exception(
                     $e->getMessage(),
-                    (int) $e->getCode(),
-                    $e
+                    $e->getCode(),
+                    $e,
                 );
                 // @codeCoverageIgnoreEnd
             }
@@ -440,8 +435,8 @@ final class DocBlock
                             sprintf(
                                 'The key "%s" has already been defined in the data provider "%s".',
                                 $key,
-                                $match
-                            )
+                                $match,
+                            ),
                         );
                     } else {
                         $data[$key] = $value;
@@ -483,7 +478,7 @@ final class DocBlock
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception(
-                    'The data set for the @testWith annotation cannot be parsed: ' . json_last_error_msg()
+                    'The data set for the @testWith annotation cannot be parsed: ' . json_last_error_msg(),
                 );
             }
 
@@ -499,9 +494,9 @@ final class DocBlock
 
     private function cleanUpMultiLineAnnotation(string $docComment): string
     {
-        //removing initial '   * ' for docComment
+        // removing initial '   * ' for docComment
         $docComment = str_replace("\r\n", "\n", $docComment);
-        $docComment = preg_replace('/' . '\n' . '\s*' . '\*' . '\s?' . '/', "\n", $docComment);
+        $docComment = preg_replace('/\n\s*\*\s?/', "\n", $docComment);
         $docComment = (string) substr($docComment, 0, -1);
 
         return rtrim($docComment, "\n");
@@ -538,14 +533,14 @@ final class DocBlock
                     {
                         return self::parseDocBlock((string) $trait->getDocComment());
                     },
-                    array_values($reflector->getTraits())
-                )
+                    array_values($reflector->getTraits()),
+                ),
             );
         }
 
         return array_merge(
             $annotations,
-            self::parseDocBlock((string) $reflector->getDocComment())
+            self::parseDocBlock((string) $reflector->getDocComment()),
         );
     }
 }

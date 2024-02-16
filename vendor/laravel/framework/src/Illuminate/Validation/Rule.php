@@ -4,10 +4,16 @@ namespace Illuminate\Validation;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Validation\Rules\Can;
 use Illuminate\Validation\Rules\Dimensions;
+use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\ExcludeIf;
 use Illuminate\Validation\Rules\Exists;
+use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rules\ImageFile;
 use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\Rules\NotIn;
+use Illuminate\Validation\Rules\ProhibitedIf;
 use Illuminate\Validation\Rules\RequiredIf;
 use Illuminate\Validation\Rules\Unique;
 
@@ -16,11 +22,23 @@ class Rule
     use Macroable;
 
     /**
-     * Create a new conditional rule set.
+     * Get a can constraint builder instance.
+     *
+     * @param  string  $ability
+     * @param  mixed  ...$arguments
+     * @return \Illuminate\Validation\Rules\Can
+     */
+    public static function can($ability, ...$arguments)
+    {
+        return new Can($ability, $arguments);
+    }
+
+    /**
+     * Apply the given rules if the given condition is truthy.
      *
      * @param  callable|bool  $condition
-     * @param  array|string  $rules
-     * @param  array|string  $defaultRules
+     * @param  \Illuminate\Contracts\Validation\ValidationRule|\Illuminate\Contracts\Validation\InvokableRule|\Illuminate\Contracts\Validation\Rule|\Closure|array|string  $rules
+     * @param  \Illuminate\Contracts\Validation\ValidationRule|\Illuminate\Contracts\Validation\InvokableRule|\Illuminate\Contracts\Validation\Rule|\Closure|array|string  $defaultRules
      * @return \Illuminate\Validation\ConditionalRules
      */
     public static function when($condition, $rules, $defaultRules = [])
@@ -29,14 +47,39 @@ class Rule
     }
 
     /**
-     * Get a dimensions constraint builder instance.
+     * Apply the given rules if the given condition is falsy.
      *
-     * @param  array  $constraints
-     * @return \Illuminate\Validation\Rules\Dimensions
+     * @param  callable|bool  $condition
+     * @param  \Illuminate\Contracts\Validation\ValidationRule|\Illuminate\Contracts\Validation\InvokableRule|\Illuminate\Contracts\Validation\Rule|\Closure|array|string  $rules
+     * @param  \Illuminate\Contracts\Validation\ValidationRule|\Illuminate\Contracts\Validation\InvokableRule|\Illuminate\Contracts\Validation\Rule|\Closure|array|string  $defaultRules
+     * @return \Illuminate\Validation\ConditionalRules
      */
-    public static function dimensions(array $constraints = [])
+    public static function unless($condition, $rules, $defaultRules = [])
     {
-        return new Dimensions($constraints);
+        return new ConditionalRules($condition, $defaultRules, $rules);
+    }
+
+    /**
+     * Create a new nested rule set.
+     *
+     * @param  callable  $callback
+     * @return \Illuminate\Validation\NestedRules
+     */
+    public static function forEach($callback)
+    {
+        return new NestedRules($callback);
+    }
+
+    /**
+     * Get a unique constraint builder instance.
+     *
+     * @param  string  $table
+     * @param  string  $column
+     * @return \Illuminate\Validation\Rules\Unique
+     */
+    public static function unique($table, $column = 'NULL')
+    {
+        return new Unique($table, $column);
     }
 
     /**
@@ -93,14 +136,66 @@ class Rule
     }
 
     /**
-     * Get a unique constraint builder instance.
+     * Get a exclude_if constraint builder instance.
      *
-     * @param  string  $table
-     * @param  string  $column
-     * @return \Illuminate\Validation\Rules\Unique
+     * @param  callable|bool  $callback
+     * @return \Illuminate\Validation\Rules\ExcludeIf
      */
-    public static function unique($table, $column = 'NULL')
+    public static function excludeIf($callback)
     {
-        return new Unique($table, $column);
+        return new ExcludeIf($callback);
+    }
+
+    /**
+     * Get a prohibited_if constraint builder instance.
+     *
+     * @param  callable|bool  $callback
+     * @return \Illuminate\Validation\Rules\ProhibitedIf
+     */
+    public static function prohibitedIf($callback)
+    {
+        return new ProhibitedIf($callback);
+    }
+
+    /**
+     * Get an enum constraint builder instance.
+     *
+     * @param  string  $type
+     * @return \Illuminate\Validation\Rules\Enum
+     */
+    public static function enum($type)
+    {
+        return new Enum($type);
+    }
+
+    /**
+     * Get a file constraint builder instance.
+     *
+     * @return \Illuminate\Validation\Rules\File
+     */
+    public static function file()
+    {
+        return new File;
+    }
+
+    /**
+     * Get an image file constraint builder instance.
+     *
+     * @return \Illuminate\Validation\Rules\ImageFile
+     */
+    public static function imageFile()
+    {
+        return new ImageFile;
+    }
+
+    /**
+     * Get a dimensions constraint builder instance.
+     *
+     * @param  array  $constraints
+     * @return \Illuminate\Validation\Rules\Dimensions
+     */
+    public static function dimensions(array $constraints = [])
+    {
+        return new Dimensions($constraints);
     }
 }

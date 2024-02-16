@@ -3,14 +3,19 @@
  * Unit test class for the InterfaceNameSuffix sniff.
  *
  * @author  Anna Borzenko <annnechko@gmail.com>
- * @license https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\NamingConventions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class InterfaceNameSuffixUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the InterfaceNameSuffix sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions\InterfaceNameSuffixSniff
+ */
+final class InterfaceNameSuffixUnitTest extends AbstractSniffUnitTest
 {
 
 

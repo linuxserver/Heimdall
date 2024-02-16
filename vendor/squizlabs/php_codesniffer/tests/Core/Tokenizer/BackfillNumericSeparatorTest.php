@@ -4,35 +4,38 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
+use PHP_CodeSniffer\Util\Tokens;
 
-class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
+final class BackfillNumericSeparatorTest extends AbstractTokenizerTestCase
 {
 
 
     /**
      * Test that numbers using numeric separators are tokenized correctly.
      *
-     * @param array $testData The data required for the specific test case.
+     * @param string $marker The comment which prefaces the target token in the test file.
+     * @param string $type   The expected token type.
+     * @param string $value  The expected token content.
      *
      * @dataProvider dataTestBackfill
      * @covers       PHP_CodeSniffer\Tokenizers\PHP::tokenize
      *
      * @return void
      */
-    public function testBackfill($testData)
+    public function testBackfill($marker, $type, $value)
     {
-        $tokens = self::$phpcsFile->getTokens();
-        $number = $this->getTargetToken($testData['marker'], [T_LNUMBER, T_DNUMBER]);
+        $tokens     = $this->phpcsFile->getTokens();
+        $number     = $this->getTargetToken($marker, [T_LNUMBER, T_DNUMBER]);
+        $tokenArray = $tokens[$number];
 
-        $this->assertSame(constant($testData['type']), $tokens[$number]['code']);
-        $this->assertSame($testData['type'], $tokens[$number]['type']);
-        $this->assertSame($testData['value'], $tokens[$number]['content']);
+        $this->assertSame(constant($type), $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not '.$type.' (code)');
+        $this->assertSame($type, $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not '.$type.' (type)');
+        $this->assertSame($value, $tokenArray['content']);
 
     }//end testBackfill()
 
@@ -42,9 +45,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
      *
      * @see testBackfill()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataTestBackfill()
+    public static function dataTestBackfill()
     {
         $testHexType = 'T_LNUMBER';
         if (PHP_INT_MAX < 0xCAFEF00D) {
@@ -62,96 +65,70 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
         }
 
         return [
-            [
-                [
-                    'marker' => '/* testSimpleLNumber */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '1_000_000_000',
-                ],
+            'decimal integer'                                            => [
+                'marker' => '/* testSimpleLNumber */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '1_000_000_000',
             ],
-            [
-                [
-                    'marker' => '/* testSimpleDNumber */',
-                    'type'   => 'T_DNUMBER',
-                    'value'  => '107_925_284.88',
-                ],
+            'float'                                                      => [
+                'marker' => '/* testSimpleDNumber */',
+                'type'   => 'T_DNUMBER',
+                'value'  => '107_925_284.88',
             ],
-            [
-                [
-                    'marker' => '/* testFloat */',
-                    'type'   => 'T_DNUMBER',
-                    'value'  => '6.674_083e-11',
-                ],
+            'float, scientific notation, negative exponent with sigh'    => [
+                'marker' => '/* testFloat */',
+                'type'   => 'T_DNUMBER',
+                'value'  => '6.674_083e-11',
             ],
-            [
-                [
-                    'marker' => '/* testFloat2 */',
-                    'type'   => 'T_DNUMBER',
-                    'value'  => '6.674_083e+11',
-                ],
+            'float, scientific notation, positive exponent with sign'    => [
+                'marker' => '/* testFloat2 */',
+                'type'   => 'T_DNUMBER',
+                'value'  => '6.674_083e+11',
             ],
-            [
-                [
-                    'marker' => '/* testFloat3 */',
-                    'type'   => 'T_DNUMBER',
-                    'value'  => '1_2.3_4e1_23',
-                ],
+            'float, scientific notation, positive exponent without sign' => [
+                'marker' => '/* testFloat3 */',
+                'type'   => 'T_DNUMBER',
+                'value'  => '1_2.3_4e1_23',
             ],
-            [
-                [
-                    'marker' => '/* testHex */',
-                    'type'   => $testHexType,
-                    'value'  => '0xCAFE_F00D',
-                ],
+            'hexidecimal integer/float'                                  => [
+                'marker' => '/* testHex */',
+                'type'   => $testHexType,
+                'value'  => '0xCAFE_F00D',
             ],
-            [
-                [
-                    'marker' => '/* testHexMultiple */',
-                    'type'   => $testHexMultipleType,
-                    'value'  => '0x42_72_6F_77_6E',
-                ],
+            'hexidecimal integer/float with multiple underscores'        => [
+                'marker' => '/* testHexMultiple */',
+                'type'   => $testHexMultipleType,
+                'value'  => '0x42_72_6F_77_6E',
             ],
-            [
-                [
-                    'marker' => '/* testHexInt */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '0x42_72_6F',
-                ],
+            'hexidecimal integer'                                        => [
+                'marker' => '/* testHexInt */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '0x42_72_6F',
             ],
-            [
-                [
-                    'marker' => '/* testBinary */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '0b0101_1111',
-                ],
+            'binary integer'                                             => [
+                'marker' => '/* testBinary */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '0b0101_1111',
             ],
-            [
-                [
-                    'marker' => '/* testOctal */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '0137_041',
-                ],
+            'octal integer'                                              => [
+                'marker' => '/* testOctal */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '0137_041',
             ],
-            [
-                [
-                    'marker' => '/* testExplicitOctal */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '0o137_041',
-                ],
+            'octal integer using explicit octal notation'                => [
+                'marker' => '/* testExplicitOctal */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '0o137_041',
             ],
-            [
-                [
-                    'marker' => '/* testExplicitOctalCapitalised */',
-                    'type'   => 'T_LNUMBER',
-                    'value'  => '0O137_041',
-                ],
+            'octal integer using explicit octal notation with capital O' => [
+                'marker' => '/* testExplicitOctalCapitalised */',
+                'type'   => 'T_LNUMBER',
+                'value'  => '0O137_041',
             ],
-            [
-                [
-                    'marker' => '/* testIntMoreThanMax */',
-                    'type'   => $testIntMoreThanMaxType,
-                    'value'  => '10_223_372_036_854_775_807',
-                ],
+            'integer more than PHP_INT_MAX becomes a float'              => [
+                'marker' => '/* testIntMoreThanMax */',
+                'type'   => $testIntMoreThanMaxType,
+                'value'  => '10_223_372_036_854_775_807',
             ],
         ];
 
@@ -162,8 +139,8 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
      * Test that numbers using numeric separators which are considered parse errors and/or
      * which aren't relevant to the backfill, do not incorrectly trigger the backfill anyway.
      *
-     * @param string $testMarker     The comment which prefaces the target token in the test file.
-     * @param array  $expectedTokens The token type and content of the expected token sequence.
+     * @param string                           $testMarker     The comment which prefaces the target token in the test file.
+     * @param array<array<string, int|string>> $expectedTokens The token type and content of the expected token sequence.
      *
      * @dataProvider dataNoBackfill
      * @covers       PHP_CodeSniffer\Tokenizers\PHP::tokenize
@@ -172,12 +149,16 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
      */
     public function testNoBackfill($testMarker, $expectedTokens)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
         $number = $this->getTargetToken($testMarker, [T_LNUMBER, T_DNUMBER]);
 
         foreach ($expectedTokens as $key => $expectedToken) {
             $i = ($number + $key);
-            $this->assertSame($expectedToken['code'], $tokens[$i]['code']);
+            $this->assertSame(
+                $expectedToken['code'],
+                $tokens[$i]['code'],
+                'Token tokenized as '.Tokens::tokenName($tokens[$i]['code']).', not '.Tokens::tokenName($expectedToken['code'])
+            );
             $this->assertSame($expectedToken['content'], $tokens[$i]['content']);
         }
 
@@ -189,14 +170,14 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
      *
      * @see testBackfill()
      *
-     * @return array
+     * @return array<string, array<string, string|array<array<string, int|string>>>>
      */
-    public function dataNoBackfill()
+    public static function dataNoBackfill()
     {
         return [
-            [
-                '/* testInvalid1 */',
-                [
+            'invalid: trailing underscore'                                      => [
+                'testMarker'     => '/* testInvalid1 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '100',
@@ -207,9 +188,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid2 */',
-                [
+            'invalid: two consecutive underscores'                              => [
+                'testMarker'     => '/* testInvalid2 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '1',
@@ -220,9 +201,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid3 */',
-                [
+            'invalid: underscore directly before decimal point'                 => [
+                'testMarker'     => '/* testInvalid3 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '1',
@@ -237,9 +218,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid4 */',
-                [
+            'invalid: underscore directly after decimal point'                  => [
+                'testMarker'     => '/* testInvalid4 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_DNUMBER,
                         'content' => '1.',
@@ -250,9 +231,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid5 */',
-                [
+            'invalid: hex int - underscore directly after x'                    => [
+                'testMarker'     => '/* testInvalid5 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '0',
@@ -263,9 +244,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid6 */',
-                [
+            'invalid: binary int - underscore directly after b'                 => [
+                'testMarker'     => '/* testInvalid6 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '0',
@@ -276,9 +257,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid7 */',
-                [
+            'invalid: scientific float - underscore directly before e'          => [
+                'testMarker'     => '/* testInvalid7 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '1',
@@ -289,9 +270,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid8 */',
-                [
+            'invalid: scientific float - underscore directly after e'           => [
+                'testMarker'     => '/* testInvalid8 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '1',
@@ -302,9 +283,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid9 */',
-                [
+            'invalid: space between parts of the number'                        => [
+                'testMarker'     => '/* testInvalid9 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '107_925_284',
@@ -319,9 +300,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid10 */',
-                [
+            'invalid: comment within the number'                                => [
+                'testMarker'     => '/* testInvalid10 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '107_925_284',
@@ -336,9 +317,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid11 */',
-                [
+            'invalid: explicit octal int - underscore directly after o'         => [
+                'testMarker'     => '/* testInvalid11 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '0',
@@ -349,9 +330,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testInvalid12 */',
-                [
+            'invalid: explicit octal int - underscore directly after capital O' => [
+                'testMarker'     => '/* testInvalid12 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '0',
@@ -362,9 +343,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* testCalc1 */',
-                [
+            'calculations should be untouched - int - int'                      => [
+                'testMarker'     => '/* testCalc1 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_LNUMBER,
                         'content' => '667_083',
@@ -387,9 +368,9 @@ class BackfillNumericSeparatorTest extends AbstractMethodUnitTest
                     ],
                 ],
             ],
-            [
-                '/* test Calc2 */',
-                [
+            'calculations should be untouched - scientific float + int'         => [
+                'testMarker'     => '/* test Calc2 */',
+                'expectedTokens' => [
                     [
                         'code'    => T_DNUMBER,
                         'content' => '6.674_08e3',

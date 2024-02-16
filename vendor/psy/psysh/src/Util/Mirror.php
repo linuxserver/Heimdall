@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,7 @@
 namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionNamespace;
 
 /**
@@ -48,8 +47,8 @@ class Mirror
         if ($member === null && \is_string($value)) {
             if (\function_exists($value)) {
                 return new \ReflectionFunction($value);
-            } elseif (\defined($value) || ReflectionConstant_::isMagicConstant($value)) {
-                return new ReflectionConstant_($value);
+            } elseif (\defined($value) || ReflectionConstant::isMagicConstant($value)) {
+                return new ReflectionConstant($value);
             }
         }
 
@@ -58,7 +57,7 @@ class Mirror
         if ($member === null) {
             return $class;
         } elseif ($filter & self::CONSTANT && $class->hasConstant($member)) {
-            return ReflectionClassConstant::create($value, $member);
+            return new \ReflectionClassConstant($value, $member);
         } elseif ($filter & self::METHOD && $class->hasMethod($member)) {
             return $class->getMethod($member);
         } elseif ($filter & self::PROPERTY && $class->hasProperty($member)) {

@@ -9,6 +9,30 @@ $result = $value & $test /* testBitwiseAnd2 */ & $another;
 
 class TypeIntersection
 {
+    /* testTypeIntersectionOOConstSimple */
+    public const Foo&Bar SIMPLE = new Foo();
+
+    /* testTypeIntersectionOOConstReverseModifierOrder */
+    protected final const Something&Nothing MODIFIERS_REVERSED /* testBitwiseAndOOConstDefaultValue */ = E_WARNING & E_NOTICE;
+
+    const
+        /* testTypeIntersectionOOConstMulti1 */
+        Foo &
+        /* testTypeIntersectionOOConstMulti2 */
+        Traversable & // phpcs:ignore Stnd.Cat.Sniff
+        Boo
+        /* testTypeIntersectionOOConstMulti3 */
+        & Bar MULTI_INTERSECTION = false;
+
+    /* testTypeIntersectionOOConstNamespaceRelative */
+    const namespace\Sub\NameA&namespace\Sub\NameB NAMESPACE_RELATIVE = new namespace\Sub\NameB;
+
+    /* testTypeIntersectionOOConstPartiallyQualified */
+    const Partially\Qualified\NameA&Partially\Qualified\NameB PARTIALLY_QUALIFIED = new Partially\Qualified\NameA;
+
+    /* testTypeIntersectionOOConstFullyQualified */
+    const \Fully\Qualified\NameA&\Fully\Qualified\NameB FULLY_QUALIFIED = new \Fully\Qualified\NameB();
+
     /* testTypeIntersectionPropertySimple */
     public static Foo&Bar $obj;
 
@@ -36,6 +60,9 @@ class TypeIntersection
     /* testTypeIntersectionPropertyWithReadOnlyKeyword */
     protected readonly Foo&Bar $fooBar;
 
+    /* testTypeIntersectionPropertyWithStaticKeyword */
+    static Foo&Bar $obj;
+
     public function paramTypes(
         /* testTypeIntersectionParam1 */
         Foo&Bar $paramA /* testBitwiseAndParamDefaultValue */ = CONSTANT_A & CONSTANT_B,
@@ -56,11 +83,11 @@ class TypeIntersection
         \Fully\Qualified\NameA&\Fully\Qualified\NameB $paramC,
     ) {}
 
-    /* testTypeIntersectionReturnType */
-    public function returnType() : Foo&Bar {}
-
     /* testTypeIntersectionConstructorPropertyPromotion */
     public function __construct( public Foo&Bar $property) {}
+
+    /* testTypeIntersectionReturnType */
+    public function returnType() : Foo&Bar {}
 
     /* testTypeIntersectionAbstractMethodReturnType1 */
     abstract public function abstractMethod(): Foo&Bar /* testTypeIntersectionAbstractMethodReturnType2 */ &Baz;
@@ -75,15 +102,15 @@ class TypeIntersection
     public function identifierNamesReturnFQ() : \Fully\Qualified\NameA&\Fully\Qualified\NameB {}
 }
 
-/* testTypeIntersectionClosureParamIllegalNullable */
-$closureWithParamType = function (?Foo&Bar $string) {};
-
 function globalFunctionWithSpreadAndReference(
     /* testTypeIntersectionWithReference */
     Foo&Bar /* testBitwiseAnd5 */ &$paramA,
     /* testTypeIntersectionWithSpreadOperator */
     Foo&Bar ...$paramB
 ) {}
+
+/* testTypeIntersectionClosureParamIllegalNullable */
+$closureWithParamType = function (?Foo&Bar $string) {};
 
 /* testBitwiseAndClosureParamDefault */
 $closureWithReturnType = function ($string = NONSENSE & FAKE)/* testTypeIntersectionClosureReturn */ : \Package\MyA&PackageB {};

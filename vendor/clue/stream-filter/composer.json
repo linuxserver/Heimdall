@@ -2,7 +2,7 @@
     "name": "clue/stream-filter",
     "description": "A simple and modern approach to stream filtering in PHP",
     "keywords": ["stream", "callback", "filter", "php_user_filter", "stream_filter_append", "stream_filter_register", "bucket brigade"],
-    "homepage": "https://github.com/clue/php-stream-filter",
+    "homepage": "https://github.com/clue/stream-filter",
     "license": "MIT",
     "authors": [
         {
@@ -14,13 +14,19 @@
         "php": ">=5.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.36"
+        "phpunit/phpunit": "^9.6 || ^5.7 || ^4.8.36"
     },
     "autoload": {
-        "psr-4": { "Clue\\StreamFilter\\": "src/" },
-        "files": [ "src/functions_include.php" ]
+        "psr-4": {
+            "Clue\\StreamFilter\\": "src/"
+        },
+        "files": [
+            "src/functions_include.php"
+        ]
     },
     "autoload-dev": {
-        "psr-4": { "Clue\\Tests\\StreamFilter\\": "tests/" }
+        "psr-4": {
+            "Clue\\Tests\\StreamFilter\\": "tests/"
+        }
     }
 }

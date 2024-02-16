@@ -1,0 +1,21 @@
+<documentation title="Space Before Cast">
+    <standard>
+    <![CDATA[
+    There should be exactly one space before a cast operator.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Single space before a cast operator.">
+        <![CDATA[
+$integer =<em> </em>(int) $string;
+$c = $a .<em> </em>(string) $b;
+        ]]>
+        </code>
+        <code title="Invalid: No space or multiple spaces before a cast operator.">
+        <![CDATA[
+$integer =<em></em>(int) $string;
+$c = $a .<em>   </em>(string) $b;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

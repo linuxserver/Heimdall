@@ -66,17 +66,11 @@ class Application extends Model
         return $this->icon;
     }
 
-    /**
-     * @return string
-     */
     public function iconView(): string
     {
         return asset('storage/'.$this->icon);
     }
 
-    /**
-     * @return string
-     */
     public function defaultColour(): string
     {
         // check if light or dark
@@ -87,33 +81,26 @@ class Application extends Model
         return '#161b1f';
     }
 
-    /**
-     * @return string
-     */
     public function class(): string
     {
         $name = $this->name;
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
-        return '\App\SupportedApps\\'.$name.'\\'.$name;
+        return \App\SupportedApps::class.$name.'\\'.$name;
     }
 
     /**
      * @param $name
-     * @return string
      */
     public static function classFromName($name): string
     {
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
-        $class = '\App\SupportedApps\\'.$name.'\\'.$name;
+        $class = \App\SupportedApps::class.$name.'\\'.$name;
 
         return $class;
     }
 
-    /**
-     * @return Collection
-     */
     public static function apps(): Collection
     {
         $json = json_decode(file_get_contents(storage_path('app/supportedapps.json'))) ?? [];
@@ -122,9 +109,6 @@ class Application extends Model
         return $apps->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE);
     }
 
-    /**
-     * @return array
-     */
     public static function autocomplete(): array
     {
         $apps = self::apps();
@@ -188,14 +172,11 @@ class Application extends Model
             return null;
         }
         $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name);
-        $app->class = '\App\SupportedApps\\'.$classname.'\\'.$classname;
+        $app->class = \App\SupportedApps::class.$classname.'\\'.$classname;
 
         return $app;
     }
 
-    /**
-     * @return array
-     */
     public static function applist(): array
     {
         $list = [];

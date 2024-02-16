@@ -2,6 +2,9 @@
 
 namespace Illuminate\Queue\Failed;
 
+/**
+ * @method array ids(string $queue = null)
+ */
 interface FailedJobProviderInterface
 {
     /**
@@ -41,7 +44,8 @@ interface FailedJobProviderInterface
     /**
      * Flush all of the failed jobs from storage.
      *
+     * @param  int|null  $hours
      * @return void
      */
-    public function flush();
+    public function flush($hours = null);
 }

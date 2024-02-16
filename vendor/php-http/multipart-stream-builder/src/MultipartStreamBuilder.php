@@ -114,7 +114,7 @@ class MultipartStreamBuilder
         if (empty($options['filename'])) {
             $options['filename'] = null;
             $uri = $stream->getMetadata('uri');
-            if ('php://' !== substr($uri, 0, 6)) {
+            if ('php://' !== substr($uri, 0, 6) && 'data://' !== substr($uri, 0, 7)) {
                 $options['filename'] = $uri;
             }
         }
@@ -172,7 +172,6 @@ class MultipartStreamBuilder
      *
      * @param string $name
      * @param string $filename
-     * @param array  &$headers
      */
     private function prepareHeaders($name, StreamInterface $stream, $filename, array &$headers)
     {

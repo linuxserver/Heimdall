@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\Debug;
@@ -12,14 +12,19 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\Debug;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 use PHP_CodeSniffer\Config;
 
-class JavaScriptLintUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the JavaScriptLint sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Debug\JavaScriptLintSniff
+ */
+final class JavaScriptLintUnitTest extends AbstractSniffUnitTest
 {
 
 
     /**
      * Should this test be skipped for some reason.
      *
-     * @return void
+     * @return bool
      */
     protected function shouldSkipTest()
     {

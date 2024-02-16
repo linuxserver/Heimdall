@@ -16,6 +16,7 @@ use function is_string;
 use function ksort;
 use function max;
 use function range;
+use function strpos;
 use function time;
 use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
@@ -243,7 +244,9 @@ final class Clover
         $buffer = $xmlDocument->saveXML();
 
         if ($target !== null) {
-            Filesystem::createDirectory(dirname($target));
+            if (!strpos($target, '://') !== false) {
+                Filesystem::createDirectory(dirname($target));
+            }
 
             if (@file_put_contents($target, $buffer) === false) {
                 throw new WriteOperationFailedException($target);

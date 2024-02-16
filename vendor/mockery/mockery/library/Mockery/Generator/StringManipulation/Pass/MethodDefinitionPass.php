@@ -1,21 +1,11 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Generator\StringManipulation\Pass;
@@ -67,6 +57,7 @@ class MethodDefinitionPass implements Pass
 
         $methodParams = array();
         $params = $method->getParameters();
+        $isPhp81 = \PHP_VERSION_ID >= 80100;
         foreach ($params as $param) {
             $paramDef = $this->renderTypeHint($param);
             $paramDef .= $param->isPassedByReference() ? '&' : '';
@@ -76,7 +67,29 @@ class MethodDefinitionPass implements Pass
             if (!$param->isVariadic()) {
                 if (false !== $param->isDefaultValueAvailable()) {
                     $defaultValue = $param->getDefaultValue();
-                    $paramDef .= ' = ' . (is_object($defaultValue) ? get_class($defaultValue) : var_export($defaultValue, true));
+
+                    if (is_object($defaultValue)) {
+                        $prefix = get_class($defaultValue);
+                        if ($isPhp81) {
+                            if (enum_exists($prefix)) {
+                                $prefix = var_export($defaultValue, true);
+                            } elseif (
+                                !$param->isDefaultValueConstant() &&
+                                // "Parameter #1 [ <optional> F\Q\CN $a = new \F\Q\CN(param1, param2: 2) ]
+                                preg_match(
+                                    '#<optional>\s.*?\s=\snew\s(.*?)\s]$#',
+                                    $param->__toString(),
+                                    $matches
+                                ) === 1
+                            ) {
+                                $prefix = 'new ' . $matches[1];
+                            }
+                        }
+                    } else {
+                        $prefix = var_export($defaultValue, true);
+                    }
+
+                    $paramDef .= ' = ' . $prefix;
                 } elseif ($param->isOptional()) {
                     $paramDef .= ' = null';
                 }
@@ -157,7 +170,7 @@ BODY;
 
         $body .= "\$ret = {$invoke}(__FUNCTION__, \$argv);\n";
 
-        if (! in_array($method->getReturnType(), ['never','void'], true)) {
+        if (! in_array($method->getReturnType(), ['never', 'void'], true)) {
             $body .= "return \$ret;\n";
         }
 

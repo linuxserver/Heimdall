@@ -13,13 +13,19 @@ use Throwable;
  */
 final class TestResult
 {
-    public const FAIL       = 'failed';
-    public const SKIPPED    = 'skipped';
-    public const INCOMPLETE = 'incompleted';
-    public const RISKY      = 'risked';
-    public const WARN       = 'warnings';
-    public const RUNS       = 'pending';
-    public const PASS       = 'passed';
+    public const FAIL = 'failed';
+
+    public const SKIPPED = 'skipped';
+
+    public const INCOMPLETE = 'incomplete';
+
+    public const RISKY = 'risky';
+
+    public const WARN = 'warnings';
+
+    public const RUNS = 'pending';
+
+    public const PASS = 'passed';
 
     /**
      * @readonly
@@ -76,11 +82,11 @@ final class TestResult
     private function __construct(string $testCaseName, string $description, string $type, string $icon, string $color, Throwable $throwable = null)
     {
         $this->testCaseName = $testCaseName;
-        $this->description  = $description;
-        $this->type         = $type;
-        $this->icon         = $icon;
-        $this->color        = $color;
-        $this->throwable    = $throwable;
+        $this->description = $description;
+        $this->type = $type;
+        $this->icon = $icon;
+        $this->color = $color;
+        $this->throwable = $throwable;
 
         $asWarning = $this->type === TestResult::WARN
              || $this->type === TestResult::RISKY
@@ -88,7 +94,7 @@ final class TestResult
              || $this->type === TestResult::INCOMPLETE;
 
         if ($throwable instanceof Throwable && $asWarning) {
-            $this->warning     = trim((string) preg_replace("/\r|\n/", ' ', $throwable->getMessage()));
+            $this->warning = trim((string) preg_replace("/\r|\n/", ' ', $throwable->getMessage()));
         }
     }
 

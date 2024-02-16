@@ -17,9 +17,6 @@ class SettingsController extends Controller
         $this->middleware('allowed');
     }
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         $settings = SettingGroup::with([
@@ -32,7 +29,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * @param int $id
      *
      * @return RedirectResponse|View
      */
@@ -59,12 +55,6 @@ class SettingsController extends Controller
         }
     }
 
-    /**
-     * @param Request $request
-     * @param int $id
-     *
-     * @return RedirectResponse
-     */
     public function update(Request $request, int $id): RedirectResponse
     {
         $setting = Setting::find($id);
@@ -114,11 +104,6 @@ class SettingsController extends Controller
         }
     }
 
-    /**
-     * @param int $id
-     *
-     * @return RedirectResponse
-     */
     public function clear(int $id): RedirectResponse
     {
         $user = $this->user();

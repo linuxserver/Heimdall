@@ -35,10 +35,8 @@ class RegisterApp extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $folder = $this->argument('folder');
         if ($folder == 'all') {
@@ -56,10 +54,8 @@ class RegisterApp extends Command
 
     /**
      * @param $folder
-     * @param bool $remove
-     * @return void
      */
-    public function addApp($folder, bool $remove = false)
+    public function addApp($folder, bool $remove = false): void
     {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
 
@@ -96,9 +92,8 @@ class RegisterApp extends Command
     /**
      * @param $appFolder
      * @param $icon
-     * @return void
      */
-    private function saveIcon($appFolder, $icon)
+    private function saveIcon($appFolder, $icon): void
     {
         $iconPath = app_path('SupportedApps/' . $appFolder . '/' . $icon);
         $contents = file_get_contents($iconPath);

@@ -26,7 +26,7 @@ class Event
     /**
      * The command string.
      *
-     * @var string
+     * @var string|null
      */
     public $command;
 
@@ -38,6 +38,13 @@ class Event
     public $expression = '* * * * *';
 
     /**
+     * How often to repeat the event during a minute.
+     *
+     * @var int|null
+     */
+    public $repeatSeconds = null;
+
+    /**
      * The timezone the date should be evaluated on.
      *
      * @var \DateTimeZone|string
@@ -47,7 +54,7 @@ class Event
     /**
      * The user the command should run as.
      *
-     * @var string
+     * @var string|null
      */
     public $user;
 
@@ -80,7 +87,7 @@ class Event
     public $onOneServer = false;
 
     /**
-     * The amount of time the mutex should be valid.
+     * The number of minutes the mutex should be valid.
      *
      * @var int
      */
@@ -138,7 +145,7 @@ class Event
     /**
      * The human readable description of the event.
      *
-     * @var string
+     * @var string|null
      */
     public $description;
 
@@ -148,6 +155,22 @@ class Event
      * @var \Illuminate\Console\Scheduling\EventMutex
      */
     public $mutex;
+
+    /**
+     * The mutex name resolver callback.
+     *
+     * @var \Closure|null
+     */
+    public $mutexNameResolver;
+
+    /**
+     * The last time the event was checked for eligibility to run.
+     *
+     * Utilized by sub-minute repeated events.
+     *
+     * @var \Illuminate\Support\Carbon|null
+     */
+    protected $lastChecked;
 
     /**
      * The exit status code of the command.
@@ -188,66 +211,102 @@ class Event
      *
      * @param  \Illuminate\Contracts\Container\Container  $container
      * @return void
+     *
+     * @throws \Throwable
      */
     public function run(Container $container)
     {
-        if ($this->withoutOverlapping &&
-            ! $this->mutex->create($this)) {
+        if ($this->shouldSkipDueToOverlapping()) {
             return;
         }
 
-        $this->runInBackground
-                    ? $this->runCommandInBackground($container)
-                    : $this->runCommandInForeground($container);
-    }
+        $exitCode = $this->start($container);
 
-    /**
-     * Get the mutex name for the scheduled command.
-     *
-     * @return string
-     */
-    public function mutexName()
-    {
-        return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->expression.$this->command);
-    }
-
-    /**
-     * Run the command in the foreground.
-     *
-     * @param  \Illuminate\Contracts\Container\Container  $container
-     * @return void
-     */
-    protected function runCommandInForeground(Container $container)
-    {
-        try {
-            $this->callBeforeCallbacks($container);
-
-            $this->exitCode = Process::fromShellCommandline(
-                $this->buildCommand(), base_path(), null, null, null
-            )->run();
-
-            $this->callAfterCallbacks($container);
-        } finally {
-            $this->removeMutex();
+        if (! $this->runInBackground) {
+            $this->finish($container, $exitCode);
         }
     }
 
     /**
-     * Run the command in the background.
+     * Determine if the event should skip because another process is overlapping.
+     *
+     * @return bool
+     */
+    public function shouldSkipDueToOverlapping()
+    {
+        return $this->withoutOverlapping && ! $this->mutex->create($this);
+    }
+
+    /**
+     * Determine if the event has been configured to repeat multiple times per minute.
+     *
+     * @return bool
+     */
+    public function isRepeatable()
+    {
+        return ! is_null($this->repeatSeconds);
+    }
+
+    /**
+     * Determine if the event is ready to repeat.
+     *
+     * @return bool
+     */
+    public function shouldRepeatNow()
+    {
+        return $this->isRepeatable()
+            && $this->lastChecked?->diffInSeconds() >= $this->repeatSeconds;
+    }
+
+    /**
+     * Run the command process.
      *
      * @param  \Illuminate\Contracts\Container\Container  $container
-     * @return void
+     * @return int
+     *
+     * @throws \Throwable
      */
-    protected function runCommandInBackground(Container $container)
+    protected function start($container)
     {
         try {
             $this->callBeforeCallbacks($container);
 
-            Process::fromShellCommandline($this->buildCommand(), base_path(), null, null, null)->run();
+            return $this->execute($container);
         } catch (Throwable $exception) {
             $this->removeMutex();
 
             throw $exception;
+        }
+    }
+
+    /**
+     * Run the command process.
+     *
+     * @param  \Illuminate\Contracts\Container\Container  $container
+     * @return int
+     */
+    protected function execute($container)
+    {
+        return Process::fromShellCommandline(
+            $this->buildCommand(), base_path(), null, null, null
+        )->run();
+    }
+
+    /**
+     * Mark the command process as finished and run callbacks/cleanup.
+     *
+     * @param  \Illuminate\Contracts\Container\Container  $container
+     * @param  int  $exitCode
+     * @return void
+     */
+    public function finish(Container $container, $exitCode)
+    {
+        $this->exitCode = (int) $exitCode;
+
+        try {
+            $this->callAfterCallbacks($container);
+        } finally {
+            $this->removeMutex();
         }
     }
 
@@ -274,24 +333,6 @@ class Event
     {
         foreach ($this->afterCallbacks as $callback) {
             $container->call($callback);
-        }
-    }
-
-    /**
-     * Call all of the "after" callbacks for the event.
-     *
-     * @param  \Illuminate\Contracts\Container\Container  $container
-     * @param  int  $exitCode
-     * @return void
-     */
-    public function callAfterCallbacksWithExitCode(Container $container, $exitCode)
-    {
-        $this->exitCode = (int) $exitCode;
-
-        try {
-            $this->callAfterCallbacks($container);
-        } finally {
-            $this->removeMutex();
         }
     }
 
@@ -366,6 +407,8 @@ class Event
      */
     public function filtersPass($app)
     {
+        $this->lastChecked = Date::now();
+
         foreach ($this->filters as $callback) {
             if (! $app->call($callback)) {
                 return false;
@@ -655,6 +698,8 @@ class Event
     /**
      * Do not allow the event to overlap each other.
      *
+     * The expiration time of the underlying cache lock may be specified in minutes.
+     *
      * @param  int  $expiresAt
      * @return $this
      */
@@ -783,7 +828,7 @@ class Event
         }
 
         return $this->then(function (Container $container) use ($callback) {
-            if (0 === $this->exitCode) {
+            if ($this->exitCode === 0) {
                 $container->call($callback);
             }
         });
@@ -818,7 +863,7 @@ class Event
         }
 
         return $this->then(function (Container $container) use ($callback) {
-            if (0 !== $this->exitCode) {
+            if ($this->exitCode !== 0) {
                 $container->call($callback);
             }
         });
@@ -927,6 +972,35 @@ class Event
     public function preventOverlapsUsing(EventMutex $mutex)
     {
         $this->mutex = $mutex;
+
+        return $this;
+    }
+
+    /**
+     * Get the mutex name for the scheduled command.
+     *
+     * @return string
+     */
+    public function mutexName()
+    {
+        $mutexNameResolver = $this->mutexNameResolver;
+
+        if (! is_null($mutexNameResolver) && is_callable($mutexNameResolver)) {
+            return $mutexNameResolver($this);
+        }
+
+        return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->expression.$this->command);
+    }
+
+    /**
+     * Set the mutex name or name resolver callback.
+     *
+     * @param  \Closure|string  $mutexName
+     * @return $this
+     */
+    public function createMutexNameUsing(Closure|string $mutexName)
+    {
+        $this->mutexNameResolver = is_string($mutexName) ? fn () => $mutexName : $mutexName;
 
         return $this;
     }

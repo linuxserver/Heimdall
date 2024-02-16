@@ -6,6 +6,67 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 
 ## [Unreleased][unreleased]
 
+## [2.4.2] - 2024-02-02
+
+### Fixed
+
+- Fixed declaration parser being too strict
+- `FencedCodeRenderer`: don't add `language-` to class if already prefixed
+
+## [2.4.1] - 2023-08-30
+
+### Fixed
+
+- Fixed `ExternalLinkProcessor` not fully disabling the `rel` attribute when configured to do so (#992)
+
+## [2.4.0] - 2023-03-24
+
+### Added
+
+- Added generic `CommonMarkException` marker interface for all exceptions thrown by the library
+- Added several new specific exception types implementing that marker interface:
+    - `AlreadyInitializedException`
+    - `InvalidArgumentException`
+    - `IOException`
+    - `LogicException`
+    - `MissingDependencyException`
+    - `NoMatchingRendererException`
+    - `ParserLogicException`
+- Added more configuration options to the Heading Permalinks extension (#939):
+    - `heading_permalink/apply_id_to_heading` - When `true`, the `id` attribute will be applied to the heading element itself instead of the `<a>` tag
+    - `heading_permalink/heading_class` - class to apply to the heading element
+    - `heading_permalink/insert` - now accepts `none` to prevent the creation of the `<a>` link
+- Added new `table/alignment_attributes` configuration option to control how table cell alignment is rendered (#959)
+
+### Changed
+
+- Change several thrown exceptions from `RuntimeException` to `LogicException` (or something extending it), including:
+    - `CallbackGenerator`s that fail to set a URL or return an expected value
+    - `MarkdownParser` when deactivating the last block parser or attempting to get an active block parser when they've all been closed
+    - Adding items to an already-initialized `Environment`
+    - Rendering a `Node` when no renderer has been registered for it
+- `HeadingPermalinkProcessor` now throws `InvalidConfigurationException` instead of `RuntimeException` when invalid config values are given.
+- `HtmlElement::setAttribute()` no longer requires the second parameter for boolean attributes
+- Several small micro-optimizations
+- Changed Strikethrough to only allow 1 or 2 tildes per the updated GFM spec
+
+### Fixed
+
+- Fixed inaccurate `@throws` docblocks throughout the codebase, including `ConverterInterface`, `MarkdownConverter`, and `MarkdownConverterInterface`.
+    - These previously suggested that only `\RuntimeException`s were thrown, which was inaccurate as `\LogicException`s were also possible.
+
+## [2.3.9] - 2023-02-15
+
+### Fixed
+
+- Fixed autolink extension not detecting some URIs with underscores (#956)
+
+## [2.3.8] - 2022-12-10
+
+### Fixed
+
+- Fixed parsing issues when `mb_internal_encoding()` is set to something other than `UTF-8` (#951)
+
 ## [2.3.7] - 2022-11-03
 
 ### Fixed
@@ -506,7 +567,12 @@ No changes were introduced since the previous release.
     - Alternative 1: Use `CommonMarkConverter` or `GithubFlavoredMarkdownConverter` if you don't need to customize the environment
     - Alternative 2: Instantiate a new `Environment` and add the necessary extensions yourself
 
-[unreleased]: https://github.com/thephpleague/commonmark/compare/2.3.7...main
+[unreleased]: https://github.com/thephpleague/commonmark/compare/2.4.2...main
+[2.4.2]: https://github.com/thephpleague/commonmark/compare/2.4.1...2.4.2
+[2.4.1]: https://github.com/thephpleague/commonmark/compare/2.4.0...2.4.1
+[2.4.0]: https://github.com/thephpleague/commonmark/compare/2.3.9...2.4.0
+[2.3.9]: https://github.com/thephpleague/commonmark/compare/2.3.8...2.3.9
+[2.3.8]: https://github.com/thephpleague/commonmark/compare/2.3.7...2.3.8
 [2.3.7]: https://github.com/thephpleague/commonmark/compare/2.3.6...2.3.7
 [2.3.6]: https://github.com/thephpleague/commonmark/compare/2.3.5...2.3.6
 [2.3.5]: https://github.com/thephpleague/commonmark/compare/2.3.4...2.3.5

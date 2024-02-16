@@ -9,10 +9,14 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report;
 
+use function basename;
 use function count;
 use function dirname;
 use function file_put_contents;
+use function preg_match;
 use function range;
+use function str_replace;
+use function strpos;
 use function time;
 use DOMImplementation;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
@@ -190,7 +194,7 @@ final class Cobertura
                 }
             }
 
-            if ($report->numberOfFunctions() === 0) {
+            if ($item->numberOfFunctions() === 0) {
                 $packageElement->setAttribute('complexity', (string) $packageComplexity);
 
                 continue;
@@ -214,7 +218,7 @@ final class Cobertura
 
             $classElement->appendChild($classLinesElement);
 
-            $functions = $report->functions();
+            $functions = $item->functions();
 
             foreach ($functions as $functionName => $function) {
                 if ($function['executableLines'] === 0) {
@@ -291,7 +295,9 @@ final class Cobertura
         $buffer = $document->saveXML();
 
         if ($target !== null) {
-            Filesystem::createDirectory(dirname($target));
+            if (!strpos($target, '://') !== false) {
+                Filesystem::createDirectory(dirname($target));
+            }
 
             if (@file_put_contents($target, $buffer) === false) {
                 throw new WriteOperationFailedException($target);

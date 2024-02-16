@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,16 +25,12 @@ interface Downloader
     /**
      * @param string $url
      *
-     * @return bool
-     *
      * @throws ErrorException on failure
      */
     public function download(string $url): bool;
 
     /**
      * Get the temporary file name the download was written to.
-     *
-     * @return string
      */
     public function getFilename(): string;
 

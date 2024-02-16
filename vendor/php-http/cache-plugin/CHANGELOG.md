@@ -1,5 +1,21 @@
 # Change Log
 
+# Version 1
+
+## 1.8.1 - 2023-11-21
+
+- Allow installation with Symfony 7.
+
+## 1.8.0 - 2023-04-28
+
+- Avoid PHP warning about serializing resources when serializing the response by detaching the stream.
+
+## 1.7.6 - 2023-04-28
+
+- Test with PHP 8.1 and 8.2
+- Made phpspec tests compatible with PSR-7 2.0 strict typing
+- Detect `null` and use 0 explicitly to calculate expiration
+
 ## 1.7.5 - 2022-01-18
 
 - Allow installation with psr/cache 3.0 (1.0 and 2.0 are still allowed too)

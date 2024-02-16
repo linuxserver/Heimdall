@@ -36,38 +36,22 @@ trait TypeTrait
      * @param string $type The type to check the value against.
      * @param mixed $value The value to check.
      */
-    protected function checkType(string $type, $value): bool
+    protected function checkType(string $type, mixed $value): bool
     {
-        switch ($type) {
-            case 'array':
-                return is_array($value);
-            case 'bool':
-            case 'boolean':
-                return is_bool($value);
-            case 'callable':
-                return is_callable($value);
-            case 'float':
-            case 'double':
-                return is_float($value);
-            case 'int':
-            case 'integer':
-                return is_int($value);
-            case 'null':
-                return $value === null;
-            case 'numeric':
-                return is_numeric($value);
-            case 'object':
-                return is_object($value);
-            case 'resource':
-                return is_resource($value);
-            case 'scalar':
-                return is_scalar($value);
-            case 'string':
-                return is_string($value);
-            case 'mixed':
-                return true;
-            default:
-                return $value instanceof $type;
-        }
+        return match ($type) {
+            'array' => is_array($value),
+            'bool', 'boolean' => is_bool($value),
+            'callable' => is_callable($value),
+            'float', 'double' => is_float($value),
+            'int', 'integer' => is_int($value),
+            'null' => $value === null,
+            'numeric' => is_numeric($value),
+            'object' => is_object($value),
+            'resource' => is_resource($value),
+            'scalar' => is_scalar($value),
+            'string' => is_string($value),
+            'mixed' => true,
+            default => $value instanceof $type,
+        };
     }
 }

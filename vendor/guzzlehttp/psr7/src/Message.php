@@ -18,31 +18,31 @@ final class Message
     public static function toString(MessageInterface $message): string
     {
         if ($message instanceof RequestInterface) {
-            $msg = trim($message->getMethod() . ' '
-                    . $message->getRequestTarget())
-                . ' HTTP/' . $message->getProtocolVersion();
+            $msg = trim($message->getMethod().' '
+                    .$message->getRequestTarget())
+                .' HTTP/'.$message->getProtocolVersion();
             if (!$message->hasHeader('host')) {
-                $msg .= "\r\nHost: " . $message->getUri()->getHost();
+                $msg .= "\r\nHost: ".$message->getUri()->getHost();
             }
         } elseif ($message instanceof ResponseInterface) {
-            $msg = 'HTTP/' . $message->getProtocolVersion() . ' '
-                . $message->getStatusCode() . ' '
-                . $message->getReasonPhrase();
+            $msg = 'HTTP/'.$message->getProtocolVersion().' '
+                .$message->getStatusCode().' '
+                .$message->getReasonPhrase();
         } else {
             throw new \InvalidArgumentException('Unknown message type');
         }
 
         foreach ($message->getHeaders() as $name => $values) {
-            if (strtolower($name) === 'set-cookie') {
+            if (is_string($name) && strtolower($name) === 'set-cookie') {
                 foreach ($values as $value) {
-                    $msg .= "\r\n{$name}: " . $value;
+                    $msg .= "\r\n{$name}: ".$value;
                 }
             } else {
-                $msg .= "\r\n{$name}: " . implode(', ', $values);
+                $msg .= "\r\n{$name}: ".implode(', ', $values);
             }
         }
 
-        return "{$msg}\r\n\r\n" . $message->getBody();
+        return "{$msg}\r\n\r\n".$message->getBody();
     }
 
     /**
@@ -77,7 +77,7 @@ final class Message
 
         // Matches any printable character, including unicode characters:
         // letters, marks, numbers, punctuation, spacing, and separators.
-        if (preg_match('/[^\pL\pM\pN\pP\pS\pZ\n\r\t]/u', $summary)) {
+        if (preg_match('/[^\pL\pM\pN\pP\pS\pZ\n\r\t]/u', $summary) !== 0) {
             return null;
         }
 
@@ -146,7 +146,7 @@ final class Message
 
         // If these aren't the same, then one line didn't match and there's an invalid header.
         if ($count !== substr_count($rawHeaders, "\n")) {
-            // Folding is deprecated, see https://tools.ietf.org/html/rfc7230#section-3.2.4
+            // Folding is deprecated, see https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.4
             if (preg_match(Rfc7230::HEADER_FOLD_REGEX, $rawHeaders)) {
                 throw new \InvalidArgumentException('Invalid header syntax: Obsolete line folding');
             }
@@ -190,7 +190,7 @@ final class Message
         $host = $headers[reset($hostKey)][0];
         $scheme = substr($host, -4) === ':443' ? 'https' : 'http';
 
-        return $scheme . '://' . $host . '/' . ltrim($path, '/');
+        return $scheme.'://'.$host.'/'.ltrim($path, '/');
     }
 
     /**
@@ -227,11 +227,11 @@ final class Message
     public static function parseResponse(string $message): ResponseInterface
     {
         $data = self::parseMessage($message);
-        // According to https://tools.ietf.org/html/rfc7230#section-3.1.2 the space
-        // between status-code and reason-phrase is required. But browsers accept
-        // responses without space and reason as well.
+        // According to https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2
+        // the space between status-code and reason-phrase is required. But
+        // browsers accept responses without space and reason as well.
         if (!preg_match('/^HTTP\/.* [0-9]{3}( .*|$)/', $data['start-line'])) {
-            throw new \InvalidArgumentException('Invalid response string: ' . $data['start-line']);
+            throw new \InvalidArgumentException('Invalid response string: '.$data['start-line']);
         }
         $parts = explode(' ', $data['start-line'], 3);
 

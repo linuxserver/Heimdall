@@ -15,6 +15,7 @@ use Nette\MemberAccessException;
 
 /**
  * Nette\SmartObject helpers.
+ * @internal
  */
 final class ObjectHelpers
 {
@@ -28,8 +29,8 @@ final class ObjectHelpers
 	{
 		$rc = new \ReflectionClass($class);
 		$hint = self::getSuggestion(array_merge(
-			array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), function ($p) { return !$p->isStatic(); }),
-			self::parseFullDoc($rc, '~^[ \t*]*@property(?:-read)?[ \t]+(?:\S+[ \t]+)??\$(\w+)~m')
+			array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), fn($p) => !$p->isStatic()),
+			self::parseFullDoc($rc, '~^[ \t*]*@property(?:-read)?[ \t]+(?:\S+[ \t]+)??\$(\w+)~m'),
 		), $name);
 		throw new MemberAccessException("Cannot read an undeclared property $class::\$$name" . ($hint ? ", did you mean \$$hint?" : '.'));
 	}
@@ -43,8 +44,8 @@ final class ObjectHelpers
 	{
 		$rc = new \ReflectionClass($class);
 		$hint = self::getSuggestion(array_merge(
-			array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), function ($p) { return !$p->isStatic(); }),
-			self::parseFullDoc($rc, '~^[ \t*]*@property(?:-write)?[ \t]+(?:\S+[ \t]+)??\$(\w+)~m')
+			array_filter($rc->getProperties(\ReflectionProperty::IS_PUBLIC), fn($p) => !$p->isStatic()),
+			self::parseFullDoc($rc, '~^[ \t*]*@property(?:-write)?[ \t]+(?:\S+[ \t]+)??\$(\w+)~m'),
 		), $name);
 		throw new MemberAccessException("Cannot write to an undeclared property $class::\$$name" . ($hint ? ", did you mean \$$hint?" : '.'));
 	}
@@ -76,7 +77,7 @@ final class ObjectHelpers
 			$hint = self::getSuggestion(array_merge(
 				get_class_methods($class),
 				self::parseFullDoc(new \ReflectionClass($class), '~^[ \t*]*@method[ \t]+(?:static[ \t]+)?(?:\S+[ \t]+)??(\w+)\(~m'),
-				$additionalMethods
+				$additionalMethods,
 			), $method);
 			throw new MemberAccessException("Call to undefined method $class::$method()" . ($hint ? ", did you mean $hint()?" : '.'));
 		}
@@ -107,8 +108,8 @@ final class ObjectHelpers
 
 		} else {
 			$hint = self::getSuggestion(
-				array_filter((new \ReflectionClass($class))->getMethods(\ReflectionMethod::IS_PUBLIC), function ($m) { return $m->isStatic(); }),
-				$method
+				array_filter((new \ReflectionClass($class))->getMethods(\ReflectionMethod::IS_PUBLIC), fn($m) => $m->isStatic()),
+				$method,
 			);
 			throw new MemberAccessException("Call to undefined static method $class::$method()" . ($hint ? ", did you mean $hint()?" : '.'));
 		}
@@ -133,7 +134,7 @@ final class ObjectHelpers
 			'~^  [ \t*]*  @property(|-read|-write|-deprecated)  [ \t]+  [^\s$]+  [ \t]+  \$  (\w+)  ()~mx',
 			(string) $rc->getDocComment(),
 			$matches,
-			PREG_SET_ORDER
+			PREG_SET_ORDER,
 		);
 
 		$props = [];
@@ -199,16 +200,16 @@ final class ObjectHelpers
 			}
 		} while ($rc = $rc->getParentClass());
 
-		return preg_match_all($pattern, implode($doc), $m) ? $m[1] : [];
+		return preg_match_all($pattern, implode('', $doc), $m) ? $m[1] : [];
 	}
 
 
 	/**
 	 * Checks if the public non-static property exists.
-	 * @return bool|string returns 'event' if the property exists and has event like name
+	 * Returns 'event' if the property exists and has event like name
 	 * @internal
 	 */
-	public static function hasProperty(string $class, string $name)
+	public static function hasProperty(string $class, string $name): bool|string
 	{
 		static $cache;
 		$prop = &$cache[$class][$name];

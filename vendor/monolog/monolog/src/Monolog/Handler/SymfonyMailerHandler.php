@@ -11,7 +11,10 @@
 
 namespace Monolog\Handler;
 
+use Closure;
+use Monolog\Level;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use Monolog\Utils;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
@@ -23,23 +26,20 @@ use Symfony\Component\Mime\Email;
  * SymfonyMailerHandler uses Symfony's Mailer component to send the emails
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
- *
- * @phpstan-import-type Record from \Monolog\Logger
  */
 class SymfonyMailerHandler extends MailHandler
 {
-    /** @var MailerInterface|TransportInterface */
-    protected $mailer;
-    /** @var Email|callable(string, Record[]): Email */
-    private $emailTemplate;
+    protected MailerInterface|TransportInterface $mailer;
+    /** @var Email|Closure(string, LogRecord[]): Email */
+    private Email|Closure $emailTemplate;
 
     /**
-     * @psalm-param Email|callable(string, Record[]): Email $email
+     * @phpstan-param Email|Closure(string, LogRecord[]): Email $email
      *
      * @param MailerInterface|TransportInterface $mailer The mailer to use
-     * @param callable|Email                     $email  An email template, the subject/body will be replaced
+     * @param Closure|Email                      $email  An email template, the subject/body will be replaced
      */
-    public function __construct($mailer, $email, $level = Logger::ERROR, bool $bubble = true)
+    public function __construct($mailer, Email|Closure $email, int|string|Level $level = Level::Error, bool $bubble = true)
     {
         parent::__construct($level, $bubble);
 
@@ -68,10 +68,8 @@ class SymfonyMailerHandler extends MailHandler
     /**
      * Creates instance of Email to be sent
      *
-     * @param  string        $content formatted email body to be sent
-     * @param  array         $records Log records that formed the content
-     *
-     * @phpstan-param Record[] $records
+     * @param  string      $content formatted email body to be sent
+     * @param  LogRecord[] $records Log records that formed the content
      */
     protected function buildMessage(string $content, array $records): Email
     {
@@ -84,10 +82,10 @@ class SymfonyMailerHandler extends MailHandler
 
         if (!$message instanceof Email) {
             $record = reset($records);
-            throw new \InvalidArgumentException('Could not resolve message as instance of Email or a callable returning it' . ($record ? Utils::getRecordMessageForException($record) : ''));
+            throw new \InvalidArgumentException('Could not resolve message as instance of Email or a callable returning it' . ($record instanceof LogRecord ? Utils::getRecordMessageForException($record) : ''));
         }
 
-        if ($records) {
+        if (\count($records) > 0) {
             $subjectFormatter = $this->getSubjectFormatter($message->getSubject());
             $message->subject($subjectFormatter->format($this->getHighestRecord($records)));
         }

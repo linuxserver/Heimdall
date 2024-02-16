@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\PHP;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class LowerCaseConstantUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the LowerCaseConstant sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\PHP\LowerCaseConstantSniff
+ */
+final class LowerCaseConstantUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,7 +30,7 @@ class LowerCaseConstantUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='LowerCaseConstantUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
         case 'LowerCaseConstantUnitTest.inc':
@@ -51,8 +56,18 @@ class LowerCaseConstantUnitTest extends AbstractSniffUnitTest
                 94  => 2,
                 95  => 1,
                 100 => 2,
+                104 => 1,
+                108 => 1,
+                118 => 1,
+                119 => 1,
+                120 => 1,
+                121 => 1,
+                125 => 1,
+                129 => 1,
+                149 => 1,
+                153 => 1,
             ];
-        break;
+
         case 'LowerCaseConstantUnitTest.js':
             return [
                 2  => 1,
@@ -64,10 +79,9 @@ class LowerCaseConstantUnitTest extends AbstractSniffUnitTest
                 13 => 1,
                 14 => 1,
             ];
-            break;
+
         default:
             return [];
-            break;
         }//end switch
 
     }//end getErrorList()

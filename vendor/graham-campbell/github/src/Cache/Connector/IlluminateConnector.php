@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace GrahamCampbell\GitHub\Cache\Connector;
 
 use GrahamCampbell\BoundedCache\BoundedCache;
+use GrahamCampbell\BoundedCache\BoundedCacheInterface;
 use GrahamCampbell\Manager\ConnectorInterface;
 use Illuminate\Contracts\Cache\Factory;
 use Illuminate\Contracts\Cache\Repository;
@@ -46,7 +47,7 @@ final class IlluminateConnector implements ConnectorInterface
      *
      * @var \Illuminate\Contracts\Cache\Factory|null
      */
-    private $cache;
+    private ?Factory $cache;
 
     /**
      * Create a new illuminate connector instance.
@@ -69,7 +70,7 @@ final class IlluminateConnector implements ConnectorInterface
      *
      * @return \GrahamCampbell\BoundedCache\BoundedCacheInterface
      */
-    public function connect(array $config)
+    public function connect(array $config): BoundedCacheInterface
     {
         $repository = $this->getRepository($config);
 
@@ -85,7 +86,7 @@ final class IlluminateConnector implements ConnectorInterface
      *
      * @return \Illuminate\Contracts\Cache\Repository
      */
-    private function getRepository(array $config)
+    private function getRepository(array $config): Repository
     {
         if (!$this->cache) {
             throw new InvalidArgumentException('Illuminate caching support not available.');
@@ -104,7 +105,7 @@ final class IlluminateConnector implements ConnectorInterface
      *
      * @return \GrahamCampbell\BoundedCache\BoundedCacheInterface
      */
-    private static function getBoundedCache(Repository $repository, array $config)
+    private static function getBoundedCache(Repository $repository, array $config): BoundedCacheInterface
     {
         $min = Arr::get($config, 'min', self::MIN_CACHE_LIFETIME);
         $max = Arr::get($config, 'max', self::MAX_CACHE_LIFETIME);

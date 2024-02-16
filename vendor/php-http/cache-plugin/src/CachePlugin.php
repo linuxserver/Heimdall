@@ -58,7 +58,7 @@ final class CachePlugin implements Plugin
      *     bool respect_cache_headers: Whether to look at the cache directives or ignore them
      *     int default_ttl: (seconds) If we do not respect cache headers or can't calculate a good ttl, use this value
      *     string hash_algo: The hashing algorithm to use when generating cache keys
-     *     int cache_lifetime: (seconds) To support serving a previous stale response when the server answers 304
+     *     int|null cache_lifetime: (seconds) To support serving a previous stale response when the server answers 304
      *              we have to store the cache for a longer time than the server originally says it is valid for.
      *              We store a cache item for $cache_lifetime + max age of the response.
      *     string[] methods: list of request methods which can be cached
@@ -193,13 +193,13 @@ final class CachePlugin implements Plugin
             }
 
             if ($this->isCacheable($response) && $this->isCacheableRequest($request)) {
+                /* The PSR-7 response body is a stream. We can't expect that the response implements Serializable and handles the body.
+                 * Therefore we store the body separately and detach the stream to avoid attempting to serialize a resource.
+                .* Our implementation still makes the assumption that the response object apart from the body can be serialized and deserialized.
+                 */
                 $bodyStream = $response->getBody();
                 $body = $bodyStream->__toString();
-                if ($bodyStream->isSeekable()) {
-                    $bodyStream->rewind();
-                } else {
-                    $response = $response->withBody($this->streamFactory->createStream($body));
-                }
+                $bodyStream->detach();
 
                 $maxAge = $this->getMaxAge($response);
                 $cacheItem
@@ -212,6 +212,13 @@ final class CachePlugin implements Plugin
                         'etag' => $response->getHeader('ETag'),
                     ]);
                 $this->pool->save($cacheItem);
+
+                $bodyStream = $this->streamFactory->createStream($body);
+                if ($bodyStream->isSeekable()) {
+                    $bodyStream->rewind();
+                }
+
+                $response = $response->withBody($bodyStream);
             }
 
             return $this->handleCacheListeners($request, $response, false, $cacheItem);
@@ -230,7 +237,7 @@ final class CachePlugin implements Plugin
             return null;
         }
 
-        return $this->config['cache_lifetime'] + $maxAge;
+        return ($this->config['cache_lifetime'] ?: 0) + ($maxAge ?: 0);
     }
 
     /**
@@ -354,7 +361,7 @@ final class CachePlugin implements Plugin
         $resolver->setDefaults([
             'cache_lifetime' => 86400 * 30, // 30 days
             'default_ttl' => 0,
-            //Deprecated as of v1.3, to be removed in v2.0. Use respect_response_cache_directives instead
+            // Deprecated as of v1.3, to be removed in v2.0. Use respect_response_cache_directives instead
             'respect_cache_headers' => null,
             'hash_algo' => 'sha1',
             'methods' => ['GET', 'HEAD'],
@@ -368,7 +375,7 @@ final class CachePlugin implements Plugin
         $resolver->setAllowedTypes('default_ttl', ['int', 'null']);
         $resolver->setAllowedTypes('respect_cache_headers', ['bool', 'null']);
         $resolver->setAllowedTypes('methods', 'array');
-        $resolver->setAllowedTypes('cache_key_generator', ['null', 'Http\Client\Common\Plugin\Cache\Generator\CacheKeyGenerator']);
+        $resolver->setAllowedTypes('cache_key_generator', ['null', CacheKeyGenerator::class]);
         $resolver->setAllowedTypes('blacklisted_paths', 'array');
         $resolver->setAllowedValues('hash_algo', hash_algos());
         $resolver->setAllowedValues('methods', function ($value) {

@@ -12,14 +12,13 @@
     ],
     "require": {
         "php": "^7.1 || ^8.0",
-        "psr/http-message": "^1.0",
-        "psr/http-factory": "^1.0",
-        "php-http/message-factory": "^1.0.2",
-        "php-http/discovery": "^1.7"
+        "php-http/discovery": "^1.15",
+        "psr/http-factory-implementation": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5.15 || ^8.5 || ^9.3",
         "php-http/message": "^1.5",
+        "php-http/message-factory": "^1.0.2",
         "nyholm/psr7": "^1.0"
     },
     "autoload": {
@@ -36,9 +35,9 @@
         "test": "vendor/bin/phpunit",
         "test-ci": "vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage.xml"
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.x-dev"
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
         }
     }
 }

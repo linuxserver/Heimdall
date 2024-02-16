@@ -32,18 +32,16 @@ final class ApplicationAuthenticator extends AbstractAuthenticator
      *
      * @return \Github\Client
      */
-    public function authenticate(array $config)
+    public function authenticate(array $config): Client
     {
-        if (!$this->client) {
-            throw new InvalidArgumentException('The client instance was not given to the application authenticator.');
-        }
+        $client = $this->getClient();
 
         if (!array_key_exists('clientId', $config) || !array_key_exists('clientSecret', $config)) {
             throw new InvalidArgumentException('The application authenticator requires a client id and secret.');
         }
 
-        $this->client->authenticate($config['clientId'], $config['clientSecret'], Client::AUTH_CLIENT_ID);
+        $client->authenticate($config['clientId'], $config['clientSecret'], Client::AUTH_CLIENT_ID);
 
-        return $this->client;
+        return $client;
     }
 }

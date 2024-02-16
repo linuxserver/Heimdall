@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace GrahamCampbell\GitHub\Auth\Authenticator;
 
 use Github\Client;
+use InvalidArgumentException;
 
 /**
  * This is the abstract authenticator class.
@@ -27,7 +28,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      *
      * @var \Github\Client|null
      */
-    protected $client;
+    private ?Client $client = null;
 
     /**
      * Set the client to perform the authentication on.
@@ -36,10 +37,24 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
      *
      * @return \GrahamCampbell\GitHub\Auth\Authenticator\AuthenticatorInterface
      */
-    public function with(Client $client)
+    public function with(Client $client): AuthenticatorInterface
     {
         $this->client = $client;
 
         return $this;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     *
+     * @return \Github\Client
+     */
+    protected function getClient(): Client
+    {
+        if (!$this->client) {
+            throw new InvalidArgumentException('The client instance was not given to the authenticator.');
+        }
+
+        return $this->client;
     }
 }

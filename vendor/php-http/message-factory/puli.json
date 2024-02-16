@@ -1,5 +1,6 @@
 {
     "version": "1.0",
+    "name": "php-http/message-factory",
     "binding-types": {
         "Http\\Message\\MessageFactory": {
             "description": "PSR-7 Message Factory",

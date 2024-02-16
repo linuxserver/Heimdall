@@ -57,7 +57,7 @@ class NullDispatcher implements DispatcherContract
      *
      * @param  string|object  $event
      * @param  mixed  $payload
-     * @return array|null
+     * @return mixed
      */
     public function until($event, $payload = [])
     {
@@ -139,6 +139,6 @@ class NullDispatcher implements DispatcherContract
      */
     public function __call($method, $parameters)
     {
-        return $this->forwardCallTo($this->dispatcher, $method, $parameters);
+        return $this->forwardDecoratedCallTo($this->dispatcher, $method, $parameters);
     }
 }

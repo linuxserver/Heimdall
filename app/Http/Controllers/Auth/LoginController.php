@@ -49,9 +49,6 @@ class LoginController extends Controller
         $this->middleware('guest')->except(['logout','autologin']);
     }
 
-    /**
-     * @return string
-     */
     public function username(): string
     {
         return 'username';
@@ -60,8 +57,6 @@ class LoginController extends Controller
     /**
      * Handle a login request to the application.
      *
-     * @param Request $request
-     * @return Response
      *
      * @throws ValidationException
      */
@@ -97,10 +92,6 @@ class LoginController extends Controller
     {
     }
 
-    /**
-     * @param User $user
-     * @return RedirectResponse
-     */
     public function setUser(User $user): RedirectResponse
     {
         Auth::logout();
@@ -111,7 +102,6 @@ class LoginController extends Controller
 
     /**
      * @param $uuid
-     * @return RedirectResponse
      */
     public function autologin($uuid): RedirectResponse
     {
@@ -135,15 +125,13 @@ class LoginController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function showLoginForm()
+    public function showLoginForm(): \Illuminate\View\View
     {
         return view('auth.login');
     }
 
     /**
-     * @param Request $request
      * @param $user
-     * @return RedirectResponse
      */
     protected function authenticated(Request $request, $user): RedirectResponse
     {

@@ -17,10 +17,8 @@ class ItemRestController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Collection
      */
-    public function index()
+    public function index(): Collection
     {
         $columns = [
             'title',
@@ -49,9 +47,6 @@ class ItemRestController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return object
      */
     public function store(Request $request): object
     {
@@ -66,45 +61,32 @@ class ItemRestController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param Item $item
-     * @return Response
      */
-    public function show(Item $item)
+    public function show(Item $item): Response
     {
         //
     }
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param Item $item
-     * @return Response
      */
-    public function edit(Item $item)
+    public function edit(Item $item): Response
     {
         //
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param Item $item
-     * @return Response
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, Item $item): Response
     {
         //
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Item $item
-     * @return Response
      */
-    public function destroy(Item $item)
+    public function destroy(Item $item): Response
     {
         //
     }

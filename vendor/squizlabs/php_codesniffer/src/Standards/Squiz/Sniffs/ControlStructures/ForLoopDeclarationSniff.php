@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\ControlStructures;
@@ -51,7 +51,7 @@ class ForLoopDeclarationSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -222,7 +222,7 @@ class ForLoopDeclarationSniff implements Sniff
         $semicolon          = $openingBracket;
         $targetNestinglevel = 0;
         if (isset($tokens[$openingBracket]['conditions']) === true) {
-            $targetNestinglevel += count($tokens[$openingBracket]['conditions']);
+            $targetNestinglevel = count($tokens[$openingBracket]['conditions']);
         }
 
         do {

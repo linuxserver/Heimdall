@@ -2,6 +2,8 @@
 
 namespace Github\Api;
 
+use Github\Api\Deployment\Environments;
+use Github\Api\Deployment\Policies;
 use Github\Exception\MissingArgumentException;
 
 /**
@@ -129,5 +131,21 @@ class Deployment extends AbstractApi
     public function getStatuses($username, $repository, $id)
     {
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/deployments/'.$id.'/statuses');
+    }
+
+    /**
+     * @return Environments
+     */
+    public function environments()
+    {
+        return new Environments($this->getClient());
+    }
+
+    /**
+     * @return Policies
+     */
+    public function policies()
+    {
+        return new Policies($this->getClient());
     }
 }

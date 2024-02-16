@@ -3,7 +3,9 @@
 namespace Illuminate\Auth\Console;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'auth:clear-resets')]
 class ClearResetsCommand extends Command
 {
     /**
@@ -29,6 +31,6 @@ class ClearResetsCommand extends Command
     {
         $this->laravel['auth.password']->broker($this->argument('name'))->getRepository()->deleteExpired();
 
-        $this->info('Expired reset tokens cleared!');
+        $this->components->info('Expired reset tokens cleared successfully.');
     }
 }

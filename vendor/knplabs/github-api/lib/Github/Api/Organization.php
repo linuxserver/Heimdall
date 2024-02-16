@@ -3,9 +3,12 @@
 namespace Github\Api;
 
 use Github\Api\Organization\Actions\Secrets;
+use Github\Api\Organization\Actions\SelfHostedRunners;
+use Github\Api\Organization\Actions\Variables;
 use Github\Api\Organization\Hooks;
 use Github\Api\Organization\Members;
 use Github\Api\Organization\OutsideCollaborators;
+use Github\Api\Organization\SecretScanning;
 use Github\Api\Organization\Teams;
 
 /**
@@ -111,6 +114,14 @@ class Organization extends AbstractApi
     }
 
     /**
+     * @return Variables
+     */
+    public function variables(): Variables
+    {
+        return new Variables($this->getClient());
+    }
+
+    /**
      * @return OutsideCollaborators
      */
     public function outsideCollaborators()
@@ -130,5 +141,21 @@ class Organization extends AbstractApi
     public function issues($organization, array $params = [], $page = 1)
     {
         return $this->get('/orgs/'.rawurlencode($organization).'/issues', array_merge(['page' => $page], $params));
+    }
+
+    /**
+     * @return SelfHostedRunners
+     */
+    public function runners(): SelfHostedRunners
+    {
+        return new SelfHostedRunners($this->getClient());
+    }
+
+    /**
+     * @return SecretScanning
+     */
+    public function secretScanning(): SecretScanning
+    {
+        return new SecretScanning($this->getClient());
     }
 }

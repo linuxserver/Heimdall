@@ -19,8 +19,8 @@ use Symfony\Component\Stopwatch\Stopwatch;
  */
 class TraceableControllerResolver implements ControllerResolverInterface
 {
-    private $resolver;
-    private $stopwatch;
+    private ControllerResolverInterface $resolver;
+    private Stopwatch $stopwatch;
 
     public function __construct(ControllerResolverInterface $resolver, Stopwatch $stopwatch)
     {
@@ -28,17 +28,14 @@ class TraceableControllerResolver implements ControllerResolverInterface
         $this->stopwatch = $stopwatch;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getController(Request $request)
+    public function getController(Request $request): callable|false
     {
         $e = $this->stopwatch->start('controller.get_callable');
 
-        $ret = $this->resolver->getController($request);
-
-        $e->stop();
-
-        return $ret;
+        try {
+            return $this->resolver->getController($request);
+        } finally {
+            $e->stop();
+        }
     }
 }

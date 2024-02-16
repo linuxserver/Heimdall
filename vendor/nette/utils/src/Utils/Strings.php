@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Nette\Utils;
 
+use JetBrains\PhpStorm\Language;
 use Nette;
 use function is_array, is_object, strlen;
 
@@ -20,11 +21,14 @@ class Strings
 {
 	use Nette\StaticClass;
 
-	public const TRIM_CHARACTERS = " \t\n\r\0\x0B\u{A0}";
+	public const TrimCharacters = " \t\n\r\0\x0B\u{A0}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{200B}";
+
+	/** @deprecated use Strings::TrimCharacters */
+	public const TRIM_CHARACTERS = self::TrimCharacters;
 
 
 	/**
-	 * Checks if the string is valid in UTF-8 encoding.
+	 * @deprecated use Nette\Utils\Validator::isUnicode()
 	 */
 	public static function checkEncoding(string $s): bool
 	{
@@ -59,29 +63,47 @@ class Strings
 
 
 	/**
-	 * Starts the $haystack string with the prefix $needle?
+	 * Returns a code point of specific character in UTF-8 (number in range 0x0000..D7FF or 0xE000..10FFFF).
+	 */
+	public static function ord(string $c): int
+	{
+		if (!extension_loaded('iconv')) {
+			throw new Nette\NotSupportedException(__METHOD__ . '() requires ICONV extension that is not loaded.');
+		}
+
+		$tmp = iconv('UTF-8', 'UTF-32BE//IGNORE', $c);
+		if (!$tmp) {
+			throw new Nette\InvalidArgumentException('Invalid UTF-8 character "' . ($c === '' ? '' : '\x' . strtoupper(bin2hex($c))) . '".');
+		}
+
+		return unpack('N', $tmp)[1];
+	}
+
+
+	/**
+	 * @deprecated use str_starts_with()
 	 */
 	public static function startsWith(string $haystack, string $needle): bool
 	{
-		return strncmp($haystack, $needle, strlen($needle)) === 0;
+		return str_starts_with($haystack, $needle);
 	}
 
 
 	/**
-	 * Ends the $haystack string with the suffix $needle?
+	 * @deprecated use str_ends_with()
 	 */
 	public static function endsWith(string $haystack, string $needle): bool
 	{
-		return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
+		return str_ends_with($haystack, $needle);
 	}
 
 
 	/**
-	 * Does $haystack contain $needle?
+	 * @deprecated use str_contains()
 	 */
 	public static function contains(string $haystack, string $needle): bool
 	{
-		return strpos($haystack, $needle) !== false;
+		return str_contains($haystack, $needle);
 	}
 
 
@@ -116,7 +138,7 @@ class Strings
 			$s = $n;
 		}
 
-		$s = self::normalizeNewLines($s);
+		$s = self::unixNewLines($s);
 
 		// remove control characters; leave \t + \n
 		$s = self::pcre('preg_replace', ['#[\x00-\x08\x0B-\x1F\x7F-\x9F]+#u', '', $s]);
@@ -131,12 +153,30 @@ class Strings
 	}
 
 
-	/**
-	 * Standardize line endings to unix-like.
-	 */
+	/** @deprecated use Strings::unixNewLines() */
 	public static function normalizeNewLines(string $s): string
 	{
-		return str_replace(["\r\n", "\r"], "\n", $s);
+		return self::unixNewLines($s);
+	}
+
+
+	/**
+	 * Converts line endings to \n used on Unix-like systems.
+	 * Line endings are: \n, \r, \r\n, U+2028 line separator, U+2029 paragraph separator.
+	 */
+	public static function unixNewLines(string $s): string
+	{
+		return preg_replace("~\r\n?|\u{2028}|\u{2029}~", "\n", $s);
+	}
+
+
+	/**
+	 * Converts line endings to platform-specific, i.e. \r\n on Windows and \n elsewhere.
+	 * Line endings are: \n, \r, \r\n, U+2028 line separator, U+2029 paragraph separator.
+	 */
+	public static function platformNewLines(string $s): string
+	{
+		return preg_replace("~\r\n?|\n|\u{2028}|\u{2029}~", PHP_EOL, $s);
 	}
 
 
@@ -186,7 +226,7 @@ class Strings
 				$s = strtr(
 					$s,
 					"\xa5\xa3\xbc\x8c\xa7\x8a\xaa\x8d\x8f\x8e\xaf\xb9\xb3\xbe\x9c\x9a\xba\x9d\x9f\x9e\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xfe\x96\xa0\x8b\x97\x9b\xa6\xad\xb7",
-					'ALLSSSSTZZZallssstzzzRAAAALCCCEEEEIIDDNNOOOOxRUUUUYTsraaaalccceeeeiiddnnooooruuuuyt- <->|-.'
+					'ALLSSSSTZZZallssstzzzRAAAALCCCEEEEIIDDNNOOOOxRUUUUYTsraaaalccceeeeiiddnnooooruuuuyt- <->|-.',
 				);
 				$s = self::pcre('preg_replace', ['#[^\x00-\x7F]++#', '', $s]);
 			} else {
@@ -357,16 +397,18 @@ class Strings
 	 */
 	public static function length(string $s): int
 	{
-		return function_exists('mb_strlen')
-			? mb_strlen($s, 'UTF-8')
-			: strlen(utf8_decode($s));
+		return match (true) {
+			extension_loaded('mbstring') => mb_strlen($s, 'UTF-8'),
+			extension_loaded('iconv') => iconv_strlen($s, 'UTF-8'),
+			default => strlen(@utf8_decode($s)), // deprecated
+		};
 	}
 
 
 	/**
 	 * Removes all left and right side spaces (or the characters passed as second argument) from a UTF-8 encoded string.
 	 */
-	public static function trim(string $s, string $charlist = self::TRIM_CHARACTERS): string
+	public static function trim(string $s, string $charlist = self::TrimCharacters): string
 	{
 		$charlist = preg_quote($charlist, '#');
 		return self::replace($s, '#^[' . $charlist . ']+|[' . $charlist . ']+$#Du', '');
@@ -375,6 +417,7 @@ class Strings
 
 	/**
 	 * Pads a UTF-8 string to given length by prepending the $pad string to the beginning.
+	 * @param  non-empty-string  $pad
 	 */
 	public static function padLeft(string $s, int $length, string $pad = ' '): string
 	{
@@ -386,6 +429,7 @@ class Strings
 
 	/**
 	 * Pads UTF-8 string to given length by appending the $pad string to the end.
+	 * @param  non-empty-string  $pad
 	 */
 	public static function padRight(string $s, int $length, string $pad = ' '): string
 	{
@@ -482,37 +526,90 @@ class Strings
 
 
 	/**
-	 * Splits a string into array by the regular expression. Parenthesized expression in the delimiter are captured.
-	 * Parameter $flags can be any combination of PREG_SPLIT_NO_EMPTY and PREG_OFFSET_CAPTURE flags.
+	 * Divides the string into arrays according to the regular expression. Expressions in parentheses will be captured and returned as well.
 	 */
-	public static function split(string $subject, string $pattern, int $flags = 0): array
+	public static function split(
+		string $subject,
+		#[Language('RegExp')]
+		string $pattern,
+		bool|int $captureOffset = false,
+		bool $skipEmpty = false,
+		int $limit = -1,
+		bool $utf8 = false,
+	): array
 	{
-		return self::pcre('preg_split', [$pattern, $subject, -1, $flags | PREG_SPLIT_DELIM_CAPTURE]);
+		$flags = is_int($captureOffset)  // back compatibility
+			? $captureOffset
+			: ($captureOffset ? PREG_SPLIT_OFFSET_CAPTURE : 0) | ($skipEmpty ? PREG_SPLIT_NO_EMPTY : 0);
+
+		$pattern .= $utf8 ? 'u' : '';
+		$m = self::pcre('preg_split', [$pattern, $subject, $limit, $flags | PREG_SPLIT_DELIM_CAPTURE]);
+		return $utf8 && $captureOffset
+			? self::bytesToChars($subject, [$m])[0]
+			: $m;
+
 	}
 
 
 	/**
-	 * Checks if given string matches a regular expression pattern and returns an array with first found match and each subpattern.
-	 * Parameter $flags can be any combination of PREG_OFFSET_CAPTURE and PREG_UNMATCHED_AS_NULL flags.
+	 * Searches the string for the part matching the regular expression and returns
+	 * an array with the found expression and individual subexpressions, or `null`.
 	 */
-	public static function match(string $subject, string $pattern, int $flags = 0, int $offset = 0): ?array
+	public static function match(
+		string $subject,
+		#[Language('RegExp')]
+		string $pattern,
+		bool|int $captureOffset = false,
+		int $offset = 0,
+		bool $unmatchedAsNull = false,
+		bool $utf8 = false,
+	): ?array
 	{
-		if ($offset > strlen($subject)) {
-			return null;
+		$flags = is_int($captureOffset) // back compatibility
+			? $captureOffset
+			: ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+
+		if ($utf8) {
+			$offset = strlen(self::substring($subject, 0, $offset));
+			$pattern .= 'u';
 		}
 
-		return self::pcre('preg_match', [$pattern, $subject, &$m, $flags, $offset])
-			? $m
-			: null;
+		if ($offset > strlen($subject)) {
+			return null;
+		} elseif (!self::pcre('preg_match', [$pattern, $subject, &$m, $flags, $offset])) {
+			return null;
+		} elseif ($utf8 && $captureOffset) {
+			return self::bytesToChars($subject, [$m])[0];
+		} else {
+			return $m;
+		}
 	}
 
 
 	/**
-	 * Finds all occurrences matching regular expression pattern and returns a two-dimensional array. Result is array of matches (ie uses by default PREG_SET_ORDER).
-	 * Parameter $flags can be any combination of PREG_OFFSET_CAPTURE, PREG_UNMATCHED_AS_NULL and PREG_PATTERN_ORDER flags.
+	 * Searches the string for all occurrences matching the regular expression and
+	 * returns an array of arrays containing the found expression and each subexpression.
 	 */
-	public static function matchAll(string $subject, string $pattern, int $flags = 0, int $offset = 0): array
+	public static function matchAll(
+		string $subject,
+		#[Language('RegExp')]
+		string $pattern,
+		bool|int $captureOffset = false,
+		int $offset = 0,
+		bool $unmatchedAsNull = false,
+		bool $patternOrder = false,
+		bool $utf8 = false,
+	): array
 	{
+		$flags = is_int($captureOffset) // back compatibility
+			? $captureOffset
+			: ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0);
+
+		if ($utf8) {
+			$offset = strlen(self::substring($subject, 0, $offset));
+			$pattern .= 'u';
+		}
+
 		if ($offset > strlen($subject)) {
 			return [];
 		}
@@ -522,30 +619,72 @@ class Strings
 			($flags & PREG_PATTERN_ORDER) ? $flags : ($flags | PREG_SET_ORDER),
 			$offset,
 		]);
-		return $m;
+		return $utf8 && $captureOffset
+			? self::bytesToChars($subject, $m)
+			: $m;
+
 	}
 
 
 	/**
 	 * Replaces all occurrences matching regular expression $pattern which can be string or array in the form `pattern => replacement`.
-	 * @param  string|array  $pattern
-	 * @param  string|callable  $replacement
 	 */
-	public static function replace(string $subject, $pattern, $replacement = '', int $limit = -1): string
+	public static function replace(
+		string $subject,
+		#[Language('RegExp')]
+		string|array $pattern,
+		string|callable $replacement = '',
+		int $limit = -1,
+		bool $captureOffset = false,
+		bool $unmatchedAsNull = false,
+		bool $utf8 = false,
+	): string
 	{
 		if (is_object($replacement) || is_array($replacement)) {
 			if (!is_callable($replacement, false, $textual)) {
 				throw new Nette\InvalidStateException("Callback '$textual' is not callable.");
 			}
 
-			return self::pcre('preg_replace_callback', [$pattern, $replacement, $subject, $limit]);
+			$flags = ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+			if ($utf8) {
+				$pattern .= 'u';
+				if ($captureOffset) {
+					$replacement = fn($m) => $replacement(self::bytesToChars($subject, [$m])[0]);
+				}
+			}
+
+			return self::pcre('preg_replace_callback', [$pattern, $replacement, $subject, $limit, 0, $flags]);
 
 		} elseif (is_array($pattern) && is_string(key($pattern))) {
 			$replacement = array_values($pattern);
 			$pattern = array_keys($pattern);
 		}
 
+		if ($utf8) {
+			$pattern = array_map(fn($item) => $item . 'u', (array) $pattern);
+		}
+
 		return self::pcre('preg_replace', [$pattern, $replacement, $subject, $limit]);
+	}
+
+
+	private static function bytesToChars(string $s, array $groups): array
+	{
+		$lastBytes = $lastChars = 0;
+		foreach ($groups as &$matches) {
+			foreach ($matches as &$match) {
+				if ($match[1] > $lastBytes) {
+					$lastChars += self::length(substr($s, $lastBytes, $match[1] - $lastBytes));
+				} elseif ($match[1] < $lastBytes) {
+					$lastChars -= self::length(substr($s, $match[1], $lastBytes - $match[1]));
+				}
+
+				$lastBytes = $match[1];
+				$match[1] = $lastChars;
+			}
+		}
+
+		return $groups;
 	}
 
 
@@ -560,7 +699,7 @@ class Strings
 		if (($code = preg_last_error()) // run-time error, but preg_last_error & return code are liars
 			&& ($res === null || !in_array($func, ['preg_filter', 'preg_replace_callback', 'preg_replace'], true))
 		) {
-			throw new RegexpException((RegexpException::MESSAGES[$code] ?? 'Unknown error')
+			throw new RegexpException(preg_last_error_msg()
 				. ' (pattern: ' . implode(' or ', (array) $args[0]) . ')', $code);
 		}
 

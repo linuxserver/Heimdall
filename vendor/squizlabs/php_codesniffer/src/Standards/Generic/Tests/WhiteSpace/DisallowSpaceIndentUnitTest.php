@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\WhiteSpace;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the DisallowSpaceIndent sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\WhiteSpace\DisallowSpaceIndentSniff
+ */
+final class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -44,7 +49,7 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='DisallowSpaceIndentUnitTest.1.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
         case 'DisallowSpaceIndentUnitTest.1.inc':
@@ -85,7 +90,7 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
                 117 => 1,
                 118 => 1,
             ];
-            break;
+
         case 'DisallowSpaceIndentUnitTest.3.inc':
             return [
                 2  => 1,
@@ -96,16 +101,15 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
                 14 => 1,
                 15 => 1,
             ];
-            break;
+
         case 'DisallowSpaceIndentUnitTest.js':
             return [3 => 1];
-            break;
+
         case 'DisallowSpaceIndentUnitTest.css':
             return [2 => 1];
-            break;
+
         default:
             return [];
-            break;
         }//end switch
 
     }//end getErrorList()

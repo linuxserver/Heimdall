@@ -21,10 +21,10 @@ use Symfony\Component\Mime\Part\TextPart;
  */
 class Message extends RawMessage
 {
-    private $headers;
-    private $body;
+    private Headers $headers;
+    private ?AbstractPart $body;
 
-    public function __construct(Headers $headers = null, AbstractPart $body = null)
+    public function __construct(?Headers $headers = null, ?AbstractPart $body = null)
     {
         $this->headers = $headers ? clone $headers : new Headers();
         $this->body = $body;
@@ -42,8 +42,11 @@ class Message extends RawMessage
     /**
      * @return $this
      */
-    public function setBody(AbstractPart $body = null)
+    public function setBody(?AbstractPart $body = null): static
     {
+        if (1 > \func_num_args()) {
+            trigger_deprecation('symfony/mime', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
+        }
         $this->body = $body;
 
         return $this;
@@ -57,7 +60,7 @@ class Message extends RawMessage
     /**
      * @return $this
      */
-    public function setHeaders(Headers $headers)
+    public function setHeaders(Headers $headers): static
     {
         $this->headers = $headers;
 
@@ -122,6 +125,9 @@ class Message extends RawMessage
         yield from $body->toIterable();
     }
 
+    /**
+     * @return void
+     */
     public function ensureValidity()
     {
         if (!$this->headers->has('To') && !$this->headers->has('Cc') && !$this->headers->has('Bcc')) {
@@ -140,7 +146,10 @@ class Message extends RawMessage
         if ($this->headers->has('Sender')) {
             $sender = $this->headers->get('Sender')->getAddress();
         } elseif ($this->headers->has('From')) {
-            $sender = $this->headers->get('From')->getAddresses()[0];
+            if (!$froms = $this->headers->get('From')->getAddresses()) {
+                throw new LogicException('A "From" header must have at least one email address.');
+            }
+            $sender = $froms[0];
         } else {
             throw new LogicException('An email must have a "From" or a "Sender" header.');
         }

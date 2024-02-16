@@ -31,3 +31,13 @@ class ClassConstBowOutTest {
 }
 
 $foo->getBar()?->define('foo');
+
+// PHP 8.3 introduces typed constants.
+class TypedConstants {
+    const MISSING_VALUE; // Parse error.
+    const MyClass MYCONST = new MyClass;
+    const int VALID_NAME = 0;
+    const INT invalid_name = 0;
+    const FALSE false = false; // Yes, false can be used as a constant name, don't ask.
+    const array ARRAY = array(); // Same goes for array.
+}

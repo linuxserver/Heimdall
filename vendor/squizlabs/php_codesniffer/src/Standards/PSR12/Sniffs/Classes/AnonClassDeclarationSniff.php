@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR12\Sniffs\Classes;
@@ -21,14 +21,14 @@ class AnonClassDeclarationSniff extends ClassDeclarationSniff
     /**
      * The PSR2 MultiLineFunctionDeclarations sniff.
      *
-     * @var MultiLineFunctionDeclarationSniff
+     * @var \PHP_CodeSniffer\Standards\Squiz\Sniffs\Functions\MultiLineFunctionDeclarationSniff
      */
     private $multiLineSniff = null;
 
     /**
      * The Generic FunctionCallArgumentSpacing sniff.
      *
-     * @var FunctionCallArgumentSpacingSniff
+     * @var \PHP_CodeSniffer\Standards\Generic\Sniffs\Functions\FunctionCallArgumentSpacingSniff
      */
     private $functionCallSniff = null;
 
@@ -36,7 +36,7 @@ class AnonClassDeclarationSniff extends ClassDeclarationSniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -97,7 +97,11 @@ class AnonClassDeclarationSniff extends ClassDeclarationSniff
                 $first  = $phpcsFile->findFirstOnLine(T_WHITESPACE, $stackPtr, true);
                 $indent = str_repeat(' ', ($tokens[$first]['column'] - 1));
                 $phpcsFile->fixer->beginChangeset();
-                $phpcsFile->fixer->replaceToken(($prev + 1), '');
+
+                if ($tokens[($prev + 1)]['code'] === T_WHITESPACE) {
+                    $phpcsFile->fixer->replaceToken(($prev + 1), '');
+                }
+
                 $phpcsFile->fixer->addNewline($prev);
                 $phpcsFile->fixer->addContentBefore($opener, $indent);
                 $phpcsFile->fixer->endChangeset();

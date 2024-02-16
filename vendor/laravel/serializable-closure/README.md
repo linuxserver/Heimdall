@@ -51,8 +51,10 @@ echo $closure(); // james;
 
 ### Caveats
 
-1. Creating **anonymous classes** within closures is not supported.
-2. Using attributes within closures is not supported.
+* Anonymous classes cannot be created within closures.
+* Attributes cannot be used within closures.
+* Serializing closures on REPL environments like Laravel Tinker is not supported.
+* Serializing closures that reference objects with readonly properties is not supported.
 
 ## Contributing
 

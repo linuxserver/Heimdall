@@ -29,7 +29,7 @@ interface AuthenticatorInterface
      *
      * @return \GrahamCampbell\GitHub\Auth\Authenticator\AuthenticatorInterface
      */
-    public function with(Client $client);
+    public function with(Client $client): AuthenticatorInterface;
 
     /**
      * Authenticate the client, and return it.
@@ -40,5 +40,5 @@ interface AuthenticatorInterface
      *
      * @return \Github\Client
      */
-    public function authenticate(array $config);
+    public function authenticate(array $config): Client;
 }

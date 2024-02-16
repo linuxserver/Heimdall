@@ -17,13 +17,15 @@ use DateInterval;
 use DateTimeImmutable;
 use Github\Client;
 use InvalidArgumentException;
+use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\ClaimsFormatter;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\UnifyAudience;
+use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\RegisteredClaims;
 
 /**
@@ -43,19 +45,17 @@ final class PrivateKeyAuthenticator extends AbstractAuthenticator
      *
      * @return \Github\Client
      */
-    public function authenticate(array $config)
+    public function authenticate(array $config): Client
     {
-        if (!$this->client) {
-            throw new InvalidArgumentException('The client instance was not given to the private key authenticator.');
-        }
+        $client = $this->getClient();
 
         if (!array_key_exists('appId', $config)) {
             throw new InvalidArgumentException('The private key authenticator requires the application id to be configured.');
         }
 
-        $this->client->authenticate(self::getToken($config)->toString(), Client::AUTH_JWT);
+        $client->authenticate(self::getToken($config)->toString(), Client::AUTH_JWT);
 
-        return $this->client;
+        return $client;
     }
 
     /**
@@ -67,7 +67,7 @@ final class PrivateKeyAuthenticator extends AbstractAuthenticator
      *
      * @return \Lcobucci\JWT\Token
      */
-    private static function getToken(array $config)
+    private static function getToken(array $config): Token
     {
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),
@@ -100,7 +100,7 @@ final class PrivateKeyAuthenticator extends AbstractAuthenticator
      *
      * @return \Lcobucci\JWT\Signer\Key
      */
-    private static function getKey(array $config)
+    private static function getKey(array $config): Key
     {
         if (
             !(array_key_exists('key', $config) || array_key_exists('keyPath', $config)) ||
@@ -113,7 +113,7 @@ final class PrivateKeyAuthenticator extends AbstractAuthenticator
             return InMemory::plainText($config['key'], $config['passphrase'] ?? '');
         }
 
-        return LocalFileReference::file($config['keyPath'], $config['passphrase'] ?? '');
+        return InMemory::file($config['keyPath'], $config['passphrase'] ?? '');
     }
 
     /**
@@ -123,7 +123,7 @@ final class PrivateKeyAuthenticator extends AbstractAuthenticator
      *
      * @return \Lcobucci\JWT\Builder
      */
-    private static function getBuilder(Configuration $configuration)
+    private static function getBuilder(Configuration $configuration): Builder
     {
         if (!interface_exists(ClaimsFormatter::class)) {
             return $configuration->builder();

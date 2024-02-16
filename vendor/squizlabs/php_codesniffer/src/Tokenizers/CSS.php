@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tokenizers;
@@ -196,7 +196,11 @@ class CSS extends PHP
 
                 // The first and last tokens are the open/close tags.
                 array_shift($commentTokens);
-                array_pop($commentTokens);
+                $closeTag = array_pop($commentTokens);
+
+                while ($closeTag['content'] !== '?'.'>') {
+                    $closeTag = array_pop($commentTokens);
+                }
 
                 if ($leadingZero === true) {
                     $commentTokens[0]['content'] = substr($commentTokens[0]['content'], 1);

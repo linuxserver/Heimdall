@@ -19,8 +19,6 @@ class HomeController extends Controller
 
     /**
      * Show the application dashboard.
-     *
-     * @return RedirectResponse
      */
     public function index(): RedirectResponse
     {

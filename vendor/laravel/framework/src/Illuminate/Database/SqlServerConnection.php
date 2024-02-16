@@ -3,8 +3,7 @@
 namespace Illuminate\Database;
 
 use Closure;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as DoctrineDriver;
-use Doctrine\DBAL\Version;
+use Exception;
 use Illuminate\Database\PDO\SqlServerDriver;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\SqlServerProcessor;
@@ -57,13 +56,39 @@ class SqlServerConnection extends Connection
     }
 
     /**
+     * Escape a binary value for safe SQL embedding.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function escapeBinary($value)
+    {
+        $hex = bin2hex($value);
+
+        return "0x{$hex}";
+    }
+
+    /**
+     * Determine if the given database exception was caused by a unique constraint violation.
+     *
+     * @param  \Exception  $exception
+     * @return bool
+     */
+    protected function isUniqueConstraintError(Exception $exception)
+    {
+        return boolval(preg_match('#Cannot insert duplicate key row in object#i', $exception->getMessage()));
+    }
+
+    /**
      * Get the default query grammar instance.
      *
      * @return \Illuminate\Database\Query\Grammars\SqlServerGrammar
      */
     protected function getDefaultQueryGrammar()
     {
-        return $this->withTablePrefix(new QueryGrammar);
+        ($grammar = new QueryGrammar)->setConnection($this);
+
+        return $this->withTablePrefix($grammar);
     }
 
     /**
@@ -87,7 +112,9 @@ class SqlServerConnection extends Connection
      */
     protected function getDefaultSchemaGrammar()
     {
-        return $this->withTablePrefix(new SchemaGrammar);
+        ($grammar = new SchemaGrammar)->setConnection($this);
+
+        return $this->withTablePrefix($grammar);
     }
 
     /**
@@ -116,10 +143,10 @@ class SqlServerConnection extends Connection
     /**
      * Get the Doctrine DBAL driver.
      *
-     * @return \Doctrine\DBAL\Driver\PDOSqlsrv\Driver|\Illuminate\Database\PDO\SqlServerDriver
+     * @return \Illuminate\Database\PDO\SqlServerDriver
      */
     protected function getDoctrineDriver()
     {
-        return class_exists(Version::class) ? new DoctrineDriver : new SqlServerDriver;
+        return new SqlServerDriver;
     }
 }
