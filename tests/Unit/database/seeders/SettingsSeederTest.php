@@ -9,8 +9,6 @@ class SettingsSeederTest extends TestCase
 {
     /**
      * All language keys are defined in all languages based on the en language file.
-     *
-     * @return void
      */
     public function test_returns_a_jsonmap_with_same_amount_of_items_as_language_directories_present(): void
     {

@@ -32,8 +32,6 @@ class ItemController extends Controller
 
     /**
      * Display a listing of the resource on the dashboard.
-     *
-     * @return View
      */
     public function dash(): View
     {
@@ -69,7 +67,6 @@ class ItemController extends Controller
      * Pin item on the dashboard.
      *
      * @param $id
-     * @return RedirectResponse
      */
     public function pin($id): RedirectResponse
     {
@@ -85,7 +82,6 @@ class ItemController extends Controller
      * Unpin item on the dashboard.
      *
      * @param $id
-     * @return RedirectResponse
      */
     public function unpin($id): RedirectResponse
     {
@@ -135,9 +131,6 @@ class ItemController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @param Request $request
-     * @return View
      */
     public function index(Request $request): View
     {
@@ -154,8 +147,6 @@ class ItemController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return View
      */
     public function create(): View
     {
@@ -169,9 +160,6 @@ class ItemController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return View
      */
     public function edit(int $id): View
     {
@@ -194,9 +182,7 @@ class ItemController extends Controller
     }
 
     /**
-     * @param Request $request
      * @param null $id
-     * @return Item
      * @throws ValidationException
      */
     public static function storelogic(Request $request, $id = null): Item
@@ -287,9 +273,6 @@ class ItemController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -303,9 +286,6 @@ class ItemController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param int $id
-     * @return void
      */
     public function show(int $id): void
     {
@@ -314,10 +294,6 @@ class ItemController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function update(Request $request, int $id): RedirectResponse
     {
@@ -330,10 +306,6 @@ class ItemController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function destroy(Request $request, int $id): RedirectResponse
     {
@@ -355,9 +327,6 @@ class ItemController extends Controller
 
     /**
      * Restore the specified resource from soft deletion.
-     *
-     * @param int $id
-     * @return RedirectResponse
      */
     public function restore(int $id): RedirectResponse
     {
@@ -375,8 +344,6 @@ class ItemController extends Controller
     /**
      * Return details for supported apps
      *
-     * @param Request $request
-     * @return string|null
      * @throws GuzzleException
      */
     public function appload(Request $request): ?string
@@ -419,7 +386,6 @@ class ItemController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return void
      */
     public function testConfig(Request $request)
@@ -448,9 +414,7 @@ class ItemController extends Controller
 
     /**
      * @param $url
-     * @param array $attrs
      * @param array|bool $overridevars
-     * @return ResponseInterface|null
      * @throws GuzzleException
      */
     public function execute($url, array $attrs = [], $overridevars = false): ?ResponseInterface
@@ -481,7 +445,6 @@ class ItemController extends Controller
 
     /**
      * @param $url
-     * @return StreamInterface
      * @throws GuzzleException
      */
     public function websitelookup($url): StreamInterface

@@ -8,8 +8,6 @@ class LangTest extends TestCase
 {
     /**
      * All language keys are defined in all languages based on the en language file.
-     *
-     * @return void
      */
     public function test_all_language_keys_are_defined(): void
     {

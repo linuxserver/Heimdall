@@ -32,7 +32,6 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
     /**
      * Execute the job.
      *
-     * @return void
      * @throws GuzzleException
      */
     public function handle(): void

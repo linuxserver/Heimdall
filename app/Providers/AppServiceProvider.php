@@ -19,8 +19,6 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -105,8 +103,6 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Generate app key if missing and .env exists
-     *
-     * @return void
      */
     public function genKey(): void
     {
@@ -119,8 +115,6 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -136,7 +130,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Check if database needs an update or do first time database setup
      *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -158,9 +151,6 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * @return void
-     */
     public function createEnvFile(): void
     {
         if (!is_file(base_path('.env'))) {
@@ -170,9 +160,6 @@ class AppServiceProvider extends ServiceProvider
         $this->genKey();
     }
 
-    /**
-     * @return bool
-     */
     private function needsDBUpdate(): bool
     {
         if (!Schema::hasTable('settings')) {
@@ -185,9 +172,6 @@ class AppServiceProvider extends ServiceProvider
         return version_compare($app_version, $db_version) === 1;
     }
 
-    /**
-     * @return void
-     */
     private function updateApps(): void
     {
         // This lock ensures that the job is not invoked multiple times.

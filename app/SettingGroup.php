@@ -37,9 +37,6 @@ class SettingGroup extends Model
      */
     public $timestamps = false;
 
-    /**
-     * @return HasMany
-     */
     public function settings(): HasMany
     {
         return $this->hasMany(\App\Setting::class, 'group_id');

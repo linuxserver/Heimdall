@@ -30,7 +30,6 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
     /**
      * Execute the job.
      *
-     * @return void
      * @throws GuzzleException
      */
     public function handle(): void
@@ -50,9 +49,6 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
         Cache::lock('updateApps')->forceRelease();
     }
 
-    /**
-     * @return void
-     */
     public function failed($exception): void
     {
         Cache::lock('updateApps')->forceRelease();

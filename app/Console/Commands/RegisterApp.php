@@ -35,8 +35,6 @@ class RegisterApp extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -56,8 +54,6 @@ class RegisterApp extends Command
 
     /**
      * @param $folder
-     * @param bool $remove
-     * @return void
      */
     public function addApp($folder, bool $remove = false): void
     {
@@ -96,7 +92,6 @@ class RegisterApp extends Command
     /**
      * @param $appFolder
      * @param $icon
-     * @return void
      */
     private function saveIcon($appFolder, $icon): void
     {
