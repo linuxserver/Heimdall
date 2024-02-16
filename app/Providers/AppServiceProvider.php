@@ -108,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function genKey()
+    public function genKey(): void
     {
         if (is_file(base_path('.env'))) {
             if (empty(env('APP_KEY'))) {
@@ -188,7 +188,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    private function updateApps()
+    private function updateApps(): void
     {
         // This lock ensures that the job is not invoked multiple times.
         // In 5 minutes all app updates should be finished.

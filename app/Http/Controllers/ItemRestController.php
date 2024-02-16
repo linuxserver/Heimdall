@@ -20,7 +20,7 @@ class ItemRestController extends Controller
      *
      * @return Collection
      */
-    public function index()
+    public function index(): Collection
     {
         $columns = [
             'title',
@@ -70,7 +70,7 @@ class ItemRestController extends Controller
      * @param Item $item
      * @return Response
      */
-    public function show(Item $item)
+    public function show(Item $item): Response
     {
         //
     }
@@ -81,7 +81,7 @@ class ItemRestController extends Controller
      * @param Item $item
      * @return Response
      */
-    public function edit(Item $item)
+    public function edit(Item $item): Response
     {
         //
     }
@@ -93,7 +93,7 @@ class ItemRestController extends Controller
      * @param Item $item
      * @return Response
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, Item $item): Response
     {
         //
     }
@@ -104,7 +104,7 @@ class ItemRestController extends Controller
      * @param Item $item
      * @return Response
      */
-    public function destroy(Item $item)
+    public function destroy(Item $item): Response
     {
         //
     }

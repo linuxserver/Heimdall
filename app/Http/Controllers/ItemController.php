@@ -511,7 +511,7 @@ class ItemController extends Controller
     /**
      * @return \Illuminate\Contracts\Foundation\Application|RedirectResponse|Redirector
      */
-    public function checkAppList()
+    public function checkAppList(): RedirectResponse
     {
         ProcessApps::dispatch();
         $route = route('items.index');

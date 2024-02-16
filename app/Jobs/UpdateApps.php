@@ -53,7 +53,7 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
     /**
      * @return void
      */
-    public function failed($exception)
+    public function failed($exception): void
     {
         Cache::lock('updateApps')->forceRelease();
     }

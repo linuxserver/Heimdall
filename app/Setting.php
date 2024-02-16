@@ -224,7 +224,7 @@ class Setting extends Model
      *
      * @return mixed
      */
-    public static function _fetch($key, $user = null)
+    public static function _fetch(string $key, $user = null)
     {
         // @codingStandardsIgnoreEnd
         //$cachekey = ($user === null) ? $key : $key.'-'.$user->id;
@@ -270,7 +270,7 @@ class Setting extends Model
      * @param string $key
      * @param $value
      */
-    public static function add($key, $value)
+    public static function add(string $key, $value)
     {
         self::$cache[$key] = $value;
     }
@@ -280,7 +280,7 @@ class Setting extends Model
      *
      * @return bool
      */
-    public static function cached($key): bool
+    public static function cached(string $key): bool
     {
         return array_key_exists($key, self::$cache);
     }

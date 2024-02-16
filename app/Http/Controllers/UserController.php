@@ -41,7 +41,7 @@ class UserController extends Controller
         return view('users.create', $data);
     }
 
-    public function selectUser()
+    public function selectUser(): \Illuminate\View\View
     {
         Auth::logout();
         $data['users'] = User::all();

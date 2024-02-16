@@ -135,7 +135,7 @@ class LoginController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function showLoginForm()
+    public function showLoginForm(): \Illuminate\View\View
     {
         return view('auth.login');
     }

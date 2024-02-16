@@ -59,7 +59,7 @@ class RegisterApp extends Command
      * @param bool $remove
      * @return void
      */
-    public function addApp($folder, bool $remove = false)
+    public function addApp($folder, bool $remove = false): void
     {
         $json = app_path('SupportedApps/'.$folder.'/app.json');
 
@@ -98,7 +98,7 @@ class RegisterApp extends Command
      * @param $icon
      * @return void
      */
-    private function saveIcon($appFolder, $icon)
+    private function saveIcon($appFolder, $icon): void
     {
         $iconPath = app_path('SupportedApps/' . $appFolder . '/' . $icon);
         $contents = file_get_contents($iconPath);

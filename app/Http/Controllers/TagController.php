@@ -22,7 +22,7 @@ class TagController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\View\View
     {
         $trash = (bool) $request->input('trash');
 
@@ -40,7 +40,7 @@ class TagController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create()
+    public function create(): \Illuminate\View\View
     {
         $data = [];
 
