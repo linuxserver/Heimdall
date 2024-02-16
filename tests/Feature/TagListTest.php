@@ -19,7 +19,7 @@ class TagListTest extends TestCase
             ]);
     }
 
-    public function test_displays_the_tags_on_the_tag_list_page()
+    public function test_displays_the_tags_on_the_tag_list_page(): void
     {
         $this->addTagWithTitleToDB('Tag 1');
         $this->addTagWithTitleToDB('Tag 2');
@@ -33,7 +33,7 @@ class TagListTest extends TestCase
         $response->assertSee('Tag 3');
     }
 
-    public function test_escapes_xss_on_the_tag_list_page()
+    public function test_escapes_xss_on_the_tag_list_page(): void
     {
         $this->addTagWithTitleToDB('<script>alert("XSS")</script>');
 

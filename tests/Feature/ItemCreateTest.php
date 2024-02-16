@@ -9,7 +9,7 @@ class ItemCreateTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_displays_the_item_create_page()
+    public function test_displays_the_item_create_page(): void
     {
         $this->seed();
 
@@ -18,7 +18,7 @@ class ItemCreateTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_display_the_home_dashboard_tag()
+    public function test_display_the_home_dashboard_tag(): void
     {
         $this->seed();
 
@@ -27,7 +27,7 @@ class ItemCreateTest extends TestCase
         $response->assertSee('Home dashboard');
     }
 
-    public function test_creates_a_new_item()
+    public function test_creates_a_new_item(): void
     {
         $this->seed();
         $item = [
@@ -46,7 +46,7 @@ class ItemCreateTest extends TestCase
         $response->assertSee('Redirecting to');
     }
 
-    public function test_redirects_to_dash_when_adding_a_new_item()
+    public function test_redirects_to_dash_when_adding_a_new_item(): void
     {
         $this->seed();
         $item = [

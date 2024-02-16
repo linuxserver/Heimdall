@@ -18,7 +18,7 @@ class ItemListTest extends TestCase
             ]);
     }
 
-    public function test_displays_items_on_the_item_list_page()
+    public function test_displays_items_on_the_item_list_page(): void
     {
         $this->addItemWithTitleToDB('Item 1');
         $this->addItemWithTitleToDB('Item 2');
@@ -32,7 +32,7 @@ class ItemListTest extends TestCase
         $response->assertSee('Item 3');
     }
 
-    public function test_escapes_xss_on_the_item_list_page()
+    public function test_escapes_xss_on_the_item_list_page(): void
     {
         $this->addItemWithTitleToDB('<script>alert("XSS")</script>');
 

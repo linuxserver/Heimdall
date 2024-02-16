@@ -12,17 +12,11 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class HealthController extends Controller
 {
-    /**
-     * @return int
-     */
     private static function getUsers(): int
     {
         return User::count();
     }
 
-    /**
-     * @return int
-     */
     private static function getItems(): int
     {
         return Item::select('id')
@@ -34,7 +28,6 @@ class HealthController extends Controller
     /**
      * Handle the incoming request.
      *
-     * @param Request $request
      * @return JsonResponse|Response
      * @throws BindingResolutionException
      */

@@ -22,7 +22,7 @@ class TagController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\View\View
     {
         $trash = (bool) $request->input('trash');
 
@@ -40,7 +40,7 @@ class TagController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create()
+    public function create(): \Illuminate\View\View
     {
         $data = [];
 
@@ -49,9 +49,6 @@ class TagController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -90,7 +87,6 @@ class TagController extends Controller
      * Display the specified resource.
      *
      * @param $slug
-     * @return View
      */
     public function show($slug): View
     {
@@ -105,9 +101,6 @@ class TagController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return View
      */
     public function edit(int $id): View
     {
@@ -121,10 +114,6 @@ class TagController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function update(Request $request, int $id): RedirectResponse
     {
@@ -156,10 +145,6 @@ class TagController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return RedirectResponse
      */
     public function destroy(Request $request, int $id): RedirectResponse
     {
@@ -181,9 +166,6 @@ class TagController extends Controller
 
     /**
      * Restore the specified resource from soft deletion.
-     *
-     * @param int $id
-     * @return RedirectResponse
      */
     public function restore(int $id): RedirectResponse
     {

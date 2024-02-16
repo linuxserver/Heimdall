@@ -6,10 +6,7 @@ use Tests\TestCase;
 
 class IsImageTest extends TestCase
 {
-    /**
-     * @return void
-     */
-    public function test_returns_true_when_file_is_image()
+    public function test_returns_true_when_file_is_image(): void
     {
         $file = file_get_contents(__DIR__ . '/fixtures/heimdall-icon-small.png');
 
@@ -18,20 +15,14 @@ class IsImageTest extends TestCase
         $this->assertTrue($actual);
     }
 
-    /**
-     * @return void
-     */
-    public function test_returns_false_when_file_extension_is_image_but_content_is_not()
+    public function test_returns_false_when_file_extension_is_image_but_content_is_not(): void
     {
         $actual = isImage("<?php ?>", "png");
 
         $this->assertFalse($actual);
     }
 
-    /**
-     * @return void
-     */
-    public function test_returns_false_when_file_extension_is_not_image_but_content_is()
+    public function test_returns_false_when_file_extension_is_not_image_but_content_is(): void
     {
         $file = file_get_contents(__DIR__ . '/fixtures/heimdall-icon-small.png');
 

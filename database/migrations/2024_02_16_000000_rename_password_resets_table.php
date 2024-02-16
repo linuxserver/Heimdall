@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('items', function (Blueprint $table) {
-            $table->integer('type')->default(0)->index(); // 0 = item, 1 = category
-        });
+        Schema::rename('password_resets', 'password_reset_tokens');
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('items', function (Blueprint $table) {
-            $table->dropColumn(['type']);
-        });
+        Schema::rename('password_reset_tokens', 'password_resets');
     }
 };

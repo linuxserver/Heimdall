@@ -42,7 +42,7 @@ class DashTest extends TestCase
      * Test Cases
      */
 
-    public function test_loads_empty_dash()
+    public function test_loads_empty_dash(): void
     {
         $this->seed();
 
@@ -51,7 +51,7 @@ class DashTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_displays_items_on_the_dash()
+    public function test_displays_items_on_the_dash(): void
     {
         $this->seed();
 
@@ -67,7 +67,7 @@ class DashTest extends TestCase
         $response->assertSee('Item 3');
     }
 
-    public function test_displays_tags_on_the_dash()
+    public function test_displays_tags_on_the_dash(): void
     {
         $this->seed();
 

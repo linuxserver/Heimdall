@@ -9,7 +9,7 @@ class SettingsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_displays_the_settings_page()
+    public function test_displays_the_settings_page(): void
     {
         $this->seed();
 

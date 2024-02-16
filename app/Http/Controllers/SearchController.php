@@ -11,7 +11,6 @@ use Illuminate\Routing\Redirector;
 class SearchController extends Controller
 {
     /**
-     * @param Request $request
      * @return Application|RedirectResponse|Redirector|mixed|void
      */
     public function index(Request $request)
