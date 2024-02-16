@@ -8,22 +8,22 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^8.0",
-        "graham-campbell/github": "^10.5",
+        "php": "^8.1",
+        "graham-campbell/github": "^12.0",
         "guzzlehttp/guzzle": "^7.4",
-        "laravel/framework": "^9.52",
-        "laravel/tinker": "^2.7",
-        "laravel/ui": "^3.3",
-        "laravelcollective/html": "^6.3",
+        "laravel/framework": "^10.44",
+        "laravel/tinker": "^2.8",
+        "laravel/ui": "^4.2",
+        "laravelcollective/html": "^6.4",
         "nunomaduro/collision": "^6.3",
-        "symfony/yaml": "^6.0",
+        "symfony/yaml": "^6.2",
         "ext-json": "*",
         "ext-intl": "*",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "spatie/laravel-ignition": "^1.4"
+        "spatie/laravel-ignition": "^2.0"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.12",
+        "barryvdh/laravel-ide-helper": "^2.13",
         "filp/whoops": "^2.8",
         "mockery/mockery": "^1.4.4",
         "phpunit/phpunit": "^9.5.10",
@@ -83,5 +83,7 @@
             "kylekatarnls/update-helper": true,
             "symfony/thanks": true
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
