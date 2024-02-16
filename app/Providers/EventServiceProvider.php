@@ -39,4 +39,3 @@ class EventServiceProvider extends ServiceProvider
         return false;
     }
 }
-
