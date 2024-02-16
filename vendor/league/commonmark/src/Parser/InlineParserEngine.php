@@ -36,8 +36,8 @@ final class InlineParserEngine implements InlineParserEngineInterface
 
     /**
      * @var array<int, InlineParserInterface|string|bool>
-     * @psalm-var list<array{0: InlineParserInterface, 1: string, 2: bool}>
-     * @phpstan-var array<int, array{0: InlineParserInterface, 1: string, 2: bool}>
+     * @psalm-var list<array{0: InlineParserInterface, 1: non-empty-string, 2: bool}>
+     * @phpstan-var array<int, array{0: InlineParserInterface, 1: non-empty-string, 2: bool}>
      */
     private array $parsers = [];
 
@@ -50,7 +50,7 @@ final class InlineParserEngine implements InlineParserEngineInterface
             \assert($parser instanceof InlineParserInterface);
             $regex = $parser->getMatchDefinition()->getRegex();
 
-            $this->parsers[] = [$parser, $regex, \strlen($regex) !== \mb_strlen($regex)];
+            $this->parsers[] = [$parser, $regex, \strlen($regex) !== \mb_strlen($regex, 'UTF-8')];
         }
     }
 
@@ -134,7 +134,7 @@ final class InlineParserEngine implements InlineParserEngineInterface
     private function matchParsers(string $contents): array
     {
         $contents    = \trim($contents);
-        $isMultibyte = \mb_strlen($contents) !== \strlen($contents);
+        $isMultibyte = ! \mb_check_encoding($contents, 'ASCII');
 
         $ret = [];
 

@@ -35,8 +35,8 @@ final class ExtensionHandler
             throw new Exception(
                 sprintf(
                     'Class "%s" does not implement a PHPUnit\Runner\Hook interface',
-                    $extensionConfiguration->className()
-                )
+                    $extensionConfiguration->className(),
+                ),
             );
         }
 
@@ -56,8 +56,8 @@ final class ExtensionHandler
             throw new Exception(
                 sprintf(
                     'Class "%s" does not implement the PHPUnit\Framework\TestListener interface',
-                    $listenerConfiguration->className()
-                )
+                    $listenerConfiguration->className(),
+                ),
             );
         }
 
@@ -76,8 +76,8 @@ final class ExtensionHandler
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                $e->getCode(),
+                $e,
             );
         }
 
@@ -110,8 +110,8 @@ final class ExtensionHandler
             throw new Exception(
                 sprintf(
                     'Class "%s" does not exist',
-                    $extensionConfiguration->className()
-                )
+                    $extensionConfiguration->className(),
+                ),
             );
         }
     }

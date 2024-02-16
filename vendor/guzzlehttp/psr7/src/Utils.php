@@ -14,18 +14,18 @@ final class Utils
     /**
      * Remove the items given by the keys, case insensitively from the data.
      *
-     * @param string[] $keys
+     * @param (string|int)[] $keys
      */
     public static function caselessRemove(array $keys, array $data): array
     {
         $result = [];
 
         foreach ($keys as &$key) {
-            $key = strtolower($key);
+            $key = strtolower((string) $key);
         }
 
         foreach ($data as $k => $v) {
-            if (!is_string($k) || !in_array(strtolower($k), $keys)) {
+            if (!in_array(strtolower((string) $k), $keys)) {
                 $result[$k] = $v;
             }
         }
@@ -90,6 +90,7 @@ final class Utils
                 }
                 $buffer .= $buf;
             }
+
             return $buffer;
         }
 
@@ -174,7 +175,7 @@ final class Utils
                     $standardPorts = ['http' => 80, 'https' => 443];
                     $scheme = $changes['uri']->getScheme();
                     if (isset($standardPorts[$scheme]) && $port != $standardPorts[$scheme]) {
-                        $changes['set_headers']['Host'] .= ':' . $port;
+                        $changes['set_headers']['Host'] .= ':'.$port;
                     }
                 }
             }
@@ -230,7 +231,7 @@ final class Utils
      * @param StreamInterface $stream    Stream to read from
      * @param int|null        $maxLength Maximum buffer length
      */
-    public static function readLine(StreamInterface $stream, ?int $maxLength = null): string
+    public static function readLine(StreamInterface $stream, int $maxLength = null): string
     {
         $buffer = '';
         $size = 0;
@@ -291,6 +292,7 @@ final class Utils
                 fwrite($stream, (string) $resource);
                 fseek($stream, 0);
             }
+
             return new Stream($stream, $options);
         }
 
@@ -308,6 +310,7 @@ final class Utils
                     fseek($stream, 0);
                     $resource = $stream;
                 }
+
                 return new Stream($resource, $options);
             case 'object':
                 /** @var object $resource */
@@ -320,6 +323,7 @@ final class Utils
                         }
                         $result = $resource->current();
                         $resource->next();
+
                         return $result;
                     }, $options);
                 } elseif (method_exists($resource, '__toString')) {
@@ -334,7 +338,7 @@ final class Utils
             return new PumpStream($resource, $options);
         }
 
-        throw new \InvalidArgumentException('Invalid resource type: ' . gettype($resource));
+        throw new \InvalidArgumentException('Invalid resource type: '.gettype($resource));
     }
 
     /**

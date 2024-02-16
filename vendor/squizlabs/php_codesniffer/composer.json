@@ -1,40 +1,87 @@
 {
     "name": "squizlabs/php_codesniffer",
     "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
+    "license": "BSD-3-Clause",
     "type": "library",
     "keywords": [
         "phpcs",
-        "standards"
+        "standards",
+        "static analysis"
     ],
-    "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
-    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Greg Sherwood",
-            "role": "lead"
+            "role": "Former lead"
+        },
+        {
+            "name": "Juliette Reinders Folmer",
+            "role": "Current lead"
+        },
+        {
+            "name": "Contributors",
+            "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer/graphs/contributors"
         }
     ],
+    "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
     "support": {
-        "issues": "https://github.com/squizlabs/PHP_CodeSniffer/issues",
-        "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
-        "source": "https://github.com/squizlabs/PHP_CodeSniffer"
+        "issues": "https://github.com/PHPCSStandards/PHP_CodeSniffer/issues",
+        "wiki": "https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki",
+        "source": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
+        "security": "https://github.com/PHPCSStandards/PHP_CodeSniffer/security/policy"
     },
+    "require": {
+        "php": ">=5.4.0",
+        "ext-simplexml": "*",
+        "ext-tokenizer": "*",
+        "ext-xmlwriter": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.3.4"
+    },
+    "bin": [
+        "bin/phpcbf",
+        "bin/phpcs"
+    ],
     "extra": {
         "branch-alias": {
             "dev-master": "3.x-dev"
         }
     },
-    "require": {
-        "php": ">=5.4.0",
-        "ext-tokenizer": "*",
-        "ext-xmlwriter": "*",
-        "ext-simplexml": "*"
+    "scripts": {
+        "cs": [
+            "@php ./bin/phpcs"
+        ],
+        "cbf": [
+            "@php ./bin/phpcbf"
+        ],
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php ./vendor/phpunit/phpunit/phpunit tests/AllTests.php --no-coverage"
+        ],
+        "coverage": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php ./vendor/phpunit/phpunit/phpunit tests/AllTests.php -d max_execution_time=0"
+        ],
+        "coverage-local": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php ./vendor/phpunit/phpunit/phpunit tests/AllTests.php --coverage-html ./build/coverage-html -d max_execution_time=0"
+        ],
+        "build": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php -d phar.readonly=0 -f ./scripts/build-phar.php"
+        ],
+        "check-all": [
+            "@cs",
+            "@test"
+        ]
     },
-    "require-dev": {
-        "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
-    },
-    "bin": [
-        "bin/phpcs",
-        "bin/phpcbf"
-    ]
+    "scripts-descriptions": {
+        "cs": "Check for code style violations.",
+        "cbf": "Fix code style violations.",
+        "test": "Run the unit tests without code coverage.",
+        "coverage": "Run the unit tests with code coverage.",
+        "coverage-local": "Run the unit tests with code coverage and generate an HTML report in a 'build' directory.",
+        "build": "Create PHAR files for PHPCS and PHPCBF.",
+        "check-all": "Run all checks (phpcs, tests)."
+    }
 }

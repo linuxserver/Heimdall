@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\Exception\RuntimeException;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -46,12 +47,19 @@ HELP
 
     /**
      * {@inheritdoc}
+     *
+     * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $buf = $this->getApplication()->getCodeBuffer();
+        $app = $this->getApplication();
+        if (!$app instanceof \Psy\Shell) {
+            throw new RuntimeException('Buffer command requires a \Psy\Shell application');
+        }
+
+        $buf = $app->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $this->getApplication()->resetCodeBuffer();
+            $app->resetCodeBuffer();
             $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);

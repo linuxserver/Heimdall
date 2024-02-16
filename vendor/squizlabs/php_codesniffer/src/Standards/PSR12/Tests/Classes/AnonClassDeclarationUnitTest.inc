@@ -82,3 +82,15 @@ $foo->bar(
 
 foo(new class {
 });
+
+// Issue #3790: OpenBraceSameLine fixer should not remove open brace.
+$instance = new class() extends SomeClass implements
+    SomeInterface{
+    public function __construct() {}
+};
+
+// PHP 8.3 readonly anonymous classes.
+$anon = new readonly class {};
+$anon = new readonly    class {};
+$anon = new readonly
+        class {};

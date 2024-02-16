@@ -2,6 +2,12 @@
 
 All notable changes in `sebastian/global-state` are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [5.0.6] - 2023-08-02
+
+### Changed
+
+* Changed usage of `ReflectionProperty::setValue()` to be compatible with PHP 8.3
+
 ## [5.0.5] - 2022-02-14
 
 ### Fixed
@@ -66,6 +72,7 @@ All notable changes in `sebastian/global-state` are documented in this file usin
 
 * This component is no longer supported on PHP 7.0 and PHP 7.1
 
+[5.0.6]: https://github.com/sebastianbergmann/global-state/compare/5.0.5...5.0.6
 [5.0.5]: https://github.com/sebastianbergmann/global-state/compare/5.0.4...5.0.5
 [5.0.4]: https://github.com/sebastianbergmann/global-state/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/sebastianbergmann/global-state/compare/5.0.2...5.0.3

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,7 @@
 
 namespace Psy\CodeCleaner;
 
+use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use Psy\CodeCleaner;
@@ -46,6 +47,8 @@ class NamespacePass extends CodeCleanerPass
      * is encountered.
      *
      * @param array $nodes
+     *
+     * @return Node[]|null Array of nodes
      */
     public function beforeTraverse(array $nodes)
     {
@@ -83,6 +86,16 @@ class NamespacePass extends CodeCleanerPass
     private function setNamespace($namespace)
     {
         $this->namespace = $namespace;
-        $this->cleaner->setNamespace($namespace === null ? null : $namespace->parts);
+        $this->cleaner->setNamespace($namespace === null ? null : $this->getParts($namespace));
+    }
+
+    /**
+     * Backwards compatibility shim for PHP-Parser 4.x.
+     *
+     * At some point we might want to make the namespace a plain string, to match how Name works?
+     */
+    protected function getParts(Name $name): array
+    {
+        return \method_exists($name, 'getParts') ? $name->getParts() : $name->parts;
     }
 }

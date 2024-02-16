@@ -81,7 +81,8 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "kylekatarnls/update-helper": true,
-            "symfony/thanks": true
+            "symfony/thanks": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",

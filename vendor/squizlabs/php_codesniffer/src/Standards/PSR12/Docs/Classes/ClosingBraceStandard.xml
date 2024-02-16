@@ -1,0 +1,35 @@
+<documentation title="Closing Brace">
+    <standard>
+    <![CDATA[
+    The closing brace of object-oriented constructs and functions must not be followed by any comment or statement on the same line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Closing brace is the last content on the line.">
+        <![CDATA[
+class Foo
+{
+    // Class content.
+}<em></em>
+
+function bar()
+{
+    // Function content.
+}<em></em>
+        ]]>
+        </code>
+        <code title="Invalid: Comment or statement following the closing brace on the same line.">
+        <![CDATA[
+interface Foo2
+{
+    // Interface content.
+} <em>echo 'Hello!';</em>
+
+function bar()
+{
+    // Function content.
+} <em>//end bar()</em>
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

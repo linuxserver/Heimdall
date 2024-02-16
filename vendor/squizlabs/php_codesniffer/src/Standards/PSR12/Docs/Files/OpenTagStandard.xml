@@ -1,0 +1,40 @@
+<documentation title="Open PHP Tag">
+    <standard>
+    <![CDATA[
+    When the opening <?php tag is on the first line of the file, it must be on its own line with no other statements unless it is a file containing markup outside of PHP opening and closing tags.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Opening PHP tag on a line by itself.">
+        <![CDATA[
+<em><?php</em>
+
+echo 'hi';
+        ]]>
+        </code>
+        <code title="Invalid: Opening PHP tag not on a line by itself.">
+        <![CDATA[
+<?php <em>echo 'hi';</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Opening PHP tag not on a line by itself, but has markup outside the closing PHP tag.">
+        <![CDATA[
+<?php declare(strict_types=1); ?>
+<html>
+<body>
+    <?php
+        // ... additional PHP code ...
+    ?>
+</body>
+</html>
+        ]]>
+        </code>
+        <code title="Invalid: Opening PHP tag not on a line by itself without any markup in the file.">
+        <![CDATA[
+<?php declare(strict_types=1); ?>
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

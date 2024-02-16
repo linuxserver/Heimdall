@@ -1,6 +1,13 @@
 # Change Log
 
 
+## 1.1.0 - 2023-04-14
+
+### Changed
+
+- Allow `psr/http-message` v2 in addition to v1
+- Deprecate all interfaces in favor of [PSR-17](https://www.php-fig.org/psr/psr-17/)
+
 ## 1.0.2 - 2015-12-19
 
 ### Added

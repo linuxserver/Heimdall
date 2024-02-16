@@ -7,7 +7,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -70,7 +70,7 @@ class Fixer
      * If a token is being "fixed" back to its last value, the fix is
      * probably conflicting with another.
      *
-     * @var array<int, string>
+     * @var array<int, array<string, mixed>>
      */
     private $oldTokenValues = [];
 
@@ -349,7 +349,7 @@ class Fixer
     /**
      * Start recording actions for a changeset.
      *
-     * @return void
+     * @return void|false
      */
     public function beginChangeset()
     {

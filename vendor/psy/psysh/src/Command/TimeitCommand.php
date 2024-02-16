@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Command\TimeitCommand\TimeitVisitor;
 use Psy\Input\CodeArgument;
-use Psy\ParserFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,6 +27,7 @@ class TimeitCommand extends Command
     const RESULT_MSG = '<info>Command took %.6f seconds to complete.</info>';
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
+    // All times stored as nanoseconds!
     private static $start = null;
     private static $times = [];
 
@@ -40,8 +40,7 @@ class TimeitCommand extends Command
      */
     public function __construct($name = null)
     {
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = new CodeArgumentParser();
 
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new TimeitVisitor());
@@ -76,21 +75,23 @@ HELP
 
     /**
      * {@inheritdoc}
+     *
+     * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $code = $input->getArgument('code');
-        $num = $input->getOption('num') ?: 1;
+        $num = (int) ($input->getOption('num') ?: 1);
         $shell = $this->getApplication();
 
         $instrumentedCode = $this->instrumentCode($code);
 
         self::$times = [];
 
-        for ($i = 0; $i < $num; $i++) {
+        do {
             $_ = $shell->execute($instrumentedCode);
             $this->ensureEndMarked();
-        }
+        } while (\count(self::$times) < $num);
 
         $shell->writeReturnValue($_);
 
@@ -98,13 +99,13 @@ HELP
         self::$times = [];
 
         if ($num === 1) {
-            $output->writeln(\sprintf(self::RESULT_MSG, $times[0]));
+            $output->writeln(\sprintf(self::RESULT_MSG, $times[0] / 1e+9));
         } else {
             $total = \array_sum($times);
             \rsort($times);
             $median = $times[\round($num / 2)];
 
-            $output->writeln(\sprintf(self::AVG_RESULT_MSG, $total / $num, $median, $total));
+            $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
         }
 
         return 0;
@@ -119,7 +120,7 @@ HELP
      */
     public static function markStart()
     {
-        self::$start = \microtime(true);
+        self::$start = \hrtime(true);
     }
 
     /**
@@ -138,7 +139,7 @@ HELP
      */
     public static function markEnd($ret = null)
     {
-        self::$times[] = \microtime(true) - self::$start;
+        self::$times[] = \hrtime(true) - self::$start;
         self::$start = null;
 
         return $ret;
@@ -162,36 +163,9 @@ HELP
      *
      * This inserts `markStart` and `markEnd` calls to ensure that (reasonably)
      * accurate times are recorded for just the code being executed.
-     *
-     * @param string $code
-     *
-     * @return string
      */
     private function instrumentCode(string $code): string
     {
-        return $this->printer->prettyPrint($this->traverser->traverse($this->parse($code)));
-    }
-
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse(string $code): array
-    {
-        $code = '<?php '.$code;
-
-        try {
-            return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code.';');
-        }
+        return $this->printer->prettyPrint($this->traverser->traverse($this->parser->parse($code)));
     }
 }

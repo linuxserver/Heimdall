@@ -11,6 +11,8 @@
 
 namespace Monolog\Formatter;
 
+use Monolog\LogRecord;
+
 /**
  * Serializes a log message to Logstash Event Format
  *
@@ -24,28 +26,30 @@ class LogstashFormatter extends NormalizerFormatter
     /**
      * @var string the name of the system for the Logstash log message, used to fill the @source field
      */
-    protected $systemName;
+    protected string $systemName;
 
     /**
      * @var string an application name for the Logstash log message, used to fill the @type field
      */
-    protected $applicationName;
+    protected string $applicationName;
 
     /**
      * @var string the key for 'extra' fields from the Monolog record
      */
-    protected $extraKey;
+    protected string $extraKey;
 
     /**
      * @var string the key for 'context' fields from the Monolog record
      */
-    protected $contextKey;
+    protected string $contextKey;
 
     /**
      * @param string      $applicationName The application that sends the data, used as the "type" field of logstash
      * @param string|null $systemName      The system/machine name, used as the "source" field of logstash, defaults to the hostname of the machine
      * @param string      $extraKey        The key for extra keys inside logstash "fields", defaults to extra
      * @param string      $contextKey      The key for context keys inside logstash "fields", defaults to context
+     *
+     * @throws \RuntimeException If the function json_encode does not exist
      */
     public function __construct(string $applicationName, ?string $systemName = null, string $extraKey = 'extra', string $contextKey = 'context')
     {
@@ -59,41 +63,38 @@ class LogstashFormatter extends NormalizerFormatter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function format(array $record): string
+    public function format(LogRecord $record): string
     {
-        $record = parent::format($record);
+        $recordData = parent::format($record);
 
-        if (empty($record['datetime'])) {
-            $record['datetime'] = gmdate('c');
-        }
         $message = [
-            '@timestamp' => $record['datetime'],
+            '@timestamp' => $recordData['datetime'],
             '@version' => 1,
             'host' => $this->systemName,
         ];
-        if (isset($record['message'])) {
-            $message['message'] = $record['message'];
+        if (isset($recordData['message'])) {
+            $message['message'] = $recordData['message'];
         }
-        if (isset($record['channel'])) {
-            $message['type'] = $record['channel'];
-            $message['channel'] = $record['channel'];
+        if (isset($recordData['channel'])) {
+            $message['type'] = $recordData['channel'];
+            $message['channel'] = $recordData['channel'];
         }
-        if (isset($record['level_name'])) {
-            $message['level'] = $record['level_name'];
+        if (isset($recordData['level_name'])) {
+            $message['level'] = $recordData['level_name'];
         }
-        if (isset($record['level'])) {
-            $message['monolog_level'] = $record['level'];
+        if (isset($recordData['level'])) {
+            $message['monolog_level'] = $recordData['level'];
         }
-        if ($this->applicationName) {
+        if ('' !== $this->applicationName) {
             $message['type'] = $this->applicationName;
         }
-        if (!empty($record['extra'])) {
-            $message[$this->extraKey] = $record['extra'];
+        if (\count($recordData['extra']) > 0) {
+            $message[$this->extraKey] = $recordData['extra'];
         }
-        if (!empty($record['context'])) {
-            $message[$this->contextKey] = $record['context'];
+        if (\count($recordData['context']) > 0) {
+            $message[$this->contextKey] = $recordData['context'];
         }
 
         return $this->toJson($message) . "\n";

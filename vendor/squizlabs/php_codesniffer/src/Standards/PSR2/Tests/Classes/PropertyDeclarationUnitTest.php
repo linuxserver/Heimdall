@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR2\Tests\Classes;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class PropertyDeclarationUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the PropertyDeclaration sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\PSR2\Sniffs\Classes\PropertyDeclarationSniff
+ */
+final class PropertyDeclarationUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -49,6 +54,8 @@ class PropertyDeclarationUnitTest extends AbstractSniffUnitTest
             76 => 1,
             80 => 1,
             82 => 1,
+            84 => 1,
+            86 => 1,
         ];
 
     }//end getErrorList()

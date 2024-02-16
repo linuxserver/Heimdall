@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Scope;
@@ -76,9 +76,9 @@ class StaticThisUsageSniff extends AbstractScopeSniff
     /**
      * Check for $this variable usage between $next and $end tokens.
      *
-     * @param File $phpcsFile The current file being scanned.
-     * @param int  $next      The position of the next token to check.
-     * @param int  $end       The position of the last token to check.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The current file being scanned.
+     * @param int                         $next      The position of the next token to check.
+     * @param int                         $end       The position of the last token to check.
      *
      * @return void
      */

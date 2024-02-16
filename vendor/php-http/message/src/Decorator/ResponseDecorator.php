@@ -15,10 +15,8 @@ trait ResponseDecorator
 
     /**
      * Exchanges the underlying response with another.
-     *
-     * @return self
      */
-    public function withResponse(ResponseInterface $response)
+    public function withResponse(ResponseInterface $response): ResponseInterface
     {
         $new = clone $this;
         $new->message = $response;
@@ -26,18 +24,12 @@ trait ResponseDecorator
         return $new;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->message->getStatusCode();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         $new = clone $this;
         $new->message = $this->message->withStatus($code, $reasonPhrase);
@@ -45,10 +37,7 @@ trait ResponseDecorator
         return $new;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->message->getReasonPhrase();
     }

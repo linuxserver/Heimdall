@@ -143,7 +143,7 @@ trait CompilesEchos
     {
         $value = Str::of($value)
             ->trim()
-            ->when(Str::endsWith($value, ';'), function ($str) {
+            ->when(str_ends_with($value, ';'), function ($str) {
                 return $str->beforeLast(';');
             });
 
@@ -160,6 +160,10 @@ trait CompilesEchos
     {
         if (is_object($value) && isset($this->echoHandlers[get_class($value)])) {
             return call_user_func($this->echoHandlers[get_class($value)], $value);
+        }
+
+        if (is_iterable($value) && isset($this->echoHandlers['iterable'])) {
+            return call_user_func($this->echoHandlers['iterable'], $value);
         }
 
         return $value;

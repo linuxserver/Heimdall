@@ -117,8 +117,8 @@ final class Matcher
 
         if ($this->afterMatchBuilderId !== null) {
             $matcher = $invocation->getObject()
-                                  ->__phpunit_getInvocationHandler()
-                                  ->lookupMatcher($this->afterMatchBuilderId);
+                ->__phpunit_getInvocationHandler()
+                ->lookupMatcher($this->afterMatchBuilderId);
 
             if (!$matcher) {
                 throw new MatchBuilderNotFoundException($this->afterMatchBuilderId);
@@ -143,9 +143,9 @@ final class Matcher
                     "Expectation failed for %s when %s\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
-                    $e->getMessage()
+                    $e->getMessage(),
                 ),
-                $e->getComparisonFailure()
+                $e->getComparisonFailure(),
             );
         }
 
@@ -167,8 +167,8 @@ final class Matcher
     {
         if ($this->afterMatchBuilderId !== null) {
             $matcher = $invocation->getObject()
-                                  ->__phpunit_getInvocationHandler()
-                                  ->lookupMatcher($this->afterMatchBuilderId);
+                ->__phpunit_getInvocationHandler()
+                ->lookupMatcher($this->afterMatchBuilderId);
 
             if (!$matcher) {
                 throw new MatchBuilderNotFoundException($this->afterMatchBuilderId);
@@ -199,9 +199,9 @@ final class Matcher
                     "Expectation failed for %s when %s\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
-                    $e->getMessage()
+                    $e->getMessage(),
                 ),
-                $e->getComparisonFailure()
+                $e->getComparisonFailure(),
             );
         }
 
@@ -239,8 +239,8 @@ final class Matcher
                     "Expectation failed for %s when %s.\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
-                    TestFailure::exceptionToString($e)
-                )
+                    TestFailure::exceptionToString($e),
+                ),
             );
         }
     }

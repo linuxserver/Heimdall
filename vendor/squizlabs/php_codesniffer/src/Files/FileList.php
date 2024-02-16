@@ -6,7 +6,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Files;
@@ -199,7 +199,7 @@ class FileList implements \Iterator, \Countable
     /**
      * Return the file path of the current file being processed.
      *
-     * @return void
+     * @return string|null Path name or `null` when the end of the iterator has been reached.
      */
     #[ReturnTypeWillChange]
     public function key()

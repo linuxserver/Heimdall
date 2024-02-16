@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>Code Coverage for {{full_path}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{path_to_root}}_css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="{{path_to_root}}_css/octicons.css" rel="stylesheet" type="text/css">
-  <link href="{{path_to_root}}_css/style.css" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/bootstrap.min.css?v={{version}}" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/octicons.css?v={{version}}" rel="stylesheet" type="text/css">
+  <link href="{{path_to_root}}_css/style.css?v={{version}}" rel="stylesheet" type="text/css">
   <link href="{{path_to_root}}_css/custom.css" rel="stylesheet" type="text/css">
  </head>
  <body>
@@ -59,9 +59,9 @@
     </a>
    </footer>
   </div>
-  <script src="{{path_to_root}}_js/jquery.min.js" type="text/javascript"></script>
-  <script src="{{path_to_root}}_js/popper.min.js" type="text/javascript"></script>
-  <script src="{{path_to_root}}_js/bootstrap.min.js" type="text/javascript"></script>
-  <script src="{{path_to_root}}_js/file.js" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/jquery.min.js?v={{version}}" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/popper.min.js?v={{version}}" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/bootstrap.min.js?v={{version}}" type="text/javascript"></script>
+  <script src="{{path_to_root}}_js/file.js?v={{version}}" type="text/javascript"></script>
  </body>
 </html>

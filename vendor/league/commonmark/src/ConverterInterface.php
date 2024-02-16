@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace League\CommonMark;
 
+use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\Output\RenderedContentInterface;
+use League\Config\Exception\ConfigurationExceptionInterface;
 
 /**
  * Interface for a service which converts content from one format (like Markdown) to another (like HTML).
@@ -21,7 +23,8 @@ use League\CommonMark\Output\RenderedContentInterface;
 interface ConverterInterface
 {
     /**
-     * @throws \RuntimeException
+     * @throws CommonMarkException
+     * @throws ConfigurationExceptionInterface
      */
     public function convert(string $input): RenderedContentInterface;
 }

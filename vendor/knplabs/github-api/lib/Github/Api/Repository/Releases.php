@@ -69,6 +69,20 @@ class Releases extends AbstractApi
     }
 
     /**
+     * Generate release notes content for a release.
+     *
+     * @param string $username
+     * @param string $repository
+     * @param array  $params
+     *
+     * @return array
+     */
+    public function generateNotes($username, $repository, array $params)
+    {
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/generate-notes', $params);
+    }
+
+    /**
      * Create new release in selected repository.
      *
      * @param string $username

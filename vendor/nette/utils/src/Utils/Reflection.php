@@ -19,125 +19,22 @@ final class Reflection
 {
 	use Nette\StaticClass;
 
-	private const BuiltinTypes = [
-		'string' => 1, 'int' => 1, 'float' => 1, 'bool' => 1, 'array' => 1, 'object' => 1,
-		'callable' => 1, 'iterable' => 1, 'void' => 1, 'null' => 1, 'mixed' => 1, 'false' => 1,
-		'never' => 1,
-	];
-
-	private const ClassKeywords = [
-		'self' => 1, 'parent' => 1, 'static' => 1,
-	];
-
-
-	/**
-	 * Determines if type is PHP built-in type. Otherwise, it is the class name.
-	 */
+	/** @deprecated use Nette\Utils\Validator::isBuiltinType() */
 	public static function isBuiltinType(string $type): bool
 	{
-		return isset(self::BuiltinTypes[strtolower($type)]);
+		return Validators::isBuiltinType($type);
 	}
 
 
-	/**
-	 * Determines if type is special class name self/parent/static.
-	 */
+	/** @deprecated use Nette\Utils\Validator::isClassKeyword() */
 	public static function isClassKeyword(string $name): bool
 	{
-		return isset(self::ClassKeywords[strtolower($name)]);
+		return Validators::isClassKeyword($name);
 	}
 
 
-	/**
-	 * Returns the type of return value of given function or method and normalizes `self`, `static`, and `parent` to actual class names.
-	 * If the function does not have a return type, it returns null.
-	 * If the function has union or intersection type, it throws Nette\InvalidStateException.
-	 */
-	public static function getReturnType(\ReflectionFunctionAbstract $func): ?string
-	{
-		$type = $func->getReturnType() ?? (PHP_VERSION_ID >= 80100 && $func instanceof \ReflectionMethod ? $func->getTentativeReturnType() : null);
-		return self::getType($func, $type);
-	}
-
-
-	/**
-	 * @deprecated
-	 */
-	public static function getReturnTypes(\ReflectionFunctionAbstract $func): array
-	{
-		$type = Type::fromReflection($func);
-		return $type ? $type->getNames() : [];
-	}
-
-
-	/**
-	 * Returns the type of given parameter and normalizes `self` and `parent` to the actual class names.
-	 * If the parameter does not have a type, it returns null.
-	 * If the parameter has union or intersection type, it throws Nette\InvalidStateException.
-	 */
-	public static function getParameterType(\ReflectionParameter $param): ?string
-	{
-		return self::getType($param, $param->getType());
-	}
-
-
-	/**
-	 * @deprecated
-	 */
-	public static function getParameterTypes(\ReflectionParameter $param): array
-	{
-		$type = Type::fromReflection($param);
-		return $type ? $type->getNames() : [];
-	}
-
-
-	/**
-	 * Returns the type of given property and normalizes `self` and `parent` to the actual class names.
-	 * If the property does not have a type, it returns null.
-	 * If the property has union or intersection type, it throws Nette\InvalidStateException.
-	 */
-	public static function getPropertyType(\ReflectionProperty $prop): ?string
-	{
-		return self::getType($prop, PHP_VERSION_ID >= 70400 ? $prop->getType() : null);
-	}
-
-
-	/**
-	 * @deprecated
-	 */
-	public static function getPropertyTypes(\ReflectionProperty $prop): array
-	{
-		$type = Type::fromReflection($prop);
-		return $type ? $type->getNames() : [];
-	}
-
-
-	/**
-	 * @param  \ReflectionFunction|\ReflectionMethod|\ReflectionParameter|\ReflectionProperty  $reflection
-	 */
-	private static function getType($reflection, ?\ReflectionType $type): ?string
-	{
-		if ($type === null) {
-			return null;
-
-		} elseif ($type instanceof \ReflectionNamedType) {
-			return Type::resolve($type->getName(), $reflection);
-
-		} elseif ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
-			throw new Nette\InvalidStateException('The ' . self::toString($reflection) . ' is not expected to have a union or intersection type.');
-
-		} else {
-			throw new Nette\InvalidStateException('Unexpected type of ' . self::toString($reflection));
-		}
-	}
-
-
-	/**
-	 * Returns the default value of parameter. If it is a constant, it returns its value.
-	 * @return mixed
-	 * @throws \ReflectionException  If the parameter does not have a default value or the constant cannot be resolved
-	 */
-	public static function getParameterDefaultValue(\ReflectionParameter $param)
+	/** @deprecated use native ReflectionParameter::getDefaultValue() */
+	public static function getParameterDefaultValue(\ReflectionParameter $param): mixed
 	{
 		if ($param->isDefaultValueConstant()) {
 			$const = $orig = $param->getDefaultValueConstantName();
@@ -261,7 +158,7 @@ final class Reflection
 		if (empty($name)) {
 			throw new Nette\InvalidArgumentException('Class name must not be empty.');
 
-		} elseif (isset(self::BuiltinTypes[$lower])) {
+		} elseif (Validators::isBuiltinType($lower)) {
 			return $lower;
 
 		} elseif ($lower === 'self' || $lower === 'static') {
@@ -291,7 +188,7 @@ final class Reflection
 	}
 
 
-	/** @return array of [alias => class] */
+	/** @return array<string, class-string> of [alias => class] */
 	public static function getUseStatements(\ReflectionClass $class): array
 	{
 		if ($class->isAnonymous()) {
@@ -318,22 +215,21 @@ final class Reflection
 	private static function parseUseStatements(string $code, ?string $forClass = null): array
 	{
 		try {
-			$tokens = token_get_all($code, TOKEN_PARSE);
+			$tokens = \PhpToken::tokenize($code, TOKEN_PARSE);
 		} catch (\ParseError $e) {
 			trigger_error($e->getMessage(), E_USER_NOTICE);
 			$tokens = [];
 		}
 
-		$namespace = $class = $classLevel = $level = null;
+		$namespace = $class = null;
+		$classLevel = $level = 0;
 		$res = $uses = [];
 
-		$nameTokens = PHP_VERSION_ID < 80000
-			? [T_STRING, T_NS_SEPARATOR]
-			: [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED];
+		$nameTokens = [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED];
 
 		while ($token = current($tokens)) {
 			next($tokens);
-			switch (is_array($token) ? $token[0] : $token) {
+			switch ($token->id) {
 				case T_NAMESPACE:
 					$namespace = ltrim(self::fetch($tokens, $nameTokens) . '\\', '\\');
 					$uses = [];
@@ -389,13 +285,13 @@ final class Reflection
 
 				case T_CURLY_OPEN:
 				case T_DOLLAR_OPEN_CURLY_BRACES:
-				case '{':
+				case ord('{'):
 					$level++;
 					break;
 
-				case '}':
+				case ord('}'):
 					if ($level === $classLevel) {
-						$class = $classLevel = null;
+						$class = $classLevel = 0;
 					}
 
 					$level--;
@@ -406,14 +302,13 @@ final class Reflection
 	}
 
 
-	private static function fetch(array &$tokens, $take): ?string
+	private static function fetch(array &$tokens, string|int|array $take): ?string
 	{
 		$res = null;
 		while ($token = current($tokens)) {
-			[$token, $s] = is_array($token) ? $token : [$token, $token];
-			if (in_array($token, (array) $take, true)) {
-				$res .= $s;
-			} elseif (!in_array($token, [T_DOC_COMMENT, T_WHITESPACE, T_COMMENT], true)) {
+			if ($token->is($take)) {
+				$res .= $token->text;
+			} elseif (!$token->is([T_DOC_COMMENT, T_WHITESPACE, T_COMMENT])) {
 				break;
 			}
 

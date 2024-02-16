@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\WhiteSpace;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class SuperfluousWhitespaceUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the SuperfluousWhitespace sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\WhiteSpace\SuperfluousWhitespaceSniff
+ */
+final class SuperfluousWhitespaceUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,7 +30,7 @@ class SuperfluousWhitespaceUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='SuperfluousWhitespaceUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
         case 'SuperfluousWhitespaceUnitTest.1.inc':
@@ -44,26 +49,26 @@ class SuperfluousWhitespaceUnitTest extends AbstractSniffUnitTest
                 65 => 1,
                 73 => 1,
             ];
-            break;
+
         case 'SuperfluousWhitespaceUnitTest.2.inc':
             return [
                 2 => 1,
                 8 => 1,
             ];
-            break;
+
         case 'SuperfluousWhitespaceUnitTest.3.inc':
             return [
                 6  => 1,
                 10 => 1,
             ];
-            break;
+
         case 'SuperfluousWhitespaceUnitTest.4.inc':
         case 'SuperfluousWhitespaceUnitTest.5.inc':
             return [
                 1 => 1,
                 4 => 1,
             ];
-            break;
+
         case 'SuperfluousWhitespaceUnitTest.1.js':
             return [
                 1  => 1,
@@ -77,19 +82,18 @@ class SuperfluousWhitespaceUnitTest extends AbstractSniffUnitTest
                 38 => 1,
                 56 => 1,
             ];
-            break;
+
         case 'SuperfluousWhitespaceUnitTest.1.css':
             return [
                 1  => 1,
                 8  => 1,
                 9  => 1,
                 11 => 1,
-                25 => 1,
+                32 => 1,
             ];
-            break;
+
         default:
             return [];
-            break;
         }//end switch
 
     }//end getErrorList()

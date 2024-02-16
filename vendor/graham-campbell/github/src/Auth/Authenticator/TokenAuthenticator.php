@@ -32,18 +32,16 @@ final class TokenAuthenticator extends AbstractAuthenticator
      *
      * @return \Github\Client
      */
-    public function authenticate(array $config)
+    public function authenticate(array $config): Client
     {
-        if (!$this->client) {
-            throw new InvalidArgumentException('The client instance was not given to the token authenticator.');
-        }
+        $client = $this->getClient();
 
         if (!array_key_exists('token', $config)) {
             throw new InvalidArgumentException('The token authenticator requires a token.');
         }
 
-        $this->client->authenticate($config['token'], Client::AUTH_ACCESS_TOKEN);
+        $client->authenticate($config['token'], Client::AUTH_ACCESS_TOKEN);
 
-        return $this->client;
+        return $client;
     }
 }

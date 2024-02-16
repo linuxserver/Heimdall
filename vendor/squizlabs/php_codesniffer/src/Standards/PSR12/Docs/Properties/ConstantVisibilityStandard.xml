@@ -1,0 +1,27 @@
+<documentation title="Constant Visibility">
+    <standard>
+    <![CDATA[
+    Visibility must be declared on all class constants if your project PHP minimum version supports constant visibilities (PHP 7.1 or later).
+
+    The term "class" refers to all classes, interfaces, enums and traits.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Constant visibility declared.">
+        <![CDATA[
+class Foo
+{
+    <em>private const</em> BAR = 'bar';
+}
+        ]]>
+        </code>
+        <code title="Invalid: Constant visibility not declared.">
+        <![CDATA[
+class Foo
+{
+    <em>const</em> BAR = 'bar';
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

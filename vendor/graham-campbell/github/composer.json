@@ -11,25 +11,22 @@
         }
     ],
     "require": {
-        "php": "^7.2.5 || ^8.0",
-        "graham-campbell/bounded-cache": "^1.1 || ^2.0",
-        "graham-campbell/manager": "^4.7",
-        "illuminate/contracts": "^6.0 || ^7.0 || ^8.0 || ^9.0",
-        "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0",
-        "knplabs/github-api": "3.6.*",
-        "symfony/cache": "^4.3 || ^5.0 || ^6.0"
+        "php":  "^7.4.15 || ^8.0.2",
+        "graham-campbell/bounded-cache": "^1.2 || ^2.2",
+        "graham-campbell/manager": "^5.1",
+        "guzzlehttp/guzzle": "^7.8.1",
+        "guzzlehttp/psr7": "^2.6.2",
+        "illuminate/contracts": "^8.75 || ^9.0 || ^10.0",
+        "illuminate/support": "^8.75 || ^9.0 || ^10.0",
+        "knplabs/github-api": "3.13.*",
+        "lcobucci/jwt": "^4.3 || ^5.2",
+        "symfony/cache": "^5.4 || ^6.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^3.0",
-        "graham-campbell/testbench": "^5.7",
-        "guzzlehttp/guzzle": "^7.4",
-        "http-interop/http-factory-guzzle": "^1.0",
-        "lcobucci/jwt": "^3.4 || ^4.0",
-        "mockery/mockery": "^1.3.1",
-        "phpunit/phpunit": "^8.5.8 || ^9.3.7"
-    },
-    "suggest": {
-        "lcobucci/jwt": "Allows using the private key authenticator (^3.4 || ^4.0)"
+        "graham-campbell/analyzer": "^4.1",
+        "graham-campbell/testbench": "^6.1",
+        "mockery/mockery": "^1.6.6",
+        "phpunit/phpunit": "^9.6.15 || ^10.4.2"
     },
     "autoload": {
         "psr-4": {
@@ -42,7 +39,10 @@
         }
     },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "extra": {
         "laravel": {
@@ -50,7 +50,5 @@
                 "GrahamCampbell\\GitHub\\GitHubServiceProvider"
             ]
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }

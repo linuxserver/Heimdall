@@ -4,14 +4,12 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
-
-class ShortArrayTest extends AbstractMethodUnitTest
+final class ShortArrayTest extends AbstractTokenizerTestCase
 {
 
 
@@ -27,16 +25,19 @@ class ShortArrayTest extends AbstractMethodUnitTest
      */
     public function testSquareBrackets($testMarker)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens     = $this->phpcsFile->getTokens();
+        $opener     = $this->getTargetToken($testMarker, [T_OPEN_SQUARE_BRACKET, T_OPEN_SHORT_ARRAY]);
+        $tokenArray = $tokens[$opener];
 
-        $opener = $this->getTargetToken($testMarker, [T_OPEN_SQUARE_BRACKET, T_OPEN_SHORT_ARRAY]);
-        $this->assertSame(T_OPEN_SQUARE_BRACKET, $tokens[$opener]['code']);
-        $this->assertSame('T_OPEN_SQUARE_BRACKET', $tokens[$opener]['type']);
+        $this->assertSame(T_OPEN_SQUARE_BRACKET, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_OPEN_SQUARE_BRACKET (code)');
+        $this->assertSame('T_OPEN_SQUARE_BRACKET', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_OPEN_SQUARE_BRACKET (type)');
 
         if (isset($tokens[$opener]['bracket_closer']) === true) {
-            $closer = $tokens[$opener]['bracket_closer'];
-            $this->assertSame(T_CLOSE_SQUARE_BRACKET, $tokens[$closer]['code']);
-            $this->assertSame('T_CLOSE_SQUARE_BRACKET', $tokens[$closer]['type']);
+            $closer     = $tokens[$opener]['bracket_closer'];
+            $tokenArray = $tokens[$closer];
+
+            $this->assertSame(T_CLOSE_SQUARE_BRACKET, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_CLOSE_SQUARE_BRACKET (code)');
+            $this->assertSame('T_CLOSE_SQUARE_BRACKET', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_CLOSE_SQUARE_BRACKET (type)');
         }
 
     }//end testSquareBrackets()
@@ -47,34 +48,34 @@ class ShortArrayTest extends AbstractMethodUnitTest
      *
      * @see testSquareBrackets()
      *
-     * @return array
+     * @return array<string, array<string>>
      */
-    public function dataSquareBrackets()
+    public static function dataSquareBrackets()
     {
         return [
-            ['/* testArrayAccess1 */'],
-            ['/* testArrayAccess2 */'],
-            ['/* testArrayAssignment */'],
-            ['/* testFunctionCallDereferencing */'],
-            ['/* testMethodCallDereferencing */'],
-            ['/* testStaticMethodCallDereferencing */'],
-            ['/* testPropertyDereferencing */'],
-            ['/* testPropertyDereferencingWithInaccessibleName */'],
-            ['/* testStaticPropertyDereferencing */'],
-            ['/* testStringDereferencing */'],
-            ['/* testStringDereferencingDoubleQuoted */'],
-            ['/* testConstantDereferencing */'],
-            ['/* testClassConstantDereferencing */'],
-            ['/* testMagicConstantDereferencing */'],
-            ['/* testArrayAccessCurlyBraces */'],
-            ['/* testArrayLiteralDereferencing */'],
-            ['/* testShortArrayLiteralDereferencing */'],
-            ['/* testClassMemberDereferencingOnInstantiation1 */'],
-            ['/* testClassMemberDereferencingOnInstantiation2 */'],
-            ['/* testClassMemberDereferencingOnClone */'],
-            ['/* testNullsafeMethodCallDereferencing */'],
-            ['/* testInterpolatedStringDereferencing */'],
-            ['/* testLiveCoding */'],
+            'array access 1'                                => ['/* testArrayAccess1 */'],
+            'array access 2'                                => ['/* testArrayAccess2 */'],
+            'array assignment'                              => ['/* testArrayAssignment */'],
+            'function call dereferencing'                   => ['/* testFunctionCallDereferencing */'],
+            'method call dereferencing'                     => ['/* testMethodCallDereferencing */'],
+            'static method call dereferencing'              => ['/* testStaticMethodCallDereferencing */'],
+            'property dereferencing'                        => ['/* testPropertyDereferencing */'],
+            'property dereferencing with inaccessable name' => ['/* testPropertyDereferencingWithInaccessibleName */'],
+            'static property dereferencing'                 => ['/* testStaticPropertyDereferencing */'],
+            'string dereferencing single quotes'            => ['/* testStringDereferencing */'],
+            'string dereferencing double quotes'            => ['/* testStringDereferencingDoubleQuoted */'],
+            'global constant dereferencing'                 => ['/* testConstantDereferencing */'],
+            'class constant dereferencing'                  => ['/* testClassConstantDereferencing */'],
+            'magic constant dereferencing'                  => ['/* testMagicConstantDereferencing */'],
+            'array access with curly braces'                => ['/* testArrayAccessCurlyBraces */'],
+            'array literal dereferencing'                   => ['/* testArrayLiteralDereferencing */'],
+            'short array literal dereferencing'             => ['/* testShortArrayLiteralDereferencing */'],
+            'class member dereferencing on instantiation 1' => ['/* testClassMemberDereferencingOnInstantiation1 */'],
+            'class member dereferencing on instantiation 2' => ['/* testClassMemberDereferencingOnInstantiation2 */'],
+            'class member dereferencing on clone'           => ['/* testClassMemberDereferencingOnClone */'],
+            'nullsafe method call dereferencing'            => ['/* testNullsafeMethodCallDereferencing */'],
+            'interpolated string dereferencing'             => ['/* testInterpolatedStringDereferencing */'],
+            'live coding'                                   => ['/* testLiveCoding */'],
         ];
 
     }//end dataSquareBrackets()
@@ -92,16 +93,19 @@ class ShortArrayTest extends AbstractMethodUnitTest
      */
     public function testShortArrays($testMarker)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens     = $this->phpcsFile->getTokens();
+        $opener     = $this->getTargetToken($testMarker, [T_OPEN_SQUARE_BRACKET, T_OPEN_SHORT_ARRAY]);
+        $tokenArray = $tokens[$opener];
 
-        $opener = $this->getTargetToken($testMarker, [T_OPEN_SQUARE_BRACKET, T_OPEN_SHORT_ARRAY]);
-        $this->assertSame(T_OPEN_SHORT_ARRAY, $tokens[$opener]['code']);
-        $this->assertSame('T_OPEN_SHORT_ARRAY', $tokens[$opener]['type']);
+        $this->assertSame(T_OPEN_SHORT_ARRAY, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_OPEN_SHORT_ARRAY (code)');
+        $this->assertSame('T_OPEN_SHORT_ARRAY', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_OPEN_SHORT_ARRAY (type)');
 
         if (isset($tokens[$opener]['bracket_closer']) === true) {
-            $closer = $tokens[$opener]['bracket_closer'];
-            $this->assertSame(T_CLOSE_SHORT_ARRAY, $tokens[$closer]['code']);
-            $this->assertSame('T_CLOSE_SHORT_ARRAY', $tokens[$closer]['type']);
+            $closer     = $tokens[$opener]['bracket_closer'];
+            $tokenArray = $tokens[$closer];
+
+            $this->assertSame(T_CLOSE_SHORT_ARRAY, $tokenArray['code'], 'Token tokenized as '.$tokenArray['type'].', not T_CLOSE_SHORT_ARRAY (code)');
+            $this->assertSame('T_CLOSE_SHORT_ARRAY', $tokenArray['type'], 'Token tokenized as '.$tokenArray['type'].', not T_CLOSE_SHORT_ARRAY (type)');
         }
 
     }//end testShortArrays()
@@ -112,18 +116,21 @@ class ShortArrayTest extends AbstractMethodUnitTest
      *
      * @see testShortArrays()
      *
-     * @return array
+     * @return array<string, array<string>>
      */
-    public function dataShortArrays()
+    public static function dataShortArrays()
     {
         return [
-            ['/* testShortArrayDeclarationEmpty */'],
-            ['/* testShortArrayDeclarationWithOneValue */'],
-            ['/* testShortArrayDeclarationWithMultipleValues */'],
-            ['/* testShortArrayDeclarationWithDereferencing */'],
-            ['/* testShortListDeclaration */'],
-            ['/* testNestedListDeclaration */'],
-            ['/* testArrayWithinFunctionCall */'],
+            'short array empty'                              => ['/* testShortArrayDeclarationEmpty */'],
+            'short array with value'                         => ['/* testShortArrayDeclarationWithOneValue */'],
+            'short array with values'                        => ['/* testShortArrayDeclarationWithMultipleValues */'],
+            'short array with dereferencing'                 => ['/* testShortArrayDeclarationWithDereferencing */'],
+            'short list'                                     => ['/* testShortListDeclaration */'],
+            'short list nested'                              => ['/* testNestedListDeclaration */'],
+            'short array within function call'               => ['/* testArrayWithinFunctionCall */'],
+            'short list after braced control structure'      => ['/* testShortListDeclarationAfterBracedControlStructure */'],
+            'short list after non-braced control structure'  => ['/* testShortListDeclarationAfterNonBracedControlStructure */'],
+            'short list after alternative control structure' => ['/* testShortListDeclarationAfterAlternativeControlStructure */'],
         ];
 
     }//end dataShortArrays()

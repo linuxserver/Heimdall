@@ -5,10 +5,13 @@ namespace Illuminate\Foundation\Bus;
 use Closure;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Queue\CallQueuedClosure;
-use Illuminate\Queue\SerializableClosureFactory;
+use Illuminate\Support\Traits\Conditionable;
+use Laravel\SerializableClosure\SerializableClosure;
 
 class PendingChain
 {
+    use Conditionable;
+
     /**
      * The class name of the job being dispatched.
      *
@@ -91,7 +94,7 @@ class PendingChain
     }
 
     /**
-     * Set the desired delay for the chain.
+     * Set the desired delay in seconds for the chain.
      *
      * @param  \DateTimeInterface|\DateInterval|int|null  $delay
      * @return $this
@@ -112,7 +115,7 @@ class PendingChain
     public function catch($callback)
     {
         $this->catchCallbacks[] = $callback instanceof Closure
-                        ? SerializableClosureFactory::make($callback)
+                        ? new SerializableClosure($callback)
                         : $callback;
 
         return $this;
@@ -129,7 +132,7 @@ class PendingChain
     }
 
     /**
-     * Dispatch the job with the given arguments.
+     * Dispatch the job chain.
      *
      * @return \Illuminate\Foundation\Bus\PendingDispatch
      */
@@ -161,5 +164,27 @@ class PendingChain
         $firstJob->chainCatchCallbacks = $this->catchCallbacks();
 
         return app(Dispatcher::class)->dispatch($firstJob);
+    }
+
+    /**
+     * Dispatch the job chain if the given truth test passes.
+     *
+     * @param  bool|\Closure  $boolean
+     * @return \Illuminate\Foundation\Bus\PendingDispatch|null
+     */
+    public function dispatchIf($boolean)
+    {
+        return value($boolean) ? $this->dispatch() : null;
+    }
+
+    /**
+     * Dispatch the job chain unless the given truth test passes.
+     *
+     * @param  bool|\Closure  $boolean
+     * @return \Illuminate\Foundation\Bus\PendingDispatch|null
+     */
+    public function dispatchUnless($boolean)
+    {
+        return ! value($boolean) ? $this->dispatch() : null;
     }
 }

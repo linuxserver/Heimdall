@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/github/release/php-http/promise.svg?style=flat-square)](https://github.com/php-http/promise/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
-[![Build Status](https://img.shields.io/travis/php-http/promise.svg?style=flat-square)](https://travis-ci.org/php-http/promise)
+[![Build Status](https://github.com/php-http/promise/actions/workflows/tests.yml/badge.svg?branch=1.x)](https://github.com/php-http/promise/actions/workflows/tests.yml)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/php-http/promise.svg?style=flat-square)](https://scrutinizer-ci.com/g/php-http/promise)
 [![Quality Score](https://img.shields.io/scrutinizer/g/php-http/promise.svg?style=flat-square)](https://scrutinizer-ci.com/g/php-http/promise)
 [![Total Downloads](https://img.shields.io/packagist/dt/php-http/promise.svg?style=flat-square)](https://packagist.org/packages/php-http/promise)

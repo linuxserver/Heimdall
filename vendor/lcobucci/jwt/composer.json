@@ -1,0 +1,63 @@
+{
+    "name": "lcobucci/jwt",
+    "description": "A simple library to work with JSON Web Token and JSON Web Signature",
+    "license": [
+        "BSD-3-Clause"
+    ],
+    "type": "library",
+    "keywords": [
+        "JWT",
+        "JWS"
+    ],
+    "authors": [
+        {
+            "name": "Luís Cobucci",
+            "email": "lcobucci@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "ext-openssl": "*",
+        "ext-sodium": "*",
+        "psr/clock": "^1.0"
+    },
+    "require-dev": {
+        "infection/infection": "^0.27.0",
+        "lcobucci/clock": "^3.0",
+        "lcobucci/coding-standard": "^11.0",
+        "phpbench/phpbench": "^1.2.9",
+        "phpstan/extension-installer": "^1.2",
+        "phpstan/phpstan": "^1.10.7",
+        "phpstan/phpstan-deprecation-rules": "^1.1.3",
+        "phpstan/phpstan-phpunit": "^1.3.10",
+        "phpstan/phpstan-strict-rules": "^1.5.0",
+        "phpunit/phpunit": "^10.2.6"
+    },
+    "suggest": {
+        "lcobucci/clock": ">= 3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lcobucci\\JWT\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lcobucci\\JWT\\Tests\\": "tests"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "infection/extension-installer": true,
+            "ocramius/package-versions": true,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "php": "8.1.99"
+        },
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}

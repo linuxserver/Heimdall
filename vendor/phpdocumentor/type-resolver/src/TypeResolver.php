@@ -13,27 +13,36 @@ declare(strict_types=1);
 
 namespace phpDocumentor\Reflection;
 
-use ArrayIterator;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
+use phpDocumentor\Reflection\PseudoTypes\ArrayShapeItem;
 use phpDocumentor\Reflection\PseudoTypes\CallableString;
+use phpDocumentor\Reflection\PseudoTypes\ConstExpression;
 use phpDocumentor\Reflection\PseudoTypes\False_;
+use phpDocumentor\Reflection\PseudoTypes\FloatValue;
 use phpDocumentor\Reflection\PseudoTypes\HtmlEscapedString;
 use phpDocumentor\Reflection\PseudoTypes\IntegerRange;
+use phpDocumentor\Reflection\PseudoTypes\IntegerValue;
 use phpDocumentor\Reflection\PseudoTypes\List_;
 use phpDocumentor\Reflection\PseudoTypes\LiteralString;
 use phpDocumentor\Reflection\PseudoTypes\LowercaseString;
 use phpDocumentor\Reflection\PseudoTypes\NegativeInteger;
+use phpDocumentor\Reflection\PseudoTypes\NonEmptyList;
 use phpDocumentor\Reflection\PseudoTypes\NonEmptyLowercaseString;
 use phpDocumentor\Reflection\PseudoTypes\NonEmptyString;
 use phpDocumentor\Reflection\PseudoTypes\Numeric_;
 use phpDocumentor\Reflection\PseudoTypes\NumericString;
 use phpDocumentor\Reflection\PseudoTypes\PositiveInteger;
+use phpDocumentor\Reflection\PseudoTypes\StringValue;
 use phpDocumentor\Reflection\PseudoTypes\TraitString;
 use phpDocumentor\Reflection\PseudoTypes\True_;
+use phpDocumentor\Reflection\Types\AggregatedType;
 use phpDocumentor\Reflection\Types\Array_;
 use phpDocumentor\Reflection\Types\ArrayKey;
 use phpDocumentor\Reflection\Types\Boolean;
 use phpDocumentor\Reflection\Types\Callable_;
+use phpDocumentor\Reflection\Types\CallableParameter;
 use phpDocumentor\Reflection\Types\ClassString;
 use phpDocumentor\Reflection\Types\Collection;
 use phpDocumentor\Reflection\Types\Compound;
@@ -57,45 +66,50 @@ use phpDocumentor\Reflection\Types\Static_;
 use phpDocumentor\Reflection\Types\String_;
 use phpDocumentor\Reflection\Types\This;
 use phpDocumentor\Reflection\Types\Void_;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprFloatNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprIntegerNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstExprStringNode;
+use PHPStan\PhpDocParser\Ast\ConstExpr\ConstFetchNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayShapeItemNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
+use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\CallableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\CallableTypeParameterNode;
+use PHPStan\PhpDocParser\Ast\Type\ConditionalTypeForParameterNode;
+use PHPStan\PhpDocParser\Ast\Type\ConditionalTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\ConstTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\OffsetAccessTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\ThisTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
+use PHPStan\PhpDocParser\Lexer\Lexer;
+use PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PHPStan\PhpDocParser\Parser\ParserException;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
+use PHPStan\PhpDocParser\Parser\TypeParser;
 use RuntimeException;
 
+use function array_filter;
 use function array_key_exists;
-use function array_key_last;
-use function array_pop;
-use function array_values;
+use function array_map;
+use function array_reverse;
 use function class_exists;
 use function class_implements;
-use function count;
-use function current;
+use function get_class;
 use function in_array;
-use function is_numeric;
-use function preg_split;
+use function sprintf;
 use function strpos;
 use function strtolower;
 use function trim;
 
-use const PREG_SPLIT_DELIM_CAPTURE;
-use const PREG_SPLIT_NO_EMPTY;
-
 final class TypeResolver
 {
-    /** @var string Definition of the ARRAY operator for types */
-    private const OPERATOR_ARRAY = '[]';
-
     /** @var string Definition of the NAMESPACE operator in PHP */
     private const OPERATOR_NAMESPACE = '\\';
-
-    /** @var int the iterator parser is inside a compound context */
-    private const PARSER_IN_COMPOUND = 0;
-
-    /** @var int the iterator parser is inside a nullable expression context */
-    private const PARSER_IN_NULLABLE = 1;
-
-    /** @var int the iterator parser is inside an array expression context */
-    private const PARSER_IN_ARRAY_EXPRESSION = 2;
-
-    /** @var int the iterator parser is inside a collection expression context */
-    private const PARSER_IN_COLLECTION_EXPRESSION = 3;
 
     /**
      * @var array<string, string> List of recognized keywords and unto which Value Object they map
@@ -142,10 +156,15 @@ final class TypeResolver
         'iterable' => Iterable_::class,
         'never' => Never_::class,
         'list' => List_::class,
+        'non-empty-list' => NonEmptyList::class,
     ];
 
     /** @psalm-readonly */
     private FqsenResolver $fqsenResolver;
+    /** @psalm-readonly */
+    private TypeParser $typeParser;
+    /** @psalm-readonly */
+    private Lexer $lexer;
 
     /**
      * Initializes this TypeResolver with the means to create and resolve Fqsen objects.
@@ -153,6 +172,8 @@ final class TypeResolver
     public function __construct(?FqsenResolver $fqsenResolver = null)
     {
         $this->fqsenResolver = $fqsenResolver ?: new FqsenResolver();
+        $this->typeParser = new TypeParser(new ConstExprParser());
+        $this->lexer = new Lexer();
     }
 
     /**
@@ -165,9 +186,9 @@ final class TypeResolver
      * This method only works as expected if the namespace and aliases are set;
      * no dynamic reflection is being performed here.
      *
+     * @uses Context::getNamespace()        to determine with what to prefix the type name.
      * @uses Context::getNamespaceAliases() to check whether the first part of the relative type name should not be
      * replaced with another namespace.
-     * @uses Context::getNamespace()        to determine with what to prefix the type name.
      *
      * @param string $type The relative or absolute type.
      */
@@ -182,178 +203,219 @@ final class TypeResolver
             $context = new Context('');
         }
 
-        // split the type string into tokens `|`, `?`, `<`, `>`, `,`, `(`, `)`, `[]`, '<', '>' and type names
-        $tokens = preg_split(
-            '/(\\||\\?|<|>|&|, ?|\\(|\\)|\\[\\]+)/',
-            $type,
-            -1,
-            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-        );
+        $tokens = $this->lexer->tokenize($type);
+        $tokenIterator = new TokenIterator($tokens);
 
-        if ($tokens === false) {
-            throw new InvalidArgumentException('Unable to split the type string "' . $type . '" into tokens');
-        }
+        $ast = $this->parse($tokenIterator);
+        $type = $this->createType($ast, $context);
 
-        /** @var ArrayIterator<int, string|null> $tokenIterator */
-        $tokenIterator = new ArrayIterator($tokens);
-
-        return $this->parseTypes($tokenIterator, $context, self::PARSER_IN_COMPOUND);
+        return $this->tryParseRemainingCompoundTypes($tokenIterator, $context, $type);
     }
 
-    /**
-     * Analyse each tokens and creates types
-     *
-     * @param ArrayIterator<int, string|null> $tokens        the iterator on tokens
-     * @param int                        $parserContext on of self::PARSER_* constants, indicating
-     * the context where we are in the parsing
-     */
-    private function parseTypes(ArrayIterator $tokens, Context $context, int $parserContext): Type
+    public function createType(?TypeNode $type, Context $context): Type
     {
-        $types = [];
-        $token = '';
-        $compoundToken = '|';
-        while ($tokens->valid()) {
-            $token = $tokens->current();
-            if ($token === null) {
-                throw new RuntimeException(
-                    'Unexpected nullable character'
-                );
-            }
+        if ($type === null) {
+            return new Mixed_();
+        }
 
-            if ($token === '|' || $token === '&') {
-                if (count($types) === 0) {
+        switch (get_class($type)) {
+            case ArrayTypeNode::class:
+                return new Array_(
+                    $this->createType($type->type, $context)
+                );
+
+            case ArrayShapeNode::class:
+                return new ArrayShape(
+                    ...array_map(
+                        fn (ArrayShapeItemNode $item) => new ArrayShapeItem(
+                            (string) $item->keyName,
+                            $this->createType($item->valueType, $context),
+                            $item->optional
+                        ),
+                        $type->items
+                    )
+                );
+
+            case CallableTypeNode::class:
+                return $this->createFromCallable($type, $context);
+
+            case ConstTypeNode::class:
+                return $this->createFromConst($type, $context);
+
+            case GenericTypeNode::class:
+                return $this->createFromGeneric($type, $context);
+
+            case IdentifierTypeNode::class:
+                return $this->resolveSingleType($type->name, $context);
+
+            case IntersectionTypeNode::class:
+                return new Intersection(
+                    array_filter(
+                        array_map(
+                            function (TypeNode $nestedType) use ($context) {
+                                $type = $this->createType($nestedType, $context);
+                                if ($type instanceof AggregatedType) {
+                                    return new Expression($type);
+                                }
+
+                                return $type;
+                            },
+                            $type->types
+                        )
+                    )
+                );
+
+            case NullableTypeNode::class:
+                $nestedType = $this->createType($type->type, $context);
+
+                return new Nullable($nestedType);
+
+            case UnionTypeNode::class:
+                return new Compound(
+                    array_filter(
+                        array_map(
+                            function (TypeNode $nestedType) use ($context) {
+                                $type = $this->createType($nestedType, $context);
+                                if ($type instanceof AggregatedType) {
+                                    return new Expression($type);
+                                }
+
+                                return $type;
+                            },
+                            $type->types
+                        )
+                    )
+                );
+
+            case ThisTypeNode::class:
+                return new This();
+
+            case ConditionalTypeNode::class:
+            case ConditionalTypeForParameterNode::class:
+            case OffsetAccessTypeNode::class:
+            default:
+                return new Mixed_();
+        }
+    }
+
+    private function createFromGeneric(GenericTypeNode $type, Context $context): Type
+    {
+        switch (strtolower($type->type->name)) {
+            case 'array':
+                return $this->createArray($type->genericTypes, $context);
+
+            case 'class-string':
+                $subType = $this->createType($type->genericTypes[0], $context);
+                if (!$subType instanceof Object_ || $subType->getFqsen() === null) {
                     throw new RuntimeException(
-                        'A type is missing before a type separator'
+                        $subType . ' is not a class string'
                     );
                 }
 
-                if (
-                    !in_array($parserContext, [
-                        self::PARSER_IN_COMPOUND,
-                        self::PARSER_IN_ARRAY_EXPRESSION,
-                        self::PARSER_IN_COLLECTION_EXPRESSION,
-                        self::PARSER_IN_NULLABLE,
-                    ], true)
-                ) {
+                return new ClassString(
+                    $subType->getFqsen()
+                );
+
+            case 'interface-string':
+                $subType = $this->createType($type->genericTypes[0], $context);
+                if (!$subType instanceof Object_ || $subType->getFqsen() === null) {
                     throw new RuntimeException(
-                        'Unexpected type separator'
+                        $subType . ' is not a class string'
                     );
                 }
 
-                $compoundToken = $token;
-                $tokens->next();
-            } elseif ($token === '?') {
-                if (
-                    !in_array($parserContext, [
-                        self::PARSER_IN_COMPOUND,
-                        self::PARSER_IN_ARRAY_EXPRESSION,
-                        self::PARSER_IN_COLLECTION_EXPRESSION,
-                        self::PARSER_IN_NULLABLE,
-                    ], true)
-                ) {
-                    throw new RuntimeException(
-                        'Unexpected nullable character'
+                return new InterfaceString(
+                    $subType->getFqsen()
+                );
+
+            case 'list':
+                return new List_(
+                    $this->createType($type->genericTypes[0], $context)
+                );
+
+            case 'non-empty-list':
+                return new NonEmptyList(
+                    $this->createType($type->genericTypes[0], $context)
+                );
+
+            case 'int':
+                if (isset($type->genericTypes[1]) === false) {
+                    throw new RuntimeException('int<min,max> has not the correct format');
+                }
+
+                return new IntegerRange(
+                    (string) $type->genericTypes[0],
+                    (string) $type->genericTypes[1],
+                );
+
+            case 'iterable':
+                return new Iterable_(
+                    ...array_reverse(
+                        array_map(
+                            fn (TypeNode $genericType) => $this->createType($genericType, $context),
+                            $type->genericTypes
+                        )
+                    )
+                );
+
+            default:
+                $collectionType = $this->createType($type->type, $context);
+                if ($collectionType instanceof Object_ === false) {
+                    throw new RuntimeException(sprintf('%s is not a collection', (string) $collectionType));
+                }
+
+                return new Collection(
+                    $collectionType->getFqsen(),
+                    ...array_reverse(
+                        array_map(
+                            fn (TypeNode $genericType) => $this->createType($genericType, $context),
+                            $type->genericTypes
+                        )
+                    )
+                );
+        }
+    }
+
+    private function createFromCallable(CallableTypeNode $type, Context $context): Callable_
+    {
+        return new Callable_(
+            array_map(
+                function (CallableTypeParameterNode $param) use ($context) {
+                    return new CallableParameter(
+                        $this->createType($param->type, $context),
+                        $param->parameterName !== '' ? trim($param->parameterName, '$') : null,
+                        $param->isReference,
+                        $param->isVariadic,
+                        $param->isOptional
                     );
-                }
+                },
+                $type->parameters
+            ),
+            $this->createType($type->returnType, $context),
+        );
+    }
 
-                $tokens->next();
-                $type    = $this->parseTypes($tokens, $context, self::PARSER_IN_NULLABLE);
-                $types[] = new Nullable($type);
-            } elseif ($token === '(') {
-                $tokens->next();
-                $type = $this->parseTypes($tokens, $context, self::PARSER_IN_ARRAY_EXPRESSION);
+    private function createFromConst(ConstTypeNode $type, Context $context): Type
+    {
+        switch (true) {
+            case $type->constExpr instanceof ConstExprIntegerNode:
+                return new IntegerValue((int) $type->constExpr->value);
 
-                $token = $tokens->current();
-                if ($token === null) { // Someone did not properly close their array expression ..
-                    break;
-                }
+            case $type->constExpr instanceof ConstExprFloatNode:
+                return new FloatValue((float) $type->constExpr->value);
 
-                $tokens->next();
+            case $type->constExpr instanceof ConstExprStringNode:
+                return new StringValue($type->constExpr->value);
 
-                $resolvedType = new Expression($type);
-
-                $types[] = $resolvedType;
-            } elseif ($parserContext === self::PARSER_IN_ARRAY_EXPRESSION && isset($token[0]) && $token[0] === ')') {
-                break;
-            } elseif ($token === '<') {
-                if (count($types) === 0) {
-                    throw new RuntimeException(
-                        'Unexpected collection operator "<", class name is missing'
-                    );
-                }
-
-                $classType = array_pop($types);
-                if ($classType !== null) {
-                    if ((string) $classType === 'class-string') {
-                        $types[] = $this->resolveClassString($tokens, $context);
-                    } elseif ((string) $classType === 'int') {
-                        $types[] = $this->resolveIntRange($tokens);
-                    } elseif ((string) $classType === 'interface-string') {
-                        $types[] = $this->resolveInterfaceString($tokens, $context);
-                    } else {
-                        $types[] = $this->resolveCollection($tokens, $classType, $context);
-                    }
-                }
-
-                $tokens->next();
-            } elseif (
-                $parserContext === self::PARSER_IN_COLLECTION_EXPRESSION
-                && ($token === '>' || trim($token) === ',')
-            ) {
-                break;
-            } elseif ($token === self::OPERATOR_ARRAY) {
-                $last = array_key_last($types);
-                if ($last === null) {
-                    throw new InvalidArgumentException('Unexpected array operator');
-                }
-
-                $lastItem = $types[$last];
-                if ($lastItem instanceof Expression) {
-                    $lastItem = $lastItem->getValueType();
-                }
-
-                $types[$last] = new Array_($lastItem);
-
-                $tokens->next();
-            } else {
-                $types[] = $this->resolveSingleType($token, $context);
-                $tokens->next();
-            }
-        }
-
-        if ($token === '|' || $token === '&') {
-            throw new RuntimeException(
-                'A type is missing after a type separator'
-            );
-        }
-
-        if (count($types) === 0) {
-            if ($parserContext === self::PARSER_IN_NULLABLE) {
-                throw new RuntimeException(
-                    'A type is missing after a nullable character'
+            case $type->constExpr instanceof ConstFetchNode:
+                return new ConstExpression(
+                    $this->resolve($type->constExpr->className, $context),
+                    $type->constExpr->name
                 );
-            }
 
-            if ($parserContext === self::PARSER_IN_ARRAY_EXPRESSION) {
-                throw new RuntimeException(
-                    'A type is missing in an array expression'
-                );
-            }
-
-            if ($parserContext === self::PARSER_IN_COLLECTION_EXPRESSION) {
-                throw new RuntimeException(
-                    'A type is missing in a collection expression'
-                );
-            }
-        } elseif (count($types) === 1) {
-            return current($types);
+            default:
+                throw new RuntimeException(sprintf('Unsupported constant type %s', get_class($type)));
         }
-
-        if ($compoundToken === '|') {
-            return new Compound(array_values($types));
-        }
-
-        return new Intersection(array_values($types));
     }
 
     /**
@@ -475,244 +537,87 @@ final class TypeResolver
         return new Object_($this->fqsenResolver->resolve($type, $context));
     }
 
-    /**
-     * Resolves class string
-     *
-     * @param ArrayIterator<int, (string|null)> $tokens
-     */
-    private function resolveClassString(ArrayIterator $tokens, Context $context): Type
+    /** @param TypeNode[] $typeNodes */
+    private function createArray(array $typeNodes, Context $context): Array_
     {
-        $tokens->next();
+        $types = array_reverse(
+            array_map(
+                fn (TypeNode $node) => $this->createType($node, $context),
+                $typeNodes
+            )
+        );
 
-        $classType = $this->parseTypes($tokens, $context, self::PARSER_IN_COLLECTION_EXPRESSION);
-
-        if (!$classType instanceof Object_ || $classType->getFqsen() === null) {
-            throw new RuntimeException(
-                $classType . ' is not a class string'
-            );
+        if (isset($types[1]) === false) {
+            return new Array_(...$types);
         }
 
-        $token = $tokens->current();
-        if ($token !== '>') {
-            if (empty($token)) {
-                throw new RuntimeException(
-                    'class-string: ">" is missing'
-                );
+        if ($this->validArrayKeyType($types[1]) || $types[1] instanceof ArrayKey) {
+            return new Array_(...$types);
+        }
+
+        if ($types[1] instanceof Compound && $types[1]->getIterator()->count() === 2) {
+            if ($this->validArrayKeyType($types[1]->get(0)) && $this->validArrayKeyType($types[1]->get(1))) {
+                return new Array_(...$types);
             }
-
-            throw new RuntimeException(
-                'Unexpected character "' . $token . '", ">" is missing'
-            );
         }
 
-        return new ClassString($classType->getFqsen());
+        throw new RuntimeException('An array can have only integers or strings as keys');
+    }
+
+    private function validArrayKeyType(?Type $type): bool
+    {
+        return $type instanceof String_ || $type instanceof Integer;
+    }
+
+    private function parse(TokenIterator $tokenIterator): TypeNode
+    {
+        try {
+            $ast = $this->typeParser->parse($tokenIterator);
+        } catch (ParserException $e) {
+            throw new RuntimeException($e->getMessage(), 0, $e);
+        }
+
+        return $ast;
     }
 
     /**
-     * Resolves integer ranges
+     * Will try to parse unsupported type notations by phpstan
      *
-     * @param ArrayIterator<int, (string|null)> $tokens
+     * The phpstan parser doesn't support the illegal nullable combinations like this library does.
+     * This method will warn the user about those notations but for bc purposes we will still have it here.
      */
-    private function resolveIntRange(ArrayIterator $tokens): Type
+    private function tryParseRemainingCompoundTypes(TokenIterator $tokenIterator, Context $context, Type $type): Type
     {
-        $tokens->next();
-
-        $token = '';
-        $minValue = null;
-        $maxValue = null;
-        $commaFound = false;
-        $tokenCounter = 0;
-        while ($tokens->valid()) {
-            $tokenCounter++;
-            $token = $tokens->current();
-            if ($token === null) {
-                throw new RuntimeException(
-                    'Unexpected nullable character'
-                );
-            }
-
-            $token = trim($token);
-
-            if ($token === '>') {
-                break;
-            }
-
-            if ($token === ',') {
-                $commaFound = true;
-            }
-
-            if ($commaFound === false && $minValue === null) {
-                if (is_numeric($token) || $token === 'max' || $token === 'min') {
-                    $minValue = $token;
-                }
-            }
-
-            if ($commaFound === true && $maxValue === null) {
-                if (is_numeric($token) || $token === 'max' || $token === 'min') {
-                    $maxValue = $token;
-                }
-            }
-
-            $tokens->next();
-        }
-
-        if ($token !== '>') {
-            if (empty($token)) {
-                throw new RuntimeException(
-                    'interface-string: ">" is missing'
-                );
-            }
-
-            throw new RuntimeException(
-                'Unexpected character "' . $token . '", ">" is missing'
-            );
-        }
-
-        if ($minValue === null || $maxValue === null || $tokenCounter > 4) {
-            throw new RuntimeException(
-                'int<min,max> has not the correct format'
-            );
-        }
-
-        return new IntegerRange($minValue, $maxValue);
-    }
-
-    /**
-     * Resolves class string
-     *
-     * @param ArrayIterator<int, (string|null)> $tokens
-     */
-    private function resolveInterfaceString(ArrayIterator $tokens, Context $context): Type
-    {
-        $tokens->next();
-
-        $classType = $this->parseTypes($tokens, $context, self::PARSER_IN_COLLECTION_EXPRESSION);
-
-        if (!$classType instanceof Object_ || $classType->getFqsen() === null) {
-            throw new RuntimeException(
-                $classType . ' is not a interface string'
-            );
-        }
-
-        $token = $tokens->current();
-        if ($token !== '>') {
-            if (empty($token)) {
-                throw new RuntimeException(
-                    'interface-string: ">" is missing'
-                );
-            }
-
-            throw new RuntimeException(
-                'Unexpected character "' . $token . '", ">" is missing'
-            );
-        }
-
-        return new InterfaceString($classType->getFqsen());
-    }
-
-    /**
-     * Resolves the collection values and keys
-     *
-     * @param ArrayIterator<int, (string|null)> $tokens
-     *
-     * @return Array_|Iterable_|Collection
-     */
-    private function resolveCollection(ArrayIterator $tokens, Type $classType, Context $context): Type
-    {
-        $isArray    = ((string) $classType === 'array');
-        $isIterable = ((string) $classType === 'iterable');
-        $isList     = ((string) $classType === 'list');
-
-        // allow only "array", "iterable" or class name before "<"
         if (
-            !$isArray && !$isIterable && !$isList
-            && (!$classType instanceof Object_ || $classType->getFqsen() === null)
+            $tokenIterator->isCurrentTokenType(Lexer::TOKEN_UNION) ||
+            $tokenIterator->isCurrentTokenType(Lexer::TOKEN_INTERSECTION)
         ) {
-            throw new RuntimeException(
-                $classType . ' is not a collection'
+            Deprecation::trigger(
+                'phpdocumentor/type-resolver',
+                'https://github.com/phpDocumentor/TypeResolver/issues/184',
+                'Legacy nullable type detected, please update your code as
+                you are using nullable types in a docblock. support will be removed in v2.0.0',
             );
         }
 
-        $tokens->next();
-
-        $valueType = $this->parseTypes($tokens, $context, self::PARSER_IN_COLLECTION_EXPRESSION);
-        $keyType   = null;
-
-        $token = $tokens->current();
-        if ($token !== null && trim($token) === ',' && !$isList) {
-            // if we have a comma, then we just parsed the key type, not the value type
-            $keyType = $valueType;
-            if ($isArray) {
-                // check the key type for an "array" collection. We allow only
-                // strings or integers.
-                if (
-                    !$keyType instanceof ArrayKey &&
-                    !$keyType instanceof String_ &&
-                    !$keyType instanceof Integer &&
-                    !$keyType instanceof Compound
-                ) {
-                    throw new RuntimeException(
-                        'An array can have only integers or strings as keys'
-                    );
-                }
-
-                if ($keyType instanceof Compound) {
-                    foreach ($keyType->getIterator() as $item) {
-                        if (
-                            !$item instanceof ArrayKey &&
-                            !$item instanceof String_ &&
-                            !$item instanceof Integer
-                        ) {
-                            throw new RuntimeException(
-                                'An array can have only integers or strings as keys'
-                            );
-                        }
-                    }
-                }
+        $continue = true;
+        while ($continue) {
+            $continue = false;
+            while ($tokenIterator->tryConsumeTokenType(Lexer::TOKEN_UNION)) {
+                $ast = $this->parse($tokenIterator);
+                $type2 = $this->createType($ast, $context);
+                $type = new Compound([$type, $type2]);
+                $continue = true;
             }
 
-            $tokens->next();
-            // now let's parse the value type
-            $valueType = $this->parseTypes($tokens, $context, self::PARSER_IN_COLLECTION_EXPRESSION);
-        }
-
-        $token = $tokens->current();
-        if ($token !== '>') {
-            if (empty($token)) {
-                throw new RuntimeException(
-                    'Collection: ">" is missing'
-                );
+            while ($tokenIterator->tryConsumeTokenType(Lexer::TOKEN_INTERSECTION)) {
+                $ast = $this->typeParser->parse($tokenIterator);
+                $type2 = $this->createType($ast, $context);
+                $type = new Intersection([$type, $type2]);
+                $continue = true;
             }
-
-            throw new RuntimeException(
-                'Unexpected character "' . $token . '", ">" is missing'
-            );
         }
 
-        if ($isArray) {
-            return new Array_($valueType, $keyType);
-        }
-
-        if ($isIterable) {
-            return new Iterable_($valueType, $keyType);
-        }
-
-        if ($isList) {
-            return new List_($valueType);
-        }
-
-        if ($classType instanceof Object_) {
-            return $this->makeCollectionFromObject($classType, $valueType, $keyType);
-        }
-
-        throw new RuntimeException('Invalid $classType provided');
-    }
-
-    /**
-     * @psalm-pure
-     */
-    private function makeCollectionFromObject(Object_ $object, Type $valueType, ?Type $keyType = null): Collection
-    {
-        return new Collection($object->getFqsen(), $valueType, $keyType);
+        return $type;
     }
 }

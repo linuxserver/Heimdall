@@ -16,19 +16,19 @@ interface Schema
 	 * Normalization.
 	 * @return mixed
 	 */
-	function normalize($value, Context $context);
+	function normalize(mixed $value, Context $context);
 
 	/**
 	 * Merging.
 	 * @return mixed
 	 */
-	function merge($value, $base);
+	function merge(mixed $value, mixed $base);
 
 	/**
 	 * Validation and finalization.
 	 * @return mixed
 	 */
-	function complete($value, Context $context);
+	function complete(mixed $value, Context $context);
 
 	/**
 	 * @return mixed

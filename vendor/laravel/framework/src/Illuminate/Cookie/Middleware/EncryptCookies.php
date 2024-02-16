@@ -22,7 +22,7 @@ class EncryptCookies
     /**
      * The names of the cookies that should not be encrypted.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $except = [];
 
@@ -76,24 +76,52 @@ class EncryptCookies
     protected function decrypt(Request $request)
     {
         foreach ($request->cookies as $key => $cookie) {
-            if ($this->isDisabled($key) || is_array($cookie)) {
+            if ($this->isDisabled($key)) {
                 continue;
             }
 
             try {
                 $value = $this->decryptCookie($key, $cookie);
 
-                $hasValidPrefix = strpos($value, CookieValuePrefix::create($key, $this->encrypter->getKey())) === 0;
-
-                $request->cookies->set(
-                    $key, $hasValidPrefix ? CookieValuePrefix::remove($value) : null
-                );
-            } catch (DecryptException $e) {
+                $request->cookies->set($key, $this->validateValue($key, $value));
+            } catch (DecryptException) {
                 $request->cookies->set($key, null);
             }
         }
 
         return $request;
+    }
+
+    /**
+     * Validate and remove the cookie value prefix from the value.
+     *
+     * @param  string  $key
+     * @param  string  $value
+     * @return string|array|null
+     */
+    protected function validateValue(string $key, $value)
+    {
+        return is_array($value)
+                    ? $this->validateArray($key, $value)
+                    : CookieValuePrefix::validate($key, $value, $this->encrypter->getKey());
+    }
+
+    /**
+     * Validate and remove the cookie value prefix from all values of an array.
+     *
+     * @param  string  $key
+     * @param  array  $value
+     * @return array
+     */
+    protected function validateArray(string $key, array $value)
+    {
+        $validated = [];
+
+        foreach ($value as $index => $subValue) {
+            $validated[$index] = $this->validateValue("{$key}[{$index}]", $subValue);
+        }
+
+        return $validated;
     }
 
     /**
@@ -123,6 +151,10 @@ class EncryptCookies
         foreach ($cookie as $key => $value) {
             if (is_string($value)) {
                 $decrypted[$key] = $this->encrypter->decrypt($value, static::serialized($key));
+            }
+
+            if (is_array($value)) {
+                $decrypted[$key] = $this->decryptArray($value);
             }
         }
 
@@ -163,11 +195,7 @@ class EncryptCookies
      */
     protected function duplicate(Cookie $cookie, $value)
     {
-        return new Cookie(
-            $cookie->getName(), $value, $cookie->getExpiresTime(),
-            $cookie->getPath(), $cookie->getDomain(), $cookie->isSecure(),
-            $cookie->isHttpOnly(), $cookie->isRaw(), $cookie->getSameSite()
-        );
+        return $cookie->withValue($value);
     }
 
     /**

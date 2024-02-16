@@ -95,7 +95,9 @@ class Tag implements \Reflector
         'var'
             => '\Barryvdh\Reflection\DocBlock\Tag\VarTag',
         'version'
-            => '\Barryvdh\Reflection\DocBlock\Tag\VersionTag'
+            => '\Barryvdh\Reflection\DocBlock\Tag\VersionTag',
+        'SuppressWarnings'
+            => '\Barryvdh\Reflection\DocBlock\Tag\SuppressWarningsTag'
     );
 
     /**

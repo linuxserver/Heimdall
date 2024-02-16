@@ -25,14 +25,8 @@ final class TtlHelper
 {
     /**
      * Computes the correct TTL to use.
-     *
-     * @param int                    $min
-     * @param int                    $max
-     * @param null|int|\DateInterval $ttl
-     *
-     * @return int
      */
-    public static function computeTtl(int $min, int $max, $ttl = null)
+    public static function computeTtl(int $min, int $max, null|int|\DateInterval $ttl = null)
     {
         if ($ttl instanceof DateInterval) {
             $ttl = self::dateIntervalToSeconds($ttl);
@@ -43,12 +37,8 @@ final class TtlHelper
 
     /**
      * Convert a date interval to seconds.
-     *
-     * @param \DateInterval $ttl
-     *
-     * @return int
      */
-    private static function dateIntervalToSeconds(DateInterval $ttl)
+    private static function dateIntervalToSeconds(DateInterval $ttl): int
     {
         $reference = (new DateTimeImmutable())->setTimestamp(0);
 

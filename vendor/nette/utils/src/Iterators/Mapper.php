@@ -27,8 +27,7 @@ class Mapper extends \IteratorIterator
 	}
 
 
-	#[\ReturnTypeWillChange]
-	public function current()
+	public function current(): mixed
 	{
 		return ($this->callback)(parent::current(), parent::key());
 	}

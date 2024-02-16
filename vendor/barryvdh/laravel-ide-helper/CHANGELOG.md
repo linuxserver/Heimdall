@@ -2,8 +2,80 @@
 
 All notable changes to this project will be documented in this file.
 
-[Next release](https://github.com/barryvdh/laravel-ide-helper/compare/v2.12.3...master)
+[Next release](https://github.com/barryvdh/laravel-ide-helper/compare/v2.15.0...master)
 --------------
+
+### Fixed
+
+### Changed
+
+### Added
+
+2024-02-15, 2.15.1
+------------------
+
+### Fixed
+- Fix final class keyword in wrong position [#1517 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1517)
+
+### Changed
+
+### Added
+
+2024-02-14, 2.15.0
+------------------
+### Fixed
+- Fix case issue in `ModelsCommand::unsetMethod()` [#1453 / leo108](https://github.com/barryvdh/laravel-ide-helper/pull/1453)
+- Fix non-facade classes will result in no autocomplete [#841 / netpok](https://github.com/barryvdh/laravel-ide-helper/pull/841)
+- Skip swoole, otherwise fatal error [#1477 / TimoFrenzel](https://github.com/barryvdh/laravel-ide-helper/pull/1477)
+- Fix vulnerability CVE-2021-43608 [#1392 / allanlaal](https://github.com/barryvdh/laravel-ide-helper/pull/1392)
+- Reset foreignKeyConstraintsColumns on model loop start [#1461 / snmatsui](https://github.com/barryvdh/laravel-ide-helper/pull/1461)
+- Accept scope & scopes as relation [#1452 / Muetze42](https://github.com/barryvdh/laravel-ide-helper/pull/1452)
+- Fix #1300 relation_return_type must take precedence if it is defined [#1394 / menthol](https://github.com/barryvdh/laravel-ide-helper/pull/1394)
+
+### Changed
+- Disable inspections of helper files [#1486 / eidng8](https://github.com/barryvdh/laravel-ide-helper/pull/1486)
+- Removed support for Laravel 8 and therefore for PHP < 8.0 [#1504 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1504)
+
+### Added
+- Add support for enum default arguments using enum cases. [#1464 / d8vjork](https://github.com/barryvdh/laravel-ide-helper/pull/1464)
+- Add support for real-time facades in the helper file. [#1455 / filipac](https://github.com/barryvdh/laravel-ide-helper/pull/1455)
+- Add support for relations with composite keys. [#1479 / calebdw](https://github.com/barryvdh/laravel-ide-helper/pull/1479)
+- Add support for attribute accessors with no backing field or type hinting [#1411 / pindab0ter](https://github.com/barryvdh/laravel-ide-helper/pull/1411).
+- Add support for AsCollection and AsArrayObject casts [#1393 / pataar](https://github.com/barryvdh/laravel-ide-helper/pull/1393)
+- Reintroduce support for multi-db setups [#1426 / benpoulson](https://github.com/barryvdh/laravel-ide-helper/pull/1426)
+- Support the BINARY(...) database field type [#1434 / Sfonxs](https://github.com/barryvdh/laravel-ide-helper/pull/1434)
+- Add AllowDynamicProperties Attribute to cooperate with php8.2 deprecation [#1428 / GeoSot](https://github.com/barryvdh/laravel-ide-helper/pull/1428)
+
+2024-02-05, 2.14.0
+------------------
+
+### Changed
+- Official support for Lumen has been dropped [#1425 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1425)
+- Refactor resolving of null information for custom casted attribute types [#1330 / wimski](https://github.com/barryvdh/laravel-ide-helper/pull/1330)
+
+### Fixed
+- Catch exceptions when loading aliases [#1465 / dongm2ez](https://github.com/barryvdh/laravel-ide-helper/pull/1465)
+
+### Added
+- Add support for nikic/php-parser 5 (next to 4) [#1502 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1502)
+- Add support for `immutable_date:*` and `immutable_datetime:*` casts. [#1380 / thekonz](https://github.com/barryvdh/laravel-ide-helper/pull/1380)
+- Add support for attribute accessors marked as protected. [#1339 / pindab0ter](https://github.com/barryvdh/laravel-ide-helper/pull/1339)
+
+2023-02-04, 2.13.0
+------------------
+
+### Fixed
+- Fix return type of methods provided by `SoftDeletes` [#1345 / KentarouTakeda](https://github.com/barryvdh/laravel-ide-helper/pull/1345)
+- Handle PHP 8.1 deprecation warnings when passing `null` to `new \ReflectionClass` [#1351 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1351)
+- Fix issue where \Eloquent is not included when using write_mixin [#1352 / Jefemy](https://github.com/barryvdh/laravel-ide-helper/pull/1352)
+- Fix model factory method arguments for Laravel >= 9 [#1361 / wimski](https://github.com/barryvdh/laravel-ide-helper/pull/1361)
+- Improve return type of mock helper methods in tests [#1405 / bentleyo](https://github.com/barryvdh/laravel-ide-helper/pull/1405) 
+- Fix Castable class if failed to detect it from return types [#1388 / kwarcu](https://github.com/barryvdh/laravel-ide-helper/pull/1388)
+
+### Added
+- Added Laravel 10 support [#1407 / lptn](https://github.com/barryvdh/laravel-ide-helper/pull/1407)
+- Add support for custom casts that implement `CastsInboundAttributes` [#1329 / sforward](https://github.com/barryvdh/laravel-ide-helper/pull/1329)
+- Add option `use_generics_annotations` for collection type hints [#1298 / tanerkay](https://github.com/barryvdh/laravel-ide-helper/pull/1298)
 
 2022-03-06, 2.12.3
 ------------------
@@ -27,6 +99,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Add support for custom casts that using `Castable` [#1287 / binotaliu](https://github.com/barryvdh/laravel-ide-helper/pull/1287)
 - Added Laravel 9 support [#1297 / rcerljenko](https://github.com/barryvdh/laravel-ide-helper/pull/1297)
+- Added option `additional_relation_return_types` for custom relations that don't fit the typical naming scheme
 
 2022-01-03, 2.11.0
 ------------------

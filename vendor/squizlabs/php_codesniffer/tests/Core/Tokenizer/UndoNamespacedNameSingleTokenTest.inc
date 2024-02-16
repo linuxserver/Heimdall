@@ -79,7 +79,7 @@ class MyClass
             /* testFunctionCallUnqualified */
             echo function_name();
 
-            /* testFunctionPartiallyQualified */
+            /* testFunctionCallPartiallyQualified */
             echo Level\function_name();
 
         /* testCatchRelative */

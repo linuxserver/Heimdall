@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\PHP;
@@ -20,7 +20,7 @@ class DisallowComparisonAssignmentSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -52,17 +52,18 @@ class DisallowComparisonAssignmentSniff implements Sniff
             }
         }
 
-        // Ignore values in array definitions.
-        $array = $phpcsFile->findNext(
-            T_ARRAY,
+        // Ignore values in array definitions or match structures.
+        $nextNonEmpty = $phpcsFile->findNext(
+            Tokens::$emptyTokens,
             ($stackPtr + 1),
-            null,
-            false,
             null,
             true
         );
 
-        if ($array !== false) {
+        if ($nextNonEmpty !== false
+            && ($tokens[$nextNonEmpty]['code'] === T_ARRAY
+            || $tokens[$nextNonEmpty]['code'] === T_MATCH)
+        ) {
             return;
         }
 

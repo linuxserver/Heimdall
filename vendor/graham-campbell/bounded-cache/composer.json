@@ -11,14 +11,14 @@
         }
     ],
     "require": {
-        "php": "^7.4.15 || ^8.0.2",
-        "psr/simple-cache": "^1.0 || ^2.0"
+        "php": "^8.0.2",
+        "psr/simple-cache": "^2.0 || ^3.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^3.1",
-        "graham-campbell/testbench-core": "^3.4",
-        "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.5.21"
+        "graham-campbell/analyzer": "^4.1",
+        "graham-campbell/testbench-core": "^4.1",
+        "mockery/mockery": "^1.6.6",
+        "phpunit/phpunit": "^9.6.15 || ^10.5.1"
     },
     "autoload": {
         "psr-4": {

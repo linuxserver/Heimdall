@@ -11,9 +11,12 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
@@ -113,7 +116,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
@@ -238,7 +241,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
@@ -396,6 +399,37 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
+    /**
+     * @deprecated Use {@see getColumnTypeSQLSnippet()} instead.
+     *
+     * The SQL snippets required to elucidate a column type
+     *
+     * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
+     *
+     * @return array{string, string}
+     */
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6202',
+            'AbstractMySQLPlatform::getColumnTypeSQLSnippets() is deprecated. '
+            . 'Use AbstractMySQLPlatform::getColumnTypeSQLSnippet() instead.',
+        );
+
+        return [$this->getColumnTypeSQLSnippet(...func_get_args()), ''];
+    }
+
+    /**
+     * The SQL snippet required to elucidate a column type
+     *
+     * Returns a column type SELECT snippet string
+     */
+    public function getColumnTypeSQLSnippet(string $tableAlias = 'c', ?string $databaseName = null): string
+    {
+        return $tableAlias . '.COLUMN_TYPE';
+    }
+
     /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
@@ -509,8 +543,13 @@ SQL
         return $sql;
     }
 
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
+    }
+
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
@@ -983,7 +1022,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -1062,7 +1101,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getFloatDeclarationSQL(array $column)
     {
@@ -1070,7 +1109,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDecimalTypeDeclarationSQL(array $column)
     {
@@ -1229,36 +1268,36 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'bigint'     => 'bigint',
-            'binary'     => 'binary',
-            'blob'       => 'blob',
-            'char'       => 'string',
-            'date'       => 'date',
-            'datetime'   => 'datetime',
-            'decimal'    => 'decimal',
-            'double'     => 'float',
-            'float'      => 'float',
-            'int'        => 'integer',
-            'integer'    => 'integer',
-            'longblob'   => 'blob',
-            'longtext'   => 'text',
-            'mediumblob' => 'blob',
-            'mediumint'  => 'integer',
-            'mediumtext' => 'text',
-            'numeric'    => 'decimal',
-            'real'       => 'float',
-            'set'        => 'simple_array',
-            'smallint'   => 'smallint',
-            'string'     => 'string',
-            'text'       => 'text',
-            'time'       => 'time',
-            'timestamp'  => 'datetime',
-            'tinyblob'   => 'blob',
-            'tinyint'    => 'boolean',
-            'tinytext'   => 'text',
-            'varbinary'  => 'binary',
-            'varchar'    => 'string',
-            'year'       => 'date',
+            'bigint'     => Types::BIGINT,
+            'binary'     => Types::BINARY,
+            'blob'       => Types::BLOB,
+            'char'       => Types::STRING,
+            'date'       => Types::DATE_MUTABLE,
+            'datetime'   => Types::DATETIME_MUTABLE,
+            'decimal'    => Types::DECIMAL,
+            'double'     => Types::FLOAT,
+            'float'      => Types::FLOAT,
+            'int'        => Types::INTEGER,
+            'integer'    => Types::INTEGER,
+            'longblob'   => Types::BLOB,
+            'longtext'   => Types::TEXT,
+            'mediumblob' => Types::BLOB,
+            'mediumint'  => Types::INTEGER,
+            'mediumtext' => Types::TEXT,
+            'numeric'    => Types::DECIMAL,
+            'real'       => Types::FLOAT,
+            'set'        => Types::SIMPLE_ARRAY,
+            'smallint'   => Types::SMALLINT,
+            'string'     => Types::STRING,
+            'text'       => Types::TEXT,
+            'time'       => Types::TIME_MUTABLE,
+            'timestamp'  => Types::DATETIME_MUTABLE,
+            'tinyblob'   => Types::BLOB,
+            'tinyint'    => Types::BOOLEAN,
+            'tinytext'   => Types::TEXT,
+            'varbinary'  => Types::BINARY,
+            'varchar'    => Types::STRING,
+            'year'       => Types::DATE_MUTABLE,
         ];
     }
 
@@ -1279,7 +1318,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -1368,7 +1407,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function quoteStringLiteral($str)
     {
@@ -1378,7 +1417,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDefaultTransactionIsolationLevel()
     {
@@ -1390,8 +1429,16 @@ SQL
         return true;
     }
 
-    private function getDatabaseNameSQL(?string $databaseName): string
+    /** @deprecated Will be removed without replacement. */
+    protected function getDatabaseNameSQL(?string $databaseName): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6215',
+            '%s is deprecated without replacement.',
+            __METHOD__,
+        );
+
         if ($databaseName !== null) {
             return $this->quoteStringLiteral($databaseName);
         }

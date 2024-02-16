@@ -16,10 +16,8 @@ trait RequestDecorator
 
     /**
      * Exchanges the underlying request with another.
-     *
-     * @return self
      */
-    public function withRequest(RequestInterface $request)
+    public function withRequest(RequestInterface $request): RequestInterface
     {
         $new = clone $this;
         $new->message = $request;
@@ -27,18 +25,12 @@ trait RequestDecorator
         return $new;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         return $this->message->getRequestTarget();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget(string $requestTarget): RequestInterface
     {
         $new = clone $this;
         $new->message = $this->message->withRequestTarget($requestTarget);
@@ -46,18 +38,12 @@ trait RequestDecorator
         return $new;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->message->getMethod();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function withMethod($method)
+    public function withMethod(string $method): RequestInterface
     {
         $new = clone $this;
         $new->message = $this->message->withMethod($method);
@@ -65,18 +51,12 @@ trait RequestDecorator
         return $new;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->message->getUri();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
     {
         $new = clone $this;
         $new->message = $this->message->withUri($uri, $preserveHost);

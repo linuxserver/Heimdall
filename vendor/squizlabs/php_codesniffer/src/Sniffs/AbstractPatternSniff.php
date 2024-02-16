@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Sniffs;
@@ -78,7 +78,7 @@ abstract class AbstractPatternSniff implements Sniff
      * Classes extending <i>AbstractPatternTest</i> should implement the
      * <i>getPatterns()</i> method to register the patterns they wish to test.
      *
-     * @return int[]
+     * @return array<int|string>
      * @see    process()
      */
     final public function register()
@@ -250,7 +250,7 @@ abstract class AbstractPatternSniff implements Sniff
      * @param int                         $stackPtr    The position in the tokens stack where
      *                                                 the listening token type was found.
      *
-     * @return array
+     * @return array|false
      */
     protected function processPattern($patternInfo, File $phpcsFile, $stackPtr)
     {
@@ -850,7 +850,7 @@ abstract class AbstractPatternSniff implements Sniff
      * Creates a skip pattern.
      *
      * @param string $pattern The pattern being parsed.
-     * @param string $from    The token content that the skip pattern starts from.
+     * @param int    $from    The token position that the skip pattern starts from.
      *
      * @return array The pattern step.
      * @see    createTokenPattern()

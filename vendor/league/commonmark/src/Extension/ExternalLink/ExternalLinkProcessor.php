@@ -90,12 +90,17 @@ final class ExternalLinkProcessor
                     $link->data->append('attributes/rel', $type);
             }
         }
+
+        // No rel attributes? Mark the attribute as 'false' so LinkRenderer doesn't add defaults
+        if (! $link->data->has('attributes/rel')) {
+            $link->data->set('attributes/rel', false);
+        }
     }
 
     /**
      * @internal This method is only public so we can easily test it. DO NOT USE THIS OUTSIDE OF THIS EXTENSION!
      *
-     * @param mixed $compareTo
+     * @param non-empty-string|list<non-empty-string> $compareTo
      */
     public static function hostMatches(string $host, $compareTo): bool
     {

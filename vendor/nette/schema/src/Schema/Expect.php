@@ -32,8 +32,6 @@ use Nette\Schema\Elements\Type;
  */
 final class Expect
 {
-	use Nette\SmartObject;
-
 	public static function __callStatic(string $name, array $args): Type
 	{
 		$type = new Type($name);
@@ -51,10 +49,7 @@ final class Expect
 	}
 
 
-	/**
-	 * @param  mixed|Schema  ...$set
-	 */
-	public static function anyOf(...$set): AnyOf
+	public static function anyOf(mixed ...$set): AnyOf
 	{
 		return new AnyOf(...$set);
 	}
@@ -69,21 +64,20 @@ final class Expect
 	}
 
 
-	/**
-	 * @param  object  $object
-	 */
-	public static function from($object, array $items = []): Structure
+	public static function from(object $object, array $items = []): Structure
 	{
 		$ro = new \ReflectionObject($object);
-		foreach ($ro->getProperties() as $prop) {
-			$type = Helpers::getPropertyType($prop) ?? 'mixed';
+		$props = $ro->hasMethod('__construct')
+			? $ro->getMethod('__construct')->getParameters()
+			: $ro->getProperties();
+
+		foreach ($props as $prop) {
 			$item = &$items[$prop->getName()];
 			if (!$item) {
+				$type = Helpers::getPropertyType($prop) ?? 'mixed';
 				$item = new Type($type);
-				if (PHP_VERSION_ID >= 70400 && !$prop->isInitialized($object)) {
-					$item->required();
-				} else {
-					$def = $prop->getValue($object);
+				if ($prop instanceof \ReflectionProperty ? $prop->isInitialized($object) : $prop->isOptional()) {
+					$def = ($prop instanceof \ReflectionProperty ? $prop->getValue($object) : $prop->getDefaultValue());
 					if (is_object($def)) {
 						$item = static::from($def);
 					} elseif ($def === null && !Nette\Utils\Validators::is(null, $type)) {
@@ -91,6 +85,8 @@ final class Expect
 					} else {
 						$item->default($def);
 					}
+				} else {
+					$item->required();
 				}
 			}
 		}
@@ -99,20 +95,13 @@ final class Expect
 	}
 
 
-	/**
-	 * @param  string|Schema  $valueType
-	 * @param  string|Schema|null  $keyType
-	 */
-	public static function arrayOf($valueType, $keyType = null): Type
+	public static function arrayOf(string|Schema $valueType, string|Schema $keyType = null): Type
 	{
 		return (new Type('array'))->items($valueType, $keyType);
 	}
 
 
-	/**
-	 * @param  string|Schema  $type
-	 */
-	public static function listOf($type): Type
+	public static function listOf(string|Schema $type): Type
 	{
 		return (new Type('list'))->items($type);
 	}

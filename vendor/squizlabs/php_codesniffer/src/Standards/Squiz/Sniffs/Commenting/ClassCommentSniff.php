@@ -12,14 +12,13 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
-use PHP_CodeSniffer\Util\Tokens;
 
 class ClassCommentSniff implements Sniff
 {
@@ -28,7 +27,7 @@ class ClassCommentSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -49,8 +48,12 @@ class ClassCommentSniff implements Sniff
     public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
-        $find   = Tokens::$methodPrefixes;
-        $find[T_WHITESPACE] = T_WHITESPACE;
+        $find   = [
+            T_ABSTRACT   => T_ABSTRACT,
+            T_FINAL      => T_FINAL,
+            T_READONLY   => T_READONLY,
+            T_WHITESPACE => T_WHITESPACE,
+        ];
 
         $previousContent = null;
         for ($commentEnd = ($stackPtr - 1); $commentEnd >= 0; $commentEnd--) {

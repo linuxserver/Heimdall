@@ -6,6 +6,12 @@
 
 **Factory interfaces for PSR-7 HTTP Message.**
 
+## Obsolete
+
+The PHP-HTTP factories have become obsolete with the [PSR-17](https://www.php-fig.org/psr/psr-17/) factories standard.
+All major HTTP client implementors provide [PSR-17 factories](https://packagist.org/packages/psr/http-factory).
+
+This package will remain available for the time being to not break legacy code, but we encourage everybody to move to PSR-17.
 
 ## Install
 
@@ -18,12 +24,12 @@ $ composer require php-http/message-factory
 
 ## Documentation
 
-Please see the [official documentation](http://php-http.readthedocs.org/en/latest/message-factory/).
+Please see the [official documentation](http://docs.php-http.org/en/latest/message/message-factory.html).
 
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
+Please see our [contributing guide](http://docs.php-http.org/en/latest/development/contributing.html).
 
 
 ## Security

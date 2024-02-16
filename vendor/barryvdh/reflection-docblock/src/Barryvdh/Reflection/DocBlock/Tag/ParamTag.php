@@ -53,6 +53,14 @@ class ParamTag extends ReturnTag
             PREG_SPLIT_DELIM_CAPTURE
         );
 
+        // detect generic type
+        if (isset($parts[0]) && isset($parts[2]) && strpos($parts[0], '<') !== false && strpos($parts[2], '>') !== false) {
+            $parts[0] .= ' ' . $parts[2];
+            unset($parts[1]);
+            unset($parts[2]);
+            $parts = array_values($parts);
+        }
+
         // if the first item that is encountered is not a variable; it is a type
         if (isset($parts[0])
             && (strlen($parts[0]) > 0)

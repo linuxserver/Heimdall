@@ -6,6 +6,10 @@ use Closure;
 use Illuminate\Contracts\Auth\Factory as FactoryContract;
 use InvalidArgumentException;
 
+/**
+ * @mixin \Illuminate\Contracts\Auth\Guard
+ * @mixin \Illuminate\Contracts\Auth\StatefulGuard
+ */
 class AuthManager implements FactoryContract
 {
     use CreatesUserProviders;
@@ -50,9 +54,7 @@ class AuthManager implements FactoryContract
     {
         $this->app = $app;
 
-        $this->userResolver = function ($guard = null) {
-            return $this->guard($guard)->user();
-        };
+        $this->userResolver = fn ($guard = null) => $this->guard($guard)->user();
     }
 
     /**
@@ -208,9 +210,7 @@ class AuthManager implements FactoryContract
 
         $this->setDefaultDriver($name);
 
-        $this->userResolver = function ($name = null) {
-            return $this->guard($name)->user();
-        };
+        $this->userResolver = fn ($name = null) => $this->guard($name)->user();
     }
 
     /**

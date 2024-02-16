@@ -11,15 +11,15 @@ class SetCookie
      * @var array
      */
     private static $defaults = [
-        'Name'     => null,
-        'Value'    => null,
-        'Domain'   => null,
-        'Path'     => '/',
-        'Max-Age'  => null,
-        'Expires'  => null,
-        'Secure'   => false,
-        'Discard'  => false,
-        'HttpOnly' => false
+        'Name' => null,
+        'Value' => null,
+        'Domain' => null,
+        'Path' => '/',
+        'Max-Age' => null,
+        'Expires' => null,
+        'Secure' => false,
+        'Discard' => false,
+        'HttpOnly' => false,
     ];
 
     /**
@@ -58,7 +58,13 @@ class SetCookie
             } else {
                 foreach (\array_keys(self::$defaults) as $search) {
                     if (!\strcasecmp($search, $key)) {
-                        $data[$search] = $value;
+                        if ($search === 'Max-Age') {
+                            if (is_numeric($value)) {
+                                $data[$search] = (int) $value;
+                            }
+                        } else {
+                            $data[$search] = $value;
+                        }
                         continue 2;
                     }
                 }
@@ -74,13 +80,49 @@ class SetCookie
      */
     public function __construct(array $data = [])
     {
-        /** @var array|null $replaced will be null in case of replace error */
-        $replaced = \array_replace(self::$defaults, $data);
-        if ($replaced === null) {
-            throw new \InvalidArgumentException('Unable to replace the default values for the Cookie.');
+        $this->data = self::$defaults;
+
+        if (isset($data['Name'])) {
+            $this->setName($data['Name']);
         }
 
-        $this->data = $replaced;
+        if (isset($data['Value'])) {
+            $this->setValue($data['Value']);
+        }
+
+        if (isset($data['Domain'])) {
+            $this->setDomain($data['Domain']);
+        }
+
+        if (isset($data['Path'])) {
+            $this->setPath($data['Path']);
+        }
+
+        if (isset($data['Max-Age'])) {
+            $this->setMaxAge($data['Max-Age']);
+        }
+
+        if (isset($data['Expires'])) {
+            $this->setExpires($data['Expires']);
+        }
+
+        if (isset($data['Secure'])) {
+            $this->setSecure($data['Secure']);
+        }
+
+        if (isset($data['Discard'])) {
+            $this->setDiscard($data['Discard']);
+        }
+
+        if (isset($data['HttpOnly'])) {
+            $this->setHttpOnly($data['HttpOnly']);
+        }
+
+        // Set the remaining values that don't have extra validation logic
+        foreach (array_diff(array_keys($data), array_keys(self::$defaults)) as $key) {
+            $this->data[$key] = $data[$key];
+        }
+
         // Extract the Expires value and turn it into a UNIX timestamp if needed
         if (!$this->getExpires() && $this->getMaxAge()) {
             // Calculate the Expires date
@@ -92,13 +134,13 @@ class SetCookie
 
     public function __toString()
     {
-        $str = $this->data['Name'] . '=' . ($this->data['Value'] ?? '') . '; ';
+        $str = $this->data['Name'].'='.($this->data['Value'] ?? '').'; ';
         foreach ($this->data as $k => $v) {
             if ($k !== 'Name' && $k !== 'Value' && $v !== null && $v !== false) {
                 if ($k === 'Expires') {
-                    $str .= 'Expires=' . \gmdate('D, d M Y H:i:s \G\M\T', $v) . '; ';
+                    $str .= 'Expires='.\gmdate('D, d M Y H:i:s \G\M\T', $v).'; ';
                 } else {
-                    $str .= ($v === true ? $k : "{$k}={$v}") . '; ';
+                    $str .= ($v === true ? $k : "{$k}={$v}").'; ';
                 }
             }
         }
@@ -378,7 +420,7 @@ class SetCookie
         }
 
         // Remove the leading '.' as per spec in RFC 6265.
-        // https://tools.ietf.org/html/rfc6265#section-5.2.3
+        // https://datatracker.ietf.org/doc/html/rfc6265#section-5.2.3
         $cookieDomain = \ltrim(\strtolower($cookieDomain), '.');
 
         $domain = \strtolower($domain);
@@ -389,12 +431,12 @@ class SetCookie
         }
 
         // Matching the subdomain according to RFC 6265.
-        // https://tools.ietf.org/html/rfc6265#section-5.1.3
+        // https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.3
         if (\filter_var($domain, \FILTER_VALIDATE_IP)) {
             return false;
         }
 
-        return (bool) \preg_match('/\.' . \preg_quote($cookieDomain, '/') . '$/', $domain);
+        return (bool) \preg_match('/\.'.\preg_quote($cookieDomain, '/').'$/', $domain);
     }
 
     /**
@@ -423,8 +465,8 @@ class SetCookie
             $name
         )) {
             return 'Cookie name must not contain invalid characters: ASCII '
-                . 'Control characters (0-31;127), space, tab and the '
-                . 'following characters: ()<>@,;:\"/?={}';
+                .'Control characters (0-31;127), space, tab and the '
+                .'following characters: ()<>@,;:\"/?={}';
         }
 
         // Value must not be null. 0 and empty string are valid. Empty strings

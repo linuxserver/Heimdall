@@ -54,7 +54,7 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
     /**
      * Creates a new instance of the listener.
      *
-     * @param ConsoleOutput $output
+     * @param  ConsoleOutput  $output
      *
      * @throws \ReflectionException
      */
@@ -69,7 +69,8 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
         ConfigureIO::of(new ArgvInput(), $output);
 
         $this->style = new Style($output);
-        $dummyTest   = new class() extends TestCase {
+        $dummyTest = new class() extends TestCase
+        {
         };
 
         $this->state = State::from($dummyTest);
@@ -109,7 +110,7 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
         $reflector = new ReflectionObject($error);
 
         if ($reflector->hasProperty('message')) {
-            $message  = trim((string) preg_replace("/\r|\n/", "\n  ", $error->getMessage()));
+            $message = trim((string) preg_replace("/\r|\n/", "\n  ", $error->getMessage()));
             $property = $reflector->getProperty('message');
             $property->setAccessible(true);
             $property->setValue($error, $message);
@@ -188,14 +189,14 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
     {
         $testCase = $this->testCaseFromTest($testCase);
 
-        if (!$this->state->existsInTestCase($testCase)) {
+        if (! $this->state->existsInTestCase($testCase)) {
             $this->state->add(TestResult::fromTestCase($testCase, TestResult::PASS));
         }
 
         if ($testCase instanceof TestCase
             && $testCase->getTestResultObject() instanceof \PHPUnit\Framework\TestResult
-            && !$testCase->getTestResultObject()->isStrictAboutOutputDuringTests()
-            && !$testCase->hasExpectationOnOutput()) {
+            && ! $testCase->getTestResultObject()->isStrictAboutOutputDuringTests()
+            && ! $testCase->hasExpectationOnOutput()) {
             $this->style->write($testCase->getActualOutput());
         }
     }
@@ -217,7 +218,7 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
      */
     private function testCaseFromTest(Test $test): TestCase
     {
-        if (!$test instanceof TestCase) {
+        if (! $test instanceof TestCase) {
             throw new ShouldNotHappen();
         }
 

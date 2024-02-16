@@ -14,6 +14,7 @@ namespace Monolog\Formatter;
 use Monolog\DateTimeImmutable;
 use Monolog\Utils;
 use Throwable;
+use Monolog\LogRecord;
 
 /**
  * Normalizes incoming records to remove objects/resources so it's easier to dump to various targets
@@ -24,18 +25,15 @@ class NormalizerFormatter implements FormatterInterface
 {
     public const SIMPLE_DATE = "Y-m-d\TH:i:sP";
 
-    /** @var string */
-    protected $dateFormat;
-    /** @var int */
-    protected $maxNormalizeDepth = 9;
-    /** @var int */
-    protected $maxNormalizeItemCount = 1000;
+    protected string $dateFormat;
+    protected int $maxNormalizeDepth = 9;
+    protected int $maxNormalizeItemCount = 1000;
 
-    /** @var int */
-    private $jsonEncodeOptions = Utils::DEFAULT_JSON_FLAGS;
+    private int $jsonEncodeOptions = Utils::DEFAULT_JSON_FLAGS;
 
     /**
      * @param string|null $dateFormat The format of the timestamp: one supported by DateTime::format
+     * @throws \RuntimeException If the function json_encode does not exist
      */
     public function __construct(?string $dateFormat = null)
     {
@@ -46,17 +44,25 @@ class NormalizerFormatter implements FormatterInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @param mixed[] $record
+     * @inheritDoc
      */
-    public function format(array $record)
+    public function format(LogRecord $record)
     {
-        return $this->normalize($record);
+        return $this->normalizeRecord($record);
     }
 
     /**
-     * {@inheritDoc}
+     * Normalize an arbitrary value to a scalar|array|null
+     *
+     * @return null|scalar|array<mixed[]|scalar|null>
+     */
+    public function normalizeValue(mixed $data): mixed
+    {
+        return $this->normalize($data);
+    }
+
+    /**
+     * @inheritDoc
      */
     public function formatBatch(array $records)
     {
@@ -72,6 +78,9 @@ class NormalizerFormatter implements FormatterInterface
         return $this->dateFormat;
     }
 
+    /**
+     * @return $this
+     */
     public function setDateFormat(string $dateFormat): self
     {
         $this->dateFormat = $dateFormat;
@@ -87,6 +96,9 @@ class NormalizerFormatter implements FormatterInterface
         return $this->maxNormalizeDepth;
     }
 
+    /**
+     * @return $this
+     */
     public function setMaxNormalizeDepth(int $maxNormalizeDepth): self
     {
         $this->maxNormalizeDepth = $maxNormalizeDepth;
@@ -102,6 +114,9 @@ class NormalizerFormatter implements FormatterInterface
         return $this->maxNormalizeItemCount;
     }
 
+    /**
+     * @return $this
+     */
     public function setMaxNormalizeItemCount(int $maxNormalizeItemCount): self
     {
         $this->maxNormalizeItemCount = $maxNormalizeItemCount;
@@ -111,6 +126,8 @@ class NormalizerFormatter implements FormatterInterface
 
     /**
      * Enables `json_encode` pretty print.
+     *
+     * @return $this
      */
     public function setJsonPrettyPrint(bool $enable): self
     {
@@ -124,10 +141,25 @@ class NormalizerFormatter implements FormatterInterface
     }
 
     /**
-     * @param  mixed                $data
-     * @return null|scalar|array<array|scalar|null>
+     * Provided as extension point
+     *
+     * Because normalize is called with sub-values of context data etc, normalizeRecord can be
+     * extended when data needs to be appended on the record array but not to other normalized data.
+     *
+     * @return array<mixed[]|scalar|null>
      */
-    protected function normalize($data, int $depth = 0)
+    protected function normalizeRecord(LogRecord $record): array
+    {
+        /** @var array<mixed> $normalized */
+        $normalized = $this->normalize($record->toArray());
+
+        return $normalized;
+    }
+
+    /**
+     * @return null|scalar|array<mixed[]|scalar|null>
+     */
+    protected function normalize(mixed $data, int $depth = 0): mixed
     {
         if ($depth > $this->maxNormalizeDepth) {
             return 'Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
@@ -172,14 +204,17 @@ class NormalizerFormatter implements FormatterInterface
             }
 
             if ($data instanceof \JsonSerializable) {
-                /** @var null|scalar|array<array|scalar|null> $value */
+                /** @var null|scalar|array<mixed[]|scalar|null> $value */
                 $value = $data->jsonSerialize();
+            } elseif (\get_class($data) === '__PHP_Incomplete_Class') {
+                $accessor = new \ArrayObject($data);
+                $value = (string) $accessor['__PHP_Incomplete_Class_Name'];
             } elseif (method_exists($data, '__toString')) {
                 /** @var string $value */
                 $value = $data->__toString();
             } else {
                 // the rest is normalized by json encoding and decoding it
-                /** @var null|scalar|array<array|scalar|null> $value */
+                /** @var null|scalar|array<mixed[]|scalar|null> $value */
                 $value = json_decode($this->toJson($data, true), true);
             }
 
@@ -233,12 +268,12 @@ class NormalizerFormatter implements FormatterInterface
 
         $trace = $e->getTrace();
         foreach ($trace as $frame) {
-            if (isset($frame['file'])) {
+            if (isset($frame['file'], $frame['line'])) {
                 $data['trace'][] = $frame['file'].':'.$frame['line'];
             }
         }
 
-        if ($previous = $e->getPrevious()) {
+        if (($previous = $e->getPrevious()) instanceof \Throwable) {
             $data['previous'] = $this->normalizeException($previous, $depth + 1);
         }
 
@@ -257,10 +292,7 @@ class NormalizerFormatter implements FormatterInterface
         return Utils::jsonEncode($data, $this->jsonEncodeOptions, $ignoreErrors);
     }
 
-    /**
-     * @return string
-     */
-    protected function formatDate(\DateTimeInterface $date)
+    protected function formatDate(\DateTimeInterface $date): string
     {
         // in case the date format isn't custom then we defer to the custom DateTimeImmutable
         // formatting logic, which will pick the right format based on whether useMicroseconds is on
@@ -271,6 +303,9 @@ class NormalizerFormatter implements FormatterInterface
         return $date->format($this->dateFormat);
     }
 
+    /**
+     * @return $this
+     */
     public function addJsonEncodeOption(int $option): self
     {
         $this->jsonEncodeOptions |= $option;
@@ -278,6 +313,9 @@ class NormalizerFormatter implements FormatterInterface
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function removeJsonEncodeOption(int $option): self
     {
         $this->jsonEncodeOptions &= ~$option;

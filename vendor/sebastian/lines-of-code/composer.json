@@ -17,7 +17,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.3",
-        "nikic/php-parser": "^4.6"
+        "nikic/php-parser": "^4.18 || ^5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.3"

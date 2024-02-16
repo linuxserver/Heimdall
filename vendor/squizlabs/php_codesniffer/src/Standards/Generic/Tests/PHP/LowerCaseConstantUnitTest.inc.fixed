@@ -98,3 +98,60 @@ class TypedThings {
 }
 
 $cl = function (int|FALSE $param = null, Type|NULL $obj = new MyObj(false)) : string|FALSE|NULL {};
+
+// Adding some extra tests to safeguard that function declarations which don't create scope are handled correctly.
+interface InterfaceMethodsWithReturnTypeNoScopeOpener {
+    private function typed($param = true) : string|FALSE|NULL;
+}
+
+abstract class ClassMethodsWithReturnTypeNoScopeOpener {
+    abstract public function typed($param = false) : TRUE;
+}
+
+// Additional tests to safeguard improved property type skip logic.
+readonly class Properties {
+    use SomeTrait {
+        sayHello as private myPrivateHello;
+    }
+
+    public Type|FALSE|NULL $propertyA = array(
+        'itemA' => true,
+        'itemB' => false,
+        'itemC' => null,
+    ), $propertyB = false;
+
+    protected \FullyQualified&Partially\Qualified&namespace\Relative $propertyC;
+    var ?TRUE $propertyD;
+    static array|callable|FALSE|self|parent $propertyE = true;
+    private
+        // phpcs:ignore Stnd.Cat.Sniff -- for reasons.
+        TRUE      /*comment*/
+        $propertyF = true;
+
+    public function __construct(
+        public FALSE|NULL $promotedPropA,
+        readonly callable|TRUE $promotedPropB,
+    ) {
+        static $var;
+        echo static::class;
+        static::foo();
+        $var = $var instanceof static;
+        $obj = new static();
+    }
+
+    public static function foo(): static|self|FALSE {
+        $callable = static function() {};
+    }
+}
+
+// PHP 8.3 introduces typed constants.
+class TypedConstants {
+    const MyClass|NULL|TRUE|FALSE MYCONST = false;
+}
+
+// Global constants can not be typed.
+const MYCONST = true;
+
+// Last coding/parse error.
+// This has to be the last test in the file.
+function UnclosedCurly (): FALSE {

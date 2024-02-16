@@ -4,6 +4,7 @@ namespace Github\Api;
 
 use Github\Api\Enterprise\License;
 use Github\Api\Enterprise\ManagementConsole;
+use Github\Api\Enterprise\SecretScanning;
 use Github\Api\Enterprise\Stats;
 use Github\Api\Enterprise\UserAdmin;
 
@@ -47,5 +48,13 @@ class Enterprise extends AbstractApi
     public function userAdmin()
     {
         return new UserAdmin($this->getClient());
+    }
+
+    /**
+     * @return SecretScanning
+     */
+    public function secretScanning(): SecretScanning
+    {
+        return new SecretScanning($this->getClient());
     }
 }

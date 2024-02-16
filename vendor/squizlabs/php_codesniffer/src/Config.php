@@ -7,7 +7,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -19,45 +19,46 @@ use PHP_CodeSniffer\Util\Common;
 /**
  * Stores the configuration used to run PHPCS and PHPCBF.
  *
- * @property string[] $files           The files and directories to check.
- * @property string[] $standards       The standards being used for checking.
- * @property int      $verbosity       How verbose the output should be.
- *                                     0: no unnecessary output
- *                                     1: basic output for files being checked
- *                                     2: ruleset and file parsing output
- *                                     3: sniff execution output
- * @property bool     $interactive     Enable interactive checking mode.
- * @property bool     $parallel        Check files in parallel.
- * @property bool     $cache           Enable the use of the file cache.
- * @property bool     $cacheFile       A file where the cache data should be written
- * @property bool     $colors          Display colours in output.
- * @property bool     $explain         Explain the coding standards.
- * @property bool     $local           Process local files in directories only (no recursion).
- * @property bool     $showSources     Show sniff source codes in report output.
- * @property bool     $showProgress    Show basic progress information while running.
- * @property bool     $quiet           Quiet mode; disables progress and verbose output.
- * @property bool     $annotations     Process phpcs: annotations.
- * @property int      $tabWidth        How many spaces each tab is worth.
- * @property string   $encoding        The encoding of the files being checked.
- * @property string[] $sniffs          The sniffs that should be used for checking.
- *                                     If empty, all sniffs in the supplied standards will be used.
- * @property string[] $exclude         The sniffs that should be excluded from checking.
- *                                     If empty, all sniffs in the supplied standards will be used.
- * @property string[] $ignored         Regular expressions used to ignore files and folders during checking.
- * @property string   $reportFile      A file where the report output should be written.
- * @property string   $generator       The documentation generator to use.
- * @property string   $filter          The filter to use for the run.
- * @property string[] $bootstrap       One of more files to include before the run begins.
- * @property int      $reportWidth     The maximum number of columns that reports should use for output.
- *                                     Set to "auto" for have this value changed to the width of the terminal.
- * @property int      $errorSeverity   The minimum severity an error must have to be displayed.
- * @property int      $warningSeverity The minimum severity a warning must have to be displayed.
- * @property bool     $recordErrors    Record the content of error messages as well as error counts.
- * @property string   $suffix          A suffix to add to fixed files.
- * @property string   $basepath        A file system location to strip from the paths of files shown in reports.
- * @property bool     $stdin           Read content from STDIN instead of supplied files.
- * @property string   $stdinContent    Content passed directly to PHPCS on STDIN.
- * @property string   $stdinPath       The path to use for content passed on STDIN.
+ * @property string[]   $files           The files and directories to check.
+ * @property string[]   $standards       The standards being used for checking.
+ * @property int        $verbosity       How verbose the output should be.
+ *                                       0: no unnecessary output
+ *                                       1: basic output for files being checked
+ *                                       2: ruleset and file parsing output
+ *                                       3: sniff execution output
+ * @property bool       $interactive     Enable interactive checking mode.
+ * @property int        $parallel        Check files in parallel.
+ * @property bool       $cache           Enable the use of the file cache.
+ * @property string     $cacheFile       Path to the file where the cache data should be written
+ * @property bool       $colors          Display colours in output.
+ * @property bool       $explain         Explain the coding standards.
+ * @property bool       $local           Process local files in directories only (no recursion).
+ * @property bool       $showSources     Show sniff source codes in report output.
+ * @property bool       $showProgress    Show basic progress information while running.
+ * @property bool       $quiet           Quiet mode; disables progress and verbose output.
+ * @property bool       $annotations     Process phpcs: annotations.
+ * @property int        $tabWidth        How many spaces each tab is worth.
+ * @property string     $encoding        The encoding of the files being checked.
+ * @property string[]   $sniffs          The sniffs that should be used for checking.
+ *                                       If empty, all sniffs in the supplied standards will be used.
+ * @property string[]   $exclude         The sniffs that should be excluded from checking.
+ *                                       If empty, all sniffs in the supplied standards will be used.
+ * @property string[]   $ignored         Regular expressions used to ignore files and folders during checking.
+ * @property string     $reportFile      A file where the report output should be written.
+ * @property string     $generator       The documentation generator to use.
+ * @property string     $filter          The filter to use for the run.
+ * @property string[]   $bootstrap       One of more files to include before the run begins.
+ * @property int|string $reportWidth     The maximum number of columns that reports should use for output.
+ *                                       Set to "auto" for have this value changed to the width of the terminal.
+ * @property int        $errorSeverity   The minimum severity an error must have to be displayed.
+ * @property int        $warningSeverity The minimum severity a warning must have to be displayed.
+ * @property bool       $recordErrors    Record the content of error messages as well as error counts.
+ * @property string     $suffix          A suffix to add to fixed files.
+ * @property string     $basepath        A file system location to strip from the paths of files shown in reports.
+ * @property bool       $stdin           Read content from STDIN instead of supplied files.
+ * @property string     $stdinContent    Content passed directly to PHPCS on STDIN.
+ * @property string     $stdinPath       The path to use for content passed on STDIN.
+ * @property bool       $trackTime       Whether or not to track sniff run time.
  *
  * @property array<string, string>      $extensions File extensions that should be checked, and what tokenizer to use.
  *                                                  E.g., array('inc' => 'PHP');
@@ -80,7 +81,7 @@ class Config
      *
      * @var string
      */
-    const VERSION = '3.7.1';
+    const VERSION = '3.9.0';
 
     /**
      * Package stability; either stable, beta or alpha.
@@ -88,6 +89,13 @@ class Config
      * @var string
      */
     const STABILITY = 'stable';
+
+    /**
+     * Default report width when no report width is provided and 'auto' does not yield a valid width.
+     *
+     * @var int
+     */
+    const DEFAULT_REPORT_WIDTH = 80;
 
     /**
      * An array of settings that PHPCS and PHPCBF accept.
@@ -136,6 +144,7 @@ class Config
         'stdin'           => null,
         'stdinContent'    => null,
         'stdinPath'       => null,
+        'trackTime'       => null,
         'unknown'         => null,
     ];
 
@@ -160,7 +169,7 @@ class Config
     /**
      * Command line values that the user has supplied directly.
      *
-     * @var array<string, TRUE>
+     * @var array<string, true|array<string, true>>
      */
     private static $overriddenDefaults = [];
 
@@ -200,6 +209,22 @@ class Config
             throw new RuntimeException("ERROR: unable to get value of property \"$name\"");
         }
 
+        // Figure out what the terminal width needs to be for "auto".
+        if ($name === 'reportWidth' && $this->settings[$name] === 'auto') {
+            if (function_exists('shell_exec') === true) {
+                $dimensions = shell_exec('stty size 2>&1');
+                if (is_string($dimensions) === true && preg_match('|\d+ (\d+)|', $dimensions, $matches) === 1) {
+                    $this->settings[$name] = (int) $matches[1];
+                }
+            }
+
+            if ($this->settings[$name] === 'auto') {
+                // If shell_exec wasn't available or didn't yield a usable value, set to the default.
+                // This will prevent subsequent retrievals of the reportWidth from making another call to stty.
+                $this->settings[$name] = self::DEFAULT_REPORT_WIDTH;
+            }
+        }
+
         return $this->settings[$name];
 
     }//end __get()
@@ -222,16 +247,20 @@ class Config
 
         switch ($name) {
         case 'reportWidth' :
-            // Support auto terminal width.
-            if ($value === 'auto'
-                && function_exists('shell_exec') === true
-                && preg_match('|\d+ (\d+)|', shell_exec('stty size 2>&1'), $matches) === 1
-            ) {
-                $value = (int) $matches[1];
-            } else {
+            if (is_string($value) === true && $value === 'auto') {
+                // Nothing to do. Leave at 'auto'.
+                break;
+            }
+
+            if (is_int($value) === true) {
+                $value = abs($value);
+            } else if (is_string($value) === true && preg_match('`^\d+$`', $value) === 1) {
                 $value = (int) $value;
+            } else {
+                $value = self::DEFAULT_REPORT_WIDTH;
             }
             break;
+
         case 'standards' :
             $cleaned = [];
 
@@ -250,6 +279,20 @@ class Config
 
             $value = $cleaned;
             break;
+
+        // Only track time when explicitly needed.
+        case 'verbosity':
+            if ($value > 2) {
+                $this->settings['trackTime'] = true;
+            }
+            break;
+        case 'reports':
+            $reports = array_change_key_case($value, CASE_LOWER);
+            if (array_key_exists('performance', $reports) === true) {
+                $this->settings['trackTime'] = true;
+            }
+            break;
+
         default :
             // No validation required.
             break;
@@ -503,6 +546,7 @@ class Config
         $this->stdin           = false;
         $this->stdinContent    = null;
         $this->stdinPath       = null;
+        $this->trackTime       = false;
         $this->unknown         = [];
 
         $standard = self::getConfigData('default_standard');
@@ -690,7 +734,7 @@ class Config
 
 
     /**
-     * Processes a long (--example) command line argument.
+     * Processes a long (--example) command-line argument.
      *
      * @param string $arg The command line argument.
      * @param int    $pos The position of the argument on the command line.
@@ -709,7 +753,7 @@ class Config
             throw new DeepExitException($output, 0);
         case 'version':
             $output  = 'PHP_CodeSniffer version '.self::VERSION.' ('.self::STABILITY.') ';
-            $output .= 'by Squiz (http://www.squiz.net)'.PHP_EOL;
+            $output .= 'by Squiz and PHPCSStandards'.PHP_EOL;
             throw new DeepExitException($output, 0);
         case 'colors':
             if (isset(self::$overriddenDefaults['colors']) === true) {
@@ -1205,13 +1249,17 @@ class Config
                 if ($this->dieOnUnknownArg === false) {
                     $eqPos = strpos($arg, '=');
                     try {
+                        $unknown = $this->unknown;
+
                         if ($eqPos === false) {
-                            $this->values[$arg] = $arg;
+                            $unknown[$arg] = $arg;
                         } else {
-                            $value = substr($arg, ($eqPos + 1));
-                            $arg   = substr($arg, 0, $eqPos);
-                            $this->values[$arg] = $value;
+                            $value         = substr($arg, ($eqPos + 1));
+                            $arg           = substr($arg, 0, $eqPos);
+                            $unknown[$arg] = $value;
                         }
+
+                        $this->unknown = $unknown;
                     } catch (RuntimeException $e) {
                         // Value is not valid, so just ignore it.
                     }
@@ -1359,7 +1407,7 @@ class Config
         echo ' -n    Do not print warnings (shortcut for --warning-severity=0)'.PHP_EOL;
         echo ' -w    Print both warnings and errors (this is the default)'.PHP_EOL;
         echo ' -l    Local directory only, no recursion'.PHP_EOL;
-        echo ' -s    Show sniff codes in all reports'.PHP_EOL;
+        echo ' -s    Show error codes in all reports'.PHP_EOL;
         echo ' -a    Run interactively'.PHP_EOL;
         echo ' -e    Explain a standard by showing the sniffs it includes'.PHP_EOL;
         echo ' -p    Show progress of the run'.PHP_EOL;
@@ -1389,7 +1437,7 @@ class Config
         echo '                e.g., module/php,es/js'.PHP_EOL;
         echo ' <file>         One or more files and/or directories to check'.PHP_EOL;
         echo ' <fileList>     A file containing a list of files and/or directories to check (one per line)'.PHP_EOL;
-        echo ' <filter>       Use either the "gitmodified" or "gitstaged" filter,'.PHP_EOL;
+        echo ' <filter>       Use either the "GitModified" or "GitStaged" filter,'.PHP_EOL;
         echo '                or specify the path to a custom filter class'.PHP_EOL;
         echo ' <generator>    Use either the "HTML", "Markdown" or "Text" generator'.PHP_EOL;
         echo '                (forces documentation generation instead of checking)'.PHP_EOL;
@@ -1397,8 +1445,8 @@ class Config
         echo ' <processes>    How many files should be checked simultaneously (default is 1)'.PHP_EOL;
         echo ' <report>       Print either the "full", "xml", "checkstyle", "csv"'.PHP_EOL;
         echo '                "json", "junit", "emacs", "source", "summary", "diff"'.PHP_EOL;
-        echo '                "svnblame", "gitblame", "hgblame" or "notifysend" report,'.PHP_EOL;
-        echo '                or specify the path to a custom report class'.PHP_EOL;
+        echo '                "svnblame", "gitblame", "hgblame", "notifysend" or "performance",'.PHP_EOL;
+        echo '                report or specify the path to a custom report class'.PHP_EOL;
         echo '                (the "full" report is printed by default)'.PHP_EOL;
         echo ' <reportFile>   Write the report to the specified file path'.PHP_EOL;
         echo ' <reportWidth>  How many columns wide screen reports should be printed'.PHP_EOL;
@@ -1451,7 +1499,7 @@ class Config
         echo '               e.g., module/php,es/js'.PHP_EOL;
         echo ' <file>        One or more files and/or directories to fix'.PHP_EOL;
         echo ' <fileList>    A file containing a list of files and/or directories to fix (one per line)'.PHP_EOL;
-        echo ' <filter>      Use either the "gitmodified" or "gitstaged" filter,'.PHP_EOL;
+        echo ' <filter>      Use either the "GitModified" or "GitStaged" filter,'.PHP_EOL;
         echo '               or specify the path to a custom filter class'.PHP_EOL;
         echo ' <patterns>    A comma separated list of patterns to ignore files and directories'.PHP_EOL;
         echo ' <processes>   How many files should be fixed simultaneously (default is 1)'.PHP_EOL;
@@ -1567,13 +1615,6 @@ class Config
                 $configFile = dirname($path).DIRECTORY_SEPARATOR.'CodeSniffer.conf';
             } else {
                 $configFile = dirname(__DIR__).DIRECTORY_SEPARATOR.'CodeSniffer.conf';
-                if (is_file($configFile) === false
-                    && strpos('@data_dir@', '@data_dir') === false
-                ) {
-                    // If data_dir was replaced, this is a PEAR install and we can
-                    // use the PEAR data dir to store the conf file.
-                    $configFile = '@data_dir@/PHP_CodeSniffer/CodeSniffer.conf';
-                }
             }
 
             if (is_file($configFile) === true

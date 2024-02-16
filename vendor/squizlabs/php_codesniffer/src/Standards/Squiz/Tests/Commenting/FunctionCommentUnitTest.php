@@ -4,14 +4,19 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\Commenting;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class FunctionCommentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the FunctionComment sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting\FunctionCommentSniff
+ */
+final class FunctionCommentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -48,8 +53,7 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             138  => 4,
             139  => 4,
             143  => 2,
-            152  => 1,
-            155  => 2,
+            155  => 1,
             159  => 1,
             166  => 1,
             173  => 1,
@@ -103,7 +107,6 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             792  => 1,
             794  => 1,
             797  => 1,
-            801  => 1,
             828  => 1,
             840  => 1,
             852  => 1,
@@ -116,6 +119,28 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             1004 => 2,
             1006 => 1,
             1029 => 1,
+            1053 => 1,
+            1058 => 2,
+            1069 => 1,
+            1070 => 1,
+            1071 => 1,
+            1080 => 2,
+            1083 => 1,
+            1084 => 1,
+            1085 => 1,
+            1093 => 4,
+            1100 => 1,
+            1101 => 1,
+            1102 => 1,
+            1103 => 1,
+            1123 => 1,
+            1124 => 1,
+            1125 => 1,
+            1138 => 1,
+            1139 => 1,
+            1144 => 1,
+            1145 => 1,
+            1151 => 1,
         ];
 
         // Scalar type hints only work from PHP 7 onwards.
@@ -131,12 +156,18 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             $errors[575]  = 2;
             $errors[627]  = 1;
             $errors[1002] = 1;
+            $errors[1075] = 6;
+            $errors[1089] = 3;
+            $errors[1107] = 8;
+            $errors[1129] = 3;
+            $errors[1154] = 1;
+            $errors[1160] = 1;
         } else {
             $errors[729] = 4;
             $errors[740] = 2;
             $errors[752] = 2;
             $errors[982] = 1;
-        }
+        }//end if
 
         // Object type hints only work from PHP 7.2 onwards.
         if (PHP_VERSION_ID >= 70200) {

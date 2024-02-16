@@ -61,14 +61,15 @@ class Contents extends AbstractApi
      *
      * @link http://developer.github.com/v3/repos/contents/
      *
-     * @param string      $username   the user who owns the repository
-     * @param string      $repository the name of the repository
-     * @param string|null $path       path to file or directory
-     * @param string|null $reference  reference to a branch or commit
+     * @param string      $username       the user who owns the repository
+     * @param string      $repository     the name of the repository
+     * @param string|null $path           path to file or directory
+     * @param string|null $reference      reference to a branch or commit
+     * @param array       $requestHeaders request headers
      *
      * @return array|string information for file | information for each item in directory
      */
-    public function show($username, $repository, $path = null, $reference = null)
+    public function show($username, $repository, $path = null, $reference = null, $requestHeaders = [])
     {
         $url = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/contents';
         if (null !== $path) {
@@ -77,7 +78,7 @@ class Contents extends AbstractApi
 
         return $this->get($url, [
             'ref' => $reference,
-        ]);
+        ], $requestHeaders);
     }
 
     /**
@@ -293,5 +294,26 @@ class Contents extends AbstractApi
         }
 
         return base64_decode($file['content']) ?: null;
+    }
+
+    /**
+     * Get the raw content of a file in a repository.
+     *
+     * Use this method instead of the download method if your file is bigger than 1MB
+     *
+     * @see https://docs.github.com/en/rest/repos/contents
+     *
+     * @param string      $username   the user who owns the repository
+     * @param string      $repository the name of the repository
+     * @param string      $path       path to file
+     * @param string|null $reference  reference to a branch or commit
+     *
+     * @return array|string
+     */
+    public function rawDownload($username, $repository, $path, $reference = null)
+    {
+        return $this->show($username, $repository, $path, $reference, [
+            'Accept' => 'application/vnd.github.VERSION.raw',
+        ]);
     }
 }

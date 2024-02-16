@@ -304,4 +304,106 @@ trait CompilesConditionals
     {
         return '<?php endif; ?>';
     }
+
+    /**
+     * Compile a selected block into valid PHP.
+     *
+     * @param  string  $condition
+     * @return string
+     */
+    protected function compileSelected($condition)
+    {
+        return "<?php if{$condition}: echo 'selected'; endif; ?>";
+    }
+
+    /**
+     * Compile a checked block into valid PHP.
+     *
+     * @param  string  $condition
+     * @return string
+     */
+    protected function compileChecked($condition)
+    {
+        return "<?php if{$condition}: echo 'checked'; endif; ?>";
+    }
+
+    /**
+     * Compile a disabled block into valid PHP.
+     *
+     * @param  string  $condition
+     * @return string
+     */
+    protected function compileDisabled($condition)
+    {
+        return "<?php if{$condition}: echo 'disabled'; endif; ?>";
+    }
+
+    /**
+     * Compile a required block into valid PHP.
+     *
+     * @param  string  $condition
+     * @return string
+     */
+    protected function compileRequired($condition)
+    {
+        return "<?php if{$condition}: echo 'required'; endif; ?>";
+    }
+
+    /**
+     * Compile a readonly block into valid PHP.
+     *
+     * @param  string  $condition
+     * @return string
+     */
+    protected function compileReadonly($condition)
+    {
+        return "<?php if{$condition}: echo 'readonly'; endif; ?>";
+    }
+
+    /**
+     * Compile the push statements into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    protected function compilePushIf($expression)
+    {
+        $parts = explode(',', $this->stripParentheses($expression), 2);
+
+        return "<?php if({$parts[0]}): \$__env->startPush({$parts[1]}); ?>";
+    }
+
+    /**
+     * Compile the else-if push statements into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    protected function compileElsePushIf($expression)
+    {
+        $parts = explode(',', $this->stripParentheses($expression), 2);
+
+        return "<?php \$__env->stopPush(); elseif({$parts[0]}): \$__env->startPush({$parts[1]}); ?>";
+    }
+
+    /**
+     * Compile the else push statements into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    protected function compileElsePush($expression)
+    {
+        return "<?php \$__env->stopPush(); else: \$__env->startPush{$expression}; ?>";
+    }
+
+    /**
+     * Compile the end-push statements into valid PHP.
+     *
+     * @return string
+     */
+    protected function compileEndPushIf()
+    {
+        return '<?php $__env->stopPush(); endif; ?>';
+    }
 }

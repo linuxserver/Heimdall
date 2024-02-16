@@ -18,8 +18,8 @@
         "php" : "^7.1 || ^8.0"
     },
     "require-dev": {
-        "friends-of-phpspec/phpspec-code-coverage" : "^4.3.2",
-        "phpspec/phpspec": "^5.1.2 || ^6.2"
+        "friends-of-phpspec/phpspec-code-coverage" : "^4.3.2 || ^6.3",
+        "phpspec/phpspec": "^5.1.2 || ^6.2 || ^7.4"
     },
     "autoload": {
         "psr-4": {
@@ -29,10 +29,5 @@
     "scripts": {
         "test": "vendor/bin/phpspec run",
         "test-ci": "vendor/bin/phpspec run -c phpspec.yml.ci"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.1-dev"
-        }
     }
 }

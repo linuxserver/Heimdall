@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,9 +23,9 @@ class Dumper extends CliDumper
     private $formatter;
     private $forceArrayIndexes;
 
-    protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
-    protected static $controlCharsRx = '/([\x00-\x1F\x7F]+)/';
-    protected static $controlCharsMap = [
+    private const ONLY_CONTROL_CHARS = '/^[\x00-\x1F\x7F]+$/';
+    private const CONTROL_CHARS = '/([\x00-\x1F\x7F]+)/';
+    private const CONTROL_CHARS_MAP = [
         "\0"   => '\0',
         "\t"   => '\t',
         "\n"   => '\n',
@@ -46,7 +46,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    public function enterHash(Cursor $cursor, $type, $class, $hasChild)
+    public function enterHash(Cursor $cursor, $type, $class, $hasChild): void
     {
         if (Cursor::HASH_INDEXED === $type || Cursor::HASH_ASSOC === $type) {
             $class = 0;
@@ -57,7 +57,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    protected function dumpKey(Cursor $cursor)
+    protected function dumpKey(Cursor $cursor): void
     {
         if ($this->forceArrayIndexes || Cursor::HASH_INDEXED !== $cursor->hashType) {
             parent::dumpKey($cursor);
@@ -71,16 +71,15 @@ class Dumper extends CliDumper
         }
 
         $styled = '';
-        $map = self::$controlCharsMap;
         $cchr = $this->styles['cchr'];
 
-        $chunks = \preg_split(self::$controlCharsRx, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
+        $chunks = \preg_split(self::CONTROL_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {
-            if (\preg_match(self::$onlyControlCharsRx, $chunk)) {
+            if (\preg_match(self::ONLY_CONTROL_CHARS, $chunk)) {
                 $chars = '';
                 $i = 0;
                 do {
-                    $chars .= isset($map[$chunk[$i]]) ? $map[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
+                    $chars .= isset(self::CONTROL_CHARS_MAP[$chunk[$i]]) ? self::CONTROL_CHARS_MAP[$chunk[$i]] : \sprintf('\x%02X', \ord($chunk[$i]));
                 } while (isset($chunk[++$i]));
 
                 $chars = $this->formatter->escape($chars);
@@ -98,7 +97,7 @@ class Dumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    protected function dumpLine($depth, $endOfValue = false)
+    protected function dumpLine($depth, $endOfValue = false): void
     {
         if ($endOfValue && 0 < $depth) {
             $this->line .= ',';

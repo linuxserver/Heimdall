@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PEAR\Sniffs\Commenting;
@@ -39,7 +39,7 @@ class FunctionCommentSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -60,10 +60,10 @@ class FunctionCommentSniff implements Sniff
     public function process(File $phpcsFile, $stackPtr)
     {
         $scopeModifier = $phpcsFile->getMethodProperties($stackPtr)['scope'];
-        if ($scopeModifier === 'protected'
-            && $this->minimumVisibility === 'public'
-            || $scopeModifier === 'private'
-            && ($this->minimumVisibility === 'public' || $this->minimumVisibility === 'protected')
+        if (($scopeModifier === 'protected'
+            && $this->minimumVisibility === 'public')
+            || ($scopeModifier === 'private'
+            && ($this->minimumVisibility === 'public' || $this->minimumVisibility === 'protected'))
         ) {
             return;
         }
@@ -129,11 +129,25 @@ class FunctionCommentSniff implements Sniff
                     && $tokens[$i]['line'] !== $tokens[($i + 1)]['line']
                 ) {
                     $error = 'There must be no blank lines after the function comment';
-                    $phpcsFile->addError($error, $commentEnd, 'SpacingAfter');
+                    $fix   = $phpcsFile->addFixableError($error, $commentEnd, 'SpacingAfter');
+
+                    if ($fix === true) {
+                        $phpcsFile->fixer->beginChangeset();
+
+                        while ($i < $stackPtr
+                            && $tokens[$i]['code'] === T_WHITESPACE
+                            && $tokens[$i]['line'] !== $tokens[($i + 1)]['line']
+                        ) {
+                            $phpcsFile->fixer->replaceToken($i++, '');
+                        }
+
+                        $phpcsFile->fixer->endChangeset();
+                    }
+
                     break;
                 }
-            }
-        }
+            }//end for
+        }//end if
 
         $commentStart = $tokens[$commentEnd]['comment_opener'];
         foreach ($tokens[$commentStart]['comment_tags'] as $tag) {

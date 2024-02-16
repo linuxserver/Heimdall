@@ -9,7 +9,7 @@ use const FILEINFO_MIME_TYPE;
 use const PATHINFO_EXTENSION;
 use finfo;
 
-class FinfoMimeTypeDetector implements MimeTypeDetector
+class FinfoMimeTypeDetector implements MimeTypeDetector, ExtensionLookup
 {
     private const INCONCLUSIVE_MIME_TYPES = [
         'application/x-empty',
@@ -88,5 +88,19 @@ class FinfoMimeTypeDetector implements MimeTypeDetector
         }
 
         return (string) substr($contents, 0, $this->bufferSampleSize);
+    }
+
+    public function lookupExtension(string $mimetype): ?string
+    {
+        return $this->extensionMap instanceof ExtensionLookup
+            ? $this->extensionMap->lookupExtension($mimetype)
+            : null;
+    }
+
+    public function lookupAllExtensions(string $mimetype): array
+    {
+        return $this->extensionMap instanceof ExtensionLookup
+            ? $this->extensionMap->lookupAllExtensions($mimetype)
+            : [];
     }
 }

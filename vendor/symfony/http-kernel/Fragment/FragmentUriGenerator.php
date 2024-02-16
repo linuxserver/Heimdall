@@ -13,8 +13,8 @@ namespace Symfony\Component\HttpKernel\Fragment;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\HttpKernel\Controller\ControllerReference;
-use Symfony\Component\HttpKernel\UriSigner;
 
 /**
  * Generates a fragment URI.
@@ -24,21 +24,18 @@ use Symfony\Component\HttpKernel\UriSigner;
  */
 final class FragmentUriGenerator implements FragmentUriGeneratorInterface
 {
-    private $fragmentPath;
-    private $signer;
-    private $requestStack;
+    private string $fragmentPath;
+    private ?UriSigner $signer;
+    private ?RequestStack $requestStack;
 
-    public function __construct(string $fragmentPath, UriSigner $signer = null, RequestStack $requestStack = null)
+    public function __construct(string $fragmentPath, ?UriSigner $signer = null, ?RequestStack $requestStack = null)
     {
         $this->fragmentPath = $fragmentPath;
         $this->signer = $signer;
         $this->requestStack = $requestStack;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function generate(ControllerReference $controller, Request $request = null, bool $absolute = false, bool $strict = true, bool $sign = true): string
+    public function generate(ControllerReference $controller, ?Request $request = null, bool $absolute = false, bool $strict = true, bool $sign = true): string
     {
         if (null === $request && (null === $this->requestStack || null === $request = $this->requestStack->getCurrentRequest())) {
             throw new \LogicException('Generating a fragment URL can only be done when handling a Request.');

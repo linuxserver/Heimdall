@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -56,12 +56,10 @@ EOS;
      * except for the \s sequence (ASCII space).
      *
      * @param string $input The string to decode
-     *
-     * @return string
      */
     public static function unvis(string $input): string
     {
-        $output = \preg_replace_callback(self::UNVIS_RX, 'self::unvisReplace', $input);
+        $output = \preg_replace_callback(self::UNVIS_RX, [self::class, 'unvisReplace'], $input);
         // other escapes & octal are handled by stripcslashes
         return \stripcslashes($output);
     }
@@ -70,8 +68,6 @@ EOS;
      * Callback for Str::unvis.
      *
      * @param array $match The matches passed by preg_replace_callback
-     *
-     * @return string
      */
     protected static function unvisReplace(array $match): string
     {

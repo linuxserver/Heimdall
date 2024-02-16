@@ -4,8 +4,14 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
+use function Laravel\Prompts\suggest;
+
+#[AsCommand(name: 'make:observer')]
 class ObserverMakeCommand extends GeneratorCommand
 {
     /**
@@ -133,7 +139,31 @@ class ObserverMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'The model that the observer applies to.'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the observer already exists'],
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'The model that the observer applies to'],
         ];
+    }
+
+    /**
+     * Interact further with the user if they were prompted for missing arguments.
+     *
+     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @return void
+     */
+    protected function afterPromptingForMissingArguments(InputInterface $input, OutputInterface $output)
+    {
+        if ($this->isReservedName($this->getNameInput()) || $this->didReceiveOptions($input)) {
+            return;
+        }
+
+        $model = suggest(
+            'What model should this observer apply to? (Optional)',
+            $this->possibleModels(),
+        );
+
+        if ($model) {
+            $input->setOption('model', $model);
+        }
     }
 }

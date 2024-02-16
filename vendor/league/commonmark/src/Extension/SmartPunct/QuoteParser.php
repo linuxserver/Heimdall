@@ -29,7 +29,7 @@ final class QuoteParser implements InlineParserInterface
 
     public function getMatchDefinition(): InlineParserMatch
     {
-        return InlineParserMatch::oneOf(...\array_merge(self::DOUBLE_QUOTES, self::SINGLE_QUOTES));
+        return InlineParserMatch::oneOf(...[...self::DOUBLE_QUOTES, ...self::SINGLE_QUOTES]);
     }
 
     /**

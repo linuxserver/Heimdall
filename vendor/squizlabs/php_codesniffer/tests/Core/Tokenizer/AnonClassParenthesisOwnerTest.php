@@ -4,14 +4,12 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
-
-class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
+final class AnonClassParenthesisOwnerTest extends AbstractTokenizerTestCase
 {
 
 
@@ -27,7 +25,7 @@ class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
      */
     public function testAnonClassNoParentheses($testMarker)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
 
         $anonClass = $this->getTargetToken($testMarker, T_ANON_CLASS);
         $this->assertFalse(array_key_exists('parenthesis_owner', $tokens[$anonClass]));
@@ -50,7 +48,7 @@ class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
      */
     public function testAnonClassNoParenthesesNextOpenClose($testMarker)
     {
-        $tokens   = self::$phpcsFile->getTokens();
+        $tokens   = $this->phpcsFile->getTokens();
         $function = $this->getTargetToken($testMarker, T_FUNCTION);
 
         $opener = $this->getTargetToken($testMarker, T_OPEN_PARENTHESIS);
@@ -70,13 +68,20 @@ class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
      * @see testAnonClassNoParentheses()
      * @see testAnonClassNoParenthesesNextOpenClose()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataAnonClassNoParentheses()
+    public static function dataAnonClassNoParentheses()
     {
         return [
-            ['/* testNoParentheses */'],
-            ['/* testNoParenthesesAndEmptyTokens */'],
+            'plain'                                              => [
+                'testMarker' => '/* testNoParentheses */',
+            ],
+            'readonly'                                           => [
+                'testMarker' => '/* testReadonlyNoParentheses */',
+            ],
+            'declaration contains comments and extra whitespace' => [
+                'testMarker' => '/* testNoParenthesesAndEmptyTokens */',
+            ],
         ];
 
     }//end dataAnonClassNoParentheses()
@@ -95,7 +100,7 @@ class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
      */
     public function testAnonClassWithParentheses($testMarker)
     {
-        $tokens    = self::$phpcsFile->getTokens();
+        $tokens    = $this->phpcsFile->getTokens();
         $anonClass = $this->getTargetToken($testMarker, T_ANON_CLASS);
         $opener    = $this->getTargetToken($testMarker, T_OPEN_PARENTHESIS);
         $closer    = $this->getTargetToken($testMarker, T_CLOSE_PARENTHESIS);
@@ -129,13 +134,20 @@ class AnonClassParenthesisOwnerTest extends AbstractMethodUnitTest
      *
      * @see testAnonClassWithParentheses()
      *
-     * @return array
+     * @return array<string, array<string, string>>
      */
-    public function dataAnonClassWithParentheses()
+    public static function dataAnonClassWithParentheses()
     {
         return [
-            ['/* testWithParentheses */'],
-            ['/* testWithParenthesesAndEmptyTokens */'],
+            'plain'                                              => [
+                'testMarker' => '/* testWithParentheses */',
+            ],
+            'readonly'                                           => [
+                'testMarker' => '/* testReadonlyWithParentheses */',
+            ],
+            'declaration contains comments and extra whitespace' => [
+                'testMarker' => '/* testWithParenthesesAndEmptyTokens */',
+            ],
         ];
 
     }//end dataAnonClassWithParentheses()

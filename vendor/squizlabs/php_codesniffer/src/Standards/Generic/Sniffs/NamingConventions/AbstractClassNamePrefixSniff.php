@@ -3,7 +3,7 @@
  * Checks that abstract classes are prefixed by Abstract.
  *
  * @author  Anna Borzenko <annnechko@gmail.com>
- * @license https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions;
@@ -18,7 +18,7 @@ class AbstractClassNamePrefixSniff implements Sniff
     /**
      * Registers the tokens that this sniff wants to listen for.
      *
-     * @return int[]
+     * @return array<int|string>
      */
     public function register()
     {

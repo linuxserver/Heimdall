@@ -19,13 +19,16 @@ Enable Doctrine deprecations to be sent to a PSR3 logger:
 ```
 
 Enable Doctrine deprecations to be sent as `@trigger_error($message, E_USER_DEPRECATED)`
-messages.
+messages by setting the `DOCTRINE_DEPRECATIONS` environment variable to `trigger`.
+Alternatively, call:
 
 ```php
 \Doctrine\Deprecations\Deprecation::enableWithTriggerError();
 ```
 
-If you only want to enable deprecation tracking, without logging or calling `trigger_error` then call:
+If you only want to enable deprecation tracking, without logging or calling `trigger_error`
+then set the `DOCTRINE_DEPRECATIONS` environment variable to `track`.
+Alternatively, call:
 
 ```php
 \Doctrine\Deprecations\Deprecation::enableTrackingDeprecations();

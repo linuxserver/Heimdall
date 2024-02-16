@@ -2,11 +2,13 @@
 
 namespace Illuminate\Database\Schema\Grammars;
 
+use BackedEnum;
 use Doctrine\DBAL\Schema\AbstractSchemaManager as SchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Illuminate\Contracts\Database\Query\Expression;
+use Illuminate\Database\Concerns\CompilesJsonPaths;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Grammar as BaseGrammar;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Fluent;
 use LogicException;
@@ -14,6 +16,15 @@ use RuntimeException;
 
 abstract class Grammar extends BaseGrammar
 {
+    use CompilesJsonPaths;
+
+    /**
+     * The possible column modifiers.
+     *
+     * @var string[]
+     */
+    protected $modifiers = [];
+
     /**
      * If this Grammar supports schema changes wrapped in a transaction.
      *
@@ -61,7 +72,7 @@ abstract class Grammar extends BaseGrammar
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
      * @param  \Illuminate\Database\Connection  $connection
-     * @return array
+     * @return array|string
      */
     public function compileRenameColumn(Blueprint $blueprint, Fluent $command, Connection $connection)
     {
@@ -74,7 +85,7 @@ abstract class Grammar extends BaseGrammar
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
      * @param  \Illuminate\Database\Connection  $connection
-     * @return array
+     * @return array|string
      *
      * @throws \RuntimeException
      */
@@ -103,10 +114,12 @@ abstract class Grammar extends BaseGrammar
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @param  \Illuminate\Support\Fluent  $command
      * @return string
+     *
+     * @throws \RuntimeException
      */
     public function compileDropFullText(Blueprint $blueprint, Fluent $command)
     {
-        throw new RuntimeException('This database driver does not support fulltext index creation.');
+        throw new RuntimeException('This database driver does not support fulltext index removal.');
     }
 
     /**
@@ -150,7 +163,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile the blueprint's column definitions.
+     * Compile the blueprint's added column definitions.
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
      * @return array
@@ -160,7 +173,7 @@ abstract class Grammar extends BaseGrammar
         $columns = [];
 
         foreach ($blueprint->getAddedColumns() as $column) {
-            // Each of the column types have their own compiler functions which are tasked
+            // Each of the column types has their own compiler functions, which are tasked
             // with turning the column definition into its SQL format for this platform
             // used by the connection. The column's modifiers are compiled and added.
             $sql = $this->wrap($column).' '.$this->getType($column);
@@ -274,7 +287,7 @@ abstract class Grammar extends BaseGrammar
     /**
      * Wrap a value in keyword identifiers.
      *
-     * @param  \Illuminate\Database\Query\Expression|string  $value
+     * @param  \Illuminate\Support\Fluent|\Illuminate\Contracts\Database\Query\Expression|string  $value
      * @param  bool  $prefixAlias
      * @return string
      */
@@ -294,7 +307,11 @@ abstract class Grammar extends BaseGrammar
     protected function getDefaultValue($value)
     {
         if ($value instanceof Expression) {
-            return $value;
+            return $this->getValue($value);
+        }
+
+        if ($value instanceof BackedEnum) {
+            return "'{$value->value}'";
         }
 
         return is_bool($value)
@@ -311,11 +328,11 @@ abstract class Grammar extends BaseGrammar
      */
     public function getDoctrineTableDiff(Blueprint $blueprint, SchemaManager $schema)
     {
-        $table = $this->getTablePrefix().$blueprint->getTable();
+        $tableName = $this->getTablePrefix().$blueprint->getTable();
 
-        return tap(new TableDiff($table), function ($tableDiff) use ($schema, $table) {
-            $tableDiff->fromTable = $schema->listTableDetails($table);
-        });
+        $table = $schema->introspectTable($tableName);
+
+        return new TableDiff(tableName: $tableName, fromTable: $table);
     }
 
     /**

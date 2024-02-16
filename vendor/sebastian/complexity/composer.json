@@ -14,9 +14,10 @@
     "support": {
         "issues": "https://github.com/sebastianbergmann/complexity/issues"
     },
+    "prefer-stable": true,
     "require": {
         "php": ">=7.3",
-        "nikic/php-parser": "^4.7"
+        "nikic/php-parser": "^4.18 || ^5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.3"

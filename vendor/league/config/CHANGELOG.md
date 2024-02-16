@@ -4,6 +4,13 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 
 ## [Unreleased][unreleased]
 
+## [1.2.0] - 2022-12-11
+
+### Changed
+
+- Values can now be set prior to the corresponding schema being registered.
+- `exists()` and `get()` now only trigger validation for the relevant schema, not the entire config at once.
+
 ## [1.1.1] - 2021-08-14
 
 ### Changed
@@ -27,7 +34,8 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 
 Initial release! 🎉
 
-[unreleased]: https://github.com/thephpleague/config/compare/v1.1.1...main
+[unreleased]: https://github.com/thephpleague/config/compare/v1.2.0...main
+[1.2.0]: https://github.com/thephpleague/config/compare/v1.1.1...v.1.2.0
 [1.1.1]: https://github.com/thephpleague/config/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/thephpleague/config/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/thephpleague/config/compare/v1.0.0...v1.0.1

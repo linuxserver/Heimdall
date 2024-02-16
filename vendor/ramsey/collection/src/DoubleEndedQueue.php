@@ -17,6 +17,10 @@ namespace Ramsey\Collection;
 use Ramsey\Collection\Exception\InvalidArgumentException;
 use Ramsey\Collection\Exception\NoSuchElementException;
 
+use function array_key_last;
+use function array_pop;
+use function array_unshift;
+
 /**
  * This class provides a basic implementation of `DoubleEndedQueueInterface`, to
  * minimize the effort required to implement this interface.
@@ -28,160 +32,135 @@ use Ramsey\Collection\Exception\NoSuchElementException;
 class DoubleEndedQueue extends Queue implements DoubleEndedQueueInterface
 {
     /**
-     * Index of the last element in the queue.
+     * Constructs a double-ended queue (dequeue) object of the specified type,
+     * optionally with the specified data.
      *
-     * @var int
+     * @param string $queueType The type or class name associated with this dequeue.
+     * @param array<array-key, T> $data The initial items to store in the dequeue.
      */
-    private $tail = -1;
-
-    /**
-     * @inheritDoc
-     */
-    public function offsetSet($offset, $value): void
+    public function __construct(private readonly string $queueType, array $data = [])
     {
-        if ($this->checkType($this->getType(), $value) === false) {
-            throw new InvalidArgumentException(
-                'Value must be of type ' . $this->getType() . '; value is '
-                . $this->toolValueToString($value)
-            );
-        }
-
-        $this->tail++;
-
-        $this->data[$this->tail] = $value;
+        parent::__construct($this->queueType, $data);
     }
 
     /**
-     * @inheritDoc
+     * @throws InvalidArgumentException if $element is of the wrong type
      */
-    public function addFirst($element): bool
+    public function addFirst(mixed $element): bool
     {
         if ($this->checkType($this->getType(), $element) === false) {
             throw new InvalidArgumentException(
                 'Value must be of type ' . $this->getType() . '; value is '
-                . $this->toolValueToString($element)
+                . $this->toolValueToString($element),
             );
         }
 
-        $this->index--;
-
-        $this->data[$this->index] = $element;
+        array_unshift($this->data, $element);
 
         return true;
     }
 
     /**
-     * @inheritDoc
+     * @throws InvalidArgumentException if $element is of the wrong type
      */
-    public function addLast($element): bool
+    public function addLast(mixed $element): bool
     {
         return $this->add($element);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function offerFirst($element): bool
+    public function offerFirst(mixed $element): bool
     {
         try {
             return $this->addFirst($element);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return false;
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function offerLast($element): bool
+    public function offerLast(mixed $element): bool
     {
         return $this->offer($element);
     }
 
     /**
-     * @inheritDoc
+     * @return T the first element in this queue.
+     *
+     * @throws NoSuchElementException if the queue is empty
      */
-    public function removeFirst()
+    public function removeFirst(): mixed
     {
         return $this->remove();
     }
 
     /**
-     * @inheritDoc
+     * @return T the last element in this queue.
+     *
+     * @throws NoSuchElementException if this queue is empty.
      */
-    public function removeLast()
+    public function removeLast(): mixed
     {
-        $tail = $this->pollLast();
-
-        if ($tail === null) {
-            throw new NoSuchElementException('Can\'t return element from Queue. Queue is empty.');
-        }
-
-        return $tail;
+        return $this->pollLast() ?? throw new NoSuchElementException(
+            'Can\'t return element from Queue. Queue is empty.',
+        );
     }
 
     /**
-     * @inheritDoc
+     * @return T | null the head of this queue, or `null` if this queue is empty.
      */
-    public function pollFirst()
+    public function pollFirst(): mixed
     {
         return $this->poll();
     }
 
     /**
-     * @inheritDoc
+     * @return T | null the tail of this queue, or `null` if this queue is empty.
      */
-    public function pollLast()
+    public function pollLast(): mixed
     {
-        if ($this->count() === 0) {
-            return null;
-        }
-
-        $tail = $this[$this->tail];
-
-        unset($this[$this->tail]);
-        $this->tail--;
-
-        return $tail;
+        return array_pop($this->data);
     }
 
     /**
-     * @inheritDoc
+     * @return T the head of this queue.
+     *
+     * @throws NoSuchElementException if this queue is empty.
      */
-    public function firstElement()
+    public function firstElement(): mixed
     {
         return $this->element();
     }
 
     /**
-     * @inheritDoc
+     * @return T the tail of this queue.
+     *
+     * @throws NoSuchElementException if this queue is empty.
      */
-    public function lastElement()
+    public function lastElement(): mixed
     {
-        if ($this->count() === 0) {
-            throw new NoSuchElementException('Can\'t return element from Queue. Queue is empty.');
-        }
-
-        return $this->data[$this->tail];
+        return $this->peekLast() ?? throw new NoSuchElementException(
+            'Can\'t return element from Queue. Queue is empty.',
+        );
     }
 
     /**
-     * @inheritDoc
+     * @return T | null the head of this queue, or `null` if this queue is empty.
      */
-    public function peekFirst()
+    public function peekFirst(): mixed
     {
         return $this->peek();
     }
 
     /**
-     * @inheritDoc
+     * @return T | null the tail of this queue, or `null` if this queue is empty.
      */
-    public function peekLast()
+    public function peekLast(): mixed
     {
-        if ($this->count() === 0) {
+        $lastIndex = array_key_last($this->data);
+
+        if ($lastIndex === null) {
             return null;
         }
 
-        return $this->data[$this->tail];
+        return $this->data[$lastIndex];
     }
 }

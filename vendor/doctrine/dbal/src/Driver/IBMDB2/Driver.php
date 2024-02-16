@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
+use SensitiveParameter;
 
 use function db2_connect;
 use function db2_pconnect;
@@ -11,12 +12,14 @@ use function db2_pconnect;
 final class Driver extends AbstractDB2Driver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return Connection
      */
-    public function connect(array $params)
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params
+    ) {
         $dataSourceName = DataSourceName::fromConnectionParameters($params)->toString();
 
         $username      = $params['user'] ?? '';

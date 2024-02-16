@@ -51,7 +51,7 @@ class CurlFactory implements CurlFactoryInterface
             unset($options['curl']['body_as_string']);
         }
 
-        $easy = new EasyHandle;
+        $easy = new EasyHandle();
         $easy->request = $request;
         $easy->options = $options;
         $conf = $this->getDefaultConf($easy);
@@ -161,11 +161,11 @@ class CurlFactory implements CurlFactoryInterface
     private static function createRejection(EasyHandle $easy, array $ctx): PromiseInterface
     {
         static $connectionErrors = [
-            \CURLE_OPERATION_TIMEOUTED  => true,
+            \CURLE_OPERATION_TIMEOUTED => true,
             \CURLE_COULDNT_RESOLVE_HOST => true,
-            \CURLE_COULDNT_CONNECT      => true,
-            \CURLE_SSL_CONNECT_ERROR    => true,
-            \CURLE_GOT_NOTHING          => true,
+            \CURLE_COULDNT_CONNECT => true,
+            \CURLE_SSL_CONNECT_ERROR => true,
+            \CURLE_GOT_NOTHING => true,
         ];
 
         if ($easy->createResponseException) {
@@ -219,12 +219,12 @@ class CurlFactory implements CurlFactoryInterface
     private function getDefaultConf(EasyHandle $easy): array
     {
         $conf = [
-            '_headers'              => $easy->request->getHeaders(),
-            \CURLOPT_CUSTOMREQUEST  => $easy->request->getMethod(),
-            \CURLOPT_URL            => (string) $easy->request->getUri()->withFragment(''),
+            '_headers' => $easy->request->getHeaders(),
+            \CURLOPT_CUSTOMREQUEST => $easy->request->getMethod(),
+            \CURLOPT_URL => (string) $easy->request->getUri()->withFragment(''),
             \CURLOPT_RETURNTRANSFER => false,
-            \CURLOPT_HEADER         => false,
-            \CURLOPT_CONNECTTIMEOUT => 150,
+            \CURLOPT_HEADER => false,
+            \CURLOPT_CONNECTTIMEOUT => 300,
         ];
 
         if (\defined('CURLOPT_PROTOCOLS')) {
@@ -250,12 +250,13 @@ class CurlFactory implements CurlFactoryInterface
 
         if ($size === null || $size > 0) {
             $this->applyBody($easy->request, $easy->options, $conf);
+
             return;
         }
 
         $method = $easy->request->getMethod();
         if ($method === 'PUT' || $method === 'POST') {
-            // See https://tools.ietf.org/html/rfc7230#section-3.3.2
+            // See https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
             if (!$easy->request->hasHeader('Content-Length')) {
                 $conf[\CURLOPT_HTTPHEADER][] = 'Content-Length: 0';
             }
@@ -341,6 +342,7 @@ class CurlFactory implements CurlFactoryInterface
         foreach (\array_keys($options['_headers']) as $key) {
             if (!\strcasecmp($key, $name)) {
                 unset($options['_headers'][$key]);
+
                 return;
             }
         }
@@ -365,11 +367,11 @@ class CurlFactory implements CurlFactoryInterface
                     // If it's a directory or a link to a directory use CURLOPT_CAPATH.
                     // If not, it's probably a file, or a link to a file, so use CURLOPT_CAINFO.
                     if (
-                        \is_dir($options['verify']) ||
-                        (
-                            \is_link($options['verify']) === true &&
-                            ($verifyLink = \readlink($options['verify'])) !== false &&
-                            \is_dir($verifyLink)
+                        \is_dir($options['verify'])
+                        || (
+                            \is_link($options['verify']) === true
+                            && ($verifyLink = \readlink($options['verify'])) !== false
+                            && \is_dir($verifyLink)
                         )
                     ) {
                         $conf[\CURLOPT_CAPATH] = $options['verify'];
@@ -443,10 +445,38 @@ class CurlFactory implements CurlFactoryInterface
                 $scheme = $easy->request->getUri()->getScheme();
                 if (isset($options['proxy'][$scheme])) {
                     $host = $easy->request->getUri()->getHost();
-                    if (!isset($options['proxy']['no']) || !Utils::isHostInNoProxy($host, $options['proxy']['no'])) {
+                    if (isset($options['proxy']['no']) && Utils::isHostInNoProxy($host, $options['proxy']['no'])) {
+                        unset($conf[\CURLOPT_PROXY]);
+                    } else {
                         $conf[\CURLOPT_PROXY] = $options['proxy'][$scheme];
                     }
                 }
+            }
+        }
+
+        if (isset($options['crypto_method'])) {
+            if (\STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT === $options['crypto_method']) {
+                if (!defined('CURL_SSLVERSION_TLSv1_0')) {
+                    throw new \InvalidArgumentException('Invalid crypto_method request option: TLS 1.0 not supported by your version of cURL');
+                }
+                $conf[\CURLOPT_SSLVERSION] = \CURL_SSLVERSION_TLSv1_0;
+            } elseif (\STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT === $options['crypto_method']) {
+                if (!defined('CURL_SSLVERSION_TLSv1_1')) {
+                    throw new \InvalidArgumentException('Invalid crypto_method request option: TLS 1.1 not supported by your version of cURL');
+                }
+                $conf[\CURLOPT_SSLVERSION] = \CURL_SSLVERSION_TLSv1_1;
+            } elseif (\STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT === $options['crypto_method']) {
+                if (!defined('CURL_SSLVERSION_TLSv1_2')) {
+                    throw new \InvalidArgumentException('Invalid crypto_method request option: TLS 1.2 not supported by your version of cURL');
+                }
+                $conf[\CURLOPT_SSLVERSION] = \CURL_SSLVERSION_TLSv1_2;
+            } elseif (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT') && \STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT === $options['crypto_method']) {
+                if (!defined('CURL_SSLVERSION_TLSv1_3')) {
+                    throw new \InvalidArgumentException('Invalid crypto_method request option: TLS 1.3 not supported by your version of cURL');
+                }
+                $conf[\CURLOPT_SSLVERSION] = \CURL_SSLVERSION_TLSv1_3;
+            } else {
+                throw new \InvalidArgumentException('Invalid crypto_method request option: unknown version provided');
             }
         }
 
@@ -459,8 +489,8 @@ class CurlFactory implements CurlFactoryInterface
             if (!\file_exists($cert)) {
                 throw new \InvalidArgumentException("SSL certificate not found: {$cert}");
             }
-            # OpenSSL (versions 0.9.3 and later) also support "P12" for PKCS#12-encoded files.
-            # see https://curl.se/libcurl/c/CURLOPT_SSLCERTTYPE.html
+            // OpenSSL (versions 0.9.3 and later) also support "P12" for PKCS#12-encoded files.
+            // see https://curl.se/libcurl/c/CURLOPT_SSLCERTTYPE.html
             $ext = pathinfo($cert, \PATHINFO_EXTENSION);
             if (preg_match('#^(der|p12)$#i', $ext)) {
                 $conf[\CURLOPT_SSLCERTTYPE] = strtoupper($ext);
@@ -523,9 +553,10 @@ class CurlFactory implements CurlFactoryInterface
             }
         } catch (\RuntimeException $e) {
             $ctx['error'] = 'The connection unexpectedly failed without '
-                . 'providing an error. The request would have been retried, '
-                . 'but attempting to rewind the request body failed. '
-                . 'Exception: ' . $e;
+                .'providing an error. The request would have been retried, '
+                .'but attempting to rewind the request body failed. '
+                .'Exception: '.$e;
+
             return self::createRejection($easy, $ctx);
         }
 
@@ -534,14 +565,15 @@ class CurlFactory implements CurlFactoryInterface
             $easy->options['_curl_retries'] = 1;
         } elseif ($easy->options['_curl_retries'] == 2) {
             $ctx['error'] = 'The cURL request was retried 3 times '
-                . 'and did not succeed. The most likely reason for the failure '
-                . 'is that cURL was unable to rewind the body of the request '
-                . 'and subsequent retries resulted in the same error. Turn on '
-                . 'the debug option to see what went wrong. See '
-                . 'https://bugs.php.net/bug.php?id=47204 for more information.';
+                .'and did not succeed. The most likely reason for the failure '
+                .'is that cURL was unable to rewind the body of the request '
+                .'and subsequent retries resulted in the same error. Turn on '
+                .'the debug option to see what went wrong. See '
+                .'https://bugs.php.net/bug.php?id=47204 for more information.';
+
             return self::createRejection($easy, $ctx);
         } else {
-            $easy->options['_curl_retries']++;
+            ++$easy->options['_curl_retries'];
         }
 
         return $handler($easy->request, $easy->options);
@@ -571,6 +603,7 @@ class CurlFactory implements CurlFactoryInterface
                     $easy->createResponse();
                 } catch (\Exception $e) {
                     $easy->createResponseException = $e;
+
                     return -1;
                 }
                 if ($onHeaders !== null) {
@@ -580,6 +613,7 @@ class CurlFactory implements CurlFactoryInterface
                         // Associate the exception with the handle and trigger
                         // a curl header write error by returning 0.
                         $easy->onHeadersException = $e;
+
                         return -1;
                     }
                 }
@@ -589,7 +623,16 @@ class CurlFactory implements CurlFactoryInterface
             } else {
                 $easy->headers[] = $value;
             }
+
             return \strlen($h);
         };
+    }
+
+    public function __destruct()
+    {
+        foreach ($this->handles as $id => $handle) {
+            \curl_close($handle);
+            unset($this->handles[$id]);
+        }
     }
 }

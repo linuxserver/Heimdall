@@ -55,7 +55,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
@@ -104,7 +104,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
@@ -112,7 +112,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
@@ -133,8 +133,16 @@ SQL,
 
         switch ($dbType) {
             case 'nchar':
-            case 'nvarchar':
             case 'ntext':
+                // Unicode data requires 2 bytes per character
+                $length /= 2;
+                break;
+
+            case 'nvarchar':
+                if ($length === -1) {
+                    break;
+                }
+
                 // Unicode data requires 2 bytes per character
                 $length /= 2;
                 break;
@@ -209,7 +217,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
@@ -239,7 +247,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
@@ -253,7 +261,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
@@ -267,7 +275,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -279,7 +287,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition($database)
     {
@@ -287,7 +295,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see listSchemaNames()} instead.
      */
@@ -304,7 +312,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -313,7 +321,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function alterTable(TableDiff $tableDiff)
     {
@@ -403,7 +411,7 @@ WHERE type = 'U'
 ORDER BY name
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

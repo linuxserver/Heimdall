@@ -21,7 +21,6 @@ interface FrontMatterDataParserInterface
      * @return mixed|null The parsed data (which may be null, if the input represents a null value)
      *
      * @throws InvalidFrontMatterException if parsing fails
-     * @throws \RuntimeException if other errors occur
      */
     public function parse(string $frontMatter);
 }

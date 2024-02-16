@@ -23,13 +23,7 @@ use Psr\Http\Message\UriInterface;
  * Note: in consuming code it is recommended to require the implemented interfaces
  * and inject the instance of this class multiple times.
  */
-final class HttpFactory implements
-    RequestFactoryInterface,
-    ResponseFactoryInterface,
-    ServerRequestFactoryInterface,
-    StreamFactoryInterface,
-    UploadedFileFactoryInterface,
-    UriFactoryInterface
+final class HttpFactory implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {
     public function createUploadedFile(
         StreamInterface $stream,

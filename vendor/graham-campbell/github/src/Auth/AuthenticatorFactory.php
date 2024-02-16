@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace GrahamCampbell\GitHub\Auth;
 
+use GrahamCampbell\GitHub\Auth\Authenticator\AuthenticatorInterface;
 use InvalidArgumentException;
 
 /**
@@ -31,7 +32,7 @@ class AuthenticatorFactory
      *
      * @return \GrahamCampbell\GitHub\Auth\Authenticator\AuthenticatorInterface
      */
-    public function make(string $method)
+    public function make(string $method): AuthenticatorInterface
     {
         switch ($method) {
             case 'application':

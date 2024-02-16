@@ -4,14 +4,12 @@
  *
  * @author    Mark Baker <mark@demon-angel.eu>
  * @copyright 2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizer;
 
-use PHP_CodeSniffer\Tests\Core\AbstractMethodUnitTest;
-
-class BackfillExplicitOctalNotationTest extends AbstractMethodUnitTest
+final class BackfillExplicitOctalNotationTest extends AbstractTokenizerTestCase
 {
 
 
@@ -30,7 +28,7 @@ class BackfillExplicitOctalNotationTest extends AbstractMethodUnitTest
      */
     public function testExplicitOctalNotation($marker, $value, $nextToken, $nextContent)
     {
-        $tokens = self::$phpcsFile->getTokens();
+        $tokens = $this->phpcsFile->getTokens();
 
         $number = $this->getTargetToken($marker, [T_LNUMBER]);
 
@@ -47,64 +45,70 @@ class BackfillExplicitOctalNotationTest extends AbstractMethodUnitTest
      *
      * @see testExplicitOctalNotation()
      *
-     * @return array
+     * @return array<string, array<string, int|string>>
      */
-    public function dataExplicitOctalNotation()
+    public static function dataExplicitOctalNotation()
     {
         return [
-            [
+            'Explicit octal'                                                                                       => [
                 'marker'      => '/* testExplicitOctal */',
                 'value'       => '0o137041',
                 'nextToken'   => T_SEMICOLON,
                 'nextContent' => ';',
             ],
-            [
+            'Explicit octal - capitalized O'                                                                       => [
                 'marker'      => '/* testExplicitOctalCapitalised */',
                 'value'       => '0O137041',
                 'nextToken'   => T_SEMICOLON,
                 'nextContent' => ';',
             ],
-            [
+            'Explicit octal - with numeric literal separator'                                                      => [
                 'marker'      => '/* testExplicitOctalWithNumericSeparator */',
                 'value'       => '0o137_041',
                 'nextToken'   => T_SEMICOLON,
                 'nextContent' => ';',
             ],
-            [
+            'Invalid explicit octal - numeric literal separator directly after "0o"'                               => [
                 'marker'      => '/* testInvalid1 */',
                 'value'       => '0',
                 'nextToken'   => T_STRING,
                 'nextContent' => 'o_137',
             ],
-            [
+            'Invalid explicit octal - numeric literal separator directly after "0O" (capitalized O)'               => [
                 'marker'      => '/* testInvalid2 */',
                 'value'       => '0',
                 'nextToken'   => T_STRING,
                 'nextContent' => 'O_41',
             ],
-            [
+            'Invalid explicit octal - number out of octal range'                                                   => [
                 'marker'      => '/* testInvalid3 */',
                 'value'       => '0',
                 'nextToken'   => T_STRING,
                 'nextContent' => 'o91',
             ],
-            [
+            'Invalid explicit octal - part of the number out of octal range'                                       => [
                 'marker'      => '/* testInvalid4 */',
                 'value'       => '0O2',
                 'nextToken'   => T_LNUMBER,
                 'nextContent' => '82',
             ],
-            [
+            'Invalid explicit octal - part of the number out of octal range with numeric literal separator after'  => [
                 'marker'      => '/* testInvalid5 */',
                 'value'       => '0o2',
                 'nextToken'   => T_LNUMBER,
                 'nextContent' => '8_2',
             ],
-            [
+            'Invalid explicit octal - part of the number out of octal range with numeric literal separator before' => [
                 'marker'      => '/* testInvalid6 */',
                 'value'       => '0o2',
                 'nextToken'   => T_STRING,
                 'nextContent' => '_82',
+            ],
+            'Invalid explicit octal - explicit notation without number'                                            => [
+                'marker'      => '/* testInvalid7 */',
+                'value'       => '0',
+                'nextToken'   => T_STRING,
+                'nextContent' => 'o',
             ],
         ];
 

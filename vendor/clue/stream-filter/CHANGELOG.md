@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.0 (2023-12-20)
+
+*   Feature: Full PHP 8.3 and PHP 8.2 compatibility.
+    (#51 by @yadaiio and #50 by @clue)
+
+*   Feature / Fix: Improve error reporting when custom error handler is used.
+    (#47 by @SimonFrings)
+
+*   Improve test suite and ensure 100% code coverage.
+    (#46 by @SimonFrings, #48 and #50 by @clue and #51 by @yadaiio)
+
 ## 1.6.0 (2022-02-21)
 
 *   Feature: Support PHP 8.1 release.

@@ -1,0 +1,44 @@
+<documentation title="Language Construct Spacing">
+    <standard>
+    <![CDATA[
+    Language constructs that can be used without parentheses, must have a single space between the language construct keyword and its content.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Single space after language construct.">
+        <![CDATA[
+echo<em> </em>'Hello, World!';
+throw<em> </em>new<em> </em>Exception();
+return<em> </em>$newLine;
+        ]]>
+        </code>
+        <code title="Invalid: No space, more than one space or newline after language construct.">
+        <![CDATA[
+echo<em></em>'Hello, World!';
+throw<em>   </em>new<em>   </em>Exception();
+return<em></em>
+$newLine;
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    A single space must be used between the "yield" and "from" keywords for a "yield from" expression.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Single space between yield and from.">
+        <![CDATA[
+yield<em> </em>from [1, 2, 3];
+        ]]>
+        </code>
+        <code title="Invalid: No space, more than one space or newline between yield and from.">
+        <![CDATA[
+yield<em></em>from [1, 2, 3];
+yield<em>  </em>from [1, 2, 3];
+yield<em></em>
+from [1, 2, 3];
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

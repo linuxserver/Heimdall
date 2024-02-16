@@ -4,21 +4,24 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
+use SensitiveParameter;
 use SQLite3;
 
 final class Driver extends AbstractSQLiteDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function connect(array $params): Connection
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params
+    ): Connection {
         $isMemory = (bool) ($params['memory'] ?? false);
 
         if (isset($params['path'])) {
             if ($isMemory) {
                 throw new Exception(
-                    'Invalid connection settings: specifying both parameters "path" and "memory" ambiguous.',
+                    'Invalid connection settings: specifying both parameters "path" and "memory" is ambiguous.',
                 );
             }
 

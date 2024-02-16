@@ -1,5 +1,18 @@
 # Change Log
 
+## 2.7.1 - 2023-11-30
+
+- Allow installation with Symfony 7.
+
+## 2.7.0 - 2023-05-17
+
+- Dropped `php-http/message-factory` from composer requirements as it is abandoned and this package does not actually use it.
+
+## 2.6.1 - 2023-04-14
+
+- Allow installation with http-message (PSR-7) version 2 in addition to version 1.
+- Support for PHP 8.2
+
 ## 2.6.0 - 2022-09-29
 
 - [RedirectPlugin] Redirection of non GET/HEAD requests with a body now removes the body on follow-up requests, if the

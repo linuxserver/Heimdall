@@ -9,6 +9,30 @@ $result = $value | $test /* testBitwiseOr2 */ | $another;
 
 class TypeUnion
 {
+    /* testTypeUnionOOConstSimple */
+    public const Foo|Bar SIMPLE = new Foo;
+
+    /* testTypeUnionOOConstReverseModifierOrder */
+    protected final const int|float MODIFIERS_REVERSED /* testBitwiseOrOOConstDefaultValue */ = E_WARNING | E_NOTICE;
+
+    const
+        /* testTypeUnionOOConstMulti1 */
+        array |
+        /* testTypeUnionOOConstMulti2 */
+        Traversable | // phpcs:ignore Stnd.Cat.Sniff
+        false
+        /* testTypeUnionOOConstMulti3 */
+        | null MULTI_UNION = false;
+
+    /* testTypeUnionOOConstNamespaceRelative */
+    final protected const namespace\Sub\NameA|namespace\Sub\NameB NAMESPACE_RELATIVE = new namespace\Sub\NameB;
+
+    /* testTypeUnionOOConstPartiallyQualified */
+    const Partially\Qualified\NameA|Partially\Qualified\NameB PARTIALLY_QUALIFIED = new Partially\Qualified\NameA;
+
+    /* testTypeUnionOOConstFullyQualified */
+    const \Fully\Qualified\NameA|\Fully\Qualified\NameB FULLY_QUALIFIED = new \Fully\Qualified\NameB();
+
     /* testTypeUnionPropertySimple */
     public static Foo|Bar $obj;
 
@@ -48,6 +72,9 @@ class TypeUnion
     /* testTypeUnionPropertyWithOnlyReadOnlyKeyword */
     readonly string|null $nullableString;
 
+    /* testTypeUnionPropertyWithOnlyStaticKeyword */
+    static Foo|Bar $obj;
+
     public function paramTypes(
         /* testTypeUnionParam1 */
         int|float $paramA /* testBitwiseOrParamDefaultValue */ = CONSTANT_A | CONSTANT_B,
@@ -68,11 +95,11 @@ class TypeUnion
         \Fully\Qualified\NameA|\Fully\Qualified\NameB $paramC,
     ) {}
 
-    /* testTypeUnionReturnType */
-    public function returnType() : int|false {}
-
     /* testTypeUnionConstructorPropertyPromotion */
     public function __construct( public bool|null $property) {}
+
+    /* testTypeUnionReturnType */
+    public function returnType() : int|false {}
 
     /* testTypeUnionAbstractMethodReturnType1 */
     abstract public function abstractMethod(): object|array /* testTypeUnionAbstractMethodReturnType2 */ |false;
@@ -87,15 +114,15 @@ class TypeUnion
     public function identifierNamesReturnFQ() : \Fully\Qualified\NameA|\Fully\Qualified\NameB {}
 }
 
-/* testTypeUnionClosureParamIllegalNullable */
-$closureWithParamType = function (?string|null $string) {};
-
 function globalFunctionWithSpreadAndReference(
     /* testTypeUnionWithReference */
     float|null &$paramA,
     /* testTypeUnionWithSpreadOperator */
     string|int ...$paramB
 ) {}
+
+/* testTypeUnionClosureParamIllegalNullable */
+$closureWithParamType = function (?string|null $string) {};
 
 /* testBitwiseOrClosureParamDefault */
 $closureWithReturnType = function ($string = NONSENSE | FAKE)/* testTypeUnionClosureReturn */ : \Package\MyA|PackageB {};
@@ -128,6 +155,15 @@ $obj->fn($something | $else);
 
 /* testTypeUnionNonArrowFunctionDeclaration */
 function &fn(int|false $something) {}
+
+/* testTypeUnionPHP82TrueFirst */
+function trueTypeParam(true|null $param) {}
+
+/* testTypeUnionPHP82TrueMiddle */
+function trueTypeReturn($param): array|true|null {}
+
+/* testTypeUnionPHP82TrueLast */
+$closure = function ($param): array|true {}
 
 /* testLiveCoding */
 // Intentional parse error. This has to be the last test in the file.

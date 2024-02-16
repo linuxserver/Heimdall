@@ -22,6 +22,7 @@ namespace League\CommonMark\Parser;
 use League\CommonMark\Environment\EnvironmentInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Event\DocumentPreParsedEvent;
+use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\Input\MarkdownInput;
 use League\CommonMark\Node\Block\Document;
 use League\CommonMark\Node\Block\Paragraph;
@@ -81,7 +82,7 @@ final class MarkdownParser implements MarkdownParserInterface
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws CommonMarkException
      */
     public function parse(string $input): Document
     {
@@ -293,11 +294,14 @@ final class MarkdownParser implements MarkdownParserInterface
         $this->activeBlockParsers[] = $blockParser;
     }
 
+    /**
+     * @throws ParserLogicException
+     */
     private function deactivateBlockParser(): BlockContinueParserInterface
     {
         $popped = \array_pop($this->activeBlockParsers);
         if ($popped === null) {
-            throw new \RuntimeException('The last block parser should not be deactivated');
+            throw new ParserLogicException('The last block parser should not be deactivated');
         }
 
         return $popped;
@@ -327,11 +331,14 @@ final class MarkdownParser implements MarkdownParserInterface
         }
     }
 
+    /**
+     * @throws ParserLogicException
+     */
     public function getActiveBlockParser(): BlockContinueParserInterface
     {
         $active = \end($this->activeBlockParsers);
         if ($active === false) {
-            throw new \RuntimeException('No active block parsers are available');
+            throw new ParserLogicException('No active block parsers are available');
         }
 
         return $active;

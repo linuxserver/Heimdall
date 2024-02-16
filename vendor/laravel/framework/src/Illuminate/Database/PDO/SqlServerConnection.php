@@ -84,7 +84,7 @@ class SqlServerConnection implements ServerInfoAwareConnection
     /**
      * Begin a new database transaction.
      *
-     * @return void
+     * @return bool
      */
     public function beginTransaction()
     {
@@ -94,7 +94,7 @@ class SqlServerConnection implements ServerInfoAwareConnection
     /**
      * Commit a database transaction.
      *
-     * @return void
+     * @return bool
      */
     public function commit()
     {
@@ -104,7 +104,7 @@ class SqlServerConnection implements ServerInfoAwareConnection
     /**
      * Rollback a database transaction.
      *
-     * @return void
+     * @return bool
      */
     public function rollBack()
     {
@@ -123,7 +123,7 @@ class SqlServerConnection implements ServerInfoAwareConnection
         $val = $this->connection->quote($value, $type);
 
         // Fix for a driver version terminating all values with null byte...
-        if (\is_string($val) && \strpos($val, "\0") !== false) {
+        if (\is_string($val) && str_contains($val, "\0")) {
             $val = \substr($val, 0, -1);
         }
 

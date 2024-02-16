@@ -95,9 +95,16 @@ class Teams extends AbstractApi
         return $this->delete('/orgs/'.rawurlencode($organization).'/teams/'.rawurlencode($team).'/memberships/'.rawurlencode($username));
     }
 
-    public function repositories($team)
+    /**
+     * @link https://docs.github.com/en/rest/teams/teams#list-team-repositories
+     */
+    public function repositories($team, $organization = '')
     {
-        return $this->get('/teams/'.rawurlencode($team).'/repos');
+        if (empty($organization)) {
+            return $this->get('/teams/'.rawurlencode($team).'/repos');
+        }
+
+        return $this->get('/orgs/'.rawurlencode($organization).'/teams/'.rawurlencode($team).'/repos');
     }
 
     public function repository($team, $organization, $repository)

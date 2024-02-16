@@ -63,7 +63,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
@@ -218,7 +218,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
@@ -264,7 +264,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -272,7 +272,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -286,7 +286,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
@@ -325,7 +325,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition($database)
     {
@@ -333,7 +333,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see listSchemaNames()} instead.
      */
@@ -350,7 +350,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
@@ -364,7 +364,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
@@ -530,7 +530,6 @@ SQL,
             'precision'     => $precision,
             'scale'         => $scale,
             'fixed'         => $fixed,
-            'unsigned'      => false,
             'autoincrement' => $autoincrement,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
@@ -539,7 +538,7 @@ SQL,
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
-        if (isset($tableColumn['collation']) && ! empty($tableColumn['collation'])) {
+        if (! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
@@ -651,6 +650,7 @@ SQL;
                 LEFT JOIN pg_depend d
                     ON d.objid = c.oid
                         AND d.deptype = 'e'
+                        AND d.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
 SQL;
 
         $conditions = array_merge([
@@ -732,6 +732,7 @@ SQL;
     {
         $sql = <<<'SQL'
 SELECT c.relname,
+       CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
        obj_description(c.oid, 'pg_class') AS comment
 FROM pg_class c
      INNER JOIN pg_namespace n

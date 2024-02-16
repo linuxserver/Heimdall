@@ -1,5 +1,23 @@
 # Change Log
 
+## 1.3.0 - 2024-01-04
+
+### Fixed
+
+- Reverted generic annotations on promise - as `then` returns another promise, there seems no way to properly document this.
+
+## 1.2.1 - 2023-11-08
+
+### Added
+
+- Fixed PHPDoc for `wait()` and `then()`'s `onRejected` callable
+
+## 1.2.0 - 2023-10-24
+
+### Added
+
+- Generic annotations
+
 ## 1.1.0 - 2020-07-07
 
 ### Added

@@ -2,6 +2,8 @@
 
 namespace Github\Api;
 
+use Github\Api\User\Migration;
+
 /**
  * Searching users, getting user information.
  *
@@ -245,5 +247,13 @@ class User extends AbstractApi
     public function events(string $username)
     {
         return $this->get('/users/'.rawurlencode($username).'/events');
+    }
+
+    /**
+     * @return Migration
+     */
+    public function migration(): Migration
+    {
+        return new Migration($this->getClient());
     }
 }

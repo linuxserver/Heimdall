@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,16 +19,14 @@ class ThrowUpException extends \Exception implements Exception
     /**
      * {@inheritdoc}
      */
-    public function __construct(\Exception $exception)
+    public function __construct(\Throwable $throwable)
     {
-        $message = \sprintf("Throwing %s with message '%s'", \get_class($exception), $exception->getMessage());
-        parent::__construct($message, $exception->getCode(), $exception);
+        $message = \sprintf("Throwing %s with message '%s'", \get_class($throwable), $throwable->getMessage());
+        parent::__construct($message, $throwable->getCode(), $throwable);
     }
 
     /**
      * Return a raw (unformatted) version of the error message.
-     *
-     * @return string
      */
     public function getRawMessage(): string
     {
@@ -38,20 +36,12 @@ class ThrowUpException extends \Exception implements Exception
     /**
      * Create a ThrowUpException from a Throwable.
      *
-     * @param \Throwable $throwable
+     * @deprecated PsySH no longer wraps Throwables
      *
-     * @return self
+     * @param \Throwable $throwable
      */
-    public static function fromThrowable($throwable): self
+    public static function fromThrowable($throwable)
     {
-        if ($throwable instanceof \Error) {
-            $throwable = ErrorException::fromError($throwable);
-        }
-
-        if (!$throwable instanceof \Exception) {
-            throw new \InvalidArgumentException('throw-up can only throw Exceptions and Errors');
-        }
-
-        return new self($throwable);
+        @\trigger_error('PsySH no longer wraps Throwables', \E_USER_DEPRECATED);
     }
 }

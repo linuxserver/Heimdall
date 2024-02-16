@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver\PDO;
 
+use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
+use Doctrine\DBAL\Driver\PDO\PDOException as DriverPDOException;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -39,7 +41,7 @@ final class Connection implements ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getServerVersion()
     {
@@ -76,15 +78,19 @@ final class Connection implements ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws UnknownParameterType
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public function quote($value, $type = ParameterType::STRING)
     {
-        return $this->connection->quote($value, $type);
+        return $this->connection->quote($value, ParameterTypeMap::convertParamType($type));
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function lastInsertId($name = null)
     {
@@ -107,17 +113,29 @@ final class Connection implements ServerInfoAwareConnection
 
     public function beginTransaction(): bool
     {
-        return $this->connection->beginTransaction();
+        try {
+            return $this->connection->beginTransaction();
+        } catch (PDOException $exception) {
+            throw DriverPDOException::new($exception);
+        }
     }
 
     public function commit(): bool
     {
-        return $this->connection->commit();
+        try {
+            return $this->connection->commit();
+        } catch (PDOException $exception) {
+            throw DriverPDOException::new($exception);
+        }
     }
 
     public function rollBack(): bool
     {
-        return $this->connection->rollBack();
+        try {
+            return $this->connection->rollBack();
+        } catch (PDOException $exception) {
+            throw DriverPDOException::new($exception);
+        }
     }
 
     public function getNativeConnection(): PDO

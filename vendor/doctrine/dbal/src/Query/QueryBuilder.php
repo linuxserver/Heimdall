@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
@@ -17,14 +18,17 @@ use function array_key_exists;
 use function array_keys;
 use function array_unshift;
 use function count;
+use function func_get_arg;
 use function func_get_args;
 use function func_num_args;
 use function implode;
 use function is_array;
 use function is_object;
 use function key;
+use function method_exists;
 use function strtoupper;
 use function substr;
+use function ucfirst;
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
@@ -35,6 +39,8 @@ use function substr;
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
+ *
+ * @method $this distinct(bool $distinct = true) Adds or removes DISTINCT to/from the query.
  */
 class QueryBuilder
 {
@@ -65,16 +71,17 @@ class QueryBuilder
      * The default values of SQL parts collection
      */
     private const SQL_PARTS_DEFAULTS = [
-        'select'   => [],
-        'distinct' => false,
-        'from'     => [],
-        'join'     => [],
-        'set'      => [],
-        'where'    => null,
-        'groupBy'  => [],
-        'having'   => null,
-        'orderBy'  => [],
-        'values'   => [],
+        'select'     => [],
+        'distinct'   => false,
+        'from'       => [],
+        'join'       => [],
+        'set'        => [],
+        'where'      => null,
+        'groupBy'    => [],
+        'having'     => null,
+        'orderBy'    => [],
+        'values'     => [],
+        'for_update' => null,
     ];
 
     /**
@@ -105,11 +112,15 @@ class QueryBuilder
 
     /**
      * The type of query this is. Can be select, update or delete.
+     *
+     * @psalm-var self::SELECT|self::DELETE|self::UPDATE|self::INSERT
      */
     private int $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
+     *
+     * @psalm-var self::STATE_*
      */
     private int $state = self::STATE_CLEAN;
 
@@ -208,6 +219,7 @@ class QueryBuilder
      * @deprecated The builder state is an internal concern.
      *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
+     * @psalm-return self::STATE_*
      */
     public function getState()
     {
@@ -413,7 +425,6 @@ class QueryBuilder
                 break;
 
             case self::SELECT:
-            default:
                 $sql = $this->getSQLForSelect();
                 break;
         }
@@ -450,7 +461,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5550',
                 'Using NULL as prepared statement parameter type is deprecated.'
-                    . 'Omit or use Parameter::STRING instead',
+                    . 'Omit or use ParameterType::STRING instead',
             );
         }
 
@@ -583,6 +594,20 @@ class QueryBuilder
     }
 
     /**
+     * Locks the queried rows for a subsequent update.
+     *
+     * @return $this
+     */
+    public function forUpdate(int $conflictResolutionMode = ConflictResolutionMode::ORDINARY): self
+    {
+        $this->state = self::STATE_DIRTY;
+
+        $this->sqlParts['for_update'] = new ForUpdate($conflictResolutionMode);
+
+        return $this;
+    }
+
+    /**
      * Either appends to or replaces a single, generic query part.
      *
      * The available parts are: 'select', 'from', 'set', 'where',
@@ -673,7 +698,7 @@ class QueryBuilder
     }
 
     /**
-     * Adds DISTINCT to the query.
+     * Adds or removes DISTINCT to/from the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -684,9 +709,10 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct(): self
+    public function distinct(/* bool $distinct = true */): self
     {
-        $this->sqlParts['distinct'] = true;
+        $this->sqlParts['distinct'] = func_num_args() < 1 || func_get_arg(0);
+        $this->state                = self::STATE_DIRTY;
 
         return $this;
     }
@@ -1293,27 +1319,45 @@ class QueryBuilder
     /**
      * Gets a query part by its name.
      *
+     * @deprecated The query parts are implementation details and should not be relied upon.
+     *
      * @param string $queryPartName
      *
      * @return mixed
      */
     public function getQueryPart($queryPartName)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6179',
+            'Getting query parts is deprecated as they are implementation details.',
+        );
+
         return $this->sqlParts[$queryPartName];
     }
 
     /**
      * Gets all query parts.
      *
+     * @deprecated The query parts are implementation details and should not be relied upon.
+     *
      * @return mixed[]
      */
     public function getQueryParts()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6179',
+            'Getting query parts is deprecated as they are implementation details.',
+        );
+
         return $this->sqlParts;
     }
 
     /**
      * Resets SQL parts.
+     *
+     * @deprecated Use the dedicated reset*() methods instead.
      *
      * @param string[]|null $queryPartNames
      *
@@ -1321,11 +1365,20 @@ class QueryBuilder
      */
     public function resetQueryParts($queryPartNames = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6193',
+            '%s() is deprecated, instead use dedicated reset methods for the parts that shall be reset.',
+            __METHOD__,
+        );
+
         $queryPartNames ??= array_keys($this->sqlParts);
 
         foreach ($queryPartNames as $queryPartName) {
-            $this->resetQueryPart($queryPartName);
+            $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
         }
+
+        $this->state = self::STATE_DIRTY;
 
         return $this;
     }
@@ -1333,12 +1386,48 @@ class QueryBuilder
     /**
      * Resets a single SQL part.
      *
+     * @deprecated Use the dedicated reset*() methods instead.
+     *
      * @param string $queryPartName
      *
      * @return $this This QueryBuilder instance.
      */
     public function resetQueryPart($queryPartName)
     {
+        if ($queryPartName === 'distinct') {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6193',
+                'Calling %s() with "distinct" is deprecated, call distinct(false) instead.',
+                __METHOD__,
+            );
+
+            return $this->distinct(false);
+        }
+
+        $newMethodName = 'reset' . ucfirst($queryPartName);
+        if (array_key_exists($queryPartName, self::SQL_PARTS_DEFAULTS) && method_exists($this, $newMethodName)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6193',
+                'Calling %s() with "%s" is deprecated, call %s() instead.',
+                __METHOD__,
+                $queryPartName,
+                $newMethodName,
+            );
+
+            return $this->$newMethodName();
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6193',
+            'Calling %s() with "%s" is deprecated without replacement.',
+            __METHOD__,
+            $queryPartName,
+            $newMethodName,
+        );
+
         $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
 
         $this->state = self::STATE_DIRTY;
@@ -1346,27 +1435,80 @@ class QueryBuilder
         return $this;
     }
 
-    /** @throws QueryException */
+    /**
+     * Resets the WHERE conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetWhere(): self
+    {
+        $this->sqlParts['where'] = self::SQL_PARTS_DEFAULTS['where'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the grouping for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetGroupBy(): self
+    {
+        $this->sqlParts['groupBy'] = self::SQL_PARTS_DEFAULTS['groupBy'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the HAVING conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetHaving(): self
+    {
+        $this->sqlParts['having'] = self::SQL_PARTS_DEFAULTS['having'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the ordering for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetOrderBy(): self
+    {
+        $this->sqlParts['orderBy'] = self::SQL_PARTS_DEFAULTS['orderBy'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /** @throws Exception */
     private function getSQLForSelect(): string
     {
-        $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
-                  implode(', ', $this->sqlParts['select']);
-
-        $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
-            . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
-            . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
-            . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
-
-        if ($this->isLimitQuery()) {
-            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
-                $query,
-                $this->maxResults,
-                $this->firstResult,
+        return $this->connection->getDatabasePlatform()
+            ->createSelectSQLBuilder()
+            ->buildSQL(
+                new SelectQuery(
+                    $this->sqlParts['distinct'],
+                    $this->sqlParts['select'],
+                    $this->getFromClauses(),
+                    $this->sqlParts['where'],
+                    $this->sqlParts['groupBy'],
+                    $this->sqlParts['having'],
+                    $this->sqlParts['orderBy'],
+                    new Limit($this->maxResults, $this->firstResult),
+                    $this->sqlParts['for_update'],
+                ),
             );
-        }
-
-        return $query;
     }
 
     /**
@@ -1411,11 +1553,6 @@ class QueryBuilder
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
-    }
-
-    private function isLimitQuery(): bool
-    {
-        return $this->maxResults !== null || $this->firstResult !== 0;
     }
 
     /**
@@ -1545,7 +1682,7 @@ class QueryBuilder
         if (isset($this->sqlParts['join'][$fromAlias])) {
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
-                    throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
+                    throw QueryException::nonUniqueAlias((string) $join['joinAlias'], array_keys($knownAliases));
                 }
 
                 $sql .= ' ' . strtoupper($join['joinType'])

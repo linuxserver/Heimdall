@@ -43,7 +43,7 @@ class Index extends AbstractAsset implements Constraint
      * @todo $_flags should eventually be refactored into options
      * @var mixed[]
      */
-    private array $options;
+    private array $options = [];
 
     /**
      * @param string   $name
@@ -84,7 +84,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getColumns()
     {
@@ -92,7 +92,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {

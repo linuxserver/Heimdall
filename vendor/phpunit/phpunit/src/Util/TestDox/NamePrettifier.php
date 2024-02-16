@@ -124,7 +124,7 @@ final class NamePrettifier
     {
         $annotations = Test::parseTestMethodAnnotations(
             get_class($test),
-            $test->getName(false)
+            $test->getName(false),
         );
 
         $annotationWithPlaceholders = false;
@@ -242,8 +242,8 @@ final class NamePrettifier
         } catch (ReflectionException $e) {
             throw new UtilException(
                 $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                $e->getCode(),
+                $e,
             );
         }
         // @codeCoverageIgnoreEnd
@@ -262,8 +262,8 @@ final class NamePrettifier
                 } catch (ReflectionException $e) {
                     throw new UtilException(
                         $e->getMessage(),
-                        (int) $e->getCode(),
-                        $e
+                        $e->getCode(),
+                        $e,
                     );
                 }
                 // @codeCoverageIgnoreEnd

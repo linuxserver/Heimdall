@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0 - 2023-04-28
+
+- Removed unnecessary dependency on deprecated `php-http/message-factory`
+
 ## 1.2.0 - 2021-05-21
 
 - Refactored MultipartStreamBuilder to clean up and allow injecting data without a filename

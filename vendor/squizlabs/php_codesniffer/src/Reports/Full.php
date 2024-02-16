@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Reports;
@@ -23,10 +23,10 @@ class Full implements Report
      * and FALSE if it ignored the file. Returning TRUE indicates that the file and
      * its data should be counted in the grand totals.
      *
-     * @param array                 $report      Prepared report data.
-     * @param \PHP_CodeSniffer\File $phpcsFile   The file being reported on.
-     * @param bool                  $showSources Show sources?
-     * @param int                   $width       Maximum allowed line width.
+     * @param array                       $report      Prepared report data.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being reported on.
+     * @param bool                        $showSources Show sources?
+     * @param int                         $width       Maximum allowed line width.
      *
      * @return bool
      */
@@ -64,15 +64,28 @@ class Full implements Report
         foreach ($report['messages'] as $line => $lineErrors) {
             foreach ($lineErrors as $column => $colErrors) {
                 foreach ($colErrors as $error) {
-                    $length = strlen($error['message']);
+                    // Start with the presumption of a single line error message.
+                    $length    = strlen($error['message']);
+                    $srcLength = (strlen($error['source']) + 3);
                     if ($showSources === true) {
-                        $length += (strlen($error['source']) + 3);
+                        $length += $srcLength;
+                    }
+
+                    // ... but also handle multi-line messages correctly.
+                    if (strpos($error['message'], "\n") !== false) {
+                        $errorLines = explode("\n", $error['message']);
+                        $length     = max(array_map('strlen', $errorLines));
+
+                        if ($showSources === true) {
+                            $lastLine = array_pop($errorLines);
+                            $length   = max($length, (strlen($lastLine) + $srcLength));
+                        }
                     }
 
                     $maxErrorLength = max($maxErrorLength, ($length + 1));
-                }
-            }
-        }
+                }//end foreach
+            }//end foreach
+        }//end foreach
 
         $file       = $report['filename'];
         $fileLength = strlen($file);
@@ -115,36 +128,51 @@ class Full implements Report
         // The maximum amount of space an error message can use.
         $maxErrorSpace = ($width - $paddingLength - 1);
 
+        $beforeMsg = '';
+        $afterMsg  = '';
+        if ($showSources === true) {
+            $beforeMsg = "\033[1m";
+            $afterMsg  = "\033[0m";
+        }
+
+        $beforeAfterLength = strlen($beforeMsg.$afterMsg);
+
         foreach ($report['messages'] as $line => $lineErrors) {
             foreach ($lineErrors as $column => $colErrors) {
                 foreach ($colErrors as $error) {
-                    $message  = $error['message'];
-                    $msgLines = [$message];
-                    if (strpos($message, "\n") !== false) {
-                        $msgLines = explode("\n", $message);
-                    }
+                    $errorMsg = wordwrap(
+                        $error['message'],
+                        $maxErrorSpace
+                    );
 
-                    $errorMsg = '';
-                    $lastLine = (count($msgLines) - 1);
-                    foreach ($msgLines as $k => $msgLine) {
-                        if ($k === 0) {
-                            if ($showSources === true) {
-                                $errorMsg .= "\033[1m";
-                            }
+                    // Add the padding _after_ the wordwrap as the message itself may contain line breaks
+                    // and those lines will also need to receive padding.
+                    $errorMsg = str_replace("\n", $afterMsg.PHP_EOL.$paddingLine2.$beforeMsg, $errorMsg);
+                    $errorMsg = $beforeMsg.$errorMsg.$afterMsg;
+
+                    if ($showSources === true) {
+                        $lastMsg          = $errorMsg;
+                        $startPosLastLine = strrpos($errorMsg, PHP_EOL.$paddingLine2.$beforeMsg);
+                        if ($startPosLastLine !== false) {
+                            // Message is multiline. Grab the text of last line of the message, including the color codes.
+                            $lastMsg = substr($errorMsg, ($startPosLastLine + strlen(PHP_EOL.$paddingLine2)));
+                        }
+
+                        // When show sources is used, the message itself will be bolded, so we need to correct the length.
+                        $sourceSuffix = '('.$error['source'].')';
+
+                        $lastMsgPlusSourceLength = strlen($lastMsg);
+                        // Add space + source suffix length.
+                        $lastMsgPlusSourceLength += (1 + strlen($sourceSuffix));
+                        // Correct for the color codes.
+                        $lastMsgPlusSourceLength -= $beforeAfterLength;
+
+                        if ($lastMsgPlusSourceLength > $maxErrorSpace) {
+                            $errorMsg .= PHP_EOL.$paddingLine2.$sourceSuffix;
                         } else {
-                            $errorMsg .= PHP_EOL.$paddingLine2;
+                            $errorMsg .= ' '.$sourceSuffix;
                         }
-
-                        if ($k === $lastLine && $showSources === true) {
-                            $msgLine .= "\033[0m".' ('.$error['source'].')';
-                        }
-
-                        $errorMsg .= wordwrap(
-                            $msgLine,
-                            $maxErrorSpace,
-                            PHP_EOL.$paddingLine2
-                        );
-                    }
+                    }//end if
 
                     // The padding that goes on the front of the line.
                     $padding = ($maxLineNumLength - strlen($line));

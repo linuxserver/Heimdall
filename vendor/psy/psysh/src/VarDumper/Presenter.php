@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -63,7 +63,7 @@ class Presenter
         $this->cloner = new Cloner();
         $this->cloner->addCasters(['*' => function ($obj, array $a, Stub $stub, $isNested, $filter = 0) {
             if ($filter || $isNested) {
-                if ($obj instanceof \Exception) {
+                if ($obj instanceof \Throwable) {
                     $a = Caster::filter($a, Caster::EXCLUDE_NOT_IMPORTANT | Caster::EXCLUDE_EMPTY, $this->exceptionsImportants);
                 } else {
                     $a = Caster::filter($a, Caster::EXCLUDE_PROTECTED | Caster::EXCLUDE_PRIVATE);
@@ -90,8 +90,6 @@ class Presenter
      * Present a reference to the value.
      *
      * @param mixed $value
-     *
-     * @return string
      */
     public function presentRef($value): string
     {
@@ -106,8 +104,6 @@ class Presenter
      * @param mixed $value
      * @param int   $depth   (default: null)
      * @param int   $options One of Presenter constants
-     *
-     * @return string
      */
     public function present($value, int $depth = null, int $options = 0): string
     {

@@ -75,7 +75,7 @@ final class State
      */
     public function add(TestResult $test): void
     {
-        $this->testCaseTests[]        = $test;
+        $this->testCaseTests[] = $test;
         $this->toBePrintedCaseTests[] = $test;
 
         $this->suiteTests[] = $test;

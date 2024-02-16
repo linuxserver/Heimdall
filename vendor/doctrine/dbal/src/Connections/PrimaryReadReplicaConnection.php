@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use SensitiveParameter;
 
 use function array_rand;
 use function count;
@@ -66,8 +67,8 @@ use function count;
  *    'driver' => 'pdo_mysql',
  *    'primary' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
  *    'replica' => array(
- *        array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
- *        array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+ *        array('user' => 'replica1', 'password' => '', 'host' => '', 'dbname' => ''),
+ *        array('user' => 'replica2', 'password' => '', 'host' => '', 'dbname' => ''),
  *    )
  * ));
  *
@@ -98,7 +99,6 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @param array<string,mixed> $params
      * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -264,8 +264,11 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @return mixed
      */
-    protected function chooseConnectionConfiguration($connectionName, $params)
-    {
+    protected function chooseConnectionConfiguration(
+        $connectionName,
+        #[SensitiveParameter]
+        $params
+    ) {
         if ($connectionName === 'primary') {
             return $params['primary'];
         }

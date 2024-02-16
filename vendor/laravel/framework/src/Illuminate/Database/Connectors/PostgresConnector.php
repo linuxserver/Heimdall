@@ -2,10 +2,13 @@
 
 namespace Illuminate\Database\Connectors;
 
+use Illuminate\Database\Concerns\ParsesSearchPath;
 use PDO;
 
 class PostgresConnector extends Connector implements ConnectorInterface
 {
+    use ParsesSearchPath;
+
     /**
      * The default PDO connection options.
      *
@@ -42,7 +45,7 @@ class PostgresConnector extends Connector implements ConnectorInterface
         // database. Setting this DB timezone is an optional configuration item.
         $this->configureTimezone($connection, $config);
 
-        $this->configureSchema($connection, $config);
+        $this->configureSearchPath($connection, $config);
 
         // Postgres allows an application_name to be set by the user and this name is
         // used to when monitoring the application with pg_stat_activity. So we'll
@@ -101,38 +104,36 @@ class PostgresConnector extends Connector implements ConnectorInterface
     }
 
     /**
-     * Set the schema on the connection.
+     * Set the "search_path" on the database connection.
      *
      * @param  \PDO  $connection
      * @param  array  $config
      * @return void
      */
-    protected function configureSchema($connection, $config)
+    protected function configureSearchPath($connection, $config)
     {
-        if (isset($config['schema'])) {
-            $schema = $this->formatSchema($config['schema']);
+        if (isset($config['search_path']) || isset($config['schema'])) {
+            $searchPath = $this->quoteSearchPath(
+                $this->parseSearchPath($config['search_path'] ?? $config['schema'])
+            );
 
-            $connection->prepare("set search_path to {$schema}")->execute();
+            $connection->prepare("set search_path to {$searchPath}")->execute();
         }
     }
 
     /**
-     * Format the schema for the DSN.
+     * Format the search path for the DSN.
      *
-     * @param  array|string  $schema
+     * @param  array  $searchPath
      * @return string
      */
-    protected function formatSchema($schema)
+    protected function quoteSearchPath($searchPath)
     {
-        if (is_array($schema)) {
-            return '"'.implode('", "', $schema).'"';
-        }
-
-        return '"'.$schema.'"';
+        return count($searchPath) === 1 ? '"'.$searchPath[0].'"' : '"'.implode('", "', $searchPath).'"';
     }
 
     /**
-     * Set the schema on the connection.
+     * Set the application name on the connection.
      *
      * @param  \PDO  $connection
      * @param  array  $config
@@ -162,12 +163,18 @@ class PostgresConnector extends Connector implements ConnectorInterface
 
         $host = isset($host) ? "host={$host};" : '';
 
+        // Sometimes - users may need to connect to a database that has a different
+        // name than the database used for "information_schema" queries. This is
+        // typically the case if using "pgbouncer" type software when pooling.
+        $database = $connect_via_database ?? $database;
+        $port = $connect_via_port ?? $port ?? null;
+
         $dsn = "pgsql:{$host}dbname='{$database}'";
 
         // If a port was specified, we will add it to this Postgres DSN connections
         // format. Once we have done that we are ready to return this connection
         // string back out for usage, as this has been fully constructed here.
-        if (isset($config['port'])) {
+        if (! is_null($port)) {
             $dsn .= ";port={$port}";
         }
 

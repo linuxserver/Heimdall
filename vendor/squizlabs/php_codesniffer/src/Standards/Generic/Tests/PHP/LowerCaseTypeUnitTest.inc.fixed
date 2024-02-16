@@ -89,3 +89,43 @@ function (): never {
 function intersectionParamTypes (\Package\ClassName&\Package\Other_Class $var) {}
 
 function intersectionReturnTypes ($var): \Package\ClassName&\Package\Other_Class {}
+
+$arrow = fn (int $a, string $b, bool $c, array $d, Foo\Bar $e) : int => $a * $b;
+$arrow = fn (int $a, string $b, bool $c, array $d, Foo\Bar $e) : float => $a * $b;
+
+$cl = function (false $a, true $b, null $c): ?true {};
+
+class TypedClassConstants
+{
+    const UNTYPED = null;
+    const FLOAT = 'Reserved keyword as name is valid and should not be changed';
+    const OBJECT = 'Reserved keyword as name is valid and should not be changed';
+
+    const ClassName FIRST = null;
+    public const int SECOND = 0;
+    private const ?bool THIRD = false;
+    public const self FOURTH = null;
+}
+interface TypedInterfaceConstants
+{
+    protected const parent FIRST = null;
+    private const array SECOND = [];
+    public const float THIRD = 2.5;
+    final const ?string FOURTH = 'fourth';
+}
+trait TypedTraitConstants {
+    const iterable FIRST = null;
+    const object SECOND = null;
+    const mixed THIRD = 'third';
+}
+enum TypedEnumConstants {
+    public const iterable|false|null FIRST = null;
+    protected const self|parent /* comment */ |\Fully\Qualified\ClassName|UnQualifiedClass SECOND = null;
+    private const ClassName|/*comment*/float|string|false THIRD = 'third';
+    public const string | array | false FOURTH = 'fourth';
+}
+
+// Intentional error, should be ignored by the sniff.
+interface PropertiesNotAllowed {
+    public $notAllowed;
+}

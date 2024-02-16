@@ -4,14 +4,14 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR12\Sniffs\ControlStructures;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
-use PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures\ControlStructureSpacingSniff as PSR2Spacing;
+use PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures\ControlStructureSpacingSniff as PSR2ControlStructureSpacing;
 use PHP_CodeSniffer\Util\Tokens;
 
 class ControlStructureSpacingSniff implements Sniff
@@ -24,11 +24,28 @@ class ControlStructureSpacingSniff implements Sniff
      */
     public $indent = 4;
 
+    /**
+     * Instance of the PSR2 ControlStructureSpacingSniff sniff.
+     *
+     * @var \PHP_CodeSniffer\Standards\PSR2\Sniffs\ControlStructures\ControlStructureSpacingSniff
+     */
+    private $psr2ControlStructureSpacing;
+
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->psr2ControlStructureSpacing = new PSR2ControlStructureSpacing();
+
+    }//end __construct()
+
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -38,7 +55,6 @@ class ControlStructureSpacingSniff implements Sniff
             T_FOREACH,
             T_FOR,
             T_SWITCH,
-            T_ELSE,
             T_ELSEIF,
             T_CATCH,
             T_MATCH,
@@ -71,8 +87,7 @@ class ControlStructureSpacingSniff implements Sniff
 
         if ($tokens[$parenOpener]['line'] === $tokens[$parenCloser]['line']) {
             // Conditions are all on the same line, so follow PSR2.
-            $sniff = new PSR2Spacing();
-            return $sniff->process($phpcsFile, $stackPtr);
+            return $this->psr2ControlStructureSpacing->process($phpcsFile, $stackPtr);
         }
 
         $next = $phpcsFile->findNext(T_WHITESPACE, ($parenOpener + 1), $parenCloser, true);

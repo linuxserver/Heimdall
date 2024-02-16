@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions;
@@ -20,7 +20,7 @@ class UpperCaseConstantNameSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -46,8 +46,16 @@ class UpperCaseConstantNameSniff implements Sniff
         $tokens = $phpcsFile->getTokens();
 
         if ($tokens[$stackPtr]['code'] === T_CONST) {
-            // This is a class constant.
-            $constant = $phpcsFile->findNext(Tokens::$emptyTokens, ($stackPtr + 1), null, true);
+            // This is a constant declared with the "const" keyword.
+            // This may be an OO constant, in which case it could be typed, so we need to
+            // jump over a potential type to get to the name.
+            $assignmentOperator = $phpcsFile->findNext([T_EQUAL, T_SEMICOLON], ($stackPtr + 1));
+            if ($assignmentOperator === false || $tokens[$assignmentOperator]['code'] !== T_EQUAL) {
+                // Parse error/live coding. Nothing to do. Rest of loop is moot.
+                return;
+            }
+
+            $constant = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($assignmentOperator - 1), ($stackPtr + 1), true);
             if ($constant === false) {
                 return;
             }

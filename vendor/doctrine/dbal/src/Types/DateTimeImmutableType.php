@@ -5,8 +5,7 @@ namespace Doctrine\DBAL\Types;
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
-
-use function date_create_immutable;
+use Exception;
 
 /**
  * Immutable type of {@see DateTimeType}.
@@ -14,7 +13,7 @@ use function date_create_immutable;
 class DateTimeImmutableType extends DateTimeType
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -22,7 +21,13 @@ class DateTimeImmutableType extends DateTimeType
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
@@ -42,7 +47,13 @@ class DateTimeImmutableType extends DateTimeType
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeImmutable)
+     *
+     * @template T
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
@@ -52,23 +63,24 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            $dateTime = date_create_immutable($value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        if ($dateTime === false) {
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception $e) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
                 $platform->getDateTimeFormatString(),
+                $e,
             );
         }
-
-        return $dateTime;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */

@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PEAR\Sniffs\Functions;
@@ -58,7 +58,7 @@ class FunctionCallSignatureSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -340,7 +340,8 @@ class FunctionCallSignatureSniff implements Sniff
         // call itself is, so we can work out how far to
         // indent the arguments.
         $first = $phpcsFile->findFirstOnLine(T_WHITESPACE, $stackPtr, true);
-        if ($tokens[$first]['code'] === T_CONSTANT_ENCAPSED_STRING
+        if ($first !== false
+            && $tokens[$first]['code'] === T_CONSTANT_ENCAPSED_STRING
             && $tokens[($first - 1)]['code'] === T_CONSTANT_ENCAPSED_STRING
         ) {
             // We are in a multi-line string, so find the start and use
@@ -386,15 +387,20 @@ class FunctionCallSignatureSniff implements Sniff
 
             $fix = $phpcsFile->addFixableError($error, $first, 'OpeningIndent', $data);
             if ($fix === true) {
+                // Set adjustment for use later to determine whether argument indentation is correct when fixing.
                 $adjustment = ($functionIndent - $foundFunctionIndent);
-                $padding    = str_repeat(' ', $functionIndent);
+
+                $padding = str_repeat(' ', $functionIndent);
                 if ($foundFunctionIndent === 0) {
                     $phpcsFile->fixer->addContentBefore($first, $padding);
+                } else if ($tokens[$first]['code'] === T_INLINE_HTML) {
+                    $newContent = $padding.ltrim($tokens[$first]['content']);
+                    $phpcsFile->fixer->replaceToken($first, $newContent);
                 } else {
                     $phpcsFile->fixer->replaceToken(($first - 1), $padding);
                 }
             }
-        }
+        }//end if
 
         $next = $phpcsFile->findNext(Tokens::$emptyTokens, ($openBracket + 1), null, true);
         if ($tokens[$next]['line'] === $tokens[$openBracket]['line']) {

@@ -1,0 +1,41 @@
+<documentation title="Return Type Declaration">
+    <standard>
+    <![CDATA[
+    For function and closure return type declarations, there must be one space after the colon followed by the type declaration, and no space before the colon.
+
+    The colon and the return type declaration have to be on the same line as the argument list closing parenthesis.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: A single space between the colon and type in a return type declaration.">
+        <![CDATA[
+$closure = function ( $arg ):<em> </em>string {
+   // Closure body.
+};
+        ]]>
+        </code>
+        <code title="Invalid: No space between the colon and the type in a return type declaration.">
+        <![CDATA[
+$closure = function ( $arg ):<em></em>string {
+   // Closure body.
+};
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: No space before the colon in a return type declaration.">
+        <![CDATA[
+function someFunction( $arg )<em></em>: string {
+   // Function body.
+};
+        ]]>
+        </code>
+        <code title="Invalid: One or more spaces before the colon in a return type declaration.">
+        <![CDATA[
+function someFunction( $arg )<em>   </em>: string {
+   // Function body.
+};
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

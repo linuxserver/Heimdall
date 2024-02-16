@@ -1,6 +1,6 @@
 # clue/stream-filter
 
-[![CI status](https://github.com/clue/stream-filter/workflows/CI/badge.svg)](https://github.com/clue/stream-filter/actions)
+[![CI status](https://github.com/clue/stream-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/clue/stream-filter/actions)
 [![installs on Packagist](https://img.shields.io/packagist/dt/clue/stream-filter?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/stream-filter)
 
 A simple and modern approach to stream filtering in PHP
@@ -292,7 +292,7 @@ This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/stream-filter:^1.6
+$ composer require clue/stream-filter:^1.7
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.

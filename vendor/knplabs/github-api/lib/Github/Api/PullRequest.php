@@ -108,16 +108,25 @@ class PullRequest extends AbstractApi
         return $this->get($link);
     }
 
+    /**
+     * @return Comments
+     */
     public function comments()
     {
         return new Comments($this->getClient());
     }
 
+    /**
+     * @return Review
+     */
     public function reviews()
     {
         return new Review($this->getClient());
     }
 
+    /**
+     * @return ReviewRequest
+     */
     public function reviewRequests()
     {
         return new ReviewRequest($this->getClient());

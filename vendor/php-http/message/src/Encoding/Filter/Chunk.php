@@ -9,11 +9,7 @@ namespace Http\Message\Encoding\Filter;
  */
 class Chunk extends \php_user_filter
 {
-    /**
-     * {@inheritdoc}
-     */
-    #[\ReturnTypeWillChange]
-    public function filter($in, $out, &$consumed, $closing)
+    public function filter($in, $out, &$consumed, $closing): int
     {
         while ($bucket = stream_bucket_make_writeable($in)) {
             $lenbucket = stream_bucket_new($this->stream, dechex($bucket->datalen)."\r\n");

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2022 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,6 +34,8 @@ class PassableByReferencePass extends CodeCleanerPass
      * @throws FatalErrorException if non-variables are passed by reference
      *
      * @param Node $node
+     *
+     * @return int|Node|null Replacement node (or special return value)
      */
     public function enterNode(Node $node)
     {
@@ -61,7 +63,7 @@ class PassableByReferencePass extends CodeCleanerPass
                 if (\array_key_exists($key, $node->args)) {
                     $arg = $node->args[$key];
                     if ($param->isPassedByReference() && !$this->isPassableByReference($arg)) {
-                        throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                        throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                     }
                 }
             }
@@ -110,7 +112,7 @@ class PassableByReferencePass extends CodeCleanerPass
             } elseif (++$nonPassable > 2) {
                 // There can be *at most* two non-passable-by-reference args in a row. This is about
                 // as close as we can get to validating the arguments for this function :-/
-                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
     }

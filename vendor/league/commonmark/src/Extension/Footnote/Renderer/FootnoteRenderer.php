@@ -41,7 +41,7 @@ final class FootnoteRenderer implements NodeRendererInterface, XmlNodeRendererIn
         $attrs = $node->data->getData('attributes');
 
         $attrs->append('class', $this->config->get('footnote/footnote_class'));
-        $attrs->set('id', $this->config->get('footnote/footnote_id_prefix') . \mb_strtolower($node->getReference()->getLabel()));
+        $attrs->set('id', $this->config->get('footnote/footnote_id_prefix') . \mb_strtolower($node->getReference()->getLabel(), 'UTF-8'));
         $attrs->set('role', 'doc-endnote');
 
         return new HtmlElement(

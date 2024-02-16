@@ -21,10 +21,10 @@ $var = array(
 );
 
 /* testFunctionDeclarationParamType */
-function foo(array $a) {}
+function typedParam(array $a) {}
 
 /* testFunctionDeclarationReturnType */
-function foo($a) : int|array|null {}
+function returnType($a) : int|array|null {}
 
 class Bar {
     /* testClassConst */
@@ -32,4 +32,10 @@ class Bar {
 
     /* testClassMethod */
     public function array() {}
+
+    /* testOOConstType */
+    const array /* testTypedOOConstName */ ARRAY = /* testOOConstDefault */ array();
+
+    /* testOOPropertyType */
+    protected array $property;
 }

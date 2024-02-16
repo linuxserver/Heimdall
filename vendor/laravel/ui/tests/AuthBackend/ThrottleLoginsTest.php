@@ -28,7 +28,7 @@ class ThrottleLoginsTest extends TestCase
         $this->assertSame($expectedEmail . '|192.168.0.1', $method->invoke($throttle, $request));
     }
 
-    public function emailProvider(): array
+    public static function emailProvider(): array
     {
         return [
             'lowercase special characters' => ['ⓣⓔⓢⓣ@ⓛⓐⓡⓐⓥⓔⓛ.ⓒⓞⓜ', 'test@laravel.com'],

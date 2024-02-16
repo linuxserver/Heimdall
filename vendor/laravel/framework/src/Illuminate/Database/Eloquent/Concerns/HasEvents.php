@@ -3,9 +3,11 @@
 namespace Illuminate\Database\Eloquent\Concerns;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Events\NullDispatcher;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
+use ReflectionClass;
 
 trait HasEvents
 {
@@ -26,6 +28,31 @@ trait HasEvents
      * @var array
      */
     protected $observables = [];
+
+    /**
+     * Boot the has event trait for a model.
+     *
+     * @return void
+     */
+    public static function bootHasEvents()
+    {
+        static::observe(static::resolveObserveAttributes());
+    }
+
+    /**
+     * Resolve the observe class names from the attributes.
+     *
+     * @return array
+     */
+    public static function resolveObserveAttributes()
+    {
+        $reflectionClass = new ReflectionClass(static::class);
+
+        return collect($reflectionClass->getAttributes(ObservedBy::class))
+            ->map(fn ($attribute) => $attribute->getArguments())
+            ->flatten()
+            ->all();
+    }
 
     /**
      * Register observers with the model.
@@ -98,7 +125,7 @@ trait HasEvents
             [
                 'retrieved', 'creating', 'created', 'updating', 'updated',
                 'saving', 'saved', 'restoring', 'restored', 'replicating',
-                'deleting', 'deleted', 'forceDeleted',
+                'deleting', 'deleted', 'forceDeleting', 'forceDeleted',
             ],
             $this->observables
         );
@@ -147,7 +174,7 @@ trait HasEvents
      * Register a model event with the dispatcher.
      *
      * @param  string  $event
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     protected static function registerModelEvent($event, $callback)
@@ -230,7 +257,7 @@ trait HasEvents
     /**
      * Register a retrieved model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function retrieved($callback)
@@ -241,7 +268,7 @@ trait HasEvents
     /**
      * Register a saving model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function saving($callback)
@@ -252,7 +279,7 @@ trait HasEvents
     /**
      * Register a saved model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function saved($callback)
@@ -263,7 +290,7 @@ trait HasEvents
     /**
      * Register an updating model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function updating($callback)
@@ -274,7 +301,7 @@ trait HasEvents
     /**
      * Register an updated model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function updated($callback)
@@ -285,7 +312,7 @@ trait HasEvents
     /**
      * Register a creating model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function creating($callback)
@@ -296,7 +323,7 @@ trait HasEvents
     /**
      * Register a created model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function created($callback)
@@ -307,7 +334,7 @@ trait HasEvents
     /**
      * Register a replicating model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function replicating($callback)
@@ -318,7 +345,7 @@ trait HasEvents
     /**
      * Register a deleting model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function deleting($callback)
@@ -329,7 +356,7 @@ trait HasEvents
     /**
      * Register a deleted model event with the dispatcher.
      *
-     * @param  \Illuminate\Events\QueuedClosure|\Closure|string  $callback
+     * @param  \Illuminate\Events\QueuedClosure|\Closure|string|array  $callback
      * @return void
      */
     public static function deleted($callback)
@@ -338,7 +365,7 @@ trait HasEvents
     }
 
     /**
-     * Remove all of the event listeners for the model.
+     * Remove all the event listeners for the model.
      *
      * @return void
      */

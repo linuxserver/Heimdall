@@ -9,30 +9,24 @@ declare(strict_types=1);
 
 namespace Nette\Schema;
 
-use Nette;
-
 
 final class Context
 {
-	use Nette\SmartObject;
-
-	/** @var bool */
-	public $skipDefaults = false;
+	public bool $skipDefaults = false;
 
 	/** @var string[] */
-	public $path = [];
+	public array $path = [];
 
-	/** @var bool */
-	public $isKey = false;
-
-	/** @var Message[] */
-	public $errors = [];
+	public bool $isKey = false;
 
 	/** @var Message[] */
-	public $warnings = [];
+	public array $errors = [];
+
+	/** @var Message[] */
+	public array $warnings = [];
 
 	/** @var array[] */
-	public $dynamics = [];
+	public array $dynamics = [];
 
 
 	public function addError(string $message, string $code, array $variables = []): Message
@@ -45,5 +39,13 @@ final class Context
 	public function addWarning(string $message, string $code, array $variables = []): Message
 	{
 		return $this->warnings[] = new Message($message, $code, $this->path, $variables);
+	}
+
+
+	/** @return \Closure(): bool */
+	public function createChecker(): \Closure
+	{
+		$count = count($this->errors);
+		return fn(): bool => $count === count($this->errors);
 	}
 }

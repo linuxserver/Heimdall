@@ -1,31 +1,24 @@
 <?php
 
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2017 Dave Marshall https://github.com/davedevelopment
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery;
+
+use ReflectionType;
 
 /**
  * @internal
  */
 class Reflector
 {
+    private const TRAVERSABLE_ARRAY = ['\Traversable', 'array'];
+    private const ITERABLE = ['iterable'];
     /**
      * Determine if the parameter is typed as an array.
      *
@@ -56,7 +49,7 @@ class Reflector
 
         $type = $param->getType();
         $declaringClass = $param->getDeclaringClass();
-        $typeHint = self::typeToString($type, $declaringClass);
+        $typeHint = self::getTypeFromReflectionType($type, $declaringClass);
 
         return (!$withoutNullable && $type->allowsNull()) ? self::formatNullableType($typeHint) : $typeHint;
     }
@@ -73,15 +66,15 @@ class Reflector
     {
         $type = $method->getReturnType();
 
-        if (is_null($type) && method_exists($method, 'getTentativeReturnType')) {
-            $type = $method->getTentativeReturnType();
+        if (!$type instanceof ReflectionType && method_exists($method, 'getTentativeReturnType')) {
+            $type = $method->getTentativeReturnType();    
         }
 
-        if (is_null($type)) {
+        if (!$type instanceof ReflectionType) {
             return null;
         }
 
-        $typeHint = self::typeToString($type, $method->getDeclaringClass());
+        $typeHint = self::getTypeFromReflectionType($type, $method->getDeclaringClass());
 
         return (!$withoutNullable && $type->allowsNull()) ? self::formatNullableType($typeHint) : $typeHint;
     }
@@ -97,11 +90,11 @@ class Reflector
     {
         $type = $method->getReturnType();
 
-        if (is_null($type) && method_exists($method, 'getTentativeReturnType')) {
+        if (!$type instanceof ReflectionType && method_exists($method, 'getTentativeReturnType')) {
             $type = $method->getTentativeReturnType();
         }
 
-        if (is_null($type) || $type->allowsNull()) {
+        if (!$type instanceof ReflectionType || $type->allowsNull()) {
             return null;
         }
 
@@ -120,21 +113,6 @@ class Reflector
         }
 
         return null;
-    }
-
-    /**
-     * Get the string representation of the given type.
-     *
-     * @param \ReflectionType $type
-     * @param string $declaringClass
-     *
-     * @return string|null
-     */
-    private static function typeToString(\ReflectionType $type, \ReflectionClass $declaringClass)
-    {
-        return \implode('|', \array_map(function (array $typeInformation) {
-            return $typeInformation['typeHint'];
-        }, self::getTypeInformation($type, $declaringClass)));
     }
 
     /**
@@ -215,10 +193,87 @@ class Reflector
      */
     private static function formatNullableType($typeHint)
     {
+        if ($typeHint === 'mixed') {
+            return $typeHint;
+        }
+
+        if (strpos($typeHint, 'null') !== false) {
+            return $typeHint;
+        }
+
         if (\PHP_VERSION_ID < 80000) {
             return sprintf('?%s', $typeHint);
         }
 
-        return $typeHint === 'mixed' ? 'mixed' : sprintf('%s|null', $typeHint);
+        return sprintf('%s|null', $typeHint);
+    }
+
+    private static function getTypeFromReflectionType(\ReflectionType $type, \ReflectionClass $declaringClass): string
+    {
+        if ($type instanceof \ReflectionNamedType) {
+            $typeHint = $type->getName();
+
+            if ($type->isBuiltin()) {
+                return $typeHint;
+            }
+
+            if ($typeHint === 'static') {
+                return $typeHint;
+            }
+
+            // 'self' needs to be resolved to the name of the declaring class
+            if ($typeHint === 'self'){
+                $typeHint = $declaringClass->getName();
+            }
+
+            // 'parent' needs to be resolved to the name of the parent class
+            if ($typeHint === 'parent'){
+                $typeHint = $declaringClass->getParentClass()->getName();
+            }
+
+            // class names need prefixing with a slash
+            return sprintf('\\%s', $typeHint);
+        }
+
+        if ($type instanceof \ReflectionIntersectionType) {
+            $types = array_map(
+                static function (\ReflectionType $type) use ($declaringClass): string {
+                    return self::getTypeFromReflectionType($type, $declaringClass);
+                },
+                $type->getTypes()
+            );
+
+            return implode(
+                '&',
+                $types,
+            );
+        }
+
+        if ($type instanceof \ReflectionUnionType) {
+            $types = array_map(
+                static function (\ReflectionType $type) use ($declaringClass): string {
+                    return self::getTypeFromReflectionType($type, $declaringClass);
+                },
+                $type->getTypes()
+            );
+
+            $intersect = array_intersect(self::TRAVERSABLE_ARRAY, $types);
+            if (self::TRAVERSABLE_ARRAY === $intersect) {
+                $types = array_merge(self::ITERABLE, array_diff($types, self::TRAVERSABLE_ARRAY));
+            }
+
+            return implode(
+                '|',
+                array_map(
+                    static function (string $type): string
+                    {
+                        return strpos($type, '&') === false ? $type : sprintf('(%s)', $type);
+                    },
+                    $types
+                )
+            );
+        }
+
+        throw new \InvalidArgumentException('Unknown ReflectionType: ' . get_debug_type($type));
     }
 }

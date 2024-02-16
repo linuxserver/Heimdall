@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2019 Juliette Reinders Folmer. All rights reserved.
- * @license   https://github.com/squizlabs/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\Debug;
@@ -12,7 +12,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\Debug;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 use PHP_CodeSniffer\Config;
 
-class ESLintUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ESLint sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Debug\ESLintSniff
+ */
+final class ESLintUnitTest extends AbstractSniffUnitTest
 {
 
     /**
@@ -36,37 +41,39 @@ class ESLintUnitTest extends AbstractSniffUnitTest
     /**
      * Sets up this unit test.
      *
+     * @before
+     *
      * @return void
      */
-    protected function setUp()
+    protected function setUpPrerequisites()
     {
-        parent::setUp();
+        parent::setUpPrerequisites();
 
         $cwd = getcwd();
         file_put_contents($cwd.'/.eslintrc.json', self::ESLINT_CONFIG);
 
-    }//end setUp()
+    }//end setUpPrerequisites()
 
 
     /**
      * Remove artifact.
      *
+     * @after
+     *
      * @return void
      */
-    protected function tearDown()
+    protected function resetProperties()
     {
-        parent::tearDown();
-
         $cwd = getcwd();
         unlink($cwd.'/.eslintrc.json');
 
-    }//end tearDown()
+    }//end resetProperties()
 
 
     /**
      * Should this test be skipped for some reason.
      *
-     * @return void
+     * @return bool
      */
     protected function shouldSkipTest()
     {

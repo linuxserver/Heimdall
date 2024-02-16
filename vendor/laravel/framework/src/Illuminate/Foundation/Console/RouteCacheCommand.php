@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Routing\RouteCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'route:cache')]
 class RouteCacheCommand extends Command
 {
     /**
@@ -50,12 +52,12 @@ class RouteCacheCommand extends Command
      */
     public function handle()
     {
-        $this->call('route:clear');
+        $this->callSilent('route:clear');
 
         $routes = $this->getFreshApplicationRoutes();
 
         if (count($routes) === 0) {
-            return $this->error("Your application doesn't have any routes.");
+            return $this->components->error("Your application doesn't have any routes.");
         }
 
         foreach ($routes as $route) {
@@ -66,7 +68,7 @@ class RouteCacheCommand extends Command
             $this->laravel->getCachedRoutesPath(), $this->buildRouteCacheFile($routes)
         );
 
-        $this->info('Routes cached successfully!');
+        $this->components->info('Routes cached successfully.');
     }
 
     /**
@@ -89,7 +91,7 @@ class RouteCacheCommand extends Command
      */
     protected function getFreshApplication()
     {
-        return tap(require $this->laravel->bootstrapPath().'/app.php', function ($app) {
+        return tap(require $this->laravel->bootstrapPath('app.php'), function ($app) {
             $app->make(ConsoleKernelContract::class)->bootstrap();
         });
     }

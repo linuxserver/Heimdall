@@ -24,15 +24,11 @@ interface BoundedCacheInterface extends CacheInterface
 {
     /**
      * Get the minimum cache lifetime.
-     *
-     * @return int
      */
-    public function getMinimumLifetime();
+    public function getMinimumLifetime(): int;
 
     /**
-     * Get the maximum cache lfetime.
-     *
-     * @return int
+     * Get the maximum cache lifetime.
      */
-    public function getMaximumLifetime();
+    public function getMaximumLifetime(): int;
 }

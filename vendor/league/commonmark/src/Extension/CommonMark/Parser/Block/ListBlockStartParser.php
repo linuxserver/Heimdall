@@ -28,7 +28,11 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
     /** @psalm-readonly-allow-private-mutation */
     private ?ConfigurationInterface $config = null;
 
-    /** @psalm-readonly-allow-private-mutation */
+    /**
+     * @psalm-var non-empty-string|null
+     *
+     * @psalm-readonly-allow-private-mutation
+     */
     private ?string $listMarkerRegex = null;
 
     public function setConfiguration(ConfigurationInterface $configuration): void
@@ -131,6 +135,9 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
         return $markerLength + $spacesAfterMarker;
     }
 
+    /**
+     * @psalm-return non-empty-string
+     */
     private function generateListMarkerRegex(): string
     {
         // No configuration given - use the defaults

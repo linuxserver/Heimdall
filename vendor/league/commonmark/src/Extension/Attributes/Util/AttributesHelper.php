@@ -72,6 +72,7 @@ final class AttributesHelper
                 continue;
             }
 
+            /** @psalm-suppress PossiblyUndefinedArrayOffset */
             [$name, $value] = \explode('=', $attribute, 2);
 
             $first = $value[0];

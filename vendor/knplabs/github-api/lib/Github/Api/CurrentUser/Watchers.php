@@ -8,6 +8,7 @@ use Github\Api\AbstractApi;
  * @link   https://developer.github.com/v3/activity/watching/
  *
  * @author Joseph Bielawski <stloyd@gmail.com>
+ *
  * @revised Felipe Valtl de Mello <eu@felipe.im>
  */
 class Watchers extends AbstractApi

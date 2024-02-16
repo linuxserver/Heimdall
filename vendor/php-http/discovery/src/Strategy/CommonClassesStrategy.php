@@ -12,20 +12,17 @@ use Http\Adapter\Guzzle5\Client as Guzzle5;
 use Http\Adapter\Guzzle6\Client as Guzzle6;
 use Http\Adapter\Guzzle7\Client as Guzzle7;
 use Http\Adapter\React\Client as React;
-use Http\Adapter\Zend\Client as Zend;
 use Http\Client\Curl\Client as Curl;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
 use Http\Client\Socket\Client as Socket;
 use Http\Discovery\ClassDiscovery;
 use Http\Discovery\Exception\NotFoundException;
-use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Message\MessageFactory;
 use Http\Message\MessageFactory\DiactorosMessageFactory;
 use Http\Message\MessageFactory\GuzzleMessageFactory;
 use Http\Message\MessageFactory\SlimMessageFactory;
-use Http\Message\RequestFactory;
 use Http\Message\StreamFactory;
 use Http\Message\StreamFactory\DiactorosStreamFactory;
 use Http\Message\StreamFactory\GuzzleStreamFactory;
@@ -41,12 +38,13 @@ use Psr\Http\Message\RequestFactoryInterface as Psr17RequestFactory;
 use Slim\Http\Request as SlimRequest;
 use Symfony\Component\HttpClient\HttplugClient as SymfonyHttplug;
 use Symfony\Component\HttpClient\Psr18Client as SymfonyPsr18;
-use Zend\Diactoros\Request as ZendDiactorosRequest;
 
 /**
  * @internal
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ *
+ * Don't miss updating src/Composer/Plugin.php when adding a new supported class.
  */
 final class CommonClassesStrategy implements DiscoveryStrategy
 {
@@ -57,33 +55,30 @@ final class CommonClassesStrategy implements DiscoveryStrategy
         MessageFactory::class => [
             ['class' => NyholmHttplugFactory::class, 'condition' => [NyholmHttplugFactory::class]],
             ['class' => GuzzleMessageFactory::class, 'condition' => [GuzzleRequest::class, GuzzleMessageFactory::class]],
-            ['class' => DiactorosMessageFactory::class, 'condition' => [ZendDiactorosRequest::class, DiactorosMessageFactory::class]],
             ['class' => DiactorosMessageFactory::class, 'condition' => [DiactorosRequest::class, DiactorosMessageFactory::class]],
             ['class' => SlimMessageFactory::class, 'condition' => [SlimRequest::class, SlimMessageFactory::class]],
         ],
         StreamFactory::class => [
             ['class' => NyholmHttplugFactory::class, 'condition' => [NyholmHttplugFactory::class]],
             ['class' => GuzzleStreamFactory::class, 'condition' => [GuzzleRequest::class, GuzzleStreamFactory::class]],
-            ['class' => DiactorosStreamFactory::class, 'condition' => [ZendDiactorosRequest::class, DiactorosStreamFactory::class]],
             ['class' => DiactorosStreamFactory::class, 'condition' => [DiactorosRequest::class, DiactorosStreamFactory::class]],
             ['class' => SlimStreamFactory::class, 'condition' => [SlimRequest::class, SlimStreamFactory::class]],
         ],
         UriFactory::class => [
             ['class' => NyholmHttplugFactory::class, 'condition' => [NyholmHttplugFactory::class]],
             ['class' => GuzzleUriFactory::class, 'condition' => [GuzzleRequest::class, GuzzleUriFactory::class]],
-            ['class' => DiactorosUriFactory::class, 'condition' => [ZendDiactorosRequest::class, DiactorosUriFactory::class]],
             ['class' => DiactorosUriFactory::class, 'condition' => [DiactorosRequest::class, DiactorosUriFactory::class]],
             ['class' => SlimUriFactory::class, 'condition' => [SlimRequest::class, SlimUriFactory::class]],
         ],
         HttpAsyncClient::class => [
-            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, Promise::class, RequestFactory::class, [self::class, 'isPsr17FactoryInstalled']]],
+            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, Promise::class, [self::class, 'isPsr17FactoryInstalled']]],
             ['class' => Guzzle7::class, 'condition' => Guzzle7::class],
             ['class' => Guzzle6::class, 'condition' => Guzzle6::class],
             ['class' => Curl::class, 'condition' => Curl::class],
             ['class' => React::class, 'condition' => React::class],
         ],
         HttpClient::class => [
-            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, RequestFactory::class, [self::class, 'isPsr17FactoryInstalled']]],
+            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, [self::class, 'isPsr17FactoryInstalled'], [self::class, 'isSymfonyImplementingHttpClient']]],
             ['class' => Guzzle7::class, 'condition' => Guzzle7::class],
             ['class' => Guzzle6::class, 'condition' => Guzzle6::class],
             ['class' => Guzzle5::class, 'condition' => Guzzle5::class],
@@ -92,7 +87,6 @@ final class CommonClassesStrategy implements DiscoveryStrategy
             ['class' => Buzz::class, 'condition' => Buzz::class],
             ['class' => React::class, 'condition' => React::class],
             ['class' => Cake::class, 'condition' => Cake::class],
-            ['class' => Zend::class, 'condition' => Zend::class],
             ['class' => Artax::class, 'condition' => Artax::class],
             [
                 'class' => [self::class, 'buzzInstantiate'],
@@ -115,9 +109,6 @@ final class CommonClassesStrategy implements DiscoveryStrategy
         ],
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getCandidates($type)
     {
         if (Psr18Client::class === $type) {
@@ -154,7 +145,7 @@ final class CommonClassesStrategy implements DiscoveryStrategy
 
     public static function buzzInstantiate()
     {
-        return new \Buzz\Client\FileGetContents(MessageFactoryDiscovery::find());
+        return new \Buzz\Client\FileGetContents(Psr17FactoryDiscovery::findResponseFactory());
     }
 
     public static function symfonyPsr18Instantiate()
@@ -165,6 +156,11 @@ final class CommonClassesStrategy implements DiscoveryStrategy
     public static function isGuzzleImplementingPsr18()
     {
         return defined('GuzzleHttp\ClientInterface::MAJOR_VERSION');
+    }
+
+    public static function isSymfonyImplementingHttpClient()
+    {
+        return is_subclass_of(SymfonyHttplug::class, HttpClient::class);
     }
 
     /**

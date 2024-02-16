@@ -41,14 +41,14 @@ final class SlugNormalizer implements TextNormalizerInterface, ConfigurationAwar
         // Trim whitespace
         $slug = \trim($slug);
         // Convert to lowercase
-        $slug = \mb_strtolower($slug);
+        $slug = \mb_strtolower($slug, 'UTF-8');
         // Try replacing whitespace with a dash
         $slug = \preg_replace('/\s+/u', '-', $slug) ?? $slug;
         // Try removing characters other than letters, numbers, and marks.
         $slug = \preg_replace('/[^\p{L}\p{Nd}\p{Nl}\p{M}-]+/u', '', $slug) ?? $slug;
         // Trim to requested length if given
         if ($length = $context['length'] ?? $this->defaultMaxLength) {
-            $slug = \mb_substr($slug, 0, $length);
+            $slug = \mb_substr($slug, 0, $length, 'UTF-8');
         }
 
         return $slug;

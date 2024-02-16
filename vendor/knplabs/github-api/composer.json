@@ -27,7 +27,7 @@
         "psr/cache": "^1.0|^2.0|^3.0",
         "psr/http-client-implementation": "^1.0",
         "psr/http-factory-implementation": "^1.0",
-        "psr/http-message": "^1.0",
+        "psr/http-message": "^1.0|^2.0",
         "symfony/polyfill-php80": "^1.17",
         "symfony/deprecation-contracts": "^2.2|^3.0"
     },
@@ -52,13 +52,14 @@
     "extra": {
         "branch-alias": {
             "dev-2.x": "2.20.x-dev",
-            "dev-master": "3.4.x-dev"
+            "dev-master": "3.12-dev"
         }
     },
     "config": {
         "allow-plugins": {
             "phpstan/extension-installer": true,
-            "composer/package-versions-deprecated": true
+            "composer/package-versions-deprecated": true,
+            "php-http/discovery": true
         }
     }
 }

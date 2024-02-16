@@ -1,0 +1,33 @@
+<documentation title="Import Statement">
+    <standard>
+    <![CDATA[
+    Import use statements must not begin with a leading backslash.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Import statement doesn't begin with a leading backslash.">
+        <![CDATA[
+<?php
+
+use Vendor\Package\ClassA as A;
+
+class FooBar extends A
+{
+    // Class content.
+}
+        ]]>
+        </code>
+        <code title="Invalid: Import statement begins with a leading backslash.">
+        <![CDATA[
+<?php
+
+use <em>\</em>Vendor\Package\ClassA as A;
+
+class FooBar extends A
+{
+    // Class content.
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

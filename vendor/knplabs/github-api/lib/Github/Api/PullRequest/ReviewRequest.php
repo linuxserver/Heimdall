@@ -39,7 +39,7 @@ class ReviewRequest extends AbstractApi
     }
 
     /**
-     * @link https://developer.github.com/v3/pulls/review_requests/#create-a-review-request
+     * @link https://docs.github.com/en/rest/reference/pulls#request-reviewers-for-a-pull-request
      *
      * @param string $username
      * @param string $repository
@@ -47,7 +47,7 @@ class ReviewRequest extends AbstractApi
      * @param array  $reviewers
      * @param array  $teamReviewers
      *
-     * @return string
+     * @return array
      */
     public function create($username, $repository, $pullRequest, array $reviewers = [], array $teamReviewers = [])
     {
@@ -63,7 +63,7 @@ class ReviewRequest extends AbstractApi
      * @param array  $reviewers
      * @param array  $teamReviewers
      *
-     * @return string
+     * @return array
      */
     public function remove($username, $repository, $pullRequest, array $reviewers = [], array $teamReviewers = [])
     {
