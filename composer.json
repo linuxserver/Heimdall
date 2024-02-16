@@ -20,7 +20,8 @@
         "nunomaduro/collision": "^5.0",
         "symfony/yaml": "^5.4",
         "ext-json": "*",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "league/flysystem-aws-s3-v3": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
