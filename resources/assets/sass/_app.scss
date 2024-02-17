@@ -180,6 +180,9 @@ body {
 		list-style: none;
 		margin: 0;
 	}
+	#sortable.categories {
+		align-content: flex-start;
+	}
 }
 #config-buttons {
 	position: fixed;
