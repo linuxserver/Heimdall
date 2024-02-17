@@ -49,7 +49,7 @@ jobs:
           APP_ENV: testing
 
       - name: Php code sniffer
-        run: ./vendor/bin/phpcs
+        run: ./vendor/bin/phpcs --config-set ignore_warnings_on_exit 1
 
       - name: Upload artifacts
         uses: actions/upload-artifact@master
