@@ -3,8 +3,8 @@
 
             @foreach($categories as $category)
                 <?php $apps = $category->children; ?>
-                <div>
-                {{ $category->title }}
+                <div class="category">
+                <div class="title">{{ $category->title }}</div>
                 @foreach($apps as $app)
                     @include('item')
                 @endforeach

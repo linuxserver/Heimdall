@@ -181,7 +181,16 @@ body {
 		margin: 0;
 	}
 	#sortable.categories {
-		align-content: flex-start;
+		align-items: flex-start;
+		.category {
+			margin:10px;
+			background-color: #00000038;
+			border-radius: 10px;
+			> .title {
+				padding: 20px 20px 0;
+				color: white;
+			}
+		}
 	}
 }
 #config-buttons {
