@@ -172,7 +172,7 @@ class Application extends Model
             return null;
         }
         $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name);
-        $app->class = \App\SupportedApps::class.$classname.'\\'.$classname;
+        $app->class = \App\SupportedApps::class.'\\'.$classname.'\\'.$classname;
 
         return $app;
     }
