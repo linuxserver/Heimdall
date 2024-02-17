@@ -22,7 +22,7 @@ class SettingsSeeder extends Seeder
             return json_encode(['en' => 'English']);
         }
 
-        $languageDirectories = array_filter(glob(resource_path().'/lang/*'), 'is_dir');
+        $languageDirectories = array_filter(glob(lang_path().'/*'), 'is_dir');
         $result = [];
 
         foreach ($languageDirectories as $languageDirectory) {

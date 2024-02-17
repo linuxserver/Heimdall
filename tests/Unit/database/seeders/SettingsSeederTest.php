@@ -12,7 +12,7 @@ class SettingsSeederTest extends TestCase
      */
     public function test_returns_a_jsonmap_with_same_amount_of_items_as_language_directories_present(): void
     {
-        $languageDirectories = array_filter(glob(resource_path().'/lang/*'), 'is_dir');
+        $languageDirectories = array_filter(glob(lang_path().'/*'), 'is_dir');
 
         $languageMap = json_decode(SettingsSeeder::getSupportedLanguageMap(), true);
 
