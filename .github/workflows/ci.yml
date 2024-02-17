@@ -38,7 +38,7 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
 
       - name: Run yarn
-        run: yarn
+        run: yarn && yarn dev
 
       - name: Run ESLint
         run: yarn lint
