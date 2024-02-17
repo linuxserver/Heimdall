@@ -25,7 +25,17 @@
         <meta name="theme-color" content="#ffffff">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="{{ asset(mix('css/app.css')) }}" type="text/css" />
+        @vite([
+            'resources/assets/sass/app.scss', 
+            'node_modules/sortablejs/Sortable.min.js?commonjs-entry',
+            'resources/assets/js/jquery-ui.min.js',
+            'resources/assets/js/huebee.js',
+            'resources/assets/js/app.js',
+            'resources/assets/js/keyBindings.js',
+            'resources/assets/js/itemExport.js',
+            'resources/assets/js/itemImport.js',
+            'resources/assets/js/liveStatRefresh.js',
+            ])
         <link rel="stylesheet" href="{{ asset('css/all.min.css?v='.config('app.version')) }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
         @if(config('app.url') !== 'http://localhost')
