@@ -18,10 +18,11 @@
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-prettier": "^4.2.1",
         "jquery": "^3.6.3",
-        "laravel-mix": "^6.0.49",
         "prettier": "^2.8.1",
         "sass": "^1.56.1",
-        "sass-loader": "13.*"
+        "sass-loader": "13.*",
+        "vite": "^3.0.2",
+        "laravel-vite-plugin": "^0.6.0"
     },
     "dependencies": {
         "select2": "^4.0.13",
