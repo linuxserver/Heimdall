@@ -110,7 +110,7 @@ To use the component in your application, you may drop it into one of your HTML 
 @endsection
 ```
 
-> Remember, you should run the `npm run dev` command each time you change a Vue component. Or, you may run the `npm run dev` command to monitor and automatically recompile your components each time they are modified.
+> Remember, you should run the `npm run dev` command each time you change a Vue component. Or, you may run the `npm run watch` command to monitor and automatically recompile your components each time they are modified.
 
 If you are interested in learning more about writing Vue components, you should read the [Vue documentation](https://vuejs.org/guide/), which provides a thorough, easy-to-read overview of the entire Vue framework.
 
