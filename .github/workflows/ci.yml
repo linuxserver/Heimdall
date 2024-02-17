@@ -21,10 +21,10 @@ jobs:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
 
-      - name: Run composer install
-        run: composer install -n --prefer-dist
-        env:
-          APP_ENV: testing
+      #- name: Run composer install
+      #  run: composer install -n --prefer-dist
+      #  env:
+      #    APP_ENV: testing
 
       - name: Prepare Laravel Application
         run: |
