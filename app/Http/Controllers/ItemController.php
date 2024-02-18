@@ -211,7 +211,7 @@ class ItemController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons');
+            $path = $request->file('file')->store('icons', 'public');
             $request->merge([
                 'icon' => $path,
             ]);
