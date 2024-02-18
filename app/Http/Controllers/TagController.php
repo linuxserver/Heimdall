@@ -58,7 +58,7 @@ class TagController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons');
+            $path = $request->file('file')->store('icons', 'public');
             $request->merge([
                 'icon' => $path,
             ]);
@@ -123,7 +123,7 @@ class TagController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons');
+            $path = $request->file('file')->store('icons', 'public');
             $request->merge([
                 'icon' => $path,
             ]);

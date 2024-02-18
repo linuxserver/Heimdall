@@ -77,7 +77,7 @@ class SettingsController extends Controller
                     );
                 }
 
-                $path = $request->file('value')->store('backgrounds');
+                $path = $request->file('value')->store('backgrounds', 'public');
 
                 if ($path === null) {
                     throw new \Exception('file_not_stored');
