@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+    @include('partials.taglist')
     @include('partials.search')
 
-    @if($apps->first())
+    @if((isset($apps) && $apps->first()) || (isset($categories) && $categories->first()))
         @include('sortable')        
     @else
     <div class="message-container2">

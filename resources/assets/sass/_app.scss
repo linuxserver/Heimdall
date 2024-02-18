@@ -180,6 +180,22 @@ body {
 		list-style: none;
 		margin: 0;
 	}
+	#sortable.categories {
+		align-items: flex-start;
+		.category {
+			margin:10px;
+			background-color: #00000038;
+			border-radius: 10px;
+			> .title {
+				padding: 20px 20px 0;
+				
+				a {
+					color: white;
+					text-decoration: none;
+				}
+			}
+		}
+	}
 }
 #config-buttons {
 	position: fixed;
@@ -279,6 +295,9 @@ body {
 		z-index: 1;
 	}
 }
+.categorytitle {
+	color: #fff!important;
+}
 .tooltip {
 	padding: 25px;
 	border-radius: 5px;
@@ -294,13 +313,32 @@ body {
 	opacity: 0;
 	transform: translateY(-20px);
 	transition: all 0.3s;
+	pointer-events: none;
 	&.active {
 		transform: translateY(0);
 		opacity: 1;
 		z-index: 4;
 	}
 }
-
+.taglist {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	.tag {
+		padding: 10px 20px;
+		background: rgba(0, 0, 0, 0.608);
+		border-radius: 6px;
+		font-size: 12px;
+		cursor: pointer;
+		opacity: 0.6;
+		&.current {
+			opacity: 1;
+		}
+		&:hover:not(.current) {
+			opacity: 0.8;
+		}
+	}
+}
 .tile-actions {
     position: absolute;
     top: 0px;

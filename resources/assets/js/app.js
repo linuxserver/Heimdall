@@ -171,6 +171,16 @@ $.when($.ready).then(() => {
         }, 350);
       }
     })
+    .on("click", ".tag", (e) => {
+      e.preventDefault();
+      const tag = $(e.target).data("tag");
+      $("#taglist .tag").removeClass("current");
+      $(e.target).addClass("current");
+      $("#sortable .item-container").show();
+      if (tag !== "all") {
+        $("#sortable .item-container:not(." + tag + ")").hide();
+      }
+    })
     .on("click", "#add-item, #pin-item", (e) => {
       e.preventDefault();
       const app = $("#app");

@@ -327,5 +327,28 @@ class SettingsSeeder extends Seeder
                 $app->parents()->attach(0);
             }
         }
+
+        $tag_options = json_encode([
+            'folders' => 'app.settings.folders',
+            'tags' => 'app.settings.tags',
+            'categories' => 'app.settings.categories',
+        ]);
+
+        if (! $setting = Setting::find(14)) {
+            $setting = new Setting;
+            $setting->id = 14;
+            $setting->group_id = 2;
+            $setting->key = 'treat_tags_as';
+            $setting->type = 'select';
+            $setting->options = $tag_options;
+            $setting->value = 'folders';
+            $setting->label = 'app.settings.treat_tags_as';
+            $setting->save();
+        } else {
+            $setting->options = $tag_options;
+            $setting->label = 'app.settings.treat_tags_as';
+            $setting->save();
+        }
+
     }
 }

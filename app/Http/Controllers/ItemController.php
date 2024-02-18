@@ -35,16 +35,32 @@ class ItemController extends Controller
      */
     public function dash(): View
     {
-        $data['apps'] = Item::whereHas('parents', function ($query) {
-            $query->where('id', 0);
-        })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+        $treat_tags_as = \App\Setting::fetch('treat_tags_as');
 
-        $data['all_apps'] = Item::whereHas('parents', function ($query) {
-            $query->where('id', 0);
-        })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+        $data["treat_tags_as"] = $treat_tags_as;
+
+        if ($treat_tags_as == 'categories') {
+            $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
+                $query->pinned()->orderBy('order', 'asc');
+            })->pinned()->orderBy('order', 'asc')->get();
+
+        } elseif ($treat_tags_as == 'tags') {
+            $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
+            $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
+            $data['taglist'] = Item::where('type', 1)->pinned()->orderBy('order', 'asc')->get();
+        } else {
+
+            $data['apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+
+            $data['all_apps'] = Item::whereHas('parents', function ($query) {
+                $query->where('id', 0);
+            })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+        }
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
-        //die(print_r($data['apps']));
+        // die(print_r($data));
         return view('welcome', $data);
     }
 
