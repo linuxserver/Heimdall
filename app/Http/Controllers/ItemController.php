@@ -47,7 +47,9 @@ class ItemController extends Controller
         } elseif ($treat_tags_as == 'tags') {
             $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
             $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
-            $data['taglist'] = Item::where('type', 1)->pinned()->orderBy('order', 'asc')->get();
+            $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
+                $query->where('type', 1)->pinned();
+            })->orderBy('order', 'asc')->get();
         } else {
 
             $data['apps'] = Item::whereHas('parents', function ($query) {
@@ -56,7 +58,9 @@ class ItemController extends Controller
 
             $data['all_apps'] = Item::whereHas('parents', function ($query) {
                 $query->where('id', 0);
-            })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+            })->orWhere(function ($query) {
+                $query->where('type', 1)->whereNot('id', 0);
+            })->orderBy('order', 'asc')->get();
         }
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();
