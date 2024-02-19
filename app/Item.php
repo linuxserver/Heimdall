@@ -141,7 +141,7 @@ class Item extends Model
     protected function title(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ($value === 'app.dashboard' ? __('app.dashboard') : $value),
+            get: fn (mixed $value) => ($value === 'app.dashboard' ? __('app.dashboard') : $value),
         );
     }
 
