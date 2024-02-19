@@ -22,6 +22,7 @@
                     <tr>
                         <th>{{ __('app.title') }}</th>
                         <th>{{ __('app.url') }}</th>
+                        <th>{{ __('app.apps.tags') }}</th>
                         <th class="text-center" width="100">{{ __('app.settings.edit') }}</th>
                         <th class="text-center" width="100">{{ __('app.delete') }}</th>
                     </tr>
@@ -32,6 +33,7 @@
                             <tr>
                                 <td>{{ $app->title }}</td>
                                 <td><a href="{{ $app->url }}">{{ $app->link }}</a></td>
+                                <td>{{ $app->getTagList() }}</td>
                                 <td class="text-center"><a{{ $app->target }} href="{!! route('items.edit', [$app->id]) !!}" title="{{ __('app.settings.edit') }} {{ $app->title }}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
                                         {!! Form::open(['method' => 'DELETE','route' => ['items.destroy', $app->id],'style'=>'display:inline']) !!}
@@ -42,7 +44,7 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="4" class="form-error text-center">
+                            <td colspan="5" class="form-error text-center">
                                 <strong>{{ __('app.settings.no_items') }}</strong>
                             </td>
                         </tr>

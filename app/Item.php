@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use stdClass;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
@@ -133,18 +134,22 @@ class Item extends Model
         $id = $this->id;
         $tags = ItemTag::select('tag_id')->where('item_id', $id)->pluck('tag_id')->toArray();
         $tagdetails = self::select('id', 'title', 'url', 'pinned')->whereIn('id', $tags)->get();
-        //print_r($tags);
-        if (in_array(0, $tags)) {
-            $details = new self([
-                'id' => 0,
-                'title' => __('app.dashboard'),
-                'url' => '',
-                'pinned' => 0,
-            ]);
-            $tagdetails->prepend($details);
-        }
 
         return $tagdetails;
+    }
+
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ($value === 'app.dashboard' ? __('app.dashboard') : $value),
+        );
+    }
+
+    protected function tagUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => ($attributes['id'] === 0 ? '0-dash' : $attributes['url']),
+        );
     }
 
     public function getTagClass(): string
@@ -153,12 +158,29 @@ class Item extends Model
         $slugs = [];
 
         foreach ($tags as $tag) {
+            if ($tag->id === 0) {
+                $tag->url = '0-dash';
+            }
             if ($tag->url) {
                 $slugs[] = 'tag-'.$tag->url;
             }
         }
 
         return implode(' ', $slugs);
+    }
+
+    public function getTagList(): string
+    {
+        $tags = $this->tags();
+        $titles = [];
+        // print_r($tags);
+        foreach ($tags as $tag) {
+            if ($tag->title) {
+                $titles[] = $tag->title;
+            }
+        }
+
+        return implode(', ', $titles);
     }
 
     public function parents(): BelongsToMany
