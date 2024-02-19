@@ -178,7 +178,7 @@ $.when($.ready).then(() => {
       $(e.target).addClass("current");
       $("#sortable .item-container").show();
       if (tag !== "all") {
-        $("#sortable .item-container:not(." + tag + ")").hide();
+        $(`#sortable .item-container:not(.${tag})`).hide();
       }
     })
     .on("click", "#add-item, #pin-item", (e) => {
