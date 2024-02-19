@@ -11,14 +11,14 @@
 
             <div class="input">
                 <label>{{ __('app.apps.tag_name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'class' => 'form-control')) !!}
+                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'class' => 'form-control', 'required')) !!}
                 <hr />
                 <label>{{ __('app.apps.pinned') }}</label>
                 {!! Form::hidden('pinned', '0') !!}
                 <label class="switch">
                     <?php
-                    $checked = false;
-                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
+                    $checked = true;
+                    if(isset($item->pinned) && (bool)$item->pinned !== true) $checked = false;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
                     ?>                   
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
@@ -26,7 +26,7 @@
                 </label>
             </div>
             <div class="input">
-                <label>{{ __('app.apps.colour') }} *</label>
+                <label>{{ __('app.apps.colour') }}</label>
                 {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
             </div>

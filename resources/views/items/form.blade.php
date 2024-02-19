@@ -7,8 +7,8 @@
                 {!! Form::hidden('pinned', '0') !!}
                 <label class="switch">
                     <?php
-                    $checked = false;
-                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
+                    $checked = true;
+                    if(isset($item->pinned) && (bool)$item->pinned !== true) $checked = false;
                     $set_checked = ($checked) ? ' checked="checked"' : '';
                     ?>                   
                     <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
@@ -57,17 +57,17 @@
             {!! csrf_field() !!}
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control', 'required')) !!}
             </div>
 
             <div class="input">
-                <label>{{ __('app.apps.colour') }} *</label>
+                <label>{{ __('app.apps.colour') }}</label>
                 {!! Form::text('colour', $item->colour ?? '#161b1f', array('placeholder' => __('app.apps.hex'), 'id' => 'appcolour', 'class' => 'form-control color-picker set-bg-elem')) !!}
             </div>
 
             <div class="input">
-                <label>{{ strtoupper(__('app.url')) }}</label>
-                {!! Form::text('url', $item->url ?? null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control')) !!}
+                <label>{{ strtoupper(__('app.url')) }} *</label>
+                {!! Form::text('url', $item->url ?? null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control', 'required')) !!}
                 <small class="help">Don't forget http(s)://</small>
             </div>
 
