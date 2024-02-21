@@ -88,7 +88,7 @@ class Application extends Model
         $name = $this->name;
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
-        return \App\SupportedApps::class.'\\'.$name.'\\'.$name;
+        return SupportedApps::class.'\\'.$name.'\\'.$name;
     }
 
     /**
@@ -98,7 +98,7 @@ class Application extends Model
     {
         $name = preg_replace('/[^\p{L}\p{N}]/u', '', $name);
 
-        $class = \App\SupportedApps::class.'\\'.$name.'\\'.$name;
+        $class = SupportedApps::class.'\\'.$name.'\\'.$name;
 
         return $class;
     }
@@ -174,7 +174,7 @@ class Application extends Model
             return null;
         }
         $classname = preg_replace('/[^\p{L}\p{N}]/u', '', $app->name);
-        $app->class = \App\SupportedApps::class.'\\'.$classname.'\\'.$classname;
+        $app->class = SupportedApps::class.'\\'.$classname.'\\'.$classname;
 
         return $app;
     }

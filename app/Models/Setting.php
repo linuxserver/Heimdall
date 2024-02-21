@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models;
 use App\Search;
 use Form;
 use Illuminate\Database\Eloquent\Builder;
@@ -199,7 +198,7 @@ class Setting extends Model
 
     public function group(): BelongsTo
     {
-        return $this->belongsTo(Models\SettingGroup::class, 'group_id');
+        return $this->belongsTo(SettingGroup::class, 'group_id');
     }
 
     /**
@@ -278,7 +277,7 @@ class Setting extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(Models\User::class)->using(Models\SettingUser::class)->withPivot('uservalue');
+        return $this->belongsToMany(User::class)->using(SettingUser::class)->withPivot('uservalue');
     }
 
     /**
