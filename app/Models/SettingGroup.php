@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $title
  * @property int $order
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Setting[] $settings
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Setting[] $settings
  * @property-read int|null $settings_count
  * @method static \Illuminate\Database\Eloquent\Builder|SettingGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SettingGroup newQuery()
@@ -39,6 +39,6 @@ class SettingGroup extends Model
 
     public function settings(): HasMany
     {
-        return $this->hasMany(\App\Setting::class, 'group_id');
+        return $this->hasMany(Setting::class, 'group_id');
     }
 }

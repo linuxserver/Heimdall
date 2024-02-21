@@ -1,15 +1,17 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use App\EnhancedApps;
+use App\SearchInterface;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use stdClass;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
 
@@ -42,7 +44,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @property-read string $link_type
  * @property-read \Illuminate\Database\Eloquent\Collection|Item[] $parents
  * @property-read int|null $parents_count
- * @property-read \App\User|null $user
+ * @property-read \App\Models\User|null $user
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
  * @method static Builder|Item newModelQuery()
  * @method static Builder|Item newQuery()
@@ -68,6 +70,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @method static Builder|Item whereUserId($value)
  * @method static \Illuminate\Database\Query\Builder|Item withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Item withoutTrashed()
+ * @property-read mixed $tag_url
  * @mixin \Eloquent
  */
 // @codingStandardsIgnoreEnd

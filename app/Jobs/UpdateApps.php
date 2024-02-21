@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Application;
+use App\Models\Application;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use App\Application;
 use App\Jobs\ProcessApps;
 use App\Jobs\UpdateApps;
-use App\Setting;
-use App\User;
+use App\Models\Application;
+use App\Models\Setting;
+use App\Models\User;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;

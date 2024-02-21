@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static \Illuminate\Database\Eloquent\Builder|ItemTag whereItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemTag whereTagId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemTag whereUpdatedAt($value)
+ * @method static \Database\Factories\ItemTagFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
 class ItemTag extends Pivot

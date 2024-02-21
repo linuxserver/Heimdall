@@ -1,6 +1,5 @@
 <?php
 
-use App\Application;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
@@ -11,8 +10,9 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*

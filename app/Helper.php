@@ -92,7 +92,7 @@ function title_color($hex): string
  */
 function getLinkTargetAttribute(): string
 {
-    $target = \App\Setting::fetch('window_target');
+    $target = \App\Models\Setting::fetch('window_target');
 
     if ($target === 'current') {
         return '';

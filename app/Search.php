@@ -2,7 +2,8 @@
 
 namespace App;
 
-use Cache;
+use App\Models\Item;
+use App\Models\Setting;
 use Form;
 use Illuminate\Support\Collection;
 use Yaml;

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Setting;
-use App\SettingGroup;
+use App\Models\Setting;
+use App\Models\SettingGroup;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

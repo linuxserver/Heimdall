@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Application;
+use App\Models\Application;
 use App\SupportedApps;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;

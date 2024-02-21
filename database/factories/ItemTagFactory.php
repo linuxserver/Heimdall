@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Item;
-use App\ItemTag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ItemTagFactory extends Factory
