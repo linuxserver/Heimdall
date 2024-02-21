@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Setting;
-use App\SettingGroup;
+use App\Models\Setting;
+use App\Models\SettingGroup;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -301,8 +301,8 @@ class SettingsSeeder extends Seeder
             $setting->save();
         }
 
-        if (! $home_tag = \App\Item::find(0)) {
-            $home_tag = new \App\Item;
+        if (! $home_tag = \App\Models\Item::find(0)) {
+            $home_tag = new \App\Models\Item;
             $home_tag->id = 0;
             $home_tag->title = 'app.dashboard';
             $home_tag->pinned = 0;
@@ -319,7 +319,7 @@ class SettingsSeeder extends Seeder
                 DB::update('update items set id = 0 where id = ?', [$home_tag_id]);
             }
 
-            $homeapps = \App\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
+            $homeapps = \App\Models\Item::withoutGlobalScope('user_id')->doesntHave('parents')->get();
             foreach ($homeapps as $app) {
                 if ($app->id === 0) {
                     continue;

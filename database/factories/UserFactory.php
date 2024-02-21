@@ -2,9 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Facades\Hash;
-use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class UserFactory extends Factory

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Application;
-use App\Item;
 use App\Jobs\ProcessApps;
-use App\User;
+use App\Models\Application;
+use App\Models\Item;
+use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -35,7 +35,7 @@ class ItemController extends Controller
      */
     public function dash(): View
     {
-        $treat_tags_as = \App\Setting::fetch('treat_tags_as');
+        $treat_tags_as = \App\Models\Setting::fetch('treat_tags_as');
 
         $data["treat_tags_as"] = $treat_tags_as;
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Item;
-use App\User;
+use App\Models\Item;
+use App\Models\User;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

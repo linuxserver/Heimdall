@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Item;
-use App\ItemTag;
+use App\Models\Item;
+use App\Models\ItemTag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

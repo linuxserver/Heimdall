@@ -1,7 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use App\Models;
+use App\Search;
 use Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,8 +29,8 @@ use Illuminate\Support\Facades\Input;
  * @property int $system
  * @property-read mixed $edit_value
  * @property-read mixed $list_value
- * @property-read \App\SettingGroup|null $group
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
+ * @property-read \App\Models\SettingGroup|null $group
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  * @property-read int|null $users_count
  * @method static Builder|Setting newModelQuery()
  * @method static Builder|Setting newQuery()
@@ -42,6 +44,7 @@ use Illuminate\Support\Facades\Input;
  * @method static Builder|Setting whereSystem($value)
  * @method static Builder|Setting whereType($value)
  * @method static Builder|Setting whereValue($value)
+ * @mixin \Eloquent
  */
 class Setting extends Model
 {
@@ -196,7 +199,7 @@ class Setting extends Model
 
     public function group(): BelongsTo
     {
-        return $this->belongsTo(\App\SettingGroup::class, 'group_id');
+        return $this->belongsTo(Models\SettingGroup::class, 'group_id');
     }
 
     /**
@@ -275,7 +278,7 @@ class Setting extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(\App\User::class)->using(\App\SettingUser::class)->withPivot('uservalue');
+        return $this->belongsToMany(Models\User::class)->using(Models\SettingUser::class)->withPivot('uservalue');
     }
 
     /**

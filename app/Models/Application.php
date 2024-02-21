@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use App\SupportedApps;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,7 @@ use Illuminate\Support\Facades\Log;
  * @method static Builder|Application whereTileBackground($value)
  * @method static Builder|Application whereUpdatedAt($value)
  * @method static Builder|Application whereWebsite($value)
+ * @mixin \Eloquent
  */
 class Application extends Model
 {

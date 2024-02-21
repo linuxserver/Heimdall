@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Item;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;

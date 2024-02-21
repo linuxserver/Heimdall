@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Application;
-use App\Item;
+use App\Models\Application;
+use App\Models\Item;
 use App\SupportedApps;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
