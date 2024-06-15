@@ -116,5 +116,5 @@ return array (
   'dashboard.settings' => 'Settings',
   'role' => 'Authentification role',
   'unauthorized_for_form' => 'You are not authorised to view this form.',
-  'diabled_feature' => 'This feature is disabled.',
+  'disabled_feature' => 'This feature is disabled.',
 );

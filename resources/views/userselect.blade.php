@@ -18,7 +18,7 @@
 <section class="module-container">
 <header>
     <div class="section-title">
-        {{ __('app.diabled_feature') }}
+        {{ __('app.disabled_feature') }}
     </div>
 </header>
 </section>

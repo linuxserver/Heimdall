@@ -107,5 +107,5 @@ return array (
   'dashboard.settings' => 'Einstellungen',
   'role' => 'Authentifizierungsrolle',
   'unauthorized_for_form' => 'Sie haben keinen Zugriff auf diese Seite.',
-  'diabled_feature' => 'Diese Funktion ist deaktiviert.',
+  'disabled_feature' => 'Diese Funktion ist deaktiviert.',
 );
