@@ -114,7 +114,7 @@ return array (
   'alert.success.user_restored' => 'User restored successfully',
   'dashboard.reorder' => 'Reorder and pin items',
   'dashboard.settings' => 'Settings',
-  'role' => 'Authentification role',
-  'unauthorized_for_form' => 'You are not authorised to view this form.',
+  'role' => 'Authentication role',
+  'unauthorized_for_form' => 'You are not authorized to view this form.',
   'disabled_feature' => 'This feature is disabled.',
 );
