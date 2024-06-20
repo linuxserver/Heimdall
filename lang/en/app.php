@@ -114,4 +114,5 @@ return array (
   'alert.success.user_restored' => 'User restored successfully',
   'dashboard.reorder' => 'Reorder and pin items',
   'dashboard.settings' => 'Settings',
+  'role' => 'Authentification role',
 );

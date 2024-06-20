@@ -33,34 +33,59 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource on the dashboard.
      */
-    public function dash(): View
+    public function dash(Request $request): View
     {
         $treat_tags_as = \App\Setting::fetch('treat_tags_as');
 
         $data["treat_tags_as"] = $treat_tags_as;
 
-        if ($treat_tags_as == 'categories') {
-            $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
-                $query->pinned()->orderBy('order', 'asc');
-            })->pinned()->orderBy('order', 'asc')->get();
+        if (config('app.auth_roles_enable')) {
+            $roles = explode(',', $request->header(config('app.auth_roles_header')));
+            if ($treat_tags_as == 'categories') {
+                $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
+                    $query->pinned()->orderBy('order', 'asc');
+                })->pinned()->orderBy('order', 'asc')->get();
 
-        } elseif ($treat_tags_as == 'tags') {
-            $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
-            $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
-            $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
-                $query->where('type', 1)->pinned();
-            })->orderBy('order', 'asc')->get();
+            } elseif ($treat_tags_as == 'tags') {
+                $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
+                $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
+                $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
+                    $query->where('type', 1)->pinned();
+                })->orderBy('order', 'asc')->get();
+            } else {
+
+                $data['apps'] = Item::whereHas('parents', function ($query) {
+                    $query->where('id', 0);
+                })->whereIn('role', $roles)->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+        
+                $data['all_apps'] = Item::whereHas('parents', function ($query) {
+                    $query->where('id', 0);
+                })->orWhere('type', 1)->orderBy('order', 'asc')->get();
+            }
         } else {
+            if ($treat_tags_as == 'categories') {
+                $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
+                    $query->pinned()->orderBy('order', 'asc');
+                })->pinned()->orderBy('order', 'asc')->get();
 
-            $data['apps'] = Item::whereHas('parents', function ($query) {
-                $query->where('id', 0);
-            })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+            } elseif ($treat_tags_as == 'tags') {
+                $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
+                $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
+                $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
+                    $query->where('type', 1)->pinned();
+                })->orderBy('order', 'asc')->get();
+            } else {
 
-            $data['all_apps'] = Item::whereHas('parents', function ($query) {
-                $query->where('id', 0);
-            })->orWhere(function ($query) {
-                $query->where('type', 1)->whereNot('id', 0);
-            })->orderBy('order', 'asc')->get();
+                $data['apps'] = Item::whereHas('parents', function ($query) {
+                    $query->where('id', 0);
+                })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
+
+                $data['all_apps'] = Item::whereHas('parents', function ($query) {
+                    $query->where('id', 0);
+                })->orWhere(function ($query) {
+                    $query->where('type', 1)->whereNot('id', 0);
+                })->orderBy('order', 'asc')->get();
+            }
         }
 
         //$data['all_apps'] = Item::doesntHave('parents')->get();

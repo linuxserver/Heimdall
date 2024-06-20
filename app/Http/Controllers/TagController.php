@@ -88,11 +88,16 @@ class TagController extends Controller
      *
      * @param $slug
      */
-    public function show($slug): View
+    public function show($slug, Request $request): View
     {
         $item = Item::whereUrl($slug)->first();
         //print_r($item);
-        $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
+        if (config('app.auth_roles_enable')) {
+            $roles = explode(',', $request->header(config('app.auth_roles_header')));
+            $data['apps'] = $item->children()->whereIn('role', $roles)->pinned()->orderBy('order', 'asc')->get();
+        } else {
+            $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
+        }
         $data['tag'] = $item->id;
         $data['all_apps'] = $item->children;
 

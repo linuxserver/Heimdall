@@ -1,4 +1,4 @@
-    <section class="module-container">
+<section class="module-container">
         <header>
             <div class="section-title">{{ __('app.apps.add_tag') }}</div>
             <div class="module-actions">
@@ -30,6 +30,13 @@
                 {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
                 <hr />
             </div>
+            @if($app['config']->get('app.auth_roles_enable', false))
+            <div class="input">
+                <label>{{ __('app.role') }}</label>
+                {!! Form::text('role', $item->role ?? null, array('placeholder' => __('app.role'), 'id' => 'role', 'class' => 'form-control')) !!}
+                <hr />
+            </div>
+            @endif
             <div class="input">
                 <label>{{ __('app.apps.icon') }}</label>
                 <div class="icon-container">
@@ -50,6 +57,19 @@
                         <input type="file" id="upload" name="file" />
                     </div>
                 </div>
+            </div>
+            <div class="input">
+            <label>{{ __('app.apps.pinned') }}</label>
+                {!! Form::hidden('pinned', '0') !!}
+                <label class="switch">
+                    <?php
+                    $checked = false;
+                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
+                    $set_checked = ($checked) ? ' checked="checked"' : '';
+                    ?>                   
+                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
+                    <span class="slider round"></span>
+                </label>
             </div>
             
             <div id="sapconfig"></div>
