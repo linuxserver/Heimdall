@@ -94,9 +94,8 @@
                     </div>
                     @endif
                     @yield('content')
+                    @if($enable_config_buttons)
                     <div id="config-buttons">
-
-                        
                         @if(Route::is('dash') || Route::is('tags.show'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i><div class="tooltip left">{{ __('app.dashboard.reorder') }}</div></a>
                         
@@ -110,6 +109,7 @@
                         <a id="folder" class="config" href="{{ route('tags.index', []) }}"><i class="fas fa-tag"></i><div class="tooltip left">{{ __('app.apps.tag_list') }}</div></a>
                         <a id="settings" class="config" href="{{ route('settings.index', []) }}"><i class="fas fa-cogs"></i><div class="tooltip left">{{ __('app.dashboard.settings') }}</div></a>
                     </div>
+                    @endif
                 </main>
 
             </div>

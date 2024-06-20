@@ -93,7 +93,7 @@ class TagController extends Controller
         $item = Item::whereUrl($slug)->first();
         //print_r($item);
         if (config('app.auth_roles_enable')) {
-            $roles = explode(',', $request->header(config('app.auth_roles_header')));
+            $roles = explode(config('app.auth_roles_delimiter'), $request->header(config('app.auth_roles_header')));
             $data['apps'] = $item->children()->whereIn('role', $roles)->pinned()->orderBy('order', 'asc')->get();
         } else {
             $data['apps'] = $item->children()->pinned()->orderBy('order', 'asc')->get();
