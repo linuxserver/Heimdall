@@ -42,3 +42,11 @@ startpage:
    method: get
    target: _blank
    query: query
+
+brave:
+   id: brave
+   url: https://search.brave.com/search
+   name: Brave
+   method: get
+   target: _blank
+   query: q
