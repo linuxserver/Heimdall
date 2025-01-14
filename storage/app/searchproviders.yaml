@@ -42,3 +42,11 @@ startpage:
    method: get
    target: _blank
    query: query
+
+kagi:
+   id: kagi
+   url: https://kagi.com/search
+   name: Kagi
+   method: get
+   target: _blank
+   query: q
