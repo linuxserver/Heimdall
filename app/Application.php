@@ -151,6 +151,17 @@ class Application extends Model
         return $app;
     }
 
+
+    /**
+     * @param $appName
+     * @return mixed|null
+     * @throws GuzzleException
+     */
+    public static function findApp($appName)
+    {
+        return self::where('name', $appName)->first()->appid;
+    }
+
     /**
      * @param $appid
      * @return mixed|null

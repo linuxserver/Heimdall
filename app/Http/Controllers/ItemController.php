@@ -207,6 +207,19 @@ class ItemController extends Controller
      */
     public static function storelogic(Request $request, $id = null): Item
     {
+        if ($request->input('optimistic')) {
+            $request->merge(['app' => Application::findApp($request->input('title'))]);
+            $request->merge((array)json_decode(ItemController::appload($request)));
+
+            # FIXME: I need to fix some param naming here to make it work
+            $request->merge([
+              /*  'pinned' => 1,*/
+              /*  'tags' => [0],*/
+              'icon' => $request->input('iconview'),
+              'appdescription' => $request->input('description'),
+            ]);
+        }
+
         $application = Application::single($request->input('appid'));
         $validatedData = $request->validate([
             'title' => 'required|max:255',
@@ -366,7 +379,7 @@ class ItemController extends Controller
      *
      * @throws GuzzleException
      */
-    public function appload(Request $request): ?string
+    public static function appload(Request $request): ?string
     {
         $output = [];
         $appid = $request->input('app');
