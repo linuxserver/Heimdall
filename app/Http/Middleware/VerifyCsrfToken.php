@@ -16,6 +16,7 @@ class VerifyCsrfToken extends Middleware
         'order',
         'appload',
         'test_config',
+        'api/*',
         //'get_stats'
     ];
 }
