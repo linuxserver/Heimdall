@@ -36,6 +36,7 @@ return array (
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',
   'options.bing' => 'Bing',
+  'options.brave' => 'Brave',
   'options.qwant' => 'Qwant',
   'options.startpage' => 'StartPage',
   'options.yes' => 'Yes',
