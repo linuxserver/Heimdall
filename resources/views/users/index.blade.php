@@ -2,7 +2,7 @@
 
 @section('content')
         <section class="module-container">
-            @if($enable_auth_admin_controles)
+            @if($enable_auth_admin_controls)
             <header>
                 <div class="section-title">
                     {{ __('app.user.user_list') }}

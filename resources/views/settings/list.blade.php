@@ -2,7 +2,7 @@
 
 @section('content')
 
-    @if($enable_auth_admin_controles)
+    @if($enable_auth_admin_controls)
     @foreach ($groups as $index => $group)
         <section class="module-container">
             <header>

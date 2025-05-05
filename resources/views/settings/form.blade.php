@@ -1,5 +1,5 @@
 <section class="module-container">
-@if($enable_auth_admin_controles)
+@if($enable_auth_admin_controls)
         <header>
             <div class="section-title">{{ __($setting->label) }}</div>
             <div class="module-actions">
