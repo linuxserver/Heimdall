@@ -1,4 +1,5 @@
-    <section class="module-container">
+<section class="module-container">
+        @if($enable_auth_admin_controls)
         <header>
             <div class="section-title">{{ __('app.apps.preview') }}</div>
             <div class="module-actions">
@@ -76,6 +77,13 @@
                 {!! Form::select('tags[]', $tags, $current_tags, ['class' => 'tags', 'multiple']) !!}
             </div>
 
+            @if($app['config']->get('app.auth_roles_enable', false))
+            <div class="input">
+                <label>{{ __('app.role') }}</label>
+                {!! Form::text('role', $item->role ?? null, array('placeholder' => __('app.role'), 'id' => 'role', 'class' => 'form-control')) !!}
+            </div>
+            @endif
+
             <div class="input">
                 <div class="icon-container">
                     <div id="appimage">
@@ -137,6 +145,13 @@
                 <a href="{{ route('items.index', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
         </footer>
+        @else
+        <header>
+            <div class="section-title">
+                {{ __('app.unauthorized_for_form') }}
+            </div>
+        </header>
+        @endif
 
     </section>
 

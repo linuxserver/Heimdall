@@ -82,7 +82,7 @@
                         </div>
                     </div>
                     @endif
-                    @if($allusers->count() > 1)
+                    @if(!($allusers->count() <= 1 || config('app.auth_roles_enable')))
                     <div id="switchuser">
                         @if($current_user->avatar)
                         <img class="user-img" src="{{ asset('/storage/'.$current_user->avatar) }}" />
@@ -94,22 +94,22 @@
                     </div>
                     @endif
                     @yield('content')
+                    @if($enable_auth_admin_controls)
                     <div id="config-buttons">
-
-                        
                         @if(Route::is('dash') || Route::is('tags.show'))
                         <a id="config-button" class="config" href=""><i class="fas fa-exchange"></i><div class="tooltip left">{{ __('app.dashboard.reorder') }}</div></a>
                         
                         @endif
     
                         <a id="dash" class="config" href="{{ route('dash', []) }}"><i class="fas fa-th"></i><div class="tooltip left">{{ __('app.dashboard') }}</div></a>
-                        @if($current_user->id === 1)
+                        @if($current_user->id === 1 && !config('app.auth_roles_enable'))
                         <a id="users" class="config" href="{{ route('users.index', []) }}"><i class="fas fa-user"></i><div class="tooltip left">{{ __('app.user.user_list') }}</div></a>
                         @endif
                         <a id="items" class="config" href="{{ route('items.index', []) }}"><i class="fas fa-list"></i><div class="tooltip left">{{ __('app.apps.app_list') }}</div></a>
                         <a id="folder" class="config" href="{{ route('tags.index', []) }}"><i class="fas fa-tag"></i><div class="tooltip left">{{ __('app.apps.tag_list') }}</div></a>
                         <a id="settings" class="config" href="{{ route('settings.index', []) }}"><i class="fas fa-cogs"></i><div class="tooltip left">{{ __('app.dashboard.settings') }}</div></a>
                     </div>
+                    @endif
                 </main>
 
             </div>

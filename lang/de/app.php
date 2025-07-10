@@ -105,4 +105,7 @@ return array (
   'alert.success.user_restored' => 'Nutzer erfolgreich wiederhergestellt',
   'dashboard.reorder' => 'Elemente neu anordnen und anheften',
   'dashboard.settings' => 'Einstellungen',
+  'role' => 'Authentifizierungsrolle',
+  'unauthorized_for_form' => 'Sie haben keinen Zugriff auf diese Seite.',
+  'disabled_feature' => 'Diese Funktion ist deaktiviert.',
 );
