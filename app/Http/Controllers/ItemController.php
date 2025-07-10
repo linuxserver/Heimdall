@@ -45,15 +45,13 @@ class ItemController extends Controller
                 $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
                     $query->pinned()->orderBy('order', 'asc');
                 })->pinned()->orderBy('order', 'asc')->get();
-
             } elseif ($treat_tags_as == 'tags') {
                 $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
                 $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
-                $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
+                $data['taglist'] = Item::where('id', 0)->orWhere(function ($query) {
                     $query->where('type', 1)->pinned();
                 })->orderBy('order', 'asc')->get();
             } else {
-
                 $data['apps'] = Item::whereHas('parents', function ($query) {
                     $query->where('id', 0);
                 })->whereIn('role', $roles)->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
@@ -67,15 +65,13 @@ class ItemController extends Controller
                 $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
                     $query->pinned()->orderBy('order', 'asc');
                 })->pinned()->orderBy('order', 'asc')->get();
-
             } elseif ($treat_tags_as == 'tags') {
                 $data['apps'] = Item::with('parents')->where('type', 0)->pinned()->orderBy('order', 'asc')->get();
                 $data['all_apps'] = Item::where('type', 0)->orderBy('order', 'asc')->get();
-                $data['taglist'] = Item::where('id', 0)->orWhere(function($query) {
+                $data['taglist'] = Item::where('id', 0)->orWhere(function ($query) {
                     $query->where('type', 1)->pinned();
                 })->orderBy('order', 'asc')->get();
             } else {
-
                 $data['apps'] = Item::whereHas('parents', function ($query) {
                     $query->where('id', 0);
                 })->orWhere('type', 1)->pinned()->orderBy('order', 'asc')->get();
