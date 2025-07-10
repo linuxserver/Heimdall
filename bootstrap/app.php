@@ -14,7 +14,27 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectGuestsTo(fn () => route('login'));
+
+        $middleware->validateCsrfTokens(except: [
+            //
+            'order',
+            'appload',
+            'test_config',
+            //'get_stats'
+        ]);
+
+        $middleware->append(\Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class);
+
+        $middleware->throttleApi('60,1');
+
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
+
+        $middleware->alias([
+            'allowed' => \App\Http\Middleware\CheckAllowed::class,
+            'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
