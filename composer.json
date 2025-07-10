@@ -14,13 +14,13 @@
         "laravel/framework": "^11.45",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.4",
-        "laravelcollective/html": "^6.4",
         "nunomaduro/collision": "^8.0",
         "symfony/yaml": "^7.0",
         "ext-json": "*",
         "ext-intl": "*",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "spatie/laravel-ignition": "^2.4"
+        "spatie/laravel-ignition": "^2.4",
+        "spatie/laravel-html": "^3.11"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",
