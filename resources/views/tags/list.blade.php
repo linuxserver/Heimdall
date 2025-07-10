@@ -34,9 +34,9 @@
                                 <td><a{{ $app->target }} href="{{ url($app->link) }}">{{ $app->link }}</a></td>
                                 <td class="text-center"><a href="{!! route('tags.edit', [$app->id]) !!}" title="{{ __('app.settings.edit') }} {{ $app->title }}"><i class="fas fa-edit"></i></a></td>
                                 <td class="text-center">
-                                        {!! Form::open(['method' => 'DELETE','route' => ['tags.destroy', $app->id],'style'=>'display:inline']) !!}
+                                        {{ html()->form('DELETE', route('tags.destroy', $app->id))->style('display:inline')->open() }}
                                         <button class="link" type="submit"><i class="fa fa-trash-alt"></i></button>
-                                        {!! Form::close() !!}
+                                        {{ html()->form()->close() }}
                                 </td>
                             </tr>
                         @endforeach

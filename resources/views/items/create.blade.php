@@ -2,9 +2,9 @@
 
 @section('content')
 
-    {!! Form::open(array('route' => 'items.store', 'id' => 'itemform', 'files' => true, 'method'=>'POST')) !!}
+    {{ html()->form('POST', route('items.store'))->id('itemform')->acceptsFiles()->open() }}
     @include('items.form')
-    {!! Form::close() !!}
+    {{ html()->form()->close() }}
 
 @endsection
 @section('scripts')

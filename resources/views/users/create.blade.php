@@ -2,9 +2,9 @@
 
 @section('content')
 
-    {!! Form::open(array('route' => 'users.store', 'id' => 'userform', 'files' => true, 'method'=>'POST')) !!}
+    {{ html()->form('POST', route('users.store'))->id('userform')->acceptsFiles()->open() }}
     @include('users.form')
-    {!! Form::close() !!}
+    {{ html()->form()->close() }}
 
 @endsection
 @section('scripts')

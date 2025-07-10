@@ -12,8 +12,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'EnhancedApps' => App\EnhancedApps::class,
-        'Form' => Collective\Html\FormFacade::class,
-        'Html' => Collective\Html\HtmlFacade::class,
         'Redis' => Illuminate\Support\Facades\Redis::class,
         'SupportedApps' => App\SupportedApps::class,
         'Yaml' => Symfony\Component\Yaml\Yaml::class,

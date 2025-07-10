@@ -2,9 +2,9 @@
 
 @section('content')
 
-    {!! Form::model($user, ['method' => 'PATCH', 'id' => 'userform', 'files' => true, 'route' => ['users.update', $user->id]]) !!}
+    {{ html()->modelForm($user, 'PATCH', route('users.update', $user->id))->id('userform')->acceptsFiles()->open() }}
     @include('users.form')
-    {!! Form::close() !!}
+    {{ html()->closeModelForm() }}
 
 @endsection
 @section('scripts')
