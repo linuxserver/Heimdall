@@ -2,8 +2,8 @@
 
 @section('content')
 
-    {!! Form::model($setting, ['method' => 'PATCH', 'files' => true, 'route' => ['settings.edit', $setting->id]]) !!}
+    {{ html()->modelForm($setting, 'PATCH', route('settings.edit', $setting->id))->acceptsFiles()->open() }}
     @include('settings.form')
-    {!! Form::close() !!}
+    {{ html()->closeModelForm() }}
 
 @endsection

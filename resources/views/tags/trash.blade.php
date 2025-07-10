@@ -28,10 +28,10 @@
                                 <td>{{ __('app.url') }}</td>
                                 <td class="text-center"><a href="{!! route('tags.restore', [ $app->id ]) !!}" title="{{ __('app.restore') }} {!! $app->title !!}"><i class="fas fa-undo"></i></a></td>
                                 <td class="text-center">
-                                        {!! Form::open(['method' => 'DELETE','route' => ['tags.destroy', $app->id],'style'=>'display:inline']) !!}
+                                        {{ html()->form('DELETE', route('tags.destroy', $app->id))->style('display:inline')->open() }}
                                         <input type="hidden" name="force" value="1" />
                                         <button type="submit"><i class="fa fa-trash-alt"></i></button>
-                                        {!! Form::close() !!}
+                                        {{ html()->form()->close() }}
                                 </td>
                             </tr>
                         @endforeach

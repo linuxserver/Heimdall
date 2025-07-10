@@ -2,9 +2,9 @@
 
 @section('content')
 
-    {!! Form::model($item, ['method' => 'PATCH', 'id' => 'itemform', 'files' => true, 'route' => ['tags.update', $item->id]]) !!}
+    {{ html()->modelForm($item, 'PATCH', route('tags.update', $item->id))->id('itemform')->acceptsFiles()->open() }}
     @include('tags.form')
-    {!! Form::close() !!}
+    {{ html()->closeModelForm() }}
 
 @endsection
 @section('scripts')

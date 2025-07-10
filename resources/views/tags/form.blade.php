@@ -12,10 +12,10 @@
 
             <div class="input">
                 <label>{{ __('app.apps.tag_name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'class' => 'form-control', 'required')) !!}
+                {{ html()->text('title')->placeholder(__('app.apps.title'))->class('form-control')->required() }}
                 <hr />
                 <label>{{ __('app.apps.pinned') }}</label>
-                {!! Form::hidden('pinned', '0') !!}
+                {{ html()->hidden('pinned', '0') }}
                 <label class="switch">
                     <?php
                     $checked = true;
@@ -28,13 +28,13 @@
             </div>
             <div class="input">
                 <label>{{ __('app.apps.colour') }}</label>
-                {!! Form::text('colour', null, array('placeholder' => __('app.apps.hex'),'class' => 'form-control color-picker')) !!}
+                {{ html()->text('colour')->placeholder(__('app.apps.hex'))->class('form-control color-picker') }}
                 <hr />
             </div>
             @if($app['config']->get('app.auth_roles_enable', false))
             <div class="input">
                 <label>{{ __('app.role') }}</label>
-                {!! Form::text('role', $item->role ?? null, array('placeholder' => __('app.role'), 'id' => 'role', 'class' => 'form-control')) !!}
+                {{ html()->text('role', $item->role ?? null)->placeholder(__('app.role'))->id('role')->class('form-control') }}
                 <hr />
             </div>
             @endif
@@ -48,7 +48,7 @@
                         else $icon = old('icon');
                     ?>
                     <img src="{{ asset('storage/'.$icon) }}" />
-                    {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
+                    {{ html()->hidden('icon', $icon)->class('form-control') }}
                     @else
                     <img src="/img/heimdall-icon-small.png" />
                     @endif
@@ -61,7 +61,7 @@
             </div>
             <div class="input">
             <label>{{ __('app.apps.pinned') }}</label>
-                {!! Form::hidden('pinned', '0') !!}
+                {{ html()->hidden('pinned', '0') }}
                 <label class="switch">
                     <?php
                     $checked = false;

@@ -12,12 +12,12 @@
 
             <div class="input">
                 <label>{{ __('app.user.username') }} *</label>
-                {!! Form::text('username', null, array('placeholder' => __('app.user.username'), 'id' => 'appname', 'class' => 'form-control')) !!}
+                {{ html()->text('username')->placeholder(__('app.user.username'))->id('appname')->class('form-control') }}
                 <hr />
             </div>
             <div class="input">
                 <label>{{ __('app.user.email') }} *</label>
-                {!! Form::text('email', null, array('placeholder' => 'email@test.com','class' => 'form-control')) !!}
+                {{ html()->text('email')->placeholder('email@test.com')->class('form-control') }}
                 <hr />
             </div>
             <div class="input">
@@ -30,7 +30,7 @@
                         else $avatar = old('avatar');
                     ?>
                     <img style="max-width: 115px" src="{{ asset('storage/'.$avatar) }}" />
-                    {!! Form::hidden('avatar', $avatar, ['class' => 'form-control']) !!}
+                    {{ html()->hidden('avatar', $avatar)->class('form-control') }}
                     @else
                     <img style="max-width: 115px" src="/img/heimdall-icon-small.png" />
                     @endif
@@ -45,19 +45,19 @@
         <div style="margin-top: -40px; width: 100%; padding: 0" class="create">
             <div class="input">
                 <label>{{ __('app.apps.password') }} *</label>
-                {!! Form::password('password', null, array('class' => 'form-control')) !!}
+                {{ html()->password('password', array('class' => 'form-control'))->attributes(null) }}
                 <hr />
 
             </div>
             <div class="input">
                 <label>{{ __('app.user.password_confirm') }} *</label>
-                {!! Form::password('password_confirmation', null, array('class' => 'form-control')) !!}
+                {{ html()->password('password_confirmation', array('class' => 'form-control'))->attributes(null) }}
             </div>
         </div>
 
         <div class="input">
                 <label>{{ __('app.user.secure_front') }}</label>
-                {!! Form::hidden('public_front', '0') !!}
+                {{ html()->hidden('public_front', '0') }}
                 <label class="switch">
                     <?php
                     $checked = true;
@@ -70,7 +70,7 @@
             </div>
             <div class="input">
                     <label>{{ __('app.user.autologin') }}</label>
-                    {!! Form::hidden('autologin_allow', '0') !!}
+                    {{ html()->hidden('autologin_allow', '0') }}
                     <label class="switch">
                         <?php
                         $checked = false;
