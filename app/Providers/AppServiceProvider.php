@@ -88,8 +88,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('trianglify_seed', $trianglify_seed);
             $view->with('allusers', $allusers);
             $view->with('current_user', $current_user);
-            if (config('app.auth_roles_enable')){
-                $view->with('enable_auth_admin_controls', in_array(config('app.auth_roles_admin'),explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
+            if (config('app.auth_roles_enable')) {
+                $view->with('enable_auth_admin_controls', in_array(config('app.auth_roles_admin'), explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
             } else {
                 $view->with('enable_auth_admin_controls', true);
             }

@@ -349,6 +349,5 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.treat_tags_as';
             $setting->save();
         }
-
     }
 }
