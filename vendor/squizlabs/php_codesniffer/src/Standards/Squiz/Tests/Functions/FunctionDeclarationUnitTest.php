@@ -26,14 +26,22 @@ final class FunctionDeclarationUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of errors that should occur on that line.
      *
+     * @param string $testFile The name of the file being tested.
+     *
      * @return array<int, int>
      */
-    public function getErrorList()
+    public function getErrorList($testFile='')
     {
-        return [
-            55 => 1,
-            68 => 1,
-        ];
+        switch ($testFile) {
+        case 'FunctionDeclarationUnitTest.1.inc':
+            return [
+                55 => 1,
+                68 => 1,
+            ];
+
+        default:
+            return [];
+        }//end switch
 
     }//end getErrorList()
 

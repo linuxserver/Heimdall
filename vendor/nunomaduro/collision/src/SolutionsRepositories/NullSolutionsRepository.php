@@ -15,7 +15,7 @@ final class NullSolutionsRepository implements SolutionsRepository
     /**
      * {@inheritdoc}
      */
-    public function getFromThrowable(Throwable $throwable): array
+    public function getFromThrowable(Throwable $throwable): array  // @phpstan-ignore-line
     {
         return [];
     }

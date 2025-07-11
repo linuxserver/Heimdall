@@ -510,3 +510,41 @@ class SpacingAfter {
 
     public function multipleLinesSomeEmpty() {}
 }
+
+class HandleBlankLinesBetweenDocblockAndDeclarationWithAttributes
+{
+    /**
+     * Blank line between docblock and attribute.
+     *
+     * @return mixed
+     */
+
+    #[ReturnTypeWillChange]
+
+
+
+
+
+    #[
+
+        AnotherAttribute
+
+    ]#[AndAThirdAsWell]
+
+    public function blankLineDetectionA()
+    {
+
+    }//end blankLineDetectionA()
+
+    /**
+     * Blank line between attribute and function declaration.
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange]
+
+    public function blankLineDetectionB()
+    {
+
+    }//end blankLineDetectionB()
+}//end class

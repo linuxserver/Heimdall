@@ -47,7 +47,3 @@ $a = $b !== null
         default => 5,
     }
     : new Foo;
-
-// Intentional parse error. This must be the last test in the file.
-function new
-?>

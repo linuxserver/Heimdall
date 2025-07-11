@@ -11,14 +11,15 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/console": "^9.21|^10.0|^11.0",
-        "illuminate/filesystem": "^9.21|^10.0|^11.0",
-        "illuminate/support": "^9.21|^10.0|^11.0",
-        "illuminate/validation": "^9.21|^10.0|^11.0"
+        "illuminate/console": "^9.21|^10.0|^11.0|^12.0",
+        "illuminate/filesystem": "^9.21|^10.0|^11.0|^12.0",
+        "illuminate/support": "^9.21|^10.0|^11.0|^12.0",
+        "illuminate/validation": "^9.21|^10.0|^11.0|^12.0",
+        "symfony/console": "^6.0|^7.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^7.0|^8.0|^9.0",
-        "phpunit/phpunit": "^9.3|^10.4"
+        "orchestra/testbench": "^7.35|^8.15|^9.0|^10.0",
+        "phpunit/phpunit": "^9.3|^10.4|^11.5"
     },
     "autoload": {
         "psr-4": {

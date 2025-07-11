@@ -84,9 +84,7 @@ use function array_keys;
 use function array_merge;
 use function array_pop;
 use function array_unique;
-use function constant;
 use function count;
-use function defined;
 use function explode;
 use function file_get_contents;
 use function htmlspecialchars;
@@ -95,13 +93,14 @@ use function ksort;
 use function range;
 use function sort;
 use function sprintf;
+use function str_ends_with;
 use function str_replace;
-use function substr;
 use function token_get_all;
 use function trim;
-use PHPUnit\Runner\BaseTestRunner;
+use SebastianBergmann\CodeCoverage\FileCouldNotBeWrittenException;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
 use SebastianBergmann\CodeCoverage\Util\Percentage;
+use SebastianBergmann\Template\Exception;
 use SebastianBergmann\Template\Template;
 
 /**
@@ -112,17 +111,78 @@ final class File extends Renderer
     /**
      * @psalm-var array<int,true>
      */
-    private static $keywordTokens = [];
-
-    /**
-     * @var array
-     */
-    private static $formattedSourceCache = [];
-
-    /**
-     * @var int
-     */
-    private $htmlSpecialCharsFlags = ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE;
+    private const KEYWORD_TOKENS = [
+        T_ABSTRACT      => true,
+        T_ARRAY         => true,
+        T_AS            => true,
+        T_BREAK         => true,
+        T_CALLABLE      => true,
+        T_CASE          => true,
+        T_CATCH         => true,
+        T_CLASS         => true,
+        T_CLONE         => true,
+        T_CONST         => true,
+        T_CONTINUE      => true,
+        T_DECLARE       => true,
+        T_DEFAULT       => true,
+        T_DO            => true,
+        T_ECHO          => true,
+        T_ELSE          => true,
+        T_ELSEIF        => true,
+        T_EMPTY         => true,
+        T_ENDDECLARE    => true,
+        T_ENDFOR        => true,
+        T_ENDFOREACH    => true,
+        T_ENDIF         => true,
+        T_ENDSWITCH     => true,
+        T_ENDWHILE      => true,
+        T_ENUM          => true,
+        T_EVAL          => true,
+        T_EXIT          => true,
+        T_EXTENDS       => true,
+        T_FINAL         => true,
+        T_FINALLY       => true,
+        T_FN            => true,
+        T_FOR           => true,
+        T_FOREACH       => true,
+        T_FUNCTION      => true,
+        T_GLOBAL        => true,
+        T_GOTO          => true,
+        T_HALT_COMPILER => true,
+        T_IF            => true,
+        T_IMPLEMENTS    => true,
+        T_INCLUDE       => true,
+        T_INCLUDE_ONCE  => true,
+        T_INSTANCEOF    => true,
+        T_INSTEADOF     => true,
+        T_INTERFACE     => true,
+        T_ISSET         => true,
+        T_LIST          => true,
+        T_MATCH         => true,
+        T_NAMESPACE     => true,
+        T_NEW           => true,
+        T_PRINT         => true,
+        T_PRIVATE       => true,
+        T_PROTECTED     => true,
+        T_PUBLIC        => true,
+        T_READONLY      => true,
+        T_REQUIRE       => true,
+        T_REQUIRE_ONCE  => true,
+        T_RETURN        => true,
+        T_STATIC        => true,
+        T_SWITCH        => true,
+        T_THROW         => true,
+        T_TRAIT         => true,
+        T_TRY           => true,
+        T_UNSET         => true,
+        T_USE           => true,
+        T_VAR           => true,
+        T_WHILE         => true,
+        T_YIELD         => true,
+        T_YIELD_FROM    => true,
+    ];
+    private static array $formattedSourceCache = [];
+    private int $htmlSpecialCharsFlags         = ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE;
 
     public function render(FileNode $node, string $file): void
     {
@@ -136,10 +196,18 @@ final class File extends Renderer
                 'lines'     => $this->renderSourceWithLineCoverage($node),
                 'legend'    => '<p><span class="legend covered-by-small-tests">Covered by small (and larger) tests</span><span class="legend covered-by-medium-tests">Covered by medium (and large) tests</span><span class="legend covered-by-large-tests">Covered by large tests (and tests of unknown size)</span><span class="legend not-covered">Not covered</span><span class="legend not-coverable">Not coverable</span></p>',
                 'structure' => '',
-            ]
+            ],
         );
 
-        $template->renderTo($file . '.html');
+        try {
+            $template->renderTo($file . '.html');
+        } catch (Exception $e) {
+            throw new FileCouldNotBeWrittenException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e,
+            );
+        }
 
         if ($this->hasBranchCoverage) {
             $template->setVar(
@@ -148,10 +216,18 @@ final class File extends Renderer
                     'lines'     => $this->renderSourceWithBranchCoverage($node),
                     'legend'    => '<p><span class="success"><strong>Fully covered</strong></span><span class="warning"><strong>Partially covered</strong></span><span class="danger"><strong>Not covered</strong></span></p>',
                     'structure' => $this->renderBranchStructure($node),
-                ]
+                ],
             );
 
-            $template->renderTo($file . '_branch.html');
+            try {
+                $template->renderTo($file . '_branch.html');
+            } catch (Exception $e) {
+                throw new FileCouldNotBeWrittenException(
+                    $e->getMessage(),
+                    $e->getCode(),
+                    $e,
+                );
+            }
 
             $template->setVar(
                 [
@@ -159,10 +235,18 @@ final class File extends Renderer
                     'lines'     => $this->renderSourceWithPathCoverage($node),
                     'legend'    => '<p><span class="success"><strong>Fully covered</strong></span><span class="warning"><strong>Partially covered</strong></span><span class="danger"><strong>Not covered</strong></span></p>',
                     'structure' => $this->renderPathStructure($node),
-                ]
+                ],
             );
 
-            $template->renderTo($file . '_path.html');
+            try {
+                $template->renderTo($file . '_path.html');
+            } catch (Exception $e) {
+                throw new FileCouldNotBeWrittenException(
+                    $e->getMessage(),
+                    $e->getCode(),
+                    $e,
+                );
+            }
         }
     }
 
@@ -175,7 +259,7 @@ final class File extends Renderer
         $methodItemTemplate = new Template(
             $methodTemplateName,
             '{{',
-            '}}'
+            '}}',
         );
 
         $items = $this->renderItemTemplate(
@@ -203,24 +287,24 @@ final class File extends Renderer
                 'testedClassesPercent'            => $node->percentageOfTestedClassesAndTraits()->asFloat(),
                 'testedClassesPercentAsString'    => $node->percentageOfTestedClassesAndTraits()->asString(),
                 'crap'                            => '<abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr>',
-            ]
+            ],
         );
 
         $items .= $this->renderFunctionItems(
             $node->functions(),
-            $methodItemTemplate
+            $methodItemTemplate,
         );
 
         $items .= $this->renderTraitOrClassItems(
             $node->traits(),
             $template,
-            $methodItemTemplate
+            $methodItemTemplate,
         );
 
         $items .= $this->renderTraitOrClassItems(
             $node->classes(),
             $template,
-            $methodItemTemplate
+            $methodItemTemplate,
         );
 
         return $items;
@@ -253,15 +337,15 @@ final class File extends Renderer
                 $numTestedClasses             = $numTestedMethods === $numMethods ? 1 : 0;
                 $linesExecutedPercentAsString = Percentage::fromFractionAndTotal(
                     $item['executedLines'],
-                    $item['executableLines']
+                    $item['executableLines'],
                 )->asString();
                 $branchesExecutedPercentAsString = Percentage::fromFractionAndTotal(
                     $item['executedBranches'],
-                    $item['executableBranches']
+                    $item['executableBranches'],
                 )->asString();
                 $pathsExecutedPercentAsString = Percentage::fromFractionAndTotal(
                     $item['executedPaths'],
-                    $item['executablePaths']
+                    $item['executablePaths'],
                 )->asString();
             } else {
                 $numClasses                      = 0;
@@ -273,12 +357,12 @@ final class File extends Renderer
 
             $testedMethodsPercentage = Percentage::fromFractionAndTotal(
                 $numTestedMethods,
-                $numMethods
+                $numMethods,
             );
 
             $testedClassesPercentage = Percentage::fromFractionAndTotal(
                 $numTestedMethods === $numMethods ? 1 : 0,
-                1
+                1,
             );
 
             $buffer .= $this->renderItemTemplate(
@@ -305,7 +389,7 @@ final class File extends Renderer
                     'numExecutableBranches'           => $item['executableBranches'],
                     'pathsExecutedPercent'            => Percentage::fromFractionAndTotal(
                         $item['executedPaths'],
-                        $item['executablePaths']
+                        $item['executablePaths'],
                     )->asFloat(),
                     'pathsExecutedPercentAsString' => $pathsExecutedPercentAsString,
                     'numExecutedPaths'             => $item['executedPaths'],
@@ -315,14 +399,14 @@ final class File extends Renderer
                     'testedClassesPercent'         => $testedClassesPercentage->asFloat(),
                     'testedClassesPercentAsString' => $testedClassesPercentage->asString(),
                     'crap'                         => $item['crap'],
-                ]
+                ],
             );
 
             foreach ($item['methods'] as $method) {
                 $buffer .= $this->renderFunctionOrMethodItem(
                     $methodItemTemplate,
                     $method,
-                    '&nbsp;'
+                    '&nbsp;',
                 );
             }
         }
@@ -341,7 +425,7 @@ final class File extends Renderer
         foreach ($functions as $function) {
             $buffer .= $this->renderFunctionOrMethodItem(
                 $template,
-                $function
+                $function,
             );
         }
 
@@ -363,22 +447,22 @@ final class File extends Renderer
 
         $executedLinesPercentage = Percentage::fromFractionAndTotal(
             $item['executedLines'],
-            $item['executableLines']
+            $item['executableLines'],
         );
 
         $executedBranchesPercentage = Percentage::fromFractionAndTotal(
             $item['executedBranches'],
-            $item['executableBranches']
+            $item['executableBranches'],
         );
 
         $executedPathsPercentage = Percentage::fromFractionAndTotal(
             $item['executedPaths'],
-            $item['executablePaths']
+            $item['executablePaths'],
         );
 
         $testedMethodsPercentage = Percentage::fromFractionAndTotal(
             $numTestedMethods,
-            1
+            1,
         );
 
         return $this->renderItemTemplate(
@@ -389,7 +473,7 @@ final class File extends Renderer
                     $indent,
                     $item['startLine'],
                     htmlspecialchars($item['signature'], $this->htmlSpecialCharsFlags),
-                    $item['functionName'] ?? $item['methodName']
+                    $item['functionName'] ?? $item['methodName'],
                 ),
                 'numMethods'                      => $numMethods,
                 'numTestedMethods'                => $numTestedMethods,
@@ -408,7 +492,7 @@ final class File extends Renderer
                 'testedMethodsPercent'            => $testedMethodsPercentage->asFloat(),
                 'testedMethodsPercentAsString'    => $testedMethodsPercentage->asString(),
                 'crap'                            => $item['crap'],
-            ]
+            ],
         );
     }
 
@@ -466,7 +550,7 @@ final class File extends Renderer
                 $popover = sprintf(
                     ' data-title="%s" data-content="%s" data-placement="top" data-html="true"',
                     $popoverTitle,
-                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags)
+                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags),
                 );
             }
 
@@ -553,7 +637,7 @@ final class File extends Renderer
                 $popover = sprintf(
                     ' data-title="%s" data-content="%s" data-placement="top" data-html="true"',
                     $popoverTitle,
-                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags)
+                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags),
                 );
             }
 
@@ -643,7 +727,7 @@ final class File extends Renderer
                 $popover = sprintf(
                     ' data-title="%s" data-content="%s" data-placement="top" data-html="true"',
                     $popoverTitle,
-                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags)
+                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags),
                 );
             }
 
@@ -741,7 +825,7 @@ final class File extends Renderer
                 $popover = sprintf(
                     ' data-title="%s" data-content="%s" data-placement="top" data-html="true"',
                     $popoverTitle,
-                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags)
+                    htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags),
                 );
             }
 
@@ -856,7 +940,7 @@ final class File extends Renderer
                     $popover = sprintf(
                         ' data-title="%s" data-content="%s" data-placement="top" data-html="true"',
                         $popoverTitle,
-                        htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags)
+                        htmlspecialchars($popoverContent, $this->htmlSpecialCharsFlags),
                     );
                 }
 
@@ -881,7 +965,7 @@ final class File extends Renderer
                 'lineContent' => $lineContent,
                 'class'       => $class,
                 'popover'     => $popover,
-            ]
+            ],
         );
 
         return $template->render();
@@ -898,7 +982,7 @@ final class File extends Renderer
         $result              = [''];
         $i                   = 0;
         $stringFlag          = false;
-        $fileEndsWithNewLine = substr($buffer, -1) === "\n";
+        $fileEndsWithNewLine = str_ends_with($buffer, "\n");
 
         unset($buffer);
 
@@ -907,14 +991,14 @@ final class File extends Renderer
                 if ($token === '"' && $tokens[$j - 1] !== '\\') {
                     $result[$i] .= sprintf(
                         '<span class="string">%s</span>',
-                        htmlspecialchars($token, $this->htmlSpecialCharsFlags)
+                        htmlspecialchars($token, $this->htmlSpecialCharsFlags),
                     );
 
                     $stringFlag = !$stringFlag;
                 } else {
                     $result[$i] .= sprintf(
                         '<span class="keyword">%s</span>',
-                        htmlspecialchars($token, $this->htmlSpecialCharsFlags)
+                        htmlspecialchars($token, $this->htmlSpecialCharsFlags),
                     );
                 }
 
@@ -926,7 +1010,7 @@ final class File extends Renderer
             $value = str_replace(
                 ["\t", ' '],
                 ['&nbsp;&nbsp;&nbsp;&nbsp;', '&nbsp;'],
-                htmlspecialchars($value, $this->htmlSpecialCharsFlags)
+                htmlspecialchars($value, $this->htmlSpecialCharsFlags),
             );
 
             if ($value === "\n") {
@@ -955,7 +1039,7 @@ final class File extends Renderer
                         $result[$i] .= sprintf(
                             '<span class="%s">%s</span>',
                             $colour,
-                            $line
+                            $line,
                         );
                     }
 
@@ -983,7 +1067,7 @@ final class File extends Renderer
             $className = sprintf(
                 '<abbr title="%s">%s</abbr>',
                 $className,
-                array_pop($tmp)
+                array_pop($tmp),
             );
         }
 
@@ -1005,48 +1089,27 @@ final class File extends Renderer
     {
         $testCSS = '';
 
-        if ($testData['fromTestcase']) {
-            switch ($testData['status']) {
-                case BaseTestRunner::STATUS_PASSED:
-                    switch ($testData['size']) {
-                        case 'small':
-                            $testCSS = ' class="covered-by-small-tests"';
+        switch ($testData['status']) {
+            case 'success':
+                $testCSS = match ($testData['size']) {
+                    'small'  => ' class="covered-by-small-tests"',
+                    'medium' => ' class="covered-by-medium-tests"',
+                    // no break
+                    default => ' class="covered-by-large-tests"',
+                };
 
-                            break;
+                break;
 
-                        case 'medium':
-                            $testCSS = ' class="covered-by-medium-tests"';
+            case 'failure':
+                $testCSS = ' class="danger"';
 
-                            break;
-
-                        default:
-                            $testCSS = ' class="covered-by-large-tests"';
-
-                            break;
-                    }
-
-                    break;
-
-                case BaseTestRunner::STATUS_SKIPPED:
-                case BaseTestRunner::STATUS_INCOMPLETE:
-                case BaseTestRunner::STATUS_RISKY:
-                case BaseTestRunner::STATUS_WARNING:
-                    $testCSS = ' class="warning"';
-
-                    break;
-
-                case BaseTestRunner::STATUS_FAILURE:
-                case BaseTestRunner::STATUS_ERROR:
-                    $testCSS = ' class="danger"';
-
-                    break;
-            }
+                break;
         }
 
         return sprintf(
             '<li%s>%s</li>',
             $testCSS,
-            htmlspecialchars($test, $this->htmlSpecialCharsFlags)
+            htmlspecialchars($test, $this->htmlSpecialCharsFlags),
         );
     }
 
@@ -1062,101 +1125,6 @@ final class File extends Renderer
 
     private function isKeyword(int $token): bool
     {
-        return isset(self::keywordTokens()[$token]);
-    }
-
-    /**
-     * @psalm-return array<int,true>
-     */
-    private static function keywordTokens(): array
-    {
-        if (self::$keywordTokens !== []) {
-            return self::$keywordTokens;
-        }
-
-        self::$keywordTokens = [
-            T_ABSTRACT      => true,
-            T_ARRAY         => true,
-            T_AS            => true,
-            T_BREAK         => true,
-            T_CALLABLE      => true,
-            T_CASE          => true,
-            T_CATCH         => true,
-            T_CLASS         => true,
-            T_CLONE         => true,
-            T_CONST         => true,
-            T_CONTINUE      => true,
-            T_DECLARE       => true,
-            T_DEFAULT       => true,
-            T_DO            => true,
-            T_ECHO          => true,
-            T_ELSE          => true,
-            T_ELSEIF        => true,
-            T_EMPTY         => true,
-            T_ENDDECLARE    => true,
-            T_ENDFOR        => true,
-            T_ENDFOREACH    => true,
-            T_ENDIF         => true,
-            T_ENDSWITCH     => true,
-            T_ENDWHILE      => true,
-            T_EVAL          => true,
-            T_EXIT          => true,
-            T_EXTENDS       => true,
-            T_FINAL         => true,
-            T_FINALLY       => true,
-            T_FOR           => true,
-            T_FOREACH       => true,
-            T_FUNCTION      => true,
-            T_GLOBAL        => true,
-            T_GOTO          => true,
-            T_HALT_COMPILER => true,
-            T_IF            => true,
-            T_IMPLEMENTS    => true,
-            T_INCLUDE       => true,
-            T_INCLUDE_ONCE  => true,
-            T_INSTANCEOF    => true,
-            T_INSTEADOF     => true,
-            T_INTERFACE     => true,
-            T_ISSET         => true,
-            T_LIST          => true,
-            T_NAMESPACE     => true,
-            T_NEW           => true,
-            T_PRINT         => true,
-            T_PRIVATE       => true,
-            T_PROTECTED     => true,
-            T_PUBLIC        => true,
-            T_REQUIRE       => true,
-            T_REQUIRE_ONCE  => true,
-            T_RETURN        => true,
-            T_STATIC        => true,
-            T_SWITCH        => true,
-            T_THROW         => true,
-            T_TRAIT         => true,
-            T_TRY           => true,
-            T_UNSET         => true,
-            T_USE           => true,
-            T_VAR           => true,
-            T_WHILE         => true,
-            T_YIELD         => true,
-            T_YIELD_FROM    => true,
-        ];
-
-        if (defined('T_FN')) {
-            self::$keywordTokens[constant('T_FN')] = true;
-        }
-
-        if (defined('T_MATCH')) {
-            self::$keywordTokens[constant('T_MATCH')] = true;
-        }
-
-        if (defined('T_ENUM')) {
-            self::$keywordTokens[constant('T_ENUM')] = true;
-        }
-
-        if (defined('T_READONLY')) {
-            self::$keywordTokens[constant('T_READONLY')] = true;
-        }
-
-        return self::$keywordTokens;
+        return isset(self::KEYWORD_TOKENS[$token]);
     }
 }

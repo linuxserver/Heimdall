@@ -73,6 +73,21 @@ final class DuplicateClassNameUnitTest extends AbstractSniffUnitTest
         case 'DuplicateClassNameUnitTest.6.inc':
             return [10 => 1];
 
+        case 'DuplicateClassNameUnitTest.8.inc':
+            return [
+                7 => 1,
+                8 => 1,
+            ];
+
+        case 'DuplicateClassNameUnitTest.9.inc':
+            return [
+                3 => 1,
+                4 => 1,
+            ];
+
+        case 'DuplicateClassNameUnitTest.11.inc':
+            return [13 => 1];
+
         default:
             return [];
         }//end switch

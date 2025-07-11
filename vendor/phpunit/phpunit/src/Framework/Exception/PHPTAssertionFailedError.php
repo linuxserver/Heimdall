@@ -10,22 +10,45 @@
 namespace PHPUnit\Framework;
 
 /**
+ * @psalm-immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class PHPTAssertionFailedError extends SyntheticError
+final class PhptAssertionFailedError extends AssertionFailedError
 {
-    /**
-     * @var string
-     */
-    private $diff;
+    private readonly string $syntheticFile;
+    private readonly int $syntheticLine;
+    private readonly array $syntheticTrace;
+    private readonly string $diff;
 
     public function __construct(string $message, int $code, string $file, int $line, array $trace, string $diff)
     {
-        parent::__construct($message, $code, $file, $line, $trace);
-        $this->diff = $diff;
+        parent::__construct($message, $code);
+
+        $this->syntheticFile  = $file;
+        $this->syntheticLine  = $line;
+        $this->syntheticTrace = $trace;
+        $this->diff           = $diff;
     }
 
-    public function getDiff(): string
+    public function syntheticFile(): string
+    {
+        return $this->syntheticFile;
+    }
+
+    public function syntheticLine(): int
+    {
+        return $this->syntheticLine;
+    }
+
+    public function syntheticTrace(): array
+    {
+        return $this->syntheticTrace;
+    }
+
+    public function diff(): string
     {
         return $this->diff;
     }

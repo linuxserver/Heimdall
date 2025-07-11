@@ -54,7 +54,7 @@ class FactoryParameter
     }
 
     /**
-     * Compute the type code for the paramater.
+     * Compute the type code for the parameter.
      *
      * @return string
      */

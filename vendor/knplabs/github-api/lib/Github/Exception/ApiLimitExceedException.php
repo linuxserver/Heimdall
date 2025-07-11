@@ -20,7 +20,7 @@ class ApiLimitExceedException extends RuntimeException
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct(int $limit = 5000, int $reset = 1800, int $code = 0, Throwable $previous = null)
+    public function __construct(int $limit = 5000, int $reset = 1800, int $code = 0, ?Throwable $previous = null)
     {
         $this->limit = (int) $limit;
         $this->reset = (int) $reset;

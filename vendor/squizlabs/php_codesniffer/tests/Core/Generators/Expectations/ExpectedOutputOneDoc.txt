@@ -1,0 +1,7 @@
+
+--------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: ONE STANDARD BLOCK, NO CODE |
+--------------------------------------------------------------
+
+Documentation contains one standard block and no code comparison.
+

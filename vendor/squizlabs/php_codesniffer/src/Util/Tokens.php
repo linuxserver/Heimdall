@@ -82,6 +82,13 @@ define('T_MATCH_DEFAULT', 'PHPCS_T_MATCH_DEFAULT');
 define('T_ATTRIBUTE_END', 'PHPCS_T_ATTRIBUTE_END');
 define('T_ENUM_CASE', 'PHPCS_T_ENUM_CASE');
 define('T_TYPE_INTERSECTION', 'PHPCS_T_TYPE_INTERSECTION');
+define('T_TYPE_OPEN_PARENTHESIS', 'PHPCS_T_TYPE_OPEN_PARENTHESIS');
+define('T_TYPE_CLOSE_PARENTHESIS', 'PHPCS_T_TYPE_CLOSE_PARENTHESIS');
+
+/*
+ * {@internal IMPORTANT: all PHP native polyfilled tokens MUST be added to the
+ * `PHP_CodeSniffer\Tests\Core\Util\Tokens\TokenNameTest::dataPolyfilledPHPNativeTokens()` test method!}
+ */
 
 // Some PHP 5.5 tokens, replicated for lower versions.
 if (defined('T_FINALLY') === false) {
@@ -171,6 +178,19 @@ if (defined('T_READONLY') === false) {
 
 if (defined('T_ENUM') === false) {
     define('T_ENUM', 'PHPCS_T_ENUM');
+}
+
+// Some PHP 8.4 tokens, replicated for lower versions.
+if (defined('T_PUBLIC_SET') === false) {
+    define('T_PUBLIC_SET', 'PHPCS_T_PUBLIC_SET');
+}
+
+if (defined('T_PROTECTED_SET') === false) {
+    define('T_PROTECTED_SET', 'PHPCS_T_PROTECTED_SET');
+}
+
+if (defined('T_PRIVATE_SET') === false) {
+    define('T_PRIVATE_SET', 'PHPCS_T_PRIVATE_SET');
 }
 
 // Tokens used for parsing doc blocks.
@@ -456,9 +476,12 @@ final class Tokens
      * @var array<int|string, int|string>
      */
     public static $scopeModifiers = [
-        T_PRIVATE   => T_PRIVATE,
-        T_PUBLIC    => T_PUBLIC,
-        T_PROTECTED => T_PROTECTED,
+        T_PRIVATE       => T_PRIVATE,
+        T_PUBLIC        => T_PUBLIC,
+        T_PROTECTED     => T_PROTECTED,
+        T_PUBLIC_SET    => T_PUBLIC_SET,
+        T_PROTECTED_SET => T_PROTECTED_SET,
+        T_PRIVATE_SET   => T_PRIVATE_SET,
     ];
 
     /**
@@ -745,13 +768,13 @@ final class Tokens
 
 
     /**
-     * Given a token, returns the name of the token.
+     * Given a token constant, returns the name of the token.
      *
      * If passed an integer, the token name is sourced from PHP's token_name()
      * function. If passed a string, it is assumed to be a PHPCS-supplied token
      * that begins with PHPCS_T_, so the name is sourced from the token value itself.
      *
-     * @param int|string $token The token to get the name for.
+     * @param int|string $token The token constant to get the name for.
      *
      * @return string
      */
@@ -775,12 +798,14 @@ final class Tokens
      * For example T_CLASS tokens appear very infrequently in a file, and
      * therefore have a high weighting.
      *
-     * Returns false if there are no weightings for any of the specified tokens.
+     * If there are no weightings for any of the specified tokens, the first token
+     * seen in the passed array will be returned.
      *
      * @param array<int|string> $tokens The token types to get the highest weighted
      *                                  type for.
      *
-     * @return int|false The highest weighted token.
+     * @return int The highest weighted token.
+     *             On equal "weight", returns the first token of that particular weight.
      */
     public static function getHighestWeightedToken(array $tokens)
     {

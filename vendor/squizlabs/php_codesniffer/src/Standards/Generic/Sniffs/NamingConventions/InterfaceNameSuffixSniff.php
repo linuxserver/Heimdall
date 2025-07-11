@@ -40,6 +40,7 @@ class InterfaceNameSuffixSniff implements Sniff
     {
         $interfaceName = $phpcsFile->getDeclarationName($stackPtr);
         if ($interfaceName === null) {
+            // Live coding or parse error. Bow out.
             return;
         }
 

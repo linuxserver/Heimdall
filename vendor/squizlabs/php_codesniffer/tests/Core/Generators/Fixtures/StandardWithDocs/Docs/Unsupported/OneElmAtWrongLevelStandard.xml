@@ -1,0 +1,13 @@
+<documentation title="One element correct, one element wrong level">
+    <standard>
+    <![CDATA[
+    This is a standard block at the correct level.
+    ]]>
+    </standard>
+    <code>
+    <![CDATA[
+// Code blocks must be nested
+// in a code comparison element.
+    ]]>
+    </code>
+</documentation>

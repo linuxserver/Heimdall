@@ -5,6 +5,7 @@ namespace Lcobucci\JWT\Signer;
 
 use Lcobucci\JWT\Signer;
 use OpenSSLAsymmetricKey;
+use SensitiveParameter;
 
 use function array_key_exists;
 use function assert;
@@ -40,7 +41,9 @@ abstract class OpenSSL implements Signer
      * @throws InvalidKeyProvided
      */
     final protected function createSignature(
+        #[SensitiveParameter]
         string $pem,
+        #[SensitiveParameter]
         string $passphrase,
         string $payload,
     ): string {
@@ -56,8 +59,12 @@ abstract class OpenSSL implements Signer
     }
 
     /** @throws CannotSignPayload */
-    private function getPrivateKey(string $pem, string $passphrase): OpenSSLAsymmetricKey
-    {
+    private function getPrivateKey(
+        #[SensitiveParameter]
+        string $pem,
+        #[SensitiveParameter]
+        string $passphrase,
+    ): OpenSSLAsymmetricKey {
         return $this->validateKey(openssl_pkey_get_private($pem, $passphrase));
     }
 

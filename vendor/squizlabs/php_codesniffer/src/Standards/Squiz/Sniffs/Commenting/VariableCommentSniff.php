@@ -12,6 +12,7 @@ namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\AbstractVariableSniff;
 use PHP_CodeSniffer\Util\Common;
+use PHP_CodeSniffer\Util\Tokens;
 
 class VariableCommentSniff extends AbstractVariableSniff
 {
@@ -28,26 +29,27 @@ class VariableCommentSniff extends AbstractVariableSniff
      */
     public function processMemberVar(File $phpcsFile, $stackPtr)
     {
-        $tokens = $phpcsFile->getTokens();
-        $ignore = [
-            T_PUBLIC            => T_PUBLIC,
-            T_PRIVATE           => T_PRIVATE,
-            T_PROTECTED         => T_PROTECTED,
-            T_VAR               => T_VAR,
-            T_STATIC            => T_STATIC,
-            T_READONLY          => T_READONLY,
-            T_WHITESPACE        => T_WHITESPACE,
-            T_STRING            => T_STRING,
-            T_NS_SEPARATOR      => T_NS_SEPARATOR,
-            T_NAMESPACE         => T_NAMESPACE,
-            T_NULLABLE          => T_NULLABLE,
-            T_TYPE_UNION        => T_TYPE_UNION,
-            T_TYPE_INTERSECTION => T_TYPE_INTERSECTION,
-            T_NULL              => T_NULL,
-            T_TRUE              => T_TRUE,
-            T_FALSE             => T_FALSE,
-            T_SELF              => T_SELF,
-            T_PARENT            => T_PARENT,
+        $tokens  = $phpcsFile->getTokens();
+        $ignore  = Tokens::$scopeModifiers;
+        $ignore += [
+            T_VAR                    => T_VAR,
+            T_STATIC                 => T_STATIC,
+            T_READONLY               => T_READONLY,
+            T_FINAL                  => T_FINAL,
+            T_WHITESPACE             => T_WHITESPACE,
+            T_STRING                 => T_STRING,
+            T_NS_SEPARATOR           => T_NS_SEPARATOR,
+            T_NAMESPACE              => T_NAMESPACE,
+            T_NULLABLE               => T_NULLABLE,
+            T_TYPE_UNION             => T_TYPE_UNION,
+            T_TYPE_INTERSECTION      => T_TYPE_INTERSECTION,
+            T_TYPE_OPEN_PARENTHESIS  => T_TYPE_OPEN_PARENTHESIS,
+            T_TYPE_CLOSE_PARENTHESIS => T_TYPE_CLOSE_PARENTHESIS,
+            T_NULL                   => T_NULL,
+            T_TRUE                   => T_TRUE,
+            T_FALSE                  => T_FALSE,
+            T_SELF                   => T_SELF,
+            T_PARENT                 => T_PARENT,
         ];
 
         for ($commentEnd = ($stackPtr - 1); $commentEnd >= 0; $commentEnd--) {
@@ -135,7 +137,7 @@ class VariableCommentSniff extends AbstractVariableSniff
         // Check var type (can be multiple, separated by '|').
         $typeNames      = explode('|', $varType);
         $suggestedNames = [];
-        foreach ($typeNames as $i => $typeName) {
+        foreach ($typeNames as $typeName) {
             $suggestedName = Common::suggestType($typeName);
             if (in_array($suggestedName, $suggestedNames, true) === false) {
                 $suggestedNames[] = $suggestedName;

@@ -79,25 +79,25 @@ if ($a)
 </div>
 
 <?php
-switch ($this->error):
-    case Shop_Customer :: ERROR_INVALID_GENDER: ?>
-        Ung&uuml;ltiges Geschlecht!
-    <?php break;
-    case Shop_Customer :: ERROR_EMAIL_IN_USE: ?>
-        Die eingetragene E-Mail-Adresse ist bereits registriert.
-    <?php break;
-endswitch;
 
-if ($this->allowShopping !== true):
-    if ($this->status != Shop_Cart :: OK):
-        switch ($this->status):
-            case Shop_Cart :: NOT_FOUND:
-            echo 'foo';
-        endswitch;
+if ($error === ERROR_ONE): ?>
+    Error one!
+<?php elseif ($error === ERROR_TWO): ?>
+    Error two!
+<?php endif;
+
+
+
+if ($value):
+    if ($anotherValue):
+        foreach ($array as $element):
+            echo (function($element): string { return $element; } )($element);
+        endforeach;
     endif;
 else:
     echo 'foo';
 endif;
+
 
 // ELSE IF split over multiple lines (not inline)
 if ($test) {
@@ -106,15 +106,15 @@ if ($test) {
     } else {
     }
 
-switch($response = \Bar::baz('bat', function ($foo) {
+if ((function () {
     return 'bar';
-})) {
-    case 1:
-        return 'test';
+})())
+    echo 'one';
 
-    case 2:
-        return 'other';
-}
+
+
+
+
 
 $stuff = [1,2,3];
 foreach($stuff as $num)
@@ -201,16 +201,16 @@ if (true)
     catch(Exception $e) {
     }
 
-switch ($num) {
-    case 0:
-        if (1 > $num)
-            return bar(
-                baz(
-                    "foobarbaz"
-                )
-            );
-        break;
-}
+for ($i = 0; $i <= 4; $i++)
+    if ($i % 2)
+        return bar(
+            baz(
+                "foobarbaz"
+            )
+        );
+
+
+
 
 do {
 	$i++;
@@ -272,3 +272,7 @@ function testFinally()
         } finally {
         }
 }
+
+if ($something) {
+    echo 'hello';
+} else /* comment */ if ($somethingElse) echo 'hi';

@@ -4,8 +4,8 @@
  * Mockery (https://docs.mockery.io/)
  *
  * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
- * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
- * @link      https://github.com/mockery/mockery for the canonical source repository
+ * @license https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery;
@@ -13,17 +13,10 @@ namespace Mockery;
 interface ExpectationInterface
 {
     /**
-     * @return int
-     */
-    public function getOrderNumber();
-
-    /**
-     * @return LegacyMockInterface|MockInterface
-     */
-    public function getMock();
-
-    /**
-     * @param mixed $args
+     * @template TArgs
+     *
+     * @param TArgs ...$args
+     *
      * @return self
      */
     public function andReturn(...$args);
@@ -32,4 +25,14 @@ interface ExpectationInterface
      * @return self
      */
     public function andReturns();
+
+    /**
+     * @return LegacyMockInterface|MockInterface
+     */
+    public function getMock();
+
+    /**
+     * @return int
+     */
+    public function getOrderNumber();
 }

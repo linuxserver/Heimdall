@@ -10,6 +10,7 @@ use App\User;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Psr\Container\ContainerExceptionInterface;
@@ -144,6 +145,7 @@ class AppServiceProvider extends ServiceProvider
 
         if ($db_type == 'sqlite') {
             $db_file = database_path(env('DB_DATABASE', 'app.sqlite'));
+            Log::debug('SQLite Database Path: ' . $db_file);
             if (! is_file($db_file)) {
                 touch($db_file);
             }

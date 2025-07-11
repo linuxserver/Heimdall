@@ -48,6 +48,11 @@ namespace Symfony\Polyfill\Mbstring;
  * - mb_strstr               - Finds first occurrence of a string within another
  * - mb_strwidth             - Return width of string
  * - mb_substr_count         - Count the number of substring occurrences
+ * - mb_ucfirst              - Make a string's first character uppercase
+ * - mb_lcfirst              - Make a string's first character lowercase
+ * - mb_trim                 - Strip whitespace (or other characters) from the beginning and end of a string
+ * - mb_ltrim                - Strip whitespace (or other characters) from the beginning of a string
+ * - mb_rtrim                - Strip whitespace (or other characters) from the end of a string
  *
  * Not implemented:
  * - mb_convert_kana         - Convert "kana" one from another ("zen-kaku", "han-kaku" and more)
@@ -80,6 +85,15 @@ final class Mbstring
 
     public static function mb_convert_encoding($s, $toEncoding, $fromEncoding = null)
     {
+        if (\is_array($s)) {
+            $r = [];
+            foreach ($s as $str) {
+                $r[] = self::mb_convert_encoding($str, $toEncoding, $fromEncoding);
+            }
+
+            return $r;
+        }
+
         if (\is_array($fromEncoding) || (null !== $fromEncoding && false !== strpos($fromEncoding, ','))) {
             $fromEncoding = self::mb_detect_encoding($s, $fromEncoding);
         } else {
@@ -410,12 +424,6 @@ final class Mbstring
 
     public static function mb_check_encoding($var = null, $encoding = null)
     {
-        if (PHP_VERSION_ID < 70200 && \is_array($var)) {
-            trigger_error('mb_check_encoding() expects parameter 1 to be string, array given', \E_USER_WARNING);
-
-            return null;
-        }
-
         if (null === $encoding) {
             if (null === $var) {
                 return false;
@@ -437,7 +445,6 @@ final class Mbstring
         }
 
         return true;
-
     }
 
     public static function mb_detect_encoding($str, $encodingList = null, $strict = false)
@@ -827,7 +834,7 @@ final class Mbstring
         return $code;
     }
 
-    public static function mb_str_pad(string $string, int $length, string $pad_string = ' ', int $pad_type = \STR_PAD_RIGHT, string $encoding = null): string
+    public static function mb_str_pad(string $string, int $length, string $pad_string = ' ', int $pad_type = \STR_PAD_RIGHT, ?string $encoding = null): string
     {
         if (!\in_array($pad_type, [\STR_PAD_RIGHT, \STR_PAD_LEFT, \STR_PAD_BOTH], true)) {
             throw new \ValueError('mb_str_pad(): Argument #4 ($pad_type) must be STR_PAD_LEFT, STR_PAD_RIGHT, or STR_PAD_BOTH');
@@ -835,17 +842,8 @@ final class Mbstring
 
         if (null === $encoding) {
             $encoding = self::mb_internal_encoding();
-        }
-
-        try {
-            $validEncoding = @self::mb_check_encoding('', $encoding);
-        } catch (\ValueError $e) {
-            throw new \ValueError(sprintf('mb_str_pad(): Argument #5 ($encoding) must be a valid encoding, "%s" given', $encoding));
-        }
-
-        // BC for PHP 7.3 and lower
-        if (!$validEncoding) {
-            throw new \ValueError(sprintf('mb_str_pad(): Argument #5 ($encoding) must be a valid encoding, "%s" given', $encoding));
+        } else {
+            self::assertEncoding($encoding, 'mb_str_pad(): Argument #5 ($encoding) must be a valid encoding, "%s" given');
         }
 
         if (self::mb_strlen($pad_string, $encoding) <= 0) {
@@ -869,6 +867,34 @@ final class Mbstring
 
                 return self::mb_substr(str_repeat($pad_string, $leftPaddingLength), 0, $leftPaddingLength, $encoding).$string.self::mb_substr(str_repeat($pad_string, $rightPaddingLength), 0, $rightPaddingLength, $encoding);
         }
+    }
+
+    public static function mb_ucfirst(string $string, ?string $encoding = null): string
+    {
+        if (null === $encoding) {
+            $encoding = self::mb_internal_encoding();
+        } else {
+            self::assertEncoding($encoding, 'mb_ucfirst(): Argument #2 ($encoding) must be a valid encoding, "%s" given');
+        }
+
+        $firstChar = mb_substr($string, 0, 1, $encoding);
+        $firstChar = mb_convert_case($firstChar, \MB_CASE_TITLE, $encoding);
+
+        return $firstChar.mb_substr($string, 1, null, $encoding);
+    }
+
+    public static function mb_lcfirst(string $string, ?string $encoding = null): string
+    {
+        if (null === $encoding) {
+            $encoding = self::mb_internal_encoding();
+        } else {
+            self::assertEncoding($encoding, 'mb_lcfirst(): Argument #2 ($encoding) must be a valid encoding, "%s" given');
+        }
+
+        $firstChar = mb_substr($string, 0, 1, $encoding);
+        $firstChar = mb_convert_case($firstChar, \MB_CASE_LOWER, $encoding);
+
+        return $firstChar.mb_substr($string, 1, null, $encoding);
     }
 
     private static function getSubpart($pos, $part, $haystack, $encoding)
@@ -943,5 +969,77 @@ final class Mbstring
         }
 
         return $encoding;
+    }
+
+    public static function mb_trim(string $string, ?string $characters = null, ?string $encoding = null): string
+    {
+        return self::mb_internal_trim('{^[%s]+|[%1$s]+$}Du', $string, $characters, $encoding, __FUNCTION__);
+    }
+
+    public static function mb_ltrim(string $string, ?string $characters = null, ?string $encoding = null): string
+    {
+        return self::mb_internal_trim('{^[%s]+}Du', $string, $characters, $encoding, __FUNCTION__);
+    }
+
+    public static function mb_rtrim(string $string, ?string $characters = null, ?string $encoding = null): string
+    {
+        return self::mb_internal_trim('{[%s]+$}Du', $string, $characters, $encoding, __FUNCTION__);
+    }
+
+    private static function mb_internal_trim(string $regex, string $string, ?string $characters, ?string $encoding, string $function): string
+    {
+        if (null === $encoding) {
+            $encoding = self::mb_internal_encoding();
+        } else {
+            self::assertEncoding($encoding, $function.'(): Argument #3 ($encoding) must be a valid encoding, "%s" given');
+        }
+
+        if ('' === $characters) {
+            return null === $encoding ? $string : self::mb_convert_encoding($string, $encoding);
+        }
+
+        if ('UTF-8' === $encoding) {
+            $encoding = null;
+            if (!preg_match('//u', $string)) {
+                $string = @iconv('UTF-8', 'UTF-8//IGNORE', $string);
+            }
+            if (null !== $characters && !preg_match('//u', $characters)) {
+                $characters = @iconv('UTF-8', 'UTF-8//IGNORE', $characters);
+            }
+        } else {
+            $string = iconv($encoding, 'UTF-8//IGNORE', $string);
+
+            if (null !== $characters) {
+                $characters = iconv($encoding, 'UTF-8//IGNORE', $characters);
+            }
+        }
+
+        if (null === $characters) {
+            $characters = "\\0 \f\n\r\t\v\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}";
+        } else {
+            $characters = preg_quote($characters);
+        }
+
+        $string = preg_replace(sprintf($regex, $characters), '', $string);
+
+        if (null === $encoding) {
+            return $string;
+        }
+
+        return iconv('UTF-8', $encoding.'//IGNORE', $string);
+    }
+
+    private static function assertEncoding(string $encoding, string $errorFormat): void
+    {
+        try {
+            $validEncoding = @self::mb_check_encoding('', $encoding);
+        } catch (\ValueError $e) {
+            throw new \ValueError(sprintf($errorFormat, $encoding));
+        }
+
+        // BC for PHP 7.3 and lower
+        if (!$validEncoding) {
+            throw new \ValueError(sprintf($errorFormat, $encoding));
+        }
     }
 }

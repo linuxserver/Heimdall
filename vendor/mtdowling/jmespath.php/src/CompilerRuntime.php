@@ -23,7 +23,7 @@ class CompilerRuntime
      * @param Parser|null $parser JMESPath parser to utilize
      * @throws \RuntimeException if the cache directory cannot be created
      */
-    public function __construct($dir = null, Parser $parser = null)
+    public function __construct($dir = null, ?Parser $parser = null)
     {
         $this->parser = $parser ?: new Parser();
         $this->compiler = new TreeCompiler();

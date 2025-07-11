@@ -1,22 +1,24 @@
-<documentation title="Opening Brace in Function Declarations">
+<documentation title="Opening Function Brace Bsd Allman">
     <standard>
     <![CDATA[
-    Function declarations follow the "BSD/Allman style". The function brace is on the line following the function declaration and is indented to the same column as the start of the function declaration.
+    Function declarations must follow the "BSD/Allman style". The opening brace is on the line
+    following the function declaration and is indented to the same column as the start of the
+    function declaration. The brace must be the last content on the line.
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: brace on next line">
+        <code title="Valid: Opening brace on the next line.">
         <![CDATA[
 function fooFunction($arg1, $arg2 = '')
 <em>{</em>
-    ...
+    // Do something
 }
         ]]>
         </code>
-        <code title="Invalid: brace on same line">
+        <code title="Invalid: Opening brace on the same line.">
         <![CDATA[
 function fooFunction($arg1, $arg2 = '') <em>{</em>
-    ...
+    // Do something
 }
         ]]>
         </code>

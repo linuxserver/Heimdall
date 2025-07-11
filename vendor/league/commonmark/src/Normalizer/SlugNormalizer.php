@@ -51,6 +51,7 @@ final class SlugNormalizer implements TextNormalizerInterface, ConfigurationAwar
             $slug = \mb_substr($slug, 0, $length, 'UTF-8');
         }
 
+        // @phpstan-ignore-next-line Because it thinks mb_substr() returns false on PHP 7.4
         return $slug;
     }
 }

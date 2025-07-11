@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace NunoMaduro\Collision\Adapters\Laravel;
 
 use NunoMaduro\Collision\Contracts\SolutionsRepository;
-use Spatie\Ignition\Contracts\SolutionProviderRepository;
+use Spatie\ErrorSolutions\Contracts\SolutionProviderRepository;
+use Spatie\Ignition\Contracts\SolutionProviderRepository as IgnitionSolutionProviderRepository;
 use Throwable;
 
 /**
@@ -16,14 +17,14 @@ final class IgnitionSolutionsRepository implements SolutionsRepository
     /**
      * Holds an instance of ignition solutions provider repository.
      *
-     * @var \Spatie\Ignition\Contracts\SolutionProviderRepository
+     * @var IgnitionSolutionProviderRepository|SolutionProviderRepository
      */
-    protected $solutionProviderRepository;
+    protected $solutionProviderRepository; // @phpstan-ignore-line
 
     /**
      * IgnitionSolutionsRepository constructor.
      */
-    public function __construct(SolutionProviderRepository $solutionProviderRepository)
+    public function __construct(IgnitionSolutionProviderRepository|SolutionProviderRepository $solutionProviderRepository) // @phpstan-ignore-line
     {
         $this->solutionProviderRepository = $solutionProviderRepository;
     }
@@ -31,8 +32,8 @@ final class IgnitionSolutionsRepository implements SolutionsRepository
     /**
      * {@inheritdoc}
      */
-    public function getFromThrowable(Throwable $throwable): array
+    public function getFromThrowable(Throwable $throwable): array // @phpstan-ignore-line
     {
-        return $this->solutionProviderRepository->getSolutionsForThrowable($throwable);
+        return $this->solutionProviderRepository->getSolutionsForThrowable($throwable); // @phpstan-ignore-line
     }
 }

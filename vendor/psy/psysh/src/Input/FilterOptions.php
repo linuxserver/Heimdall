@@ -21,10 +21,10 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class FilterOptions
 {
-    private $filter = false;
-    private $pattern;
-    private $insensitive;
-    private $invert;
+    private bool $filter = false;
+    private ?string $pattern = null;
+    private bool $insensitive = false;
+    private bool $invert = false;
 
     /**
      * Get input option definitions for filtering.
@@ -85,7 +85,7 @@ class FilterOptions
      * @param string $string
      * @param array  $matches
      */
-    public function match(string $string, array &$matches = null): bool
+    public function match(string $string, ?array &$matches = null): bool
     {
         return $this->filter === false || (\preg_match($this->pattern, $string, $matches) xor $this->invert);
     }

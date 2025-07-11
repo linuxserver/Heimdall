@@ -28,9 +28,6 @@ final class HeaderRemovePlugin implements Plugin
         $this->headers = $headers;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         foreach ($this->headers as $header) {

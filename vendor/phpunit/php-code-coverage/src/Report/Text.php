@@ -47,36 +47,13 @@ final class Text
      * @var string
      */
     private const COLOR_RESET = "\x1b[0m";
+    private readonly Thresholds $thresholds;
+    private readonly bool $showUncoveredFiles;
+    private readonly bool $showOnlySummary;
 
-    /**
-     * @var string
-     */
-    private const COLOR_EOL = "\x1b[2K";
-
-    /**
-     * @var int
-     */
-    private $lowUpperBound;
-
-    /**
-     * @var int
-     */
-    private $highLowerBound;
-
-    /**
-     * @var bool
-     */
-    private $showUncoveredFiles;
-
-    /**
-     * @var bool
-     */
-    private $showOnlySummary;
-
-    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, bool $showUncoveredFiles = false, bool $showOnlySummary = false)
+    public function __construct(Thresholds $thresholds, bool $showUncoveredFiles = false, bool $showOnlySummary = false)
     {
-        $this->lowUpperBound      = $lowUpperBound;
-        $this->highLowerBound     = $highLowerBound;
+        $this->thresholds         = $thresholds;
         $this->showUncoveredFiles = $showUncoveredFiles;
         $this->showOnlySummary    = $showOnlySummary;
     }
@@ -96,48 +73,46 @@ final class Text
             'branches' => '',
             'paths'    => '',
             'reset'    => '',
-            'eol'      => '',
         ];
 
         if ($showColors) {
             $colors['classes'] = $this->coverageColor(
                 $report->numberOfTestedClassesAndTraits(),
-                $report->numberOfClassesAndTraits()
+                $report->numberOfClassesAndTraits(),
             );
 
             $colors['methods'] = $this->coverageColor(
                 $report->numberOfTestedMethods(),
-                $report->numberOfMethods()
+                $report->numberOfMethods(),
             );
 
             $colors['lines'] = $this->coverageColor(
                 $report->numberOfExecutedLines(),
-                $report->numberOfExecutableLines()
+                $report->numberOfExecutableLines(),
             );
 
             $colors['branches'] = $this->coverageColor(
                 $report->numberOfExecutedBranches(),
-                $report->numberOfExecutableBranches()
+                $report->numberOfExecutableBranches(),
             );
 
             $colors['paths'] = $this->coverageColor(
                 $report->numberOfExecutedPaths(),
-                $report->numberOfExecutablePaths()
+                $report->numberOfExecutablePaths(),
             );
 
             $colors['reset']  = self::COLOR_RESET;
             $colors['header'] = self::COLOR_HEADER;
-            $colors['eol']    = self::COLOR_EOL;
         }
 
         $classes = sprintf(
             '  Classes: %6s (%d/%d)',
             Percentage::fromFractionAndTotal(
                 $report->numberOfTestedClassesAndTraits(),
-                $report->numberOfClassesAndTraits()
+                $report->numberOfClassesAndTraits(),
             )->asString(),
             $report->numberOfTestedClassesAndTraits(),
-            $report->numberOfClassesAndTraits()
+            $report->numberOfClassesAndTraits(),
         );
 
         $methods = sprintf(
@@ -147,7 +122,7 @@ final class Text
                 $report->numberOfMethods(),
             )->asString(),
             $report->numberOfTestedMethods(),
-            $report->numberOfMethods()
+            $report->numberOfMethods(),
         );
 
         $paths    = '';
@@ -161,7 +136,7 @@ final class Text
                     $report->numberOfExecutablePaths(),
                 )->asString(),
                 $report->numberOfExecutedPaths(),
-                $report->numberOfExecutablePaths()
+                $report->numberOfExecutablePaths(),
             );
 
             $branches = sprintf(
@@ -171,7 +146,7 @@ final class Text
                     $report->numberOfExecutableBranches(),
                 )->asString(),
                 $report->numberOfExecutedBranches(),
-                $report->numberOfExecutableBranches()
+                $report->numberOfExecutableBranches(),
             );
         }
 
@@ -182,7 +157,7 @@ final class Text
                 $report->numberOfExecutableLines(),
             )->asString(),
             $report->numberOfExecutedLines(),
-            $report->numberOfExecutableLines()
+            $report->numberOfExecutableLines(),
         );
 
         $padding = max(array_map('strlen', [$classes, $methods, $lines]));
@@ -240,12 +215,12 @@ final class Text
                     }
 
                     $classMethods++;
-                    $classExecutableLines += $method['executableLines'];
-                    $classExecutedLines += $method['executedLines'];
+                    $classExecutableLines    += $method['executableLines'];
+                    $classExecutedLines      += $method['executedLines'];
                     $classExecutableBranches += $method['executableBranches'];
-                    $classExecutedBranches += $method['executedBranches'];
-                    $classExecutablePaths += $method['executablePaths'];
-                    $classExecutedPaths += $method['executedPaths'];
+                    $classExecutedBranches   += $method['executedBranches'];
+                    $classExecutablePaths    += $method['executablePaths'];
+                    $classExecutedPaths      += $method['executedPaths'];
 
                     if ($method['coverage'] == 100) {
                         $coveredMethods++;
@@ -303,14 +278,14 @@ final class Text
     {
         $coverage = Percentage::fromFractionAndTotal(
             $numberOfCoveredElements,
-            $totalNumberOfElements
+            $totalNumberOfElements,
         );
 
-        if ($coverage->asFloat() >= $this->highLowerBound) {
+        if ($coverage->asFloat() >= $this->thresholds->highLowerBound()) {
             return self::COLOR_GREEN;
         }
 
-        if ($coverage->asFloat() > $this->lowUpperBound) {
+        if ($coverage->asFloat() > $this->thresholds->lowUpperBound()) {
             return self::COLOR_YELLOW;
         }
 
@@ -323,19 +298,18 @@ final class Text
 
         return Percentage::fromFractionAndTotal(
             $numberOfCoveredElements,
-            $totalNumberOfElements
+            $totalNumberOfElements,
         )->asFixedWidthString() .
             ' (' . sprintf($format, $numberOfCoveredElements) . '/' .
         sprintf($format, $totalNumberOfElements) . ')';
     }
 
-    /**
-     * @param false|string $string
-     */
-    private function format(string $color, int $padding, $string): string
+    private function format(string $color, int $padding, false|string $string): string
     {
-        $reset = $color ? self::COLOR_RESET : '';
+        if ($color === '') {
+            return (string) $string . PHP_EOL;
+        }
 
-        return $color . str_pad((string) $string, $padding) . $reset . PHP_EOL;
+        return $color . str_pad((string) $string, $padding) . self::COLOR_RESET . PHP_EOL;
     }
 }

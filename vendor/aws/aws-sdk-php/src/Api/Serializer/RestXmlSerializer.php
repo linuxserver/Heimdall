@@ -20,7 +20,7 @@ class RestXmlSerializer extends RestSerializer
     public function __construct(
         Service $api,
         $endpoint,
-        XmlBody $xmlBody = null
+        ?XmlBody $xmlBody = null
     ) {
         parent::__construct($api, $endpoint);
         $this->xmlBody = $xmlBody ?: new XmlBody($api);

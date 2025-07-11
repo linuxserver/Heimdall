@@ -1,7 +1,14 @@
 <documentation title="File Comments">
     <standard>
     <![CDATA[
-    Files must have a non-empty doc comment.  The short description must be on the second line of the comment.  Each description must have one blank comment line before and after.  There must be one blank line before the tags in the comments.  There must be a category, package, author, license, and link tag.  There may only be one category, package, subpackage, license, version, since and deprecated tag.  The tags must be in the order category, package, subpackage, author, copyright, license, version, link, see, since, and deprecated.  The php version must be specified.
+    Files must have a non-empty doc comment.
+    The short description must be on the second line of the comment.
+    Each description must have one blank comment line before and after.
+    There must be one blank line before the tags in the comments.
+    There must be a category, package, author, license, and link tag.
+    There may only be one category, package, subpackage, license, version, since and deprecated tag.
+    The tags must be in the order category, package, subpackage, author, copyright, license, version, link, see, since, and deprecated.
+    The PHP version must be specified.
     ]]>
     </standard>
     <code_comparison>
@@ -231,16 +238,14 @@
  */
         ]]>
         </code>
-        <code title="Invalid: Category and package tags are swapped in order.">
+        <code title="Invalid: No PHP version specified.">
         <![CDATA[
 <?php
 /**
  * Short description here.
  *
- * PHP version 5
- *
- * <em>@package</em> Foo_Helpers
- * <em>@category</em> Foo
+ * @category Foo
+ * @package Foo_Helpers
  * @author Marty McFly <mmcfly@example.com>
  * @copyright 2013-2014 Foo Inc.
  * @license MIT License
@@ -267,14 +272,16 @@
  */
         ]]>
         </code>
-        <code title="Invalid: No php version specified.">
+        <code title="Invalid: Category and package tags are swapped in order.">
         <![CDATA[
 <?php
 /**
  * Short description here.
  *
- * @category Foo
- * @package Foo_Helpers
+ * PHP version 5
+ *
+ * <em>@package</em> Foo_Helpers
+ * <em>@category</em> Foo
  * @author Marty McFly <mmcfly@example.com>
  * @copyright 2013-2014 Foo Inc.
  * @license MIT License

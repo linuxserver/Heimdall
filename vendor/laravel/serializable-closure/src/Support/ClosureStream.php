@@ -7,6 +7,8 @@ class ClosureStream
 {
     /**
      * The stream protocol.
+     *
+     * @var string
      */
     const STREAM_PROTO = 'laravel-serializable-closure';
 

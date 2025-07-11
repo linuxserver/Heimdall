@@ -1,0 +1,174 @@
+<?php
+
+// True
+function myFunction($arg1, $arg2=true)
+{
+}
+function myFunction($arg1, $arg2=true)
+{
+}
+function myFunction($arg1, $arg2=true)
+{
+}
+
+if ($variable === true) { }
+if ($variable === true) { }
+if ($variable === true) { }
+
+
+// False
+function myFunction($arg1, $arg2=false)
+{
+}
+function myFunction($arg1, $arg2=false)
+{
+}
+function myFunction($arg1, $arg2=false)
+{
+}
+
+if ($variable === false) { }
+if ($variable === false) { }
+if ($variable === false) { }
+
+
+// Null
+function myFunction($arg1, $arg2=null)
+{
+}
+function myFunction($arg1, $arg2=null)
+{
+}
+function myFunction($arg1, $arg2=null)
+{
+}
+
+if ($variable === null) { }
+if ($variable === null) { }
+if ($variable === null) { }
+
+$x = new stdClass();
+$x->NULL = 7;
+
+use Zend\Log\Writer\NULL as NullWriter;
+new \Zend\Log\Writer\NULL();
+
+namespace False;
+
+class True extends Null implements False {}
+
+use True\Something;
+use Something\True;
+class MyClass
+{
+    public function myFunction()
+    {
+        $var = array('foo' => new True());
+    }
+}
+
+$x = $f?false:true;
+$x = $f? false:true;
+
+class MyClass
+{
+    // Spice things up a little.
+    const TRUE = false;
+}
+
+var_dump(MyClass::TRUE);
+
+function tRUE() {}
+
+$input->getFilterChain()->attachByName('Null', ['type' => Null::TYPE_STRING]);
+
+// Issue #3332 - ignore type declarations, but not default values.
+class TypedThings {
+    const MYCONST = false;
+
+    public int|FALSE $int = false;
+    public Type|NULL $int = new MyObj(null);
+
+    private function typed(int|FALSE $param = null, Type|NULL $obj = new MyObj(false)) : string|FALSE|NULL
+    {
+        if (true === false) {
+            return null;
+        }
+    }
+}
+
+$cl = function (int|FALSE $param = null, Type|NULL $obj = new MyObj(false)) : string|FALSE|NULL {};
+
+// Adding some extra tests to safeguard that function declarations which don't create scope are handled correctly.
+interface InterfaceMethodsWithReturnTypeNoScopeOpener {
+    private function typed($param = true) : string|FALSE|NULL;
+}
+
+abstract class ClassMethodsWithReturnTypeNoScopeOpener {
+    abstract public function typed($param = false) : TRUE;
+}
+
+// Additional tests to safeguard improved property type skip logic.
+readonly class Properties {
+    use SomeTrait {
+        sayHello as private myPrivateHello;
+    }
+
+    public Type|FALSE|NULL $propertyA = array(
+        'itemA' => true,
+        'itemB' => false,
+        'itemC' => null,
+    ), $propertyB = false;
+
+    protected \FullyQualified&Partially\Qualified&namespace\Relative $propertyC;
+    var ?TRUE $propertyD;
+    static array|callable|FALSE|self|parent $propertyE = true;
+    private
+        // phpcs:ignore Stnd.Cat.Sniff -- for reasons.
+        TRUE      /*comment*/
+        $propertyF = true;
+
+    public function __construct(
+        public FALSE|NULL $promotedPropA,
+        readonly callable|TRUE $promotedPropB,
+    ) {
+        static $var;
+        echo static::class;
+        static::foo();
+        $var = $var instanceof static;
+        $obj = new static();
+    }
+
+    public static function foo(): static|self|FALSE {
+        $callable = static function() {};
+    }
+}
+
+// PHP 8.3 introduces typed constants.
+class TypedConstants {
+    const MyClass|NULL|TRUE|FALSE MYCONST = false;
+}
+
+// Global constants can not be typed.
+const MYCONST = true;
+
+class SkipOverPHP82DNFTypes {
+    protected (\FullyQualified&Partially\Qualified)|TRUE $propertyC;
+}
+
+class SkipOverPHP84FinalProperties {
+    final MyType|FALSE $propA;
+    private static final NULL|MyClass $propB;
+}
+
+// PHP 8.4 asymmetric visibility
+class WithAsym {
+
+    private(set) NULL|TRUE $asym1 = true;
+
+    public private(set) ?bool $asym2 = false;
+
+    protected(set) FALSE|string|null $asym3 = null;
+
+    public protected(set) Type|NULL|bool $asym4 = true;
+}

@@ -51,7 +51,7 @@ class EchoedStringsSniff implements Sniff
 
         $end = $phpcsFile->findNext([T_SEMICOLON, T_CLOSE_TAG], $stackPtr, null, false);
 
-        // If the token before the semi-colon is not a closing parenthesis, then we are not concerned.
+        // If the token before the semicolon is not a closing parenthesis, then we are not concerned.
         $prev = $phpcsFile->findPrevious(T_WHITESPACE, ($end - 1), null, true);
         if ($tokens[$prev]['code'] !== T_CLOSE_PARENTHESIS) {
             $phpcsFile->recordMetric($stackPtr, 'Brackets around echoed strings', 'no');

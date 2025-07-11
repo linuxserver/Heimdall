@@ -3,6 +3,20 @@
         <header>
             <div class="section-title">{{ __('app.apps.add_tag') }}</div>
             <div class="module-actions">
+            <div class="toggleinput">
+                <label class="name">{{ __('app.apps.pinned') }}</label>
+                {{ html()->hidden('pinned', '0') }}
+                <label class="switch">
+                    <?php
+                    $checked = true;
+                    if(isset($item->pinned) && (bool)$item->pinned !== true) $checked = false;
+                    $set_checked = ($checked) ? ' checked="checked"' : '';
+                    ?>                   
+                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
                 <button type="submit"class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
                 <a href="{{ route('tags.index', []) }}" class="button"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></a>
             </div>
@@ -14,17 +28,6 @@
                 <label>{{ __('app.apps.tag_name') }} *</label>
                 {{ html()->text('title')->placeholder(__('app.apps.title'))->class('form-control')->required() }}
                 <hr />
-                <label>{{ __('app.apps.pinned') }}</label>
-                {{ html()->hidden('pinned', '0') }}
-                <label class="switch">
-                    <?php
-                    $checked = true;
-                    if(isset($item->pinned) && (bool)$item->pinned !== true) $checked = false;
-                    $set_checked = ($checked) ? ' checked="checked"' : '';
-                    ?>                   
-                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
-                    <span class="slider round"></span>
-                </label>
             </div>
             <div class="input">
                 <label>{{ __('app.apps.colour') }}</label>
@@ -58,19 +61,6 @@
                         <input type="file" id="upload" name="file" />
                     </div>
                 </div>
-            </div>
-            <div class="input">
-            <label>{{ __('app.apps.pinned') }}</label>
-                {{ html()->hidden('pinned', '0') }}
-                <label class="switch">
-                    <?php
-                    $checked = false;
-                    if(isset($item->pinned) && (bool)$item->pinned === true) $checked = true;
-                    $set_checked = ($checked) ? ' checked="checked"' : '';
-                    ?>                   
-                    <input type="checkbox" name="pinned" value="1"<?php echo $set_checked;?> />
-                    <span class="slider round"></span>
-                </label>
             </div>
             
             <div id="sapconfig"></div>

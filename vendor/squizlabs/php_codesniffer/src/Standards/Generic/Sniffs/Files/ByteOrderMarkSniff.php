@@ -49,13 +49,13 @@ class ByteOrderMarkSniff implements Sniff
      * @param int                         $stackPtr  The position of the current token in
      *                                               the stack passed in $tokens.
      *
-     * @return void
+     * @return int
      */
     public function process(File $phpcsFile, $stackPtr)
     {
         // The BOM will be the very first token in the file.
         if ($stackPtr !== 0) {
-            return;
+            return $phpcsFile->numTokens;
         }
 
         $tokens = $phpcsFile->getTokens();
@@ -68,11 +68,13 @@ class ByteOrderMarkSniff implements Sniff
                 $error     = 'File contains %s byte order mark, which may corrupt your application';
                 $phpcsFile->addError($error, $stackPtr, 'Found', $errorData);
                 $phpcsFile->recordMetric($stackPtr, 'Using byte order mark', 'yes');
-                return;
+                return $phpcsFile->numTokens;
             }
         }
 
         $phpcsFile->recordMetric($stackPtr, 'Using byte order mark', 'no');
+
+        return $phpcsFile->numTokens;
 
     }//end process()
 

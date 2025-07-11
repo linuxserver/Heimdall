@@ -30,4 +30,9 @@ class Commits extends AbstractApi
     {
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha));
     }
+
+    public function pulls($username, $repository, $sha, array $params = [])
+    {
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha).'/pulls', $params);
+    }
 }

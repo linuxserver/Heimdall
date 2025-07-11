@@ -35,7 +35,7 @@ final class MatchAllResult
 
     /**
      * @param 0|positive-int $count
-     * @param array<int|string, array<string|null>> $matches
+     * @param array<int|string, list<string|null>> $matches
      */
     public function __construct(int $count, array $matches)
     {

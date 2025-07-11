@@ -10,7 +10,6 @@ use Aws\Api\Service;
  */
 class InputValidationMiddleware
 {
-
     /** @var callable */
     private $nextHandler;
 
@@ -58,7 +57,7 @@ class InputValidationMiddleware
                 if (!empty($input['required'])) {
                     foreach ($input['required'] as $key => $member) {
                         if (in_array($member, $this->mandatoryAttributeList)) {
-                            $argument = is_string($cmd[$member]) ?  trim($cmd[$member]) : $cmd[$member];
+                            $argument = is_string($cmd[$member]) ? trim($cmd[$member]) : $cmd[$member];
                             if ($argument === '' || $argument === null) {
                                 $commandName = $cmd->getName();
                                 throw new \InvalidArgumentException(
@@ -72,5 +71,4 @@ class InputValidationMiddleware
         }
         return $nextHandler($cmd);
     }
-
 }

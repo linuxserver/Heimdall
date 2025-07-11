@@ -72,17 +72,9 @@ class OpeningFunctionBraceKernighanRitchieSniff implements Sniff
         }
 
         $openingBrace = $tokens[$stackPtr]['scope_opener'];
-        $closeBracket = $tokens[$stackPtr]['parenthesis_closer'];
-        if ($tokens[$stackPtr]['code'] === T_CLOSURE) {
-            $use = $phpcsFile->findNext(T_USE, ($closeBracket + 1), $tokens[$stackPtr]['scope_opener']);
-            if ($use !== false) {
-                $openBracket  = $phpcsFile->findNext(T_OPEN_PARENTHESIS, ($use + 1));
-                $closeBracket = $tokens[$openBracket]['parenthesis_closer'];
-            }
-        }
 
         // Find the end of the function declaration.
-        $prev = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($openingBrace - 1), $closeBracket, true);
+        $prev = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($openingBrace - 1), null, true);
 
         $functionLine = $tokens[$prev]['line'];
         $braceLine    = $tokens[$openingBrace]['line'];
@@ -99,7 +91,6 @@ class OpeningFunctionBraceKernighanRitchieSniff implements Sniff
             $error = 'Opening brace should be on the same line as the declaration';
             $fix   = $phpcsFile->addFixableError($error, $openingBrace, 'BraceOnNewLine');
             if ($fix === true) {
-                $prev = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($openingBrace - 1), $closeBracket, true);
                 $phpcsFile->fixer->beginChangeset();
                 $phpcsFile->fixer->addContent($prev, ' {');
                 $phpcsFile->fixer->replaceToken($openingBrace, '');
@@ -147,20 +138,24 @@ class OpeningFunctionBraceKernighanRitchieSniff implements Sniff
             return;
         }
 
-        // We are looking for tabs, even if they have been replaced, because
-        // we enforce a space here.
-        if (isset($tokens[($openingBrace - 1)]['orig_content']) === true) {
-            $spacing = $tokens[($openingBrace - 1)]['orig_content'];
-        } else {
-            $spacing = $tokens[($openingBrace - 1)]['content'];
-        }
-
+        // Enforce a single space. Tabs not allowed.
+        $spacing = $tokens[($openingBrace - 1)]['content'];
         if ($tokens[($openingBrace - 1)]['code'] !== T_WHITESPACE) {
             $length = 0;
         } else if ($spacing === "\t") {
+            // Tab without tab-width set, so no tab replacement has taken place.
             $length = '\t';
         } else {
             $length = strlen($spacing);
+        }
+
+        // If tab replacement is on, avoid confusing the user with a "expected 1 space, found 1"
+        // message when the "1" found is actually a tab, not a space.
+        if ($length === 1
+            && isset($tokens[($openingBrace - 1)]['orig_content']) === true
+            && $tokens[($openingBrace - 1)]['orig_content'] === "\t"
+        ) {
+            $length = '\t';
         }
 
         if ($length !== 1) {
@@ -168,7 +163,7 @@ class OpeningFunctionBraceKernighanRitchieSniff implements Sniff
             $data  = [$length];
             $fix   = $phpcsFile->addFixableError($error, $openingBrace, 'SpaceBeforeBrace', $data);
             if ($fix === true) {
-                if ($length === 0 || $length === '\t') {
+                if ($length === 0) {
                     $phpcsFile->fixer->addContentBefore($openingBrace, ' ');
                 } else {
                     $phpcsFile->fixer->replaceToken(($openingBrace - 1), ' ');

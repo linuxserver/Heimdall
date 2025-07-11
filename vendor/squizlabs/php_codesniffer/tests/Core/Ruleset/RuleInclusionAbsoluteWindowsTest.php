@@ -16,7 +16,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the \PHP_CodeSniffer\Ruleset class using a Windows-style absolute path to include a sniff.
  *
- * @covers \PHP_CodeSniffer\Ruleset
+ * @covers   \PHP_CodeSniffer\Ruleset
+ * @requires OS ^WIN.*.
+ * @group    Windows
  */
 final class RuleInclusionAbsoluteWindowsTest extends TestCase
 {
@@ -50,12 +52,8 @@ final class RuleInclusionAbsoluteWindowsTest extends TestCase
      *
      * @return void
      */
-    public function initializeConfigAndRuleset()
+    protected function initializeConfigAndRuleset()
     {
-        if (DIRECTORY_SEPARATOR === '/') {
-            $this->markTestSkipped('Windows specific test');
-        }
-
         $this->standard = __DIR__.'/'.basename(__FILE__, '.php').'.xml';
         $repoRootDir    = dirname(dirname(dirname(__DIR__)));
 
@@ -83,11 +81,9 @@ final class RuleInclusionAbsoluteWindowsTest extends TestCase
      *
      * @return void
      */
-    public function resetRuleset()
+    protected function resetRuleset()
     {
-        if (DIRECTORY_SEPARATOR !== '/') {
-            file_put_contents($this->standard, $this->contents);
-        }
+        file_put_contents($this->standard, $this->contents);
 
     }//end resetRuleset()
 

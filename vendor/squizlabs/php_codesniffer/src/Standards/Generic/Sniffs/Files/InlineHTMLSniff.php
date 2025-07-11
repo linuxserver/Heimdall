@@ -54,7 +54,7 @@ class InlineHTMLSniff implements Sniff
     {
         // Allow a byte-order mark.
         $tokens = $phpcsFile->getTokens();
-        foreach ($this->bomDefinitions as $bomName => $expectedBomHex) {
+        foreach ($this->bomDefinitions as $expectedBomHex) {
             $bomByteLength = (strlen($expectedBomHex) / 2);
             $htmlBomHex    = bin2hex(substr($tokens[0]['content'], 0, $bomByteLength));
             if ($htmlBomHex === $expectedBomHex && strlen($tokens[0]['content']) === $bomByteLength) {

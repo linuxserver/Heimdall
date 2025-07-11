@@ -35,7 +35,7 @@ class SSECMiddleware
 
     public function __invoke(
         CommandInterface $command,
-        RequestInterface $request = null
+        ?RequestInterface $request = null
     ) {
         // Allows only HTTPS connections when using SSE-C
         if (($command['SSECustomerKey'] || $command['CopySourceSSECustomerKey'])

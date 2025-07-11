@@ -60,7 +60,7 @@ final class DetermineLoadedClassTest extends TestCase
         ];
 
         $className = Autoload::determineLoadedClass($classesBeforeLoad, $classesAfterLoad);
-        $this->assertEquals('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
+        $this->assertSame('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
 
     }//end testOrdered()
 
@@ -90,7 +90,7 @@ final class DetermineLoadedClassTest extends TestCase
         ];
 
         $className = Autoload::determineLoadedClass($classesBeforeLoad, $classesAfterLoad);
-        $this->assertEquals('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
+        $this->assertSame('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
 
         $classesAfterLoad = [
             'classes'    => [
@@ -104,7 +104,7 @@ final class DetermineLoadedClassTest extends TestCase
         ];
 
         $className = Autoload::determineLoadedClass($classesBeforeLoad, $classesAfterLoad);
-        $this->assertEquals('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
+        $this->assertSame('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
 
         $classesAfterLoad = [
             'classes'    => [
@@ -118,7 +118,7 @@ final class DetermineLoadedClassTest extends TestCase
         ];
 
         $className = Autoload::determineLoadedClass($classesBeforeLoad, $classesAfterLoad);
-        $this->assertEquals('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
+        $this->assertSame('PHP_CodeSniffer\Tests\Core\Autoloader\Sub\C', $className);
 
     }//end testUnordered()
 

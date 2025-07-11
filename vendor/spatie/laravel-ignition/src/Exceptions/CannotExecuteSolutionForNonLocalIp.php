@@ -2,9 +2,9 @@
 
 namespace Spatie\LaravelIgnition\Exceptions;
 
-use Spatie\Ignition\Contracts\BaseSolution;
-use Spatie\Ignition\Contracts\ProvidesSolution;
-use Spatie\Ignition\Contracts\Solution;
+use Spatie\ErrorSolutions\Contracts\BaseSolution;
+use Spatie\ErrorSolutions\Contracts\ProvidesSolution;
+use Spatie\ErrorSolutions\Contracts\Solution;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CannotExecuteSolutionForNonLocalIp extends HttpException implements ProvidesSolution

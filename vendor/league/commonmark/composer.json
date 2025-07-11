@@ -31,8 +31,8 @@
     "require-dev": {
         "ext-json": "*",
         "cebe/markdown": "^1.0",
-        "commonmark/cmark": "0.30.3",
-        "commonmark/commonmark.js": "0.30.0",
+        "commonmark/cmark": "0.31.1",
+        "commonmark/commonmark.js": "0.31.1",
         "composer/package-versions-deprecated": "^1.8",
         "embed/embed": "^4.4",
         "erusev/parsedown": "^1.0",
@@ -42,8 +42,9 @@
         "phpstan/phpstan": "^1.8.2",
         "phpunit/phpunit": "^9.5.21 || ^10.5.9 || ^11.0.0",
         "scrutinizer/ocular": "^1.8.1",
-        "symfony/finder": "^5.3 | ^6.0 || ^7.0",
-        "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 || ^7.0",
+        "symfony/finder": "^5.3 | ^6.0 | ^7.0",
+        "symfony/process": "^5.4 | ^6.0 | ^7.0",
+        "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0",
         "unleashedtech/php-coding-standard": "^3.1.1",
         "vimeo/psalm": "^4.24.0 || ^5.0.0"
     },
@@ -56,9 +57,9 @@
             "type": "package",
             "package": {
                 "name": "commonmark/commonmark.js",
-                "version": "0.30.0",
+                "version": "0.31.1",
                 "dist": {
-                    "url": "https://github.com/commonmark/commonmark.js/archive/0.30.0.zip",
+                    "url": "https://github.com/commonmark/commonmark.js/archive/0.31.1.zip",
                     "type": "zip"
                 }
             }
@@ -67,9 +68,9 @@
             "type": "package",
             "package": {
                 "name": "commonmark/cmark",
-                "version": "0.30.3",
+                "version": "0.31.1",
                 "dist": {
-                    "url": "https://github.com/commonmark/cmark/archive/0.30.3.zip",
+                    "url": "https://github.com/commonmark/cmark/archive/0.31.1.zip",
                     "type": "zip"
                 }
             }
@@ -103,16 +104,18 @@
         "phpstan": "phpstan analyse",
         "phpunit": "phpunit --no-coverage",
         "psalm": "psalm --stats",
+        "pathological": "tests/pathological/test.php",
         "test": [
             "@phpcs",
             "@phpstan",
             "@psalm",
-            "@phpunit"
+            "@phpunit",
+            "@pathological"
         ]
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "2.5-dev"
+            "dev-main": "2.8-dev"
         }
     },
     "config": {

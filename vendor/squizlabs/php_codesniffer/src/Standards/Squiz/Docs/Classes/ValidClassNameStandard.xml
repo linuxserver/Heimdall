@@ -1,0 +1,39 @@
+<documentation title="Valid Class Name">
+    <standard>
+    <![CDATA[
+    Class names must be written in Pascal case. This means that it starts with a capital letter, and the first letter of each word in the class name is capitalized. Only letters and numbers are allowed.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Class name starts with a capital letter.">
+        <![CDATA[
+class <em>PascalCaseStandard</em>
+{
+}
+        ]]>
+        </code>
+        <code title="Invalid: Class name does not start with a capital letter.">
+        <![CDATA[
+class <em>notPascalCaseStandard</em>
+{
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Class name contains only letters and numbers.">
+        <![CDATA[
+class <em>PSR7Response</em>
+{
+}
+        ]]>
+        </code>
+        <code title="Invalid: Class name contains underscores.">
+        <![CDATA[
+class <em>PSR7_Response</em>
+{
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

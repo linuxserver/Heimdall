@@ -169,7 +169,7 @@ class SqsClient extends AwsClient
         return static function (callable $handler) {
             return function (
                 CommandInterface $c,
-                RequestInterface $r = null
+                ?RequestInterface $r = null
             ) use ($handler) {
                 if ($c->getName() !== 'ReceiveMessage') {
                     return $handler($c, $r);

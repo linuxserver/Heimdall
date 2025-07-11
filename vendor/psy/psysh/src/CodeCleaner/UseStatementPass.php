@@ -33,9 +33,9 @@ use PhpParser\NodeTraverser;
  */
 class UseStatementPass extends CodeCleanerPass
 {
-    private $aliases = [];
-    private $lastAliases = [];
-    private $lastNamespace = null;
+    private array $aliases = [];
+    private array $lastAliases = [];
+    private ?Name $lastNamespace = null;
 
     /**
      * Re-load the last set of use statements on re-entering a namespace.
@@ -77,6 +77,7 @@ class UseStatementPass extends CodeCleanerPass
                 $this->aliases[\strtolower($useItem->getAlias())] = $useItem->name;
             }
 
+            // @todo Rename to Node_Visitor::REMOVE_NODE once we drop support for PHP-Parser 4.x
             return NodeTraverser::REMOVE_NODE;
         }
 
@@ -89,6 +90,7 @@ class UseStatementPass extends CodeCleanerPass
                 ]);
             }
 
+            // @todo Rename to Node_Visitor::REMOVE_NODE once we drop support for PHP-Parser 4.x
             return NodeTraverser::REMOVE_NODE;
         }
 

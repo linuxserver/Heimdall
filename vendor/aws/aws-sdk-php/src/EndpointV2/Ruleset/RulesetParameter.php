@@ -3,6 +3,7 @@
 namespace Aws\EndpointV2\Ruleset;
 
 use Aws\Exception\UnresolvedEndpointException;
+use function \Aws\is_associative;
 
 /**
  * Houses properties of an individual parameter definition.
@@ -30,6 +31,13 @@ class RulesetParameter
     /** @var boolean */
     private $deprecated;
 
+    /** @var array<string, string> */
+    private static $typeMap = [
+        'String' => 'is_string',
+        'Boolean' => 'is_bool',
+        'StringArray' => 'isStringArray'
+    ];
+
     public function __construct($name, array $definition)
     {
         $type = ucfirst($definition['type']);
@@ -38,18 +46,16 @@ class RulesetParameter
         } else {
             throw new UnresolvedEndpointException(
                 'Unknown parameter type ' . "`{$type}`" .
-                '. Parameters must be of type `String` or `Boolean`.'
+                '. Parameters must be of type `String`, `Boolean` or `StringArray.'
             );
         }
+
         $this->name = $name;
-        $this->builtIn = isset($definition['builtIn']) ? $definition['builtIn'] : null;
-        $this->default = isset($definition['default']) ? $definition['default'] : null;
-        $this->required =  isset($definition['required']) ?
-            $definition['required'] : false;
-        $this->documentation =  isset($definition['documentation']) ?
-            $definition['documentation'] : null;
-        $this->deprecated =  isset($definition['deprecated']) ?
-            $definition['deprecated'] : false;
+        $this->builtIn = $definition['builtIn'] ?? null;
+        $this->default = $definition['default'] ?? null;
+        $this->required = $definition['required'] ?? false;
+        $this->documentation = $definition['documentation'] ?? null;
+        $this->deprecated = $definition['deprecated'] ?? false;
     }
 
     /**
@@ -116,12 +122,7 @@ class RulesetParameter
      */
     public function validateInputParam($inputParam)
     {
-        $typeMap = [
-            'String' => 'is_string',
-            'Boolean' => 'is_bool'
-        ];
-
-        if ($typeMap[$this->type]($inputParam) === false) {
+        if (!$this->isValidInput($inputParam)) {
             throw new UnresolvedEndpointException(
                 "Input parameter `{$this->name}` is the wrong type. Must be a {$this->type}."
             );
@@ -130,12 +131,15 @@ class RulesetParameter
         if ($this->deprecated) {
             $deprecated = $this->deprecated;
             $deprecationString = "{$this->name} has been deprecated ";
-            $msg = isset($deprecated['message']) ? $deprecated['message'] : null;
-            $since = isset($deprecated['since']) ? $deprecated['since'] : null;
+            $msg = $deprecated['message'] ?? null;
+            $since = $deprecated['since'] ?? null;
 
-            if (!is_null($since)) $deprecationString = $deprecationString
-                . 'since '. $since . '. ';
-            if (!is_null($msg)) $deprecationString = $deprecationString . $msg;
+            if (!is_null($since)){
+                $deprecationString .= 'since ' . $since . '. ';
+            }
+            if (!is_null($msg)) {
+                $deprecationString .= $msg;
+            }
 
             trigger_error($deprecationString, E_USER_WARNING);
         }
@@ -143,6 +147,33 @@ class RulesetParameter
 
     private function isValidType($type)
     {
-        return in_array($type, ['String', 'Boolean']);
+        return isset(self::$typeMap[$type]);
+    }
+
+    private function isValidInput($inputParam): bool
+    {
+        $method = self::$typeMap[$this->type];
+        if (is_callable($method)) {
+            return $method($inputParam);
+        } elseif (method_exists($this, $method)) {
+            return $this->$method($inputParam);
+        }
+
+        return false;
+    }
+
+    private function isStringArray(array $array): bool
+    {
+        if (is_associative($array)) {
+            return false;
+        }
+
+        foreach($array as $value) {
+            if (!is_string($value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

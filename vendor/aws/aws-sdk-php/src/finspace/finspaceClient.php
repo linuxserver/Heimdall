@@ -29,6 +29,8 @@ use Psr\Http\Message\RequestInterface;
  * @method \GuzzleHttp\Promise\Promise deleteEnvironmentAsync(array $args = [])
  * @method \Aws\Result deleteKxCluster(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteKxClusterAsync(array $args = [])
+ * @method \Aws\Result deleteKxClusterNode(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteKxClusterNodeAsync(array $args = [])
  * @method \Aws\Result deleteKxDatabase(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteKxDatabaseAsync(array $args = [])
  * @method \Aws\Result deleteKxDataview(array $args = [])

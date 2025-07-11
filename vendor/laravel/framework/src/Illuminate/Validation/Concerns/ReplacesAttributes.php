@@ -610,6 +610,22 @@ trait ReplacesAttributes
     }
 
     /**
+     * Replace all place-holders for the required_if_declined rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array<int,string>  $parameters
+     * @return string
+     */
+    public function replaceRequiredIfDeclined($message, $attribute, $rule, $parameters)
+    {
+        $parameters[0] = $this->getDisplayableAttribute($parameters[0]);
+
+        return str_replace([':other'], $parameters, $message);
+    }
+
+    /**
      * Replace all place-holders for the required_unless rule.
      *
      * @param  string  $message
@@ -647,6 +663,38 @@ trait ReplacesAttributes
         $parameters[0] = $this->getDisplayableAttribute($parameters[0]);
 
         return str_replace([':other', ':value'], $parameters, $message);
+    }
+
+    /**
+     * Replace all place-holders for the prohibited_if_accepted rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array<int,string>  $parameters
+     * @return string
+     */
+    protected function replaceProhibitedIfAccepted($message, $attribute, $rule, $parameters)
+    {
+        $parameters[0] = $this->getDisplayableAttribute($parameters[0]);
+
+        return str_replace([':other'], $parameters, $message);
+    }
+
+    /**
+     * Replace all place-holders for the prohibited_if_declined rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array<int,string>  $parameters
+     * @return string
+     */
+    public function replaceProhibitedIfDeclined($message, $attribute, $rule, $parameters)
+    {
+        $parameters[0] = $this->getDisplayableAttribute($parameters[0]);
+
+        return str_replace([':other'], $parameters, $message);
     }
 
     /**

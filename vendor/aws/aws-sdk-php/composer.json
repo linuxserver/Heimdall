@@ -12,23 +12,23 @@
         }
     ],
     "support": {
-        "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
+        "forum": "https://github.com/aws/aws-sdk-php/discussions",
         "issues": "https://github.com/aws/aws-sdk-php/issues"
     },
     "require": {
-        "php": ">=7.2.5",
-        "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
-        "guzzlehttp/psr7": "^1.9.1 || ^2.4.5",
-        "guzzlehttp/promises": "^1.4.0 || ^2.0",
-        "mtdowling/jmespath.php": "^2.6",
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.4.5",
+        "guzzlehttp/psr7": "^2.4.5",
+        "guzzlehttp/promises": "^2.0",
+        "mtdowling/jmespath.php": "^2.8.0",
         "ext-pcre": "*",
         "ext-json": "*",
         "ext-simplexml": "*",
         "aws/aws-crt-php": "^1.2.3",
-        "psr/http-message": "^1.0 || ^2.0"
+        "psr/http-message": "^2.0"
     },
     "require-dev": {
-        "composer/composer" : "^1.10.22",
+        "composer/composer" : "^2.7.8",
         "ext-openssl": "*",
         "ext-dom": "*",
         "ext-pcntl": "*",
@@ -37,13 +37,12 @@
         "behat/behat": "~3.0",
         "doctrine/cache": "~1.4",
         "aws/aws-php-sns-message-validator": "~1.0",
-        "nette/neon": "^2.3",
         "andrewsville/php-token-reflection": "^1.4",
-        "psr/cache": "^1.0",
-        "psr/simple-cache": "^1.0",
-        "paragonie/random_compat": ">= 2",
-        "sebastian/comparator": "^1.2.3 || ^4.0",
-        "yoast/phpunit-polyfills": "^1.0",
+        "psr/cache": "^2.0 || ^3.0",
+        "psr/simple-cache": "^2.0 || ^3.0",
+        "sebastian/comparator": "^1.2.3 || ^4.0 || ^5.0",
+        "symfony/filesystem": "^v6.4.0 || ^v7.1.0",
+        "yoast/phpunit-polyfills": "^2.0",
         "dms/phpunit-arraysubset-asserts": "^0.4.0"
     },
     "suggest": {
@@ -57,7 +56,8 @@
         "psr-4": {
             "Aws\\": "src/"
         },
-        "files": ["src/functions.php"]
+        "files": ["src/functions.php"],
+        "exclude-from-classmap": ["src/data/"]
     },
     "autoload-dev": {
         "psr-4": {
@@ -71,4 +71,3 @@
         }
     }
 }
-

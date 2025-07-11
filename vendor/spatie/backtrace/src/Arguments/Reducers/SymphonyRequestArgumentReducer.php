@@ -11,7 +11,7 @@ class SymphonyRequestArgumentReducer implements ArgumentReducer
 {
     public function execute($argument): ReducedArgumentContract
     {
-        if(! $argument instanceof Request) {
+        if (! $argument instanceof Request) {
             return UnReducedArgument::create();
         }
 

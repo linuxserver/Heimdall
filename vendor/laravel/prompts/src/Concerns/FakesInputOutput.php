@@ -27,14 +27,32 @@ trait FakesInputOutput
         $mock->shouldReceive('restoreTty')->byDefault();
         $mock->shouldReceive('cols')->byDefault()->andReturn(80);
         $mock->shouldReceive('lines')->byDefault()->andReturn(24);
+        $mock->shouldReceive('initDimensions')->byDefault();
 
-        foreach ($keys as $key) {
+        static::fakeKeyPresses($keys, function (string $key) use ($mock): void {
             $mock->shouldReceive('read')->once()->andReturn($key);
-        }
+        });
 
         static::$terminal = $mock;
 
-        self::setOutput(new BufferedConsoleOutput());
+        self::setOutput(new BufferedConsoleOutput);
+    }
+
+    /**
+     * Implementation of the looping mechanism for simulating key presses.
+     *
+     * By ignoring the `$callable` parameter which contains the default logic
+     * for simulating fake key presses, we can use a custom implementation
+     * to emit key presses instead, allowing us to use different inputs.
+     *
+     * @param  array<string>  $keys
+     * @param  callable(string $key): void  $callable
+     */
+    public static function fakeKeyPresses(array $keys, callable $callable): void
+    {
+        foreach ($keys as $key) {
+            $callable($key);
+        }
     }
 
     /**

@@ -1,0 +1,24 @@
+<documentation title="Superfluous code element">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Checking handling of blank lines.">
+        <![CDATA[
+$valid = true;
+        ]]>
+        </code>
+        <code title="Invalid: Checking handling of blank lines.">
+        <![CDATA[
+$invalid = true;
+        ]]>
+        </code>
+        <code title="Unsupported: There can only be two code elements.">
+        <![CDATA[
+$unsupported = true;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

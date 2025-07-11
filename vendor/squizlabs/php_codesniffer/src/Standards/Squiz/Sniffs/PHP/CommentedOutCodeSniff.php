@@ -238,23 +238,18 @@ class CommentedOutCodeSniff implements Sniff
         ];
         $emptyTokens += Tokens::$phpcsCommentTokens;
 
-        $numComment       = 0;
-        $numPossible      = 0;
         $numCode          = 0;
         $numNonWhitespace = 0;
 
         for ($i = 0; $i < $numTokens; $i++) {
-            if (isset($emptyTokens[$stringTokens[$i]['code']]) === true) {
-                // Looks like comment.
-                $numComment++;
-            } else if (isset(Tokens::$comparisonTokens[$stringTokens[$i]['code']]) === true
-                || isset(Tokens::$arithmeticTokens[$stringTokens[$i]['code']]) === true
-                || $stringTokens[$i]['code'] === T_GOTO_LABEL
-            ) {
+            // Do not count comments.
+            if (isset($emptyTokens[$stringTokens[$i]['code']]) === false
                 // Commented out HTML/XML and other docs contain a lot of these
                 // characters, so it is best to not use them directly.
-                $numPossible++;
-            } else {
+                && isset(Tokens::$comparisonTokens[$stringTokens[$i]['code']]) === false
+                && isset(Tokens::$arithmeticTokens[$stringTokens[$i]['code']]) === false
+                && $stringTokens[$i]['code'] !== T_GOTO_LABEL
+            ) {
                 // Looks like code.
                 $numCode++;
             }

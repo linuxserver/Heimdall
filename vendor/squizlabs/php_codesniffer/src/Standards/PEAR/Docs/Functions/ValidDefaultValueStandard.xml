@@ -5,7 +5,7 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: argument with default value at end of declaration">
+        <code title="Valid: Argument with default value at end of declaration.">
         <![CDATA[
 function connect($dsn, <em>$persistent = false</em>)
 {
@@ -13,7 +13,7 @@ function connect($dsn, <em>$persistent = false</em>)
 }
         ]]>
         </code>
-        <code title="Invalid: argument with default value at start of declaration">
+        <code title="Invalid: Argument with default value at start of declaration.">
         <![CDATA[
 function connect(<em>$persistent = false</em>, $dsn)
 {

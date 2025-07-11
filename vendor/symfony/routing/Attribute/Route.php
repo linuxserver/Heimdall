@@ -12,12 +12,6 @@
 namespace Symfony\Component\Routing\Attribute;
 
 /**
- * Annotation class for @Route().
- *
- * @Annotation
- * @NamedArgumentConstructor
- * @Target({"CLASS", "METHOD"})
- *
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Alexander M. Turek <me@derrabus.de>
  */
@@ -28,11 +22,28 @@ class Route
     private array $localizedPaths = [];
     private array $methods;
     private array $schemes;
+    /**
+     * @var (string|DeprecatedAlias)[]
+     */
+    private array $aliases = [];
 
     /**
-     * @param array<string|\Stringable> $requirements
-     * @param string[]|string           $methods
-     * @param string[]|string           $schemes
+     * @param string|array<string,string>|null                  $path         The route path (i.e. "/user/login")
+     * @param string|null                                       $name         The route name (i.e. "app_user_login")
+     * @param array<string|\Stringable>                         $requirements Requirements for the route attributes, @see https://symfony.com/doc/current/routing.html#parameters-validation
+     * @param array<string, mixed>                              $options      Options for the route (i.e. ['prefix' => '/api'])
+     * @param array<string, mixed>                              $defaults     Default values for the route attributes and query parameters
+     * @param string|null                                       $host         The host for which this route should be active (i.e. "localhost")
+     * @param string|string[]                                   $methods      The list of HTTP methods allowed by this route
+     * @param string|string[]                                   $schemes      The list of schemes allowed by this route (i.e. "https")
+     * @param string|null                                       $condition    An expression that must evaluate to true for the route to be matched, @see https://symfony.com/doc/current/routing.html#matching-expressions
+     * @param int|null                                          $priority     The priority of the route if multiple ones are defined for the same path
+     * @param string|null                                       $locale       The locale accepted by the route
+     * @param string|null                                       $format       The format returned by the route (i.e. "json", "xml")
+     * @param bool|null                                         $utf8         Whether the route accepts UTF-8 in its parameters
+     * @param bool|null                                         $stateless    Whether the route is defined as stateless or stateful, @see https://symfony.com/doc/current/routing.html#stateless-routes
+     * @param string|null                                       $env          The env in which the route is defined (i.e. "dev", "test", "prod")
+     * @param string|DeprecatedAlias|(string|DeprecatedAlias)[] $alias        The list of aliases for this route
      */
     public function __construct(
         string|array|null $path = null,
@@ -49,7 +60,8 @@ class Route
         ?string $format = null,
         ?bool $utf8 = null,
         ?bool $stateless = null,
-        private ?string $env = null
+        private ?string $env = null,
+        string|DeprecatedAlias|array $alias = [],
     ) {
         if (\is_array($path)) {
             $this->localizedPaths = $path;
@@ -58,6 +70,7 @@ class Route
         }
         $this->setMethods($methods);
         $this->setSchemes($schemes);
+        $this->setAliases($alias);
 
         if (null !== $locale) {
             $this->defaults['_locale'] = $locale;
@@ -76,26 +89,17 @@ class Route
         }
     }
 
-    /**
-     * @return void
-     */
-    public function setPath(string $path)
+    public function setPath(string $path): void
     {
         $this->path = $path;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
-    /**
-     * @return void
-     */
-    public function setLocalizedPaths(array $localizedPaths)
+    public function setLocalizedPaths(array $localizedPaths): void
     {
         $this->localizedPaths = $localizedPaths;
     }
@@ -105,130 +109,82 @@ class Route
         return $this->localizedPaths;
     }
 
-    /**
-     * @return void
-     */
-    public function setHost(string $pattern)
+    public function setHost(string $pattern): void
     {
         $this->host = $pattern;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->host;
     }
 
-    /**
-     * @return void
-     */
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @return void
-     */
-    public function setRequirements(array $requirements)
+    public function setRequirements(array $requirements): void
     {
         $this->requirements = $requirements;
     }
 
-    /**
-     * @return array
-     */
-    public function getRequirements()
+    public function getRequirements(): array
     {
         return $this->requirements;
     }
 
-    /**
-     * @return void
-     */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
 
-    /**
-     * @return void
-     */
-    public function setDefaults(array $defaults)
+    public function setDefaults(array $defaults): void
     {
         $this->defaults = $defaults;
     }
 
-    /**
-     * @return array
-     */
-    public function getDefaults()
+    public function getDefaults(): array
     {
         return $this->defaults;
     }
 
-    /**
-     * @return void
-     */
-    public function setSchemes(array|string $schemes)
+    public function setSchemes(array|string $schemes): void
     {
         $this->schemes = (array) $schemes;
     }
 
-    /**
-     * @return array
-     */
-    public function getSchemes()
+    public function getSchemes(): array
     {
         return $this->schemes;
     }
 
-    /**
-     * @return void
-     */
-    public function setMethods(array|string $methods)
+    public function setMethods(array|string $methods): void
     {
         $this->methods = (array) $methods;
     }
 
-    /**
-     * @return array
-     */
-    public function getMethods()
+    public function getMethods(): array
     {
         return $this->methods;
     }
 
-    /**
-     * @return void
-     */
-    public function setCondition(?string $condition)
+    public function setCondition(?string $condition): void
     {
         $this->condition = $condition;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getCondition()
+    public function getCondition(): ?string
     {
         return $this->condition;
     }
@@ -251,6 +207,22 @@ class Route
     public function getEnv(): ?string
     {
         return $this->env;
+    }
+
+    /**
+     * @return (string|DeprecatedAlias)[]
+     */
+    public function getAliases(): array
+    {
+        return $this->aliases;
+    }
+
+    /**
+     * @param string|DeprecatedAlias|(string|DeprecatedAlias)[] $aliases
+     */
+    public function setAliases(string|DeprecatedAlias|array $aliases): void
+    {
+        $this->aliases = \is_array($aliases) ? $aliases : [$aliases];
     }
 }
 

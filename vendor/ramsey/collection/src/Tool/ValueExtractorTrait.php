@@ -16,6 +16,7 @@ namespace Ramsey\Collection\Tool;
 
 use Ramsey\Collection\Exception\InvalidPropertyOrMethod;
 use Ramsey\Collection\Exception\UnsupportedOperationException;
+use ReflectionProperty;
 
 use function is_array;
 use function is_object;
@@ -28,6 +29,11 @@ use function sprintf;
  */
 trait ValueExtractorTrait
 {
+    /**
+     * Returns the type associated with this collection.
+     */
+    abstract public function getType(): string;
+
     /**
      * Extracts the value of the given property, method, or array key from the
      * element.
@@ -64,12 +70,25 @@ trait ValueExtractorTrait
             ));
         }
 
+        if (property_exists($element, $propertyOrMethod) && method_exists($element, $propertyOrMethod)) {
+            $reflectionProperty = new ReflectionProperty($element, $propertyOrMethod);
+            if ($reflectionProperty->isPublic()) {
+                return $element->$propertyOrMethod;
+            }
+
+            return $element->{$propertyOrMethod}();
+        }
+
         if (property_exists($element, $propertyOrMethod)) {
             return $element->$propertyOrMethod;
         }
 
         if (method_exists($element, $propertyOrMethod)) {
             return $element->{$propertyOrMethod}();
+        }
+
+        if (isset($element->$propertyOrMethod)) {
+            return $element->$propertyOrMethod;
         }
 
         throw new InvalidPropertyOrMethod(sprintf(

@@ -11,15 +11,12 @@
 
 namespace Barryvdh\LaravelIdeHelper;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use PhpParser\Lexer\Emulative;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Parser\Php7;
 use ReflectionClass;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -38,11 +35,12 @@ class Generator
     protected $magic = [];
     protected $interfaces = [];
     protected $helpers;
+    protected array $macroableTraits = [];
 
     /**
      * @param \Illuminate\Config\Repository $config
      * @param \Illuminate\View\Factory $view
-     * @param OutputInterface $output
+     * @param ?OutputInterface $output
      * @param string $helpers
      */
     public function __construct(
@@ -50,11 +48,12 @@ class Generator
         $config,
         /* Illuminate\View\Factory */
         $view,
-        OutputInterface $output = null,
+        ?OutputInterface $output = null,
         $helpers = ''
     ) {
         $this->config = $config;
         $this->view = $view;
+        $this->output = $output;
 
         // Find the drivers to add to the extra/interfaces
         $this->detectDrivers();
@@ -77,15 +76,58 @@ class Generator
     public function generate()
     {
         $app = app();
-        return $this->view->make('helper')
+        return $this->view->make('ide-helper::helper')
             ->with('namespaces_by_extends_ns', $this->getAliasesByExtendsNamespace())
             ->with('namespaces_by_alias_ns', $this->getAliasesByAliasNamespace())
             ->with('real_time_facades', $this->getRealTimeFacades())
-            ->with('helpers', $this->helpers)
-            ->with('version', $app->version())
+            ->with('helpers', $this->detectHelpers())
             ->with('include_fluent', $this->config->get('ide-helper.include_fluent', true))
             ->with('factories', $this->config->get('ide-helper.include_factory_builders') ? Factories::all() : [])
             ->render();
+    }
+
+    public function generateEloquent()
+    {
+        $name = 'Eloquent';
+        $facade = Model::class;
+        $magicMethods = array_key_exists($name, $this->magic) ? $this->magic[$name] : [];
+        $alias = new Alias($this->config, $name, $facade, $magicMethods, $this->interfaces);
+        if (!$alias->isValid()) {
+            throw new \RuntimeException('Cannot generate Eloquent helper');
+        }
+
+        //Add extra methods, from other classes (magic static calls)
+        if (array_key_exists($name, $this->extra)) {
+            $alias->addClass($this->extra[$name]);
+        }
+
+        $app = app();
+        return $this->view->make('ide-helper::helper')
+            ->with('namespaces_by_extends_ns', [])
+            ->with('namespaces_by_alias_ns', ['__root' => [$alias]])
+            ->with('real_time_facades', [])
+            ->with('helpers', '')
+            ->with('include_fluent', false)
+            ->with('factories', [])
+            ->render();
+    }
+
+    protected function detectHelpers()
+    {
+        $helpers = $this->helpers;
+
+        $replacements = [
+            '($guard is null ? \Illuminate\Contracts\Auth\Factory : \Illuminate\Contracts\Auth\StatefulGuard)' => '\\Auth',
+        ];
+        foreach ($replacements as $search => $replace) {
+            $helpers = Str::replace(
+                "@return {$search}",
+                "@return $replace|$search",
+                $helpers
+            );
+        }
+
+        return $helpers;
     }
 
     protected function detectDrivers()
@@ -186,8 +228,10 @@ class Generator
         foreach ($realTimeFacadeFiles as $file) {
             try {
                 $name = $this->getFullyQualifiedClassNameInFile($file);
-                $facades[$name] = $name;
-            } catch (\Exception $e) {
+                if ($name) {
+                    $facades[$name] = $name;
+                }
+            } catch (\Throwable $e) {
                 continue;
             }
         }
@@ -199,26 +243,17 @@ class Generator
     {
         $contents = file_get_contents($path);
 
-        $parsers = new Php7(new Emulative());
+        // Match namespace
+        preg_match('/namespace\s+([^;]+);/', $contents, $namespaceMatch);
+        $namespace = isset($namespaceMatch[1]) ? $namespaceMatch[1] : '';
 
-        $parsed = collect($parsers->parse($contents) ?: []);
+        // Match class name
+        preg_match('/class\s+([a-zA-Z0-9_]+)/', $contents, $classMatch);
+        $className = isset($classMatch[1]) ? $classMatch[1] : '';
 
-        $namespace = $parsed->first(function ($node) {
-            return $node instanceof Namespace_;
-        });
-
-        if ($namespace) {
-            $name = $namespace->name->toString();
-
-            $class = collect($namespace->stmts)->first(function ($node) {
-                return $node instanceof Class_;
-            });
-
-            if ($class) {
-                $name .= '\\' . $class->name->toString();
-            }
-
-            return $name;
+        // Combine namespace and class name
+        if ($namespace && $className) {
+            return $namespace . '\\' . $className;
         }
     }
 
@@ -325,7 +360,7 @@ class Generator
                 continue;
             }
 
-            $aliases[] = new Alias($this->config, $class, $class, [], $this->interfaces);
+            $aliases[] = new Alias($this->config, $class, $class, [], $this->interfaces, true);
         }
     }
 
@@ -347,8 +382,18 @@ class Generator
             ->filter(function ($class) {
                 $traits = class_uses_recursive($class);
 
-                // Filter only classes with the macroable trait
-                return isset($traits[Macroable::class]);
+                if (isset($traits[Macroable::class])) {
+                    return true;
+                }
+
+                // Filter only classes with a macroable trait
+                foreach ($this->config->get('ide-helper.macroable_traits', []) as $trait) {
+                    if (isset($traits[$trait])) {
+                        return true;
+                    }
+                }
+
+                return false;
             })
             ->filter(function ($class) use ($aliases) {
                 $class = Str::start($class, '\\');

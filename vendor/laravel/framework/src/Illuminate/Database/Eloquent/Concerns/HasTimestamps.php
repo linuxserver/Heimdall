@@ -161,7 +161,9 @@ trait HasTimestamps
      */
     public function getQualifiedCreatedAtColumn()
     {
-        return $this->qualifyColumn($this->getCreatedAtColumn());
+        $column = $this->getCreatedAtColumn();
+
+        return $column ? $this->qualifyColumn($column) : null;
     }
 
     /**
@@ -171,7 +173,9 @@ trait HasTimestamps
      */
     public function getQualifiedUpdatedAtColumn()
     {
-        return $this->qualifyColumn($this->getUpdatedAtColumn());
+        $column = $this->getUpdatedAtColumn();
+
+        return $column ? $this->qualifyColumn($column) : null;
     }
 
     /**
@@ -199,7 +203,11 @@ trait HasTimestamps
         try {
             return $callback();
         } finally {
-            static::$ignoreTimestampsOn = array_values(array_diff(static::$ignoreTimestampsOn, $models));
+            foreach ($models as $model) {
+                if (($key = array_search($model, static::$ignoreTimestampsOn, true)) !== false) {
+                    unset(static::$ignoreTimestampsOn[$key]);
+                }
+            }
         }
     }
 

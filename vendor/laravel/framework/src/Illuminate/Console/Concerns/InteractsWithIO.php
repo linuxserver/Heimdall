@@ -95,7 +95,7 @@ trait InteractsWithIO
     }
 
     /**
-     * Determine if the given option is present.
+     * Determine whether the option is defined in the command signature.
      *
      * @param  string  $name
      * @return bool
@@ -263,8 +263,8 @@ trait InteractsWithIO
         $bar->start();
 
         if (is_iterable($totalSteps)) {
-            foreach ($totalSteps as $value) {
-                $callback($value, $bar);
+            foreach ($totalSteps as $key => $value) {
+                $callback($value, $bar, $key);
 
                 $bar->advance();
             }

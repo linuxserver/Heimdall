@@ -32,9 +32,6 @@ final class DiactorosMessageFactory implements MessageFactory
         $this->streamFactory = new DiactorosStreamFactory();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createRequest(
         $method,
         $uri,
@@ -59,9 +56,6 @@ final class DiactorosMessageFactory implements MessageFactory
         ))->withProtocolVersion($protocolVersion);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createResponse(
         $statusCode = 200,
         $reasonPhrase = null,

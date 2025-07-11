@@ -41,15 +41,30 @@ final class JumbledIncrementerUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of warnings that should occur on that line.
      *
+     * @param string $testFile The name of the file being tested.
+     *
      * @return array<int, int>
      */
-    public function getWarningList()
+    public function getWarningList($testFile='')
     {
-        return [
-            3  => 2,
-            4  => 1,
-            20 => 1,
-        ];
+        switch ($testFile) {
+        case 'JumbledIncrementerUnitTest.1.inc':
+            return [
+                3  => 2,
+                4  => 1,
+                20 => 1,
+                40 => 2,
+                41 => 1,
+                58 => 1,
+                69 => 1,
+                79 => 2,
+                80 => 1,
+                87 => 1,
+            ];
+
+        default:
+            return [];
+        }
 
     }//end getWarningList()
 

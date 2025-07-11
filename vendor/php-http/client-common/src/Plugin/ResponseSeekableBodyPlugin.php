@@ -16,9 +16,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class ResponseSeekableBodyPlugin extends SeekableBodyPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         return $next($request)->then(function (ResponseInterface $response) {

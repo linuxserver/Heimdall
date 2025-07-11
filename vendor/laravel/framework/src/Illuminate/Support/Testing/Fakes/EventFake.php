@@ -7,6 +7,7 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Support\Traits\ReflectsClosures;
@@ -86,7 +87,7 @@ class EventFake implements Dispatcher, Fake
     {
         foreach ($this->dispatcher->getListeners($expectedEvent) as $listenerClosure) {
             $actualListener = (new ReflectionFunction($listenerClosure))
-                        ->getStaticVariables()['listener'];
+                ->getStaticVariables()['listener'];
 
             $normalizedListener = $expectedListener;
 
@@ -192,9 +193,18 @@ class EventFake implements Dispatcher, Fake
     {
         $count = count(Arr::flatten($this->events));
 
+        $eventNames = (new Collection($this->events))
+            ->map(fn ($events, $eventName) => sprintf(
+                '%s dispatched %s %s',
+                $eventName,
+                count($events),
+                Str::plural('time', count($events)),
+            ))
+            ->join("\n- ");
+
         PHPUnit::assertSame(
             0, $count,
-            "{$count} unexpected events were dispatched."
+            "{$count} unexpected events were dispatched:\n\n- $eventNames\n"
         );
     }
 
@@ -208,12 +218,12 @@ class EventFake implements Dispatcher, Fake
     public function dispatched($event, $callback = null)
     {
         if (! $this->hasDispatched($event)) {
-            return collect();
+            return new Collection;
         }
 
         $callback = $callback ?: fn () => true;
 
-        return collect($this->events[$event])->filter(
+        return (new Collection($this->events[$event]))->filter(
             fn ($arguments) => $callback(...$arguments)
         );
     }
@@ -322,7 +332,7 @@ class EventFake implements Dispatcher, Fake
             return true;
         }
 
-        return collect($this->eventsToFake)
+        return (new Collection($this->eventsToFake))
             ->filter(function ($event) use ($eventName, $payload) {
                 return $event instanceof Closure
                             ? $event($eventName, $payload)
@@ -362,7 +372,7 @@ class EventFake implements Dispatcher, Fake
             return false;
         }
 
-        return collect($this->eventsToDispatch)
+        return (new Collection($this->eventsToDispatch))
             ->filter(function ($event) use ($eventName, $payload) {
                 return $event instanceof Closure
                     ? $event($eventName, $payload)
@@ -402,6 +412,16 @@ class EventFake implements Dispatcher, Fake
     public function until($event, $payload = [])
     {
         return $this->dispatch($event, $payload, true);
+    }
+
+    /**
+     * Get the events that have been dispatched.
+     *
+     * @return array
+     */
+    public function dispatchedEvents()
+    {
+        return $this->events;
     }
 
     /**

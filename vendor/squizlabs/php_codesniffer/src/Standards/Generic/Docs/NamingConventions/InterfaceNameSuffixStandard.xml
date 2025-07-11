@@ -5,14 +5,14 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: ">
+        <code title="Valid: Interface name ends on 'Interface'.">
         <![CDATA[
 interface <em>BarInterface</em>
 {
 }
         ]]>
         </code>
-        <code title="Invalid: ">
+        <code title="Invalid: Interface name does not end on 'Interface'.">
         <![CDATA[
 interface <em>Bar</em>
 {

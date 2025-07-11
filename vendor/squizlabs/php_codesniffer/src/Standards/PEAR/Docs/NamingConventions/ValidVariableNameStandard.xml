@@ -15,7 +15,7 @@ class Foo
 }
         ]]>
         </code>
-        <code title="Invalid: underscores used on public/protected variables and not used on private variables.">
+        <code title="Invalid: Underscores used on public/protected variables and not used on private variables.">
         <![CDATA[
 class Foo
 {

@@ -18,7 +18,7 @@ final class Version implements Extension\VersionExtension
      */
     private array $semverCommonPreReleaseIdentifiers = ['alpha', 'beta', 'rc'];
 
-    public function __construct(Extension\NumberExtension $numberExtension = null)
+    public function __construct(?Extension\NumberExtension $numberExtension = null)
     {
 
         $this->numberExtension = $numberExtension ?: new  Number();

@@ -196,8 +196,8 @@ class TokenProvider
         return function () use ($provider, $cache, $cacheKey) {
             $found = $cache->get($cacheKey);
             if (is_array($found) && isset($found['token'])) {
-                if (isset($found['token']) && $found['token'] instanceof TokenInterface) {
-                    $foundToken = $found['token'];
+                $foundToken = $found['token'];
+                if ($foundToken instanceof TokenInterface) {
                     if (!$foundToken->isExpired()) {
                         return Promise\Create::promiseFor($foundToken);
                     }
@@ -253,16 +253,18 @@ class TokenProvider
     /**
      * Token provider that creates a token from cached sso credentials
      *
-     * @param string $ssoProfileName the name of the ini profile name
+     * @param string $profileName the name of the ini profile name
      * @param string $filename the location of the ini file
      * @param array $config configuration options
      *
-     * @return SsoToken
-     * @see Aws\Token\SsoToken for $config details.
+     * @return SsoTokenProvider
+     * @see Aws\Token\SsoTokenProvider for $config details.
      */
     public static function sso($profileName, $filename, $config = [])
     {
-        return new SsoTokenProvider($profileName, $filename, $config);
+        $ssoClient = isset($config['ssoClient']) ? $config['ssoClient'] : null;
+
+        return new SsoTokenProvider($profileName, $filename, $ssoClient);
     }
 }
 

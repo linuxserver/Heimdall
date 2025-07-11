@@ -140,11 +140,11 @@ function moreParamSecond(LogicException $bar, Exception $foo) {
 // phpcs:set Generic.CodeAnalysis.UnusedFunctionParameter ignoreTypeHints[]
 
 class ConstructorPropertyPromotionNoContentInMethod {
-    public function __construct(protected int $id) {}
+    public function __construct(protected int $id, private(set) $foo) {}
 }
 
 class ConstructorPropertyPromotionWithContentInMethod {
-    public function __construct(protected int $id, $toggle = true) {
+    public function __construct(protected int $id, private(set) $foo, $toggle = true) {
         if ($toggle === true) {
             doSomething();
         }

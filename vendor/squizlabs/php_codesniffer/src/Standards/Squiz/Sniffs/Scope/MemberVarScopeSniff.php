@@ -33,9 +33,15 @@ class MemberVarScopeSniff extends AbstractVariableSniff
             return;
         }
 
-        $error = 'Scope modifier not specified for member variable "%s"';
-        $data  = [$tokens[$stackPtr]['content']];
-        $phpcsFile->addError($error, $stackPtr, 'Missing', $data);
+        if ($properties['set_scope'] === false) {
+            $error = 'Scope modifier not specified for member variable "%s"';
+            $data  = [$tokens[$stackPtr]['content']];
+            $phpcsFile->addError($error, $stackPtr, 'Missing', $data);
+        } else {
+            $error = 'Read scope modifier not specified for member variable "%s"';
+            $data  = [$tokens[$stackPtr]['content']];
+            $phpcsFile->addError($error, $stackPtr, 'AsymReadMissing', $data);
+        }
 
     }//end processMemberVar()
 

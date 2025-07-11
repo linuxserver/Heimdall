@@ -1,6 +1,6 @@
 BSD License
 
-Copyright (c) 2000-2014, www.hamcrest.org
+Copyright (c) 2000-2025, www.hamcrest.org
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

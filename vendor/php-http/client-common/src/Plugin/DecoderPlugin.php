@@ -48,9 +48,6 @@ final class DecoderPlugin implements Plugin
         $this->useContentEncoding = $options['use_content_encoding'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $encodings = extension_loaded('zlib') ? ['gzip', 'deflate'] : ['identity'];

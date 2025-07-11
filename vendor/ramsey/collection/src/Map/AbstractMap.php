@@ -55,7 +55,6 @@ abstract class AbstractMap extends AbstractArray implements MapInterface
      * @param T $value The value to set at the given offset.
      *
      * @inheritDoc
-     * @psalm-suppress MoreSpecificImplementedParamType,DocblockTypeContradiction
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -84,6 +83,7 @@ abstract class AbstractMap extends AbstractArray implements MapInterface
      */
     public function keys(): array
     {
+        /** @var list<K> */
         return array_keys($this->data);
     }
 
@@ -190,6 +190,7 @@ abstract class AbstractMap extends AbstractArray implements MapInterface
      */
     public function __serialize(): array
     {
+        /** @var array<K, T> */
         return parent::__serialize();
     }
 
@@ -198,6 +199,7 @@ abstract class AbstractMap extends AbstractArray implements MapInterface
      */
     public function toArray(): array
     {
+        /** @var array<K, T> */
         return parent::toArray();
     }
 }

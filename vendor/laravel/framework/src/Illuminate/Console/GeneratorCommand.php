@@ -5,6 +5,7 @@ namespace Illuminate\Console;
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Finder\Finder;
@@ -117,7 +118,7 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
     ];
 
     /**
-     * Create a new controller creator command instance.
+     * Create a new generator command instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
      * @return void
@@ -183,9 +184,7 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
         $info = $this->type;
 
         if (in_array(CreatesMatchingTest::class, class_uses_recursive($this))) {
-            if ($this->handleTestCreation($path)) {
-                $info .= ' and test';
-            }
+            $this->handleTestCreation($path);
         }
 
         if (windows_os()) {
@@ -250,7 +249,7 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
     {
         $modelPath = is_dir(app_path('Models')) ? app_path('Models') : app_path();
 
-        return collect(Finder::create()->files()->depth(0)->in($modelPath))
+        return (new Collection(Finder::create()->files()->depth(0)->in($modelPath)))
             ->map(fn ($file) => $file->getBasename('.php'))
             ->sort()
             ->values()
@@ -270,7 +269,7 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
             return [];
         }
 
-        return collect(Finder::create()->files()->depth(0)->in($eventPath))
+        return (new Collection(Finder::create()->files()->depth(0)->in($eventPath)))
             ->map(fn ($file) => $file->getBasename('.php'))
             ->sort()
             ->values()
@@ -419,7 +418,13 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
      */
     protected function getNameInput()
     {
-        return trim($this->argument('name'));
+        $name = trim($this->argument('name'));
+
+        if (Str::endsWith($name, '.php')) {
+            return Str::substr($name, 0, -4);
+        }
+
+        return $name;
     }
 
     /**
@@ -456,7 +461,7 @@ abstract class GeneratorCommand extends Command implements PromptsForMissingInpu
     {
         return in_array(
             strtolower($name),
-            collect($this->reservedNames)
+            (new Collection($this->reservedNames))
                 ->transform(fn ($name) => strtolower($name))
                 ->all()
         );

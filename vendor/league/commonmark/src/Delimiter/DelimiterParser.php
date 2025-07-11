@@ -62,16 +62,20 @@ final class DelimiterParser implements InlineParserInterface
 
         [$canOpen, $canClose] = self::determineCanOpenOrClose($charBefore, $charAfter, $character, $processor);
 
+        if (! ($canOpen || $canClose)) {
+            $inlineContext->getContainer()->appendChild(new Text(\str_repeat($character, $numDelims)));
+
+            return true;
+        }
+
         $node = new Text(\str_repeat($character, $numDelims), [
             'delim' => true,
         ]);
         $inlineContext->getContainer()->appendChild($node);
 
         // Add entry to stack to this opener
-        if ($canOpen || $canClose) {
-            $delimiter = new Delimiter($character, $numDelims, $node, $canOpen, $canClose);
-            $inlineContext->getDelimiterStack()->push($delimiter);
-        }
+        $delimiter = new Delimiter($character, $numDelims, $node, $canOpen, $canClose, $inlineContext->getCursor()->getPosition());
+        $inlineContext->getDelimiterStack()->push($delimiter);
 
         return true;
     }

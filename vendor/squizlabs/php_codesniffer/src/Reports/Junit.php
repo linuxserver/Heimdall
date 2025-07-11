@@ -12,6 +12,7 @@ namespace PHP_CodeSniffer\Reports;
 
 use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\File;
+use XMLWriter;
 
 class Junit implements Report
 {
@@ -24,16 +25,17 @@ class Junit implements Report
      * and FALSE if it ignored the file. Returning TRUE indicates that the file and
      * its data should be counted in the grand totals.
      *
-     * @param array                       $report      Prepared report data.
-     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being reported on.
-     * @param bool                        $showSources Show sources?
-     * @param int                         $width       Maximum allowed line width.
+     * @param array<string, string|int|array> $report      Prepared report data.
+     *                                                     See the {@see Report} interface for a detailed specification.
+     * @param \PHP_CodeSniffer\Files\File     $phpcsFile   The file being reported on.
+     * @param bool                            $showSources Show sources?
+     * @param int                             $width       Maximum allowed line width.
      *
      * @return bool
      */
     public function generateFileReport($report, File $phpcsFile, $showSources=false, $width=80)
     {
-        $out = new \XMLWriter;
+        $out = new XMLWriter;
         $out->openMemory();
         $out->setIndent(true);
 

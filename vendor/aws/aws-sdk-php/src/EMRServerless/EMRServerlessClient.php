@@ -19,6 +19,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getJobRunAsync(array $args = [])
  * @method \Aws\Result listApplications(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listApplicationsAsync(array $args = [])
+ * @method \Aws\Result listJobRunAttempts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listJobRunAttemptsAsync(array $args = [])
  * @method \Aws\Result listJobRuns(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listJobRunsAsync(array $args = [])
  * @method \Aws\Result listTagsForResource(array $args = [])

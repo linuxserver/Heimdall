@@ -32,8 +32,9 @@ final class FunctionDeclarationUnitTest extends AbstractSniffUnitTest
      */
     public function getErrorList($testFile='')
     {
-        if ($testFile === 'FunctionDeclarationUnitTest.inc') {
-            $errors = [
+        switch ($testFile) {
+        case 'FunctionDeclarationUnitTest.1.inc':
+            return [
                 3   => 1,
                 4   => 1,
                 5   => 1,
@@ -108,8 +109,9 @@ final class FunctionDeclarationUnitTest extends AbstractSniffUnitTest
                 483 => 1,
                 490 => 2,
             ];
-        } else {
-            $errors = [
+
+        case 'FunctionDeclarationUnitTest.js':
+            return [
                 3  => 1,
                 4  => 1,
                 5  => 1,
@@ -121,9 +123,15 @@ final class FunctionDeclarationUnitTest extends AbstractSniffUnitTest
                 41 => 1,
                 48 => 1,
             ];
-        }//end if
 
-        return $errors;
+        case 'FunctionDeclarationUnitTest.4.inc':
+            return [
+                7 => 1,
+            ];
+
+        default:
+            return [];
+        }//end switch
 
     }//end getErrorList()
 

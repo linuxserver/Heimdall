@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRuleInvalidTypeTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <rule ref="Generic.Files.ByteOrderMark">
+        <!-- Invalid type will throw an error. -->
+        <type>notice</type>
+    </rule>
+
+</ruleset>

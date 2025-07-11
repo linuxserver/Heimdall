@@ -83,4 +83,14 @@ class CheckRuns extends AbstractApi
 
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($ref).'/check-runs', $params);
     }
+
+    /**
+     * @link https://docs.github.com/en/rest/reference/checks#rerequest-a-check-run
+     *
+     * @return array
+     */
+    public function rerequest(string $username, string $repository, int $checkRunId)
+    {
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/check-runs/'.$checkRunId.'/rerequest');
+    }
 }

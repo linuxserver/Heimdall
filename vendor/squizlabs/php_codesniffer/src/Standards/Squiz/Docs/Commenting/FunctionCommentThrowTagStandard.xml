@@ -15,7 +15,7 @@ function foo()
 {
     throw new Exception('Danger!');
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: No @throws tag used for throwing function.">
         <![CDATA[
@@ -26,7 +26,7 @@ function foo()
 {
     throw new Exception('Danger!');
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

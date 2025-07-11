@@ -33,9 +33,6 @@ final class Chain implements Authentication
         $this->authenticationChain = $authenticationChain;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         foreach ($this->authenticationChain as $authentication) {

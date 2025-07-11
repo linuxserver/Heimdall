@@ -1,0 +1,12 @@
+<documentation title="Two Standard Blocks, No Code">
+    <standard>
+    <![CDATA[
+    This is standard block one.
+    ]]>
+    </standard>
+    <standard>
+    <![CDATA[
+    This is standard block two.
+    ]]>
+    </standard>
+</documentation>

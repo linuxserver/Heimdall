@@ -5,9 +5,9 @@ namespace Illuminate\Console\Scheduling;
 use Closure;
 use Cron\CronExpression;
 use DateTimeZone;
-use Illuminate\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionFunction;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -50,7 +50,7 @@ class ScheduleListCommand extends Command
      */
     public function handle(Schedule $schedule)
     {
-        $events = collect($schedule->events());
+        $events = new Collection($schedule->events());
 
         if ($events->isEmpty()) {
             $this->components->info('No scheduled tasks have been defined.');
@@ -87,7 +87,7 @@ class ScheduleListCommand extends Command
     {
         $rows = $events->map(fn ($event) => array_map('mb_strlen', preg_split("/\s+/", $event->expression)));
 
-        return collect($rows[0] ?? [])->keys()->map(fn ($key) => $rows->max($key))->all();
+        return (new Collection($rows[0] ?? []))->keys()->map(fn ($key) => $rows->max($key))->all();
     }
 
     /**
@@ -104,13 +104,12 @@ class ScheduleListCommand extends Command
     /**
      * List the given even in the console.
      *
-     * @param  \Illuminate\Console\Scheduling\Event
+     * @param  \Illuminate\Console\Scheduling\Event  $event
      * @param  int  $terminalWidth
      * @param  array  $expressionSpacing
      * @param  int  $repeatExpressionSpacing
-     * @param  array  $repeatExpressionSpacing
      * @param  \DateTimeZone  $timezone
-     * @return \Illuminate\Support\DateTimeZone
+     * @return array
      */
     private function listEvent($event, $terminalWidth, $expressionSpacing, $repeatExpressionSpacing, $timezone)
     {
@@ -123,10 +122,7 @@ class ScheduleListCommand extends Command
         $description = $event->description ?? '';
 
         if (! $this->output->isVerbose()) {
-            $command = str_replace([Application::phpBinary(), Application::artisanBinary()], [
-                'php',
-                preg_replace("#['\"]#", '', Application::artisanBinary()),
-            ], $command);
+            $command = $event->normalizeCommand($command);
         }
 
         if ($event instanceof CallbackEvent) {
@@ -245,7 +241,7 @@ class ScheduleListCommand extends Command
     {
         $expressions = preg_split("/\s+/", $expression);
 
-        return collect($spacing)
+        return (new Collection($spacing))
             ->map(fn ($length, $index) => str_pad($expressions[$index], $length))
             ->implode(' ');
     }

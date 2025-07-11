@@ -21,33 +21,24 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 
-/**
- * @since Class available since Release 1.0.0
- */
 class Wizard
 {
     /**
-     * @var array
+     * @psalm-var array<string,array<int,string>>
      */
-    private $lookupTable = [];
+    private array $lookupTable = [];
 
     /**
-     * @var array
+     * @psalm-var array<class-string,true>
      */
-    private $processedClasses = [];
+    private array $processedClasses = [];
 
     /**
-     * @var array
+     * @psalm-var array<string,true>
      */
-    private $processedFunctions = [];
+    private array $processedFunctions = [];
 
-    /**
-     * @param string $filename
-     * @param int    $lineNumber
-     *
-     * @return string
-     */
-    public function lookup($filename, $lineNumber)
+    public function lookup(string $filename, int $lineNumber): string
     {
         if (!isset($this->lookupTable[$filename][$lineNumber])) {
             $this->updateLookupTable();
@@ -71,7 +62,7 @@ class Wizard
         $classes = get_declared_classes();
         $traits  = get_declared_traits();
 
-        assert(is_array($classes));
+        /* @noinspection PhpConditionAlreadyCheckedInspection */
         assert(is_array($traits));
 
         foreach (array_merge($classes, $traits) as $classOrTrait) {
@@ -79,9 +70,7 @@ class Wizard
                 continue;
             }
 
-            $reflector = new ReflectionClass($classOrTrait);
-
-            foreach ($reflector->getMethods() as $method) {
+            foreach ((new ReflectionClass($classOrTrait))->getMethods() as $method) {
                 $this->processFunctionOrMethod($method);
             }
 

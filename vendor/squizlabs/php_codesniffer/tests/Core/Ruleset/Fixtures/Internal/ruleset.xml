@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Internal" namespace="Fixtures\Internal" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!--
+    A standard named "Internal" can be included, but individual categories or sniffs from that standard cannot.
+    In other words: standards should not be named "Internal".
+
+    This test fixture helps document and safeguard the current behaviour for standards named "Internal".
+    -->
+
+</ruleset>

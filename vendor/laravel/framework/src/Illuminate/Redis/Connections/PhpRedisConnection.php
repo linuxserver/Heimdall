@@ -4,7 +4,8 @@ namespace Illuminate\Redis\Connections;
 
 use Closure;
 use Illuminate\Contracts\Redis\Connection as ConnectionContract;
-use Redis;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use RedisException;
 
 /**
@@ -36,7 +37,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      * @param  array  $config
      * @return void
      */
-    public function __construct($client, callable $connector = null, array $config = [])
+    public function __construct($client, ?callable $connector = null, array $config = [])
     {
         $this->client = $client;
         $this->config = $config;
@@ -128,7 +129,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
         if (count($dictionary) === 1) {
             $dictionary = $dictionary[0];
         } else {
-            $input = collect($dictionary);
+            $input = new Collection($dictionary);
 
             $dictionary = $input->nth(2)->combine($input->nth(2, 1))->toArray();
         }
@@ -396,7 +397,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      * @param  callable|null  $callback
      * @return \Redis|array
      */
-    public function pipeline(callable $callback = null)
+    public function pipeline(?callable $callback = null)
     {
         $pipeline = $this->client()->pipeline();
 
@@ -411,7 +412,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      * @param  callable|null  $callback
      * @return \Redis|array
      */
-    public function transaction(callable $callback = null)
+    public function transaction(?callable $callback = null)
     {
         $transaction = $this->client()->multi();
 
@@ -530,12 +531,8 @@ class PhpRedisConnection extends Connection implements ConnectionContract
         try {
             return parent::command($method, $parameters);
         } catch (RedisException $e) {
-            foreach (['went away', 'socket', 'read error on connection', 'Connection lost'] as $errorMessage) {
-                if (str_contains($e->getMessage(), $errorMessage)) {
-                    $this->client = $this->connector ? call_user_func($this->connector) : $this->client;
-
-                    break;
-                }
+            if (Str::contains($e->getMessage(), ['went away', 'socket', 'read error on connection', 'Connection lost'])) {
+                $this->client = $this->connector ? call_user_func($this->connector) : $this->client;
             }
 
             throw $e;

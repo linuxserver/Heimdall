@@ -35,7 +35,7 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_COMMENT = 'code_comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
-    private static $tokenMap = [
+    private const TOKEN_MAP = [
         // Not highlighted
         \T_OPEN_TAG           => self::HIGHLIGHT_DEFAULT,
         \T_OPEN_TAG_WITH_ECHO => self::HIGHLIGHT_DEFAULT,
@@ -103,7 +103,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function formatCode(string $code, int $startLine = 1, int $endLine = null, int $markLine = null): string
+    public static function formatCode(string $code, int $startLine = 1, ?int $endLine = null, ?int $markLine = null): string
     {
         $spans = self::tokenizeSpans($code);
         $lines = self::splitLines($spans, $startLine, $endLine);
@@ -187,8 +187,8 @@ class CodeFormatter implements ReflectorFormatter
                 return $currentType;
             }
 
-            if (\array_key_exists($token[0], self::$tokenMap)) {
-                return self::$tokenMap[$token[0]];
+            if (\array_key_exists($token[0], self::TOKEN_MAP)) {
+                return self::TOKEN_MAP[$token[0]];
             }
         }
 
@@ -206,7 +206,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator lines, each an array of [$spanType, $spanText] pairs
      */
-    private static function splitLines(\Generator $spans, int $startLine = 1, int $endLine = null): \Generator
+    private static function splitLines(\Generator $spans, int $startLine = 1, ?int $endLine = null): \Generator
     {
         $lineNum = 1;
         $buffer = [];
@@ -273,7 +273,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator Numbered, formatted lines
      */
-    private static function numberLines(\Generator $lines, int $markLine = null): \Generator
+    private static function numberLines(\Generator $lines, ?int $markLine = null): \Generator
     {
         $lines = \iterator_to_array($lines);
 

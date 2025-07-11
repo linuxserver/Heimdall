@@ -15,8 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 trait HttpClientEmulator
 {
     /**
-     * {@inheritdoc}
-     *
      * @see HttpClient::sendRequest
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
@@ -27,8 +25,6 @@ trait HttpClientEmulator
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @see HttpAsyncClient::sendAsyncRequest
      */
     abstract public function sendAsyncRequest(RequestInterface $request);

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRulesetAutoloadTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <file>.</file>
+
+    <!--
+    ###############################################
+    # Neither set.                                #
+    # Testing various ways paths can be provided. #
+    ###############################################
+    -->
+    <!-- Path relative to directory containing the ruleset. -->
+    <autoload>./Fixtures/ProcessRulesetAutoloadLoadAlways.1.php</autoload>
+    <autoload>Fixtures/ProcessRulesetAutoloadLoadAlways.2.php</autoload>
+
+    <!-- Path relative to command directory. -->
+    <autoload>./tests/Core/Ruleset/Fixtures/ProcessRulesetAutoloadLoadAlways.3.php</autoload>
+    <autoload>tests/Core/Ruleset/Fixtures/ProcessRulesetAutoloadLoadAlways.4.php</autoload>
+
+    <!--
+    ###################
+    # phpcs-only set. #
+    ###################
+    -->
+    <autoload phpcs-only="true">./tests/Core/Ruleset/Fixtures/ProcessRulesetAutoloadLoadPhpcsOnly.php</autoload>
+
+    <!--
+    ####################
+    # phpcbf-only set. #
+    ####################
+    -->
+    <autoload phpcbf-only="true">./tests/Core/Ruleset/Fixtures/ProcessRulesetAutoloadLoadPhpcbfOnly.php</autoload>
+
+
+    <!-- Prevent a "no sniffs were registered" error. -->
+    <rule ref="Generic.PHP.BacktickOperator"/>
+</ruleset>

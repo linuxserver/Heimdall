@@ -67,7 +67,7 @@ class JumbledIncrementerSniff implements Sniff
             return;
         }
 
-        // Find incrementors for outer loop.
+        // Find incrementers for outer loop.
         $outer = $this->findIncrementers($tokens, $token);
 
         // Skip if empty.
@@ -88,8 +88,8 @@ class JumbledIncrementerSniff implements Sniff
             $diff  = array_intersect($outer, $inner);
 
             if (count($diff) !== 0) {
-                $error = 'Loop incrementor (%s) jumbling with inner loop';
-                $data  = [join(', ', $diff)];
+                $error = 'Loop incrementer (%s) jumbling with inner loop';
+                $data  = [implode(', ', $diff)];
                 $phpcsFile->addWarning($error, $stackPtr, 'Found', $data);
             }
         }
@@ -101,14 +101,14 @@ class JumbledIncrementerSniff implements Sniff
      * Get all used variables in the incrementer part of a for statement.
      *
      * @param array<int, array>    $tokens Array with all code sniffer tokens.
-     * @param array<string, mixed> $token  Current for loop token
+     * @param array<string, mixed> $token  Current for loop token.
      *
      * @return string[] List of all found incrementer variables.
      */
     protected function findIncrementers(array $tokens, array $token)
     {
         // Skip invalid statement.
-        if (isset($token['parenthesis_opener']) === false) {
+        if (isset($token['parenthesis_opener'], $token['parenthesis_closer']) === false) {
             return [];
         }
 

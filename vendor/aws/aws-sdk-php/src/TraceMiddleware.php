@@ -61,7 +61,7 @@ class TraceMiddleware
      *   headers contained in this array will be replaced with the if
      *   "scrub_auth" is set to true.
      */
-    public function __construct(array $config = [], Service $service = null)
+    public function __construct(array $config = [], ?Service $service = null)
     {
         $this->config = $config + [
             'logfn'        => function ($value) { echo $value; },
@@ -179,7 +179,7 @@ class TraceMiddleware
         ]);
     }
 
-    private function responseArray(ResponseInterface $response = null)
+    private function responseArray(?ResponseInterface $response = null)
     {
         return !$response ? [] : [
             'instance'   => spl_object_hash($response),

@@ -40,6 +40,7 @@ final class SpecReader
         $exampleNumber  = 0;
 
         foreach ($matches as $match) {
+            \assert(isset($match[1], $match[2], $match[3]));
             if (isset($match[4])) {
                 $currentSection = $match[4];
                 continue;

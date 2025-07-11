@@ -5,6 +5,8 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **Amazon Neptune Graph** service.
+ * @method \Aws\Result cancelExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelExportTaskAsync(array $args = [])
  * @method \Aws\Result cancelImportTask(array $args = [])
  * @method \GuzzleHttp\Promise\Promise cancelImportTaskAsync(array $args = [])
  * @method \Aws\Result cancelQuery(array $args = [])
@@ -25,6 +27,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise deletePrivateGraphEndpointAsync(array $args = [])
  * @method \Aws\Result executeQuery(array $args = [])
  * @method \GuzzleHttp\Promise\Promise executeQueryAsync(array $args = [])
+ * @method \Aws\Result getExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getExportTaskAsync(array $args = [])
  * @method \Aws\Result getGraph(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getGraphAsync(array $args = [])
  * @method \Aws\Result getGraphSnapshot(array $args = [])
@@ -37,6 +41,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getPrivateGraphEndpointAsync(array $args = [])
  * @method \Aws\Result getQuery(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getQueryAsync(array $args = [])
+ * @method \Aws\Result listExportTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listExportTasksAsync(array $args = [])
  * @method \Aws\Result listGraphSnapshots(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listGraphSnapshotsAsync(array $args = [])
  * @method \Aws\Result listGraphs(array $args = [])
@@ -53,6 +59,10 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise resetGraphAsync(array $args = [])
  * @method \Aws\Result restoreGraphFromSnapshot(array $args = [])
  * @method \GuzzleHttp\Promise\Promise restoreGraphFromSnapshotAsync(array $args = [])
+ * @method \Aws\Result startExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startExportTaskAsync(array $args = [])
+ * @method \Aws\Result startImportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startImportTaskAsync(array $args = [])
  * @method \Aws\Result tagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])

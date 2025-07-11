@@ -12,8 +12,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * {@inheritdoc}
- *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 final class HttpClientRouter implements HttpClientRouterInterface
@@ -23,17 +21,11 @@ final class HttpClientRouter implements HttpClientRouterInterface
      */
     private $clients = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
         return $this->chooseHttpClient($request)->sendRequest($request);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function sendAsyncRequest(RequestInterface $request)
     {
         return $this->chooseHttpClient($request)->sendAsyncRequest($request);

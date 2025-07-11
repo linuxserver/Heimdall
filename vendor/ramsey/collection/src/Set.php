@@ -24,7 +24,7 @@ namespace Ramsey\Collection;
  *
  * Example usage:
  *
- * ``` php
+ * ```
  * $foo = new \My\Foo();
  * $set = new Set(\My\Foo::class);
  *

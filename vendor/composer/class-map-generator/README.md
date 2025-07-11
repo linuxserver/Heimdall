@@ -12,7 +12,7 @@ Installation
 Install the latest version with:
 
 ```bash
-$ composer require composer/class-map-generator
+composer require composer/class-map-generator
 ```
 
 

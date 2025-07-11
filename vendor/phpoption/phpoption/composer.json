@@ -20,7 +20,7 @@
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^8.5.34 || ^9.6.13 || ^10.4.2"
+        "phpunit/phpunit": "^8.5.39 || ^9.6.20 || ^10.5.28"
     },
     "autoload": {
         "psr-4": {
@@ -41,12 +41,10 @@
     "extra": {
         "bamarni-bin": {
             "bin-links": true,
-            "forward-command": true
+            "forward-command": false
         },
         "branch-alias": {
             "dev-master": "1.9-dev"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }

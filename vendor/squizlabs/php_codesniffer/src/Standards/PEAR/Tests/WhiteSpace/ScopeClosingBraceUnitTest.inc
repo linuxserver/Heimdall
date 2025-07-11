@@ -162,3 +162,9 @@ enum Suits {}
 enum Cards
 {
     }
+
+?>
+<!-- Prevent fixer conflict with itself when the scope closer is preceded by non-empty/non-indentation inline HTML. -->
+<?php if ($someConditional) : ?>
+<div class="container">
+</div> <?php endif;

@@ -27,7 +27,7 @@ class ListBlock extends AbstractBlock implements TightBlockInterface
     public const DELIM_PERIOD = 'period';
     public const DELIM_PAREN  = 'paren';
 
-    protected bool $tight = false;
+    protected bool $tight = false; // TODO Make lists tight by default in v3
 
     /** @psalm-readonly */
     protected ListData $listData;

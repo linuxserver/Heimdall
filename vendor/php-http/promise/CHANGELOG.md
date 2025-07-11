@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.1 - 2024-03-15
+
+- Made nullable parameter types explicit (PHP 8.4 compatibility)
+
 ## 1.3.0 - 2024-01-04
 
 ### Fixed

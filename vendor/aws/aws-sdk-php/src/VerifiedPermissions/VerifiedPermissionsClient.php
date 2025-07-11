@@ -5,8 +5,12 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **Amazon Verified Permissions** service.
+ * @method \Aws\Result batchGetPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetPolicyAsync(array $args = [])
  * @method \Aws\Result batchIsAuthorized(array $args = [])
  * @method \GuzzleHttp\Promise\Promise batchIsAuthorizedAsync(array $args = [])
+ * @method \Aws\Result batchIsAuthorizedWithToken(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchIsAuthorizedWithTokenAsync(array $args = [])
  * @method \Aws\Result createIdentitySource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createIdentitySourceAsync(array $args = [])
  * @method \Aws\Result createPolicy(array $args = [])
@@ -45,8 +49,14 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listPolicyStoresAsync(array $args = [])
  * @method \Aws\Result listPolicyTemplates(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listPolicyTemplatesAsync(array $args = [])
+ * @method \Aws\Result listTagsForResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result putSchema(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putSchemaAsync(array $args = [])
+ * @method \Aws\Result tagResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
+ * @method \Aws\Result untagResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
  * @method \Aws\Result updateIdentitySource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateIdentitySourceAsync(array $args = [])
  * @method \Aws\Result updatePolicy(array $args = [])

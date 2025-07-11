@@ -103,10 +103,10 @@ class FunctionDeclarationSniff implements Sniff
         // enforced by the previous check because there is no content between the keywords
         // and the opening parenthesis.
         // Unfinished closures are tokenized as T_FUNCTION however, and can be excluded
-        // by checking for the scope_opener.
-        if ($tokens[$stackPtr]['code'] === T_FUNCTION
-            && (isset($tokens[$stackPtr]['scope_opener']) === true || $phpcsFile->getMethodProperties($stackPtr)['has_body'] === false)
-        ) {
+        // by checking if the function has a name.
+        $methodProps = $phpcsFile->getMethodProperties($stackPtr);
+        $methodName  = $phpcsFile->getDeclarationName($stackPtr);
+        if ($tokens[$stackPtr]['code'] === T_FUNCTION && $methodName !== null) {
             if ($tokens[($openBracket - 1)]['content'] === $phpcsFile->eolChar) {
                 $spaces = 'newline';
             } else if ($tokens[($openBracket - 1)]['code'] === T_WHITESPACE) {
@@ -125,25 +125,27 @@ class FunctionDeclarationSniff implements Sniff
             }
 
             // Must be no space before semicolon in abstract/interface methods.
-            if ($phpcsFile->getMethodProperties($stackPtr)['has_body'] === false) {
+            if ($methodProps['has_body'] === false) {
                 $end = $phpcsFile->findNext(T_SEMICOLON, $closeBracket);
-                if ($tokens[($end - 1)]['content'] === $phpcsFile->eolChar) {
-                    $spaces = 'newline';
-                } else if ($tokens[($end - 1)]['code'] === T_WHITESPACE) {
-                    $spaces = $tokens[($end - 1)]['length'];
-                } else {
-                    $spaces = 0;
-                }
+                if ($end !== false) {
+                    if ($tokens[($end - 1)]['content'] === $phpcsFile->eolChar) {
+                        $spaces = 'newline';
+                    } else if ($tokens[($end - 1)]['code'] === T_WHITESPACE) {
+                        $spaces = $tokens[($end - 1)]['length'];
+                    } else {
+                        $spaces = 0;
+                    }
 
-                if ($spaces !== 0) {
-                    $error = 'Expected 0 spaces before semicolon; %s found';
-                    $data  = [$spaces];
-                    $fix   = $phpcsFile->addFixableError($error, $end, 'SpaceBeforeSemicolon', $data);
-                    if ($fix === true) {
-                        $phpcsFile->fixer->replaceToken(($end - 1), '');
+                    if ($spaces !== 0) {
+                        $error = 'Expected 0 spaces before semicolon; %s found';
+                        $data  = [$spaces];
+                        $fix   = $phpcsFile->addFixableError($error, $end, 'SpaceBeforeSemicolon', $data);
+                        if ($fix === true) {
+                            $phpcsFile->fixer->replaceToken(($end - 1), '');
+                        }
                     }
                 }
-            }
+            }//end if
         }//end if
 
         // Must be one space before and after USE keyword for closures.

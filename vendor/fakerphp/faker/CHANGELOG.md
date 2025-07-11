@@ -1,6 +1,16 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/FakerPHP/Faker/compare/v1.23.1...1.23)
+## [Unreleased](https://github.com/FakerPHP/Faker/compare/v1.24.0...1.24.1)
+
+- Removed domain `gmail.com.au` from `Provider\en_AU\Internet` (#886)
+
+## [2024-11-09, v1.24.0](https://github.com/FakerPHP/Faker/compare/v1.23.1..v1.24.0)
+
+- Fix internal deprecations in Doctrine's populator by @gnutix in (#889)
+- Fix mobile phone number pattern for France by @ker0x in (#859)
+- PHP 8.4 Support by @Jubeki in (#904)
+
+- Added support for PHP 8.4 (#904)
 
 ## [2023-09-29, v1.23.1](https://github.com/FakerPHP/Faker/compare/v1.23.0..v1.23.1)
 

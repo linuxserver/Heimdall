@@ -26,7 +26,7 @@ class HttpException extends RequestException
         $message,
         RequestInterface $request,
         ResponseInterface $response,
-        \Exception $previous = null
+        ?\Exception $previous = null
     ) {
         parent::__construct($message, $request, $previous);
 
@@ -50,7 +50,7 @@ class HttpException extends RequestException
     public static function create(
         RequestInterface $request,
         ResponseInterface $response,
-        \Exception $previous = null
+        ?\Exception $previous = null
     ) {
         $message = sprintf(
             '[url] %s [http method] %s [status code] %s [reason phrase] %s',

@@ -35,6 +35,9 @@ class OperatorSpacingSniff extends SquizOperatorSpacingSniff
         $targets[] = T_STRING_CONCAT;
         $targets[] = T_INSTANCEOF;
 
+        // Also register the contexts we want to specifically skip over.
+        $targets[] = T_DECLARE;
+
         return $targets;
 
     }//end register()
@@ -47,11 +50,24 @@ class OperatorSpacingSniff extends SquizOperatorSpacingSniff
      * @param int                         $stackPtr  The position of the current token in
      *                                               the stack passed in $tokens.
      *
-     * @return void
+     * @return void|int Optionally returns a stack pointer. The sniff will not be
+     *                  called again on the current file until the returned stack
+     *                  pointer is reached. Return `$phpcsFile->numTokens` to skip
+     *                  the rest of the file.
      */
     public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
+
+        // Skip over declare statements as those should be handled by different sniffs.
+        if ($tokens[$stackPtr]['code'] === T_DECLARE) {
+            if (isset($tokens[$stackPtr]['parenthesis_closer']) === false) {
+                // Parse error / live coding.
+                return $phpcsFile->numTokens;
+            }
+
+            return $tokens[$stackPtr]['parenthesis_closer'];
+        }
 
         if ($this->isOperator($phpcsFile, $stackPtr) === false) {
             return;

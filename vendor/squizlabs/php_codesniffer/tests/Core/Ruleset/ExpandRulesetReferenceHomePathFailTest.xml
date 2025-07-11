@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ExpandRulesetReferenceHomePathTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!-- With a mocked "home" path to an existing directory, this reference should still fail
+         as the underlying subdirectory doesn't exist. -->
+    <rule ref="~/src/MyStandard/Sniffs/DoesntExist/"/>
+
+</ruleset>

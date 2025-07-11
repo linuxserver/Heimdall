@@ -25,19 +25,18 @@ use Throwable;
 /**
  * Nonstandard\UuidBuilder builds instances of Nonstandard\Uuid
  *
- * @psalm-immutable
+ * @immutable
  */
 class UuidBuilder implements UuidBuilderInterface
 {
     /**
-     * @param NumberConverterInterface $numberConverter The number converter to
-     *     use when constructing the Nonstandard\Uuid
-     * @param TimeConverterInterface $timeConverter The time converter to use
-     *     for converting timestamps extracted from a UUID to Unix timestamps
+     * @param NumberConverterInterface $numberConverter The number converter to use when constructing the Nonstandard\Uuid
+     * @param TimeConverterInterface $timeConverter The time converter to use for converting timestamps extracted from a
+     *     UUID to Unix timestamps
      */
     public function __construct(
         private NumberConverterInterface $numberConverter,
-        private TimeConverterInterface $timeConverter
+        private TimeConverterInterface $timeConverter,
     ) {
     }
 
@@ -47,30 +46,29 @@ class UuidBuilder implements UuidBuilderInterface
      * @param CodecInterface $codec The codec to use for building this instance
      * @param string $bytes The byte string from which to construct a UUID
      *
-     * @return Uuid The Nonstandard\UuidBuilder returns an instance of
-     *     Nonstandard\Uuid
+     * @return Uuid The Nonstandard\UuidBuilder returns an instance of Nonstandard\Uuid
      *
-     * @psalm-pure
+     * @pure
      */
     public function build(CodecInterface $codec, string $bytes): UuidInterface
     {
         try {
-            return new Uuid(
-                $this->buildFields($bytes),
-                $this->numberConverter,
-                $codec,
-                $this->timeConverter
-            );
+            /** @phpstan-ignore possiblyImpure.new */
+            return new Uuid($this->buildFields($bytes), $this->numberConverter, $codec, $this->timeConverter);
         } catch (Throwable $e) {
+            /** @phpstan-ignore possiblyImpure.methodCall, possiblyImpure.methodCall */
             throw new UnableToBuildUuidException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
 
     /**
-     * Proxy method to allow injecting a mock, for testing
+     * Proxy method to allow injecting a mock for testing
+     *
+     * @pure
      */
     protected function buildFields(string $bytes): Fields
     {
+        /** @phpstan-ignore possiblyImpure.new */
         return new Fields($bytes);
     }
 }

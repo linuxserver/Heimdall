@@ -9,7 +9,7 @@ use Illuminate\Filesystem\Filesystem;
  * @method static \Illuminate\Contracts\Filesystem\Filesystem disk(string|null $name = null)
  * @method static \Illuminate\Contracts\Filesystem\Cloud cloud()
  * @method static \Illuminate\Contracts\Filesystem\Filesystem build(string|array $config)
- * @method static \Illuminate\Contracts\Filesystem\Filesystem createLocalDriver(array $config)
+ * @method static \Illuminate\Contracts\Filesystem\Filesystem createLocalDriver(array $config, string $name = 'local')
  * @method static \Illuminate\Contracts\Filesystem\Filesystem createFtpDriver(array $config)
  * @method static \Illuminate\Contracts\Filesystem\Filesystem createSftpDriver(array $config)
  * @method static \Illuminate\Contracts\Filesystem\Cloud createS3Driver(array $config)
@@ -21,10 +21,13 @@ use Illuminate\Filesystem\Filesystem;
  * @method static void purge(string|null $name = null)
  * @method static \Illuminate\Filesystem\FilesystemManager extend(string $driver, \Closure $callback)
  * @method static \Illuminate\Filesystem\FilesystemManager setApplication(\Illuminate\Contracts\Foundation\Application $app)
+ * @method static string path(string $path)
  * @method static bool exists(string $path)
  * @method static string|null get(string $path)
  * @method static resource|null readStream(string $path)
  * @method static bool put(string $path, \Psr\Http\Message\StreamInterface|\Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|resource $contents, mixed $options = [])
+ * @method static string|false putFile(\Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null $file = null, mixed $options = [])
+ * @method static string|false putFileAs(\Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null $file, string|array|null $name = null, mixed $options = [])
  * @method static bool writeStream(string $path, resource $resource, array $options = [])
  * @method static string getVisibility(string $path)
  * @method static bool setVisibility(string $path, string $visibility)
@@ -42,6 +45,7 @@ use Illuminate\Filesystem\Filesystem;
  * @method static bool makeDirectory(string $path)
  * @method static bool deleteDirectory(string $directory)
  * @method static \Illuminate\Filesystem\FilesystemAdapter assertExists(string|array $path, string|null $content = null)
+ * @method static \Illuminate\Filesystem\FilesystemAdapter assertCount(string $path, int $count, bool $recursive = false)
  * @method static \Illuminate\Filesystem\FilesystemAdapter assertMissing(string|array $path)
  * @method static \Illuminate\Filesystem\FilesystemAdapter assertDirectoryEmpty(string $path)
  * @method static bool missing(string $path)
@@ -49,12 +53,10 @@ use Illuminate\Filesystem\Filesystem;
  * @method static bool fileMissing(string $path)
  * @method static bool directoryExists(string $path)
  * @method static bool directoryMissing(string $path)
- * @method static string path(string $path)
  * @method static array|null json(string $path, int $flags = 0)
  * @method static \Symfony\Component\HttpFoundation\StreamedResponse response(string $path, string|null $name = null, array $headers = [], string|null $disposition = 'inline')
+ * @method static \Symfony\Component\HttpFoundation\StreamedResponse serve(\Illuminate\Http\Request $request, string $path, string|null $name = null, array $headers = [])
  * @method static \Symfony\Component\HttpFoundation\StreamedResponse download(string $path, string|null $name = null, array $headers = [])
- * @method static string|false putFile(\Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null $file = null, mixed $options = [])
- * @method static string|false putFileAs(\Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null $file, string|array|null $name = null, mixed $options = [])
  * @method static string|false checksum(string $path, array $options = [])
  * @method static string|false mimeType(string $path)
  * @method static string url(string $path)
@@ -64,6 +66,7 @@ use Illuminate\Filesystem\Filesystem;
  * @method static \League\Flysystem\FilesystemOperator getDriver()
  * @method static \League\Flysystem\FilesystemAdapter getAdapter()
  * @method static array getConfig()
+ * @method static void serveUsing(\Closure $callback)
  * @method static void buildTemporaryUrlsUsing(\Closure $callback)
  * @method static \Illuminate\Filesystem\FilesystemAdapter|mixed when(\Closure|mixed|null $value = null, callable|null $callback = null, callable|null $default = null)
  * @method static \Illuminate\Filesystem\FilesystemAdapter|mixed unless(\Closure|mixed|null $value = null, callable|null $callback = null, callable|null $default = null)
@@ -93,9 +96,7 @@ class Storage extends Facade
      */
     public static function fake($disk = null, array $config = [])
     {
-        $disk = $disk ?: static::$app['config']->get('filesystems.default');
-
-        $root = storage_path('framework/testing/disks/'.$disk);
+        $root = self::getRootPath($disk = $disk ?: static::$app['config']->get('filesystems.default'));
 
         if ($token = ParallelTesting::token()) {
             $root = "{$root}_test_{$token}";
@@ -103,9 +104,9 @@ class Storage extends Facade
 
         (new Filesystem)->cleanDirectory($root);
 
-        static::set($disk, $fake = static::createLocalDriver(array_merge($config, [
-            'root' => $root,
-        ])));
+        static::set($disk, $fake = static::createLocalDriver(
+            self::buildDiskConfiguration($disk, $config, root: $root)
+        ));
 
         return tap($fake)->buildTemporaryUrlsUsing(function ($path, $expiration) {
             return URL::to($path.'?expiration='.$expiration->getTimestamp());
@@ -123,11 +124,41 @@ class Storage extends Facade
     {
         $disk = $disk ?: static::$app['config']->get('filesystems.default');
 
-        static::set($disk, $fake = static::createLocalDriver(array_merge($config, [
-            'root' => storage_path('framework/testing/disks/'.$disk),
-        ])));
+        static::set($disk, $fake = static::createLocalDriver(
+            self::buildDiskConfiguration($disk, $config, root: self::getRootPath($disk))
+        ));
 
         return $fake;
+    }
+
+    /**
+     * Get the root path of the given disk.
+     *
+     * @param  string  $disk
+     * @return string
+     */
+    protected static function getRootPath(string $disk): string
+    {
+        return storage_path('framework/testing/disks/'.$disk);
+    }
+
+    /**
+     * Assemble the configuration of the given disk.
+     *
+     * @param  string  $disk
+     * @param  array  $config
+     * @param  string  $root
+     * @return array
+     */
+    protected static function buildDiskConfiguration(string $disk, array $config, string $root): array
+    {
+        $originalConfig = static::$app['config']["filesystems.disks.{$disk}"] ?? [];
+
+        return array_merge([
+            'throw' => $originalConfig['throw'] ?? false],
+            $config,
+            ['root' => $root]
+        );
     }
 
     /**

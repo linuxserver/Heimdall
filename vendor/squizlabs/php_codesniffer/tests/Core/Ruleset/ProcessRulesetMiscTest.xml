@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRulesetTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!-- Error handling: Ini missing "name" will be ignored. -->
+    <ini value="2"/>
+
+    <!-- Error handling: Ini missing "value" will be set to true. -->
+    <ini name="user_agent"/>
+
+    <!-- Include of error code after previous exclude of most of a sniff via another error code include. -->
+    <rule ref="PEAR.Files.IncludingFile.BracketsNotRequired"/>
+    <rule ref="PEAR.Files.IncludingFile.UseRequire"/>
+
+    <!-- Include single error code. -->
+    <rule ref="Generic.PHP.RequireStrictTypes.MissingDeclaration"/>
+
+    <!-- Error handling: Rule without ref. -->
+    <rule name="Generic.Metrics.CyclomaticComplexity"/>
+
+    <!-- Error handling: Exclude without name. -->
+    <rule ref="Generic.PHP.BacktickOperator">
+        <exclude ref="Generic.PHP.BacktickOperator.Found"/>
+    </rule>
+
+</ruleset>

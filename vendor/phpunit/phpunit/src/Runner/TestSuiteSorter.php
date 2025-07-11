@@ -23,9 +23,12 @@ use PHPUnit\Framework\Reorderable;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
-use PHPUnit\Util\Test as TestUtil;
+use PHPUnit\Runner\ResultCache\NullResultCache;
+use PHPUnit\Runner\ResultCache\ResultCache;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class TestSuiteSorter
@@ -56,59 +59,39 @@ final class TestSuiteSorter
     public const ORDER_DURATION = 4;
 
     /**
-     * Order tests by @size annotation 'small', 'medium', 'large'.
-     *
      * @var int
      */
     public const ORDER_SIZE = 5;
 
-    /**
-     * List of sorting weights for all test result codes. A higher number gives higher priority.
-     */
-    private const DEFECT_SORT_WEIGHT = [
-        BaseTestRunner::STATUS_ERROR      => 6,
-        BaseTestRunner::STATUS_FAILURE    => 5,
-        BaseTestRunner::STATUS_WARNING    => 4,
-        BaseTestRunner::STATUS_INCOMPLETE => 3,
-        BaseTestRunner::STATUS_RISKY      => 2,
-        BaseTestRunner::STATUS_SKIPPED    => 1,
-        BaseTestRunner::STATUS_UNKNOWN    => 0,
-    ];
-
     private const SIZE_SORT_WEIGHT = [
-        TestUtil::SMALL   => 1,
-        TestUtil::MEDIUM  => 2,
-        TestUtil::LARGE   => 3,
-        TestUtil::UNKNOWN => 4,
+        'small'   => 1,
+        'medium'  => 2,
+        'large'   => 3,
+        'unknown' => 4,
     ];
 
     /**
-     * @var array<string, int> Associative array of (string => DEFECT_SORT_WEIGHT) elements
+     * @psalm-var array<string, int> Associative array of (string => DEFECT_SORT_WEIGHT) elements
      */
-    private $defectSortOrder = [];
+    private array $defectSortOrder = [];
+    private readonly ResultCache $cache;
 
     /**
-     * @var TestResultCache
+     * @psalm-var array<string> A list of normalized names of tests before reordering
      */
-    private $cache;
+    private array $originalExecutionOrder = [];
 
     /**
-     * @var array<string> A list of normalized names of tests before reordering
+     * @psalm-var array<string> A list of normalized names of tests affected by reordering
      */
-    private $originalExecutionOrder = [];
+    private array $executionOrder = [];
 
-    /**
-     * @var array<string> A list of normalized names of tests affected by reordering
-     */
-    private $executionOrder = [];
-
-    public function __construct(?TestResultCache $cache = null)
+    public function __construct(?ResultCache $cache = null)
     {
-        $this->cache = $cache ?? new NullTestResultCache;
+        $this->cache = $cache ?? new NullResultCache;
     }
 
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws Exception
      */
     public function reorderTestsInSuite(Test $suite, int $order, bool $resolveDependencies, int $orderDefects, bool $isRootTestSuite = true): void
@@ -122,9 +105,7 @@ final class TestSuiteSorter
         ];
 
         if (!in_array($order, $allowedOrders, true)) {
-            throw new Exception(
-                '$order must be one of TestSuiteSorter::ORDER_[DEFAULT|REVERSED|RANDOMIZED|DURATION|SIZE]',
-            );
+            throw new InvalidOrderException;
         }
 
         $allowedOrderDefects = [
@@ -133,9 +114,7 @@ final class TestSuiteSorter
         ];
 
         if (!in_array($orderDefects, $allowedOrderDefects, true)) {
-            throw new Exception(
-                '$orderDefects must be one of TestSuiteSorter::ORDER_DEFAULT, TestSuiteSorter::ORDER_DEFECTS_FIRST',
-            );
+            throw new InvalidOrderException;
         }
 
         if ($isRootTestSuite) {
@@ -179,27 +158,23 @@ final class TestSuiteSorter
             $suite->setTests($this->reverse($suite->tests()));
         } elseif ($order === self::ORDER_RANDOMIZED) {
             $suite->setTests($this->randomize($suite->tests()));
-        } elseif ($order === self::ORDER_DURATION && $this->cache !== null) {
+        } elseif ($order === self::ORDER_DURATION) {
             $suite->setTests($this->sortByDuration($suite->tests()));
         } elseif ($order === self::ORDER_SIZE) {
             $suite->setTests($this->sortBySize($suite->tests()));
         }
 
-        if ($orderDefects === self::ORDER_DEFECTS_FIRST && $this->cache !== null) {
+        if ($orderDefects === self::ORDER_DEFECTS_FIRST) {
             $suite->setTests($this->sortDefectsFirst($suite->tests()));
         }
 
         if ($resolveDependencies && !($suite instanceof DataProviderTestSuite)) {
-            /** @var TestCase[] $tests */
             $tests = $suite->tests();
 
             $suite->setTests($this->resolveDependencies($tests));
         }
     }
 
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
     private function addSuiteToDefectSortOrder(TestSuite $suite): void
     {
         $max = 0;
@@ -210,7 +185,7 @@ final class TestSuiteSorter
             }
 
             if (!isset($this->defectSortOrder[$test->sortId()])) {
-                $this->defectSortOrder[$test->sortId()] = self::DEFECT_SORT_WEIGHT[$this->cache->getState($test->sortId())];
+                $this->defectSortOrder[$test->sortId()] = $this->cache->status($test->sortId())->asInt();
                 $max                                    = max($max, $this->defectSortOrder[$test->sortId()]);
             }
         }
@@ -234,13 +209,7 @@ final class TestSuiteSorter
     {
         usort(
             $tests,
-            /**
-             * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-             */
-            function ($left, $right)
-            {
-                return $this->cmpDefectPriorityAndTime($left, $right);
-            },
+            fn ($left, $right) => $this->cmpDefectPriorityAndTime($left, $right),
         );
 
         return $tests;
@@ -250,13 +219,7 @@ final class TestSuiteSorter
     {
         usort(
             $tests,
-            /**
-             * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-             */
-            function ($left, $right)
-            {
-                return $this->cmpDuration($left, $right);
-            },
+            fn ($left, $right) => $this->cmpDuration($left, $right),
         );
 
         return $tests;
@@ -266,13 +229,7 @@ final class TestSuiteSorter
     {
         usort(
             $tests,
-            /**
-             * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-             */
-            function ($left, $right)
-            {
-                return $this->cmpSize($left, $right);
-            },
+            fn ($left, $right) => $this->cmpSize($left, $right),
         );
 
         return $tests;
@@ -284,8 +241,6 @@ final class TestSuiteSorter
      * 1. sort tests by defect weight defined in self::DEFECT_SORT_WEIGHT
      * 2. when tests are equally defective, sort the fastest to the front
      * 3. do not reorder successful tests
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     private function cmpDefectPriorityAndTime(Test $a, Test $b): int
     {
@@ -311,8 +266,6 @@ final class TestSuiteSorter
 
     /**
      * Compares test duration for sorting tests by duration ascending.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     private function cmpDuration(Test $a, Test $b): int
     {
@@ -320,7 +273,7 @@ final class TestSuiteSorter
             return 0;
         }
 
-        return $this->cache->getTime($a->sortId()) <=> $this->cache->getTime($b->sortId());
+        return $this->cache->time($a->sortId()) <=> $this->cache->time($b->sortId());
     }
 
     /**
@@ -329,11 +282,11 @@ final class TestSuiteSorter
     private function cmpSize(Test $a, Test $b): int
     {
         $sizeA = ($a instanceof TestCase || $a instanceof DataProviderTestSuite)
-            ? $a->getSize()
-            : TestUtil::UNKNOWN;
+            ? $a->size()->asString()
+            : 'unknown';
         $sizeB = ($b instanceof TestCase || $b instanceof DataProviderTestSuite)
-            ? $b->getSize()
-            : TestUtil::UNKNOWN;
+            ? $b->size()->asString()
+            : 'unknown';
 
         return self::SIZE_SORT_WEIGHT[$sizeA] <=> self::SIZE_SORT_WEIGHT[$sizeB];
     }
@@ -349,9 +302,9 @@ final class TestSuiteSorter
      * 3. If the test has dependencies but none left to do: mark done, start again from the top
      * 4. When we reach the end add any leftover tests to the end. These will be marked 'skipped' during execution.
      *
-     * @param array<DataProviderTestSuite|TestCase> $tests
+     * @psalm-param array<DataProviderTestSuite|TestCase> $tests
      *
-     * @return array<DataProviderTestSuite|TestCase>
+     * @psalm-return array<DataProviderTestSuite|TestCase>
      */
     private function resolveDependencies(array $tests): array
     {
@@ -372,9 +325,6 @@ final class TestSuiteSorter
         return array_merge($newTestOrder, $tests);
     }
 
-    /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     */
     private function calculateTestExecutionOrder(Test $suite): array
     {
         $tests = [];

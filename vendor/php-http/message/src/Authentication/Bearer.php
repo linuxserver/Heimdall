@@ -25,9 +25,6 @@ final class Bearer implements Authentication
         $this->token = $token;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         $header = sprintf('Bearer %s', $this->token);

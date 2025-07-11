@@ -2,14 +2,19 @@
 /*
  * This file is part of PharIo\Manifest.
  *
- * (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de>
+ * Copyright (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de> and contributors
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+ *
  */
 namespace PharIo\Manifest;
 
-class RequirementCollectionIterator implements \Iterator {
+use Iterator;
+use function count;
+
+/** @template-implements Iterator<int,Requirement> */
+class RequirementCollectionIterator implements Iterator {
     /** @var Requirement[] */
     private $requirements;
 
@@ -25,7 +30,7 @@ class RequirementCollectionIterator implements \Iterator {
     }
 
     public function valid(): bool {
-        return $this->position < \count($this->requirements);
+        return $this->position < count($this->requirements);
     }
 
     public function key(): int {

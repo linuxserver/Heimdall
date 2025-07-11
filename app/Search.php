@@ -2,8 +2,6 @@
 
 namespace App;
 
-use Cache;
-use Form;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request as Input;
 use Yaml;
@@ -123,15 +121,7 @@ abstract class Search
                     $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
                 }
                 $output .= '</select>';
-                $output .= Form::text(
-                    'q',
-                    Input::get('q') ?? null,
-                    [
-                        'class' => 'homesearch',
-                        'autofocus' => 'autofocus',
-                        'placeholder' => __('app.settings.search').'...'
-                    ]
-                );
+                $output .= '<input type="text" name="q" value="'.(Input::get('q') ?? '').'" class="homesearch" autofocus placeholder="'.__('app.settings.search').'..." />';
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
                 $output .= '</form>';

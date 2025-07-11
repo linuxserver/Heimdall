@@ -3,6 +3,7 @@
 namespace Laravel\Prompts;
 
 use Closure;
+use Laravel\Prompts\Support\Utils;
 
 class MultiSearchPrompt extends Prompt
 {
@@ -16,6 +17,11 @@ class MultiSearchPrompt extends Prompt
      * @var array<int|string, string>|null
      */
     protected ?array $matches = null;
+
+    /**
+     * Whether the matches are initially a list.
+     */
+    protected bool $isList;
 
     /**
      * The selected values.
@@ -37,6 +43,7 @@ class MultiSearchPrompt extends Prompt
         public bool|string $required = false,
         public mixed $validate = null,
         public string $hint = '',
+        public ?Closure $transform = null,
     ) {
         $this->trackTypedValue(submit: false, ignore: fn ($key) => Key::oneOf([Key::SPACE, Key::HOME, Key::END, Key::CTRL_A, Key::CTRL_E], $key) && $this->highlighted !== null);
 
@@ -45,9 +52,11 @@ class MultiSearchPrompt extends Prompt
         $this->on('key', fn ($key) => match ($key) {
             Key::UP, Key::UP_ARROW, Key::SHIFT_TAB => $this->highlightPrevious(count($this->matches), true),
             Key::DOWN, Key::DOWN_ARROW, Key::TAB => $this->highlightNext(count($this->matches), true),
-            Key::oneOf([Key::HOME, Key::CTRL_A], $key) => $this->highlighted !== null ? $this->highlight(0) : null,
-            Key::oneOf([Key::END, Key::CTRL_E], $key) => $this->highlighted !== null ? $this->highlight(count($this->matches()) - 1) : null,
+            Key::oneOf(Key::HOME, $key) => $this->highlighted !== null ? $this->highlight(0) : null,
+            Key::oneOf(Key::END, $key) => $this->highlighted !== null ? $this->highlight(count($this->matches()) - 1) : null,
             Key::SPACE => $this->highlighted !== null ? $this->toggleHighlighted() : null,
+            Key::CTRL_A => $this->highlighted !== null ? $this->toggleAll() : null,
+            Key::CTRL_E => null,
             Key::ENTER => $this->submit(),
             Key::LEFT, Key::LEFT_ARROW, Key::RIGHT, Key::RIGHT_ARROW => $this->highlighted = null,
             default => $this->search(),
@@ -96,16 +105,25 @@ class MultiSearchPrompt extends Prompt
             return $this->matches;
         }
 
-        if (strlen($this->typedValue) === 0) {
-            $matches = ($this->options)($this->typedValue);
+        $matches = ($this->options)($this->typedValue);
 
-            return $this->matches = [
-                ...array_diff($this->values, $matches),
-                ...$matches,
-            ];
+        if (! isset($this->isList) && count($matches) > 0) {
+            // This needs to be captured the first time we receive matches so
+            // we know what we're dealing with later if matches is empty.
+            $this->isList = array_is_list($matches);
         }
 
-        return $this->matches = ($this->options)($this->typedValue);
+        if (! isset($this->isList)) {
+            return $this->matches = [];
+        }
+
+        if (strlen($this->typedValue) > 0) {
+            return $this->matches = $matches;
+        }
+
+        return $this->matches = $this->isList
+            ? [...array_diff(array_values($this->values), $matches), ...$matches]
+            : array_diff($this->values, $matches) + $matches;
     }
 
     /**
@@ -119,11 +137,32 @@ class MultiSearchPrompt extends Prompt
     }
 
     /**
+     * Toggle all options.
+     */
+    protected function toggleAll(): void
+    {
+        $allMatchesSelected = Utils::allMatch($this->matches, fn ($label, $key) => $this->isList()
+            ? array_key_exists($label, $this->values)
+            : array_key_exists($key, $this->values));
+
+        if ($allMatchesSelected) {
+            $this->values = array_filter($this->values, fn ($value) => $this->isList()
+                ? ! in_array($value, $this->matches)
+                : ! array_key_exists(array_search($value, $this->matches), $this->matches)
+            );
+        } else {
+            $this->values = $this->isList()
+                ? array_merge($this->values, array_combine(array_values($this->matches), array_values($this->matches)))
+                : array_merge($this->values, array_combine(array_keys($this->matches), array_values($this->matches)));
+        }
+    }
+
+    /**
      * Toggle the highlighted entry.
      */
     protected function toggleHighlighted(): void
     {
-        if (array_is_list($this->matches)) {
+        if ($this->isList()) {
             $label = $this->matches[$this->highlighted];
             $key = $label;
         } else {
@@ -164,5 +203,13 @@ class MultiSearchPrompt extends Prompt
     public function labels(): array
     {
         return array_values($this->values);
+    }
+
+    /**
+     * Whether the matches are initially a list.
+     */
+    public function isList(): bool
+    {
+        return $this->isList;
     }
 }

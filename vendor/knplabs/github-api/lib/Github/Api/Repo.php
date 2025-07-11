@@ -204,14 +204,14 @@ class Repo extends AbstractApi
         $path = null !== $organization ? '/orgs/'.$organization.'/repos' : '/user/repos';
 
         $parameters = [
-            'name'          => $name,
-            'description'   => $description,
-            'homepage'      => $homepage,
-            'private'       => ($visibility ?? ($public ? 'public' : 'private')) === 'private',
-            'has_issues'    => $hasIssues,
-            'has_wiki'      => $hasWiki,
+            'name' => $name,
+            'description' => $description,
+            'homepage' => $homepage,
+            'private' => ($visibility ?? ($public ? 'public' : 'private')) === 'private',
+            'has_issues' => $hasIssues,
+            'has_wiki' => $hasWiki,
             'has_downloads' => $hasDownloads,
-            'auto_init'     => $autoInit,
+            'auto_init' => $autoInit,
             'has_projects' => $hasProjects,
         ];
 

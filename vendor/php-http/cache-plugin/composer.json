@@ -14,11 +14,12 @@
         "php": "^7.1 || ^8.0",
         "psr/cache": "^1.0 || ^2.0 || ^3.0",
         "php-http/client-common": "^1.9 || ^2.0",
-        "php-http/message-factory": "^1.0",
+        "psr/http-factory-implementation": "^1.0",
         "symfony/options-resolver": "^2.6 || ^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^5.1 || ^6.0 || ^7.0"
+        "phpspec/phpspec": "^5.1 || ^6.0 || ^7.0",
+        "nyholm/psr7": "^1.6.1"
     },
     "autoload": {
         "psr-4": {

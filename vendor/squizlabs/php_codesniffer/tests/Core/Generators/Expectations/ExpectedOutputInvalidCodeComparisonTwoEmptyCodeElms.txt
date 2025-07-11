@@ -1,0 +1,7 @@
+
+---------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: CODE COMPARISON, TWO EMPTY CODE ELEMENTS |
+---------------------------------------------------------------------------
+
+This doc has two code elements, but neither of them contain any information.
+

@@ -10,6 +10,8 @@
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\PHP;
 
+use ReflectionFunction;
+
 class DeprecatedFunctionsSniff extends ForbiddenFunctionsSniff
 {
 
@@ -34,7 +36,7 @@ class DeprecatedFunctionsSniff extends ForbiddenFunctionsSniff
         $functions = get_defined_functions();
 
         foreach ($functions['internal'] as $functionName) {
-            $function = new \ReflectionFunction($functionName);
+            $function = new ReflectionFunction($functionName);
 
             if ($function->isDeprecated() === true) {
                 $this->forbiddenFunctions[$functionName] = null;

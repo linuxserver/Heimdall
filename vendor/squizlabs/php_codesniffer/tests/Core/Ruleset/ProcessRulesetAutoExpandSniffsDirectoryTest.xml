@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRulesetTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/TestStandard/"/>
+
+    <rule ref="TestStandard">
+        <exclude name="TestStandard.SupportedTokenizers"/>
+        <exclude name="TestStandard.InvalidSniffs"/>
+        <exclude name="TestStandard.InvalidSniffError"/>
+        <exclude name="TestStandard.MissingInterface.InvalidImplementsWithoutImplement"/>
+    </rule>
+
+</ruleset>

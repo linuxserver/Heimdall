@@ -46,20 +46,36 @@ class ParamTag extends ReturnTag
     public function setContent($content)
     {
         Tag::setContent($content);
-        $parts = preg_split(
-            '/(\s+)/Su',
-            $this->description,
-            3,
-            PREG_SPLIT_DELIM_CAPTURE
-        );
 
-        // detect generic type
-        if (isset($parts[0]) && isset($parts[2]) && strpos($parts[0], '<') !== false && strpos($parts[2], '>') !== false) {
-            $parts[0] .= ' ' . $parts[2];
-            unset($parts[1]);
-            unset($parts[2]);
-            $parts = array_values($parts);
+        $parts = [];
+        $rest = $this->description;
+
+        // parsing generics and closures to detect types
+        for($pos = 0, $stacks = []; $pos < strlen($rest); $pos++) {
+            $char = $rest[$pos];
+
+            if(in_array($char, ['<', '(', '[', '{'])) {
+                array_unshift($stacks, $char);
+            }
+            if(
+                ($char === '>' && isset($stacks[0]) && $stacks[0] === '<')
+                || ($char === ')' && isset($stacks[0]) && $stacks[0] === '(')
+                || ($char === ']' && isset($stacks[0]) && $stacks[0] === '[')
+                || ($char === '}' && isset($stacks[0]) && $stacks[0] === '{')
+            ) {
+                array_shift($stacks);
+            }
+
+            if(!$stacks && preg_match('/\A(\s+)(.*)/su', substr($rest, $pos), $matches)) {
+                $parts[0] = substr($rest, 0, $pos);
+                $parts[1] = $matches[1];
+                $rest = $matches[2];
+
+                break;
+            }
         }
+
+        array_push($parts, ...preg_split('/(\s+)/u', $rest, 2, PREG_SPLIT_DELIM_CAPTURE));
 
         // if the first item that is encountered is not a variable; it is a type
         if (isset($parts[0])

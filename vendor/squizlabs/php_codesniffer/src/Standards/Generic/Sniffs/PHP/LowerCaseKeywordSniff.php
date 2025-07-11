@@ -27,15 +27,15 @@ class LowerCaseKeywordSniff implements Sniff
     {
         $targets  = Tokens::$contextSensitiveKeywords;
         $targets += [
+            T_ANON_CLASS    => T_ANON_CLASS,
             T_CLOSURE       => T_CLOSURE,
-            T_EMPTY         => T_EMPTY,
             T_ENUM_CASE     => T_ENUM_CASE,
-            T_EVAL          => T_EVAL,
-            T_ISSET         => T_ISSET,
             T_MATCH_DEFAULT => T_MATCH_DEFAULT,
             T_PARENT        => T_PARENT,
             T_SELF          => T_SELF,
-            T_UNSET         => T_UNSET,
+            T_PUBLIC_SET    => T_PUBLIC_SET,
+            T_PROTECTED_SET => T_PROTECTED_SET,
+            T_PRIVATE_SET   => T_PRIVATE_SET,
         ];
 
         return $targets;

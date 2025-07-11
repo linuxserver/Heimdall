@@ -40,6 +40,7 @@ class TraitNameSuffixSniff implements Sniff
     {
         $traitName = $phpcsFile->getDeclarationName($stackPtr);
         if ($traitName === null) {
+            // Live coding or parse error. Bow out.
             return;
         }
 

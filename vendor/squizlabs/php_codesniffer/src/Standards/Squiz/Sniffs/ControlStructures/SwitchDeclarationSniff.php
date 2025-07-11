@@ -153,6 +153,7 @@ class SwitchDeclarationSniff implements Sniff
                 || $tokens[$nextBreak]['code'] === T_CONTINUE
                 || $tokens[$nextBreak]['code'] === T_THROW
                 || $tokens[$nextBreak]['code'] === T_EXIT
+                || $tokens[$nextBreak]['code'] === T_GOTO
             ) {
                 if ($tokens[$nextBreak]['scope_condition'] === $nextCase) {
                     // Only need to check a couple of things once, even if the

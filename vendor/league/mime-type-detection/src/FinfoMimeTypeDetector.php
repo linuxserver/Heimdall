@@ -41,7 +41,7 @@ class FinfoMimeTypeDetector implements MimeTypeDetector, ExtensionLookup
 
     public function __construct(
         string $magicFile = '',
-        ExtensionToMimeTypeMap $extensionMap = null,
+        ?ExtensionToMimeTypeMap $extensionMap = null,
         ?int $bufferSampleSize = null,
         array $inconclusiveMimetypes = self::INCONCLUSIVE_MIME_TYPES
     ) {

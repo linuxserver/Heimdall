@@ -13,7 +13,9 @@ use function sprintf;
 use RuntimeException;
 
 /**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class TestFileNotFoundException extends RuntimeException implements Exception
 {

@@ -37,6 +37,10 @@ class ValidVariableNameSniff extends AbstractVariableSniff
         $memberName     = ltrim($tokens[$stackPtr]['content'], '$');
         $scope          = $memberProps['scope'];
         $scopeSpecified = $memberProps['scope_specified'];
+        if ($scopeSpecified === false && $memberProps['set_scope'] !== false) {
+            // Implicit `public` visibility for property with asymmetric visibility.
+            $scopeSpecified = true;
+        }
 
         if ($memberProps['scope'] === 'private') {
             $isPublic = false;

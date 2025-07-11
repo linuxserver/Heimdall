@@ -6,7 +6,7 @@
         {"name": "Mike van Riel", "email": "mike.vanriel@naenius.com"}
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=7.1"
     },
     "autoload": {
         "psr-0": {"Barryvdh": ["src/"]}
@@ -20,7 +20,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "2.3.x-dev"
         }
     }
 }

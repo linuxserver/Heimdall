@@ -14,7 +14,7 @@ class Foo
         return <em>self</em>::$staticMember;
     }
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Using $this-> to access static variables.">
         <![CDATA[
@@ -25,7 +25,7 @@ class Foo
     return <em>$this</em>->$staticMember;
     }
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

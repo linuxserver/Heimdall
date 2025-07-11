@@ -1,18 +1,13 @@
-<a href="https://supportukrainenow.org/"><img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg" width="100%"></a>
-
-------
-
 <p align="center">
-    <img src="https://raw.githubusercontent.com/nunomaduro/collision/stable/docs/logo.png" alt="Collision logo" width="480">
+    <img src="https://raw.githubusercontent.com/nunomaduro/collision/v7.x/docs/logo.png" alt="Collision logo" width="480">
     <br>
-    <img src="https://raw.githubusercontent.com/nunomaduro/collision/stable/docs/example.png" alt="Collision code example" height="300">
+    <img src="https://raw.githubusercontent.com/nunomaduro/collision/v7.x/docs/example.png" alt="Collision code example" height="300">
 </p>
 
 <p align="center">
-  <a href="https://github.com/nunomaduro/collision/actions"><img src="https://img.shields.io/github/workflow/status/nunomaduro/collision/Tests.svg" alt="Build Status"></img></a>
+  <a href="https://github.com/nunomaduro/collision/actions"><img src="https://img.shields.io/github/actions/workflow/status/nunomaduro/collision/tests.yml?branch=v7.x&label=tests&style=round-square" alt="Build Status"></img></a>
   <a href="https://scrutinizer-ci.com/g/nunomaduro/collision"><img src="https://img.shields.io/scrutinizer/g/nunomaduro/collision.svg" alt="Quality Score"></img></a>
   <a href="https://packagist.org/packages/nunomaduro/collision"><img src="https://poser.pugx.org/nunomaduro/collision/d/total.svg" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/nunomaduro/collision"><img src="https://poser.pugx.org/nunomaduro/collision/v/stable.svg" alt="Latest Stable Version"></a>
   <a href="https://packagist.org/packages/nunomaduro/collision"><img src="https://poser.pugx.org/nunomaduro/collision/license.svg" alt="License"></a>
 </p>
 
@@ -26,7 +21,7 @@ Collision was created by, and is maintained by **[Nuno Maduro](https://github.co
 
 ## Installation & Usage
 
-> **Requires [PHP 8.0+](https://php.net/releases/)**
+> **Requires [PHP 8.2+](https://php.net/releases/)**
 
 Require Collision using [Composer](https://getcomposer.org):
 
@@ -34,30 +29,23 @@ Require Collision using [Composer](https://getcomposer.org):
 composer require nunomaduro/collision --dev
 ```
 
-## Laravel Version Compatibility
+## Version Compatibility
 
- Laravel  | Collision
-:---------|:----------
- 6.x      | 3.x
- 7.x      | 4.x
- 8.x      | 5.x
- 9.x      | 6.x
+ Laravel  | Collision | PHPUnit   | Pest
+:---------|:----------|:----------|:----------
+ 6.x      | 3.x       |           |
+ 7.x      | 4.x       |           |
+ 8.x      | 5.x       |           | 
+ 9.x      | 6.x       |           |
+ 10.x     | 6.x       | 9.x       | 1.x
+ 10.x     | 7.x       | 10.x      | 2.x
+ 11.x     | 8.x       | 10.x      | 2.x
+ 11.x     | 8.x       | 11.x      | 3.x
 
-As an example, here is how to require Collision on Laravel 6.x:
+As an example, here is how to require Collision on Laravel 8.x:
 
 ```bash
-composer require nunomaduro/collision:^3.0 --dev
-```
-
-## Phpunit adapter
-
-Phpunit must be 9.0 or higher.
-
-Add the Collision `printerClass` to your `phpunit.xml` in the `phpunit` section:
-
-```xml
-<phpunit
-        printerClass="NunoMaduro\Collision\Adapters\Phpunit\Printer">
+composer require nunomaduro/collision:^5.0 --dev
 ```
 
 ## No adapter

@@ -45,6 +45,11 @@ class DisallowMultipleAssignmentsSniff implements Sniff
         // Ignore default value assignments in function definitions.
         $function = $phpcsFile->findPrevious([T_FUNCTION, T_CLOSURE, T_FN], ($stackPtr - 1), null, false, null, true);
         if ($function !== false) {
+            if (isset($tokens[$function]['parenthesis_closer']) === false) {
+                // Live coding/parse error. Bow out.
+                return;
+            }
+
             $opener = $tokens[$function]['parenthesis_opener'];
             $closer = $tokens[$function]['parenthesis_closer'];
             if ($opener < $stackPtr && $closer > $stackPtr) {
@@ -83,9 +88,8 @@ class DisallowMultipleAssignmentsSniff implements Sniff
         */
 
         for ($varToken = ($stackPtr - 1); $varToken >= 0; $varToken--) {
-            if (in_array($tokens[$varToken]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET], true) === true) {
-                // We've reached the next statement, so we
-                // didn't find a variable.
+            if (in_array($tokens[$varToken]['code'], [T_SEMICOLON, T_OPEN_CURLY_BRACKET, T_CLOSE_TAG], true) === true) {
+                // We've reached the previous statement, so we didn't find a variable.
                 return;
             }
 
@@ -101,6 +105,13 @@ class DisallowMultipleAssignmentsSniff implements Sniff
             }
 
             if ($tokens[$varToken]['code'] === T_VARIABLE) {
+                $prevNonEmpty = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($varToken - 1), null, true);
+                if ($tokens[$prevNonEmpty]['code'] === T_OBJECT_OPERATOR) {
+                    // Dynamic property access, the real "start" variable still needs to be found.
+                    $varToken = $prevNonEmpty;
+                    continue;
+                }
+
                 // We found our variable.
                 break;
             }
@@ -115,15 +126,14 @@ class DisallowMultipleAssignmentsSniff implements Sniff
 
         $allowed = Tokens::$emptyTokens;
 
-        $allowed[T_STRING]          = T_STRING;
-        $allowed[T_NS_SEPARATOR]    = T_NS_SEPARATOR;
-        $allowed[T_DOUBLE_COLON]    = T_DOUBLE_COLON;
-        $allowed[T_OBJECT_OPERATOR] = T_OBJECT_OPERATOR;
-        $allowed[T_ASPERAND]        = T_ASPERAND;
-        $allowed[T_DOLLAR]          = T_DOLLAR;
-        $allowed[T_SELF]            = T_SELF;
-        $allowed[T_PARENT]          = T_PARENT;
-        $allowed[T_STATIC]          = T_STATIC;
+        $allowed[T_STRING]       = T_STRING;
+        $allowed[T_NS_SEPARATOR] = T_NS_SEPARATOR;
+        $allowed[T_DOUBLE_COLON] = T_DOUBLE_COLON;
+        $allowed[T_ASPERAND]     = T_ASPERAND;
+        $allowed[T_DOLLAR]       = T_DOLLAR;
+        $allowed[T_SELF]         = T_SELF;
+        $allowed[T_PARENT]       = T_PARENT;
+        $allowed[T_STATIC]       = T_STATIC;
 
         $varToken = $phpcsFile->findPrevious($allowed, ($varToken - 1), null, true);
 

@@ -1,0 +1,8 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-WhiteSpaceAtEnd.inc
++++ PHP_CodeSniffer
+@@ -4,4 +4,4 @@
+ 
+ if ($var) {
+ 	echo 'This line is tab indented';
+-}     
++}

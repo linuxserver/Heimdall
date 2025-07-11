@@ -1,0 +1,10 @@
+<documentation title="Standard Element, indentation should be ignored">
+    <standard>
+    <![CDATA[
+This line has no indentation.
+    This line has 4 spaces indentation.
+        This line has 8 spaces indentation.
+    This line has 4 spaces indentation.
+    ]]>
+    </standard>
+</documentation>

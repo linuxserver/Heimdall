@@ -9,12 +9,16 @@ return [
 
     'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
 
+    //'providers' => [
+        //App\Providers\FormMacroServiceProvider::class, // Add this line
+    //],
 
     'aliases' => Facade::defaultAliases()->merge([
         'EnhancedApps' => App\EnhancedApps::class,
         'Redis' => Illuminate\Support\Facades\Redis::class,
         'SupportedApps' => App\SupportedApps::class,
         'Yaml' => Symfony\Component\Yaml\Yaml::class,
+        'Form' => App\Providers\FormMacroServiceProvider::class
     ])->toArray(),
 
     'auth_roles_enable' =>  (bool) env('AUTH_ROLES_ENABLE', false),

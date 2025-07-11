@@ -1,0 +1,48 @@
+<documentation title="Two Standard Blocks, Three Code Comparisons">
+    <standard>
+    <![CDATA[
+    This is standard block one.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Vestibulum et orci condimentum.">
+        <![CDATA[
+<em>class Code</em> {}
+        ]]>
+        </code>
+        <code title="Invalid: Donec in nisl ut tortor convallis interdum.">
+        <![CDATA[
+<em>class Comparison</em> {}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    This is standard block two.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Pellentesque nisi neque.">
+        <![CDATA[
+<em>$one</em> = 10;
+        ]]>
+        </code>
+        <code title="Invalid: Mauris dictum metus quis maximus pharetra.">
+        <![CDATA[
+<em>$a</em> = 10;
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Quisque sagittis nisi vitae.">
+        <![CDATA[
+<em>echo</em> $foo;
+        ]]>
+        </code>
+        <code title="Invalid: Morbi ac libero vitae lorem.">
+        <![CDATA[
+<em>print</em> $foo;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

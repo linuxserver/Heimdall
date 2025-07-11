@@ -1,0 +1,7 @@
+
+--------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: CODE COMPARISON, NO CONTENT |
+--------------------------------------------------------------
+
+This is a standard block.
+

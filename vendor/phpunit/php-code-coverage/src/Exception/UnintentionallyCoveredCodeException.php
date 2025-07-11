@@ -14,10 +14,13 @@ use RuntimeException;
 final class UnintentionallyCoveredCodeException extends RuntimeException implements Exception
 {
     /**
-     * @var array
+     * @var list<string>
      */
-    private $unintentionallyCoveredUnits;
+    private readonly array $unintentionallyCoveredUnits;
 
+    /**
+     * @param list<string> $unintentionallyCoveredUnits
+     */
     public function __construct(array $unintentionallyCoveredUnits)
     {
         $this->unintentionallyCoveredUnits = $unintentionallyCoveredUnits;
@@ -25,6 +28,9 @@ final class UnintentionallyCoveredCodeException extends RuntimeException impleme
         parent::__construct($this->toString());
     }
 
+    /**
+     * @return list<string>
+     */
     public function getUnintentionallyCoveredUnits(): array
     {
         return $this->unintentionallyCoveredUnits;

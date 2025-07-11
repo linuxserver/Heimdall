@@ -42,6 +42,9 @@
         "bin/phpcbf",
         "bin/phpcs"
     ],
+    "config": {
+        "lock": false
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "3.x-dev"

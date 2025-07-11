@@ -19,7 +19,7 @@ final class RejectedPromise implements Promise
         $this->exception = $exception;
     }
 
-    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         if (null === $onRejected) {
             return $this;

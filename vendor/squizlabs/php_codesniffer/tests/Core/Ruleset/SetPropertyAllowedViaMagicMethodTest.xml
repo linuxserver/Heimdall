@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Fixtures" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="SetSniffPropertyTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
 
-    <rule ref="./tests/Core/Ruleset/Fixtures/Sniffs/SetProperty/AllowedViaMagicMethodSniff.php">
+    <rule ref="./tests/Core/Ruleset/Fixtures/TestStandard/Sniffs/SetProperty/AllowedViaMagicMethodSniff.php">
         <properties>
             <property name="arbitrarystring" value="arbitraryvalue"/>
             <property name="arbitraryarray" type="array">

@@ -1,0 +1,15 @@
+<documentation title="Code Comparison, one empty code element">
+    <standard>
+    <![CDATA[
+    This doc has two code elements, but only one of them has a title and actual code.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Code title">
+        <![CDATA[
+$a = 'Example code';
+        ]]>
+        </code>
+        <code></code>
+    </code_comparison>
+</documentation>

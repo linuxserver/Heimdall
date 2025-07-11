@@ -28,7 +28,7 @@ class LongConditionClosingCommentSniff implements Sniff
     /**
      * The openers that we are interested in.
      *
-     * @var integer[]
+     * @var array<int|string>
      */
     private static $openers = [
         T_SWITCH,
@@ -156,7 +156,7 @@ class LongConditionClosingCommentSniff implements Sniff
         }
 
         if ($startCondition['code'] === T_MATCH) {
-            // Move the stackPtr to after the semi-colon/comma if there is one.
+            // Move the stackPtr to after the semicolon/comma if there is one.
             $nextToken = $phpcsFile->findNext(T_WHITESPACE, ($stackPtr + 1), null, true);
             if ($nextToken !== false
                 && ($tokens[$nextToken]['code'] === T_SEMICOLON

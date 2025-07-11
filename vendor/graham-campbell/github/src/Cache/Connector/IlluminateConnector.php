@@ -56,7 +56,7 @@ final class IlluminateConnector implements ConnectorInterface
      *
      * @return void
      */
-    public function __construct(Factory $cache = null)
+    public function __construct(?Factory $cache = null)
     {
         $this->cache = $cache;
     }

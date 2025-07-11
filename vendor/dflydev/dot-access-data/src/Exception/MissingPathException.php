@@ -23,7 +23,7 @@ class MissingPathException extends DataException
     /** @var string */
     protected $path;
 
-    public function __construct(string $path, string $message = '', int $code = 0, Throwable $previous = null)
+    public function __construct(string $path, string $message = '', int $code = 0, ?Throwable $previous = null)
     {
         $this->path = $path;
 

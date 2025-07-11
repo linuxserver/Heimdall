@@ -5,10 +5,15 @@ namespace Barryvdh\LaravelIdeHelper;
 use Barryvdh\Reflection\DocBlock;
 use Barryvdh\Reflection\DocBlock\Tag;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 
 class Macro extends Method
 {
+    protected $macroDefaults = [
+        \Illuminate\Http\Client\Factory::class => PendingRequest::class,
+    ];
+
     /**
      * Macro constructor.
      *
@@ -18,6 +23,7 @@ class Macro extends Method
      * @param null                $methodName
      * @param array               $interfaces
      * @param array               $classAliases
+     * @param array               $returnTypeNormalizers
      */
     public function __construct(
         $method,
@@ -25,9 +31,10 @@ class Macro extends Method
         $class,
         $methodName = null,
         $interfaces = [],
-        $classAliases = []
+        $classAliases = [],
+        $returnTypeNormalizers = []
     ) {
-        parent::__construct($method, $alias, $class, $methodName, $interfaces, $classAliases);
+        parent::__construct($method, $alias, $class, $methodName, $interfaces, $classAliases, $returnTypeNormalizers);
     }
 
     /**
@@ -73,6 +80,12 @@ class Macro extends Method
                 $type .= $return->allowsNull() ? '|null' : '';
             }
 
+            $this->phpdoc->appendTag(Tag::createInstance("@return {$type}"));
+        }
+
+        $class = ltrim($this->declaringClassName, '\\');
+        if (!$this->phpdoc->hasTag('return') && isset($this->macroDefaults[$class])) {
+            $type = $this->macroDefaults[$class];
             $this->phpdoc->appendTag(Tag::createInstance("@return {$type}"));
         }
     }

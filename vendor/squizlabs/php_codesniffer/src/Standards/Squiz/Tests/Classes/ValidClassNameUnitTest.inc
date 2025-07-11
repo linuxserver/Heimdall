@@ -189,3 +189,13 @@ $foo = new class(
     }
 ) extends DateTime {
 };
+
+class /*comment*/ CommentsShouldBeIgnoredValidName {}
+trait //comment
+    commentsshouldbeignoredInvalidName {}
+interface // phpcs:ignore Stnd.Cat.SniffName -- just testing
+    annotationshouldbeignored_InvalidName {}
+
+class CommentsShouldBeIgnoredValid/*comment*/ {}
+interface annotations_should_be_ignored_InvalidName// phpcs:ignore Stnd.Cat.SniffName -- just testing
+{}

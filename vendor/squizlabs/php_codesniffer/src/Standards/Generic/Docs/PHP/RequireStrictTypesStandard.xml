@@ -1,0 +1,38 @@
+<documentation title="Require Strict Types">
+    <standard>
+    <![CDATA[
+    The strict_types declaration must be present.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: `strict_types` declaration is present.">
+        <![CDATA[
+declare(<em>strict_types=1</em>);
+
+declare(encoding='UTF-8', <em>strict_types=0</em>);
+        ]]>
+        </code>
+        <code title="Invalid: Missing `strict_types` declaration.">
+        <![CDATA[
+declare(encoding='ISO-8859-1'<em></em>);
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The strict_types declaration must be enabled.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: `strict_types` declaration is enabled.">
+        <![CDATA[
+declare(strict_types=<em>1</em>);
+        ]]>
+        </code>
+        <code title="Invalid: `strict_types` declaration is disabled.">
+        <![CDATA[
+declare(strict_types=<em>0</em>);
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

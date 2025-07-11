@@ -1,0 +1,33 @@
+<documentation title="Code Comparison, blank lines">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Checking handling of blank lines.">
+        <![CDATA[
+
+// First line of the code sample is
+// deliberately empty.
+
+// We also have a blank line in the middle.
+
+// And a blank line at the end.
+
+        ]]>
+        </code>
+        <code title="Invalid: Checking handling of blank lines.">
+        <![CDATA[
+
+// First line of the code sample is
+// deliberately empty.
+
+// We also have a blank line in the middle.
+
+// And a blank line at the end.
+
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

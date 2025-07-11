@@ -1,0 +1,32 @@
+<documentation title="Code Title, whitespace handling">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="  Valid: spaces at start of description.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code title="Invalid: spaces at end making line > 46 chars.   ">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="  Valid: spaces at start + end of description.   ">
+        <![CDATA[
+// Note: description above without the
+// trailing whitespace fits in 46 chars.
+        ]]>
+        </code>
+        <code title="Invalid: spaces '     ' in description.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

@@ -55,7 +55,8 @@ final class ControlSignatureUnitTest extends AbstractSniffUnitTest
             112 => 1,
         ];
 
-        if ($testFile === 'ControlSignatureUnitTest.inc') {
+        switch ($testFile) {
+        case 'ControlSignatureUnitTest.1.inc':
             $errors[122] = 1;
             $errors[130] = 2;
             $errors[134] = 1;
@@ -84,9 +85,14 @@ final class ControlSignatureUnitTest extends AbstractSniffUnitTest
             $errors[306] = 3;
             $errors[309] = 1;
             $errors[315] = 1;
-        }//end if
+            return $errors;
 
-        return $errors;
+        case 'ControlSignatureUnitTest.js':
+            return $errors;
+
+        default:
+            return [];
+        }//end switch
 
     }//end getErrorList()
 

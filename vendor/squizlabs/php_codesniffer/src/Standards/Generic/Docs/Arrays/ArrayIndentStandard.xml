@@ -1,0 +1,107 @@
+<documentation title="Array Indent">
+    <standard>
+    <![CDATA[
+    The opening brace of a multi-line array must be indented at least to the same level as the start of the statement.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Opening brace of a multi-line array indented to the same level as the start of the statement.">
+        <![CDATA[
+$b = <em>[</em>
+    1,
+    2,
+];
+
+if ($condition) {
+    $a =
+<em>    [</em>
+        1,
+        2,
+    ];
+}
+
+        ]]>
+        </code>
+        <code title="Invalid: Opening brace of a multi-line array not indented to the same level as the start of the statement.">
+        <![CDATA[
+if ($condition) {
+    $a =
+<em>[</em>
+        1,
+        2,
+    ];
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Each array element must be indented exactly four spaces from the start of the statement.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Each array element is indented by exactly four spaces.">
+        <![CDATA[
+$a = array(
+<em>    </em>1,
+<em>    </em>2,
+<em>    </em>3,
+);
+        ]]>
+        </code>
+        <code title="Invalid: Array elements not indented by four spaces.">
+        <![CDATA[
+$a = array(
+<em>  </em>1,
+<em>     </em>2,
+<em>        </em>3,
+);
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The array closing brace must be on a new line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Array closing brace on its own line.">
+        <![CDATA[
+$a = [
+    1,
+    2,<em>
+]</em>;
+        ]]>
+        </code>
+        <code title="Invalid: Array closing brace not on its own line.">
+        <![CDATA[
+$a = [
+    1,
+    2,<em>]</em>;
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The closing brace must be aligned with the start of the statement containing the array opener.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Closing brace aligned with the start of the statement containing the array opener.">
+        <![CDATA[
+$a = array(
+    1,
+    2,
+<em>)</em>;
+        ]]>
+        </code>
+        <code title="Invalid: Closing brace not aligned with the start of the statement containing the array opener.">
+        <![CDATA[
+$a = array(
+    1,
+    2,
+<em>  )</em>;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

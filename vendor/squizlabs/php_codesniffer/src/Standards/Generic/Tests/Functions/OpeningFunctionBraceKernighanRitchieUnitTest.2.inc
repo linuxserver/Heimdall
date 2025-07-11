@@ -1,0 +1,19 @@
+<?php
+
+// Tests with tabs and the tabWidth config set to 4.
+
+// Uses one tab.
+function myFunction()	{
+}
+
+// Uses three tabs.
+function myFunction()			{
+}
+
+// Uses one tab in a way that it translates to exactly one space with tab replacement.
+function oneT()	{
+}
+
+// Mixed tabs and spaces.
+function mixed()	  	{
+}

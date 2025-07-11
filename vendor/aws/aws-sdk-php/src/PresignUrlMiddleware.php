@@ -56,7 +56,7 @@ class PresignUrlMiddleware
         };
     }
 
-    public function __invoke(CommandInterface $cmd, RequestInterface $request = null)
+    public function __invoke(CommandInterface $cmd, ?RequestInterface $request = null)
     {
         if (in_array($cmd->getName(), $this->commandPool)
             && (!isset($cmd['__skip' . $cmd->getName()]))

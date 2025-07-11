@@ -18,6 +18,7 @@
  * - Orxan
  * - Şəhriyar İmanov
  * - Baran Şengül
+ * - Novruz Rahimov
  */
 return [
     'year' => ':count il',
@@ -34,13 +35,13 @@ return [
     'd' => ':count g.',
     'hour' => ':count saat',
     'a_hour' => '{1}bir saat|]1,Inf[:count saat',
-    'h' => ':count saat',
-    'minute' => ':count d.',
+    'h' => ':count s.',
+    'minute' => ':count dəqiqə',
     'a_minute' => '{1}bir dəqiqə|]1,Inf[:count dəqiqə',
-    'min' => ':count dəqiqə',
-    'second' => ':count san.',
+    'min' => ':count d.',
+    'second' => ':count saniyə',
     'a_second' => '{1}birneçə saniyə|]1,Inf[:count saniyə',
-    's' => ':count saniyə',
+    's' => ':count san.',
     'ago' => ':time əvvəl',
     'from_now' => ':time sonra',
     'after' => ':time sonra',
@@ -73,7 +74,7 @@ return [
         'lastWeek' => '[keçən həftə] dddd [saat] LT',
         'sameElse' => 'L',
     ],
-    'ordinal' => function ($number) {
+    'ordinal' => static function ($number) {
         if ($number === 0) { // special case for zero
             return "$number-ıncı";
         }
@@ -103,7 +104,7 @@ return [
 
         return $number.($suffixes[$lastDigit] ?? $suffixes[$number % 100 - $lastDigit] ?? $suffixes[$number >= 100 ? 100 : -1] ?? '');
     },
-    'meridiem' => function ($hour) {
+    'meridiem' => static function ($hour) {
         if ($hour < 4) {
             return 'gecə';
         }

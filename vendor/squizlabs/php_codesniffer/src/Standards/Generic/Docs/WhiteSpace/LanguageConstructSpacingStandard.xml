@@ -29,15 +29,18 @@ $newLine;
     <code_comparison>
         <code title="Valid: Single space between yield and from.">
         <![CDATA[
-yield<em> </em>from [1, 2, 3];
+function myGenerator() {
+    yield<em> </em>from [1, 2, 3];
+}
         ]]>
         </code>
-        <code title="Invalid: No space, more than one space or newline between yield and from.">
+        <code title="Invalid: More than one space or newline between yield and from.">
         <![CDATA[
-yield<em></em>from [1, 2, 3];
-yield<em>  </em>from [1, 2, 3];
-yield<em></em>
-from [1, 2, 3];
+function myGenerator() {
+    yield<em>  </em>from [1, 2, 3];
+    yield<em></em>
+    from [1, 2, 3];
+}
         ]]>
         </code>
     </code_comparison>

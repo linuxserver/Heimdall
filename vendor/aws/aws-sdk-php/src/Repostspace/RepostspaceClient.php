@@ -5,6 +5,10 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **AWS re:Post Private** service.
+ * @method \Aws\Result batchAddRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchAddRoleAsync(array $args = [])
+ * @method \Aws\Result batchRemoveRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchRemoveRoleAsync(array $args = [])
  * @method \Aws\Result createSpace(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createSpaceAsync(array $args = [])
  * @method \Aws\Result deleteSpace(array $args = [])

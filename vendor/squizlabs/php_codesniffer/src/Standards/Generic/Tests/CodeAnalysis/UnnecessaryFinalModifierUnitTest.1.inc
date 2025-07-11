@@ -54,3 +54,25 @@ class Regular_Class_Regular_Constants {
     protected const PROTECTED_CONST = 'foo';
     private const PRIVATE_CONST = true;
 }
+
+final class Final_Class_Final_Properties {
+    final readonly public ?MyType $final_public;
+    protected final $final_protected = 'foo';
+}
+
+final class Final_Class_Regular_Properties {
+    public $public = 23;
+    protected string $protected = 'foo';
+    private $private = true;
+}
+
+class Regular_Class_Final_Properties {
+    public static final $final_public = 23;
+    final readonly $final_protected = 'foo';
+}
+
+class Regular_Class_Regular_Properties {
+    public $public = 23;
+    protected $protected = 'foo';
+    private static bool $private = true;
+}

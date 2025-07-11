@@ -19,9 +19,6 @@ if (!interface_exists(MessageFactory::class)) {
  */
 final class GuzzleMessageFactory implements MessageFactory
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createRequest(
         $method,
         $uri,
@@ -38,9 +35,6 @@ final class GuzzleMessageFactory implements MessageFactory
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createResponse(
         $statusCode = 200,
         $reasonPhrase = null,

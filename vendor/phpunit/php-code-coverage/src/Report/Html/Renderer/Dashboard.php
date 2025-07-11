@@ -18,8 +18,10 @@ use function floor;
 use function json_encode;
 use function sprintf;
 use function str_replace;
+use SebastianBergmann\CodeCoverage\FileCouldNotBeWrittenException;
 use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
+use SebastianBergmann\Template\Exception;
 use SebastianBergmann\Template\Template;
 
 /**
@@ -34,7 +36,7 @@ final class Dashboard extends Renderer
         $template     = new Template(
             $templateName,
             '{{',
-            '}}'
+            '}}',
         );
 
         $this->setCommonTemplateVariables($template, $node);
@@ -55,10 +57,18 @@ final class Dashboard extends Renderer
                 'complexity_method'             => $complexity['method'],
                 'class_coverage_distribution'   => $coverageDistribution['class'],
                 'method_coverage_distribution'  => $coverageDistribution['method'],
-            ]
+            ],
         );
 
-        $template->renderTo($file);
+        try {
+            $template->renderTo($file);
+        } catch (Exception $e) {
+            throw new FileCouldNotBeWrittenException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e,
+            );
+        }
     }
 
     protected function activeBreadcrumb(AbstractNode $node): string
@@ -66,7 +76,7 @@ final class Dashboard extends Renderer
         return sprintf(
             '         <li class="breadcrumb-item"><a href="index.html">%s</a></li>' . "\n" .
             '         <li class="breadcrumb-item active">(Dashboard)</li>' . "\n",
-            $node->name()
+            $node->name(),
         );
     }
 
@@ -89,7 +99,7 @@ final class Dashboard extends Renderer
                     sprintf(
                         '<a href="%s">%s</a>',
                         str_replace($baseLink, '', $method['link']),
-                        $methodName
+                        $methodName,
                     ),
                 ];
             }
@@ -100,7 +110,7 @@ final class Dashboard extends Renderer
                 sprintf(
                     '<a href="%s">%s</a>',
                     str_replace($baseLink, '', $class['link']),
-                    $className
+                    $className,
                 ),
             ];
         }
@@ -188,7 +198,7 @@ final class Dashboard extends Renderer
 
         foreach ($classes as $className => $class) {
             foreach ($class['methods'] as $methodName => $method) {
-                if ($method['coverage'] < $this->highLowerBound) {
+                if ($method['coverage'] < $this->thresholds->highLowerBound()) {
                     $key = $methodName;
 
                     if ($className !== '*') {
@@ -199,7 +209,7 @@ final class Dashboard extends Renderer
                 }
             }
 
-            if ($class['coverage'] < $this->highLowerBound) {
+            if ($class['coverage'] < $this->thresholds->highLowerBound()) {
                 $leastTestedClasses[$className] = $class['coverage'];
             }
         }
@@ -212,7 +222,7 @@ final class Dashboard extends Renderer
                 '       <tr><td><a href="%s">%s</a></td><td class="text-right">%d%%</td></tr>' . "\n",
                 str_replace($baseLink, '', $classes[$className]['link']),
                 $className,
-                $coverage
+                $coverage,
             );
         }
 
@@ -224,7 +234,7 @@ final class Dashboard extends Renderer
                 str_replace($baseLink, '', $classes[$class]['methods'][$method]['link']),
                 $methodName,
                 $method,
-                $coverage
+                $coverage,
             );
         }
 
@@ -242,7 +252,7 @@ final class Dashboard extends Renderer
 
         foreach ($classes as $className => $class) {
             foreach ($class['methods'] as $methodName => $method) {
-                if ($method['coverage'] < $this->highLowerBound && $method['ccn'] > 1) {
+                if ($method['coverage'] < $this->thresholds->highLowerBound() && $method['ccn'] > 1) {
                     $key = $methodName;
 
                     if ($className !== '*') {
@@ -253,7 +263,7 @@ final class Dashboard extends Renderer
                 }
             }
 
-            if ($class['coverage'] < $this->highLowerBound &&
+            if ($class['coverage'] < $this->thresholds->highLowerBound() &&
                 $class['ccn'] > count($class['methods'])) {
                 $classRisks[$className] = $class['crap'];
             }
@@ -267,7 +277,7 @@ final class Dashboard extends Renderer
                 '       <tr><td><a href="%s">%s</a></td><td class="text-right">%d</td></tr>' . "\n",
                 str_replace($baseLink, '', $classes[$className]['link']),
                 $className,
-                $crap
+                $crap,
             );
         }
 
@@ -279,7 +289,7 @@ final class Dashboard extends Renderer
                 str_replace($baseLink, '', $classes[$class]['methods'][$method]['link']),
                 $methodName,
                 $method,
-                $crap
+                $crap,
             );
         }
 

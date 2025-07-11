@@ -1,11 +1,11 @@
 <documentation title="Closing PHP Tags">
     <standard>
     <![CDATA[
-    All opening php tags should have a corresponding closing tag.
+    All opening PHP tags should have a corresponding closing tag.
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: A closing tag paired with it's opening tag.">
+        <code title="Valid: A closing tag paired with its opening tag.">
         <![CDATA[
 <em><?php</em>
 echo 'Foo';

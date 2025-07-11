@@ -11,6 +11,7 @@ namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Classes;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 class ClassFileNameSniff implements Sniff
 {
@@ -23,12 +24,10 @@ class ClassFileNameSniff implements Sniff
      */
     public function register()
     {
-        return [
-            T_CLASS,
-            T_INTERFACE,
-            T_TRAIT,
-            T_ENUM,
-        ];
+        $targets = Tokens::$ooScopeTokens;
+        unset($targets[T_ANON_CLASS]);
+
+        return $targets;
 
     }//end register()
 
@@ -40,26 +39,32 @@ class ClassFileNameSniff implements Sniff
      * @param int                         $stackPtr  The position of the current token in
      *                                               the stack passed in $tokens.
      *
-     * @return void
+     * @return int|void Integer stack pointer to skip forward or void to continue
+     *                  normal file processing.
      */
     public function process(File $phpcsFile, $stackPtr)
     {
-        $fullPath = basename($phpcsFile->getFilename());
-        $fileName = substr($fullPath, 0, strrpos($fullPath, '.'));
-        if ($fileName === '') {
-            // No filename probably means STDIN, so we can't do this check.
+        $fullPath = $phpcsFile->getFilename();
+        if ($fullPath === 'STDIN') {
+            return $phpcsFile->numTokens;
+        }
+
+        $fileName  = basename($fullPath);
+        $fileNoExt = substr($fileName, 0, strrpos($fileName, '.'));
+        $extension = substr($fileName, (strrpos($fileName, '.') + 1));
+
+        $tokens = $phpcsFile->getTokens();
+        $ooName = $phpcsFile->getDeclarationName($stackPtr);
+        if ($ooName === null) {
+            // Probably parse error/live coding.
             return;
         }
 
-        $tokens  = $phpcsFile->getTokens();
-        $decName = $phpcsFile->findNext(T_STRING, $stackPtr);
-
-        if ($tokens[$decName]['content'] !== $fileName) {
-            $error = '%s name doesn\'t match filename; expected "%s %s"';
+        if ($ooName !== $fileNoExt) {
+            $error = 'Filename doesn\'t match %s name; expected file name "%s"';
             $data  = [
-                ucfirst($tokens[$stackPtr]['content']),
                 $tokens[$stackPtr]['content'],
-                $fileName,
+                $ooName.'.'.$extension,
             ];
             $phpcsFile->addError($error, $stackPtr, 'NoMatch', $data);
         }

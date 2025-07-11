@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="PopulateTokenListenersDeprecatedTokenizerTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/TestStandard/"/>
+
+    <rule ref="TestStandard.SupportedTokenizers"/>
+
+</ruleset>

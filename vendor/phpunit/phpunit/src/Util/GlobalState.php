@@ -25,19 +25,21 @@ use function is_scalar;
 use function preg_match;
 use function serialize;
 use function sprintf;
-use function strpos;
+use function str_ends_with;
+use function str_starts_with;
 use function strtr;
-use function substr;
 use function var_export;
 use Closure;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class GlobalState
 {
     /**
-     * @var string[]
+     * @psalm-var list<string>
      */
     private const SUPER_GLOBAL_ARRAYS = [
         '_ENV',
@@ -131,7 +133,7 @@ final class GlobalState
     }
 
     /**
-     * @param string[] $files
+     * @psalm-param list<string> $files
      *
      * @throws Exception
      */
@@ -149,7 +151,7 @@ final class GlobalState
         array_shift($files);
 
         // If bootstrap script was a Composer bin proxy, skip the second entry as well
-        if (substr(strtr($files[0], '\\', '/'), -24) === '/phpunit/phpunit/phpunit') {
+        if (str_ends_with(strtr($files[0], '\\', '/'), '/phpunit/phpunit/phpunit')) {
             array_shift($files);
         }
 
@@ -159,7 +161,7 @@ final class GlobalState
                 continue;
             }
 
-            if ($prefix !== false && strpos($file, $prefix) === 0) {
+            if ($prefix !== false && str_starts_with($file, $prefix)) {
                 continue;
             }
 
@@ -251,7 +253,7 @@ final class GlobalState
         return $result;
     }
 
-    private static function exportVariable($variable): string
+    private static function exportVariable(mixed $variable): string
     {
         if (is_scalar($variable) || $variable === null ||
             (is_array($variable) && self::arrayOnlyContainsScalars($variable))) {

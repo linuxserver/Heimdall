@@ -77,5 +77,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updateStateMachineAsync(array $args = [])
  * @method \Aws\Result updateStateMachineAlias(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateStateMachineAliasAsync(array $args = [])
+ * @method \Aws\Result validateStateMachineDefinition(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise validateStateMachineDefinitionAsync(array $args = [])
  */
 class SfnClient extends AwsClient {}

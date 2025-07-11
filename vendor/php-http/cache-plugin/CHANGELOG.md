@@ -1,5 +1,17 @@
 # Change Log
 
+# Version 2
+
+## 2.0.1 - 2024-10-02
+
+- Test with PHP 8.3 and 8.4.
+
+## 2.0.0 - 2024-02-19
+
+### Changed
+
+- Drop support of deprecated PHP-HTTP `StreamFactory`, only PSR-17 `StreamFactoryInterface` is now supported.
+
 # Version 1
 
 ## 1.8.1 - 2023-11-21

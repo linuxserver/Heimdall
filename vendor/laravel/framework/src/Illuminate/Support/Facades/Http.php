@@ -8,11 +8,13 @@ use Illuminate\Http\Client\Factory;
  * @method static \Illuminate\Http\Client\Factory globalMiddleware(callable $middleware)
  * @method static \Illuminate\Http\Client\Factory globalRequestMiddleware(callable $middleware)
  * @method static \Illuminate\Http\Client\Factory globalResponseMiddleware(callable $middleware)
- * @method static \Illuminate\Http\Client\Factory globalOptions(array $options)
+ * @method static \Illuminate\Http\Client\Factory globalOptions(\Closure|array $options)
  * @method static \GuzzleHttp\Promise\PromiseInterface response(array|string|null $body = null, int $status = 200, array $headers = [])
+ * @method static \GuzzleHttp\Promise\PromiseInterface failedConnection(string|null $message = null)
  * @method static \Illuminate\Http\Client\ResponseSequence sequence(array $responses = [])
+ * @method static bool preventingStrayRequests()
  * @method static \Illuminate\Http\Client\Factory allowStrayRequests()
- * @method static void recordRequestResponsePair(\Illuminate\Http\Client\Request $request, \Illuminate\Http\Client\Response $response)
+ * @method static void recordRequestResponsePair(\Illuminate\Http\Client\Request $request, \Illuminate\Http\Client\Response|null $response)
  * @method static void assertSent(callable $callback)
  * @method static void assertSentInOrder(array $callbacks)
  * @method static void assertNotSent(callable $callback)
@@ -20,6 +22,7 @@ use Illuminate\Http\Client\Factory;
  * @method static void assertSentCount(int $count)
  * @method static void assertSequencesAreEmpty()
  * @method static \Illuminate\Support\Collection recorded(callable $callback = null)
+ * @method static \Illuminate\Http\Client\PendingRequest createPendingRequest()
  * @method static \Illuminate\Contracts\Events\Dispatcher|null getDispatcher()
  * @method static array getGlobalMiddleware()
  * @method static void macro(string $name, object|callable $macro)
@@ -51,8 +54,8 @@ use Illuminate\Http\Client\Factory;
  * @method static \Illuminate\Http\Client\PendingRequest withoutRedirecting()
  * @method static \Illuminate\Http\Client\PendingRequest withoutVerifying()
  * @method static \Illuminate\Http\Client\PendingRequest sink(string|resource $to)
- * @method static \Illuminate\Http\Client\PendingRequest timeout(int $seconds)
- * @method static \Illuminate\Http\Client\PendingRequest connectTimeout(int $seconds)
+ * @method static \Illuminate\Http\Client\PendingRequest timeout(int|float $seconds)
+ * @method static \Illuminate\Http\Client\PendingRequest connectTimeout(int|float $seconds)
  * @method static \Illuminate\Http\Client\PendingRequest retry(array|int $times, \Closure|int $sleepMilliseconds = 0, callable|null $when = null, bool $throw = true)
  * @method static \Illuminate\Http\Client\PendingRequest withOptions(array $options)
  * @method static \Illuminate\Http\Client\PendingRequest withMiddleware(callable $middleware)
@@ -60,8 +63,8 @@ use Illuminate\Http\Client\Factory;
  * @method static \Illuminate\Http\Client\PendingRequest withResponseMiddleware(callable $middleware)
  * @method static \Illuminate\Http\Client\PendingRequest beforeSending(callable $callback)
  * @method static \Illuminate\Http\Client\PendingRequest throw(callable|null $callback = null)
- * @method static \Illuminate\Http\Client\PendingRequest throwIf(callable|bool $condition, callable|null $throwCallback = null)
- * @method static \Illuminate\Http\Client\PendingRequest throwUnless(bool $condition)
+ * @method static \Illuminate\Http\Client\PendingRequest throwIf(callable|bool $condition)
+ * @method static \Illuminate\Http\Client\PendingRequest throwUnless(callable|bool $condition)
  * @method static \Illuminate\Http\Client\PendingRequest dump()
  * @method static \Illuminate\Http\Client\PendingRequest dd()
  * @method static \Illuminate\Http\Client\Response get(string $url, array|string|null $query = null)
@@ -135,12 +138,13 @@ class Http extends Facade
     /**
      * Indicate that an exception should be thrown if any request is not faked.
      *
+     * @param  bool  $prevent
      * @return \Illuminate\Http\Client\Factory
      */
-    public static function preventStrayRequests()
+    public static function preventStrayRequests($prevent = true)
     {
-        return tap(static::getFacadeRoot(), function ($fake) {
-            static::swap($fake->preventStrayRequests());
+        return tap(static::getFacadeRoot(), function ($fake) use ($prevent) {
+            static::swap($fake->preventStrayRequests($prevent));
         });
     }
 

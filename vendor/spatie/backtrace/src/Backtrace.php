@@ -3,6 +3,7 @@
 namespace Spatie\Backtrace;
 
 use Closure;
+use Laravel\SerializableClosure\Support\ClosureStream;
 use Spatie\Backtrace\Arguments\ArgumentReducers;
 use Spatie\Backtrace\Arguments\ReduceArgumentsAction;
 use Spatie\Backtrace\Arguments\Reducers\ArgumentReducer;
@@ -21,6 +22,9 @@ class Backtrace
 
     /** @var bool */
     protected $withObject = false;
+
+    /** @var bool */
+    protected $trimFilePaths = false;
 
     /** @var string|null */
     protected $applicationPath;
@@ -76,9 +80,9 @@ class Backtrace
         return $this;
     }
 
-    public function withObject(): self
+    public function withObject(bool $withObject = true): self
     {
-        $this->withObject = true;
+        $this->withObject = $withObject;
 
         return $this;
     }
@@ -86,6 +90,13 @@ class Backtrace
     public function applicationPath(string $applicationPath): self
     {
         $this->applicationPath = rtrim($applicationPath, '/');
+
+        return $this;
+    }
+
+    public function trimFilePaths(): self
+    {
+        $this->trimFilePaths = true;
 
         return $this;
     }
@@ -138,13 +149,16 @@ class Backtrace
             return $this->throwable->getTrace();
         }
 
-        $options = null;
+        // Omit arguments and object
+        $options = DEBUG_BACKTRACE_IGNORE_ARGS;
 
-        if (! $this->withArguments) {
-            $options = $options | DEBUG_BACKTRACE_IGNORE_ARGS;
+        // Populate arguments
+        if ($this->withArguments) {
+            $options = 0;
         }
 
-        if ($this->withObject()) {
+        // Populate object
+        if ($this->withObject) {
             $options = $options | DEBUG_BACKTRACE_PROVIDE_OBJECT;
         }
 
@@ -171,14 +185,33 @@ class Backtrace
         $reduceArgumentsAction = new ReduceArgumentsAction($this->resolveArgumentReducers());
 
         foreach ($rawFrames as $rawFrame) {
-            $frames[] = new Frame(
+            $textSnippet = null;
+
+            if (
+                class_exists(ClosureStream::class)
+                && substr($currentFile, 0, strlen(ClosureStream::STREAM_PROTO)) === ClosureStream::STREAM_PROTO
+            ) {
+                $textSnippet = $currentFile;
+                $currentFile = ClosureStream::STREAM_PROTO.'://function()';
+                $currentLine -= 1;
+            }
+
+            if ($this->trimFilePaths && $this->applicationPath) {
+                $trimmedFilePath = str_replace($this->applicationPath, '', $currentFile);
+            }
+            $frame = new Frame(
                 $currentFile,
                 $currentLine,
                 $arguments,
                 $rawFrame['function'] ?? null,
                 $rawFrame['class'] ?? null,
-                $this->isApplicationFrame($currentFile)
+                $rawFrame['object'] ?? null,
+                $this->isApplicationFrame($currentFile),
+                $textSnippet,
+                $trimmedFilePath ?? null,
             );
+
+            $frames[] = $frame;
 
             $arguments = $this->withArguments
                 ? $rawFrame['args'] ?? null

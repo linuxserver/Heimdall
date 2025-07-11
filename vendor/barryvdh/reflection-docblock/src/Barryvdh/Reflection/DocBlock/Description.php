@@ -35,10 +35,10 @@ class Description implements \Reflector
     /**
      * Populates the fields of a description.
      *
-     * @param string   $content  The description's conetnts.
+     * @param string   $content  The description's contents.
      * @param DocBlock $docblock The DocBlock which this description belongs to.
      */
-    public function __construct($content, DocBlock $docblock = null)
+    public function __construct($content, ?DocBlock $docblock = null)
     {
         $this->setContent($content)->setDocBlock($docblock);
     }
@@ -190,7 +190,7 @@ class Description implements \Reflector
      *
      * @return $this
      */
-    public function setDocBlock(DocBlock $docblock = null)
+    public function setDocBlock(?DocBlock $docblock = null)
     {
         $this->docblock = $docblock;
 

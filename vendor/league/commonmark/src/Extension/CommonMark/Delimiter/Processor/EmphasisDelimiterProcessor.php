@@ -20,14 +20,14 @@ declare(strict_types=1);
 namespace League\CommonMark\Extension\CommonMark\Delimiter\Processor;
 
 use League\CommonMark\Delimiter\DelimiterInterface;
-use League\CommonMark\Delimiter\Processor\DelimiterProcessorInterface;
+use League\CommonMark\Delimiter\Processor\CacheableDelimiterProcessorInterface;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Emphasis;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Strong;
 use League\CommonMark\Node\Inline\AbstractStringContainer;
 use League\Config\ConfigurationAwareInterface;
 use League\Config\ConfigurationInterface;
 
-final class EmphasisDelimiterProcessor implements DelimiterProcessorInterface, ConfigurationAwareInterface
+final class EmphasisDelimiterProcessor implements CacheableDelimiterProcessorInterface, ConfigurationAwareInterface
 {
     /** @psalm-readonly */
     private string $char;
@@ -104,5 +104,16 @@ final class EmphasisDelimiterProcessor implements DelimiterProcessorInterface, C
     public function setConfiguration(ConfigurationInterface $configuration): void
     {
         $this->config = $configuration;
+    }
+
+    public function getCacheKey(DelimiterInterface $closer): string
+    {
+        return \sprintf(
+            '%s-%s-%d-%d',
+            $this->char,
+            $closer->canOpen() ? 'canOpen' : 'cannotOpen',
+            $closer->getOriginalLength() % 3,
+            $closer->getLength(),
+        );
     }
 }

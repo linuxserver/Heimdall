@@ -19,9 +19,9 @@ final class Terminal
     /**
      * Creates a new terminal instance.
      */
-    public function __construct(ConsoleTerminal $terminal = null)
+    public function __construct(?ConsoleTerminal $terminal = null)
     {
-        $this->terminal = $terminal ?? new ConsoleTerminal();
+        $this->terminal = $terminal ?? new ConsoleTerminal;
     }
 
     /**

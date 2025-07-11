@@ -8,6 +8,7 @@ use Brick\Math\Exception\DivisionByZeroException;
 use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
+use Override;
 
 /**
  * An arbitrarily large rational number.
@@ -21,12 +22,12 @@ final class BigRational extends BigNumber
     /**
      * The numerator.
      */
-    private BigInteger $numerator;
+    private readonly BigInteger $numerator;
 
     /**
      * The denominator. Always strictly positive.
      */
-    private BigInteger $denominator;
+    private readonly BigInteger $denominator;
 
     /**
      * Protected constructor. Use a factory method to obtain an instance.
@@ -55,15 +56,12 @@ final class BigRational extends BigNumber
     }
 
     /**
-     * Creates a BigRational of the given value.
-     *
-     * @throws MathException If the value cannot be converted to a BigRational.
-     *
      * @psalm-pure
      */
-    public static function of(BigNumber|int|float|string $value) : BigRational
+    #[Override]
+    protected static function from(BigNumber $number): static
     {
-        return parent::of($value)->toBigRational();
+        return $number->toBigRational();
     }
 
     /**
@@ -181,6 +179,8 @@ final class BigRational extends BigNumber
      * Returns the quotient and remainder of the division of the numerator by the denominator.
      *
      * @return BigInteger[]
+     *
+     * @psalm-return array{BigInteger, BigInteger}
      */
     public function quotientAndRemainder() : array
     {
@@ -322,16 +322,19 @@ final class BigRational extends BigNumber
         return new BigRational($numerator, $denominator, false);
     }
 
+    #[Override]
     public function compareTo(BigNumber|int|float|string $that) : int
     {
         return $this->minus($that)->getSign();
     }
 
+    #[Override]
     public function getSign() : int
     {
         return $this->numerator->getSign();
     }
 
+    #[Override]
     public function toBigInteger() : BigInteger
     {
         $simplified = $this->simplified();
@@ -343,32 +346,38 @@ final class BigRational extends BigNumber
         return $simplified->numerator;
     }
 
+    #[Override]
     public function toBigDecimal() : BigDecimal
     {
         return $this->numerator->toBigDecimal()->exactlyDividedBy($this->denominator);
     }
 
+    #[Override]
     public function toBigRational() : BigRational
     {
         return $this;
     }
 
-    public function toScale(int $scale, int $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
+    #[Override]
+    public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
     {
         return $this->numerator->toBigDecimal()->dividedBy($this->denominator, $scale, $roundingMode);
     }
 
+    #[Override]
     public function toInt() : int
     {
         return $this->toBigInteger()->toInt();
     }
 
+    #[Override]
     public function toFloat() : float
     {
         $simplified = $this->simplified();
         return $simplified->numerator->toFloat() / $simplified->denominator->toFloat();
     }
 
+    #[Override]
     public function __toString() : string
     {
         $numerator   = (string) $this->numerator;
@@ -378,7 +387,7 @@ final class BigRational extends BigNumber
             return $numerator;
         }
 
-        return $this->numerator . '/' . $this->denominator;
+        return $numerator . '/' . $denominator;
     }
 
     /**
@@ -411,35 +420,5 @@ final class BigRational extends BigNumber
 
         $this->numerator = $data['numerator'];
         $this->denominator = $data['denominator'];
-    }
-
-    /**
-     * This method is required by interface Serializable and SHOULD NOT be accessed directly.
-     *
-     * @internal
-     */
-    public function serialize() : string
-    {
-        return $this->numerator . '/' . $this->denominator;
-    }
-
-    /**
-     * This method is only here to implement interface Serializable and cannot be accessed directly.
-     *
-     * @internal
-     * @psalm-suppress RedundantPropertyInitializationCheck
-     *
-     * @throws \LogicException
-     */
-    public function unserialize($value) : void
-    {
-        if (isset($this->numerator)) {
-            throw new \LogicException('unserialize() is an internal function, it must not be called directly.');
-        }
-
-        [$numerator, $denominator] = \explode('/', $value);
-
-        $this->numerator   = BigInteger::of($numerator);
-        $this->denominator = BigInteger::of($denominator);
     }
 }

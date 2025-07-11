@@ -68,6 +68,9 @@ final class ValidVariableNameUnitTest extends AbstractSniffUnitTest
             146 => 1,
             152 => 1,
             155 => 1,
+            162 => 1,
+            165 => 1,
+            170 => 1,
         ];
 
         return $errors;

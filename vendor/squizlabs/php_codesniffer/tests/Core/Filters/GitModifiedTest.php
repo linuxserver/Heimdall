@@ -9,6 +9,7 @@
 
 namespace PHP_CodeSniffer\Tests\Core\Filters;
 
+use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Filters\GitModified;
 use PHP_CodeSniffer\Tests\Core\Filters\AbstractFilterTestCase;
 use RecursiveArrayIterator;
@@ -45,7 +46,7 @@ final class GitModifiedTest extends AbstractFilterTestCase
             ->method('exec')
             ->willReturn(['autoload.php']);
 
-        $this->assertEquals([$rootFile], $this->getFilteredResultsAsArray($mockObj));
+        $this->assertSame([$rootFile], $this->getFilteredResultsAsArray($mockObj));
 
     }//end testFileNamePassesAsBasePathWillTranslateToDirname()
 
@@ -76,7 +77,7 @@ final class GitModifiedTest extends AbstractFilterTestCase
             ->method('exec')
             ->willReturn($outputGitModified);
 
-        $this->assertEquals($expectedOutput, $this->getFilteredResultsAsArray($mockObj));
+        $this->assertSame($expectedOutput, $this->getFilteredResultsAsArray($mockObj));
 
     }//end testAcceptOnlyGitModified()
 
@@ -175,8 +176,8 @@ final class GitModifiedTest extends AbstractFilterTestCase
                     '.yamllint.yml',
                     'autoload.php',
                     'src/Standards/Squiz/Sniffs/WhiteSpace/OperatorSpacingSniff.php',
-                    'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.inc',
-                    'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.inc.fixed',
+                    'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.1.inc',
+                    'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.1.inc.fixed',
                     'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.js',
                     'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.js.fixed',
                     'src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.php',
@@ -191,7 +192,7 @@ final class GitModifiedTest extends AbstractFilterTestCase
                     $basedir.'/src/Standards/Squiz/Sniffs/WhiteSpace/OperatorSpacingSniff.php',
                     $basedir.'/src/Standards/Squiz/Tests',
                     $basedir.'/src/Standards/Squiz/Tests/WhiteSpace',
-                    $basedir.'/src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.inc',
+                    $basedir.'/src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.1.inc',
                     $basedir.'/src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.js',
                     $basedir.'/src/Standards/Squiz/Tests/WhiteSpace/OperatorSpacingUnitTest.php',
                 ],
@@ -217,6 +218,10 @@ final class GitModifiedTest extends AbstractFilterTestCase
     {
         if (is_dir(__DIR__.'/../../../.git') === false) {
             $this->markTestSkipped('Not a git repository');
+        }
+
+        if (Config::getExecutablePath('git') === null) {
+            $this->markTestSkipped('git command not available');
         }
 
         $fakeDI = new RecursiveArrayIterator(self::getFakeFileList());

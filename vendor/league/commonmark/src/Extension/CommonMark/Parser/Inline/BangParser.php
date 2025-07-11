@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace League\CommonMark\Extension\CommonMark\Parser\Inline;
 
-use League\CommonMark\Delimiter\Delimiter;
 use League\CommonMark\Node\Inline\Text;
 use League\CommonMark\Parser\Inline\InlineParserInterface;
 use League\CommonMark\Parser\Inline\InlineParserMatch;
@@ -38,8 +37,7 @@ final class BangParser implements InlineParserInterface
         $inlineContext->getContainer()->appendChild($node);
 
         // Add entry to stack for this opener
-        $delimiter = new Delimiter('!', 1, $node, true, false, $cursor->getPosition());
-        $inlineContext->getDelimiterStack()->push($delimiter);
+        $inlineContext->getDelimiterStack()->addBracket($node, $cursor->getPosition(), true);
 
         return true;
     }

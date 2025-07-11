@@ -1,0 +1,21 @@
+<?php
+
+// This test case file MUST always start with a open PHP tag set (with this comment) to prevent
+// the tests running into the "first PHP open tag excepted" condition breaking the tests.
+// Tests related to that "first PHP open tag excepted" condition should go in separate files.
+
+// Tests indent calculation in combination with PHP 7.3+ flexible heredoc/nowdocs.
+?>
+
+    <?php
+    echo <<<HEREDOC
+    HEREDOC; ?>            <?php
+    echo <<<'NOWDOC'
+    NOWDOC; ?>            <?php
+    echo $j;
+    ?>
+
+<?php
+// This test case file MUST always end with an unclosed open PHP tag (with this comment) to prevent
+// the tests running into the "last PHP closing tag excepted" condition breaking tests.
+// Tests related to that "last PHP closing tag excepted" condition should go in separate files.

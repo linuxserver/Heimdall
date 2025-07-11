@@ -11,6 +11,7 @@ namespace SebastianBergmann\LinesOfCode;
 
 use function array_merge;
 use function array_unique;
+use function assert;
 use function count;
 use PhpParser\Comment;
 use PhpParser\Node;
@@ -20,20 +21,23 @@ use PhpParser\NodeVisitorAbstract;
 final class LineCountingVisitor extends NodeVisitorAbstract
 {
     /**
-     * @var int
+     * @psalm-var non-negative-int
      */
-    private $linesOfCode;
+    private readonly int $linesOfCode;
 
     /**
      * @var Comment[]
      */
-    private $comments = [];
+    private array $comments = [];
 
     /**
      * @var int[]
      */
-    private $linesWithStatements = [];
+    private array $linesWithStatements = [];
 
+    /**
+     * @psalm-param non-negative-int $linesOfCode
+     */
     public function __construct(int $linesOfCode)
     {
         $this->linesOfCode = $linesOfCode;
@@ -58,11 +62,18 @@ final class LineCountingVisitor extends NodeVisitorAbstract
             $commentLinesOfCode += ($comment->getEndLine() - $comment->getStartLine() + 1);
         }
 
+        $nonCommentLinesOfCode = $this->linesOfCode - $commentLinesOfCode;
+        $logicalLinesOfCode    = count(array_unique($this->linesWithStatements));
+
+        assert($commentLinesOfCode >= 0);
+        assert($nonCommentLinesOfCode >= 0);
+        assert($logicalLinesOfCode >= 0);
+
         return new LinesOfCode(
             $this->linesOfCode,
             $commentLinesOfCode,
-            $this->linesOfCode - $commentLinesOfCode,
-            count(array_unique($this->linesWithStatements))
+            $nonCommentLinesOfCode,
+            $logicalLinesOfCode,
         );
     }
 

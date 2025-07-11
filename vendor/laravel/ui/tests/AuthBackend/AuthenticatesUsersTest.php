@@ -3,19 +3,24 @@
 namespace Laravel\Ui\Tests\AuthBackend;
 
 use Illuminate\Auth\Events\Attempting;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
+use Orchestra\Testbench\Attributes\WithMigration;
 use Orchestra\Testbench\Factories\UserFactory;
 use Orchestra\Testbench\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
+#[WithMigration]
 class AuthenticatesUsersTest extends TestCase
 {
-    use AuthenticatesUsers;
+    use AuthenticatesUsers, RefreshDatabase;
 
     protected function tearDown(): void
     {
@@ -24,17 +29,7 @@ class AuthenticatesUsersTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Define database migrations.
-     *
-     * @return void
-     */
-    protected function defineDatabaseMigrations()
-    {
-        $this->loadLaravelMigrations();
-    }
-
-    /** @test */
+    #[Test]
     public function it_can_authenticate_a_user()
     {
         Event::fake();
@@ -57,7 +52,27 @@ class AuthenticatesUsersTest extends TestCase
         });
     }
 
-    /** @test */
+    #[Test]
+    public function it_can_deauthenticate_a_user()
+    {
+        Event::fake();
+
+        $user = UserFactory::new()->create();
+
+        $this->actingAs($user);
+
+        $request = Request::create('/logout', 'POST', [], [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response = $this->handleRequestUsing(
+            $request, fn ($request) => $this->logout($request)
+        )->assertStatus(204);
+
+        Event::assertDispatched(fn (Logout $event) => $user->is($event->user));
+    }
+
+    #[Test]
     public function it_can_authenticate_a_user_with_remember_as_false()
     {
         Event::fake();
@@ -81,9 +96,7 @@ class AuthenticatesUsersTest extends TestCase
         });
     }
 
-
-
-    /** @test */
+    #[Test]
     public function it_can_authenticate_a_user_with_remember_as_true()
     {
         Event::fake();
@@ -107,7 +120,7 @@ class AuthenticatesUsersTest extends TestCase
         });
     }
 
-    /** @test */
+    #[Test]
     public function it_cant_authenticate_a_user_with_invalid_password()
     {
         $user = UserFactory::new()->create();
@@ -131,7 +144,7 @@ class AuthenticatesUsersTest extends TestCase
         ], $response->exception->errors());
     }
 
-     /** @test */
+    #[Test]
     public function it_cant_authenticate_unknown_credential()
     {
         $request = Request::create('/login', 'POST', [

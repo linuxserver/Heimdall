@@ -2,6 +2,8 @@
 
 namespace Laravel\Prompts;
 
+use Closure;
+
 class ConfirmPrompt extends Prompt
 {
     /**
@@ -20,6 +22,7 @@ class ConfirmPrompt extends Prompt
         public bool|string $required = false,
         public mixed $validate = null,
         public string $hint = '',
+        public ?Closure $transform = null,
     ) {
         $this->confirmed = $default;
 

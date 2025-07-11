@@ -20,9 +20,6 @@ if (!interface_exists(UriFactory::class)) {
  */
 final class DiactorosUriFactory implements UriFactory
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createUri($uri)
     {
         if ($uri instanceof UriInterface) {

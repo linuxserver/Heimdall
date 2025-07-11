@@ -37,8 +37,8 @@ class ABC {
     private static $propC;
     public static $propD;
     protected static
-        $propE;
-    private static /*comment*/   $propF;
+            $propE;
+    private static    /*comment*/   $propF;
 }
 
 class MyClass
@@ -81,4 +81,45 @@ class ReadOnlyProp {
     public readonly int $wrongOrder1;
 
     protected readonly ?string $wrongOrder2;
+}
+
+class FinalProperties {
+    final public int $foo,
+        $bar,
+        $var = null;
+
+    final protected (D|N)|false $foo;
+    final array $foo;
+    FINAL public ?int $wrongOrder1;
+    final protected static ?string $wrongOrder2;
+}
+
+class AsymmetricVisibility {
+    private(set) int $foo,
+        $bar,
+        $var = 5;
+
+    public private(set) readonly ?string $spaces;
+
+    protected(set) array $unfixed;
+
+    public protected(set) int $wrongOrder1;
+
+    protected private(set) ?string $wrongOrder2;
+
+    final protected private(set) static bool $correctOrder;
+
+    final protected private(set) static bool $wrongOrder3;
+    final protected private(set) static bool $wrongOrder4;
+    final public protected(set) static bool $wrongOrder5;
+    final public public(set) static bool $wrongOrder6;
+
+    final protected private(set) static bool $wrongOrder7;
+    final protected private(set) static bool $wrongOrder8;
+    final public protected(set) static bool $wrongOrder9;
+    final public public(set) static bool $wrongOrder10;
+
+    final private(set) static bool $wrongOrder11;
+    final protected(set) static bool $wrongOrder12;
+    final public(set) static bool $wrongOrder13;
 }

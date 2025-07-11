@@ -75,7 +75,7 @@ class TypedProperties
 }
 
 class ConstructorPropertyPromotionWithTypes {
-    public function __construct(protected float|int $x, public ?string &$y = 'test', private mixed $z) {}
+    public function __construct(protected float|int $x, public(set) ?string &$y = 'test', private mixed $z) {}
 }
 
 class ConstructorPropertyPromotionAndNormalParams {
@@ -123,6 +123,20 @@ enum TypedEnumConstants {
     protected const self|parent /* comment */ |\Fully\Qualified\ClassName|UnQualifiedClass SECOND = null;
     private const ClassName|/*comment*/float|string|false THIRD = 'third';
     public const string | array | false FOURTH = 'fourth';
+}
+
+class DNFTypes {
+    const (parent&Something)|float CONST_NAME = 1.5;
+
+    public readonly true|(\A&B) $prop;
+
+    function DNFParamTypes (
+        null|(\Package\ClassName&\Package\Other_Class)|int $DNFinMiddle,
+        (\Package\ClassName&\Package\Other_Class)|array $parensAtStart,
+        false|(\Package\ClassName&\Package\Other_Class) $parentAtEnd,
+    ) {}
+
+    function DNFReturnTypes ($var): object|(self&\Package\Other_Class)|string|false {}
 }
 
 // Intentional error, should be ignored by the sniff.

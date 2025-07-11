@@ -1,0 +1,11 @@
+
+------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: STANDARD ELEMENT, BLANK LINE HANDLING |
+------------------------------------------------------------------------
+
+There is a blank line at the start of this standard.
+
+And the above blank line is also deliberate to test part of the logic.
+
+Let's also end on a blank line to test that too.
+

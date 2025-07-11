@@ -4,6 +4,16 @@ All notable changes to `uri-template` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v1.0.4 - 2025-02-03
+
+### Changed
+- Officially support PHP 8.4
+
+## v1.0.3 - 2023-12-03
+
+### Changed
+- Updated link to RFC 6570
+
 ## v1.0.2 - 2023-08-27
 
 ### Changed

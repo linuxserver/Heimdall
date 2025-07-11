@@ -1,0 +1,10 @@
+<?php
+
+// Intentional parse error (missing semicolon).
+// Testing that the sniff is *not* triggered in this case.
+
+class FooBar {
+    public function __construct() {
+        parent::__construct()
+    }
+}

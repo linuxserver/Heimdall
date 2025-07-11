@@ -51,8 +51,6 @@ final class RequestMatcher implements RequestMatcherInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @api
      */
     public function matches(RequestInterface $request)

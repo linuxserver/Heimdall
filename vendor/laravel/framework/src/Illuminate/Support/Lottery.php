@@ -211,7 +211,7 @@ class Lottery
      */
     public static function fix($sequence, $whenMissing = null)
     {
-        return static::forceResultWithSequence($sequence, $whenMissing);
+        static::forceResultWithSequence($sequence, $whenMissing);
     }
 
     /**
@@ -246,6 +246,16 @@ class Lottery
 
             return $whenMissing($chances, $outOf);
         });
+    }
+
+    /**
+     * Indicate that the lottery results should be determined normally.
+     *
+     * @return void
+     */
+    public static function determineResultsNormally()
+    {
+        static::determineResultNormally();
     }
 
     /**

@@ -314,3 +314,57 @@ new ExceptionMessage(),
     ) {
     }
 }
+
+// Issue #608 - multi-attributes are not handled correctly.
+function ParamWithMultiAttributeOnSameLine(
+    #[AttributeA, AttributeB] string $param,
+) {
+}
+
+function ParamWithMultiAttributeOnSameLineWithParamsShouldNotBeSeenAsMultipleFnParams(
+    #[AttributeA(10, 'test'), AttributeB([1, 2, 3,])] string $param,
+) {
+}
+
+function ParamWithMultiAttributeOnSameLine(
+    #[AttributeA, AttributeB] string $paramA,
+    int $paramB
+) {
+}
+
+function ParamWithMultiAttributeOnSameLineWithParamsShouldNotBeSeenAsMultipleFnParams(
+    #[AttributeA(10, 'test'), AttributeB([1, 2, 3,])] string $param,
+    int $paramB
+) {
+}
+
+function ParamWithAttributeOnOwnLineShouldNotBeSeenAsMultipleFnParams(
+    #[Attribute]
+    string $param,
+) {
+}
+
+function ParamWithMultipleAttributesOnOwnLineShouldNotBeSeenAsMultipleFnParams(
+    #[AttributeA]
+    #[AttributeB]
+    string $param,
+) {
+}
+
+function ParamWithAttributeOnOwnLineWithParamsShouldNotBeSeenAsMultipleFnParamse(
+    #[Attribute(10, 20)]
+    string $param,
+) {
+}
+
+function ParamWithMultiAttributeOnOwnLineShouldNotBeSeenAsMultipleFnParams(
+    #[AttributeA, AttributeB]
+    string $param,
+) {
+}
+
+function ParamWithMultiAttributeOnOwnLineWithParamsShouldNotBeSeenAsMultipleFnParams(
+    #[AttributeA(10, 'test'), AttributeB([1, 2, 3,])]
+    string $param,
+) {
+}

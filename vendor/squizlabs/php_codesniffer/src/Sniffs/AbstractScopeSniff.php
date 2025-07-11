@@ -14,7 +14,7 @@
  *     protected function processTokenWithinScope(\PHP_CodeSniffer\Files\File $phpcsFile, $stackPtr, $currScope)
  *     {
  *         $className = $phpcsFile->getDeclarationName($currScope);
- *         echo 'encountered a method within class '.$className;
+ *         $phpcsFile->addWarning('encountered a method within class '.$className, $stackPtr, 'MethodFound');
  *     }
  * }
  * </code>
@@ -26,8 +26,8 @@
 
 namespace PHP_CodeSniffer\Sniffs;
 
-use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
+use PHP_CodeSniffer\Files\File;
 
 abstract class AbstractScopeSniff implements Sniff
 {
@@ -123,7 +123,7 @@ abstract class AbstractScopeSniff implements Sniff
      *
      * @return void|int Optionally returns a stack pointer. The sniff will not be
      *                  called again on the current file until the returned stack
-     *                  pointer is reached. Return ($phpcsFile->numTokens + 1) to skip
+     *                  pointer is reached. Return `$phpcsFile->numTokens` to skip
      *                  the rest of the file.
      * @see    processTokenWithinScope()
      */
@@ -164,7 +164,7 @@ abstract class AbstractScopeSniff implements Sniff
      *
      * @return void|int Optionally returns a stack pointer. The sniff will not be
      *                  called again on the current file until the returned stack
-     *                  pointer is reached. Return ($phpcsFile->numTokens + 1) to skip
+     *                  pointer is reached. Return `$phpcsFile->numTokens` to skip
      *                  the rest of the file.
      */
     abstract protected function processTokenWithinScope(File $phpcsFile, $stackPtr, $currScope);
@@ -180,7 +180,7 @@ abstract class AbstractScopeSniff implements Sniff
      *
      * @return void|int Optionally returns a stack pointer. The sniff will not be
      *                  called again on the current file until the returned stack
-     *                  pointer is reached. Return (count($tokens) + 1) to skip
+     *                  pointer is reached. Return `$phpcsFile->numTokens` to skip
      *                  the rest of the file.
      */
     abstract protected function processTokenOutsideScope(File $phpcsFile, $stackPtr);

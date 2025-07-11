@@ -18,6 +18,9 @@ class DoctrineCacheAdapter implements CacheInterface, Cache
         return $this->cache->fetch($key);
     }
 
+    /**
+     * @return mixed
+     */
     public function fetch($key)
     {
         return $this->get($key);
@@ -28,6 +31,9 @@ class DoctrineCacheAdapter implements CacheInterface, Cache
         return $this->cache->save($key, $value, $ttl);
     }
 
+    /**
+     * @return bool
+     */
     public function save($key, $value, $ttl = 0)
     {
         return $this->set($key, $value, $ttl);
@@ -38,16 +44,25 @@ class DoctrineCacheAdapter implements CacheInterface, Cache
         return $this->cache->delete($key);
     }
 
+    /**
+     * @return bool
+     */
     public function delete($key)
     {
         return $this->remove($key);
     }
 
+    /**
+     * @return bool
+     */
     public function contains($key)
     {
         return $this->cache->contains($key);
     }
 
+    /**
+     * @return mixed[]|null
+     */
     public function getStats()
     {
         return $this->cache->getStats();

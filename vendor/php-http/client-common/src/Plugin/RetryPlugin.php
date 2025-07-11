@@ -96,9 +96,6 @@ final class RetryPlugin implements Plugin
         $this->exceptionDelay = $options['exception_delay'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $chainIdentifier = spl_object_hash((object) $first);

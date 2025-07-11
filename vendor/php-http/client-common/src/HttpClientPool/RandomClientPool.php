@@ -7,15 +7,12 @@ namespace Http\Client\Common\HttpClientPool;
 use Http\Client\Common\Exception\HttpClientNotFoundException;
 
 /**
- * RoundRobinClientPool will choose the next client in the pool.
+ * RandomClientPool will choose a random enabled client in the pool.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 final class RandomClientPool extends HttpClientPool
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function chooseHttpClient(): HttpClientPoolItem
     {
         $clientPool = array_filter($this->clientPool, function (HttpClientPoolItem $clientPoolItem) {

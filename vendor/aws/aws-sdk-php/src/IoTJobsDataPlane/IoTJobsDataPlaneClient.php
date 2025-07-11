@@ -9,6 +9,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeJobExecutionAsync(array $args = [])
  * @method \Aws\Result getPendingJobExecutions(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getPendingJobExecutionsAsync(array $args = [])
+ * @method \Aws\Result startCommandExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startCommandExecutionAsync(array $args = [])
  * @method \Aws\Result startNextPendingJobExecution(array $args = [])
  * @method \GuzzleHttp\Promise\Promise startNextPendingJobExecutionAsync(array $args = [])
  * @method \Aws\Result updateJobExecution(array $args = [])

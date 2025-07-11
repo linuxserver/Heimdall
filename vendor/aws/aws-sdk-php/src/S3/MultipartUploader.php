@@ -55,6 +55,8 @@ class MultipartUploader extends AbstractUploader
      *   of the multipart upload and that is used to resume a previous upload.
      *   When this option is provided, the `bucket`, `key`, and `part_size`
      *   options are ignored.
+     * - track_upload: (boolean) Set true to track status in 1/8th increments
+     *   for upload.
      *
      * @param S3ClientInterface $client Client used for the upload.
      * @param mixed             $source Source of the data to upload.
@@ -70,6 +72,10 @@ class MultipartUploader extends AbstractUploader
             'key'    => null,
             'exception_class' => S3MultipartUploadException::class,
         ]);
+
+        if ($this->displayProgress) {
+            $this->getState()->setProgressThresholds($this->source->getSize());
+        }
     }
 
     protected function loadUploadWorkflowInfo()

@@ -9,6 +9,8 @@
  */
 namespace SebastianBergmann\Complexity;
 
+use function assert;
+use function file_get_contents;
 use PhpParser\Error;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
@@ -42,8 +44,8 @@ final class Calculator
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
-                (int) $error->getCode(),
-                $error
+                $error->getCode(),
+                $error,
             );
         }
         // @codeCoverageIgnoreEnd
@@ -70,8 +72,8 @@ final class Calculator
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
-                (int) $error->getCode(),
-                $error
+                $error->getCode(),
+                $error,
             );
         }
         // @codeCoverageIgnoreEnd

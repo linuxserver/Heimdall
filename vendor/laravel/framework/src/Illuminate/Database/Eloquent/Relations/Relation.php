@@ -5,14 +5,22 @@ namespace Illuminate\Database\Eloquent\Relations;
 use Closure;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\MultipleRecordsFoundException;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Support\Traits\Macroable;
 
+/**
+ * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+ * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+ * @template TResult
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<TRelatedModel>
+ */
 abstract class Relation implements BuilderContract
 {
     use ForwardsCalls, Macroable {
@@ -22,21 +30,21 @@ abstract class Relation implements BuilderContract
     /**
      * The Eloquent query builder instance.
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     protected $query;
 
     /**
      * The parent model instance.
      *
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var TDeclaringModel
      */
     protected $parent;
 
     /**
      * The related model instance.
      *
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var TRelatedModel
      */
     protected $related;
 
@@ -55,9 +63,9 @@ abstract class Relation implements BuilderContract
     protected static $constraints = true;
 
     /**
-     * An array to map class names to their morph names in the database.
+     * An array to map morph names to their class names in the database.
      *
-     * @var array
+     * @var array<string, class-string<\Illuminate\Database\Eloquent\Model>>
      */
     public static $morphMap = [];
 
@@ -78,8 +86,8 @@ abstract class Relation implements BuilderContract
     /**
      * Create a new relation instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @return void
      */
     public function __construct(Builder $query, Model $parent)
@@ -94,8 +102,10 @@ abstract class Relation implements BuilderContract
     /**
      * Run a callback with constraints disabled on the relation.
      *
-     * @param  \Closure  $callback
-     * @return mixed
+     * @template TReturn of mixed
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
      */
     public static function noConstraints(Closure $callback)
     {
@@ -123,7 +133,7 @@ abstract class Relation implements BuilderContract
     /**
      * Set the constraints for an eager load of the relation.
      *
-     * @param  array  $models
+     * @param  array<int, TDeclaringModel>  $models
      * @return void
      */
     abstract public function addEagerConstraints(array $models);
@@ -131,33 +141,33 @@ abstract class Relation implements BuilderContract
     /**
      * Initialize the relation on a set of models.
      *
-     * @param  array  $models
+     * @param  array<int, TDeclaringModel>  $models
      * @param  string  $relation
-     * @return array
+     * @return array<int, TDeclaringModel>
      */
     abstract public function initRelation(array $models, $relation);
 
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param  array  $models
-     * @param  \Illuminate\Database\Eloquent\Collection  $results
+     * @param  array<int, TDeclaringModel>  $models
+     * @param  \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>  $results
      * @param  string  $relation
-     * @return array
+     * @return array<int, TDeclaringModel>
      */
-    abstract public function match(array $models, Collection $results, $relation);
+    abstract public function match(array $models, EloquentCollection $results, $relation);
 
     /**
      * Get the results of the relationship.
      *
-     * @return mixed
+     * @return TResult
      */
     abstract public function getResults();
 
     /**
      * Get the relationship for eager loading.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
      */
     public function getEager()
     {
@@ -170,9 +180,9 @@ abstract class Relation implements BuilderContract
      * Execute the query and get the first result if it's the sole matching record.
      *
      * @param  array|string  $columns
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return TRelatedModel
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException<\Illuminate\Database\Eloquent\Model>
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException<TRelatedModel>
      * @throws \Illuminate\Database\MultipleRecordsFoundException
      */
     public function sole($columns = ['*'])
@@ -196,7 +206,7 @@ abstract class Relation implements BuilderContract
      * Execute the query as a "select" statement.
      *
      * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
      */
     public function get($columns = ['*'])
     {
@@ -233,9 +243,9 @@ abstract class Relation implements BuilderContract
     /**
      * Add the constraints for a relationship count query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
+     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     public function getRelationExistenceCountQuery(Builder $query, Builder $parentQuery)
     {
@@ -249,10 +259,10 @@ abstract class Relation implements BuilderContract
      *
      * Essentially, these queries compare on column names like whereColumn.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
      * @param  array|mixed  $columns
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -275,13 +285,13 @@ abstract class Relation implements BuilderContract
     /**
      * Get all of the primary keys for an array of models.
      *
-     * @param  array  $models
+     * @param  array<int, TDeclaringModel>  $models
      * @param  string|null  $key
-     * @return array
+     * @return array<int, int|string|null>
      */
     protected function getKeys(array $models, $key = null)
     {
-        return collect($models)->map(function ($value) use ($key) {
+        return (new BaseCollection($models))->map(function ($value) use ($key) {
             return $key ? $value->getAttribute($key) : $value->getKey();
         })->values()->unique(null, true)->sort()->all();
     }
@@ -289,7 +299,7 @@ abstract class Relation implements BuilderContract
     /**
      * Get the query builder that will contain the relationship constraints.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     protected function getRelationQuery()
     {
@@ -299,7 +309,7 @@ abstract class Relation implements BuilderContract
     /**
      * Get the underlying query for the relation.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     public function getQuery()
     {
@@ -329,7 +339,7 @@ abstract class Relation implements BuilderContract
     /**
      * Get the parent model of the relation.
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return TDeclaringModel
      */
     public function getParent()
     {
@@ -349,7 +359,7 @@ abstract class Relation implements BuilderContract
     /**
      * Get the related model of the relation.
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return TRelatedModel
      */
     public function getRelated()
     {
@@ -392,10 +402,10 @@ abstract class Relation implements BuilderContract
      * @param  string  $whereIn
      * @param  string  $key
      * @param  array  $modelKeys
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>|null  $query
      * @return void
      */
-    protected function whereInEager(string $whereIn, string $key, array $modelKeys, $query = null)
+    protected function whereInEager(string $whereIn, string $key, array $modelKeys, ?Builder $query = null)
     {
         ($query ?? $this->query)->{$whereIn}($key, $modelKeys);
 
@@ -443,7 +453,7 @@ abstract class Relation implements BuilderContract
     /**
      * Define the morph map for polymorphic relations and require all morphed models to be explicitly mapped.
      *
-     * @param  array  $map
+     * @param  array<string, class-string<\Illuminate\Database\Eloquent\Model>>  $map
      * @param  bool  $merge
      * @return array
      */
@@ -457,11 +467,11 @@ abstract class Relation implements BuilderContract
     /**
      * Set or get the morph map for polymorphic relations.
      *
-     * @param  array|null  $map
+     * @param  array<string, class-string<\Illuminate\Database\Eloquent\Model>>|null  $map
      * @param  bool  $merge
-     * @return array
+     * @return array<string, class-string<\Illuminate\Database\Eloquent\Model>>
      */
-    public static function morphMap(array $map = null, $merge = true)
+    public static function morphMap(?array $map = null, $merge = true)
     {
         $map = static::buildMorphMapFromModels($map);
 
@@ -476,10 +486,10 @@ abstract class Relation implements BuilderContract
     /**
      * Builds a table-keyed array from model class names.
      *
-     * @param  string[]|null  $models
-     * @return array|null
+     * @param  list<class-string<\Illuminate\Database\Eloquent\Model>>|null  $models
+     * @return array<string, class-string<\Illuminate\Database\Eloquent\Model>>|null
      */
-    protected static function buildMorphMapFromModels(array $models = null)
+    protected static function buildMorphMapFromModels(?array $models = null)
     {
         if (is_null($models) || ! array_is_list($models)) {
             return $models;
@@ -494,11 +504,22 @@ abstract class Relation implements BuilderContract
      * Get the model associated with a custom polymorphic type.
      *
      * @param  string  $alias
-     * @return string|null
+     * @return class-string<\Illuminate\Database\Eloquent\Model>|null
      */
     public static function getMorphedModel($alias)
     {
         return static::$morphMap[$alias] ?? null;
+    }
+
+    /**
+     * Get the alias associated with a custom polymorphic class.
+     *
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $className
+     * @return int|string
+     */
+    public static function getMorphAlias(string $className)
+    {
+        return array_search($className, static::$morphMap, strict: true) ?: $className;
     }
 
     /**

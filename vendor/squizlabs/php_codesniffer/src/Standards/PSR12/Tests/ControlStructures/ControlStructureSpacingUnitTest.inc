@@ -98,3 +98,36 @@ $expr2 &&
   $expr3) {
       // structure body
 };
+
+// Ensure the sniff handles too many newlines (not just too few).
+for (
+
+
+    $i = 0;
+    $i < 10;
+    $i++
+
+
+) {}
+
+// Ensure the sniff does not remove indentation whitespace when comments are involved.
+for (
+
+
+    // comment.
+    $i = 0;
+    $i < 10;
+    $i++
+) {}
+
+// The sniff treats a comment (ie non-whitespace) as content, but only at the
+// start / end of the control structure. So the inner-whitespace here is
+// intentionally ignored by this sniff. Additionally, the comment is not indented
+// by this sniff when fixing.
+for (// comment.
+
+
+    $i = 0;
+    $i < 10;
+    $i++
+) {}

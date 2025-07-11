@@ -26,7 +26,7 @@ class ThanksCommand extends BaseCommand
     private $love = '💖 ';
     private $cash = '💵 ';
 
-    protected function configure()
+    protected function configure(): void
     {
         if ('Hyper' === getenv('TERM_PROGRAM')) {
             $this->star = '⭐ ';
@@ -44,7 +44,7 @@ class ThanksCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $composer = $this->getComposer();
         $gitHub = new GitHubClient($composer, $this->getIO());

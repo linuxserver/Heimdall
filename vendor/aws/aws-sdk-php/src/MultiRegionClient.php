@@ -12,18 +12,25 @@ class MultiRegionClient implements AwsClientInterface
 
     /** @var AwsClientInterface[] A pool of clients keyed by region. */
     private $clientPool = [];
+
     /** @var callable */
     private $factory;
+
     /** @var PartitionInterface */
     private $partition;
+
     /** @var array */
     private $args;
+
     /** @var array */
     private $config;
+
     /** @var HandlerList */
     private $handlerList;
+
     /** @var array */
     private $aliases;
+
     /** @var callable */
     private $customHandler;
 

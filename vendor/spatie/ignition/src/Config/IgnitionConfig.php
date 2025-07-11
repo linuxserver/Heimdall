@@ -203,6 +203,10 @@ class IgnitionConfig implements Arrayable
                     'label' => 'VS Codium',
                     'url' => 'vscodium://file/%path:%line',
                 ],
+                'cursor' => [
+                    'label' => 'Cursor',
+                    'url' => 'cursor://file/%path:%line',
+                ],
                 'atom' => [
                     'label' => 'Atom',
                     'url' => 'atom://core/open/file?filename=%path&line=%line',

@@ -51,6 +51,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeAddonVersionsAsync(array $args = [])
  * @method \Aws\Result describeCluster(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeClusterAsync(array $args = [])
+ * @method \Aws\Result describeClusterVersions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeClusterVersionsAsync(array $args = [])
  * @method \Aws\Result describeEksAnywhereSubscription(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeEksAnywhereSubscriptionAsync(array $args = [])
  * @method \Aws\Result describeFargateProfile(array $args = [])

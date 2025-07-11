@@ -20,7 +20,7 @@ use Symfony\Component\Console\Input\InputInterface;
 class ConstantEnumerator extends Enumerator
 {
     // Because `Json` is ugly.
-    private static $categoryLabels = [
+    private const CATEGORY_LABELS = [
         'libxml'   => 'libxml',
         'openssl'  => 'OpenSSL',
         'pcre'     => 'PCRE',
@@ -49,7 +49,7 @@ class ConstantEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -88,7 +88,7 @@ class ConstantEnumerator extends Enumerator
         }
 
         if ($category) {
-            $caseCategory = \array_key_exists($category, self::$categoryLabels) ? self::$categoryLabels[$category] : \ucfirst($category);
+            $caseCategory = \array_key_exists($category, self::CATEGORY_LABELS) ? self::CATEGORY_LABELS[$category] : \ucfirst($category);
             $label = $caseCategory.' Constants';
             $ret[$label] = $this->getConstants($category);
         }
@@ -122,7 +122,7 @@ class ConstantEnumerator extends Enumerator
      *
      * @return array
      */
-    protected function getConstants(string $category = null): array
+    protected function getConstants(?string $category = null): array
     {
         if (!$category) {
             return \get_defined_constants();

@@ -14,15 +14,8 @@ use function strcasecmp;
 
 final class ObjectType extends Type
 {
-    /**
-     * @var TypeName
-     */
-    private $className;
-
-    /**
-     * @var bool
-     */
-    private $allowsNull;
+    private TypeName $className;
+    private bool $allowsNull;
 
     public function __construct(TypeName $className, bool $allowsNull)
     {

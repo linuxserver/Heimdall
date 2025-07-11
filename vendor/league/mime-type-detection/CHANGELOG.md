@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.16.0 - 2025-09-21
+
+- Updated lookup
+- Prepped for 8.4 implicit nullable deprecation
+
 ## 1.15.0 - 2024-01-28
 
 - Updated lookup

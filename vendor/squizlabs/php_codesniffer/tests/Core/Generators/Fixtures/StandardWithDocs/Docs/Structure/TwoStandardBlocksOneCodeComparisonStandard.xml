@@ -1,0 +1,24 @@
+<documentation title="Two Standard Blocks, One Code Comparison">
+    <standard>
+    <![CDATA[
+    This is standard block one.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Vestibulum et orci condimentum.">
+        <![CDATA[
+class <em>Code</em> {}
+        ]]>
+        </code>
+        <code title="Invalid: Donec in nisl ut tortor convallis interdum.">
+        <![CDATA[
+class <em>Comparison</em> {}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    This is standard block two.
+    ]]>
+    </standard>
+</documentation>

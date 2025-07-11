@@ -8,12 +8,12 @@
         <code title="Valid: No spaces around the brackets.">
         <![CDATA[
 $foo<em></em>[<em></em>'bar'<em></em>];
-]]>
+        ]]>
         </code>
         <code title="Invalid: Spaces around the brackets.">
         <![CDATA[
 $foo<em> </em>[<em> </em>'bar'<em> </em>];
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

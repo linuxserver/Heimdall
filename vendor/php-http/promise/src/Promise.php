@@ -41,7 +41,7 @@ interface Promise
      *
      * @return Promise a new resolved promise with value of the executed callback (onFulfilled / onRejected)
      */
-    public function then(callable $onFulfilled = null, callable $onRejected = null);
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null);
 
     /**
      * Returns the state of the promise, one of PENDING, FULFILLED or REJECTED.

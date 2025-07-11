@@ -29,13 +29,13 @@ final class HtmlRenderer
      */
     public function parse(string $html): Components\Element
     {
-        $dom = new DOMDocument();
+        $dom = new DOMDocument;
 
         if (strip_tags($html) === $html) {
             return Termwind::span($html);
         }
 
-        $html = '<?xml encoding="UTF-8">'.trim($html);
+        $html = '<?xml encoding="UTF-8"><!DOCTYPE html><html><body>'.trim($html).'</body></html>';
         $dom->loadHTML($html, LIBXML_NOERROR | LIBXML_COMPACT | LIBXML_HTML_NODEFDTD | LIBXML_NOBLANKS | LIBXML_NOXMLDECL);
 
         /** @var DOMNode $body */

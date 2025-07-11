@@ -70,7 +70,7 @@ class Workflows extends AbstractApi
      *
      * @return array|string empty
      */
-    public function dispatches(string $username, string $repository, $workflow, string $ref, array $inputs = null)
+    public function dispatches(string $username, string $repository, $workflow, string $ref, ?array $inputs = null)
     {
         if (is_string($workflow)) {
             $workflow = rawurlencode($workflow);

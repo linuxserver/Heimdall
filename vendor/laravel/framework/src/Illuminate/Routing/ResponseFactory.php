@@ -2,11 +2,13 @@
 
 namespace Illuminate\Routing;
 
+use Closure;
 use Illuminate\Contracts\Routing\ResponseFactory as FactoryContract;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Exceptions\StreamedResponseException;
+use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -118,6 +120,47 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
+     * Create a new event stream response.
+     *
+     * @param  \Closure  $callback
+     * @param  array  $headers
+     * @param  string  $endStreamWith
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function eventStream(Closure $callback, array $headers = [], string $endStreamWith = '</stream>')
+    {
+        return $this->stream(function () use ($callback, $endStreamWith) {
+            foreach ($callback() as $message) {
+                if (connection_aborted()) {
+                    break;
+                }
+
+                if (! is_string($message) && ! is_numeric($message)) {
+                    $message = Js::encode($message);
+                }
+
+                echo "event: update\n";
+                echo 'data: '.$message;
+                echo "\n\n";
+
+                ob_flush();
+                flush();
+            }
+
+            echo "event: update\n";
+            echo 'data: '.$endStreamWith;
+            echo "\n\n";
+
+            ob_flush();
+            flush();
+        }, 200, array_merge($headers, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]));
+    }
+
+    /**
      * Create a new streamed response instance.
      *
      * @param  callable  $callback
@@ -152,6 +195,8 @@ class ResponseFactory implements FactoryContract
      * @param  array  $headers
      * @param  string|null  $disposition
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws \Illuminate\Routing\Exceptions\StreamedResponseException
      */
     public function streamDownload($callback, $name = null, array $headers = [], $disposition = 'attachment')
     {
@@ -236,7 +281,7 @@ class ResponseFactory implements FactoryContract
     /**
      * Create a new redirect response to a named route.
      *
-     * @param  string  $route
+     * @param  \BackedEnum|string  $route
      * @param  mixed  $parameters
      * @param  int  $status
      * @param  array  $headers

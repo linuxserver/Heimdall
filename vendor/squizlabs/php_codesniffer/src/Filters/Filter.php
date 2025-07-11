@@ -9,12 +9,15 @@
 
 namespace PHP_CodeSniffer\Filters;
 
-use PHP_CodeSniffer\Util;
-use PHP_CodeSniffer\Ruleset;
+use FilesystemIterator;
 use PHP_CodeSniffer\Config;
+use PHP_CodeSniffer\Ruleset;
+use PHP_CodeSniffer\Util\Common;
+use RecursiveDirectoryIterator;
+use RecursiveFilterIterator;
 use ReturnTypeWillChange;
 
-class Filter extends \RecursiveFilterIterator
+class Filter extends RecursiveFilterIterator
 {
 
     /**
@@ -94,7 +97,7 @@ class Filter extends \RecursiveFilterIterator
     public function accept()
     {
         $filePath = $this->current();
-        $realPath = Util\Common::realpath($filePath);
+        $realPath = Common::realpath($filePath);
 
         if ($realPath !== false) {
             // It's a real path somewhere, so record it
@@ -137,7 +140,7 @@ class Filter extends \RecursiveFilterIterator
     {
         $filterClass = get_called_class();
         $children    = new $filterClass(
-            new \RecursiveDirectoryIterator($this->current(), (\RecursiveDirectoryIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS)),
+            new RecursiveDirectoryIterator($this->current(), (RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS)),
             $this->basedir,
             $this->config,
             $this->ruleset
@@ -176,7 +179,7 @@ class Filter extends \RecursiveFilterIterator
         // complete extension list and make sure one is allowed.
         $extensions = [];
         array_shift($fileParts);
-        foreach ($fileParts as $part) {
+        while (empty($fileParts) === false) {
             $extensions[implode('.', $fileParts)] = 1;
             array_shift($fileParts);
         }
@@ -244,13 +247,6 @@ class Filter extends \RecursiveFilterIterator
         }
 
         foreach ($ignorePatterns as $pattern => $type) {
-            // Maintains backwards compatibility in case the ignore pattern does
-            // not have a relative/absolute value.
-            if (is_int($pattern) === true) {
-                $pattern = $type;
-                $type    = 'absolute';
-            }
-
             $replacements = [
                 '\\,' => ',',
                 '*'   => '.*',

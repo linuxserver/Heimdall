@@ -17,15 +17,8 @@ use DOMElement;
  */
 abstract class Node
 {
-    /**
-     * @var DOMDocument
-     */
-    private $dom;
-
-    /**
-     * @var DOMElement
-     */
-    private $contextNode;
+    private DOMDocument $dom;
+    private DOMElement $contextNode;
 
     public function __construct(DOMElement $context)
     {
@@ -45,8 +38,8 @@ abstract class Node
             $totalsContainer = $this->contextNode()->appendChild(
                 $this->dom->createElementNS(
                     'https://schema.phpunit.de/coverage/1.0',
-                    'totals'
-                )
+                    'totals',
+                ),
             );
         }
 
@@ -57,7 +50,7 @@ abstract class Node
     {
         $dirNode = $this->dom()->createElementNS(
             'https://schema.phpunit.de/coverage/1.0',
-            'directory'
+            'directory',
         );
 
         $dirNode->setAttribute('name', $name);
@@ -70,7 +63,7 @@ abstract class Node
     {
         $fileNode = $this->dom()->createElementNS(
             'https://schema.phpunit.de/coverage/1.0',
-            'file'
+            'file',
         );
 
         $fileNode->setAttribute('name', $name);

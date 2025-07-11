@@ -5,12 +5,16 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **AWS Migration Hub Orchestrator** service.
+ * @method \Aws\Result createTemplate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createTemplateAsync(array $args = [])
  * @method \Aws\Result createWorkflow(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createWorkflowAsync(array $args = [])
  * @method \Aws\Result createWorkflowStep(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createWorkflowStepAsync(array $args = [])
  * @method \Aws\Result createWorkflowStepGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createWorkflowStepGroupAsync(array $args = [])
+ * @method \Aws\Result deleteTemplate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteTemplateAsync(array $args = [])
  * @method \Aws\Result deleteWorkflow(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteWorkflowAsync(array $args = [])
  * @method \Aws\Result deleteWorkflowStep(array $args = [])
@@ -55,6 +59,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
+ * @method \Aws\Result updateTemplate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateTemplateAsync(array $args = [])
  * @method \Aws\Result updateWorkflow(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateWorkflowAsync(array $args = [])
  * @method \Aws\Result updateWorkflowStep(array $args = [])

@@ -155,3 +155,17 @@ enum SomeEnum
         $bar_foo = 3;
     }
 }
+
+class AsymVisibility {
+    // The read scope is public, but not specified. Enforce the naming conventions anyway.
+    private(set) $asymPublicImplied  = 'hello';
+    private(set) $_asymPublicImplied = 'hello';
+
+    // The read scope is private, so these properties should be handled as private properties.
+    private private(set) $asymPrivate  = 'hello';
+    private(set) private $_asymPrivate = 'hello';
+
+    // The read scope is public/protected, so these properties should be handled as public properties.
+    public private(set) $asymPublicPrivate  = 'hello';
+    private(set) protected $_asymPrivateProtected = 'hello';
+}

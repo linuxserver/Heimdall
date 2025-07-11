@@ -15,7 +15,7 @@
 Via Composer
 
 ``` bash
-$ composer require php-http/cache-plugin
+composer require php-http/cache-plugin
 ```
 
 
@@ -27,7 +27,7 @@ Please see the [official documentation](http://docs.php-http.org/en/latest/plugi
 ## Testing
 
 ``` bash
-$ composer test
+composer test
 ```
 
 

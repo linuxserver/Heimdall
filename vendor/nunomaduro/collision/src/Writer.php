@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace NunoMaduro\Collision;
 
-use NunoMaduro\Collision\Contracts\ArgumentFormatter as ArgumentFormatterContract;
-use NunoMaduro\Collision\Contracts\Highlighter as HighlighterContract;
+use Closure;
+use NunoMaduro\Collision\Contracts\RenderableOnCollisionEditor;
 use NunoMaduro\Collision\Contracts\RenderlessEditor;
 use NunoMaduro\Collision\Contracts\RenderlessTrace;
 use NunoMaduro\Collision\Contracts\SolutionsRepository;
-use NunoMaduro\Collision\Contracts\Writer as WriterContract;
+use NunoMaduro\Collision\Exceptions\TestException;
 use NunoMaduro\Collision\SolutionsRepositories\NullSolutionsRepository;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 use Whoops\Exception\Frame;
 use Whoops\Exception\Inspector;
 
@@ -21,7 +22,7 @@ use Whoops\Exception\Inspector;
  *
  * @see \Tests\Unit\WriterTest
  */
-final class Writer implements WriterContract
+final class Writer
 {
     /**
      * The number of frames if no verbosity is specified.
@@ -30,88 +31,75 @@ final class Writer implements WriterContract
 
     /**
      * Holds an instance of the solutions repository.
-     *
-     * @var \NunoMaduro\Collision\Contracts\SolutionsRepository
      */
-    private $solutionsRepository;
+    private SolutionsRepository $solutionsRepository;
 
     /**
      * Holds an instance of the Output.
-     *
-     * @var \Symfony\Component\Console\Output\OutputInterface
      */
-    protected $output;
+    private OutputInterface $output;
 
     /**
      * Holds an instance of the Argument Formatter.
-     *
-     * @var \NunoMaduro\Collision\Contracts\ArgumentFormatter
      */
-    protected $argumentFormatter;
+    private ArgumentFormatter $argumentFormatter;
 
     /**
      * Holds an instance of the Highlighter.
-     *
-     * @var \NunoMaduro\Collision\Contracts\Highlighter
      */
-    protected $highlighter;
+    private Highlighter $highlighter;
 
     /**
      * Ignores traces where the file string matches one
      * of the provided regex expressions.
      *
-     * @var string[]
+     * @var array<int, string|Closure>
      */
-    protected $ignore = [];
+    private array $ignore = [];
 
     /**
      * Declares whether or not the trace should appear.
-     *
-     * @var bool
      */
-    protected $showTrace = true;
+    private bool $showTrace = true;
 
     /**
      * Declares whether or not the title should appear.
-     *
-     * @var bool
      */
-    protected $showTitle = true;
+    private bool $showTitle = true;
 
     /**
-     * Declares whether or not the editor should appear.
-     *
-     * @var bool
+     * Declares whether the editor should appear.
      */
-    protected $showEditor = true;
+    private bool $showEditor = true;
 
     /**
      * Creates an instance of the writer.
      */
     public function __construct(
-        SolutionsRepository $solutionsRepository = null,
-        OutputInterface $output = null,
-        ArgumentFormatterContract $argumentFormatter = null,
-        HighlighterContract $highlighter = null
+        ?SolutionsRepository $solutionsRepository = null,
+        ?OutputInterface $output = null,
+        ?ArgumentFormatter $argumentFormatter = null,
+        ?Highlighter $highlighter = null
     ) {
-        $this->solutionsRepository = $solutionsRepository ?: new NullSolutionsRepository();
-        $this->output = $output ?: new ConsoleOutput();
-        $this->argumentFormatter = $argumentFormatter ?: new ArgumentFormatter();
-        $this->highlighter = $highlighter ?: new Highlighter();
+        $this->solutionsRepository = $solutionsRepository ?: new NullSolutionsRepository;
+        $this->output = $output ?: new ConsoleOutput;
+        $this->argumentFormatter = $argumentFormatter ?: new ArgumentFormatter;
+        $this->highlighter = $highlighter ?: new Highlighter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function write(Inspector $inspector): void
     {
         $this->renderTitleAndDescription($inspector);
 
         $frames = $this->getFrames($inspector);
 
-        $editorFrame = array_shift($frames);
-
         $exception = $inspector->getException();
+
+        if ($exception instanceof RenderableOnCollisionEditor) {
+            $editorFrame = $exception->toCollisionEditor();
+        } else {
+            $editorFrame = array_shift($frames);
+        }
 
         if ($this->showEditor
             && $editorFrame !== null
@@ -129,59 +117,41 @@ final class Writer implements WriterContract
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function ignoreFilesIn(array $ignore): WriterContract
+    public function ignoreFilesIn(array $ignore): self
     {
         $this->ignore = $ignore;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function showTrace(bool $show): WriterContract
+    public function showTrace(bool $show): self
     {
         $this->showTrace = $show;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function showTitle(bool $show): WriterContract
+    public function showTitle(bool $show): self
     {
         $this->showTitle = $show;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function showEditor(bool $show): WriterContract
+    public function showEditor(bool $show): self
     {
         $this->showEditor = $show;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setOutput(OutputInterface $output): WriterContract
+    public function setOutput(OutputInterface $output): self
     {
         $this->output = $output;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getOutput(): OutputInterface
     {
         return $this->output;
@@ -189,8 +159,10 @@ final class Writer implements WriterContract
 
     /**
      * Returns pertinent frames.
+     *
+     * @return array<int, Frame>
      */
-    protected function getFrames(Inspector $inspector): array
+    private function getFrames(Inspector $inspector): array
     {
         return $inspector->getFrames()
             ->filter(
@@ -202,11 +174,18 @@ final class Writer implements WriterContract
                     }
 
                     foreach ($this->ignore as $ignore) {
-                        // Ensure paths are linux-style (like the ones on $this->ignore)
-                        // @phpstan-ignore-next-line
-                        $sanitizedPath = (string) str_replace('\\', '/', $frame->getFile());
-                        if (preg_match($ignore, $sanitizedPath)) {
-                            return false;
+                        if (is_string($ignore)) {
+                            // Ensure paths are linux-style (like the ones on $this->ignore)
+                            $sanitizedPath = (string) str_replace('\\', '/', $frame->getFile());
+                            if (preg_match($ignore, $sanitizedPath)) {
+                                return false;
+                            }
+                        }
+
+                        if ($ignore instanceof Closure) {
+                            if ($ignore($frame)) {
+                                return false;
+                            }
                         }
                     }
 
@@ -219,11 +198,14 @@ final class Writer implements WriterContract
     /**
      * Renders the title of the exception.
      */
-    protected function renderTitleAndDescription(Inspector $inspector): WriterContract
+    private function renderTitleAndDescription(Inspector $inspector): self
     {
+        /** @var Throwable|TestException $exception */
         $exception = $inspector->getException();
         $message = rtrim($exception->getMessage());
-        $class = $inspector->getExceptionName();
+        $class = $exception instanceof TestException
+            ? $exception->getClassName()
+            : $inspector->getExceptionName();
 
         if ($this->showTitle) {
             $this->render("<bg=red;options=bold> $class </>");
@@ -238,16 +220,19 @@ final class Writer implements WriterContract
     /**
      * Renders the solution of the exception, if any.
      */
-    protected function renderSolution(Inspector $inspector): WriterContract
+    private function renderSolution(Inspector $inspector): self
     {
         $throwable = $inspector->getException();
-        $solutions = $this->solutionsRepository->getFromThrowable($throwable);
+
+        $solutions = $throwable instanceof Throwable
+            ? $this->solutionsRepository->getFromThrowable($throwable)
+            : []; // @phpstan-ignore-line
 
         foreach ($solutions as $solution) {
             /** @var \Spatie\Ignition\Contracts\Solution $solution */
-            $title = $solution->getSolutionTitle();
-            $description = $solution->getSolutionDescription();
-            $links = $solution->getDocumentationLinks();
+            $title = $solution->getSolutionTitle();  // @phpstan-ignore-line
+            $description = $solution->getSolutionDescription();  // @phpstan-ignore-line
+            $links = $solution->getDocumentationLinks();  // @phpstan-ignore-line
 
             $description = trim((string) preg_replace("/\n/", "\n    ", $description));
 
@@ -268,7 +253,7 @@ final class Writer implements WriterContract
      * Renders the editor containing the code that was the
      * origin of the exception.
      */
-    protected function renderEditor(Frame $frame): WriterContract
+    private function renderEditor(Frame $frame): self
     {
         if ($frame->getFile() !== 'Unknown') {
             $file = $this->getFileRelativePath((string) $frame->getFile());
@@ -288,10 +273,15 @@ final class Writer implements WriterContract
     /**
      * Renders the trace of the exception.
      */
-    protected function renderTrace(array $frames): WriterContract
+    private function renderTrace(array $frames): self
     {
         $vendorFrames = 0;
         $userFrames = 0;
+
+        if (! empty($frames)) {
+            $this->output->writeln(['']);
+        }
+
         foreach ($frames as $i => $frame) {
             if ($this->output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE && strpos($frame->getFile(), '/vendor/') !== false) {
                 $vendorFrames++;
@@ -299,7 +289,7 @@ final class Writer implements WriterContract
                 continue;
             }
 
-            if ($userFrames > static::VERBOSITY_NORMAL_FRAMES && $this->output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE) {
+            if ($userFrames > self::VERBOSITY_NORMAL_FRAMES && $this->output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE) {
                 break;
             }
 
@@ -313,25 +303,29 @@ final class Writer implements WriterContract
             $pos = str_pad((string) ((int) $i + 1), 4, ' ');
 
             if ($vendorFrames > 0) {
-                $this->output->write(
-                    sprintf("\n      \e[2m+%s vendor frames \e[22m", $vendorFrames)
+                $this->output->writeln(
+                    sprintf("      \e[2m+%s vendor frames \e[22m", $vendorFrames)
                 );
                 $vendorFrames = 0;
             }
 
-            $this->render("<fg=yellow>$pos</><fg=default;options=bold>$file</>:<fg=default;options=bold>$line</>");
-            $this->render("<fg=gray>    $class$function($args)</>", false);
+            $this->render("<fg=yellow>$pos</><fg=default;options=bold>$file</>:<fg=default;options=bold>$line</>", (bool) $class && $i > 0);
+            if ($class) {
+                $this->render("<fg=gray>    $class$function($args)</>", false);
+            }
+        }
+
+        if (! empty($frames)) {
+            $this->output->writeln(['']);
         }
 
         return $this;
     }
 
     /**
-     * Renders an message into the console.
-     *
-     * @return $this
+     * Renders a message into the console.
      */
-    protected function render(string $message, bool $break = true): WriterContract
+    private function render(string $message, bool $break = true): self
     {
         if ($break) {
             $this->output->writeln('');
@@ -345,12 +339,12 @@ final class Writer implements WriterContract
     /**
      * Returns the relative path of the given file path.
      */
-    protected function getFileRelativePath(string $filePath): string
+    private function getFileRelativePath(string $filePath): string
     {
         $cwd = (string) getcwd();
 
         if (! empty($cwd)) {
-            return str_replace("$cwd/", '', $filePath);
+            return str_replace("$cwd".DIRECTORY_SEPARATOR, '', $filePath);
         }
 
         return $filePath;

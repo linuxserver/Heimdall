@@ -36,6 +36,7 @@ final class DisallowShortOpenTagUnitTest extends AbstractSniffUnitTest
             $testFiles[] = $testFileBase.'2.inc';
         } else {
             $testFiles[] = $testFileBase.'3.inc';
+            $testFiles[] = $testFileBase.'4.inc';
         }
 
         return $testFiles;
@@ -97,6 +98,7 @@ final class DisallowShortOpenTagUnitTest extends AbstractSniffUnitTest
                 3  => 1,
                 6  => 1,
                 11 => 1,
+                16 => 1,
             ];
         default:
             return [];

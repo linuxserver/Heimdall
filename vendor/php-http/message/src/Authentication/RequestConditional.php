@@ -29,9 +29,6 @@ final class RequestConditional implements Authentication
         $this->authentication = $authentication;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         if ($this->requestMatcher->matches($request)) {

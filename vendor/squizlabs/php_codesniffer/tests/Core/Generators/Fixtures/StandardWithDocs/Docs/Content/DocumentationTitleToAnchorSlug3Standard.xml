@@ -1,0 +1,8 @@
+<documentation title="URL enc@de non-àscíï chars">
+    <standard>
+    <![CDATA[
+    The documentation title has non-ascii characters, which will be slugified for use in an HTML anchor link.
+    A duplicate anchor link will get a numeric suffix.
+    ]]>
+    </standard>
+</documentation>

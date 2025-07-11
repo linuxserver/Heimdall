@@ -21,6 +21,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getExperimentTargetAccountConfigurationAsync(array $args = [])
  * @method \Aws\Result getExperimentTemplate(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getExperimentTemplateAsync(array $args = [])
+ * @method \Aws\Result getSafetyLever(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getSafetyLeverAsync(array $args = [])
  * @method \Aws\Result getTargetAccountConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTargetAccountConfigurationAsync(array $args = [])
  * @method \Aws\Result getTargetResourceType(array $args = [])
@@ -51,6 +53,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
  * @method \Aws\Result updateExperimentTemplate(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateExperimentTemplateAsync(array $args = [])
+ * @method \Aws\Result updateSafetyLeverState(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateSafetyLeverStateAsync(array $args = [])
  * @method \Aws\Result updateTargetAccountConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateTargetAccountConfigurationAsync(array $args = [])
  */

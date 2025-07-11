@@ -22,7 +22,7 @@ final class FulfilledPromise implements Promise
         $this->result = $result;
     }
 
-    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         if (null === $onFulfilled) {
             return $this;

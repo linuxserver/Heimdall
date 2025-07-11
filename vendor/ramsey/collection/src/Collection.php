@@ -24,7 +24,7 @@ namespace Ramsey\Collection;
  *
  * Example usage:
  *
- * ``` php
+ * ```
  * $collection = new \Ramsey\Collection\Collection('My\\Foo');
  * $collection->add(new \My\Foo());
  * $collection->add(new \My\Foo());
@@ -37,7 +37,7 @@ namespace Ramsey\Collection;
  * It is preferable to subclass `AbstractCollection` to create your own typed
  * collections. For example:
  *
- * ``` php
+ * ```
  * namespace My\Foo;
  *
  * class FooCollection extends \Ramsey\Collection\AbstractCollection
@@ -51,7 +51,7 @@ namespace Ramsey\Collection;
  *
  * And then use it similarly to the earlier example:
  *
- * ``` php
+ * ```
  * $fooCollection = new \My\Foo\FooCollection();
  * $fooCollection->add(new \My\Foo());
  * $fooCollection->add(new \My\Foo());
@@ -64,7 +64,7 @@ namespace Ramsey\Collection;
  * The benefit with this approach is that you may do type-checking on the
  * collection object:
  *
- * ``` php
+ * ```
  * if ($collection instanceof \My\Foo\FooCollection) {
  *     // the collection is a collection of My\Foo objects
  * }

@@ -72,7 +72,7 @@ class Signed implements Serializable
     /**
      * Restore the closure after serialization.
      *
-     * @param  array  $signature
+     * @param  array{serializable: string, hash: string}  $signature
      * @return void
      *
      * @throws \Laravel\SerializableClosure\Exceptions\InvalidSignatureException

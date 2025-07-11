@@ -3,6 +3,7 @@
 namespace Http\Discovery;
 
 use Http\Discovery\Exception\DiscoveryFailedException;
+use Http\Discovery\Exception\NotFoundException as RealNotFoundException;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -19,7 +20,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
 {
     private static function createException($type, Exception $e)
     {
-        return new \Http\Discovery\Exception\NotFoundException(
+        return new RealNotFoundException(
             'No PSR-17 '.$type.' found. Install a package from this list: https://packagist.org/providers/psr/http-factory-implementation',
             0,
             $e
@@ -29,7 +30,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return RequestFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findRequestFactory()
     {
@@ -45,7 +46,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return ResponseFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findResponseFactory()
     {
@@ -61,7 +62,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return ServerRequestFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findServerRequestFactory()
     {
@@ -77,7 +78,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return StreamFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findStreamFactory()
     {
@@ -93,7 +94,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return UploadedFileFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findUploadedFileFactory()
     {
@@ -109,7 +110,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return UriFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      */
     public static function findUriFactory()
     {
@@ -125,7 +126,7 @@ final class Psr17FactoryDiscovery extends ClassDiscovery
     /**
      * @return UriFactoryInterface
      *
-     * @throws Exception\NotFoundException
+     * @throws RealNotFoundException
      *
      * @deprecated This will be removed in 2.0. Consider using the findUriFactory() method.
      */

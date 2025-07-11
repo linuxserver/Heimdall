@@ -10,7 +10,7 @@
 namespace PHP_CodeSniffer\Reports;
 
 use PHP_CodeSniffer\Files\File;
-use PHP_CodeSniffer\Util;
+use PHP_CodeSniffer\Util\Timing;
 
 class Full implements Report
 {
@@ -23,10 +23,11 @@ class Full implements Report
      * and FALSE if it ignored the file. Returning TRUE indicates that the file and
      * its data should be counted in the grand totals.
      *
-     * @param array                       $report      Prepared report data.
-     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being reported on.
-     * @param bool                        $showSources Show sources?
-     * @param int                         $width       Maximum allowed line width.
+     * @param array<string, string|int|array> $report      Prepared report data.
+     *                                                     See the {@see Report} interface for a detailed specification.
+     * @param \PHP_CodeSniffer\Files\File     $phpcsFile   The file being reported on.
+     * @param bool                            $showSources Show sources?
+     * @param int                             $width       Maximum allowed line width.
      *
      * @return bool
      */
@@ -61,8 +62,8 @@ class Full implements Report
 
         // Make sure the report width isn't too big.
         $maxErrorLength = 0;
-        foreach ($report['messages'] as $line => $lineErrors) {
-            foreach ($lineErrors as $column => $colErrors) {
+        foreach ($report['messages'] as $lineErrors) {
+            foreach ($lineErrors as $colErrors) {
                 foreach ($colErrors as $error) {
                     // Start with the presumption of a single line error message.
                     $length    = strlen($error['message']);
@@ -138,7 +139,7 @@ class Full implements Report
         $beforeAfterLength = strlen($beforeMsg.$afterMsg);
 
         foreach ($report['messages'] as $line => $lineErrors) {
-            foreach ($lineErrors as $column => $colErrors) {
+            foreach ($lineErrors as $colErrors) {
                 foreach ($colErrors as $error) {
                     $errorMsg = wordwrap(
                         $error['message'],
@@ -250,7 +251,7 @@ class Full implements Report
         echo $cachedData;
 
         if ($toScreen === true && $interactive === false) {
-            Util\Timing::printRunTime();
+            Timing::printRunTime();
         }
 
     }//end generate()

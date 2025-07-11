@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.8.8@1361cd33008feb3ae2b4a93f1860e14e538ec8c2">
+  <file src="src/BigInteger.php">
+    <FalsableReturnStatement>
+      <code><![CDATA[\hex2bin($hex)]]></code>
+    </FalsableReturnStatement>
+    <InvalidFalsableReturnType>
+      <code><![CDATA[string]]></code>
+    </InvalidFalsableReturnType>
+  </file>
+  <file src="src/Exception/DivisionByZeroException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[DivisionByZeroException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Exception/IntegerOverflowException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[IntegerOverflowException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Exception/NegativeNumberException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[NegativeNumberException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Exception/NumberFormatException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[NumberFormatException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Exception/RoundingNecessaryException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[RoundingNecessaryException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Internal/Calculator/BcMathCalculator.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[BcMathCalculator]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Internal/Calculator/GmpCalculator.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[GmpCalculator]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="src/Internal/Calculator/NativeCalculator.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[NativeCalculator]]></code>
+    </ClassMustBeFinal>
+    <InvalidOperand>
+      <code><![CDATA[$a * $b]]></code>
+      <code><![CDATA[$a * 1]]></code>
+      <code><![CDATA[$a + $b]]></code>
+      <code><![CDATA[$b * 1]]></code>
+      <code><![CDATA[$b * 1]]></code>
+      <code><![CDATA[$blockA * $blockB + $carry]]></code>
+      <code><![CDATA[$blockA + $blockB]]></code>
+      <code><![CDATA[$blockA + $blockB + $carry]]></code>
+      <code><![CDATA[$blockA - $blockB]]></code>
+      <code><![CDATA[$blockA - $blockB - $carry]]></code>
+      <code><![CDATA[$carry]]></code>
+      <code><![CDATA[$mul % $complement]]></code>
+      <code><![CDATA[$mul - $value]]></code>
+      <code><![CDATA[$nb - 1]]></code>
+      <code><![CDATA[$sum += $complement]]></code>
+      <code><![CDATA[($mul - $value) / $complement]]></code>
+      <code><![CDATA[($nb - 1) * 10]]></code>
+    </InvalidOperand>
+  </file>
+</files>

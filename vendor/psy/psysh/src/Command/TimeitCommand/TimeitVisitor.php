@@ -31,7 +31,7 @@ use Psy\Command\TimeitCommand;
  */
 class TimeitVisitor extends NodeVisitorAbstract
 {
-    private $functionDepth;
+    private int $functionDepth = 0;
 
     /**
      * {@inheritdoc}
@@ -120,7 +120,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * @param Expr|null $arg
      */
-    private function getEndCall(Expr $arg = null): StaticCall
+    private function getEndCall(?Expr $arg = null): StaticCall
     {
         if ($arg === null) {
             $arg = NoReturnValue::create();

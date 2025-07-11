@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRuleShouldProcessElementTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!--
+    ################
+    # Neither set. #
+    ################
+    -->
+    <rule ref="Internal.NoCodeFound">
+        <severity>0</severity>
+        <message>We don't to be notified if files don't contain code</message>
+    </rule>
+
+    <rule ref="PSR1.Files.SideEffects">
+        <severity>3</severity>
+        <type>warning</type>
+        <message>A different warning message</message>
+    </rule>
+
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <include-pattern>./vendor/</include-pattern>
+    </rule>
+
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <exclude-pattern>./tests/</exclude-pattern>
+    </rule>
+
+    <!-- Properties with neither set are tested in the SetSniffPropertyTest. -->
+
+    <!--
+    ###################
+    # phpcs-only set. #
+    ###################
+    -->
+    <rule ref="Generic.Metrics.CyclomaticComplexity">
+        <severity phpcs-only="true">2</severity>
+        <type phpcs-only="true">warning</type>
+        <message phpcs-only="true">A different warning but only for phpcs</message>
+    </rule>
+
+    <rule ref="Generic.Files.LineLength">
+        <include-pattern phpcs-only="true">./vendor/</include-pattern>
+    </rule>
+
+    <rule ref="Generic.Formatting.SpaceAfterCast">
+        <exclude-pattern phpcs-only="true">./tests/</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.Arrays.ArrayIndent">
+        <properties phpcs-only="true">
+            <property name="indent" value="2"/>
+        </properties>
+    </rule>
+
+    <!--
+    ####################
+    # phpcbf-only set. #
+    ####################
+    -->
+    <rule ref="PSR2.Namespaces.NamespaceDeclaration">
+        <severity phpcbf-only="true">4</severity>
+        <type phpcbf-only="true">error</type>
+        <message phpcbf-only="true">A different warning but only for phpcbf</message>
+    </rule>
+
+    <rule ref="PSR2.Files.ClosingTag">
+        <include-pattern phpcbf-only="true">./vendor/</include-pattern>
+    </rule>
+
+    <rule ref="PSR2.Methods.FunctionClosingBrace">
+        <exclude-pattern phpcbf-only="true">./tests/</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR2.Classes.ClassDeclaration">
+        <properties phpcbf-only="true">
+            <property name="indent" value="2"/>
+        </properties>
+    </rule>
+
+    <!--
+    ####################
+    # Property details. #
+    ####################
+    -->
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="exact" value="true"/>
+            <property phpcs-only="true" name="indent" value="2"/>
+            <property phpcbf-only="true" name="tabIndent" value="true"/>
+
+            <property name="ignoreIndentationTokens" type="array">
+                <element value="T_COMMENT"/>
+                <element phpcs-only="true" value="T_CLASS"/>
+                <element phpcbf-only="true" value="T_ENUM"/>
+            </property>
+
+            <property name="ignoreIndentationTokens" type="array" extend="true">
+                <element value="T_BACKTICK"/>
+                <element phpcs-only="true" value="T_INTERFACE"/>
+                <element phpcbf-only="true" value="T_TRAIT"/>
+            </property>
+        </properties>
+    </rule>
+
+</ruleset>

@@ -53,8 +53,7 @@ class RequireExplicitBooleanOperatorPrecedenceSniff implements Sniff
      */
     public function register()
     {
-        $this->searchTargets  = Tokens::$booleanOperators;
-        $this->searchTargets += Tokens::$blockOpeners;
+        $this->searchTargets = Tokens::$booleanOperators;
         $this->searchTargets[T_INLINE_THEN] = T_INLINE_THEN;
         $this->searchTargets[T_INLINE_ELSE] = T_INLINE_ELSE;
 
@@ -99,12 +98,6 @@ class RequireExplicitBooleanOperatorPrecedenceSniff implements Sniff
 
         if (in_array($tokens[$previous]['code'], [T_INLINE_THEN, T_INLINE_ELSE], true) === true) {
             // Beginning of the expression found for the ternary conditional operator.
-            return;
-        }
-
-        if (isset(Tokens::$blockOpeners[$tokens[$previous]['code']]) === true) {
-            // Beginning of the expression found for a block opener. Needed to
-            // correctly handle match arms.
             return;
         }
 

@@ -1,0 +1,7 @@
+
+--------------------------------------------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: THIS IS A VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG TITLE |
+--------------------------------------------------------------------------------------------------------------
+
+This is a standard block.
+

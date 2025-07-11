@@ -11,8 +11,10 @@ class IdempotencyTokenMiddleware
 {
     /** @var Service */
     private $service;
+
     /** @var string */
     private $bytesGenerator;
+
     /** @var callable */
     private $nextHandler;
 
@@ -23,7 +25,7 @@ class IdempotencyTokenMiddleware
      * One of following functions needs to be available
      * in order to generate random bytes used for UUID
      * (SDK will attempt to utilize function in following order):
-     *  - random_bytes (requires PHP 7.0 or above) 
+     *  - random_bytes (requires PHP 7.0 or above)
      *  - openssl_random_pseudo_bytes (requires 'openssl' module enabled)
      *  - mcrypt_create_iv (requires 'mcrypt' module enabled)
      *
@@ -37,7 +39,7 @@ class IdempotencyTokenMiddleware
      */
     public static function wrap(
         Service $service,
-        callable $bytesGenerator = null
+        ?callable $bytesGenerator = null
     ) {
         return function (callable $handler) use ($service, $bytesGenerator) {
             return new self($handler, $service, $bytesGenerator);
@@ -47,7 +49,7 @@ class IdempotencyTokenMiddleware
     public function __construct(
         callable $nextHandler,
         Service $service,
-        callable $bytesGenerator = null
+        ?callable $bytesGenerator = null
     ) {
         $this->bytesGenerator = $bytesGenerator
             ?: $this->findCompatibleRandomSource();
@@ -57,7 +59,7 @@ class IdempotencyTokenMiddleware
 
     public function __invoke(
         CommandInterface $command,
-        RequestInterface $request = null
+        ?RequestInterface $request = null
     ) {
         $handler = $this->nextHandler;
         if ($this->bytesGenerator) {

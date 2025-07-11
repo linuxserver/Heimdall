@@ -2,8 +2,8 @@
 
 namespace Spatie\LaravelIgnition\Exceptions;
 
-use Spatie\Ignition\Contracts\ProvidesSolution;
-use Spatie\Ignition\Contracts\Solution;
+use Spatie\ErrorSolutions\Contracts\ProvidesSolution;
+use Spatie\ErrorSolutions\Contracts\Solution;
 
 class ViewExceptionWithSolution extends ViewException implements ProvidesSolution
 {

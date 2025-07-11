@@ -108,7 +108,7 @@ class Labels extends AbstractApi
     public function update($username, $repository, $label, $newName, $color)
     {
         $params = [
-            'name'  => $newName,
+            'name' => $newName,
             'color' => $color,
         ];
 

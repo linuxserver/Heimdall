@@ -1,0 +1,73 @@
+<documentation title="Function Closing Brace Space">
+    <standard>
+    <![CDATA[
+    There should be a single blank line before the function closing brace.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: A single blank line before the function closing brace.">
+        <![CDATA[
+function outer() <em>{
+
+}</em>
+]]>
+        </code>
+        <code title="Invalid: No blank line before the function closing brace.">
+        <![CDATA[
+function outer() <em>{}</em>
+]]>
+        </code>
+    </code_comparison>
+
+    <standard>
+    <![CDATA[
+    Closing brace of nested function must be on a new line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Nested function closing brace is on a new line.">
+        <![CDATA[
+function outer() {
+    function inner() <em>{
+    }</em>
+
+}
+]]>
+        </code>
+        <code title="Invalid: Nested function closing brace on the same line.">
+        <![CDATA[
+function outer() {
+    function inner() <em>{}</em>
+
+}
+]]>
+        </code>
+    </code_comparison>
+
+    <standard>
+    <![CDATA[
+    Closing brace of nested function must not be followed by a blank line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No blank line before the closing brace of a nested function.">
+        <![CDATA[
+function outer() {
+    function inner() <em>{
+    }</em>
+
+}
+]]>
+        </code>
+        <code title="Invalid: A single blank line before the closing brace of a nested function.">
+        <![CDATA[
+function outer() {
+    function inner() <em>{
+
+    }</em>
+
+}
+]]>
+        </code>
+    </code_comparison>
+</documentation>

@@ -13,9 +13,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class CurlCommandFormatter implements Formatter
 {
-    /**
-     * {@inheritdoc}
-     */
     public function formatRequest(RequestInterface $request)
     {
         $command = sprintf('curl %s', escapeshellarg((string) $request->getUri()->withFragment('')));
@@ -60,9 +57,6 @@ class CurlCommandFormatter implements Formatter
         return $command;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function formatResponse(ResponseInterface $response)
     {
         return '';

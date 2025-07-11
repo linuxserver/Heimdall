@@ -82,17 +82,34 @@ function true() {}
 
 // Issue #3332 - ignore type declarations, but not default values.
 class TypedThings {
-	const MYCONST = false;
+    const MYCONST = false;
 
-	public int|false $int = false;
-	public Type|null $int = new MyObj(null);
+    public int|false $int = false;
+    public Type|null $int = new MyObj(null);
 
-	private function typed(int|false $param = null, Type|null $obj = new MyObj(false)) : string|false|null
-	{
-		if (true === false) {
-			return null;
+    private function typed(int|false $param = null, Type|null $obj = new MyObj(false)) : string|false|null
+    {
+        if (true === false) {
+            return null;
         }
     }
 }
 
 $cl = function (int|false $param = null, Type|null $obj = new MyObj(false)) : string|false|null {};
+
+class SkipOverPHP82DNFTypes {
+    protected (\FullyQualified&Partially\Qualified)|false $propertyC;
+}
+
+class SkipOverPHP84FinalProperties {
+    final MyType|false $propA;
+    private static final null|MyClass $propB;
+}
+
+// PHP 8.4 asymmetric visibility
+class WithAsym {
+    private(set) null|true $asym1 = TRUE;
+    public private(set) ?bool $asym2 = false;
+    protected(set) false|string|null $asym3 = null;
+    public protected(set) Type|null|bool $asym4 = true;
+}

@@ -11,7 +11,8 @@
         "netbeans",
         "sublime",
         "codeintel",
-        "phpdoc"
+        "phpdoc",
+        "dev"
     ],
     "authors": [
         {
@@ -20,30 +21,29 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-json": "*",
-        "barryvdh/reflection-docblock": "^2.0.6",
+        "barryvdh/reflection-docblock": "^2.3",
         "composer/class-map-generator": "^1.0",
-        "doctrine/dbal": "^2.6 || ^3.1.4",
-        "illuminate/console": "^9 || ^10",
-        "illuminate/filesystem": "^9 || ^10",
-        "illuminate/support": "^9 || ^10",
-        "nikic/php-parser": "^4.18 || ^5",
-        "phpdocumentor/type-resolver": "^1.1.0"
+        "illuminate/console": "^11.15 || ^12",
+        "illuminate/database": "^11.15 || ^12",
+        "illuminate/filesystem": "^11.15 || ^12",
+        "illuminate/support": "^11.15 || ^12"
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
         "friendsofphp/php-cs-fixer": "^3",
-        "illuminate/config": "^9 || ^10",
-        "illuminate/view": "^9 || ^10",
+        "illuminate/config": "^11.15 || ^12",
+        "illuminate/view": "^11.15 || ^12",
         "mockery/mockery": "^1.4",
-        "orchestra/testbench": "^7 || ^8",
-        "phpunit/phpunit": "^9",
-        "spatie/phpunit-snapshot-assertions": "^4",
-        "vimeo/psalm": "^5.4"
+        "orchestra/testbench": "^9.2 || ^10",
+        "phpunit/phpunit": "^10.5 || ^11.5.3",
+        "spatie/phpunit-snapshot-assertions": "^4 || ^5",
+        "vimeo/psalm": "^5.4",
+        "vlucas/phpdotenv": "^5"
     },
     "suggest": {
-        "illuminate/events": "Required for automatic helper generation (^6|^7|^8|^9|^10)."
+        "illuminate/events": "Required for automatic helper generation (^6|^7|^8|^9|^10|^11)."
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -65,7 +65,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.15-dev"
+            "dev-master": "3.5-dev"
         },
         "laravel": {
             "providers": [

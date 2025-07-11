@@ -1,0 +1,8 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-LineRemoved.inc
++++ PHP_CodeSniffer
+@@ -4,5 +4,4 @@
+ 
+ if ($var) {
+ 	echo 'This line is tab indented';
+-    echo 'And this line is not';
+ }

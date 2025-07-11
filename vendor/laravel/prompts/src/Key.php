@@ -6,7 +6,15 @@ class Key
 {
     const UP = "\e[A";
 
+    const SHIFT_UP = "\e[1;2A";
+
+    const PAGE_UP = "\e[5~";
+
     const DOWN = "\e[B";
+
+    const SHIFT_DOWN = "\e[1;2B";
+
+    const PAGE_DOWN = "\e[6~";
 
     const RIGHT = "\e[C";
 
@@ -19,6 +27,8 @@ class Key
     const RIGHT_ARROW = "\eOC";
 
     const LEFT_ARROW = "\eOD";
+
+    const ESCAPE = "\e";
 
     const DELETE = "\e[3~";
 
@@ -72,9 +82,19 @@ class Key
     const CTRL_A = "\x01";
 
     /**
+     * EOF
+     */
+    const CTRL_D = "\x04";
+
+    /**
      * End
      */
     const CTRL_E = "\x05";
+
+    /**
+     * Negative affirmation
+     */
+    const CTRL_U = "\x15";
 
     /**
      * Checks for the constant values for the given match and returns the match
@@ -83,6 +103,14 @@ class Key
      */
     public static function oneOf(array $keys, string $match): ?string
     {
-        return collect($keys)->flatten()->contains($match) ? $match : null;
+        foreach ($keys as $key) {
+            if (is_array($key) && static::oneOf($key, $match) !== null) {
+                return $match;
+            } elseif ($key === $match) {
+                return $match;
+            }
+        }
+
+        return null;
     }
 }

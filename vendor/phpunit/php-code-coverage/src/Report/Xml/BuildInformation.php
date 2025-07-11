@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use function constant;
 use function phpversion;
 use DateTimeImmutable;
 use DOMElement;
@@ -20,10 +19,7 @@ use SebastianBergmann\Environment\Runtime;
  */
 final class BuildInformation
 {
-    /**
-     * @var DOMElement
-     */
-    private $contextNode;
+    private readonly DOMElement $contextNode;
 
     public function __construct(DOMElement $contextNode)
     {
@@ -39,11 +35,6 @@ final class BuildInformation
         $runtimeNode->setAttribute('url', $runtime->getVendorUrl());
 
         $driverNode = $this->nodeByName('driver');
-
-        if ($runtime->hasPHPDBGCodeCoverage()) {
-            $driverNode->setAttribute('name', 'phpdbg');
-            $driverNode->setAttribute('version', constant('PHPDBG_VERSION'));
-        }
 
         if ($runtime->hasXdebug()) {
             $driverNode->setAttribute('name', 'xdebug');
@@ -71,15 +62,15 @@ final class BuildInformation
     {
         $node = $this->contextNode->getElementsByTagNameNS(
             'https://schema.phpunit.de/coverage/1.0',
-            $name
+            $name,
         )->item(0);
 
         if (!$node) {
             $node = $this->contextNode->appendChild(
                 $this->contextNode->ownerDocument->createElementNS(
                     'https://schema.phpunit.de/coverage/1.0',
-                    $name
-                )
+                    $name,
+                ),
             );
         }
 

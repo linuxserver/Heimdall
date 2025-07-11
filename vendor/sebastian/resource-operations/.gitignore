@@ -1,6 +1,0 @@
-/.idea
-/.php_cs.cache
-/build/FunctionSignatureMap.php
-/composer.lock
-/vendor
-/.phpunit.result.cache

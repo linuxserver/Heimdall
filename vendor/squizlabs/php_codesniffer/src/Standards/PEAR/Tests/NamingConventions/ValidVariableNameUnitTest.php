@@ -31,13 +31,16 @@ final class ValidVariableNameUnitTest extends AbstractSniffUnitTest
     public function getErrorList()
     {
         return [
-            12 => 1,
-            17 => 1,
-            22 => 1,
-            92 => 1,
-            93 => 1,
-            94 => 1,
-            99 => 1,
+            12  => 1,
+            17  => 1,
+            22  => 1,
+            92  => 1,
+            93  => 1,
+            94  => 1,
+            99  => 1,
+            106 => 1,
+            109 => 1,
+            114 => 1,
         ];
 
     }//end getErrorList()

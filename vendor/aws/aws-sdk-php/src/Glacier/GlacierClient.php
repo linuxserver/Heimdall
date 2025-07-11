@@ -124,7 +124,7 @@ class GlacierClient extends AwsClient
         return function (callable $handler) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler) {
                 // Accept "ContentSHA256" with a lowercase "c" to match other Glacier params.
                 if (!$command['ContentSHA256'] && $command['contentSHA256']) {
@@ -195,7 +195,7 @@ class GlacierClient extends AwsClient
         return function (callable $handler) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler) {
                 return $handler($command, $request->withHeader(
                     'x-amz-glacier-version',

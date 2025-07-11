@@ -86,7 +86,7 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
                 // Check return type (can be multiple, separated by '|').
                 $typeNames      = explode('|', $returnType);
                 $suggestedNames = [];
-                foreach ($typeNames as $i => $typeName) {
+                foreach ($typeNames as $typeName) {
                     $suggestedName = Common::suggestType($typeName);
                     if (in_array($suggestedName, $suggestedNames, true) === false) {
                         $suggestedNames[] = $suggestedName;
@@ -311,7 +311,7 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
             $commentLines = [];
             if ($tokens[($tag + 2)]['code'] === T_DOC_COMMENT_STRING) {
                 $matches = [];
-                preg_match('/([^$&.]+)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/', $tokens[($tag + 2)]['content'], $matches);
+                preg_match('/((?:(?![$.]|&(?=\$)).)*)(?:((?:\.\.\.)?(?:\$|&)[^\s]+)(?:(\s+)(.*))?)?/', $tokens[($tag + 2)]['content'], $matches);
 
                 if (empty($matches) === false) {
                     $typeLen   = strlen($matches[1]);
@@ -323,7 +323,10 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
                     }
                 }
 
-                if (isset($matches[2]) === true) {
+                if ($tokens[($tag + 2)]['content'][0] === '$') {
+                    $error = 'Missing parameter type';
+                    $phpcsFile->addError($error, $tag, 'MissingParamType');
+                } else if (isset($matches[2]) === true) {
                     $var    = $matches[2];
                     $varLen = strlen($var);
                     if ($varLen > $maxVar) {
@@ -366,9 +369,6 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
                         $phpcsFile->addError($error, $tag, 'MissingParamComment');
                         $commentLines[] = ['comment' => ''];
                     }//end if
-                } else if ($tokens[($tag + 2)]['content'][0] === '$') {
-                    $error = 'Missing parameter type';
-                    $phpcsFile->addError($error, $tag, 'MissingParamType');
                 } else {
                     $error = 'Missing parameter name';
                     $phpcsFile->addError($error, $tag, 'MissingParamName');

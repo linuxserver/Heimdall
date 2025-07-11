@@ -69,7 +69,9 @@ class PasswordBrokerManager implements FactoryContract
         // aggregate service of sorts providing a convenient interface for resets.
         return new PasswordBroker(
             $this->createTokenRepository($config),
-            $this->app['auth']->createUserProvider($config['provider'] ?? null)
+            $this->app['auth']->createUserProvider($config['provider'] ?? null),
+            $this->app['events'] ?? null,
+            timeboxDuration: $this->app['config']->get('auth.timebox_duration', 200000),
         );
     }
 
@@ -87,10 +89,19 @@ class PasswordBrokerManager implements FactoryContract
             $key = base64_decode(substr($key, 7));
         }
 
-        $connection = $config['connection'] ?? null;
+        if (isset($config['driver']) && $config['driver'] === 'cache') {
+            return new CacheTokenRepository(
+                $this->app['cache']->store($config['store'] ?? null),
+                $this->app['hash'],
+                $key,
+                ($config['expire'] ?? 60) * 60,
+                $config['throttle'] ?? 0,
+                $config['prefix'] ?? '',
+            );
+        }
 
         return new DatabaseTokenRepository(
-            $this->app['db']->connection($connection),
+            $this->app['db']->connection($config['connection'] ?? null),
             $this->app['hash'],
             $config['table'],
             $key,

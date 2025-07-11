@@ -11,6 +11,4 @@ use RuntimeException;
 /**
  * @internal
  */
-final class RequirementsException extends RuntimeException implements RenderlessEditor, RenderlessTrace
-{
-}
+final class RequirementsException extends RuntimeException implements RenderlessEditor, RenderlessTrace {}

@@ -31,8 +31,8 @@ class Processor
         $string = str_replace(array("\r", "\n"), '', $string);
         $string = str_replace(array("\t"), ' ', $string);
         $string = str_replace('"', '\'', $string);
-        $string = preg_replace('|/\*.*?\*/|', '', $string);
-        $string = preg_replace('/\s\s+/', ' ', $string);
+        $string = preg_replace('|/\*.*?\*/|', '', $string) ?? $string;
+        $string = preg_replace('/\s\s+/', ' ', $string) ?? $string;
 
         $string = trim($string);
         $string = rtrim($string, '}');
@@ -88,7 +88,7 @@ class Processor
      */
     public function calculateSpecificityBasedOnASelector($selector)
     {
-        $idSelectorsPattern = "  \#";
+        $idSelectorCount = preg_match_all("/  \#/ix", $selector, $matches);
         $classAttributesPseudoClassesSelectorsPattern = "  (\.[\w]+)                     # classes
                         |
                         \[(\w+)                       # attributes
@@ -105,6 +105,7 @@ class Processor
                           |only-child|only-of-type
                           |empty|contains
                         ))";
+        $classAttributesPseudoClassesSelectorCount = preg_match_all("/{$classAttributesPseudoClassesSelectorsPattern}/ix", $selector, $matches);
 
         $typePseudoElementsSelectorPattern = "  ((^|[\s\+\>\~]+)[\w]+       # elements
                         |
@@ -114,11 +115,16 @@ class Processor
                           |selection
                         )
                       )";
+        $typePseudoElementsSelectorCount = preg_match_all("/{$typePseudoElementsSelectorPattern}/ix", $selector, $matches);
+
+        if ($idSelectorCount === false || $classAttributesPseudoClassesSelectorCount === false || $typePseudoElementsSelectorCount === false) {
+            throw new \RuntimeException('Failed to calculate specificity based on selector.');
+        }
 
         return new Specificity(
-            preg_match_all("/{$idSelectorsPattern}/ix", $selector, $matches),
-            preg_match_all("/{$classAttributesPseudoClassesSelectorsPattern}/ix", $selector, $matches),
-            preg_match_all("/{$typePseudoElementsSelectorPattern}/ix", $selector, $matches)
+            $idSelectorCount,
+            $classAttributesPseudoClassesSelectorCount,
+            $typePseudoElementsSelectorCount
         );
     }
 

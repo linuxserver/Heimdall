@@ -1,7 +1,7 @@
-<documentation title="Class Declarations">
+<documentation title="Class Declaration">
     <standard>
     <![CDATA[
-    The opening brace of a class must be on the line after the definition by itself.
+    The opening brace of an OO structure must be on the line directly after the OO signature. The opening brace must be on a line by itself.
     ]]>
     </standard>
     <code_comparison>
@@ -12,10 +12,64 @@ class Foo
 }
         ]]>
         </code>
-        <code title="Invalid: Opening brace on same line as declaration.">
+        <code title="Invalid: Opening brace on incorrect line.">
         <![CDATA[
-class Foo <em>{</em>
+class BraceOnSignatureLine <em>{</em>
 }
+
+class BlankLineBetween
+<em></em>
+{
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Opening brace is on a line by itself.">
+        <![CDATA[
+class Foo
+<em>{</em>
+}
+        ]]>
+        </code>
+        <code title="Invalid: Opening brace is not on a line by itself.">
+        <![CDATA[
+class Foo
+{<em> public function __construct() {}</em>
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The opening brace must be indented to the same depth as the OO structure's declaration.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Opening brace indentation depth matches the OO structure signature's depth.">
+        <![CDATA[
+if (!class_exists('IndentedFourSpaces')) {
+    abstract class IndentedFourSpaces
+    <em>{</em>
+    }
+}
+        
+class NotIndented
+<em>{</em>
+}
+        ]]>
+        </code>
+        <code title="Invalid: Opening brace indentation depth does not match the OO structure signature's depth.">
+        <![CDATA[
+if (!class_exists('IndentedFourSpaces')) {
+    abstract class IndentedFourSpaces
+<em>{</em>
+}
+}
+        
+class NotIndented
+    <em>{</em>
+    }
         ]]>
         </code>
     </code_comparison>

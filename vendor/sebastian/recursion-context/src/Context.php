@@ -16,33 +16,17 @@ use function array_pop;
 use function array_slice;
 use function count;
 use function is_array;
-use function is_object;
 use function random_int;
 use function spl_object_hash;
 use SplObjectStorage;
 
-/**
- * A context containing previously processed arrays and objects
- * when recursively processing a value.
- */
 final class Context
 {
-    /**
-     * @var array[]
-     */
-    private $arrays;
+    private array $arrays = [];
+    private SplObjectStorage $objects;
 
-    /**
-     * @var SplObjectStorage
-     */
-    private $objects;
-
-    /**
-     * Initialises the context.
-     */
     public function __construct()
     {
-        $this->arrays  = [];
         $this->objects = new SplObjectStorage;
     }
 
@@ -60,65 +44,38 @@ final class Context
     }
 
     /**
-     * Adds a value to the context.
-     *
-     * @param array|object $value the value to add
-     *
-     * @throws InvalidArgumentException Thrown if $value is not an array or object
-     *
-     * @return bool|int|string the ID of the stored value, either as a string or integer
-     *
      * @psalm-template T
+     *
      * @psalm-param T $value
+     *
      * @param-out T $value
      */
-    public function add(&$value)
+    public function add(object|array &$value): int|string|false
     {
         if (is_array($value)) {
             return $this->addArray($value);
         }
 
-        if (is_object($value)) {
-            return $this->addObject($value);
-        }
-
-        throw new InvalidArgumentException(
-            'Only arrays and objects are supported'
-        );
+        return $this->addObject($value);
     }
 
     /**
-     * Checks if the given value exists within the context.
-     *
-     * @param array|object $value the value to check
-     *
-     * @throws InvalidArgumentException Thrown if $value is not an array or object
-     *
-     * @return false|int|string the string or integer ID of the stored value if it has already been seen, or false if the value is not stored
-     *
      * @psalm-template T
+     *
      * @psalm-param T $value
+     *
      * @param-out T $value
      */
-    public function contains(&$value)
+    public function contains(object|array &$value): int|string|false
     {
         if (is_array($value)) {
             return $this->containsArray($value);
         }
 
-        if (is_object($value)) {
-            return $this->containsObject($value);
-        }
-
-        throw new InvalidArgumentException(
-            'Only arrays and objects are supported'
-        );
+        return $this->containsObject($value);
     }
 
-    /**
-     * @return bool|int
-     */
-    private function addArray(array &$array)
+    private function addArray(array &$array): int
     {
         $key = $this->containsArray($array);
 
@@ -132,18 +89,22 @@ final class Context
         if (!array_key_exists(PHP_INT_MAX, $array) && !array_key_exists(PHP_INT_MAX - 1, $array)) {
             $array[] = $key;
             $array[] = $this->objects;
-        } else { /* cover the improbable case too */
-            /* Note that array_slice (used in containsArray) will return the
-             * last two values added *not necessarily* the highest integer
-             * keys in the array, so the order of these writes to $array
-             * is important, but the actual keys used is not. */
+        } else {
+            /* Cover the improbable case, too.
+             *
+             * Note that array_slice() (used in containsArray()) will return the
+             * last two values added, *not necessarily* the highest integer keys
+             * in the array. Therefore, the order of these writes to $array is
+             * important, but the actual keys used is not. */
             do {
+                /** @noinspection PhpUnhandledExceptionInspection */
                 $key = random_int(PHP_INT_MIN, PHP_INT_MAX);
             } while (array_key_exists($key, $array));
 
             $array[$key] = $key;
 
             do {
+                /** @noinspection PhpUnhandledExceptionInspection */
                 $key = random_int(PHP_INT_MIN, PHP_INT_MAX);
             } while (array_key_exists($key, $array));
 
@@ -153,10 +114,7 @@ final class Context
         return $key;
     }
 
-    /**
-     * @param object $object
-     */
-    private function addObject($object): string
+    private function addObject(object $object): string
     {
         if (!$this->objects->contains($object)) {
             $this->objects->attach($object);
@@ -165,22 +123,14 @@ final class Context
         return spl_object_hash($object);
     }
 
-    /**
-     * @return false|int
-     */
-    private function containsArray(array &$array)
+    private function containsArray(array $array): int|false
     {
         $end = array_slice($array, -2);
 
         return isset($end[1]) && $end[1] === $this->objects ? $end[0] : false;
     }
 
-    /**
-     * @param object $value
-     *
-     * @return false|string
-     */
-    private function containsObject($value)
+    private function containsObject(object $value): string|false
     {
         if ($this->objects->contains($value)) {
             return spl_object_hash($value);

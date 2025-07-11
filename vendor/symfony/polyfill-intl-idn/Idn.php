@@ -145,7 +145,11 @@ final class Idn
      */
     public static function idn_to_ascii($domainName, $options = self::IDNA_DEFAULT, $variant = self::INTL_IDNA_VARIANT_UTS46, &$idna_info = [])
     {
-        if (\PHP_VERSION_ID >= 70200 && self::INTL_IDNA_VARIANT_2003 === $variant) {
+        if (\PHP_VERSION_ID > 80400 && '' === $domainName) {
+            throw new \ValueError('idn_to_ascii(): Argument #1 ($domain) cannot be empty');
+        }
+
+        if (self::INTL_IDNA_VARIANT_2003 === $variant) {
             @trigger_error('idn_to_ascii(): INTL_IDNA_VARIANT_2003 is deprecated', \E_USER_DEPRECATED);
         }
 
@@ -198,7 +202,11 @@ final class Idn
      */
     public static function idn_to_utf8($domainName, $options = self::IDNA_DEFAULT, $variant = self::INTL_IDNA_VARIANT_UTS46, &$idna_info = [])
     {
-        if (\PHP_VERSION_ID >= 70200 && self::INTL_IDNA_VARIANT_2003 === $variant) {
+        if (\PHP_VERSION_ID > 80400 && '' === $domainName) {
+            throw new \ValueError('idn_to_utf8(): Argument #1 ($domain) cannot be empty');
+        }
+
+        if (self::INTL_IDNA_VARIANT_2003 === $variant) {
             @trigger_error('idn_to_utf8(): INTL_IDNA_VARIANT_2003 is deprecated', \E_USER_DEPRECATED);
         }
 
@@ -280,10 +288,6 @@ final class Idn
 
             switch ($data['status']) {
                 case 'disallowed':
-                    $info->errors |= self::ERROR_DISALLOWED;
-
-                    // no break.
-
                 case 'valid':
                     $str .= mb_chr($codePoint, 'utf-8');
 
@@ -294,7 +298,7 @@ final class Idn
                     break;
 
                 case 'mapped':
-                    $str .= $data['mapping'];
+                    $str .= $transitional && 0x1E9E === $codePoint ? 'ss' : $data['mapping'];
 
                     break;
 
@@ -346,6 +350,18 @@ final class Idn
             $validationOptions = $options;
 
             if ('xn--' === substr($label, 0, 4)) {
+                // Step 4.1. If the label contains any non-ASCII code point (i.e., a code point greater than U+007F),
+                // record that there was an error, and continue with the next label.
+                if (preg_match('/[^\x00-\x7F]/', $label)) {
+                    $info->errors |= self::ERROR_PUNYCODE;
+
+                    continue;
+                }
+
+                // Step 4.2. Attempt to convert the rest of the label to Unicode according to Punycode [RFC3492]. If
+                // that conversion fails, record that there was an error, and continue
+                // with the next label. Otherwise replace the original label in the string by the results of the
+                // conversion.
                 try {
                     $label = self::punycodeDecode(substr($label, 4));
                 } catch (\Exception $e) {
@@ -516,6 +532,8 @@ final class Idn
             if ('-' === substr($label, -1, 1)) {
                 $info->errors |= self::ERROR_TRAILING_HYPHEN;
             }
+        } elseif ('xn--' === substr($label, 0, 4)) {
+            $info->errors |= self::ERROR_PUNYCODE;
         }
 
         // Step 4. The label must not contain a U+002E (.) FULL STOP.

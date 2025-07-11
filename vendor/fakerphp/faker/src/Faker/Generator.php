@@ -565,7 +565,7 @@ class Generator
      */
     private $uniqueGenerator;
 
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         $this->container = $container ?: Container\ContainerBuilder::withDefaultExtensions()->build();
     }

@@ -33,7 +33,7 @@ final class OperatorBracketUnitTest extends AbstractSniffUnitTest
     public function getErrorList($testFile='')
     {
         switch ($testFile) {
-        case 'OperatorBracketUnitTest.inc':
+        case 'OperatorBracketUnitTest.1.inc':
             return [
                 3   => 1,
                 6   => 1,

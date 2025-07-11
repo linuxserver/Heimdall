@@ -42,9 +42,6 @@ final class Wsse implements Authentication
         $this->hashAlgorithm = $hashAlgorithm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         $nonce = substr(md5(uniqid(uniqid().'_', true)), 0, 16);

@@ -17,7 +17,7 @@ class XmlErrorParser extends AbstractErrorParser
 
     protected $parser;
 
-    public function __construct(Service $api = null, XmlParser $parser = null)
+    public function __construct(?Service $api = null, ?XmlParser $parser = null)
     {
         parent::__construct($api);
         $this->parser = $parser ?: new XmlParser();
@@ -25,7 +25,7 @@ class XmlErrorParser extends AbstractErrorParser
 
     public function __invoke(
         ResponseInterface $response,
-        CommandInterface $command = null
+        ?CommandInterface $command = null
     ) {
         $code = (string) $response->getStatusCode();
 

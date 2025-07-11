@@ -83,3 +83,19 @@ return $newLine;
 
 // The following line must have a single space at the end (after return)
 return $spaceAndNewLine;
+
+// Related to issue #529. These should not be auto-fixed as we don't know what to do with the comment.
+yield    /*comment*/    from $test();
+yield
+    # comment
+    from $test();
+yield
+    // phpcs:ignore Stnd.Category.SniffName
+    from $test();
+
+// Closure use should be ignored. These are subject to their own rules.
+$cl = function() use ($b) {};
+$cl = function() use($b) {};
+
+goto MyName;
+goto MyName;

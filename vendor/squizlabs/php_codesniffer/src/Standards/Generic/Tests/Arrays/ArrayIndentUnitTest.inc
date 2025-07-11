@@ -149,3 +149,6 @@ $var = [
   ];
 
 // phpcs:set Generic.Arrays.ArrayIndent indent 4
+
+$array = [1,
+];

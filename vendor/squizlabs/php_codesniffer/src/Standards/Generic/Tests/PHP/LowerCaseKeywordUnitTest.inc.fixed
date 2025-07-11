@@ -44,5 +44,33 @@ enum ENUM: string
     case HEARTS;
 }
 
+new class {};
+new class extends stdClass {};
+new class {};
+
+if (isset($a) && !empty($a)) { unset($a); }
+if (isset($a) && !empty($a)) { unset($a); }
+eval('foo');
+eval('foo');
+
+$c = function() {
+    yield /*comment*/ from fun();
+    yield
+    /*comment*/
+    from fun();
+}
+
+class AsymmetricVisibility {
+    public(set) int $correctPublicSet;
+    protected(set) int $correctProtectedSet;
+    private(set) int $correctPrivateSet;
+
+    public(set) int $wrongCasePublic;
+    protected(set) array $wrongCaseProtected;
+    protected(set) int $wrongCaseProtectedSet;
+    private(set) int $wrongCasePrivate;
+    private(set) readonly ?string $wrongCasePrivateSet;
+}
+
 __HALT_COMPILER(); // An exception due to phar support.
 function

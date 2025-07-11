@@ -1,0 +1,280 @@
+<documentation title="Block Comment">
+    <standard>
+    <![CDATA[
+    A block comment is a multi-line comment delimited by an opener "/*" and a closer "*/" which are each on their own line with the comment text in between.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Uses a valid opener and closer.">
+        <![CDATA[
+<em>/*</em>
+    A block comment.
+<em>*/</em>
+        ]]>
+        </code>
+        <code title="Invalid: Uses /** **/.">
+        <![CDATA[
+<em>/**</em>
+    A block comment.
+<em>**/</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Uses a valid opener and closer.">
+        <![CDATA[
+<em>/*</em>
+ * A block comment
+ * with multiple lines.
+ <em>*/</em>
+        ]]>
+        </code>
+        <code title="Invalid: Uses multiple // or #.">
+        <![CDATA[
+<em>//</em> A block comment
+<em>//</em> with multiple lines.
+
+<em>#</em> A block comment
+<em>#</em> with multiple lines.
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Single line block comments are not allowed.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Multi-line block comment.">
+        <![CDATA[
+<em>/*
+    A block comment.
+*/</em>
+        ]]>
+        </code>
+        <code title="Invalid: Single line block comment.">
+        <![CDATA[
+<em>/* A block comment. */</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    A block comment should not be empty.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: A block comment with contents.">
+        <![CDATA[
+/*
+<em>    A block comment.</em>
+*/
+        ]]>
+        </code>
+        <code title="Invalid: An empty block comment.">
+        <![CDATA[
+/*
+<em></em>
+*/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Block comment text should start on a new line immediately after the opener.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Text starts on a new line.">
+        <![CDATA[
+/*
+<em>    A block comment.</em>
+*/
+        ]]>
+        </code>
+        <code title="Invalid: Text starts on the same line.">
+        <![CDATA[
+/* <em>A block comment.</em>
+*/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    If there are no asterisks at the start of each line, the contents of the docblock should be indented by at least 4 spaces.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Indented by at least 4 spaces.">
+        <![CDATA[
+/*
+<em>    </em>A block comment
+<em>      </em>with multiple lines.
+<em>    </em>And a second paragraph.
+*/
+        ]]>
+        </code>
+        <code title="Invalid: Indented by less than 4 spaces.">
+        <![CDATA[
+/*
+<em> </em>A block comment
+<em>  </em>with
+<em>   </em>multiple lines.
+*/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    If asterisks are used, they should be aligned.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Asterisks are aligned.">
+        <![CDATA[
+/<em>*</em>
+ <em>*</em> A block comment
+ <em>*</em> with
+ <em>*</em> multiple lines.
+ <em>*</em>/
+        ]]>
+        </code>
+        <code title="Invalid: Asterisks are not aligned.">
+        <![CDATA[
+/*
+ * A block comment
+  <em>*</em> with
+ * multiple lines.
+<em>*</em>/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    A block comment should start with a capital letter.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Starts with a capital letter.">
+        <![CDATA[
+/*
+    <em>A</em> block comment.
+*/
+        ]]>
+        </code>
+        <code title="Invalid: Does not start with a capital letter.">
+        <![CDATA[
+/*
+    <em>a</em> block comment.
+*/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The block comment closer should be on a new line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Closer is on a new line.">
+        <![CDATA[
+/*
+    A block comment.
+<em>*/</em>
+        ]]>
+        </code>
+        <code title="Invalid: Closer is not on a new line.">
+        <![CDATA[
+/*
+    A block comment.<em> */</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    If asterisks are used, the closer's asterisk should be aligned with these. Otherwise, the closer's asterisk should be aligned with the opener's slash.
+    </standard>
+    <code_comparison>
+        <code title="Valid: The closer's asterisk is aligned with other asterisks.">
+        <![CDATA[
+/<em>*</em>
+ <em>*</em> A block comment
+ <em>*</em>/
+        ]]>
+        </code>
+        <code title="Invalid: The closer's asterisk is not aligned with other asterisks.">
+        <![CDATA[
+/*
+ * A block comment.
+<em>*</em>/
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: The closer's asterisk is aligned with the opener's slash.">
+        <![CDATA[
+<em>/</em>*
+    A block comment.
+<em>*</em>/
+        ]]>
+        </code>
+        <code title="Invalid: The closer's asterisk is not aligned with the opener's slash.">
+        <![CDATA[
+/*
+    A block comment.
+<em> *</em>/
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be an empty line after the block comment.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: An empty line after the comment.">
+        <![CDATA[
+/*
+    A block comment.
+*/
+<em></em>
+echo 'Content';
+        ]]>
+        </code>
+        <code title="Invalid: No empty line after the comment.">
+        <![CDATA[
+/*
+    A block comment.
+*/
+<em>echo 'Content';</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    A block comment immediately after a PHP open tag should not have a preceeding blank line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No blank line after an open tag.">
+        <![CDATA[
+<?php
+<em></em>/*
+ * A block comment
+ * with
+ * multiple lines.
+ */
+        ]]>
+        </code>
+        <code title="Invalid: A blank line after an open tag.">
+        <![CDATA[
+<?php
+<em></em>
+/*
+ * A block comment
+ * with
+ * multiple lines.
+ */
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

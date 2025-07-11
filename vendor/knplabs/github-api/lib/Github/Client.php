@@ -123,7 +123,7 @@ class Client
      * @param string|null  $apiVersion
      * @param string|null  $enterpriseUrl
      */
-    public function __construct(Builder $httpClientBuilder = null, $apiVersion = null, $enterpriseUrl = null)
+    public function __construct(?Builder $httpClientBuilder = null, $apiVersion = null, $enterpriseUrl = null)
     {
         $this->responseHistory = new History();
         $this->httpClientBuilder = $builder = $httpClientBuilder ?? new Builder();
@@ -299,6 +299,11 @@ class Client
             case 'outsideCollaborators':
             case 'outside_collaborators':
                 $api = new Api\Organization\OutsideCollaborators($this);
+                break;
+
+            case 'copilotUsage':
+            case 'copilot_usage':
+                $api = new Api\Copilot\Usage($this);
                 break;
 
             default:

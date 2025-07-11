@@ -1,0 +1,26 @@
+
+-----------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: CODE COMPARISON, CHAR ENCODING |
+-----------------------------------------------------------------
+
+This is a standard block.
+
+----------------------------------------- CODE COMPARISON ------------------------------------------
+| Valid: Vestibulum et orci condimentum.         | Invalid: Donec in nisl ut tortor convallis      |
+|                                                | interdum.                                       |
+----------------------------------------------------------------------------------------------------
+| <?php                                          | <?php                                           |
+|                                                |                                                 |
+| // The above PHP tag is specifically testing   | // The above PHP tag is specifically testing    |
+| // handling of that in generated HTML doc.     | // handling of that in generated HTML doc.      |
+|                                                |                                                 |
+| // Now let's also check the handling of        | // Now let's also check the handling of         |
+| // comparison operators in code samples...     | // comparison operators in code samples         |
+| $a = $b < $c;                                  | // in combination with "em" tags.               |
+| $d = $e > $f;                                  | $a = $b < $c;                                   |
+| $g = $h <= $i;                                 | $d = $e > $f;                                   |
+| $j = $k >= $l;                                 | $g = $h <= $i;                                  |
+| $m = $n <=> $o;                                | $j = $k >= $l;                                  |
+|                                                | $m = $n <=> $o;                                 |
+----------------------------------------------------------------------------------------------------
+

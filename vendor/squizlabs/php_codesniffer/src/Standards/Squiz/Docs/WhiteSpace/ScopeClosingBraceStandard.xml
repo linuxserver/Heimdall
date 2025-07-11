@@ -1,0 +1,59 @@
+<documentation title="Scope Closing Brace">
+    <standard>
+    <![CDATA[
+    Indentation of a closing brace must match the indentation of the line containing the opening brace.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Closing brace aligned with line containing opening brace.">
+        <![CDATA[
+function foo()
+{
+<em>}</em>
+
+if (!class_exists('Foo')) {
+    class Foo {
+    <em>}</em>
+<em>}</em>
+
+<?php if ($something) { ?>
+    <span>some output</span>
+<em><?php }</em> ?>
+        ]]>
+        </code>
+        <code title="Invalid: Closing brace misaligned with line containing opening brace.">
+        <![CDATA[
+function foo()
+{
+<em> }</em>
+
+if (!class_exists('Foo')) {
+    class Foo {
+<em>}</em>
+<em>    }</em>
+
+<?php if ($something) { ?>
+    <span>some output</span>
+<em> <?php }</em> ?>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Closing brace must be on a line by itself.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Close brace on its own line.">
+        <![CDATA[
+enum Foo {
+<em>}</em>
+        ]]>
+        </code>
+        <code title="Invalid: Close brace on a line containing other code.">
+        <![CDATA[
+enum Foo {<em>}</em>
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

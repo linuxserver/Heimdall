@@ -16,8 +16,7 @@ use Symfony\Component\Mime\MimeTypes;
 
 class Filesystem
 {
-    use Conditionable;
-    use Macroable;
+    use Conditionable, Macroable;
 
     /**
      * Determine if a file or directory exists.
@@ -169,7 +168,7 @@ class Filesystem
             );
         }
 
-        return LazyCollection::make(function () use ($path) {
+        return new LazyCollection(function () use ($path) {
             $file = new SplFileObject($path);
 
             $file->setFlags(SplFileObject::DROP_NEW_LINE);
@@ -185,7 +184,7 @@ class Filesystem
      *
      * @param  string  $path
      * @param  string  $algorithm
-     * @return string
+     * @return string|false
      */
     public function hash($path, $algorithm = 'md5')
     {
@@ -348,12 +347,16 @@ class Filesystem
      *
      * @param  string  $target
      * @param  string  $link
-     * @return void
+     * @return bool|null
      */
     public function link($target, $link)
     {
         if (! windows_os()) {
-            return symlink($target, $link);
+            if (function_exists('symlink')) {
+                return symlink($target, $link);
+            } else {
+                return exec('ln -s '.escapeshellarg($target).' '.escapeshellarg($link)) !== false;
+            }
         }
 
         $mode = $this->isDirectory($target) ? 'J' : 'H';
@@ -544,9 +547,9 @@ class Filesystem
      */
     public function hasSameHash($firstFile, $secondFile)
     {
-        $hash = @md5_file($firstFile);
+        $hash = @hash_file('xxh128', $firstFile);
 
-        return $hash && hash_equals($hash, (string) @md5_file($secondFile));
+        return $hash && hash_equals($hash, (string) @hash_file('xxh128', $secondFile));
     }
 
     /**

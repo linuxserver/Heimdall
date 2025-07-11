@@ -1,0 +1,25 @@
+<documentation title="Code Comparison, line length">
+    <standard>
+    <![CDATA[
+    Ensure there is no PHP "Warning: str_repeat(): Second argument has to be greater than or equal to 0".
+    Ref: squizlabs/PHP_CodeSniffer#2522
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: contains line which is too long.">
+        <![CDATA[
+class Foo extends Bar implements <em>Countable</em>, Serializable
+{
+}
+        ]]>
+        </code>
+        <code title="Invalid: contains line which is too long.">
+        <![CDATA[
+class Foo extends Bar
+{
+    public static function <em>foobar</em>($param1, $param2) {}
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

@@ -30,7 +30,7 @@ class SelectPromptRenderer extends Renderer implements Scrolling
                     $this->renderOptions($prompt),
                     color: 'red',
                 )
-                ->error('Cancelled.'),
+                ->error($prompt->cancelMessage),
 
             'error' => $this
                 ->box(
@@ -58,30 +58,29 @@ class SelectPromptRenderer extends Renderer implements Scrolling
      */
     protected function renderOptions(SelectPrompt $prompt): string
     {
-        return $this->scrollbar(
-            collect($prompt->visible())
-                ->map(fn ($label) => $this->truncate($label, $prompt->terminal()->cols() - 12))
-                ->map(function ($label, $key) use ($prompt) {
-                    $index = array_search($key, array_keys($prompt->options));
+        return implode(PHP_EOL, $this->scrollbar(
+            array_values(array_map(function ($label, $key) use ($prompt) {
+                $label = $this->truncate($label, $prompt->terminal()->cols() - 12);
 
-                    if ($prompt->state === 'cancel') {
-                        return $this->dim($prompt->highlighted === $index
-                            ? "› ● {$this->strikethrough($label)}  "
-                            : "  ○ {$this->strikethrough($label)}  "
-                        );
-                    }
+                $index = array_search($key, array_keys($prompt->options));
 
-                    return $prompt->highlighted === $index
-                        ? "{$this->cyan('›')} {$this->cyan('●')} {$label}  "
-                        : "  {$this->dim('○')} {$this->dim($label)}  ";
-                })
-                ->values(),
+                if ($prompt->state === 'cancel') {
+                    return $this->dim($prompt->highlighted === $index
+                        ? "› ● {$this->strikethrough($label)}  "
+                        : "  ○ {$this->strikethrough($label)}  "
+                    );
+                }
+
+                return $prompt->highlighted === $index
+                    ? "{$this->cyan('›')} {$this->cyan('●')} {$label}  "
+                    : "  {$this->dim('○')} {$this->dim($label)}  ";
+            }, $visible = $prompt->visible(), array_keys($visible))),
             $prompt->firstVisible,
             $prompt->scroll,
             count($prompt->options),
             min($this->longest($prompt->options, padding: 6), $prompt->terminal()->cols() - 6),
             $prompt->state === 'cancel' ? 'dim' : 'cyan'
-        )->implode(PHP_EOL);
+        ));
     }
 
     /**

@@ -9,6 +9,9 @@
 
 namespace PHP_CodeSniffer\Util;
 
+use InvalidArgumentException;
+use Phar;
+
 class Common
 {
 
@@ -112,7 +115,7 @@ class Common
             return $path;
         }
 
-        $phar  = \Phar::running(false);
+        $phar  = Phar::running(false);
         $extra = str_replace('phar://'.$phar, '', $path);
         $path  = realpath($phar);
         if ($path === false) {
@@ -311,6 +314,20 @@ class Common
 
 
     /**
+     * Strip colors from a text for output to screen.
+     *
+     * @param string $text The text to process.
+     *
+     * @return string
+     */
+    public static function stripColors($text)
+    {
+        return preg_replace('`\033\[[0-9;]+m`', '', $text);
+
+    }//end stripColors()
+
+
+    /**
      * Returns true if the specified string is in the camel caps format.
      *
      * @param string  $string      The string the verify.
@@ -404,7 +421,7 @@ class Common
      */
     public static function isUnderscoreName($string)
     {
-        // If there are space in the name, it can't be valid.
+        // If there is whitespace in the name, it can't be valid.
         if (strpos($string, ' ') !== false) {
             return false;
         }
@@ -513,25 +530,43 @@ class Common
      * @param string $sniffClass The fully qualified sniff class name.
      *
      * @return string
+     *
+     * @throws \InvalidArgumentException When $sniffClass is not a non-empty string.
+     * @throws \InvalidArgumentException When $sniffClass is not a FQN for a sniff(test) class.
      */
     public static function getSniffCode($sniffClass)
     {
-        $parts = explode('\\', $sniffClass);
-        $sniff = array_pop($parts);
+        if (is_string($sniffClass) === false || $sniffClass === '') {
+            throw new InvalidArgumentException('The $sniffClass parameter must be a non-empty string');
+        }
+
+        $parts      = explode('\\', $sniffClass);
+        $partsCount = count($parts);
+        $sniff      = $parts[($partsCount - 1)];
 
         if (substr($sniff, -5) === 'Sniff') {
             // Sniff class name.
             $sniff = substr($sniff, 0, -5);
-        } else {
+        } else if (substr($sniff, -8) === 'UnitTest') {
             // Unit test class name.
             $sniff = substr($sniff, 0, -8);
+        } else {
+            throw new InvalidArgumentException(
+                'The $sniffClass parameter was not passed a fully qualified sniff(test) class name. Received: '.$sniffClass
+            );
         }
 
-        $category = array_pop($parts);
-        $sniffDir = array_pop($parts);
-        $standard = array_pop($parts);
-        $code     = $standard.'.'.$category.'.'.$sniff;
-        return $code;
+        $standard = '';
+        if (isset($parts[($partsCount - 4)]) === true) {
+            $standard = $parts[($partsCount - 4)];
+        }
+
+        $category = '';
+        if (isset($parts[($partsCount - 2)]) === true) {
+            $category = $parts[($partsCount - 2)];
+        }
+
+        return $standard.'.'.$category.'.'.$sniff;
 
     }//end getSniffCode()
 

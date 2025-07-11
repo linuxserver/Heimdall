@@ -40,20 +40,9 @@ use SebastianBergmann\Environment\Runtime;
 
 final class Facade
 {
-    /**
-     * @var string
-     */
-    private $target;
-
-    /**
-     * @var Project
-     */
-    private $project;
-
-    /**
-     * @var string
-     */
-    private $phpUnitVersion;
+    private string $target;
+    private Project $project;
+    private readonly string $phpUnitVersion;
 
     public function __construct(string $version)
     {
@@ -75,7 +64,7 @@ final class Facade
         $report = $coverage->getReport();
 
         $this->project = new Project(
-            $coverage->getReport()->name()
+            $coverage->getReport()->name(),
         );
 
         $this->setBuildInformation();
@@ -143,14 +132,14 @@ final class Facade
     {
         $fileObject = $context->addFile(
             $file->name(),
-            $file->id() . '.xml'
+            $file->id() . '.xml',
         );
 
         $this->setTotals($file, $fileObject->totals());
 
         $path = substr(
             $file->pathAsString(),
-            strlen($this->project->projectSourceDirectory())
+            strlen($this->project->projectSourceDirectory()),
         );
 
         $fileReport = new Report($path);
@@ -180,7 +169,7 @@ final class Facade
         }
 
         $fileReport->source()->setSourceCode(
-            file_get_contents($file->pathAsString())
+            file_get_contents($file->pathAsString()),
         );
 
         $this->saveDocument($fileReport->asDom(), $file->id());
@@ -197,7 +186,7 @@ final class Facade
         $unitObject->setLines(
             $unit['startLine'],
             $unit['executableLines'],
-            $unit['executedLines']
+            $unit['executedLines'],
         );
 
         $unitObject->setCrap((float) $unit['crap']);
@@ -211,7 +200,7 @@ final class Facade
             $methodObject->setTotals(
                 (string) $method['executableLines'],
                 (string) $method['executedLines'],
-                (string) $method['coverage']
+                (string) $method['coverage'],
             );
         }
     }
@@ -244,27 +233,27 @@ final class Facade
             $loc['commentLinesOfCode'],
             $loc['nonCommentLinesOfCode'],
             $node->numberOfExecutableLines(),
-            $node->numberOfExecutedLines()
+            $node->numberOfExecutedLines(),
         );
 
         $totals->setNumClasses(
             $node->numberOfClasses(),
-            $node->numberOfTestedClasses()
+            $node->numberOfTestedClasses(),
         );
 
         $totals->setNumTraits(
             $node->numberOfTraits(),
-            $node->numberOfTestedTraits()
+            $node->numberOfTestedTraits(),
         );
 
         $totals->setNumMethods(
             $node->numberOfMethods(),
-            $node->numberOfTestedMethods()
+            $node->numberOfTestedMethods(),
         );
 
         $totals->setNumFunctions(
             $node->numberOfFunctions(),
-            $node->numberOfTestedFunctions()
+            $node->numberOfTestedFunctions(),
         );
     }
 

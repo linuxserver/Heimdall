@@ -9,8 +9,8 @@
 
 namespace PHP_CodeSniffer\Tests\Core;
 
-use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Files\DummyFile;
+use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Tests\ConfigDouble;
 use PHPUnit\Framework\TestCase;
 
@@ -605,7 +605,6 @@ EOD;
             $ruleset = new Ruleset($config);
         }
 
-        $content = '<?php '.PHP_EOL.$before.'$var = FALSE;'.$after.PHP_EOL.'$var = FALSE;';
         $content = <<<EOD
 <?php
 class MyClass() {
@@ -730,9 +729,9 @@ EOD;
     {
         return [
             'no suppression'                                          => [
-                'before'         => '',
-                'after'          => '',
-                'expectedErrors' => 1,
+                'before'           => '',
+                'after'            => '',
+                'expectedWarnings' => 1,
             ],
 
             // Process with suppression.

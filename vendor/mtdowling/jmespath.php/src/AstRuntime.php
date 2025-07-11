@@ -12,8 +12,8 @@ class AstRuntime
     private $cachedCount = 0;
 
     public function __construct(
-        Parser $parser = null,
-        callable $fnDispatcher = null
+        ?Parser $parser = null,
+        ?callable $fnDispatcher = null
     ) {
         $fnDispatcher = $fnDispatcher ?: FnDispatcher::getInstance();
         $this->interpreter = new TreeInterpreter($fnDispatcher);

@@ -16,7 +16,7 @@ final class Style
     /**
      * Creates a new value object instance.
      *
-     * @param Closure(Styles $styles, string|int ...$argument): Styles  $callback
+     * @param  Closure(Styles $styles, string|int ...$argument): Styles  $callback
      */
     public function __construct(private Closure $callback, private string $color = '')
     {

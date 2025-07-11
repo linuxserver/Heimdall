@@ -1,0 +1,10 @@
+
+----------------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: STANDARD ELEMENT, INDENTATION SHOULD BE IGNORED |
+----------------------------------------------------------------------------------
+
+This line has no indentation.
+This line has 4 spaces indentation.
+This line has 8 spaces indentation.
+This line has 4 spaces indentation.
+

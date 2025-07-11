@@ -1,7 +1,7 @@
 <documentation title="Scope Keyword Spacing">
     <standard>
     <![CDATA[
-    The php keywords static, public, private, and protected should have one space after them.
+    The PHP keywords static, public, private, and protected should have one space after them.
     ]]>
     </standard>
     <code_comparison>
@@ -10,14 +10,14 @@
 public<em> </em>static<em> </em>function foo()
 {
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Multiple spaces following the keywords.">
         <![CDATA[
 public<em>  </em>static<em>  </em>function foo()
 {
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

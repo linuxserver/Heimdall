@@ -48,6 +48,10 @@ final class ReferenceMap implements ReferenceMapInterface
 
     public function contains(string $label): bool
     {
+        if ($this->references === []) {
+            return false;
+        }
+
         $label = $this->normalizer->normalize($label);
 
         return isset($this->references[$label]);
@@ -55,6 +59,10 @@ final class ReferenceMap implements ReferenceMapInterface
 
     public function get(string $label): ?ReferenceInterface
     {
+        if ($this->references === []) {
+            return null;
+        }
+
         $label = $this->normalizer->normalize($label);
 
         return $this->references[$label] ?? null;

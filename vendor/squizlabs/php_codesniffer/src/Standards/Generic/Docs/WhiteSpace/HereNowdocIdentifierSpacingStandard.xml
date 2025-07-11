@@ -1,0 +1,23 @@
+<documentation title="Heredoc Nowdoc Identifier Spacing">
+    <standard>
+    <![CDATA[
+    There should be no space between the <<< and the heredoc/nowdoc identifier string.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No space between the &lt;&lt;&lt; and the identifier string.">
+        <![CDATA[
+$heredoc = <em><<<EOD</em>
+some text
+EOD;
+        ]]>
+        </code>
+        <code title="Invalid: Whitespace between the &lt;&lt;&lt; and the identifier string.">
+        <![CDATA[
+$heredoc = <em><<<   END</em>
+some text
+END;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

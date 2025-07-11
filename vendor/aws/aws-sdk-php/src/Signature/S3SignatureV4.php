@@ -58,7 +58,7 @@ class S3SignatureV4 extends SignatureV4
         CredentialsInterface $credentials,
         RequestInterface $request,
         $signingService,
-        SigningConfigAWS $signingConfig = null
+        ?SigningConfigAWS $signingConfig = null
     ){
         $this->verifyCRTLoaded();
         $credentials_provider = $this->createCRTStaticCredentialsProvider($credentials);
@@ -67,7 +67,7 @@ class S3SignatureV4 extends SignatureV4
             'signature_type' => SignatureType::HTTP_REQUEST_HEADERS,
             'credentials_provider' => $credentials_provider,
             'signed_body_value' => $this->getPayload($request),
-            'region' => "*",
+            'region' => $this->region,
             'should_normalize_uri_path' => false,
             'use_double_uri_encode' => false,
             'service' => $signingService,
@@ -94,6 +94,7 @@ class S3SignatureV4 extends SignatureV4
                 $this->getPresignedPayload($request)
             );
         }
+
         if (strpos($request->getUri()->getHost(), "accesspoint.s3-global")) {
             $request = $request->withHeader("x-amz-region-set", "*");
         }

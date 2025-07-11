@@ -12,6 +12,8 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
+use PhpParser\Node\DeclareItem;
+use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Declare_;
 use PhpParser\Node\Stmt\DeclareDeclare;
@@ -31,7 +33,7 @@ class StrictTypesPass extends CodeCleanerPass
 {
     const EXCEPTION_MESSAGE = 'strict_types declaration must have 0 or 1 as its value';
 
-    private $strictTypes = false;
+    private bool $strictTypes;
 
     /**
      * @param bool $strictTypes enforce strict types by default
@@ -62,7 +64,8 @@ class StrictTypesPass extends CodeCleanerPass
                 foreach ($node->declares as $declare) {
                     if ($declare->key->toString() === 'strict_types') {
                         $value = $declare->value;
-                        if (!$value instanceof LNumber || ($value->value !== 0 && $value->value !== 1)) {
+                        // @todo Remove LNumber once we drop support for PHP-Parser 4.x
+                        if ((!$value instanceof LNumber && !$value instanceof Int_) || ($value->value !== 0 && $value->value !== 1)) {
                             throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                         }
 
@@ -75,7 +78,13 @@ class StrictTypesPass extends CodeCleanerPass
         if ($prependStrictTypes) {
             $first = \reset($nodes);
             if (!$first instanceof Declare_) {
-                $declare = new Declare_([new DeclareDeclare('strict_types', new LNumber(1))]);
+                // @todo Switch to PhpParser\Node\DeclareItem once we drop support for PHP-Parser 4.x
+                // @todo Remove LNumber once we drop support for PHP-Parser 4.x
+                $arg = \class_exists('PhpParser\Node\Scalar\Int_') ? new Int_(1) : new LNumber(1);
+                $declareItem = \class_exists('PhpParser\Node\DeclareItem') ?
+                    new DeclareItem('strict_types', $arg) :
+                    new DeclareDeclare('strict_types', $arg);
+                $declare = new Declare_([$declareItem]);
                 \array_unshift($nodes, $declare);
             }
         }

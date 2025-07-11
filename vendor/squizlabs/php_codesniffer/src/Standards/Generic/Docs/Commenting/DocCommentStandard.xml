@@ -1,0 +1,269 @@
+<documentation title="Doc Comment">
+    <standard>
+    <![CDATA[
+    Enforces rules related to the formatting of DocBlocks ("Doc Comments") in PHP code.
+
+    DocBlocks are a special type of comment that can provide information about a structural element. In the context of DocBlocks, the following are considered structural elements:
+    class, interface, trait, enum, function, property, constant, variable declarations and require/include[_once] statements.
+
+    DocBlocks start with a `/**` marker and end on `*/`. This sniff will check the formatting of all DocBlocks, independently of whether or not they are attached to a structural element.
+    ]]>
+    </standard>
+    <standard>
+    <![CDATA[
+    A DocBlock must not be empty.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: DocBlock with some content.">
+        <![CDATA[
+/**
+ * <em>Some content.</em>
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Empty DocBlock.">
+        <![CDATA[
+/**
+ * <em></em>
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The opening and closing DocBlock tags must be the only content on the line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: The opening and closing DocBlock tags have to be on a line by themselves.">
+        <![CDATA[
+<em>/**</em>
+ * Short description.
+ <em>*/</em>
+        ]]>
+        </code>
+        <code title="Invalid: The opening and closing DocBlock tags are not on a line by themselves.">
+        <![CDATA[
+<em>/** Short description. */</em>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    The DocBlock must have a short description, and it must be on the first line.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: DocBlock with a short description on the first line.">
+        <![CDATA[
+/**
+ * <em>Short description.</em>
+ */
+        ]]>
+        </code>
+        <code title="Invalid: DocBlock without a short description or short description not on the first line.">
+        <![CDATA[
+/**
+ * <em></em>@return int
+ */
+
+/**
+<em> *</em>
+ * Short description.
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Both the short description, as well as the long description, must start with a capital letter.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Both the short and long description start with a capital letter.">
+        <![CDATA[
+/**
+ * <em>S</em>hort description.
+ *
+ * <em>L</em>ong description.
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Neither short nor long description starts with a capital letter.">
+        <![CDATA[
+/**
+ * <em>s</em>hort description.
+ *
+ * <em>l</em>ong description.
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There must be exactly one blank line separating the short description, the long description and tag groups.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: One blank line separating the short description, the long description and tag groups.">
+        <![CDATA[
+/**
+ * Short description.
+<em> *<em>
+ * Long description.
+<em> *</em>
+ * @param int $foo
+ */
+        ]]>
+        </code>
+        <code title="Invalid: More than one or no blank line separating the short description, the long description and tag groups.">
+        <![CDATA[
+/**
+ * Short description.
+<em> *
+ *
+</em>
+ * Long description.<em>
+</em> * @param int $foo
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Parameter tags must be grouped together.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Parameter tags grouped together.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+<em> * @param int $foo
+ * @param string $bar</em>
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Parameter tags not grouped together.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+ * @param int $foo
+<em> *</em>
+ * @param string $bar
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Parameter tags must not be grouped together with other tags.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Parameter tags are not grouped together with other tags.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+<em> * @param int $foo</em>
+ *
+ * @since      3.4.8
+ * @deprecated 6.0.0
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Parameter tags grouped together with other tags.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+<em> * @param      int $foo
+ * @since      3.4.8
+ * @deprecated 6.0.0</em>
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Tag values for different tags in the same group must be aligned with each other.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Tag values for different tags in the same tag group are aligned with each other.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+ * @since<em>      0.5.0</em>
+ * @deprecated<em> 1.0.0</em>
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Tag values for different tags in the same tag group are not aligned with each other.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+ * @since<em> 0.5.0</em>
+ * @deprecated<em> 1.0.0</em>
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    Parameter tags must be defined before other tags in a DocBlock.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Parameter tags are defined first.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+ * <em>@param string $foo</em>
+ *
+ * @return void
+ */
+        ]]>
+        </code>
+        <code title="Invalid: Parameter tags are not defined first.">
+        <![CDATA[
+/**
+ * Short description.
+ *
+ * @return void
+ *
+ * <em>@param string $bar</em>
+ */
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There must be no additional blank (comment) lines before the closing DocBlock tag.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No additional blank lines before the closing DocBlock tag.">
+        <![CDATA[
+/**
+ * Short description.<em>
+</em> */
+        ]]>
+        </code>
+        <code title="Invalid: Additional blank lines before the closing DocBlock tag.">
+        <![CDATA[
+/**
+ * Short description.
+<em> *</em>
+ */
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>
