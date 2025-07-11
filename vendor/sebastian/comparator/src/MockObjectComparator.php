@@ -9,39 +9,34 @@
  */
 namespace SebastianBergmann\Comparator;
 
-use PHPUnit\Framework\MockObject\MockObject;
+use function array_keys;
+use function assert;
+use function str_starts_with;
+use PHPUnit\Framework\MockObject\Stub;
 
 /**
  * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
  */
-class MockObjectComparator extends ObjectComparator
+final class MockObjectComparator extends ObjectComparator
 {
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
+    public function accepts(mixed $expected, mixed $actual): bool
     {
-        return $expected instanceof MockObject && $actual instanceof MockObject;
+        return $expected instanceof Stub && $actual instanceof Stub;
     }
 
-    /**
-     * Converts an object to an array containing all of its private, protected
-     * and public properties.
-     *
-     * @param object $object
-     *
-     * @return array
-     */
-    protected function toArray($object)
+    protected function toArray(object $object): array
     {
+        assert($object instanceof Stub);
+
         $array = parent::toArray($object);
 
-        unset($array['__phpunit_invocationMocker']);
+        foreach (array_keys($array) as $key) {
+            if (!str_starts_with($key, '__phpunit_')) {
+                continue;
+            }
+
+            unset($array[$key]);
+        }
 
         return $array;
     }

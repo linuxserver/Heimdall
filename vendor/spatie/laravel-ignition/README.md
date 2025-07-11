@@ -4,7 +4,7 @@
 ![Tests](https://github.com/spatie/laravel-ignition/workflows/Run%20tests/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-ignition.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-ignition)
 
-[Ignition](https://flareapp.io/docs/ignition-for-laravel/introduction) is a beautiful and customizable error page for Laravel applications. It is the default error page for new Laravel applications. It also allows to publicly share your errors on [Flare](https://flareapp.io). If configured with a valid Flare API key, your errors in production applications will be tracked, and you'll get notified when they happen.
+[Ignition](https://flareapp.io/docs/ignition-for-laravel/introduction) is a beautiful and customizable error page for Laravel applications. It also allows to publicly share your errors on [Flare](https://flareapp.io). If configured with a valid Flare API key, your errors in production applications will be tracked, and you'll get notified when they happen.
 
 `spatie/laravel-ignition` works for Laravel 8 and 9 applications running on PHP 8.0 and above. Looking for Ignition for Laravel 5.x, 6.x or 7.x or old PHP versions? `facade/ignition` is still compatible.
 

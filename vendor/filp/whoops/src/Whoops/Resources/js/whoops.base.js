@@ -43,8 +43,11 @@ Zepto(function($) {
     });
 
     var line = $activeFrame.find('.code-block .line-highlight').first()[0];
-    line.scrollIntoView();
-    line.parentElement.scrollTop -= 180;
+    // [internal] frames might not contain a code-block
+    if (line) {
+      line.scrollIntoView();
+      line.parentElement.scrollTop -= 180;
+    }
 
     $container.scrollTop(0);
   }
@@ -76,7 +79,7 @@ Zepto(function($) {
 
   });
 
-  var clipboard = new Clipboard('.clipboard');
+  var clipboard = new ClipboardJS('.clipboard');
   var showTooltip = function(elem, msg) {
     elem.classList.add('tooltipped', 'tooltipped-s');
     elem.setAttribute('aria-label', msg);
@@ -181,6 +184,30 @@ Zepto(function($) {
   $('a.frames-tab').on('click', function(e) {
     e.preventDefault();
     setActiveFramesTab($(this));
+  });
+
+    // Open editor from code block rows number
+  $(document).delegate('.line-numbers-rows > span', 'click', function(e) {
+    var linkTag = $(this).closest('.frame-code').find('.editor-link');
+    if (!linkTag) return;
+    var editorUrl = linkTag.attr('href');
+    var requiresAjax = linkTag.data('ajax');
+
+    var lineOffset = $(this).closest('[data-line-offset]').data('line-offset');
+    var lineNumber = lineOffset + $(this).index();
+
+    var realLine = $(this).closest('[data-line]').data('line');
+    if (!realLine) return;
+    var fileUrl = editorUrl.replace(
+      new RegExp('([:=])' + realLine),
+      '$1' + lineNumber
+    );
+
+    if (requiresAjax) {
+      $.get(fileUrl);
+    } else {
+      $('<a>').attr('href', fileUrl).trigger('click');
+    }
   });
 
   // Render late enough for highlightCurrentLine to be ready

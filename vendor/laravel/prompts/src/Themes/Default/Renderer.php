@@ -5,7 +5,6 @@ namespace Laravel\Prompts\Themes\Default;
 use Laravel\Prompts\Concerns\Colors;
 use Laravel\Prompts\Concerns\Truncation;
 use Laravel\Prompts\Prompt;
-use RuntimeException;
 
 abstract class Renderer
 {
@@ -22,7 +21,7 @@ abstract class Renderer
      */
     public function __construct(protected Prompt $prompt)
     {
-        $this->checkTerminalSize($prompt);
+        //
     }
 
     /**
@@ -99,20 +98,5 @@ abstract class Renderer
         return str_repeat(PHP_EOL, max(2 - $this->prompt->newLinesWritten(), 0))
             .$this->output
             .(in_array($this->prompt->state, ['submit', 'cancel']) ? PHP_EOL : '');
-    }
-
-    /**
-     * Check that the terminal is large enough to render the prompt.
-     */
-    private function checkTerminalSize(Prompt $prompt): void
-    {
-        $required = 8;
-        $actual = $prompt->terminal()->lines();
-
-        if ($actual < $required) {
-            throw new RuntimeException(
-                "The terminal height must be at least [$required] lines but is currently [$actual]. Please increase the height or reduce the font size."
-            );
-        }
     }
 }

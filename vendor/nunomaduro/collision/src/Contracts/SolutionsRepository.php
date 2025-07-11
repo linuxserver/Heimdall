@@ -17,5 +17,5 @@ interface SolutionsRepository
      *
      * @return array<int, Solution>
      */
-    public function getFromThrowable(Throwable $throwable): array;
+    public function getFromThrowable(Throwable $throwable): array; // @phpstan-ignore-line
 }

@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.3](https://github.com/brick/math/releases/tag/0.12.3) - 2025-02-28
+
+✨ **New features**
+
+- `BigDecimal::getPrecision()` Returns the number of significant digits in a decimal number
+
+## [0.12.2](https://github.com/brick/math/releases/tag/0.12.2) - 2025-02-26
+
+⚡️ **Performance improvements**
+
+- Division in `NativeCalculator` is now faster for small divisors, thanks to [@Izumi-kun](https://github.com/Izumi-kun) in [#87](https://github.com/brick/math/pull/87).
+
+👌 **Improvements**
+
+- Add missing `RoundingNecessaryException` to the `@throws` annotation of `BigNumber::of()`
+
+## [0.12.1](https://github.com/brick/math/releases/tag/0.12.1) - 2023-11-29
+
+⚡️ **Performance improvements**
+
+- `BigNumber::of()` is now faster, thanks to [@SebastienDug](https://github.com/SebastienDug) in [#77](https://github.com/brick/math/pull/77).
+
+## [0.12.0](https://github.com/brick/math/releases/tag/0.12.0) - 2023-11-26
+
+💥 **Breaking changes**
+
+- Minimum PHP version is now 8.1
+- `RoundingMode` is now an `enum`; if you're type-hinting rounding modes, you need to type-hint against `RoundingMode` instead of `int` now
+- `BigNumber` classes do not implement the `Serializable` interface anymore (they use the [new custom object serialization mechanism](https://wiki.php.net/rfc/custom_object_serialization))
+- The following breaking changes only affect you if you're creating your own `BigNumber` subclasses:
+  - the return type of `BigNumber::of()` is now `static`
+  - `BigNumber` has a new abstract method `from()`
+  - all `public` and `protected` functions of `BigNumber` are now `final`
+
 ## [0.11.0](https://github.com/brick/math/releases/tag/0.11.0) - 2023-01-16
 
 💥 **Breaking changes**

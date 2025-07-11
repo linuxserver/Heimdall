@@ -35,7 +35,7 @@ class StartSession
      * @param  callable|null  $cacheFactoryResolver
      * @return void
      */
-    public function __construct(SessionManager $manager, callable $cacheFactoryResolver = null)
+    public function __construct(SessionManager $manager, ?callable $cacheFactoryResolver = null)
     {
         $this->manager = $manager;
         $this->cacheFactoryResolver = $cacheFactoryResolver;
@@ -83,8 +83,8 @@ class StartSession
                         : $this->manager->defaultRouteBlockLockSeconds();
 
         $lock = $this->cache($this->manager->blockDriver())
-                    ->lock('session:'.$session->getId(), $lockFor)
-                    ->betweenBlockedAttemptsSleepFor(50);
+            ->lock('session:'.$session->getId(), $lockFor)
+            ->betweenBlockedAttemptsSleepFor(50);
 
         try {
             $lock->block(
@@ -224,7 +224,7 @@ class StartSession
                 $this->getCookieExpirationDate(),
                 $config['path'],
                 $config['domain'],
-                $config['secure'] ?? false,
+                $config['secure'],
                 $config['http_only'] ?? true,
                 false,
                 $config['same_site'] ?? null,
@@ -286,7 +286,7 @@ class StartSession
      * @param  array|null  $config
      * @return bool
      */
-    protected function sessionIsPersistent(array $config = null)
+    protected function sessionIsPersistent(?array $config = null)
     {
         $config = $config ?: $this->manager->getSessionConfig();
 

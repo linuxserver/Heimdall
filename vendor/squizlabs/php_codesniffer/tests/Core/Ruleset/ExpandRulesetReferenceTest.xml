@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ExpandRulesetReferenceTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!-- Including a single sniff via a ruleset relative file ref. -->
+    <rule ref="./Fixtures/ExternalA/Sniffs/CheckSomething/ValidSniff.php"/>
+
+    <!-- Including a category of sniffs via a ruleset relative directory ref. -->
+    <rule ref="./Fixtures/TestStandard/Sniffs/ValidSniffs"/>
+
+    <!-- Including a complete standard via a ruleset relative directory ref. -->
+    <rule ref="./Fixtures/ExternalB"/>
+
+</ruleset>

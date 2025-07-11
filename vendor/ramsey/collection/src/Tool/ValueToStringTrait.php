@@ -77,7 +77,8 @@ trait ValueToStringTrait
 
         // __toString() is implemented
         if (is_callable([$value, '__toString'])) {
-            return (string) $value->__toString();
+            /** @var string */
+            return $value->__toString();
         }
 
         // object of type \DateTime

@@ -1,0 +1,76 @@
+{
+    "name": "league/uri",
+    "type": "library",
+    "description" : "URI manipulation library",
+    "keywords": [
+        "url",
+        "uri",
+        "rfc3986",
+        "rfc3987",
+        "rfc6570",
+        "psr-7",
+        "parse_url",
+        "http",
+        "https",
+        "ws",
+        "ftp",
+        "data-uri",
+        "file-uri",
+        "middleware",
+        "parse_str",
+        "query-string",
+        "querystring",
+        "hostname",
+        "uri-template"
+    ],
+    "license": "MIT",
+    "homepage": "https://uri.thephpleague.com",
+    "authors": [
+        {
+            "name" : "Ignace Nyamagana Butera",
+            "email" : "nyamsprod@gmail.com",
+            "homepage" : "https://nyamsprod.com"
+        }
+    ],
+    "support": {
+        "forum": "https://thephpleague.slack.com",
+        "docs": "https://uri.thephpleague.com",
+        "issues": "https://github.com/thephpleague/uri-src/issues"
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/nyamsprod"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "league/uri-interfaces": "^7.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "League\\Uri\\": ""
+        }
+    },
+    "conflict": {
+        "league/uri-schemes": "^1.0"
+    },
+    "suggest": {
+        "ext-bcmath": "to improve IPV4 host parsing",
+        "ext-fileinfo": "to create Data URI from file contennts",
+        "ext-gmp": "to improve IPV4 host parsing",
+        "ext-intl": "to handle IDN host with the best performance",
+        "jeremykendall/php-domain-parser": "to resolve Public Suffix and Top Level Domain",
+        "league/uri-components" : "Needed to easily manipulate URI objects components",
+        "php-64bit": "to improve IPV4 host parsing",
+        "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "7.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

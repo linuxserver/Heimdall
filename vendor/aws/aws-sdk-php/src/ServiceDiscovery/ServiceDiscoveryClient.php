@@ -17,6 +17,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise deleteNamespaceAsync(array $args = [])
  * @method \Aws\Result deleteService(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteServiceAsync(array $args = [])
+ * @method \Aws\Result deleteServiceAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteServiceAttributesAsync(array $args = [])
  * @method \Aws\Result deregisterInstance(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deregisterInstanceAsync(array $args = [])
  * @method \Aws\Result discoverInstances(array $args = [])
@@ -33,6 +35,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getOperationAsync(array $args = [])
  * @method \Aws\Result getService(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getServiceAsync(array $args = [])
+ * @method \Aws\Result getServiceAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getServiceAttributesAsync(array $args = [])
  * @method \Aws\Result listInstances(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listInstancesAsync(array $args = [])
  * @method \Aws\Result listNamespaces(array $args = [])
@@ -59,5 +63,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updatePublicDnsNamespaceAsync(array $args = [])
  * @method \Aws\Result updateService(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateServiceAsync(array $args = [])
+ * @method \Aws\Result updateServiceAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateServiceAttributesAsync(array $args = [])
  */
 class ServiceDiscoveryClient extends AwsClient {}

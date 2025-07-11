@@ -29,7 +29,10 @@ class Context
     
     /** @var string Name of the structural element, within the namespace. */
     protected $lsen = '';
-    
+
+    /** @var string[] List of generics */
+    protected $generics = array();
+
     /**
      * Cteates a new context.
      * @param string $namespace         The namespace where this DocBlock
@@ -42,13 +45,15 @@ class Context
     public function __construct(
         $namespace = '',
         array $namespace_aliases = array(),
-        $lsen = ''
+        $lsen = '',
+        array $generics = array()
     ) {
         if (!empty($namespace)) {
             $this->setNamespace($namespace);
         }
         $this->setNamespaceAliases($namespace_aliases);
         $this->setLSEN($lsen);
+        $this->setGenerics($generics);
     }
 
     /**
@@ -75,6 +80,16 @@ class Context
     public function getLSEN()
     {
         return $this->lsen;
+    }
+
+    /**
+     * Returns the list of generics.
+     *
+     * @return string[] List of generics
+     */
+    public function getGenerics()
+    {
+        return $this->generics;
     }
     
     /**
@@ -149,6 +164,19 @@ class Context
     public function setLSEN($lsen)
     {
         $this->lsen = (string)$lsen;
+        return $this;
+    }
+
+    /**
+     * Sets a new list of generics.
+     *
+     * @param string[] $generics The new list of generics.
+     *
+     * @return $this
+     */
+    public function setGenerics(array $generics)
+    {
+        $this->generics = $generics;
         return $this;
     }
 }

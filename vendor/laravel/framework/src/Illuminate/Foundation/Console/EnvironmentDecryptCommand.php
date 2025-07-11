@@ -10,6 +10,8 @@ use Illuminate\Support\Env;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 
+use function Laravel\Prompts\password;
+
 #[AsCommand(name: 'env:decrypt')]
 class EnvironmentDecryptCommand extends Command
 {
@@ -62,10 +64,12 @@ class EnvironmentDecryptCommand extends Command
     {
         $key = $this->option('key') ?: Env::get('LARAVEL_ENV_ENCRYPTION_KEY');
 
-        if (! $key) {
-            $this->components->error('A decryption key is required.');
+        if (! $key && $this->input->isInteractive()) {
+            $key = password('What is the decryption key?');
+        }
 
-            return Command::FAILURE;
+        if (! $key) {
+            $this->fail('A decryption key is required.');
         }
 
         $cipher = $this->option('cipher') ?: 'AES-256-CBC';
@@ -73,27 +77,21 @@ class EnvironmentDecryptCommand extends Command
         $key = $this->parseKey($key);
 
         $encryptedFile = ($this->option('env')
-                    ? base_path('.env').'.'.$this->option('env')
+                    ? Str::finish(dirname($this->laravel->environmentFilePath()), DIRECTORY_SEPARATOR).'.env.'.$this->option('env')
                     : $this->laravel->environmentFilePath()).'.encrypted';
 
         $outputFile = $this->outputFilePath();
 
         if (Str::endsWith($outputFile, '.encrypted')) {
-            $this->components->error('Invalid filename.');
-
-            return Command::FAILURE;
+            $this->fail('Invalid filename.');
         }
 
         if (! $this->files->exists($encryptedFile)) {
-            $this->components->error('Encrypted environment file not found.');
-
-            return Command::FAILURE;
+            $this->fail('Encrypted environment file not found.');
         }
 
         if ($this->files->exists($outputFile) && ! $this->option('force')) {
-            $this->components->error('Environment file already exists.');
-
-            return Command::FAILURE;
+            $this->fail('Environment file already exists.');
         }
 
         try {
@@ -104,9 +102,7 @@ class EnvironmentDecryptCommand extends Command
                 $encrypter->decrypt($this->files->get($encryptedFile))
             );
         } catch (Exception $e) {
-            $this->components->error($e->getMessage());
-
-            return Command::FAILURE;
+            $this->fail($e->getMessage());
         }
 
         $this->components->info('Environment successfully decrypted.');
@@ -138,7 +134,7 @@ class EnvironmentDecryptCommand extends Command
      */
     protected function outputFilePath()
     {
-        $path = Str::finish($this->option('path') ?: base_path(), DIRECTORY_SEPARATOR);
+        $path = Str::finish($this->option('path') ?: dirname($this->laravel->environmentFilePath()), DIRECTORY_SEPARATOR);
 
         $outputFile = $this->option('filename') ?: ('.env'.($this->option('env') ? '.'.$this->option('env') : ''));
         $outputFile = ltrim($outputFile, DIRECTORY_SEPARATOR);

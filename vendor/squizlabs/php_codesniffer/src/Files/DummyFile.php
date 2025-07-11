@@ -14,8 +14,8 @@
 
 namespace PHP_CodeSniffer\Files;
 
-use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Config;
+use PHP_CodeSniffer\Ruleset;
 
 class DummyFile extends File
 {

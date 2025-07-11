@@ -1,0 +1,11 @@
+<documentation title="Code Comparison, no code">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: no code."></code>
+        <code title="Invalid: no code."></code>
+    </code_comparison>
+</documentation>

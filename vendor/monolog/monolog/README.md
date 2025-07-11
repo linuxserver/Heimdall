@@ -19,12 +19,28 @@ make sure you can always use another compatible logger at a later time.
 As of 1.11.0 Monolog public APIs will also accept PSR-3 log levels.
 Internally Monolog still uses its own level scheme since it predates PSR-3.
 
+<div align="center">
+  <hr>
+  <sup><b>Sponsored by:</b></sup>
+  <br>
+  <a href="https://betterstack.com">
+    <div>
+      <img src="https://github.com/Seldaek/monolog/assets/183678/7de58ce0-2fa2-45c0-b3e8-e60cebb3c4cf" width="200" alt="Better Stack">
+    </div>
+    <div>
+      Better Stack lets you centralize, search, and visualize your logs.
+    </div>
+  </a>
+  <br>
+  <hr>
+</div>
+
 ## Installation
 
 Install the latest version with
 
 ```bash
-$ composer require monolog/monolog
+composer require monolog/monolog
 ```
 
 ## Basic Usage
@@ -90,7 +106,6 @@ Bugs and feature request are tracked on [GitHub](https://github.com/Seldaek/mono
 - [Lumen](http://lumen.laravel.com/) comes out of the box with Monolog.
 - [PPI](https://github.com/ppi/framework) comes out of the box with Monolog.
 - [CakePHP](http://cakephp.org/) is usable with Monolog via the [cakephp-monolog](https://github.com/jadb/cakephp-monolog) plugin.
-- [Slim](http://www.slimframework.com/) is usable with Monolog via the [Slim-Monolog](https://github.com/Flynsarmy/Slim-Monolog) log writer.
 - [XOOPS 2.6](http://xoops.org/) comes out of the box with Monolog.
 - [Aura.Web_Project](https://github.com/auraphp/Aura.Web_Project) comes out of the box with Monolog.
 - [Nette Framework](http://nette.org/en/) is usable with Monolog via the [contributte/monolog](https://github.com/contributte/monolog) or [orisai/nette-monolog](https://github.com/orisai/nette-monolog) extensions.

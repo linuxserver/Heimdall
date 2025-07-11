@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\Store;
-use Illuminate\Support\Facades\Input;
 
 /**
  * App\Setting
@@ -147,7 +145,7 @@ class Setting extends Model
                             $this->value).
                         '" /></a>';
                 }
-                $value .= Form::file('value', ['class' => 'form-control']);
+                $value .= '<input type="file" name="value" class="form-control" />';
                 if (isset($this->value) && ! empty($this->value)) {
                     $value .= '<a class="settinglink" href="'.
                         route('settings.clear', $this->id).
@@ -178,22 +176,23 @@ class Setting extends Model
                 if ($this->key === 'search_provider') {
                     $options = Search::providers()->pluck('name', 'id');
                 }
+                $value = '<select name="value" class="form-control">';
                 foreach ($options as $key => $opt) {
-                    $options->$key = __($opt);
+                    $value .= '<option value="'.$key.'" '.(($this->value == $key) ? 'selected' : '').'>'.__($opt).'</option>';
                 }
-                $value = Form::select('value', $options, null, ['class' => 'form-control']);
+                $value .= '</select>';
                 break;
             case 'textarea':
-                $value = Form::textarea('value', null, ['class' => 'form-control', 'cols' => '44', 'rows' => '15']);
+                $value = '<textarea name="value" class="form-control" cols="44" rows="15"></textarea>';
                 break;
             default:
-                $value = Form::text('value', null, ['class' => 'form-control']);
+                $value = '<input type="text" name="value" class="form-control" />';
                 break;
         }
 
         return $value;
     }
-
+    
     public function group(): BelongsTo
     {
         return $this->belongsTo(\App\SettingGroup::class, 'group_id');

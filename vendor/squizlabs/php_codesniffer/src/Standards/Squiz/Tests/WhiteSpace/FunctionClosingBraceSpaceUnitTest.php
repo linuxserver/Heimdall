@@ -41,6 +41,10 @@ final class FunctionClosingBraceSpaceUnitTest extends AbstractSniffUnitTest
                 29 => 1,
                 31 => 1,
                 39 => 1,
+                66 => 1,
+                72 => 1,
+                81 => 1,
+                88 => 1,
             ];
 
         case 'FunctionClosingBraceSpaceUnitTest.js':

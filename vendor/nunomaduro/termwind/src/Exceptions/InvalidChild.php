@@ -9,6 +9,4 @@ use InvalidArgumentException;
 /**
  * @internal
  */
-final class InvalidChild extends InvalidArgumentException
-{
-}
+final class InvalidChild extends InvalidArgumentException {}

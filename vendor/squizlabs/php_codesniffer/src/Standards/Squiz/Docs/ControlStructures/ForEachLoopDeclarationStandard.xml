@@ -10,14 +10,14 @@
 foreach (<em></em>$foo<em> </em>as<em> </em>$bar<em> </em>=><em> </em>$baz<em></em>) {
     echo $baz;
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Invalid spacing used.">
         <![CDATA[
 foreach (<em> </em>$foo<em>  </em>as<em>  </em>$bar<em></em>=><em></em>$baz<em> </em>) {
     echo $baz;
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
     <code_comparison>
@@ -26,14 +26,14 @@ foreach (<em> </em>$foo<em>  </em>as<em>  </em>$bar<em></em>=><em></em>$baz<em> 
 foreach ($foo <em>as</em> $bar => $baz) {
     echo $baz;
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Uppercase as keyword.">
         <![CDATA[
 foreach ($foo <em>AS</em> $bar => $baz) {
     echo $baz;
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

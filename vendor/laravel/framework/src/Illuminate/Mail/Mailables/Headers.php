@@ -2,6 +2,7 @@
 
 namespace Illuminate\Mail\Mailables;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 
@@ -40,7 +41,7 @@ class Headers
      *
      * @named-arguments-supported
      */
-    public function __construct(string $messageId = null, array $references = [], array $text = [])
+    public function __construct(?string $messageId = null, array $references = [], array $text = [])
     {
         $this->messageId = $messageId;
         $this->references = $references;
@@ -76,7 +77,7 @@ class Headers
     /**
      * Set the headers for this message.
      *
-     * @param  array  $references
+     * @param  array  $text
      * @return $this
      */
     public function text(array $text)
@@ -93,8 +94,8 @@ class Headers
      */
     public function referencesString(): string
     {
-        return collect($this->references)->map(function ($messageId) {
-            return Str::finish(Str::start($messageId, '<'), '>');
-        })->implode(' ');
+        return (new Collection($this->references))
+            ->map(fn ($messageId) => Str::of($messageId)->start('<')->finish('>')->value())
+            ->implode(' ');
     }
 }

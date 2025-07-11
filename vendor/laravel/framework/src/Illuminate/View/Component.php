@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View as ViewContract;
+use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -76,6 +77,13 @@ abstract class Component
     protected static $constructorParametersCache = [];
 
     /**
+     * The cache of ignored parameter names.
+     *
+     * @var array
+     */
+    protected static $ignoredParameterNames = [];
+
+    /**
      * Get the view / view contents that represent the component.
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\Support\Htmlable|\Closure|string
@@ -118,7 +126,7 @@ abstract class Component
             $constructor = $class->getConstructor();
 
             static::$constructorParametersCache[static::class] = $constructor
-                ? collect($constructor->getParameters())->map->getName()->all()
+                ? (new Collection($constructor->getParameters()))->map->getName()->all()
                 : [];
         }
 
@@ -170,7 +178,7 @@ abstract class Component
             return static::$bladeViewCache[$key];
         }
 
-        if (strlen($contents) <= PHP_MAXPATHLEN && $this->factory()->exists($contents)) {
+        if ($this->factory()->exists($contents)) {
             return static::$bladeViewCache[$key] = $contents;
         }
 
@@ -229,16 +237,11 @@ abstract class Component
         if (! isset(static::$propertyCache[$class])) {
             $reflection = new ReflectionClass($this);
 
-            static::$propertyCache[$class] = collect($reflection->getProperties(ReflectionProperty::IS_PUBLIC))
-                ->reject(function (ReflectionProperty $property) {
-                    return $property->isStatic();
-                })
-                ->reject(function (ReflectionProperty $property) {
-                    return $this->shouldIgnore($property->getName());
-                })
-                ->map(function (ReflectionProperty $property) {
-                    return $property->getName();
-                })->all();
+            static::$propertyCache[$class] = (new Collection($reflection->getProperties(ReflectionProperty::IS_PUBLIC)))
+                ->reject(fn (ReflectionProperty $property) => $property->isStatic())
+                ->reject(fn (ReflectionProperty $property) => $this->shouldIgnore($property->getName()))
+                ->map(fn (ReflectionProperty $property) => $property->getName())
+                ->all();
         }
 
         $values = [];
@@ -262,13 +265,9 @@ abstract class Component
         if (! isset(static::$methodCache[$class])) {
             $reflection = new ReflectionClass($this);
 
-            static::$methodCache[$class] = collect($reflection->getMethods(ReflectionMethod::IS_PUBLIC))
-                ->reject(function (ReflectionMethod $method) {
-                    return $this->shouldIgnore($method->getName());
-                })
-                ->map(function (ReflectionMethod $method) {
-                    return $method->getName();
-                });
+            static::$methodCache[$class] = (new Collection($reflection->getMethods(ReflectionMethod::IS_PUBLIC)))
+                ->reject(fn (ReflectionMethod $method) => $this->shouldIgnore($method->getName()))
+                ->map(fn (ReflectionMethod $method) => $method->getName());
         }
 
         $values = [];
@@ -415,6 +414,31 @@ abstract class Component
         }
 
         return static::$factory;
+    }
+
+    /**
+     * Get the cached set of anonymous component constructor parameter names to exclude.
+     *
+     * @return array
+     */
+    public static function ignoredParameterNames()
+    {
+        if (! isset(static::$ignoredParameterNames[static::class])) {
+            $constructor = (new ReflectionClass(
+                static::class
+            ))->getConstructor();
+
+            if (! $constructor) {
+                return static::$ignoredParameterNames[static::class] = [];
+            }
+
+            static::$ignoredParameterNames[static::class] = (new Collection($constructor->getParameters()))
+                ->map
+                ->getName()
+                ->all();
+        }
+
+        return static::$ignoredParameterNames[static::class];
     }
 
     /**

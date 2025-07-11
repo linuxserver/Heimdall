@@ -58,7 +58,7 @@ class SubversionPropertiesSniff implements Sniff
         $properties = $this->getProperties($path);
         if ($properties === null) {
             // Not under version control.
-            return ($phpcsFile->numTokens + 1);
+            return $phpcsFile->numTokens;
         }
 
         $allProperties = ($properties + $this->properties);
@@ -101,7 +101,7 @@ class SubversionPropertiesSniff implements Sniff
         }//end foreach
 
         // Ignore the rest of the file.
-        return ($phpcsFile->numTokens + 1);
+        return $phpcsFile->numTokens;
 
     }//end process()
 

@@ -9,9 +9,10 @@
 
 namespace PHP_CodeSniffer\Tests\Core;
 
-use PHP_CodeSniffer\Ruleset;
+use Exception;
 use PHP_CodeSniffer\Files\DummyFile;
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Tests\ConfigDouble;
 use PHPUnit\Framework\TestCase;
 
@@ -57,7 +58,8 @@ abstract class AbstractMethodUnitTest extends TestCase
      */
     public static function initializeFile()
     {
-        $config = new ConfigDouble();
+        $_SERVER['argv'] = [];
+        $config          = new ConfigDouble();
         // Also set a tab-width to enable testing tab-replaced vs `orig_content`.
         $config->tabWidth = static::$tabWidth;
 
@@ -73,9 +75,87 @@ abstract class AbstractMethodUnitTest extends TestCase
         $contents .= file_get_contents($pathToTestFile);
 
         self::$phpcsFile = new DummyFile($contents, $ruleset, $config);
-        self::$phpcsFile->process();
+        self::$phpcsFile->parse();
 
     }//end initializeFile()
+
+
+    /**
+     * Clean up after finished test by resetting all static properties on the class to their default values.
+     *
+     * Note: This is a PHPUnit cross-version compatible {@see \PHPUnit\Framework\TestCase::tearDownAfterClass()}
+     * method.
+     *
+     * @afterClass
+     *
+     * @return void
+     */
+    public static function reset()
+    {
+        // Explicitly trigger __destruct() on the ConfigDouble to reset the Config statics.
+        // The explicit method call prevents potential stray test-local references to the $config object
+        // preventing the destructor from running the clean up (which without stray references would be
+        // automagically triggered when `self::$phpcsFile` is reset, but we can't definitively rely on that).
+        if (isset(self::$phpcsFile) === true) {
+            self::$phpcsFile->config->__destruct();
+        }
+
+        self::$fileExtension = 'inc';
+        self::$tabWidth      = 4;
+        self::$phpcsFile     = null;
+
+    }//end reset()
+
+
+    /**
+     * Test QA: verify that a test case file does not contain any duplicate test markers.
+     *
+     * When a test case file contains a lot of test cases, it is easy to overlook that a test marker name
+     * is already in use.
+     * A test wouldn't necessarily fail on this, but would not be testing what is intended to be tested as
+     * it would be verifying token properties for the wrong token.
+     *
+     * This test safeguards against this.
+     *
+     * @coversNothing
+     *
+     * @return void
+     */
+    public function testTestMarkersAreUnique()
+    {
+        $this->assertTestMarkersAreUnique(self::$phpcsFile);
+
+    }//end testTestMarkersAreUnique()
+
+
+    /**
+     * Assertion to verify that a test case file does not contain any duplicate test markers.
+     *
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file to validate.
+     *
+     * @return void
+     */
+    public static function assertTestMarkersAreUnique(File $phpcsFile)
+    {
+        $tokens = $phpcsFile->getTokens();
+
+        // Collect all marker comments in the file.
+        $seenComments = [];
+        for ($i = 0; $i < $phpcsFile->numTokens; $i++) {
+            if ($tokens[$i]['code'] !== T_COMMENT) {
+                continue;
+            }
+
+            if (stripos($tokens[$i]['content'], '/* test') !== 0) {
+                continue;
+            }
+
+            $seenComments[] = $tokens[$i]['content'];
+        }
+
+        self::assertSame(array_unique($seenComments), $seenComments, 'Duplicate test markers found.');
+
+    }//end assertTestMarkersAreUnique()
 
 
     /**
@@ -84,9 +164,9 @@ abstract class AbstractMethodUnitTest extends TestCase
      * Note: the test delimiter comment MUST start with "/* test" to allow this function to
      * distinguish between comments used *in* a test and test delimiters.
      *
-     * @param string           $commentString The delimiter comment to look for.
-     * @param int|string|array $tokenType     The type of token(s) to look for.
-     * @param string           $tokenContent  Optional. The token content for the target token.
+     * @param string                       $commentString The delimiter comment to look for.
+     * @param int|string|array<int|string> $tokenType     The type of token(s) to look for.
+     * @param string                       $tokenContent  Optional. The token content for the target token.
      *
      * @return int
      */
@@ -103,12 +183,15 @@ abstract class AbstractMethodUnitTest extends TestCase
      * Note: the test delimiter comment MUST start with "/* test" to allow this function to
      * distinguish between comments used *in* a test and test delimiters.
      *
-     * @param \PHP_CodeSniffer\Files\File $phpcsFile     The file to find the token in.
-     * @param string                      $commentString The delimiter comment to look for.
-     * @param int|string|array            $tokenType     The type of token(s) to look for.
-     * @param string                      $tokenContent  Optional. The token content for the target token.
+     * @param \PHP_CodeSniffer\Files\File  $phpcsFile     The file to find the token in.
+     * @param string                       $commentString The delimiter comment to look for.
+     * @param int|string|array<int|string> $tokenType     The type of token(s) to look for.
+     * @param string                       $tokenContent  Optional. The token content for the target token.
      *
      * @return int
+     *
+     * @throws \Exception When the test delimiter comment is not found.
+     * @throws \Exception When the test target token is not found.
      */
     public static function getTargetTokenFromFile(File $phpcsFile, $commentString, $tokenType, $tokenContent=null)
     {
@@ -120,6 +203,12 @@ abstract class AbstractMethodUnitTest extends TestCase
             false,
             $commentString
         );
+
+        if ($comment === false) {
+            throw new Exception(
+                sprintf('Failed to find the test marker: %s in test case file %s', $commentString, $phpcsFile->getFilename())
+            );
+        }
 
         $tokens = $phpcsFile->getTokens();
         $end    = ($start + 1);
@@ -147,10 +236,10 @@ abstract class AbstractMethodUnitTest extends TestCase
         if ($target === false) {
             $msg = 'Failed to find test target token for comment string: '.$commentString;
             if ($tokenContent !== null) {
-                $msg .= ' With token content: '.$tokenContent;
+                $msg .= ' with token content: '.$tokenContent;
             }
 
-            self::assertFalse(true, $msg);
+            throw new Exception($msg);
         }
 
         return $target;

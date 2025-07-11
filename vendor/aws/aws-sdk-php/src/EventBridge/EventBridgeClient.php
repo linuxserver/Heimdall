@@ -117,6 +117,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updateConnectionAsync(array $args = [])
  * @method \Aws\Result updateEndpoint(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateEndpointAsync(array $args = [])
+ * @method \Aws\Result updateEventBus(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateEventBusAsync(array $args = [])
  */
 class EventBridgeClient extends AwsClient {
     public function __construct(array $args)

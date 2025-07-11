@@ -42,7 +42,7 @@ abstract class AbstractArray implements ArrayInterface
      */
     public function __construct(array $data = [])
     {
-        // Invoke offsetSet() for each value added; in this way, sub-classes
+        // Invoke offsetSet() for each value added; in this way, subclasses
         // may provide additional logic about values added to the array object.
         foreach ($data as $key => $value) {
             $this[$key] = $value;

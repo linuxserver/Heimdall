@@ -1,0 +1,98 @@
+<documentation title="Superfluous Whitespace">
+    <standard>
+    <![CDATA[
+    There should be no superfluous whitespace at the start of a file.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No whitespace preceding first content in file.">
+        <![CDATA[<?php
+echo 'opening PHP tag at start of file';
+        ]]>
+        </code>
+        <code title="Invalid: Whitespace used before content in file.">
+        <![CDATA[
+<em>        </em>
+<?php
+echo 'whitespace before opening PHP tag';
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be no trailing whitespace at the end of lines.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No whitespace found at end of line.">
+        <![CDATA[
+echo 'semicolon followed by new line char';
+        ]]>
+        </code>
+        <code title="Invalid: Whitespace found at end of line.">
+        <![CDATA[
+echo 'trailing spaces after semicolon';<em>   </em>
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be no consecutive blank lines in functions.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Functions do not contain multiple empty lines in a row.">
+        <![CDATA[
+function myFunction()
+{
+    echo 'code here';
+
+    echo 'code here';
+}
+        ]]>
+        </code>
+        <code title="Invalid: Functions contain multiple empty lines in a row.">
+        <![CDATA[
+function myFunction()
+{
+    echo 'code here';
+    <em>
+
+    </em>echo 'code here';
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be no superfluous whitespace after the final closing PHP tag in a file.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: A single new line appears after the last content in the file.">
+        <![CDATA[
+function myFunction()
+{
+    echo 'Closing PHP tag, then';
+    echo 'Single new line char, then EOF';
+}
+
+?><em>
+</em>
+        ]]>
+        </code>
+        <code title="Invalid: Multiple new lines appear after the last content in the file.">
+        <![CDATA[
+function myFunction()
+{
+    echo 'Closing PHP tag, then';
+    echo 'Multiple new line chars, then EOF';
+}
+
+?><em>
+
+</em>
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

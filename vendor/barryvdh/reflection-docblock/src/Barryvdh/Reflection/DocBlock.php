@@ -15,6 +15,7 @@ namespace Barryvdh\Reflection;
 use Barryvdh\Reflection\DocBlock\Tag;
 use Barryvdh\Reflection\DocBlock\Context;
 use Barryvdh\Reflection\DocBlock\Location;
+use Barryvdh\Reflection\DocBlock\Tag\TemplateTag;
 
 /**
  * Parses the DocBlock for any structure.
@@ -39,6 +40,9 @@ class DocBlock implements \Reflector
      *     the tags in this docblock; except inline.
      */
     protected $tags = array();
+
+    /** @var string[] An array containing all the generics in this docblock. */
+    protected $generics = array();
 
     /** @var Context Information about the context of this DocBlock. */
     protected $context = null;
@@ -71,8 +75,8 @@ class DocBlock implements \Reflector
      */
     public function __construct(
         $docblock,
-        Context $context = null,
-        Location $location = null
+        ?Context $context = null,
+        ?Location $location = null
     ) {
         if (is_object($docblock)) {
             if (!method_exists($docblock, 'getDocComment')) {
@@ -238,7 +242,11 @@ class DocBlock implements \Reflector
 
             // create proper Tag objects
             foreach ($result as $key => $tag_line) {
-                $result[$key] = Tag::createInstance(trim($tag_line), $this);
+                $tag = Tag::createInstance(trim($tag_line), $this);
+                if ($tag instanceof TemplateTag) {
+                    $this->generics[] = $tag->getTemplateName();
+                }
+                $result[$key] = $tag;
             }
         }
 
@@ -455,6 +463,16 @@ class DocBlock implements \Reflector
         }
 
         return false;
+    }
+
+    /**
+     * Returns the generics for this DocBlock.
+     *
+     * @return string[]
+     */
+    public function getGenerics()
+    {
+        return $this->generics;
     }
 
     /**

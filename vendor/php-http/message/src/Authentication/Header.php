@@ -26,9 +26,6 @@ class Header implements Authentication
         $this->value = $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         return $request->withHeader($this->name, $this->value);

@@ -1,0 +1,12 @@
+<documentation title="Code Comparison, two empty code elements">
+    <standard>
+    <![CDATA[
+    This doc has two code elements, but neither of them contain any information.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code>
+        </code>
+        <code></code>
+    </code_comparison>
+</documentation>

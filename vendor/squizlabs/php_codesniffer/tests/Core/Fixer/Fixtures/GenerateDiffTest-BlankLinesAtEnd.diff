@@ -1,0 +1,10 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-BlankLinesAtEnd.inc
++++ PHP_CodeSniffer
+@@ -5,7 +5,3 @@
+ if ($var) {
+ 	echo 'This line is tab indented';
+ }
+-
+-
+-
+-

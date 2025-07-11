@@ -172,3 +172,28 @@ namespace Foo /*comment*/ \ Bah {
         }
     }
 }
+
+namespace EndsIn\CloseTag ?>
+<?php
+
+class Baz {
+    function myFunction()
+    {
+        \EndsIn\CloseTag\Whatever::something();
+        \EndsIn\CloseTag\Baz::something();
+    }
+}
+
+// Issue PHPCSStandards/PHP_CodeSniffer#553.
+namespace TestMe;
+
+namespace\functionCall();
+namespace\anotherFunctionCall();
+
+class SelfMemberReference
+{
+    public function falseNegative()
+    {
+        $testResults[] = \TestMe\SelfMemberReference::test();
+    }
+}

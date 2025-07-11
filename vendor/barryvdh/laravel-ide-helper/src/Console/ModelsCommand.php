@@ -12,19 +12,22 @@
 namespace Barryvdh\LaravelIdeHelper\Console;
 
 use Barryvdh\LaravelIdeHelper\Contracts\ModelHookInterface;
+use Barryvdh\LaravelIdeHelper\Generator;
+use Barryvdh\LaravelIdeHelper\Parsers\PhpDocReturnTypeParser;
 use Barryvdh\Reflection\DocBlock;
 use Barryvdh\Reflection\DocBlock\Context;
+use Barryvdh\Reflection\DocBlock\ContextFactory;
 use Barryvdh\Reflection\DocBlock\Serializer as DocBlockSerializer;
 use Barryvdh\Reflection\DocBlock\Tag;
 use Composer\ClassMapGenerator\ClassMapGenerator;
-use Doctrine\DBAL\Exception as DBALException;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Contracts\Database\Eloquent\CastsInboundAttributes;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,14 +39,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\ContextFactory;
+use Illuminate\View\Factory as ViewFactory;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionObject;
@@ -80,6 +86,14 @@ class ModelsCommand extends Command
     protected $files;
 
     /**
+     * @var Repository
+     */
+    protected $config;
+
+    /** @var ViewFactory */
+    protected $view;
+
+    /**
      * The console command name.
      *
      * @var string
@@ -106,11 +120,10 @@ class ModelsCommand extends Command
     protected $write_mixin = false;
     protected $dirs = [];
     protected $reset;
-    protected $keep_text;
     protected $phpstorm_noinspections;
     protected $write_model_external_builder_methods;
     /**
-     * @var bool[string]
+     * @var array<string, true>
      */
     protected $nullableColumns = [];
     /**
@@ -129,10 +142,12 @@ class ModelsCommand extends Command
     /**
      * @param Filesystem $files
      */
-    public function __construct(Filesystem $files)
+    public function __construct(Filesystem $files, Repository $config, ViewFactory $view)
     {
-        parent::__construct();
+        $this->config = $config;
         $this->files = $files;
+        $this->view = $view;
+        parent::__construct();
     }
 
     /**
@@ -154,9 +169,6 @@ class ModelsCommand extends Command
         $ignore = $this->option('ignore');
         $this->reset = $this->option('reset');
         $this->phpstorm_noinspections = $this->option('phpstorm-noinspections');
-        if ($this->option('smart-reset')) {
-            $this->keep_text = $this->reset = true;
-        }
         $this->write_model_magic_where = $this->laravel['config']->get('ide-helper.write_model_magic_where', true);
         $this->write_model_external_builder_methods = $this->laravel['config']->get('ide-helper.write_model_external_builder_methods', true);
         $this->write_model_relation_count_properties =
@@ -188,6 +200,27 @@ class ModelsCommand extends Command
                 $this->error("Failed to write model information to $filename");
             }
         }
+
+        $helperFilename = $this->config->get('ide-helper.filename');
+        $writeHelper = $this->option('write-eloquent-helper');
+
+        if (!$writeHelper && !$this->files->exists($helperFilename) && ($this->write || $this->write_mixin)) {
+            if ($this->confirm("{$helperFilename} does not exist.
+            Do you want to generate a minimal helper to generate the Eloquent methods?")) {
+                $writeHelper = true;
+            }
+        }
+
+        if ($writeHelper) {
+            $generator = new Generator($this->config, $this->view, $this->getOutput());
+            $content = $generator->generateEloquent();
+            $written = $this->files->put($helperFilename, $content);
+            if ($written !== false) {
+                $this->info("Eloquent helper was written to $helperFilename");
+            } else {
+                $this->error("Failed to write eloquent helper to $helperFilename");
+            }
+        }
     }
 
 
@@ -199,7 +232,7 @@ class ModelsCommand extends Command
     protected function getArguments()
     {
         return [
-          ['model', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Which models to include', []],
+            ['model', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Which models to include', []],
         ];
     }
 
@@ -211,21 +244,24 @@ class ModelsCommand extends Command
     protected function getOptions()
     {
         return [
-          ['filename', 'F', InputOption::VALUE_OPTIONAL, 'The path to the helper file'],
-          ['dir', 'D', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-              'The model dir, supports glob patterns', [], ],
-          ['write', 'W', InputOption::VALUE_NONE, 'Write to Model file'],
-          ['write-mixin', 'M', InputOption::VALUE_NONE,
-              "Write models to {$this->filename} and adds @mixin to each model, avoiding IDE duplicate declaration warnings",
-          ],
-          ['nowrite', 'N', InputOption::VALUE_NONE, 'Don\'t write to Model file'],
-          ['reset', 'R', InputOption::VALUE_NONE, 'Remove the original phpdocs instead of appending'],
-          ['smart-reset', 'r', InputOption::VALUE_NONE, 'Refresh the properties/methods list, but keep the text'],
-          ['phpstorm-noinspections', 'p', InputOption::VALUE_NONE,
-              'Add PhpFullyQualifiedNameUsageInspection and PhpUnnecessaryFullyQualifiedNameInspection PHPStorm ' .
-              'noinspection tags',
-          ],
-          ['ignore', 'I', InputOption::VALUE_OPTIONAL, 'Which models to ignore', ''],
+            ['filename', 'F', InputOption::VALUE_OPTIONAL, 'The path to the helper file'],
+            ['dir', 'D', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'The model dir, supports glob patterns', [], ],
+            ['write', 'W', InputOption::VALUE_NONE, 'Write to Model file'],
+            ['write-mixin', 'M', InputOption::VALUE_NONE,
+                "Write models to {$this->filename} and adds @mixin to each model, avoiding IDE duplicate declaration warnings",
+            ],
+            ['write-eloquent-helper', 'E', InputOption::VALUE_NONE,
+                'Write Eloquent helper file to _ide_helper.php',
+            ],
+            ['nowrite', 'N', InputOption::VALUE_NONE, 'Don\'t write to Model file'],
+            ['reset', 'R', InputOption::VALUE_NONE, 'Remove the original phpdocs instead of appending'],
+            ['smart-reset', 'r', InputOption::VALUE_NONE, 'Retained for compatibility, while it no longer has any effect'],
+            ['phpstorm-noinspections', 'p', InputOption::VALUE_NONE,
+                'Add PhpFullyQualifiedNameUsageInspection and PhpUnnecessaryFullyQualifiedNameInspection PHPStorm ' .
+                'noinspection tags',
+            ],
+            ['ignore', 'I', InputOption::VALUE_OPTIONAL, 'Which models to ignore', ''],
         ];
     }
 
@@ -243,8 +279,6 @@ class ModelsCommand extends Command
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  */
 \n\n";
-
-        $hasDoctrine = interface_exists('Doctrine\DBAL\Driver');
 
         if (empty($loadModels)) {
             $models = $this->loadModels();
@@ -288,9 +322,7 @@ class ModelsCommand extends Command
 
                     $model = $this->laravel->make($name);
 
-                    if ($hasDoctrine) {
-                        $this->getPropertiesFromTable($model);
-                    }
+                    $this->getPropertiesFromTable($model);
 
                     if (method_exists($model, 'getCasts')) {
                         $this->castPropertiesType($model);
@@ -312,13 +344,6 @@ class ModelsCommand extends Command
                         $e->getTraceAsString());
                 }
             }
-        }
-
-        if (!$hasDoctrine) {
-            $this->error(
-                'Warning: `"doctrine/dbal": "~2.3"` is required to load database information. ' .
-                'Please require that in your composer.json and run `composer update`.'
-            );
         }
 
         return $output;
@@ -390,15 +415,18 @@ class ModelsCommand extends Command
                     break;
                 case 'boolean':
                 case 'bool':
-                    $realType = 'boolean';
+                    $realType = 'bool';
                     break;
                 case 'decimal':
+                    $realType = 'numeric';
+                    break;
                 case 'string':
+                case 'hashed':
                     $realType = 'string';
                     break;
                 case 'array':
                 case 'json':
-                    $realType = 'array';
+                    $realType = 'array<array-key, mixed>';
                     break;
                 case 'object':
                     $realType = 'object';
@@ -406,7 +434,7 @@ class ModelsCommand extends Command
                 case 'int':
                 case 'integer':
                 case 'timestamp':
-                    $realType = 'integer';
+                    $realType = 'int';
                     break;
                 case 'real':
                 case 'double':
@@ -421,12 +449,11 @@ class ModelsCommand extends Command
                 case 'immutable_datetime':
                     $realType = '\Carbon\CarbonImmutable';
                     break;
-                case AsCollection::class:
                 case 'collection':
-                    $realType = '\Illuminate\Support\Collection';
+                    $realType = '\Illuminate\Support\Collection<array-key, mixed>';
                     break;
                 case AsArrayObject::class:
-                    $realType = '\ArrayObject';
+                    $realType = '\ArrayObject<array-key, mixed>';
                     break;
                 default:
                     // In case of an optional custom cast parameter , only evaluate
@@ -445,6 +472,18 @@ class ModelsCommand extends Command
             }
             if ($this->isInboundCast($realType)) {
                 continue;
+            }
+
+            if (Str::startsWith($type, AsCollection::class)) {
+                $realType = $this->getTypeInModel($model, $params[0] ?? null) ?? '\Illuminate\Support\Collection';
+            }
+
+            if (Str::startsWith($type, AsEnumCollection::class)) {
+                $realType = '\Illuminate\Support\Collection';
+                $relatedModel = $this->getTypeInModel($model, $params[0] ?? null);
+                if ($relatedModel) {
+                    $realType = $this->getCollectionTypeHint($realType, $relatedModel);
+                }
             }
 
             $realType = $this->checkForCastableCasts($realType, $params);
@@ -508,35 +547,14 @@ class ModelsCommand extends Command
      *
      * @param Model $model
      *
-     * @throws DBALException If custom field failed to register
      */
     public function getPropertiesFromTable($model)
     {
-        $database = $model->getConnection()->getDatabaseName();
-        $table = $model->getConnection()->getTablePrefix() . $model->getTable();
-        $schema = $model->getConnection()->getDoctrineSchemaManager();
-        $databasePlatform = $schema->getDatabasePlatform();
-        $databasePlatform->registerDoctrineTypeMapping('enum', 'string');
+        $table = $model->getTable();
+        $schema = $model->getConnection()->getSchemaBuilder();
+        $columns = $schema->getColumns($table);
+        $driverName = $model->getConnection()->getDriverName();
 
-        if (strpos($table, '.')) {
-            [$database, $table] = explode('.', $table);
-        }
-
-        $platformName = $databasePlatform->getName();
-        $customTypes = $this->laravel['config']->get("ide-helper.custom_db_types.{$platformName}", []);
-        foreach ($customTypes as $yourTypeName => $doctrineTypeName) {
-            try {
-                if (!Type::hasType($yourTypeName)) {
-                    Type::addType($yourTypeName, get_class(Type::getType($doctrineTypeName)));
-                }
-            } catch (DBALException $exception) {
-                $this->error("Failed registering custom db type \"$yourTypeName\" as \"$doctrineTypeName\"");
-                throw $exception;
-            }
-            $databasePlatform->registerDoctrineTypeMapping($yourTypeName, $doctrineTypeName);
-        }
-
-        $columns = $schema->listTableColumns($table, $database);
 
         if (!$columns) {
             return;
@@ -544,50 +562,28 @@ class ModelsCommand extends Command
 
         $this->setForeignKeys($schema, $table);
         foreach ($columns as $column) {
-            $name = $column->getName();
+            $name = $column['name'];
             if (in_array($name, $model->getDates())) {
                 $type = $this->dateClass;
             } else {
-                $type = $column->getType()->getName();
-                switch ($type) {
-                    case 'string':
-                    case 'text':
-                    case 'date':
-                    case 'time':
-                    case 'guid':
-                    case 'datetimetz':
-                    case 'datetime':
-                    case 'decimal':
-                    case 'binary':
-                        $type = 'string';
-                        break;
-                    case 'integer':
-                    case 'bigint':
-                    case 'smallint':
-                        $type = 'integer';
-                        break;
-                    case 'boolean':
-                        switch ($platformName) {
-                            case 'sqlite':
-                            case 'mysql':
-                                $type = 'integer';
-                                break;
-                            default:
-                                $type = 'boolean';
-                                break;
-                        }
-                        break;
-                    case 'float':
-                        $type = 'float';
-                        break;
-                    default:
-                        $type = 'mixed';
-                        break;
-                }
+                // Match types to php equivalent
+                $type = match ($column['type_name']) {
+                    'tinyint', 'bit',
+                    'integer', 'int', 'int4',
+                    'smallint', 'int2',
+                    'mediumint',
+                    'bigint', 'int8' => 'int',
+
+                    'boolean', 'bool' => 'bool',
+
+                    'float', 'real', 'float4',
+                    'double', 'float8' => 'float',
+
+                    default => 'string',
+                };
             }
 
-            $comment = $column->getComment();
-            if (!$column->getNotnull()) {
+            if ($column['nullable']) {
                 $this->nullableColumns[$name] = true;
             }
             $this->setProperty(
@@ -595,8 +591,8 @@ class ModelsCommand extends Command
                 $this->getTypeInModel($model, $type),
                 true,
                 true,
-                $comment,
-                !$column->getNotnull()
+                $column['comment'],
+                $column['nullable']
             );
             if ($this->write_model_magic_where) {
                 $builderClass = $this->write_model_external_builder_methods
@@ -606,7 +602,7 @@ class ModelsCommand extends Command
                 $this->setMethod(
                     Str::camel('where_' . $name),
                     $this->getClassNameInDestinationFile($model, $builderClass)
-                    . '|'
+                    . '<static>|'
                     . $this->getClassNameInDestinationFile($model, get_class($model)),
                     ['$value']
                 );
@@ -632,16 +628,17 @@ class ModelsCommand extends Command
                     )
                 );
             });
+            // https://github.com/barryvdh/laravel-ide-helper/issues/1664
+            $reflections = array_filter($reflections, function (\ReflectionMethod $methodReflection) {
+                return !($methodReflection->getName() === 'getUseFactoryAttribute');
+            });
             sort($reflections);
             foreach ($reflections as $reflection) {
                 $type = $this->getReturnTypeFromReflection($reflection);
                 $isAttribute = is_a($type, '\Illuminate\Database\Eloquent\Casts\Attribute', true);
                 $method = $reflection->getName();
                 if (
-                    Str::startsWith($method, 'get') && Str::endsWith(
-                        $method,
-                        'Attribute'
-                    ) && $method !== 'getAttribute'
+                    Str::startsWith($method, 'get') && Str::endsWith($method, 'Attribute') && $method !== 'getAttribute'
                 ) {
                     //Magic get<name>Attribute
                     $name = Str::snake(substr($method, 3, -9));
@@ -657,15 +654,14 @@ class ModelsCommand extends Command
                     $this->setProperty(
                         Str::snake($method),
                         $type,
-                        $types->has('get'),
-                        $types->has('set'),
+                        $types->has('get') ?: null,
+                        $types->has('set') ?: null,
                         $this->getCommentFromDocBlock($reflection)
                     );
                 } elseif (
-                    Str::startsWith($method, 'set') && Str::endsWith(
-                        $method,
-                        'Attribute'
-                    ) && $method !== 'setAttribute'
+                    Str::startsWith($method, 'set') &&
+                    Str::endsWith($method, 'Attribute') &&
+                    $method !== 'setAttribute'
                 ) {
                     //Magic set<name>Attribute
                     $name = Str::snake(substr($method, 3, -9));
@@ -674,7 +670,7 @@ class ModelsCommand extends Command
                         $this->setProperty($name, null, null, true, $comment);
                     }
                 } elseif (Str::startsWith($method, 'scope') && $method !== 'scopeQuery' && $method !== 'scope' && $method !== 'scopes') {
-                    //Magic set<name>Attribute
+                    //Magic scope<name>Attribute
                     $name = Str::camel(substr($method, 5));
                     if (!empty($name)) {
                         $comment = $this->getCommentFromDocBlock($reflection);
@@ -686,17 +682,17 @@ class ModelsCommand extends Command
                             get_class($model->newModelQuery())
                         );
                         $modelName = $this->getClassNameInDestinationFile(
-                            $reflection->getDeclaringClass(),
-                            $reflection->getDeclaringClass()->getName()
+                            new ReflectionClass($model),
+                            get_class($model)
                         );
-                        $this->setMethod($name, $builder . '|' . $modelName, $args, $comment);
+                        $this->setMethod($name, $builder . '<static>|' . $modelName, $args, $comment);
                     }
                 } elseif (in_array($method, ['query', 'newQuery', 'newModelQuery'])) {
                     $builder = $this->getClassNameInDestinationFile($model, get_class($model->newModelQuery()));
 
                     $this->setMethod(
                         $method,
-                        $builder . '|' . $this->getClassNameInDestinationFile($model, get_class($model))
+                        $builder . '<static>|' . $this->getClassNameInDestinationFile($model, get_class($model))
                     );
 
                     if ($this->write_model_external_builder_methods) {
@@ -765,9 +761,37 @@ class ModelsCommand extends Command
                                     $relationReturnType === 'many' ||
                                     (
                                         !$relationReturnType &&
-                                        strpos(get_class($relationObj), 'Many') !== false
+                                        str_contains(get_class($relationObj), 'Many')
                                     )
                                 ) {
+                                    if ($relationObj instanceof BelongsToMany) {
+                                        $pivot = get_class($relationObj->newPivot());
+                                        if (!in_array($pivot, [Pivot::class, MorphPivot::class])) {
+                                            $pivot = $this->getClassNameInDestinationFile($model, $pivot);
+
+                                            if ($existingPivot = ($this->properties[$relationObj->getPivotAccessor()] ?? null)) {
+                                                $existingClasses = explode('|', $existingPivot['type']);
+
+                                                if (!in_array($pivot, $existingClasses)) {
+                                                    array_unshift($existingClasses, $pivot);
+                                                }
+                                            } else {
+                                                // No existing pivot property, so we need to add a null type
+                                                $existingClasses = [$pivot, 'null'];
+                                            }
+
+                                            // create a union type of all pivot classes
+                                            $unionType = implode('|', $existingClasses);
+
+                                            $this->setProperty(
+                                                $relationObj->getPivotAccessor(),
+                                                $unionType,
+                                                true,
+                                                false
+                                            );
+                                        }
+                                    }
+
                                     //Collection or array of models (because Collection is Arrayable)
                                     $relatedClass = '\\' . get_class($relationObj->getRelated());
                                     $collectionClass = $this->getCollectionClass($relatedClass);
@@ -799,13 +823,20 @@ class ModelsCommand extends Command
                                         $relation === 'morphTo'
                                     )
                                 ) {
+                                    $matches = [];
+                                    $returnType = $this->getReturnTypeFromDocBlock($reflection);
+                                    if ($returnType !== null) {
+                                        preg_match('/MorphTo<(?:contravariant\s+)?(.+?)(?:,|>)/i', $returnType, $matches);
+                                    }
+
                                     // Model isn't specified because relation is polymorphic
                                     $this->setProperty(
                                         $method,
-                                        $this->getClassNameInDestinationFile($model, Model::class) . '|\Eloquent',
+                                        $matches[1] ?? $this->getClassNameInDestinationFile($model, Model::class) . '|\Eloquent',
                                         true,
                                         null,
-                                        $comment
+                                        $comment,
+                                        $this->isMorphToRelationNullable($relationObj)
                                     );
                                 } else {
                                     //Single model is returned
@@ -852,12 +883,41 @@ class ModelsCommand extends Command
         $fkProp = $reflectionObj->getProperty('foreignKey');
         $fkProp->setAccessible(true);
 
+        $enforceNullableRelation = $this->laravel['config']->get('ide-helper.enforce_nullable_relationships', true);
+
         foreach (Arr::wrap($fkProp->getValue($relationObj)) as $foreignKey) {
             if (isset($this->nullableColumns[$foreignKey])) {
                 return true;
             }
 
             if (!in_array($foreignKey, $this->foreignKeyConstraintsColumns, true)) {
+                return $enforceNullableRelation;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the morphTo relation is nullable
+     *
+     * @param Relation $relationObj
+     *
+     * @return bool
+     */
+    protected function isMorphToRelationNullable(Relation $relationObj): bool
+    {
+        $reflectionObj = new ReflectionObject($relationObj);
+
+        if (!$reflectionObj->hasProperty('foreignKey')) {
+            return false;
+        }
+
+        $fkProp = $reflectionObj->getProperty('foreignKey');
+        $fkProp->setAccessible(true);
+
+        foreach (Arr::wrap($fkProp->getValue($relationObj)) as $foreignKey) {
+            if (isset($this->nullableColumns[$foreignKey])) {
                 return true;
             }
         }
@@ -923,7 +983,7 @@ class ModelsCommand extends Command
     {
         $modelName = $this->getClassNameInDestinationFile($model, get_class($model));
         $builder = $this->getClassNameInDestinationFile($model, $classType);
-        return $builder . '|' . $modelName;
+        return $builder . '<static>|' . $modelName;
     }
 
     /**
@@ -942,19 +1002,19 @@ class ModelsCommand extends Command
             $reflection->getParentClass()->getInterfaceNames()
         );
 
+        $phpdoc = new DocBlock($reflection, new Context($namespace));
         if ($this->reset) {
-            $phpdoc = new DocBlock('', new Context($namespace));
-            if ($this->keep_text) {
-                $phpdoc->setText(
-                    (new DocBlock($reflection, new Context($namespace)))->getText()
-                );
+            $phpdoc->setText(
+                (new DocBlock($reflection, new Context($namespace)))->getText()
+            );
+            foreach ($phpdoc->getTags() as $tag) {
+                if (
+                    in_array($tag->getName(), ['property', 'property-read', 'property-write', 'method', 'mixin'])
+                    || ($tag->getName() === 'noinspection' && in_array($tag->getContent(), ['PhpUnnecessaryFullyQualifiedNameInspection', 'PhpFullyQualifiedNameUsageInspection']))
+                ) {
+                    $phpdoc->deleteTag($tag);
+                }
             }
-        } else {
-            $phpdoc = new DocBlock($reflection, new Context($namespace));
-        }
-
-        if (!$phpdoc->getText()) {
-            $phpdoc->setText($class);
         }
 
         $properties = [];
@@ -1288,10 +1348,11 @@ class ModelsCommand extends Command
      * Get method return type based on it DocBlock comment
      *
      * @param \ReflectionMethod $reflection
+     * @param ?\Reflector $reflectorForContext
      *
      * @return null|string
      */
-    protected function getReturnTypeFromDocBlock(\ReflectionMethod $reflection, \Reflector $reflectorForContext = null)
+    protected function getReturnTypeFromDocBlock(\ReflectionMethod $reflection, ?\Reflector $reflectorForContext = null)
     {
         $phpDocContext = (new ContextFactory())->createFromReflector($reflectorForContext ?? $reflection);
         $context = new Context(
@@ -1302,6 +1363,13 @@ class ModelsCommand extends Command
         $phpdoc = new DocBlock($reflection, $context);
 
         if ($phpdoc->hasTag('return')) {
+            $returnTag = $phpdoc->getTagsByName('return')[0];
+
+            $typeParser = new PhpDocReturnTypeParser($returnTag->getContent(), $context->getNamespaceAliases());
+            if ($typeAlias = $typeParser->parse()) {
+                return $typeAlias;
+            }
+
             $type = $phpdoc->getTagsByName('return')[0]->getType();
         }
 
@@ -1337,9 +1405,9 @@ class ModelsCommand extends Command
         if (in_array('Illuminate\\Database\\Eloquent\\SoftDeletes', $traits)) {
             $modelName = $this->getClassNameInDestinationFile($model, get_class($model));
             $builder = $this->getClassNameInDestinationFile($model, \Illuminate\Database\Eloquent\Builder::class);
-            $this->setMethod('withTrashed', $builder . '|' . $modelName, []);
-            $this->setMethod('withoutTrashed', $builder . '|' . $modelName, []);
-            $this->setMethod('onlyTrashed', $builder . '|' . $modelName, []);
+            $this->setMethod('withTrashed', $builder . '<static>|' . $modelName, []);
+            $this->setMethod('withoutTrashed', $builder . '<static>|' . $modelName, []);
+            $this->setMethod('onlyTrashed', $builder . '<static>|' . $modelName, []);
         }
     }
 
@@ -1513,7 +1581,9 @@ class ModelsCommand extends Command
      */
     protected function getUsedClassNames(ReflectionClass $reflection): array
     {
-        $namespaceAliases = array_flip((new ContextFactory())->createFromReflector($reflection)->getNamespaceAliases());
+        $namespaceAliases = array_flip(array_map(function ($alias) {
+            return ltrim($alias, '\\');
+        }, (new ContextFactory())->createFromReflector($reflection)->getNamespaceAliases()));
         $namespaceAliases[$reflection->getName()] = $reflection->getShortName();
 
         return $namespaceAliases;
@@ -1543,7 +1613,7 @@ class ModelsCommand extends Command
 
             $this->setMethod(
                 $builderMethod,
-                $builderClassBasedOnFQCNOption . '|' . $this->getClassNameInDestinationFile($model, get_class($model)),
+                $builderClassBasedOnFQCNOption . '<static>|' . $this->getClassNameInDestinationFile($model, get_class($model)),
                 $args
             );
         }
@@ -1651,7 +1721,7 @@ class ModelsCommand extends Command
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (!$paramType->isBuiltin() && $paramType->getName() !== 'static') {
             $parameterName = '\\' . $parameterName;
         }
 
@@ -1681,14 +1751,13 @@ class ModelsCommand extends Command
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\AbstractSchemaManager $schema
+     * @param Builder $schema
      * @param string $table
-     * @throws DBALException
      */
     protected function setForeignKeys($schema, $table)
     {
-        foreach ($schema->listTableForeignKeys($table) as $foreignKeyConstraint) {
-            foreach ($foreignKeyConstraint->getLocalColumns() as $columnName) {
+        foreach ($schema->getForeignKeys($table) as $foreignKeyConstraint) {
+            foreach ($foreignKeyConstraint['columns'] as $columnName) {
                 $this->foreignKeyConstraintsColumns[] = $columnName;
             }
         }

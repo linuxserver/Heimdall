@@ -14,7 +14,7 @@ class TableRenderer extends Renderer
      */
     public function __invoke(Table $table): string
     {
-        $tableStyle = (new TableStyle())
+        $tableStyle = (new TableStyle)
             ->setHorizontalBorderChars('─')
             ->setVerticalBorderChars('│', '│')
             ->setCellHeaderFormat($this->dim('<fg=default>%s</>'))
@@ -26,7 +26,7 @@ class TableRenderer extends Renderer
             $tableStyle->setCrossingChars('┼', '<fg=gray>┌', '┬', '┐', '┤', '┘</>', '┴', '└', '├');
         }
 
-        $buffered = new BufferedConsoleOutput();
+        $buffered = new BufferedConsoleOutput;
 
         (new SymfonyTable($buffered))
             ->setHeaders($table->headers)
@@ -34,8 +34,9 @@ class TableRenderer extends Renderer
             ->setStyle($tableStyle)
             ->render();
 
-        collect(explode(PHP_EOL, trim($buffered->content(), PHP_EOL)))
-            ->each(fn ($line) => $this->line(' '.$line));
+        foreach (explode(PHP_EOL, trim($buffered->content(), PHP_EOL)) as $line) {
+            $this->line(' '.$line);
+        }
 
         return $this;
     }

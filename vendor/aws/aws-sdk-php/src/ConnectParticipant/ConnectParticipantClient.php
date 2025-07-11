@@ -5,6 +5,8 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **Amazon Connect Participant Service** service.
+ * @method \Aws\Result cancelParticipantAuthentication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelParticipantAuthenticationAsync(array $args = [])
  * @method \Aws\Result completeAttachmentUpload(array $args = [])
  * @method \GuzzleHttp\Promise\Promise completeAttachmentUploadAsync(array $args = [])
  * @method \Aws\Result createParticipantConnection(array $args = [])
@@ -15,6 +17,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise disconnectParticipantAsync(array $args = [])
  * @method \Aws\Result getAttachment(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getAttachmentAsync(array $args = [])
+ * @method \Aws\Result getAuthenticationUrl(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getAuthenticationUrlAsync(array $args = [])
  * @method \Aws\Result getTranscript(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTranscriptAsync(array $args = [])
  * @method \Aws\Result sendEvent(array $args = [])

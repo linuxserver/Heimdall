@@ -167,11 +167,28 @@ class ClassDeclarationSniff extends PSR2ClassDeclarationSniff
         }//end if
 
         if ($difference !== -1 && $difference !== 1) {
-            if ($tokens[$nextContent]['code'] === T_DOC_COMMENT_OPEN_TAG) {
-                $next = $phpcsFile->findNext(T_WHITESPACE, ($tokens[$nextContent]['comment_closer'] + 1), null, true);
-                if ($next !== false && $tokens[$next]['code'] === T_FUNCTION) {
-                    return;
+            for ($nextSignificant = $nextContent; $nextSignificant < $phpcsFile->numTokens; $nextSignificant++) {
+                if ($tokens[$nextSignificant]['code'] === T_WHITESPACE) {
+                    continue;
                 }
+
+                if ($tokens[$nextSignificant]['code'] === T_DOC_COMMENT_OPEN_TAG) {
+                    $nextSignificant = $tokens[$nextSignificant]['comment_closer'];
+                    continue;
+                }
+
+                if ($tokens[$nextSignificant]['code'] === T_ATTRIBUTE
+                    && isset($tokens[$nextSignificant]['attribute_closer']) === true
+                ) {
+                    $nextSignificant = $tokens[$nextSignificant]['attribute_closer'];
+                    continue;
+                }
+
+                break;
+            }
+
+            if ($tokens[$nextSignificant]['code'] === T_FUNCTION) {
+                return;
             }
 
             $error = 'Closing brace of a %s must be followed by a single blank line; found %s';

@@ -45,9 +45,7 @@ class DisallowLongArraySyntaxSniff implements Sniff
 
         $error = 'Short array syntax must be used to define arrays';
 
-        if (isset($tokens[$stackPtr]['parenthesis_opener']) === false
-            || isset($tokens[$stackPtr]['parenthesis_closer']) === false
-        ) {
+        if (isset($tokens[$stackPtr]['parenthesis_opener'], $tokens[$stackPtr]['parenthesis_closer']) === false) {
             // Live coding/parse error, just show the error, don't try and fix it.
             $phpcsFile->addError($error, $stackPtr, 'Found');
             return;
@@ -61,13 +59,9 @@ class DisallowLongArraySyntaxSniff implements Sniff
 
             $phpcsFile->fixer->beginChangeset();
 
-            if ($opener === null) {
-                $phpcsFile->fixer->replaceToken($stackPtr, '[]');
-            } else {
-                $phpcsFile->fixer->replaceToken($stackPtr, '');
-                $phpcsFile->fixer->replaceToken($opener, '[');
-                $phpcsFile->fixer->replaceToken($closer, ']');
-            }
+            $phpcsFile->fixer->replaceToken($stackPtr, '');
+            $phpcsFile->fixer->replaceToken($opener, '[');
+            $phpcsFile->fixer->replaceToken($closer, ']');
 
             $phpcsFile->fixer->endChangeset();
         }

@@ -62,16 +62,17 @@ A `Spatie\Backtrace\Frame` has these properties:
 - `arguments`: the arguments used for this frame. Will be `null` if `withArguments` was not used.
 - `class`: the class name for this frame. Will be `null` if the frame concerns a function.
 - `method`: the method used in this frame
+- `object`: the object when the frame is in an object context (method call, closure bound to object, arrow function which captured `$this`, etc.). Will be `null` if `withObject` was not used.
 - `applicationFrame`: contains `true` is this frame belongs to your application, and `false` if it belongs to a file in
   the vendor directory
 
-### Collecting arguments
+### Collecting arguments and objects
 
-For performance reasons, the frames of the back trace will not contain the arguments of the called functions. If you
-want to add those use the `withArguments` method.
+For performance reasons, the frames of the back trace will not contain the arguments of the called functions and the
+object. If you want to add those, use the `withArguments` and `withObject` methods.
 
 ```php
-$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments();
+$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments()->withObject();
 ```
 
 #### Reducing arguments
@@ -123,6 +124,13 @@ frame is an application frame, or a vendor frame. Here's an example using a Lara
 ```php
 $backtrace = Spatie\Backtrace\Backtrace::create()->applicationPath(base_path());
 ```
+### Removing the application path from the file name
+
+You can use `trimFilePaths` to remove the base path of your app from the file. This will only work if you use it in conjunction with the `applicationPath` method re above. Here's an example using a Laravel specific function. This will ensure the Frame has the trimmedFilePath property set.
+
+```php
+$backtrace = Backtrace::create()->applicationPath(base_path())->trimFilePaths());
+```
 
 ### Getting a certain part of a trace
 
@@ -168,7 +176,10 @@ Here's how you can get a backtrace for a throwable.
 $frames = Spatie\Backtrace\Backtrace::createForThrowable($throwable)
 ```
 
-Because we will use the backtrace that is already available the throwable, the frames will always contain the arguments used.
+Because we will use the backtrace that is already available in the throwable, the frames will contain the arguments used
+in the backtrace as long as the `zend.exception_ignore_args` INI option is disabled (set to `0`) *before* the throwable
+is thrown. On the other hand, objects will never be included in the backtrace. 
+[More information](https://www.php.net/manual/en/throwable.gettrace.php#129087).
 
 ## Testing
 

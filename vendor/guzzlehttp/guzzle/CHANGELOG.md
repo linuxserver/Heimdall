@@ -3,6 +3,45 @@
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
 
+## 7.9.3 - 2025-03-27
+
+### Changed
+
+- Remove explicit content-length header for GET requests
+- Improve compatibility with bad servers for boolean cookie values
+
+
+## 7.9.2 - 2024-07-24
+
+### Fixed
+
+- Adjusted handler selection to use cURL if its version is 7.21.2 or higher, rather than 7.34.0
+
+
+## 7.9.1 - 2024-07-19
+
+### Fixed
+
+- Fix TLS 1.3 check for HTTP/2 requests
+
+
+## 7.9.0 - 2024-07-18
+
+### Changed
+
+- Improve protocol version checks to provide feedback around unsupported protocols
+- Only select the cURL handler by default if 7.34.0 or higher is linked
+- Improved `CurlMultiHandler` to avoid busy wait if possible
+- Dropped support for EOL `guzzlehttp/psr7` v1
+- Improved URI user info redaction in errors
+
+## 7.8.2 - 2024-07-18
+
+### Added
+
+- Support for PHP 8.4
+
+
 ## 7.8.1 - 2023-12-03
 
 ### Changed

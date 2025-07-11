@@ -113,6 +113,7 @@ class ApacheMimetypeHelper implements MimetypeHelper
             'ttf' => 'application/x-font-ttf',
             'txt' => 'text/plain',
             'wav' => 'audio/x-wav',
+            'webp' => 'image/webp',
             'webm' => 'video/webm',
             'wma' => 'audio/x-ms-wma',
             'wmv' => 'video/x-ms-wmv',

@@ -31,10 +31,11 @@ abstract class VersionControl implements Report
      * and FALSE if it ignored the file. Returning TRUE indicates that the file and
      * its data should be counted in the grand totals.
      *
-     * @param array                       $report      Prepared report data.
-     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being reported on.
-     * @param bool                        $showSources Show sources?
-     * @param int                         $width       Maximum allowed line width.
+     * @param array<string, string|int|array> $report      Prepared report data.
+     *                                                     See the {@see Report} interface for a detailed specification.
+     * @param \PHP_CodeSniffer\Files\File     $phpcsFile   The file being reported on.
+     * @param bool                            $showSources Show sources?
+     * @param int                             $width       Maximum allowed line width.
      *
      * @return bool
      */
@@ -65,7 +66,7 @@ abstract class VersionControl implements Report
 
             $praiseCache[$author]['bad']++;
 
-            foreach ($lineErrors as $column => $colErrors) {
+            foreach ($lineErrors as $colErrors) {
                 foreach ($colErrors as $error) {
                     $authorCache[$author]++;
 

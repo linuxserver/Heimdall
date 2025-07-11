@@ -13,7 +13,21 @@ class Timing
 {
 
     /**
-     * The start time of the run.
+     * Number of milliseconds in a minute.
+     *
+     * @var int
+     */
+    const MINUTE_IN_MS = 60000;
+
+    /**
+     * Number of milliseconds in a second.
+     *
+     * @var int
+     */
+    const SECOND_IN_MS = 1000;
+
+    /**
+     * The start time of the run in microseconds.
      *
      * @var float
      */
@@ -43,7 +57,7 @@ class Timing
     /**
      * Get the duration of the run up to "now".
      *
-     * @return float Duration in microseconds.
+     * @return float Duration in milliseconds.
      */
     public static function getDuration()
     {
@@ -58,24 +72,24 @@ class Timing
 
 
     /**
-     * Convert a duration in microseconds to a human readable duration string.
+     * Convert a duration in milliseconds to a human readable duration string.
      *
-     * @param float $duration Duration in microseconds.
+     * @param float $duration Duration in milliseconds.
      *
      * @return string
      */
     public static function getHumanReadableDuration($duration)
     {
         $timeString = '';
-        if ($duration > 60000) {
-            $mins       = floor($duration / 60000);
-            $secs       = round((fmod($duration, 60000) / 1000), 2);
+        if ($duration >= self::MINUTE_IN_MS) {
+            $mins       = floor($duration / self::MINUTE_IN_MS);
+            $secs       = round((fmod($duration, self::MINUTE_IN_MS) / self::SECOND_IN_MS), 2);
             $timeString = $mins.' mins';
-            if ($secs !== 0) {
+            if ($secs >= 0.01) {
                 $timeString .= ", $secs secs";
             }
-        } else if ($duration > 1000) {
-            $timeString = round(($duration / 1000), 2).' secs';
+        } else if ($duration >= self::SECOND_IN_MS) {
+            $timeString = round(($duration / self::SECOND_IN_MS), 2).' secs';
         } else {
             $timeString = round($duration).'ms';
         }

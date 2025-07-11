@@ -1,3 +1,48 @@
+### 3.9.0 (2025-03-24)
+
+  * BC Warning: Fixed SendGridHandler to use the V3 API as V2 is now shut down, but this requires a new API key (#1952)
+  * Deprecated Monolog\Test\TestCase in favor of Monolog\Test\MonologTestCase (#1953)
+  * Added extension point for NativeMailerHandler::mail (#1948)
+  * Added setHandler method to BufferHandler to modify the nested handler at runtime (#1946)
+  * Fixed date format in ElasticsearchFormatter to use +00:00 vs +0000 tz identifiers (#1942)
+  * Fixed GelfMessageFormatter handling numeric context/extra keys (#1932)
+
+### 3.8.1 (2024-12-05)
+
+  * Deprecated Monolog\DateTimeImmutable in favor of Monolog\JsonSerializableDateTimeImmutable (#1928)
+  * Fixed gelf keys not being valid when context/extra data keys have spaces in them (#1927)
+  * Fixed empty lines appearing in the stack traces when a custom formatter returned null (#1925)
+
+### 3.8.0 (2024-11-12)
+
+  * Added `$fileOpenMode` param to `StreamHandler` to define a custom fopen mode to open the log file (#1913)
+  * Fixed PHP 8.4 deprecation notices (#1903)
+  * Added ability to extend/override `IntrospectionProcessor` (#1899)
+  * Added `$timeout` param to `ProcessHandler` to configure the stream_select() timeout to avoid blocking too long (default is 1.0 sec) (#1916)
+  * Fixed JsonFormatter batch handling to normalize records individually to make sure they look the same as if they were handled one by one (#1906)
+  * Fixed `StreamHandler` handling of write failures so that it now closes/reopens the stream and retries the write once before failing (#1882)
+  * Fixed `StreamHandler` error handler causing issues if a stream handler triggers an error (#1866)
+  * Fixed `StreamHandler::reset` not closing the stream, so that it would fail to write in some cases with long running processes (#1862)
+  * Fixed `RotatingFileHandler` issue where rotation does not happen in some long running processes (#1905)
+  * Fixed `JsonFormatter` handling of incomplete classes (#1834)
+  * Fixed `RotatingFileHandler` bug where rotation could sometimes not happen correctly (#1905)
+
+### 3.7.0 (2024-06-28)
+
+  * Added `NormalizerFormatter->setBasePath(...)` (and `JsonFormatter` by extension) that allows removing the project's path from the stack trace output (47e301d3e)
+  * Fixed JsonFormatter handling of incomplete classes (#1834)
+  * Fixed private error handlers causing problems with custom StreamHandler implementations (#1866)
+
+### 3.6.0 (2024-04-12)
+
+  * Added `LineFormatter->setBasePath(...)` that allows removing the project's path from the stack trace output (#1873)
+  * Added `$includeExtra` option in `PsrHandler` to also use extra data to replace placeholder values in the message (#1852)
+  * Added ability to customize what is a duplicated message by extending the `DeduplicationHandler` (#1879)
+  * Added handling for using `GelfMessageFormatter` together with the `AmqpHandler` (#1869)
+  * Added ability to extend `GoogleCloudLoggingFormatter` (#1859)
+  * Fixed `__toString` failures in context data crashing the normalization process (#1868)
+  * Fixed PHP 8.4 deprecation warnings (#1874)
+
 ### 3.5.0 (2023-10-27)
 
   * Added ability to indent stack traces in LineFormatter via e.g. `indentStacktraces('  ')` (#1835)
@@ -105,6 +150,18 @@ New deprecations:
   to Monolog or one of its handlers, or `Level::Warning->value` if you need the integer
   value equal to what `Logger::WARNING` was giving you.
 - `Logger::getLevelName()` is now deprecated.
+
+### 2.10.0 (2024-11-12)
+
+  * Added `$fileOpenMode` to `StreamHandler` to define a custom fopen mode to open the log file (#1913)
+  * Fixed `StreamHandler` handling of write failures so that it now closes/reopens the stream and retries the write once before failing (#1882)
+  * Fixed `StreamHandler` error handler causing issues if a stream handler triggers an error (#1866)
+  * Fixed `JsonFormatter` handling of incomplete classes (#1834)
+  * Fixed `RotatingFileHandler` bug where rotation could sometimes not happen correctly (#1905)
+
+### 2.9.3 (2024-04-12)
+
+  * Fixed PHP 8.4 deprecation warnings (#1874)
 
 ### 2.9.2 (2023-10-27)
 

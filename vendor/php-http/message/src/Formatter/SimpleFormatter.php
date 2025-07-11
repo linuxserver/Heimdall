@@ -14,9 +14,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class SimpleFormatter implements Formatter
 {
-    /**
-     * {@inheritdoc}
-     */
     public function formatRequest(RequestInterface $request)
     {
         return sprintf(
@@ -27,9 +24,6 @@ class SimpleFormatter implements Formatter
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function formatResponse(ResponseInterface $response)
     {
         return sprintf(

@@ -1,17 +1,17 @@
 <documentation title="Opening Tag at Start of File">
     <standard>
     <![CDATA[
-    The opening php tag should be the first item in the file.
+    The opening PHP tag should be the first item in the file.
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: A file starting with an opening php tag.">
+        <code title="Valid: A file starting with an opening PHP tag.">
         <![CDATA[
 <em></em><?php
 echo 'Foo';
         ]]>
         </code>
-        <code title="Invalid: A file with content before the opening php tag.">
+        <code title="Invalid: A file with content before the opening PHP tag.">
         <![CDATA[
 <em>Beginning content</em>
 <?php

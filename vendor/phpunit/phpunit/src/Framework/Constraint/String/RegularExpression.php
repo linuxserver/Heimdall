@@ -15,12 +15,9 @@ use function sprintf;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-class RegularExpression extends Constraint
+final class RegularExpression extends Constraint
 {
-    /**
-     * @var string
-     */
-    private $pattern;
+    private readonly string $pattern;
 
     public function __construct(string $pattern)
     {
@@ -41,10 +38,8 @@ class RegularExpression extends Constraint
     /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
-     *
-     * @param mixed $other value or object to evaluate
      */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         return preg_match($this->pattern, $other) > 0;
     }

@@ -24,7 +24,7 @@ use Redis;
  * usage example:
  *
  *   $log = new Logger('application');
- *   $redis = new RedisHandler(new Predis\Client("tcp://localhost:6379"), "logs", "prod");
+ *   $redis = new RedisHandler(new Predis\Client("tcp://localhost:6379"), "logs");
  *   $log->pushHandler($redis);
  *
  * @author Thomas Tourlourat <thomas@tourlourat.com>
@@ -69,7 +69,7 @@ class RedisHandler extends AbstractProcessingHandler
     protected function writeCapped(LogRecord $record): void
     {
         if ($this->redisClient instanceof Redis) {
-            $mode = defined('Redis::MULTI') ? Redis::MULTI : 1;
+            $mode = \defined('Redis::MULTI') ? Redis::MULTI : 1;
             $this->redisClient->multi($mode)
                 ->rPush($this->redisKey, $record->formatted)
                 ->ltrim($this->redisKey, -$this->capSize, -1)

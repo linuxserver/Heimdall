@@ -15,6 +15,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getTransactionAsync(array $args = [])
  * @method \Aws\Result listAssetContracts(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listAssetContractsAsync(array $args = [])
+ * @method \Aws\Result listFilteredTransactionEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listFilteredTransactionEventsAsync(array $args = [])
  * @method \Aws\Result listTokenBalances(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listTokenBalancesAsync(array $args = [])
  * @method \Aws\Result listTransactionEvents(array $args = [])

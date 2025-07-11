@@ -61,7 +61,7 @@ class HandlerList implements \Countable
     /**
      * @param callable $handler HTTP handler.
      */
-    public function __construct(callable $handler = null)
+    public function __construct(?callable $handler = null)
     {
         $this->handler = $handler;
     }
@@ -113,6 +113,20 @@ class HandlerList implements \Countable
     public function hasHandler()
     {
         return (bool) $this->handler;
+    }
+
+    /**
+     * Checks if a middleware exists. The middleware
+     * should have been added with a name in order to
+     * use this method.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasMiddleware(string $name): bool
+    {
+        return isset($this->named[$name]);
     }
 
     /**
@@ -277,7 +291,7 @@ class HandlerList implements \Countable
      *
      * @param callable|null $fn Pass null to remove any previously set function
      */
-    public function interpose(callable $fn = null)
+    public function interpose(?callable $fn = null)
     {
         $this->sorted = null;
         $this->interposeFn = $fn;

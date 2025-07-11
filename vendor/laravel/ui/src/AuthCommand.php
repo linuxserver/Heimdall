@@ -4,7 +4,9 @@ namespace Laravel\Ui;
 
 use Illuminate\Console\Command;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'ui:auth')]
 class AuthCommand extends Command
 {
     /**
@@ -116,7 +118,7 @@ class AuthCommand extends Command
         $controller = app_path('Http/Controllers/HomeController.php');
 
         if (file_exists($controller) && ! $this->option('force')) {
-            if ($this->components->confirm("The [HomeController.php] file already exists. Do you want to replace it?")) {
+            if ($this->components->confirm("The [HomeController.php] file already exists. Do you want to replace it?", true)) {
                 file_put_contents($controller, $this->compileStub('controllers/HomeController'));
             }
         } else {
@@ -126,7 +128,7 @@ class AuthCommand extends Command
         $baseController = app_path('Http/Controllers/Controller.php');
 
         if (file_exists($baseController) && ! $this->option('force')) {
-            if ($this->components->confirm("The [Controller.php] file already exists. Do you want to replace it?")) {
+            if ($this->components->confirm("The [Controller.php] file already exists. Do you want to replace it?", true)) {
                 file_put_contents($baseController, $this->compileStub('controllers/Controller'));
             }
         } else {

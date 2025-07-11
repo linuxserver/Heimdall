@@ -7,6 +7,7 @@ use Illuminate\Console\GeneratorCommand;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -77,7 +78,7 @@ class ViewMakeCommand extends GeneratorCommand
     {
         $name = trim($this->argument('name'));
 
-        $name = str_replace(['\\', '.'], '/', $this->argument('name'));
+        $name = str_replace(['\\', '.'], '/', $name);
 
         return $name;
     }
@@ -130,7 +131,7 @@ class ViewMakeCommand extends GeneratorCommand
      */
     protected function handleTestCreation($path): bool
     {
-        if (! $this->option('test') && ! $this->option('pest')) {
+        if (! $this->option('test') && ! $this->option('pest') && ! $this->option('phpunit')) {
             return false;
         }
 
@@ -142,7 +143,11 @@ class ViewMakeCommand extends GeneratorCommand
 
         File::ensureDirectoryExists(dirname($this->getTestPath()), 0755, true);
 
-        return File::put($this->getTestPath(), $contents);
+        $result = File::put($path = $this->getTestPath(), $contents);
+
+        $this->components->info(sprintf('%s [%s] created successfully.', 'Test', $path));
+
+        return $result !== false;
     }
 
     /**
@@ -180,15 +185,15 @@ class ViewMakeCommand extends GeneratorCommand
         $name = Str::of(Str::lower($this->getNameInput()))->replace('.'.$this->option('extension'), '');
 
         $namespacedName = Str::of(
-            Str::of($name)
+            (new Stringable($name))
                 ->replace('/', ' ')
                 ->explode(' ')
-                ->map(fn ($part) => Str::of($part)->ucfirst())
+                ->map(fn ($part) => (new Stringable($part))->ucfirst())
                 ->implode('\\')
         )
             ->replace(['-', '_'], ' ')
             ->explode(' ')
-            ->map(fn ($part) => Str::of($part)->ucfirst())
+            ->map(fn ($part) => (new Stringable($part))->ucfirst())
             ->implode('');
 
         return 'Tests\\Feature\\View\\'.$namespacedName;
@@ -201,7 +206,7 @@ class ViewMakeCommand extends GeneratorCommand
      */
     protected function getTestStub()
     {
-        $stubName = 'view.'.($this->option('pest') ? 'pest' : 'test').'.stub';
+        $stubName = 'view.'.($this->usingPest() ? 'pest' : 'test').'.stub';
 
         return file_exists($customPath = $this->laravel->basePath("stubs/$stubName"))
             ? $customPath
@@ -219,6 +224,22 @@ class ViewMakeCommand extends GeneratorCommand
             ->replace('/', '.')
             ->lower()
             ->value();
+    }
+
+    /**
+     * Determine if Pest is being used by the application.
+     *
+     * @return bool
+     */
+    protected function usingPest()
+    {
+        if ($this->option('phpunit')) {
+            return false;
+        }
+
+        return $this->option('pest') ||
+            (function_exists('\Pest\\version') &&
+             file_exists(base_path('tests').'/Pest.php'));
     }
 
     /**

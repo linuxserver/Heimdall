@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="PopulateTokenListenersNamingConventionsTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!--
+    These sniff files are not in an installed standard, there is not even a ruleset.xml file for the "standard".
+    Each of these sniff files breaks one of the naming convention rules.
+    -->
+
+    <!-- Breaks: All sniffs MUST be located within a [CategoryName] directory. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/MissingCategoryDirSniff.php"/>
+    <!-- Breaks: The namespace and class name MUST follow PSR-4. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/NoNamespaceSniff.php"/>
+    <!-- Breaks: The namespace and class name MUST follow PSR-4. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/PartialNamespaceSniff.php"/>
+    <!-- Breaks: All sniffs MUST have a name, so a sniff class called just and only Sniff is not allowed. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/Category/Sniff.php"/>
+    <!-- Breaks: The name "Sniffs" MUST NOT be used as a category name. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/Sniffs/CategoryCalledSniffsSniff.php"/>
+    <!-- Breaks: No directories should exist under the [CategoryName] directory. -->
+    <rule ref="./Fixtures/BrokenNamingConventions/Sniffs/Category/SubDir/TooDeeplyNestedSniff.php"/>
+
+    <!-- Prevent a "no sniffs were registered" error (once the above become errors). -->
+    <rule ref="Generic.PHP.BacktickOperator"/>
+</ruleset>

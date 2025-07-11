@@ -1,0 +1,68 @@
+{
+    "name": "spatie/laravel-html",
+    "description": "A fluent html builder",
+    "keywords": [
+        "spatie",
+        "html"
+    ],
+    "homepage": "https://github.com/spatie/laravel-html",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sebastian De Deyne",
+            "email": "sebastian@spatie.be",
+            "homepage": "https://spatie.be",
+            "role": "Developer"
+        },
+        {
+            "name": "Freek Van der Herten",
+            "email": "freek@spatie.be",
+            "homepage": "https://spatie.be",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.3",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.34|^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spatie\\Html\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Spatie\\Html\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Spatie\\Html\\HtmlServiceProvider"
+            ],
+            "aliases": {
+                "Html": "Spatie\\Html\\Facades\\Html"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

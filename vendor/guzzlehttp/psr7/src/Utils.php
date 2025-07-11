@@ -231,7 +231,7 @@ final class Utils
      * @param StreamInterface $stream    Stream to read from
      * @param int|null        $maxLength Maximum buffer length
      */
-    public static function readLine(StreamInterface $stream, int $maxLength = null): string
+    public static function readLine(StreamInterface $stream, ?int $maxLength = null): string
     {
         $buffer = '';
         $size = 0;
@@ -248,6 +248,20 @@ final class Utils
         }
 
         return $buffer;
+    }
+
+    /**
+     * Redact the password in the user info part of a URI.
+     */
+    public static function redactUserInfo(UriInterface $uri): UriInterface
+    {
+        $userInfo = $uri->getUserInfo();
+
+        if (false !== ($pos = \strpos($userInfo, ':'))) {
+            return $uri->withUserInfo(\substr($userInfo, 0, $pos), '***');
+        }
+
+        return $uri;
     }
 
     /**

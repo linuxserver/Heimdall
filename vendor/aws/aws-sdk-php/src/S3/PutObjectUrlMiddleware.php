@@ -35,7 +35,7 @@ class PutObjectUrlMiddleware
         $this->nextHandler = $nextHandler;
     }
 
-    public function __invoke(CommandInterface $command, RequestInterface $request = null)
+    public function __invoke(CommandInterface $command, ?RequestInterface $request = null)
     {
         $next = $this->nextHandler;
         return $next($command, $request)->then(
@@ -49,7 +49,7 @@ class PutObjectUrlMiddleware
                             : null;
                         break;
                     case 'CompleteMultipartUpload':
-                        $result['ObjectURL'] = $result['Location'];
+                        $result['ObjectURL'] = urldecode($result['Location'] ?? '');
                         break;
                 }
                 return $result;

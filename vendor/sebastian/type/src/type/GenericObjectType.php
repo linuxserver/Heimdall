@@ -11,10 +11,7 @@ namespace SebastianBergmann\Type;
 
 final class GenericObjectType extends Type
 {
-    /**
-     * @var bool
-     */
-    private $allowsNull;
+    private bool $allowsNull;
 
     public function __construct(bool $nullable)
     {

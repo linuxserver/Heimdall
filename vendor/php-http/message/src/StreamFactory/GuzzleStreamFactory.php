@@ -18,9 +18,6 @@ if (!interface_exists(StreamFactory::class)) {
  */
 final class GuzzleStreamFactory implements StreamFactory
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createStream($body = null)
     {
         if (class_exists(Utils::class)) {

@@ -18,27 +18,22 @@ use function pcov\start;
 use function pcov\stop;
 use function pcov\waiting;
 use function phpversion;
+use SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
 use SebastianBergmann\CodeCoverage\Filter;
-use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class PcovDriver extends Driver
 {
-    /**
-     * @var Filter
-     */
-    private $filter;
+    private readonly Filter $filter;
 
     /**
      * @throws PcovNotAvailableException
      */
     public function __construct(Filter $filter)
     {
-        if (!extension_loaded('pcov')) {
-            throw new PcovNotAvailableException;
-        }
+        $this->ensurePcovIsAvailable();
 
         $this->filter = $filter;
     }
@@ -71,5 +66,15 @@ final class PcovDriver extends Driver
     public function nameAndVersion(): string
     {
         return 'PCOV ' . phpversion('pcov');
+    }
+
+    /**
+     * @throws PcovNotAvailableException
+     */
+    private function ensurePcovIsAvailable(): void
+    {
+        if (!extension_loaded('pcov')) {
+            throw new PcovNotAvailableException;
+        }
     }
 }

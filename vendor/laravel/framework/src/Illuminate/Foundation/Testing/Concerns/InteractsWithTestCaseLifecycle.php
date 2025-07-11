@@ -4,27 +4,39 @@ namespace Illuminate\Foundation\Testing\Concerns;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Application as Artisan;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Foundation\Bootstrap\HandleExceptions;
+use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Http\Middleware\TrustHosts;
+use Illuminate\Http\Middleware\TrustProxies;
+use Illuminate\Mail\Markdown;
+use Illuminate\Queue\Console\WorkCommand;
 use Illuminate\Queue\Queue;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\EncodedHtmlString;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Once;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
 use Mockery;
 use Mockery\Exception\InvalidCountException;
+use PHPUnit\Metadata\Annotation\Parser\Registry as PHPUnitRegistry;
 use Throwable;
 
 trait InteractsWithTestCaseLifecycle
@@ -160,10 +172,22 @@ trait InteractsWithTestCaseLifecycle
         Component::forgetComponentsResolver();
         Component::forgetFactory();
         ConvertEmptyStringsToNull::flushState();
-        HandleExceptions::forgetApp();
+        Factory::flushState();
+        EncodedHtmlString::flushState();
+        EncryptCookies::flushState();
+        HandleExceptions::flushState();
+        Markdown::flushState();
+        Migrator::withoutMigrations([]);
+        Once::flush();
+        PreventRequestsDuringMaintenance::flushState();
         Queue::createPayloadUsing(null);
+        RegisterProviders::flushState();
         Sleep::fake(false);
         TrimStrings::flushState();
+        TrustProxies::flushState();
+        TrustHosts::flushState();
+        ValidateCsrfToken::flushState();
+        WorkCommand::flushState();
 
         if ($this->callbackException) {
             throw $this->callbackException;
@@ -199,10 +223,6 @@ trait InteractsWithTestCaseLifecycle
             $this->disableMiddlewareForAllTests();
         }
 
-        if (isset($uses[WithoutEvents::class])) {
-            $this->disableEventsForAllTests();
-        }
-
         if (isset($uses[WithFaker::class])) {
             $this->setUpFaker();
         }
@@ -229,16 +249,11 @@ trait InteractsWithTestCaseLifecycle
      */
     public static function tearDownAfterClassUsingTestCase()
     {
-        foreach ([
-            \PHPUnit\Util\Annotation\Registry::class,
-            \PHPUnit\Metadata\Annotation\Parser\Registry::class,
-        ] as $class) {
-            if (class_exists($class)) {
-                (function () {
-                    $this->classDocBlocks = [];
-                    $this->methodDocBlocks = [];
-                })->call($class::getInstance());
-            }
+        if (class_exists(PHPUnitRegistry::class)) {
+            (function () {
+                $this->classDocBlocks = [];
+                $this->methodDocBlocks = [];
+            })->call(PHPUnitRegistry::getInstance());
         }
     }
 

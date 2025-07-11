@@ -37,3 +37,54 @@ function foo()
 
 
 }
+
+// Nested functions - okay.
+function hasNestedOkay() {
+    function nestedFunction() {
+        echo 'hello';
+    }
+
+}
+
+$cl = function() {
+    function nestedFunction() {
+        echo 'hello';
+    }
+
+};
+
+mycallback(
+    'name',
+    function() {
+        echo 'hello';
+    }
+
+);
+
+// Nested functions - not okay.
+function hasNestedNotOkay() {
+    function nestedFunction() {}
+
+}
+
+$cl = function() {
+    function nestedFunction() {
+        echo 'hello'; }
+
+};
+
+mycallback('name', function() {
+    echo 'hello';
+
+
+
+    }
+
+);
+
+mycallback('name', function() {
+    // Comment
+
+    }
+
+);

@@ -75,7 +75,7 @@ class PhpSubprocess extends Process
 
     public static function fromShellCommandline(string $command, ?string $cwd = null, ?array $env = null, mixed $input = null, ?float $timeout = 60): static
     {
-        throw new LogicException(sprintf('The "%s()" method cannot be called when using "%s".', __METHOD__, self::class));
+        throw new LogicException(\sprintf('The "%s()" method cannot be called when using "%s".', __METHOD__, self::class));
     }
 
     public function start(?callable $callback = null, array $env = []): void
@@ -106,7 +106,7 @@ class PhpSubprocess extends Process
                 throw new RuntimeException('Unable to read ini: '.$file);
             }
             // Check and remove directives after HOST and PATH sections
-            if (preg_match('/^\s*\[(?:PATH|HOST)\s*=/mi', $data, $matches)) {
+            if (preg_match('/^\s*\[(?:PATH|HOST)\s*=/mi', $data, $matches, \PREG_OFFSET_CAPTURE)) {
                 $data = substr($data, 0, $matches[0][1]);
             }
 

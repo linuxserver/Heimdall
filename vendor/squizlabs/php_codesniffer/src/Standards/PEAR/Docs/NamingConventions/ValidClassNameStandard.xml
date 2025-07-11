@@ -5,14 +5,14 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Examples of valid class names">
+        <code title="Valid: Examples of valid class names.">
         <![CDATA[
 Log
 Net_Finger
 HTML_Upload_Error
         ]]>
         </code>
-        <code title="Examples of invalid class names">
+        <code title="Invalid: Examples of invalid class names.">
         <![CDATA[
 log
 NetFinger

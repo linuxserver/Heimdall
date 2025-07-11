@@ -13,6 +13,8 @@ use Exception;
  */
 class DateTimeResult extends \DateTime implements \JsonSerializable
 {
+    private const ISO8601_NANOSECOND_REGEX = '/^(.*\.\d{6})(\d{1,3})(Z|[+-]\d{2}:\d{2})?$/';
+
     /**
      * Create a new DateTimeResult from a unix timestamp.
      * The Unix epoch (or Unix time or POSIX time or Unix
@@ -58,6 +60,14 @@ class DateTimeResult extends \DateTime implements \JsonSerializable
     {
         if (is_numeric($iso8601Timestamp) || !is_string($iso8601Timestamp)) {
             throw new ParserException('Invalid timestamp value passed to DateTimeResult::fromISO8601');
+        }
+
+        // Prior to 8.0.10, nanosecond precision is not supported
+        // Reduces to microsecond precision if nanosecond precision is detected
+        if (PHP_VERSION_ID < 80010
+            && preg_match(self::ISO8601_NANOSECOND_REGEX, $iso8601Timestamp, $matches)
+        ) {
+            $iso8601Timestamp = $matches[1] . ($matches[3] ?? '');
         }
 
         return new DateTimeResult($iso8601Timestamp);

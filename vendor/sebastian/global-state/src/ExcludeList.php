@@ -10,40 +10,17 @@
 namespace SebastianBergmann\GlobalState;
 
 use function in_array;
-use function strpos;
+use function str_starts_with;
 use ReflectionClass;
 
 final class ExcludeList
 {
-    /**
-     * @var array
-     */
-    private $globalVariables = [];
-
-    /**
-     * @var string[]
-     */
-    private $classes = [];
-
-    /**
-     * @var string[]
-     */
-    private $classNamePrefixes = [];
-
-    /**
-     * @var string[]
-     */
-    private $parentClasses = [];
-
-    /**
-     * @var string[]
-     */
-    private $interfaces = [];
-
-    /**
-     * @var array
-     */
-    private $staticAttributes = [];
+    private array $globalVariables   = [];
+    private array $classes           = [];
+    private array $classNamePrefixes = [];
+    private array $parentClasses     = [];
+    private array $interfaces        = [];
+    private array $staticProperties  = [];
 
     public function addGlobalVariable(string $variableName): void
     {
@@ -70,13 +47,13 @@ final class ExcludeList
         $this->classNamePrefixes[] = $classNamePrefix;
     }
 
-    public function addStaticAttribute(string $className, string $attributeName): void
+    public function addStaticProperty(string $className, string $propertyName): void
     {
-        if (!isset($this->staticAttributes[$className])) {
-            $this->staticAttributes[$className] = [];
+        if (!isset($this->staticProperties[$className])) {
+            $this->staticProperties[$className] = [];
         }
 
-        $this->staticAttributes[$className][$attributeName] = true;
+        $this->staticProperties[$className][$propertyName] = true;
     }
 
     public function isGlobalVariableExcluded(string $variableName): bool
@@ -84,14 +61,17 @@ final class ExcludeList
         return isset($this->globalVariables[$variableName]);
     }
 
-    public function isStaticAttributeExcluded(string $className, string $attributeName): bool
+    /**
+     * @psalm-param class-string $className
+     */
+    public function isStaticPropertyExcluded(string $className, string $propertyName): bool
     {
         if (in_array($className, $this->classes, true)) {
             return true;
         }
 
         foreach ($this->classNamePrefixes as $prefix) {
-            if (strpos($className, $prefix) === 0) {
+            if (str_starts_with($className, $prefix)) {
                 return true;
             }
         }
@@ -110,10 +90,6 @@ final class ExcludeList
             }
         }
 
-        if (isset($this->staticAttributes[$className][$attributeName])) {
-            return true;
-        }
-
-        return false;
+        return isset($this->staticProperties[$className][$propertyName]);
     }
 }

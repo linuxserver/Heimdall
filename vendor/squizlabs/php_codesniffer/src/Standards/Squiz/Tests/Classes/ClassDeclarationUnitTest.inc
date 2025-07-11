@@ -128,3 +128,25 @@ class Test
 readonly    class Test
 {
 }
+
+class TooMuchSpacingBelowClassButShouldNotBeFlaggedWhenNextThingIsFunctionWithAttribute
+{
+    var $x;
+}
+
+
+#[AttributesShouldBeJumpedOver]
+function ThisIsFineAndHasAttribute() {}
+
+class TooMuchSpacingBelowClassButShouldNotBeFlaggedWhenNextThingIsFunctionWithDocblockAndAttribute
+{
+    var $x;
+}
+
+
+/**
+ * No error.
+ */
+#[AttributesShouldBeJumpedOver]
+#[ASecondAttributeShouldBeJumpedOverToo]#[AndAThirdAsWell]
+function ThisIsFineAndHasDocblockAndAttribute() {}

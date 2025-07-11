@@ -1,6 +1,7 @@
 <?php
 namespace Aws\Sts;
 
+use Aws\Arn\ArnParser;
 use Aws\AwsClient;
 use Aws\CacheInterface;
 use Aws\Credentials\Credentials;
@@ -16,6 +17,8 @@ use Aws\Sts\RegionalEndpoints\ConfigurationProvider;
  * @method \GuzzleHttp\Promise\Promise assumeRoleWithSAMLAsync(array $args = [])
  * @method \Aws\Result assumeRoleWithWebIdentity(array $args = [])
  * @method \GuzzleHttp\Promise\Promise assumeRoleWithWebIdentityAsync(array $args = [])
+ * @method \Aws\Result assumeRoot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise assumeRootAsync(array $args = [])
  * @method \Aws\Result decodeAuthorizationMessage(array $args = [])
  * @method \GuzzleHttp\Promise\Promise decodeAuthorizationMessageAsync(array $args = [])
  * @method \Aws\Result getAccessKeyInfo(array $args = [])
@@ -69,21 +72,33 @@ class StsClient extends AwsClient
      * @return Credentials
      * @throws \InvalidArgumentException if the result contains no credentials
      */
-    public function createCredentials(Result $result)
+    public function createCredentials(Result $result, $source=null)
     {
         if (!$result->hasKey('Credentials')) {
             throw new \InvalidArgumentException('Result contains no credentials');
         }
 
-        $c = $result['Credentials'];
+        $accountId = null;
+        if ($result->hasKey('AssumedRoleUser')) {
+            $parsedArn = ArnParser::parse($result->get('AssumedRoleUser')['Arn']);
+            $accountId = $parsedArn->getAccountId();
+        } elseif ($result->hasKey('FederatedUser')) {
+            $parsedArn = ArnParser::parse($result->get('FederatedUser')['Arn']);
+            $accountId = $parsedArn->getAccountId();
+        }
+
+        $credentials = $result['Credentials'];
+        $expiration = isset($credentials['Expiration']) && $credentials['Expiration'] instanceof \DateTimeInterface
+            ? (int) $credentials['Expiration']->format('U')
+            : null;
 
         return new Credentials(
-            $c['AccessKeyId'],
-            $c['SecretAccessKey'],
-            isset($c['SessionToken']) ? $c['SessionToken'] : null,
-            isset($c['Expiration']) && $c['Expiration'] instanceof \DateTimeInterface
-                ? (int) $c['Expiration']->format('U')
-                : null
+            $credentials['AccessKeyId'],
+            $credentials['SecretAccessKey'],
+            isset($credentials['SessionToken']) ? $credentials['SessionToken'] : null,
+            $expiration,
+            $accountId,
+            $source
         );
     }
 

@@ -3,6 +3,8 @@
 namespace Illuminate\Log;
 
 use Closure;
+use Illuminate\Log\Context\Repository as ContextRepository;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Monolog\Formatter\LineFormatter;
@@ -135,7 +137,25 @@ class LogManager implements LoggerInterface
     {
         try {
             return $this->channels[$name] ?? with($this->resolve($name, $config), function ($logger) use ($name) {
-                return $this->channels[$name] = $this->tap($name, new Logger($logger, $this->app['events']))->withContext($this->sharedContext);
+                $loggerWithContext = $this->tap(
+                    $name,
+                    new Logger($logger, $this->app['events'])
+                )->withContext($this->sharedContext);
+
+                if (method_exists($loggerWithContext->getLogger(), 'pushProcessor')) {
+                    $loggerWithContext->pushProcessor(function ($record) {
+                        if (! $this->app->bound(ContextRepository::class)) {
+                            return $record;
+                        }
+
+                        return $record->with(extra: [
+                            ...$record->extra,
+                            ...$this->app[ContextRepository::class]->all(),
+                        ]);
+                    });
+                }
+
+                return $this->channels[$name] = $loggerWithContext;
             });
         } catch (Throwable $e) {
             return tap($this->createEmergencyLogger(), function ($logger) use ($e) {
@@ -261,13 +281,13 @@ class LogManager implements LoggerInterface
             $config['channels'] = explode(',', $config['channels']);
         }
 
-        $handlers = collect($config['channels'])->flatMap(function ($channel) {
+        $handlers = (new Collection($config['channels']))->flatMap(function ($channel) {
             return $channel instanceof LoggerInterface
                 ? $channel->getHandlers()
                 : $this->channel($channel)->getHandlers();
         })->all();
 
-        $processors = collect($config['channels'])->flatMap(function ($channel) {
+        $processors = (new Collection($config['channels']))->flatMap(function ($channel) {
             return $channel instanceof LoggerInterface
                 ? $channel->getProcessors()
                 : $this->channel($channel)->getProcessors();
@@ -386,7 +406,7 @@ class LogManager implements LoggerInterface
             );
         }
 
-        collect($config['processors'] ?? [])->each(function ($processor) {
+        (new Collection($config['processors'] ?? []))->each(function ($processor) {
             $processor = $processor['processor'] ?? $processor;
 
             if (! is_a($processor, ProcessorInterface::class, true)) {
@@ -406,7 +426,7 @@ class LogManager implements LoggerInterface
             $this->app->make($config['handler'], $with), $config
         );
 
-        $processors = collect($config['processors'] ?? [])
+        $processors = (new Collection($config['processors'] ?? []))
             ->map(fn ($processor) => $this->app->make($processor['processor'] ?? $processor, $processor['with'] ?? []))
             ->toArray();
 
@@ -614,7 +634,7 @@ class LogManager implements LoggerInterface
             $driver ??= 'null';
         }
 
-        return $driver;
+        return trim($driver);
     }
 
     /**
@@ -745,6 +765,19 @@ class LogManager implements LoggerInterface
     public function log($level, $message, array $context = []): void
     {
         $this->driver()->log($level, $message, $context);
+    }
+
+    /**
+     * Set the application instance used by the manager.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return $this
+     */
+    public function setApplication($app)
+    {
+        $this->app = $app;
+
+        return $this;
     }
 
     /**

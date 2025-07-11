@@ -57,9 +57,6 @@ final class ContentTypePlugin implements Plugin
         $this->sizeLimit = $options['size_limit'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         if (!$request->hasHeader('Content-Type')) {

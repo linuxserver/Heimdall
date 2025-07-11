@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\Complexity;
 
-use function get_class;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
@@ -28,14 +27,13 @@ use PhpParser\NodeVisitorAbstract;
 final class CyclomaticComplexityCalculatingVisitor extends NodeVisitorAbstract
 {
     /**
-     * @var int
+     * @psalm-var positive-int
      */
-    private $cyclomaticComplexity = 1;
+    private int $cyclomaticComplexity = 1;
 
     public function enterNode(Node $node): void
     {
-        /* @noinspection GetClassMissUseInspection */
-        switch (get_class($node)) {
+        switch ($node::class) {
             case BooleanAnd::class:
             case BooleanOr::class:
             case Case_::class:
@@ -52,6 +50,9 @@ final class CyclomaticComplexityCalculatingVisitor extends NodeVisitorAbstract
         }
     }
 
+    /**
+     * @psalm-return positive-int
+     */
     public function cyclomaticComplexity(): int
     {
         return $this->cyclomaticComplexity;

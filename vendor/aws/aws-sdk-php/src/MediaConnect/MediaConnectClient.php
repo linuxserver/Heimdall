@@ -37,6 +37,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeFlowAsync(array $args = [])
  * @method \Aws\Result describeFlowSourceMetadata(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeFlowSourceMetadataAsync(array $args = [])
+ * @method \Aws\Result describeFlowSourceThumbnail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeFlowSourceThumbnailAsync(array $args = [])
  * @method \Aws\Result describeGateway(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeGatewayAsync(array $args = [])
  * @method \Aws\Result describeGatewayInstance(array $args = [])

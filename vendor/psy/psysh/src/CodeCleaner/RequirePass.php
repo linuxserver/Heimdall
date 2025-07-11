@@ -16,6 +16,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Include_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
+use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\LNumber;
 use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
@@ -25,7 +26,7 @@ use Psy\Exception\FatalErrorException;
  */
 class RequirePass extends CodeCleanerPass
 {
-    private static $requireTypes = [Include_::TYPE_REQUIRE, Include_::TYPE_REQUIRE_ONCE];
+    private const REQUIRE_TYPES = [Include_::TYPE_REQUIRE, Include_::TYPE_REQUIRE_ONCE];
 
     /**
      * {@inheritdoc}
@@ -49,10 +50,15 @@ class RequirePass extends CodeCleanerPass
          *
          *   $foo = require \Psy\CodeCleaner\RequirePass::resolve($bar)
          */
+        // @todo Remove LNumber once we drop support for PHP-Parser 4.x
+        $arg = \class_exists('PhpParser\Node\Scalar\Int_') ?
+            new Int_($origNode->getStartLine()) :
+            new LNumber($origNode->getStartLine());
+
         $node->expr = new StaticCall(
             new FullyQualifiedName(self::class),
             'resolve',
-            [new Arg($origNode->expr), new Arg(new LNumber($origNode->getStartLine()))],
+            [new Arg($origNode->expr), new Arg($arg)],
             $origNode->getAttributes()
         );
 
@@ -119,7 +125,7 @@ class RequirePass extends CodeCleanerPass
 
     private function isRequireNode(Node $node): bool
     {
-        return $node instanceof Include_ && \in_array($node->type, self::$requireTypes);
+        return $node instanceof Include_ && \in_array($node->type, self::REQUIRE_TYPES);
     }
 
     private static function getIncludePath(): array

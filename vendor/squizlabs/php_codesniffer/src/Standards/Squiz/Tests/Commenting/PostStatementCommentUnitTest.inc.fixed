@@ -57,3 +57,15 @@ $match = match($foo // comment
     1 => 1, 
 // comment
 };
+
+// Issue #560: Annotations should be reported separately and be non-auto-fixable as their meaning may change when moved.
+$a = 1; //@codeCoverageIgnore
+$b = 2; // @phpstan-ignore variable.undefined
+$c = 3; //  @phpstan-ignore variable.undefined
+$d = 4; //	@tabInsteadOfSpace
+
+// Comments that include `@`, but are not recognized as annotations by this sniff.
+$a = 1; 
+// @ = add tag.
+$b = 2; 
+// Some comment. // @username

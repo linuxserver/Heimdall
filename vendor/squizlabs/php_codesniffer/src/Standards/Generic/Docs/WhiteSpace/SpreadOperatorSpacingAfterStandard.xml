@@ -17,7 +17,7 @@ function foo(<em>&...$spread</em>) {
 }
         ]]>
         </code>
-        <code title="Invalid: space found between the spread operator and the variable/function call it applies to.">
+        <code title="Invalid: Space found between the spread operator and the variable/function call it applies to.">
         <![CDATA[
 function bar(<em>... </em>$spread) {
     bar(<em>...
@@ -25,7 +25,7 @@ function bar(<em>... </em>$spread) {
     );
 
     bar(
-        [<em>...  </em>$foo ],<em>.../*comment*/</em>array_values($keyedArray)
+        [<em>... </em>$foo ],<em>.../*@*/</em>array_values($keyed)
     );
 }
         ]]>

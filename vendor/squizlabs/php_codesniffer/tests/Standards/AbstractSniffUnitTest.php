@@ -13,9 +13,10 @@
 
 namespace PHP_CodeSniffer\Tests\Standards;
 
+use DirectoryIterator;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
-use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Files\LocalFile;
+use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Tests\ConfigDouble;
 use PHP_CodeSniffer\Util\Common;
 use PHPUnit\Framework\TestCase;
@@ -78,7 +79,7 @@ abstract class AbstractSniffUnitTest extends TestCase
         $testFiles = [];
 
         $dir = substr($testFileBase, 0, strrpos($testFileBase, DIRECTORY_SEPARATOR));
-        $di  = new \DirectoryIterator($dir);
+        $di  = new DirectoryIterator($dir);
 
         foreach ($di as $file) {
             $path = $file->getPathname();
@@ -192,10 +193,13 @@ abstract class AbstractSniffUnitTest extends TestCase
                 $fixedFile = $testFile.'.fixed';
                 $filename  = basename($testFile);
                 if (file_exists($fixedFile) === true) {
-                    $diff = $phpcsFile->fixer->generateDiff($fixedFile);
-                    if (trim($diff) !== '') {
-                        $fixedFilename     = basename($fixedFile);
-                        $failureMessages[] = "Fixed version of $filename does not match expected version in $fixedFilename; the diff is\n$diff";
+                    if ($phpcsFile->fixer->getContents() !== file_get_contents($fixedFile)) {
+                        // Only generate the (expensive) diff if a difference is expected.
+                        $diff = $phpcsFile->fixer->generateDiff($fixedFile);
+                        if (trim($diff) !== '') {
+                            $fixedFilename     = basename($fixedFile);
+                            $failureMessages[] = "Fixed version of $filename does not match expected version in $fixedFilename; the diff is\n$diff";
+                        }
                     }
                 } else if (is_callable([$this, 'addWarning']) === true) {
                     $this->addWarning("Missing fixed version of $filename to verify the accuracy of fixes, while the sniff is making fixes against the test case file");

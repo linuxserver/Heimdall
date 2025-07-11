@@ -13,6 +13,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getReportMetadataAsync(array $args = [])
  * @method \Aws\Result getTermForReport(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTermForReportAsync(array $args = [])
+ * @method \Aws\Result listCustomerAgreements(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listCustomerAgreementsAsync(array $args = [])
  * @method \Aws\Result listReports(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listReportsAsync(array $args = [])
  * @method \Aws\Result putAccountSettings(array $args = [])

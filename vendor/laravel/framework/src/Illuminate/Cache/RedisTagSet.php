@@ -2,6 +2,7 @@
 
 namespace Illuminate\Cache;
 
+use Illuminate\Redis\Connections\PhpRedisConnection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\LazyCollection;
 
@@ -15,7 +16,7 @@ class RedisTagSet extends TagSet
      * @param  string  $updateWhen
      * @return void
      */
-    public function addEntry(string $key, int $ttl = null, $updateWhen = null)
+    public function addEntry(string $key, ?int $ttl = null, $updateWhen = null)
     {
         $ttl = is_null($ttl) ? -1 : Carbon::now()->addSeconds($ttl)->getTimestamp();
 
@@ -35,12 +36,19 @@ class RedisTagSet extends TagSet
      */
     public function entries()
     {
-        return LazyCollection::make(function () {
+        $connection = $this->store->connection();
+
+        $defaultCursorValue = match (true) {
+            $connection instanceof PhpRedisConnection && version_compare(phpversion('redis'), '6.1.0', '>=') => null,
+            default => '0',
+        };
+
+        return new LazyCollection(function () use ($connection, $defaultCursorValue) {
             foreach ($this->tagIds() as $tagKey) {
-                $cursor = $defaultCursorValue = '0';
+                $cursor = $defaultCursorValue;
 
                 do {
-                    [$cursor, $entries] = $this->store->connection()->zscan(
+                    [$cursor, $entries] = $connection->zscan(
                         $this->store->getPrefix().$tagKey,
                         $cursor,
                         ['match' => '*', 'count' => 1000]

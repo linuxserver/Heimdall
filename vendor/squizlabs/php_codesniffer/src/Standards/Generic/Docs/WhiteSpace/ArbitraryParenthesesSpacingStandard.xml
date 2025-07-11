@@ -5,12 +5,12 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: no spaces on the inside of a set of arbitrary parentheses.">
+        <code title="Valid: No spaces on the inside of a set of arbitrary parentheses.">
         <![CDATA[
 $a = (null !== $extra);
         ]]>
         </code>
-        <code title="Invalid: spaces or new lines on the inside of a set of arbitrary parentheses.">
+        <code title="Invalid: Spaces or new lines on the inside of a set of arbitrary parentheses.">
         <![CDATA[
 $a = ( null !== $extra );
 

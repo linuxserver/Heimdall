@@ -1,0 +1,7 @@
+
+--------------------------------------------------
+| GENERATORTEST CODING STANDARD: LOWERCASE TITLE |
+--------------------------------------------------
+
+This is a standard block.
+

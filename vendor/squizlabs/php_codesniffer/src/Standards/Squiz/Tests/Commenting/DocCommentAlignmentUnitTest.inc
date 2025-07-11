@@ -101,3 +101,33 @@ enum Suits: string
  * Example with no errors.
  **************************************************************************/
 function example() {}
+
+/**
+  *  Some info about the class here.
+    */
+final class FinalClassWithFinalProp
+{
+    /**
+   *Some info about the property here.
+    *
+     *  @var int
+      */
+    final $property = 10;
+}
+
+class AsymVisibility {
+    /**
+    * Stars should be aligned.
+   */
+    public(set) int $prop = 1;
+
+    /**
+      * Stars should be aligned.
+       */
+    protected(set) int $prop = 1;
+
+    /**
+     * Stars should be aligned.
+     */
+    private(set) int $prop = 1;
+}

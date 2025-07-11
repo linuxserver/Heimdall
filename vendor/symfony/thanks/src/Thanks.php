@@ -29,7 +29,7 @@ class Thanks implements EventSubscriberInterface, PluginInterface
     private $io;
     private $displayReminder = 0;
 
-    public function activate(Composer $composer, IOInterface $io)
+    public function activate(Composer $composer, IOInterface $io): void
     {
         $this->io = $io;
 
@@ -65,14 +65,14 @@ class Thanks implements EventSubscriberInterface, PluginInterface
         }
     }
 
-    public function enableReminder()
+    public function enableReminder(): void
     {
         if (1 === $this->displayReminder) {
             $this->displayReminder = version_compare('1.1.0', PluginInterface::PLUGIN_API_VERSION, '<=') ? 2 : 0;
         }
     }
 
-    public function displayReminder(ScriptEvent $event)
+    public function displayReminder(ScriptEvent $event): void
     {
         if (2 !== $this->displayReminder) {
             return;
@@ -108,7 +108,7 @@ class Thanks implements EventSubscriberInterface, PluginInterface
         $this->io->writeError('');
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PackageEvents::POST_PACKAGE_UPDATE => 'enableReminder',
@@ -119,14 +119,14 @@ class Thanks implements EventSubscriberInterface, PluginInterface
     /**
      * {@inheritdoc}
      */
-    public function deactivate(Composer $composer, IOInterface $io)
+    public function deactivate(Composer $composer, IOInterface $io): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function uninstall(Composer $composer, IOInterface $io): void
     {
     }
 }

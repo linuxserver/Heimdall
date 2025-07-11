@@ -109,16 +109,24 @@ class FunctionCallArgumentSpacingSniff implements Sniff
         $find = [
             T_COMMA,
             T_CLOSURE,
+            T_FN,
             T_ANON_CLASS,
             T_OPEN_SHORT_ARRAY,
+            T_MATCH,
         ];
 
         while (($nextSeparator = $phpcsFile->findNext($find, ($nextSeparator + 1), $closeBracket)) !== false) {
             if ($tokens[$nextSeparator]['code'] === T_CLOSURE
                 || $tokens[$nextSeparator]['code'] === T_ANON_CLASS
+                || $tokens[$nextSeparator]['code'] === T_MATCH
             ) {
-                // Skip closures.
+                // Skip closures, anon class declarations and match control structures.
                 $nextSeparator = $tokens[$nextSeparator]['scope_closer'];
+                continue;
+            } else if ($tokens[$nextSeparator]['code'] === T_FN) {
+                // Skip arrow functions, but don't skip the arrow function closer as it is likely to
+                // be the comma separating it from the next function call argument (or the parenthesis closer).
+                $nextSeparator = ($tokens[$nextSeparator]['scope_closer'] - 1);
                 continue;
             } else if ($tokens[$nextSeparator]['code'] === T_OPEN_SHORT_ARRAY) {
                 // Skips arrays using short notation.

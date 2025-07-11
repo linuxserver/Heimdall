@@ -1,0 +1,55 @@
+<documentation title="Code Title, line wrapping">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: exactly 45 character long description.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code title="Invalid: exactly 45 char long description---.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: exactly 46 character long description-.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code title="Invalid: exactly 46 character long description">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: exactly 47 character long description--.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code title="Invalid: exactly 47 character long description.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: this description is longer than 46 characters and will wrap.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code title="Invalid: this description is longer than 46 characters and will wrap.">
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

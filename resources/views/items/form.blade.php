@@ -5,7 +5,7 @@
             <div class="module-actions">
             <div class="toggleinput">
                 <label class="name">{{ __('app.apps.pinned') }}</label>
-                {!! Form::hidden('pinned', '0') !!}
+                {{ html()->hidden('pinned', '0') }}
                 <label class="switch">
                     <?php
                     $checked = true;
@@ -30,7 +30,7 @@
                         <div><button id="optdetails-button" class="dark">{{ __('app.apps.apptype') }}</button></div>
                         <div class="optvalue">
                             <div class="input">
-                                {!! Form::select('appid', App\Application::applist(), null, array('class' => 'form-control config-item', 'id' => 'apptype', 'data-config' => 'type')) !!}
+                                {{ html()->select('appid', App\Application::applist())->class('form-control config-item')->id('apptype')->data('config', 'type') }}
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
                         <div><button class="dark">{{ __('app.apps.website') }}</button></div>
                         <div class="optvalue">
                             <div class="input">
-                            {!! Form::text('website', $item->url ?? null, array('placeholder' => __('app.apps.website'), 'id' => 'website', 'class' => 'form-control')) !!}
+                            {{ html()->text('website', $item->url ?? null)->placeholder(__('app.apps.website'))->id('website')->class('form-control') }}
                             <small class="help">Don't forget http(s)://</small>    
                             </div>
                             <div><button class="btn">Go</button></div>
@@ -58,29 +58,29 @@
             {!! csrf_field() !!}
             <div class="input">
                 <label>{{ __('app.apps.application_name') }} *</label>
-                {!! Form::text('title', null, array('placeholder' => __('app.apps.title'), 'id' => 'appname', 'class' => 'form-control', 'required')) !!}
+                {{ html()->text('title')->placeholder(__('app.apps.title'))->id('appname')->class('form-control')->required() }}
             </div>
 
             <div class="input">
                 <label>{{ __('app.apps.colour') }}</label>
-                {!! Form::text('colour', $item->colour ?? '#161b1f', array('placeholder' => __('app.apps.hex'), 'id' => 'appcolour', 'class' => 'form-control color-picker set-bg-elem')) !!}
+                {{ html()->text('colour', $item->colour ?? '#161b1f')->placeholder(__('app.apps.hex'))->id('appcolour')->class('form-control color-picker set-bg-elem') }}
             </div>
 
             <div class="input">
                 <label>{{ strtoupper(__('app.url')) }} *</label>
-                {!! Form::text('url', $item->url ?? null, array('placeholder' => __('app.url'), 'id' => 'appurl', 'class' => 'form-control', 'required')) !!}
+                {{ html()->text('url', $item->url ?? null)->placeholder(__('app.url'))->id('appurl')->class('form-control')->required() }}
                 <small class="help">Don't forget http(s)://</small>
             </div>
 
             <div class="input">
                 <label>{{ __('app.apps.tags') }} ({{ __('app.optional') }})</label>
-                {!! Form::select('tags[]', $tags, $current_tags, ['class' => 'tags', 'multiple']) !!}
+                {{ html()->multiselect('tags[]', $tags, $current_tags)->class('tags') }}
             </div>
 
             @if($app['config']->get('app.auth_roles_enable', false))
             <div class="input">
                 <label>{{ __('app.role') }}</label>
-                {!! Form::text('role', $item->role ?? null, array('placeholder' => __('app.role'), 'id' => 'role', 'class' => 'form-control')) !!}
+                {{ html()->text('role', $item->role ?? null)->placeholder(__('app.role'))->id('role')->class('form-control') }}
             </div>
             @endif
 
@@ -93,7 +93,7 @@
                         else $icon = old('icon');
                     ?>
                     <img src="{{ asset('storage/'.$icon) }}" />
-                    {!! Form::hidden('icon', $icon, ['class' => 'form-control']) !!}
+                    {{ html()->hidden('icon', $icon)->class('form-control') }}
                     @else
                     <img src="{{ asset('/img/heimdall-icon-small.png') }}" />
                     @endif

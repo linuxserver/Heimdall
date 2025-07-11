@@ -454,3 +454,35 @@ class MoreMissingButSupportedTypes
      */
     private namespace\SomeClass $variableName;
 }
+
+class DNFTypes
+{
+    /**
+     * @var mixed
+     */
+    private (\Iterator&namespace\Countable)|false|null $variableName;
+}
+
+class PHP84FinalProperties {
+    /**
+     * @var integer
+     */
+    final int $hasDocblock;
+}
+
+class AsymVisibility {
+    /**
+     * @var integer
+     */
+    public(set) int $hasDocblockA;
+
+    /**
+     * @var integer
+     */
+    public protected(set) int $hasDocblockB;
+
+    /**
+     * @var integer
+     */
+    private(set) protected int $hasDocblockC;
+}

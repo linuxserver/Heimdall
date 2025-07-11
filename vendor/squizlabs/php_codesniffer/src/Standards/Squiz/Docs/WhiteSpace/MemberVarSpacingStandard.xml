@@ -1,0 +1,91 @@
+<documentation title="Member Var Spacing">
+    <standard>
+    <![CDATA[
+    There should be exactly one blank line before the first property (member variable).
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: One blank line before the first property.">
+        <![CDATA[
+class MyClass
+{<em>
+
+</em>    protected $var1 = 'value';
+}
+        ]]>
+        </code>
+        <code title="Invalid: Incorrect number of blank lines before the first property.">
+        <![CDATA[
+class MyClass
+{<em>
+</em>    protected $var1 = 'value';
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be exactly one blank line between properties.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: One blank line between each property.">
+        <![CDATA[
+trait MyTrait {
+
+    public $var1 = 'value';<em>
+
+</em>    public $var2 = 'value2';<em>
+
+</em>    public $var3 = 'value3';
+}
+        ]]>
+        </code>
+        <code title="Invalid: Incorrect number of blank lines between each property.">
+        <![CDATA[
+trait MyTrait {
+
+    public $var1 = 'value';<em>
+
+
+</em>    public $var2 = 'value2';<em>
+</em>    public $var3 = 'value3';
+}
+        ]]>
+        </code>
+    </code_comparison>
+    <standard>
+    <![CDATA[
+    There should be no blank lines between a property DocBlock and the property declaration the DocBlock applies to.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No blank lines between DocBlock and its property.">
+        <![CDATA[
+$anon = new class {
+
+    /**
+     * The actions that this class can perform.
+     *
+     * @var array
+     */<em>
+</em>    public $actions = array();
+};
+        ]]>
+        </code>
+        <code title="Invalid: Blank line(s) between DocBlock and its property.">
+        <![CDATA[
+$anon = new class {
+
+    /**
+     * The actions that this class can perform.
+     *
+     * @var array
+     */<em>
+
+</em>    public $actions = array();
+};
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

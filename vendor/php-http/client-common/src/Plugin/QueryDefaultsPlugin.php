@@ -31,9 +31,6 @@ final class QueryDefaultsPlugin implements Plugin
         $this->queryParams = $queryParams;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $uri = $request->getUri();

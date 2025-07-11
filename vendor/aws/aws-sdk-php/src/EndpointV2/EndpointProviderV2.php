@@ -3,6 +3,7 @@
 namespace Aws\EndpointV2;
 
 use Aws\EndpointV2\Ruleset\Ruleset;
+use Aws\EndpointV2\Ruleset\RulesetEndpoint;
 use Aws\Exception\UnresolvedEndpointException;
 use Aws\LruArrayCache;
 

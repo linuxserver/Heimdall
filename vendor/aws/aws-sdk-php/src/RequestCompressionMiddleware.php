@@ -67,6 +67,12 @@ class RequestCompressionMiddleware
         $this->encodings = $compressionInfo['encodings'];
         $request = $this->compressRequestBody($request);
 
+        // Capture request compression metric
+        $command->getMetricsBuilder()->identifyMetricByValueAndAppend(
+            'request_compression',
+            $request->getHeaderLine('content-encoding')
+        );
+
         return $nextHandler($command, $request);
     }
 

@@ -9,6 +9,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise createApplicationAsync(array $args = [])
  * @method \Aws\Result createDataIntegration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createDataIntegrationAsync(array $args = [])
+ * @method \Aws\Result createDataIntegrationAssociation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDataIntegrationAssociationAsync(array $args = [])
  * @method \Aws\Result createEventIntegration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createEventIntegrationAsync(array $args = [])
  * @method \Aws\Result deleteApplication(array $args = [])
@@ -45,6 +47,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updateApplicationAsync(array $args = [])
  * @method \Aws\Result updateDataIntegration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateDataIntegrationAsync(array $args = [])
+ * @method \Aws\Result updateDataIntegrationAssociation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateDataIntegrationAssociationAsync(array $args = [])
  * @method \Aws\Result updateEventIntegration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateEventIntegrationAsync(array $args = [])
  */

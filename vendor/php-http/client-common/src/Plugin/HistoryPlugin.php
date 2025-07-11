@@ -29,9 +29,6 @@ final class HistoryPlugin implements Plugin
         $this->journal = $journal;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $journal = $this->journal;

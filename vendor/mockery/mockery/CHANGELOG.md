@@ -7,6 +7,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.12] - 2024-05-15
+
+### Changed
+
+- [1420: Update `psalm-baseline.xml` ](https://github.com/mockery/mockery/pull/1420)
+- [1419: Update e2e-test.sh](https://github.com/mockery/mockery/pull/1419)
+- [1413: Upgrade `phar` tools and `phive.xml` configuration](https://github.com/mockery/mockery/pull/1413)
+
+### Fixed
+
+- [1415: Fix mocking anonymous classes](https://github.com/mockery/mockery/pull/1415)
+- [1411: Mocking final classes reports unresolvable type by PHPStan](https://github.com/mockery/mockery/issues/1411)
+- [1410: Fix PHP Doc Comments](https://github.com/mockery/mockery/pull/1410)
+
+### Security
+
+- [1417: Bump `Jinja2` from `3.1.3` to `3.1.4` fix CVE-2024-34064](https://github.com/mockery/mockery/pull/1417)
+- [1412: Bump `idna` from `3.6` to `3.7` fix CVE-2024-3651](https://github.com/mockery/mockery/pull/1412)
+
+## [1.6.11] - 2024-03-21
+
+### Fixed
+
+- [1407: Fix constants map generics doc comments](https://github.com/mockery/mockery/pull/1407)
+- [1406: Fix reserved words used to name a class, interface or trait](https://github.com/mockery/mockery/pull/1406)
+- [1403: Fix regression - partial construction with trait methods](https://github.com/mockery/mockery/pull/1403)
+- [1401: Improve `Mockery::mock()` parameter type compatibility with array typehints](https://github.com/mockery/mockery/pull/1401)
+
+## [1.6.10] - 2024-03-19
+
+### Added
+
+- [1398: [PHP 8.4] Fixes for implicit nullability deprecation](https://github.com/mockery/mockery/pull/1398)
+
+### Fixed
+
+- [1397: Fix mock method $args parameter type](https://github.com/mockery/mockery/pull/1397)
+- [1396: Fix `1.6.8` release](https://github.com/mockery/mockery/pull/1396)
+
+## [1.6.9] - 2024-03-12
+
+- [1394: Revert v1.6.8 release](https://github.com/mockery/mockery/pull/1394)
+
+## [1.6.8] - 2024-03-12
+
+- [1393: Changelog v1.6.8](https://github.com/mockery/mockery/pull/1393)
+- [1392: Refactor remaining codebase](https://github.com/mockery/mockery/pull/1392)
+- [1391: Update actions to use Node 20](https://github.com/mockery/mockery/pull/1391)
+- [1390: Update `ReadTheDocs` dependencies](https://github.com/mockery/mockery/pull/1390)
+- [1389: Refactor `library/Mockery/Matcher/*`](https://github.com/mockery/mockery/pull/1389)
+- [1388: Refactor `library/Mockery/Loader/*`](https://github.com/mockery/mockery/pull/1388)
+- [1387: Refactor `library/Mockery/CountValidator/*`](https://github.com/mockery/mockery/pull/1387)
+- [1386: Add PHPUnit 10+ attributes](https://github.com/mockery/mockery/pull/1386)
+- [1385: Update composer dependencies and clean up](https://github.com/mockery/mockery/pull/1385)
+- [1384: Update `psalm-baseline.xml`](https://github.com/mockery/mockery/pull/1384)
+- [1383: Refactor `library/helpers.php`](https://github.com/mockery/mockery/pull/1383)
+- [1382: Refactor `library/Mockery/VerificationExpectation.php`](https://github.com/mockery/mockery/pull/1382)
+- [1381: Refactor `library/Mockery/VerificationDirector.php`](https://github.com/mockery/mockery/pull/1381)
+- [1380: Refactor `library/Mockery/QuickDefinitionsConfiguration.php`](https://github.com/mockery/mockery/pull/1380)
+- [1379: Refactor `library/Mockery/Undefined.php`](https://github.com/mockery/mockery/pull/1379)
+- [1378: Refactor `library/Mockery/Reflector.php`](https://github.com/mockery/mockery/pull/1378)
+- [1377: Refactor `library/Mockery/ReceivedMethodCalls.php`](https://github.com/mockery/mockery/pull/1377)
+- [1376: Refactor `library/Mockery.php`](https://github.com/mockery/mockery/pull/1376)
+- [1375: Refactor `library/Mockery/MockInterface.php`](https://github.com/mockery/mockery/pull/1375)
+- [1374: Refactor `library/Mockery/MethodCall.php`](https://github.com/mockery/mockery/pull/1374)
+- [1373: Refactor `library/Mockery/LegacyMockInterface.php`](https://github.com/mockery/mockery/pull/1373)
+- [1372: Refactor `library/Mockery/Instantiator.php`](https://github.com/mockery/mockery/pull/1372)
+- [1371: Refactor `library/Mockery/HigherOrderMessage.php`](https://github.com/mockery/mockery/pull/1371)
+- [1370: Refactor `library/Mockery/ExpectsHigherOrderMessage.php`](https://github.com/mockery/mockery/pull/1370)
+- [1369: Refactor `library/Mockery/ExpectationInterface.php`](https://github.com/mockery/mockery/pull/1369)
+- [1368: Refactor `library/Mockery/ExpectationDirector.php`](https://github.com/mockery/mockery/pull/1368)
+- [1367: Refactor `library/Mockery/Expectation.php`](https://github.com/mockery/mockery/pull/1367)
+- [1366: Refactor `library/Mockery/Exception.php`](https://github.com/mockery/mockery/pull/1366)
+- [1365: Refactor `library/Mockery/Container.php`](https://github.com/mockery/mockery/pull/1365)
+- [1364: Refactor `library/Mockery/Configuration.php`](https://github.com/mockery/mockery/pull/1364)
+- [1363: Refactor `library/Mockery/CompositeExpectation.php`](https://github.com/mockery/mockery/pull/1363)
+- [1362: Refactor `library/Mockery/ClosureWrapper.php`](https://github.com/mockery/mockery/pull/1362)
+- [1361: Refactor `library/Mockery.php`](https://github.com/mockery/mockery/pull/1361)
+- [1360: Refactor Container](https://github.com/mockery/mockery/pull/1360)
+- [1355: Fix the namespace in the SubsetTest class](https://github.com/mockery/mockery/pull/1355)
+- [1354: Add array-like objects support to hasKey/hasValue matchers](https://github.com/mockery/mockery/pull/1354)
+
 ## [1.6.7] - 2023-12-09
 
 ### Added

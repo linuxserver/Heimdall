@@ -11,4 +11,5 @@ use RuntimeException;
  */
 final class InvalidStyleException extends RuntimeException
 {
+    // ...
 }

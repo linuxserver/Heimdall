@@ -23,6 +23,10 @@ use DateTimeImmutable;
  */
 final class TtlHelper
 {
+    private function __construct()
+    {
+    }
+
     /**
      * Computes the correct TTL to use.
      */

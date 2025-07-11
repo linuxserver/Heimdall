@@ -6,8 +6,6 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\Exception\RewindStreamException;
 use Http\Client\Common\Plugin\Cache\Generator\CacheKeyGenerator;
 use Http\Client\Common\Plugin\Cache\Generator\SimpleGenerator;
-use Http\Client\Common\Plugin\Cache\Listener\CacheListener;
-use Http\Message\StreamFactory;
 use Http\Promise\FulfilledPromise;
 use Http\Promise\Promise;
 use Psr\Cache\CacheItemInterface;
@@ -35,7 +33,7 @@ final class CachePlugin implements Plugin
     private $pool;
 
     /**
-     * @var StreamFactory|StreamFactoryInterface
+     * @var StreamFactoryInterface
      */
     private $streamFactory;
 
@@ -52,8 +50,7 @@ final class CachePlugin implements Plugin
     private $noCacheFlags = ['no-cache', 'private', 'no-store'];
 
     /**
-     * @param StreamFactory|StreamFactoryInterface $streamFactory
-     * @param mixed[]                              $config
+     * @param mixed[] $config
      *
      *     bool respect_cache_headers: Whether to look at the cache directives or ignore them
      *     int default_ttl: (seconds) If we do not respect cache headers or can't calculate a good ttl, use this value
@@ -69,12 +66,8 @@ final class CachePlugin implements Plugin
      *              Defaults to an empty array
      * }
      */
-    public function __construct(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
+    public function __construct(CacheItemPoolInterface $pool, StreamFactoryInterface $streamFactory, array $config = [])
     {
-        if (!($streamFactory instanceof StreamFactory) && !($streamFactory instanceof StreamFactoryInterface)) {
-            throw new \TypeError(\sprintf('Argument 2 passed to %s::__construct() must be of type %s|%s, %s given.', self::class, StreamFactory::class, StreamFactoryInterface::class, \is_object($streamFactory) ? \get_class($streamFactory) : \gettype($streamFactory)));
-        }
-
         $this->pool = $pool;
         $this->streamFactory = $streamFactory;
 
@@ -95,12 +88,11 @@ final class CachePlugin implements Plugin
      * This method will setup the cachePlugin in client cache mode. When using the client cache mode the plugin will
      * cache responses with `private` cache directive.
      *
-     * @param StreamFactory|StreamFactoryInterface $streamFactory
-     * @param mixed[]                              $config        For all possible config options see the constructor docs
+     * @param mixed[] $config For all possible config options see the constructor docs
      *
      * @return CachePlugin
      */
-    public static function clientCache(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
+    public static function clientCache(CacheItemPoolInterface $pool, StreamFactoryInterface $streamFactory, array $config = [])
     {
         // Allow caching of private requests
         if (\array_key_exists('respect_response_cache_directives', $config)) {
@@ -118,12 +110,11 @@ final class CachePlugin implements Plugin
      * This method will setup the cachePlugin in server cache mode. This is the default caching behavior it refuses to
      * cache responses with the `private`or `no-cache` directives.
      *
-     * @param StreamFactory|StreamFactoryInterface $streamFactory
-     * @param mixed[]                              $config        For all possible config options see the constructor docs
+     * @param mixed[] $config For all possible config options see the constructor docs
      *
      * @return CachePlugin
      */
-    public static function serverCache(CacheItemPoolInterface $pool, $streamFactory, array $config = [])
+    public static function serverCache(CacheItemPoolInterface $pool, StreamFactoryInterface $streamFactory, array $config = [])
     {
         return new self($pool, $streamFactory, $config);
     }

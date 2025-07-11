@@ -19,7 +19,7 @@ class TestClass
                     'height' => '',
                    );
 
-    private $_bad = Array(
+    private $_bad = ARRAY(
                     'width' => '',
                     'height' => ''
                      );
@@ -535,3 +535,26 @@ $x = array(
   'a',
   'b',
    );
+
+$x = array(
+      1, static fn (float $item): float => match ($item) {
+        2.0 => 3.0,
+        default => $item
+    },
+     );
+
+$x = array(
+      1, static::helloWorld(), $class instanceof static,
+      2,
+     );
+
+$noSpaceBeforeDoubleArrow = array(
+                             'width'=> '',
+                             'height' => '',
+                            );
+
+$newlineAfterDoubleArrow = array(
+                            'width'  =>
+                            '',
+                            'height' => '',
+                           );

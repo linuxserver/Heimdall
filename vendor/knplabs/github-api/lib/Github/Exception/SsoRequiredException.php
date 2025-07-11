@@ -14,7 +14,7 @@ class SsoRequiredException extends RuntimeException
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $url, int $code = 0, Throwable $previous = null)
+    public function __construct(string $url, int $code = 0, ?Throwable $previous = null)
     {
         $this->url = $url;
 

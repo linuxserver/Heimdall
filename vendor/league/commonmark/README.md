@@ -54,7 +54,8 @@ echo $converter->convert('# Hello World!');
 
 Please note that only UTF-8 and ASCII encodings are supported.  If your Markdown uses a different encoding please convert it to UTF-8 before running it through this library.
 
-🔒 If you will be parsing untrusted input from users, please consider setting the `html_input` and `allow_unsafe_links` options per the example above. See <https://commonmark.thephpleague.com/security/> for more details. If you also do choose to allow raw HTML input from untrusted users, consider using a library (like [HTML Purifier](https://github.com/ezyang/htmlpurifier)) to provide additional HTML filtering.
+> [!CAUTION]
+> If you will be parsing untrusted input from users, please consider setting the `html_input` and `allow_unsafe_links` options per the example above. See <https://commonmark.thephpleague.com/security/> for more details. If you also do choose to allow raw HTML input from untrusted users, consider using a library (like [HTML Purifier](https://github.com/ezyang/htmlpurifier)) to provide additional HTML filtering.
 
 ## 📓 Documentation
 
@@ -163,11 +164,13 @@ $ ./tests/benchmark/benchmark.php
 
 ## 👥 Credits & Acknowledgements
 
-- [Colin O'Dell][@colinodell]
-- [John MacFarlane][@jgm]
-- [All Contributors]
+This code was originally based on the [CommonMark JS reference implementation][commonmark.js] which is written, maintained, and copyrighted by [John MacFarlane].  This project simply wouldn't exist without his work.
 
-This code is partially based on the [CommonMark JS reference implementation][commonmark.js] which is written, maintained and copyrighted by [John MacFarlane].  This project simply wouldn't exist without his work.
+And a huge thanks to all of our amazing contributors:
+
+<a href="https://github.com/thephpleague/commonmark/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=thephpleague/commonmark" />
+</a>
 
 ### Sponsors
 
@@ -176,7 +179,6 @@ We'd also like to extend our sincere thanks the following sponsors who support o
  - [Tidelift](https://tidelift.com/subscription/pkg/packagist-league-commonmark?utm_source=packagist-league-commonmark&utm_medium=referral&utm_campaign=readme) for offering support to both the maintainers and end-users through their [professional support](https://tidelift.com/subscription/pkg/packagist-league-commonmark?utm_source=packagist-league-commonmark&utm_medium=referral&utm_campaign=readme) program
  - [Blackfire](https://www.blackfire.io/) for providing an Open-Source Profiler subscription
  - [JetBrains](https://www.jetbrains.com/) for supporting this project with complimentary [PhpStorm](https://www.jetbrains.com/phpstorm/) licenses
- - [Taylor Otwell](https://twitter.com/taylorotwell) for sponsoring this project through GitHub sponsors
 
 Are you interested in sponsoring development of this project? See <https://www.colinodell.com/sponsor> for a list of ways to contribute.
 

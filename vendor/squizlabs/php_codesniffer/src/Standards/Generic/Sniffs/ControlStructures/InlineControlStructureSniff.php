@@ -48,7 +48,6 @@ class InlineControlStructureSniff implements Sniff
             T_FOREACH,
             T_WHILE,
             T_DO,
-            T_SWITCH,
             T_FOR,
         ];
 
@@ -75,7 +74,7 @@ class InlineControlStructureSniff implements Sniff
 
         // Ignore the ELSE in ELSE IF. We'll process the IF part later.
         if ($tokens[$stackPtr]['code'] === T_ELSE) {
-            $next = $phpcsFile->findNext(T_WHITESPACE, ($stackPtr + 1), null, true);
+            $next = $phpcsFile->findNext(Tokens::$emptyTokens, ($stackPtr + 1), null, true);
             if ($tokens[$next]['code'] === T_IF) {
                 return;
             }
@@ -93,21 +92,6 @@ class InlineControlStructureSniff implements Sniff
                 if ($tokens[$afterParensCloser]['code'] === T_SEMICOLON) {
                     $phpcsFile->recordMetric($stackPtr, 'Control structure defined inline', 'no');
                     return;
-                }
-            }
-
-            // In Javascript DO WHILE loops without curly braces are legal. This
-            // is only valid if a single statement is present between the DO and
-            // the WHILE. We can detect this by checking only a single semicolon
-            // is present between them.
-            if ($tokens[$stackPtr]['code'] === T_WHILE && $phpcsFile->tokenizerType === 'JS') {
-                $lastDo        = $phpcsFile->findPrevious(T_DO, ($stackPtr - 1));
-                $lastSemicolon = $phpcsFile->findPrevious(T_SEMICOLON, ($stackPtr - 1));
-                if ($lastDo !== false && $lastSemicolon !== false && $lastDo < $lastSemicolon) {
-                    $precedingSemicolon = $phpcsFile->findPrevious(T_SEMICOLON, ($lastSemicolon - 1));
-                    if ($precedingSemicolon === false || $precedingSemicolon < $lastDo) {
-                        return;
-                    }
                 }
             }
         }//end if
@@ -150,7 +134,7 @@ class InlineControlStructureSniff implements Sniff
             // tag in short open tags and scan run with short_open_tag=Off.
             // Bow out completely as any further detection will be unreliable
             // and create incorrect fixes or cause fixer conflicts.
-            return ($phpcsFile->numTokens + 1);
+            return $phpcsFile->numTokens;
         }
 
         unset($nextNonEmpty, $start);

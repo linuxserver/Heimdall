@@ -251,7 +251,7 @@ class JS extends Tokenizer
      *
      * Pre-checks the content to see if it looks minified.
      *
-     * @param string                  $content The content to tokenize,
+     * @param string                  $content The content to tokenize.
      * @param \PHP_CodeSniffer\Config $config  The config data for the run.
      * @param string                  $eolChar The EOL char used in the content.
      *
@@ -1188,7 +1188,7 @@ class JS extends Tokenizer
                     }
                 }
             } else if ($this->tokens[$i]['code'] === T_CLOSE_OBJECT) {
-                $opener = array_pop($classStack);
+                array_pop($classStack);
             } else if ($this->tokens[$i]['code'] === T_COLON) {
                 // If it is a scope opener, it belongs to a
                 // DEFAULT or CASE statement.

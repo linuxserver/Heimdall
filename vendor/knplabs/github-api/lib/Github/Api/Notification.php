@@ -27,7 +27,7 @@ class Notification extends AbstractApi
      *
      * @return array array of notifications
      */
-    public function all($includingRead = false, $participating = false, DateTime $since = null, DateTime $before = null)
+    public function all($includingRead = false, $participating = false, ?DateTime $since = null, ?DateTime $before = null)
     {
         $parameters = [
             'all' => $includingRead,
@@ -54,7 +54,7 @@ class Notification extends AbstractApi
      *
      * @param DateTime|null $since
      */
-    public function markRead(DateTime $since = null)
+    public function markRead(?DateTime $since = null)
     {
         $parameters = [];
 

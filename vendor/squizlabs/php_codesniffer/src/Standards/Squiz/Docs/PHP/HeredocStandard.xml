@@ -1,0 +1,32 @@
+<documentation title="Heredoc">
+    <standard>
+    <![CDATA[
+    Forbids the use of heredoc and nowdoc syntax.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Using standard strings or inline HTML.">
+        <![CDATA[
+$text = "some $text";
+
+
+
+?>
+some text
+<?php
+
+        ]]>
+        </code>
+        <code title="Invalid: Using heredoc or nowdoc syntax.">
+        <![CDATA[
+$text = <em><<<EOD
+some $text
+EOD</em>;
+
+echo <em><<<'EOD'
+some text
+EOD</em>;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

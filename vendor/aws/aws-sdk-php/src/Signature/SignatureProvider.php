@@ -44,6 +44,7 @@ class SignatureProvider
     private static $s3v4SignedServices = [
         's3' => true,
         's3control' => true,
+        's3-outposts' => true,
         's3-object-lambda' => true,
         's3express' => true
     ];

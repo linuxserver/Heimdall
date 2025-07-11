@@ -1,7 +1,7 @@
 <documentation title="Side Effects">
     <standard>
     <![CDATA[
-    A php file should either contain declarations with no side effects, or should just have logic (including side effects) with no declarations.
+    A PHP file should either contain declarations with no side effects, or should just have logic (including side effects) with no declarations.
     ]]>
     </standard>
     <code_comparison>
@@ -20,7 +20,7 @@ class Foo
 {
 }
 
-<em>echo "Class Foo loaded."</em>
+<em>echo "Class Foo loaded.";</em>
         ]]>
         </code>
     </code_comparison>

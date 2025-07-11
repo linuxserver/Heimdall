@@ -91,3 +91,12 @@ $var = "$hello	$there";
 
      Another line.
      */
+
+// A `yield from` can be single-line and multiline and may contain a tab in the whitespace between the keywords.
+function myGenerator() {
+    yield       from gen1();
+
+    yield
+    from
+    gen2();
+}

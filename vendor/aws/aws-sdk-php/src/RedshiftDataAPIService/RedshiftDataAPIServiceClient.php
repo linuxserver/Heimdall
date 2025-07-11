@@ -17,6 +17,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise executeStatementAsync(array $args = [])
  * @method \Aws\Result getStatementResult(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getStatementResultAsync(array $args = [])
+ * @method \Aws\Result getStatementResultV2(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getStatementResultV2Async(array $args = [])
  * @method \Aws\Result listDatabases(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listDatabasesAsync(array $args = [])
  * @method \Aws\Result listSchemas(array $args = [])

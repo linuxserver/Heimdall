@@ -5,7 +5,7 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Examples of valid function names">
+        <code title="Valid: Examples of valid function names.">
         <![CDATA[
 connect()
 getData()
@@ -13,7 +13,7 @@ buildSomeWidget()
 XML_RPC_serializeData()
         ]]>
         </code>
-        <code title="Examples of invalid function names">
+        <code title="Invalid: Examples of invalid function names.">
         <![CDATA[
 Connect()
 get_data()

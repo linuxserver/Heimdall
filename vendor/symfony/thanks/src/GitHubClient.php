@@ -106,7 +106,7 @@ class GitHubClient
         }
     }
 
-    public function getRepositories(array &$failures = null, $withFundingLinks = false)
+    public function getRepositories(?array &$failures = null, $withFundingLinks = false): array
     {
         $repo = $this->composer->getRepositoryManager()->getLocalRepository();
 
@@ -179,7 +179,7 @@ class GitHubClient
         return $repos;
     }
 
-    public function call($graphql, array &$failures = [])
+    public function call($graphql, array &$failures = []): mixed
     {
         $options = [
             'http' => [
@@ -218,7 +218,7 @@ class GitHubClient
         return isset($result['data']) ? $result['data'] : [];
     }
 
-    private function getDirectlyRequiredPackageNames()
+    private function getDirectlyRequiredPackageNames(): array
     {
         $file = new JsonFile(Factory::getComposerFile(), null, $this->io);
 

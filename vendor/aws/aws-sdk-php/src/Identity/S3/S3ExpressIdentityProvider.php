@@ -7,11 +7,11 @@ use GuzzleHttp\Promise;
 
 class S3ExpressIdentityProvider
 {
-
     private $cache;
     private $region;
     private $config;
     private $s3Client;
+
     public function __construct($clientRegion, array $config = [])
     {
         $this->cache = new LruArrayCache(100);
@@ -42,9 +42,8 @@ class S3ExpressIdentityProvider
     private function getS3Client()
     {
         if (is_null($this->s3Client)) {
-            $this->s3Client = isset($this->config['client'])
-                ? $this->config['client'] // internal use only
-                : new Aws\S3\S3Client([
+            $this->s3Client = $this->config['client']
+                ?? new Aws\S3\S3Client([
                     'region' => $this->region,
                     'disable_express_session_auth' => true
                 ]);

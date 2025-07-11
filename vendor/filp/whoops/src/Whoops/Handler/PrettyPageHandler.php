@@ -28,6 +28,7 @@ class PrettyPageHandler extends Handler
     const EDITOR_ESPRESSO = "espresso";
     const EDITOR_XDEBUG = "xdebug";
     const EDITOR_NETBEANS = "netbeans";
+    const EDITOR_CURSOR = "cursor";
 
     /**
      * Search paths to be scanned for resources.
@@ -122,6 +123,7 @@ class PrettyPageHandler extends Handler
         "atom"     => "atom://core/open/file?filename=%file&line=%line",
         "espresso" => "x-espresso://open?filepath=%file&lines=%line",
         "netbeans" => "netbeans://open/?f=%file:%line",
+        "cursor"   => "cursor://file/%file:%line",
     ];
 
     /**
@@ -383,7 +385,7 @@ class PrettyPageHandler extends Handler
             throw new InvalidArgumentException('Expecting callback argument to be callable');
         }
 
-        $this->extraTables[$label] = function (\Whoops\Inspector\InspectorInterface $inspector = null) use ($callback) {
+        $this->extraTables[$label] = function (?\Whoops\Inspector\InspectorInterface $inspector = null) use ($callback) {
             try {
                 $result = call_user_func($callback, $inspector);
 

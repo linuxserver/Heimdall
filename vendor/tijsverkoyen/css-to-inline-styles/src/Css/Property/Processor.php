@@ -50,8 +50,8 @@ class Processor
         $string = str_replace(array("\r", "\n"), '', $string);
         $string = str_replace(array("\t"), ' ', $string);
         $string = str_replace('"', '\'', $string);
-        $string = preg_replace('|/\*.*?\*/|', '', $string);
-        $string = preg_replace('/\s\s+/', ' ', $string);
+        $string = preg_replace('|/\*.*?\*/|', '', $string) ?? $string;
+        $string = preg_replace('/\s\s+/', ' ', $string) ?? $string;
 
         $string = trim($string);
         $string = rtrim($string, ';');
@@ -66,7 +66,7 @@ class Processor
      *
      * @return Property|null
      */
-    public function convertToObject($property, Specificity $specificity = null)
+    public function convertToObject($property, ?Specificity $specificity = null)
     {
         if (strpos($property, ':') === false) {
             return null;
@@ -91,7 +91,7 @@ class Processor
      *
      * @return Property[]
      */
-    public function convertArrayToObjects(array $properties, Specificity $specificity = null)
+    public function convertArrayToObjects(array $properties, ?Specificity $specificity = null)
     {
         $objects = array();
 

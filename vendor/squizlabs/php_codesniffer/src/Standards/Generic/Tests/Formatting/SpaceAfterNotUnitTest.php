@@ -33,7 +33,7 @@ final class SpaceAfterNotUnitTest extends AbstractSniffUnitTest
     public function getErrorList($testFile='')
     {
         switch ($testFile) {
-        case 'SpaceAfterNotUnitTest.inc':
+        case 'SpaceAfterNotUnitTest.1.inc':
             return [
                 3  => 2,
                 4  => 2,

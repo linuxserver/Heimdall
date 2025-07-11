@@ -4,9 +4,9 @@ namespace Spatie\LaravelIgnition\Exceptions;
 
 use Exception;
 use Monolog\Level;
-use Spatie\Ignition\Contracts\BaseSolution;
-use Spatie\Ignition\Contracts\ProvidesSolution;
-use Spatie\Ignition\Contracts\Solution;
+use Spatie\ErrorSolutions\Contracts\BaseSolution;
+use Spatie\ErrorSolutions\Contracts\ProvidesSolution;
+use Spatie\ErrorSolutions\Contracts\Solution;
 
 class InvalidConfig extends Exception implements ProvidesSolution
 {

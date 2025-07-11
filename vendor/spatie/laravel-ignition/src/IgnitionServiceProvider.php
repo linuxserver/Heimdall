@@ -14,12 +14,13 @@ use Laravel\Octane\Events\TaskReceived;
 use Laravel\Octane\Events\TickReceived;
 use Monolog\Level;
 use Monolog\Logger;
+use Spatie\ErrorSolutions\Contracts\SolutionProviderRepository as SolutionProviderRepositoryContract;
+use Spatie\ErrorSolutions\SolutionProviderRepository;
 use Spatie\FlareClient\Flare;
 use Spatie\FlareClient\FlareMiddleware\AddSolutions;
 use Spatie\Ignition\Config\FileConfigManager;
 use Spatie\Ignition\Config\IgnitionConfig;
 use Spatie\Ignition\Contracts\ConfigManager;
-use Spatie\Ignition\Contracts\SolutionProviderRepository as SolutionProviderRepositoryContract;
 use Spatie\Ignition\Ignition;
 use Spatie\LaravelIgnition\Commands\SolutionMakeCommand;
 use Spatie\LaravelIgnition\Commands\SolutionProviderMakeCommand;
@@ -34,7 +35,6 @@ use Spatie\LaravelIgnition\Recorders\JobRecorder\JobRecorder;
 use Spatie\LaravelIgnition\Recorders\LogRecorder\LogRecorder;
 use Spatie\LaravelIgnition\Recorders\QueryRecorder\QueryRecorder;
 use Spatie\LaravelIgnition\Renderers\IgnitionExceptionRenderer;
-use Spatie\LaravelIgnition\Solutions\SolutionProviders\SolutionProviderRepository;
 use Spatie\LaravelIgnition\Support\FlareLogHandler;
 use Spatie\LaravelIgnition\Support\SentReports;
 use Spatie\LaravelIgnition\Views\ViewExceptionMapper;
@@ -145,8 +145,7 @@ class IgnitionServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             Ignition::class,
-            fn () => (new Ignition())
-                ->applicationPath(base_path())
+            fn () => (new Ignition($this->app->make(Flare::class)))->applicationPath(base_path())
         );
     }
 

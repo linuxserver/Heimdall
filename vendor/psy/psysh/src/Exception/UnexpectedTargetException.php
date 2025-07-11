@@ -13,6 +13,7 @@ namespace Psy\Exception;
 
 class UnexpectedTargetException extends RuntimeException
 {
+    /** @var mixed */
     private $target;
 
     /**
@@ -21,7 +22,7 @@ class UnexpectedTargetException extends RuntimeException
      * @param int             $code     (default: 0)
      * @param \Throwable|null $previous (default: null)
      */
-    public function __construct($target, string $message = '', int $code = 0, \Throwable $previous = null)
+    public function __construct($target, string $message = '', int $code = 0, ?\Throwable $previous = null)
     {
         $this->target = $target;
         parent::__construct($message, $code, $previous);

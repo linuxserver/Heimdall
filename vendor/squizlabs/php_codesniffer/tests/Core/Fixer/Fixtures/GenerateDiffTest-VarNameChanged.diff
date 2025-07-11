@@ -1,0 +1,12 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-VarNameChanged.inc
++++ PHP_CodeSniffer
+@@ -1,7 +1,7 @@
+ <?php
+ // Comment with 2 spaces trailing whitespace.  
+-$rav = FALSE;
++$var = FALSE;
+ 
+-if ($rav) {
++if ($var) {
+ 	echo 'This line is tab indented';
+ }

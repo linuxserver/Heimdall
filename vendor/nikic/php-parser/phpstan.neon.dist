@@ -1,8 +1,0 @@
-includes:
-    - phpstan-baseline.neon
-
-parameters:
-    level: 6
-    paths:
-        - lib
-    treatPhpDocTypesAsCertain: false

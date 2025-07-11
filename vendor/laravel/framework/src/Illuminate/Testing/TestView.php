@@ -3,15 +3,16 @@
 namespace Illuminate\Testing;
 
 use Closure;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Testing\Assert as PHPUnit;
 use Illuminate\Testing\Constraints\SeeInOrder;
 use Illuminate\View\View;
+use Stringable;
 
-class TestView
+class TestView implements Stringable
 {
     use Macroable;
 
@@ -60,10 +61,10 @@ class TestView
             PHPUnit::assertTrue($value(Arr::get($this->view->gatherData(), $key)));
         } elseif ($value instanceof Model) {
             PHPUnit::assertTrue($value->is(Arr::get($this->view->gatherData(), $key)));
-        } elseif ($value instanceof Collection) {
+        } elseif ($value instanceof EloquentCollection) {
             $actual = Arr::get($this->view->gatherData(), $key);
 
-            PHPUnit::assertInstanceOf(Collection::class, $actual);
+            PHPUnit::assertInstanceOf(EloquentCollection::class, $actual);
             PHPUnit::assertSameSize($value, $actual);
 
             $value->each(fn ($item, $index) => PHPUnit::assertTrue($actual->get($index)->is($item)));

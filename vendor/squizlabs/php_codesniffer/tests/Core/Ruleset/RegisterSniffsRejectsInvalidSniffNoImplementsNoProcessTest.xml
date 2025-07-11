@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="RegisterSniffsRejectsInvalidSniffTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <rule ref="./tests/Core/Ruleset/Fixtures/TestStandard/Sniffs/InvalidSniffError/NoImplementsNoProcessSniff.php"/>
+
+    <!-- Prevent a "no sniffs were registered" error. -->
+    <rule ref="Generic.PHP.BacktickOperator"/>
+</ruleset>

@@ -78,7 +78,7 @@ class SamplingHandler extends AbstractHandler implements ProcessableHandlerInter
      *
      * If the handler was provided as a factory, this will trigger the handler's instantiation.
      */
-    public function getHandler(LogRecord $record = null): HandlerInterface
+    public function getHandler(LogRecord|null $record = null): HandlerInterface
     {
         if (!$this->handler instanceof HandlerInterface) {
             $handler = ($this->handler)($record, $this);
@@ -103,7 +103,7 @@ class SamplingHandler extends AbstractHandler implements ProcessableHandlerInter
             return $this;
         }
 
-        throw new \UnexpectedValueException('The nested handler of type '.get_class($handler).' does not support formatters.');
+        throw new \UnexpectedValueException('The nested handler of type '.\get_class($handler).' does not support formatters.');
     }
 
     /**
@@ -116,6 +116,6 @@ class SamplingHandler extends AbstractHandler implements ProcessableHandlerInter
             return $handler->getFormatter();
         }
 
-        throw new \UnexpectedValueException('The nested handler of type '.get_class($handler).' does not support formatters.');
+        throw new \UnexpectedValueException('The nested handler of type '.\get_class($handler).' does not support formatters.');
     }
 }

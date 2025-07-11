@@ -97,7 +97,7 @@ class OverflowHandler extends AbstractHandler implements FormattableHandlerInter
             return false === $this->bubble;
         }
 
-        if ($this->thresholdMap[$level] == 0) {
+        if ($this->thresholdMap[$level] === 0) {
             // This current message is breaking the threshold. Flush the buffer and continue handling the current record
             foreach ($this->buffer[$level] ?? [] as $buffered) {
                 $this->handler->handle($buffered);
@@ -122,7 +122,7 @@ class OverflowHandler extends AbstractHandler implements FormattableHandlerInter
             return $this;
         }
 
-        throw new \UnexpectedValueException('The nested handler of type '.get_class($this->handler).' does not support formatters.');
+        throw new \UnexpectedValueException('The nested handler of type '.\get_class($this->handler).' does not support formatters.');
     }
 
     /**
@@ -134,6 +134,6 @@ class OverflowHandler extends AbstractHandler implements FormattableHandlerInter
             return $this->handler->getFormatter();
         }
 
-        throw new \UnexpectedValueException('The nested handler of type '.get_class($this->handler).' does not support formatters.');
+        throw new \UnexpectedValueException('The nested handler of type '.\get_class($this->handler).' does not support formatters.');
     }
 }

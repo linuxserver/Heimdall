@@ -16,7 +16,7 @@ namespace Psy\Exception;
  */
 class ErrorException extends \ErrorException implements Exception
 {
-    private $rawMessage;
+    private string $rawMessage;
 
     /**
      * Construct a Psy ErrorException.
@@ -28,7 +28,7 @@ class ErrorException extends \ErrorException implements Exception
      * @param int|null        $lineno   (default: null)
      * @param \Throwable|null $previous (default: null)
      */
-    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, \Throwable $previous = null)
+    public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, ?\Throwable $previous = null)
     {
         $this->rawMessage = $message;
 
@@ -37,10 +37,6 @@ class ErrorException extends \ErrorException implements Exception
         }
 
         switch ($severity) {
-            case \E_STRICT:
-                $type = 'Strict error';
-                break;
-
             case \E_NOTICE:
             case \E_USER_NOTICE:
                 $type = 'Notice';
@@ -63,6 +59,10 @@ class ErrorException extends \ErrorException implements Exception
                 break;
 
             default:
+                if (\PHP_VERSION_ID < 80400 && $severity === \E_STRICT) {
+                    $type = 'Strict error';
+                    break;
+                }
                 $type = 'Error';
                 break;
         }

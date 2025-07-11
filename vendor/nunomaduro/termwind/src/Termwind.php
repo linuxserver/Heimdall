@@ -18,14 +18,14 @@ final class Termwind
     /**
      * The implementation of the output.
      */
-    private static OutputInterface|null $renderer;
+    private static ?OutputInterface $renderer;
 
     /**
      * Sets the renderer implementation.
      */
-    public static function renderUsing(OutputInterface|null $renderer): void
+    public static function renderUsing(?OutputInterface $renderer): void
     {
-        self::$renderer = $renderer ?? new ConsoleOutput();
+        self::$renderer = $renderer ?? new ConsoleOutput;
     }
 
     /**
@@ -278,7 +278,7 @@ final class Termwind
      */
     public static function getRenderer(): OutputInterface
     {
-        return self::$renderer ??= new ConsoleOutput();
+        return self::$renderer ??= new ConsoleOutput;
     }
 
     /**
@@ -287,7 +287,7 @@ final class Termwind
      * @param  array<int, string|Element>|string  $elements
      * @return array<int, string|Element>
      */
-    private static function prepareElements($elements, string $styles = '', Closure|null $callback = null): array
+    private static function prepareElements($elements, string $styles = '', ?Closure $callback = null): array
     {
         if ($callback === null) {
             $callback = static fn ($element): string|Element => $element;

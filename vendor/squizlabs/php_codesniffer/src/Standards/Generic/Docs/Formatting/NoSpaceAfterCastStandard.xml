@@ -1,4 +1,4 @@
-<documentation title="Space After Casts">
+<documentation title="No Space After Cast">
     <standard>
     <![CDATA[
     Spaces are not allowed after casting operators.

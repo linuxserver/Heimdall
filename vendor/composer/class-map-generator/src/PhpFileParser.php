@@ -24,12 +24,15 @@ class PhpFileParser
      *
      * @param  string            $path The file to check
      * @throws \RuntimeException
-     * @return array<int, class-string> The found classes
+     * @return list<class-string> The found classes
      */
     public static function findClasses(string $path): array
     {
         $extraTypes = self::getExtraTypes();
 
+        if (!function_exists('php_strip_whitespace')) {
+            throw new \RuntimeException('Classmap generation relies on the php_strip_whitespace function, but it has been disabled by the disable_functions directive.');
+        }
         // Use @ here instead of Silencer to actively suppress 'unhelpful' output
         // @link https://github.com/composer/composer/pull/4886
         $contents = @php_strip_whitespace($path);
@@ -63,8 +66,8 @@ class PhpFileParser
 
         Preg::matchAll('{
             (?:
-                 \b(?<![\$:>])(?P<type>class|interface|trait'.$extraTypes.') \s++ (?P<name>[a-zA-Z_\x7f-\xff:][a-zA-Z0-9_\x7f-\xff:\-]*+)
-               | \b(?<![\$:>])(?P<ns>namespace) (?P<nsname>\s++[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+(?:\s*+\\\\\s*+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+)*+)? \s*+ [\{;]
+                 \b(?<![\\\\$:>])(?P<type>class|interface|trait'.$extraTypes.') \s++ (?P<name>[a-zA-Z_\x7f-\xff:][a-zA-Z0-9_\x7f-\xff:\-]*+)
+               | \b(?<![\\\\$:>])(?P<ns>namespace) (?P<nsname>\s++[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+(?:\s*+\\\\\s*+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+)*+)? \s*+ [\{;]
             )
         }ix', $contents, $matches);
 
@@ -98,7 +101,9 @@ class PhpFileParser
                         $name = substr($name, 0, $colonPos);
                     }
                 }
-                $classes[] = ltrim($namespace . $name, '\\');
+                /** @var class-string */
+                $className = ltrim($namespace . $name, '\\');
+                $classes[] = $className;
             }
         }
 
@@ -118,7 +123,10 @@ class PhpFileParser
                 $extraTypes .= '|enum';
             }
 
-            PhpFileCleaner::setTypeConfig(array_merge(['class', 'interface', 'trait'], array_filter(explode('|', $extraTypes))));
+            $extraTypesArray = array_filter(explode('|', $extraTypes), function (string $type) {
+                return $type !== '';
+            });
+            PhpFileCleaner::setTypeConfig(array_merge(['class', 'interface', 'trait'], $extraTypesArray));
         }
 
         return $extraTypes;

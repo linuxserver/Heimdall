@@ -5,7 +5,7 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: method name in camelCase.">
+        <code title="Valid: Method name in camelCase.">
         <![CDATA[
 class Foo
 {
@@ -15,7 +15,7 @@ class Foo
 }
         ]]>
         </code>
-        <code title="Invalid: method name not in camelCase.">
+        <code title="Invalid: Method name not in camelCase.">
         <![CDATA[
 class Foo
 {

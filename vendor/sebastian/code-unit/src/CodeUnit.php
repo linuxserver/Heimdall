@@ -9,6 +9,10 @@
  */
 namespace SebastianBergmann\CodeUnit;
 
+use function count;
+use function file;
+use function file_exists;
+use function is_readable;
 use function range;
 use function sprintf;
 use ReflectionClass;
@@ -20,21 +24,13 @@ use ReflectionMethod;
  */
 abstract class CodeUnit
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private readonly string $name;
+    private readonly string $sourceFileName;
 
     /**
-     * @var string
-     */
-    private $sourceFileName;
-
-    /**
-     * @var array
      * @psalm-var list<int>
      */
-    private $sourceLines;
+    private readonly array $sourceLines;
 
     /**
      * @psalm-param class-string $className
@@ -76,6 +72,23 @@ abstract class CodeUnit
             range(
                 $reflector->getStartLine(),
                 $reflector->getEndLine()
+            )
+        );
+    }
+
+    /**
+     * @throws InvalidCodeUnitException
+     */
+    public static function forFileWithAbsolutePath(string $path): FileUnit
+    {
+        self::ensureFileExistsAndIsReadable($path);
+
+        return new FileUnit(
+            $path,
+            $path,
+            range(
+                1,
+                count(file($path))
             )
         );
     }
@@ -260,6 +273,26 @@ abstract class CodeUnit
         return false;
     }
 
+    public function isFile(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @throws InvalidCodeUnitException
+     */
+    private static function ensureFileExistsAndIsReadable(string $path): void
+    {
+        if (!(file_exists($path) && is_readable($path))) {
+            throw new InvalidCodeUnitException(
+                sprintf(
+                    'File "%s" does not exist or is not readable',
+                    $path
+                )
+            );
+        }
+    }
+
     /**
      * @psalm-param class-string $className
      *
@@ -300,7 +333,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }
@@ -338,7 +371,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }
@@ -376,7 +409,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }
@@ -396,7 +429,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }
@@ -416,7 +449,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }
@@ -436,7 +469,7 @@ abstract class CodeUnit
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
-                (int) $e->getCode(),
+                $e->getCode(),
                 $e
             );
         }

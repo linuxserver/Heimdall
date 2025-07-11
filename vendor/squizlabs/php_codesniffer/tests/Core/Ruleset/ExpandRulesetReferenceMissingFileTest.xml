@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ExpandRulesetReferenceTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <!-- This test deliberately includes an XML file which doesn't exist. That is exactly what this test is about. -->
+    <rule ref="./MissingFile.xml"/>
+
+</ruleset>

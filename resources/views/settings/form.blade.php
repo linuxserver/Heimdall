@@ -9,10 +9,6 @@
         </header>
         <div class="create">
             {!! csrf_field() !!}
-            <?php /*<div class="input">
-                <label>Application name</label>
-                {!! Form::select('supported', \App\Item::supportedOptions(), array('placeholder' => 'Title','class' => 'form-control')) !!}
-            </div>*/ ?>
 
             <div class="input">
                     {!! $setting->edit_value !!}

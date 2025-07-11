@@ -26,7 +26,7 @@ class ConfirmPromptRenderer extends Renderer
                     $this->renderOptions($prompt),
                     color: 'red'
                 )
-                ->error('Cancelled.'),
+                ->error($prompt->cancelMessage),
 
             'error' => $this
                 ->box(

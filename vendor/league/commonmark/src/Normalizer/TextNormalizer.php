@@ -34,6 +34,11 @@ final class TextNormalizer implements TextNormalizerInterface
         $text = \preg_replace('/[ \t\r\n]+/', ' ', \trim($text));
         \assert(\is_string($text));
 
+        // Is it strictly ASCII? If so, we can use strtolower() instead (faster)
+        if (\mb_check_encoding($text, 'ASCII')) {
+            return \strtolower($text);
+        }
+
         return \mb_convert_case($text, \MB_CASE_FOLD, 'UTF-8');
     }
 }

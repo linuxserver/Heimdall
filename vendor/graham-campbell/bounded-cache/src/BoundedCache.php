@@ -24,30 +24,15 @@ use Psr\SimpleCache\CacheInterface;
 final class BoundedCache implements BoundedCacheInterface
 {
     /**
-     * The underlying cache instance.
-     */
-    private CacheInterface $cache;
-
-    /**
-     * The minimum cache lifetime.
-     */
-    private int $min;
-
-    /**
-     * The maximum cache lifetime.
-     */
-    private int $max;
-
-    /**
      * Create a bounded cache instance.
      *
      * @return void
      */
-    public function __construct(CacheInterface $cache, int $min, int $max)
-    {
-        $this->cache = $cache;
-        $this->min = $min;
-        $this->max = $max;
+    public function __construct(
+        private readonly CacheInterface $cache,
+        private readonly int $min,
+        private readonly int $max,
+    ) {
     }
 
     /**

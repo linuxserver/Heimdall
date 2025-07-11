@@ -1,7 +1,7 @@
 <documentation title="Closing PHP Tags">
     <standard>
     <![CDATA[
-    Files should not have closing php tags.
+    Files should not have closing PHP tags.
     ]]>
     </standard>
     <code_comparison>
@@ -11,7 +11,7 @@
 $var = 1;
         ]]>
         </code>
-        <code title="Invalid: A closing php tag is included at the end of the file.">
+        <code title="Invalid: A closing PHP tag is included at the end of the file.">
         <![CDATA[
 <?php
 $var = 1;

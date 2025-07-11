@@ -11,6 +11,6 @@ class NoDNSRecord implements Reason
 
     public function description() : string
     {
-        return 'No MX or A DSN record was found for this email';
+        return 'No MX or A DNS record was found for this email';
     }
 }

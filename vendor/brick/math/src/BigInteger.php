@@ -10,6 +10,7 @@ use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NegativeNumberException;
 use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Internal\Calculator;
+use Override;
 
 /**
  * An arbitrary-size integer.
@@ -27,7 +28,7 @@ final class BigInteger extends BigNumber
      * No leading zeros must be present.
      * No leading minus sign must be present if the number is zero.
      */
-    private string $value;
+    private readonly string $value;
 
     /**
      * Protected constructor. Use a factory method to obtain an instance.
@@ -40,15 +41,12 @@ final class BigInteger extends BigNumber
     }
 
     /**
-     * Creates a BigInteger of the given value.
-     *
-     * @throws MathException If the value cannot be converted to a BigInteger.
-     *
      * @psalm-pure
      */
-    public static function of(BigNumber|int|float|string $value) : BigInteger
+    #[Override]
+    protected static function from(BigNumber $number): static
     {
-        return parent::of($value)->toBigInteger();
+        return $number->toBigInteger();
     }
 
     /**
@@ -225,9 +223,10 @@ final class BigInteger extends BigNumber
         }
 
         if ($randomBytesGenerator === null) {
-            $randomBytesGenerator = 'random_bytes';
+            $randomBytesGenerator = random_bytes(...);
         }
 
+        /** @var int<1, max> $byteLength */
         $byteLength = \intdiv($numBits - 1, 8) + 1;
 
         $extraBits = ($byteLength * 8 - $numBits);
@@ -429,12 +428,12 @@ final class BigInteger extends BigNumber
      * Returns the result of the division of this number by the given one.
      *
      * @param BigNumber|int|float|string $that         The divisor. Must be convertible to a BigInteger.
-     * @param int                        $roundingMode An optional rounding mode.
+     * @param RoundingMode               $roundingMode An optional rounding mode, defaults to UNNECESSARY.
      *
      * @throws MathException If the divisor is not a valid number, is not convertible to a BigInteger, is zero,
      *                       or RoundingMode::UNNECESSARY is used and the remainder is not zero.
      */
-    public function dividedBy(BigNumber|int|float|string $that, int $roundingMode = RoundingMode::UNNECESSARY) : BigInteger
+    public function dividedBy(BigNumber|int|float|string $that, RoundingMode $roundingMode = RoundingMode::UNNECESSARY) : BigInteger
     {
         $that = BigInteger::of($that);
 
@@ -533,6 +532,8 @@ final class BigInteger extends BigNumber
      * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigInteger.
      *
      * @return BigInteger[] An array containing the quotient and the remainder.
+     *
+     * @psalm-return array{BigInteger, BigInteger}
      *
      * @throws DivisionByZeroException If the divisor is zero.
      */
@@ -857,6 +858,7 @@ final class BigInteger extends BigNumber
         return $this->shiftedRight($n)->isOdd();
     }
 
+    #[Override]
     public function compareTo(BigNumber|int|float|string $that) : int
     {
         $that = BigNumber::of($that);
@@ -868,31 +870,37 @@ final class BigInteger extends BigNumber
         return - $that->compareTo($this);
     }
 
+    #[Override]
     public function getSign() : int
     {
         return ($this->value === '0') ? 0 : (($this->value[0] === '-') ? -1 : 1);
     }
 
+    #[Override]
     public function toBigInteger() : BigInteger
     {
         return $this;
     }
 
+    #[Override]
     public function toBigDecimal() : BigDecimal
     {
         return self::newBigDecimal($this->value);
     }
 
+    #[Override]
     public function toBigRational() : BigRational
     {
         return self::newBigRational($this, BigInteger::one(), false);
     }
 
-    public function toScale(int $scale, int $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
+    #[Override]
+    public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
     {
         return $this->toBigDecimal()->toScale($scale, $roundingMode);
     }
 
+    #[Override]
     public function toInt() : int
     {
         $intValue = (int) $this->value;
@@ -904,6 +912,7 @@ final class BigInteger extends BigNumber
         return $intValue;
     }
 
+    #[Override]
     public function toFloat() : float
     {
         return (float) $this->value;
@@ -1014,6 +1023,7 @@ final class BigInteger extends BigNumber
         return \hex2bin($hex);
     }
 
+    #[Override]
     public function __toString() : string
     {
         return $this->value;
@@ -1048,32 +1058,5 @@ final class BigInteger extends BigNumber
         }
 
         $this->value = $data['value'];
-    }
-
-    /**
-     * This method is required by interface Serializable and SHOULD NOT be accessed directly.
-     *
-     * @internal
-     */
-    public function serialize() : string
-    {
-        return $this->value;
-    }
-
-    /**
-     * This method is only here to implement interface Serializable and cannot be accessed directly.
-     *
-     * @internal
-     * @psalm-suppress RedundantPropertyInitializationCheck
-     *
-     * @throws \LogicException
-     */
-    public function unserialize($value) : void
-    {
-        if (isset($this->value)) {
-            throw new \LogicException('unserialize() is an internal function, it must not be called directly.');
-        }
-
-        $this->value = $value;
     }
 }

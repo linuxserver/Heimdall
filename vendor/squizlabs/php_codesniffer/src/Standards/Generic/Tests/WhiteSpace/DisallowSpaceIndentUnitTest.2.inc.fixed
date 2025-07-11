@@ -116,3 +116,10 @@ $x = 1;
 
 	 Another line.
 	 */
+
+// A `yield from` can be multiline and may contain spaces in the indentation whitespace between the keywords.
+function myGenerator() {
+	yield
+	from
+	gen2();
+}

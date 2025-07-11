@@ -31,16 +31,13 @@ final class RequestMatcherPlugin implements Plugin
      */
     private $failurePlugin;
 
-    public function __construct(RequestMatcher $requestMatcher, ?Plugin $delegateOnMatch, Plugin $delegateOnNoMatch = null)
+    public function __construct(RequestMatcher $requestMatcher, ?Plugin $delegateOnMatch, ?Plugin $delegateOnNoMatch = null)
     {
         $this->requestMatcher = $requestMatcher;
         $this->successPlugin = $delegateOnMatch;
         $this->failurePlugin = $delegateOnNoMatch;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         if ($this->requestMatcher->matches($request)) {

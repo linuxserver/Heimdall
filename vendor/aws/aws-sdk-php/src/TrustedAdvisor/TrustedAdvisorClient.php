@@ -5,6 +5,8 @@ use Aws\AwsClient;
 
 /**
  * This client is used to interact with the **TrustedAdvisor Public API** service.
+ * @method \Aws\Result batchUpdateRecommendationResourceExclusion(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchUpdateRecommendationResourceExclusionAsync(array $args = [])
  * @method \Aws\Result getOrganizationRecommendation(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getOrganizationRecommendationAsync(array $args = [])
  * @method \Aws\Result getRecommendation(array $args = [])

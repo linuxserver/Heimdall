@@ -1,0 +1,13 @@
+
+------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: DOCUMENTATION TITLE EMPTY |
+------------------------------------------------------------
+
+The above "documentation" element has an empty title attribute.
+
+----------------------------------------- CODE COMPARISON ------------------------------------------
+| Valid: Lorem ipsum dolor sit amet.             | Invalid: Maecenas non rutrum dolor.             |
+----------------------------------------------------------------------------------------------------
+| class Code {}                                  | class Comparison {}                             |
+----------------------------------------------------------------------------------------------------
+

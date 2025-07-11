@@ -1,0 +1,18 @@
+<documentation title="Code Comparison, mismatched code blocks">
+    <standard>
+    <![CDATA[
+    This doc has two code elements, one only has a title, one has actual code. Unbalanced
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Code title">
+        <![CDATA[
+        ]]>
+        </code>
+        <code title="">
+        <![CDATA[
+$a = 'Example code';
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

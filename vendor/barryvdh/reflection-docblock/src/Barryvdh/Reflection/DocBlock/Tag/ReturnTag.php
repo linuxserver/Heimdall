@@ -120,7 +120,8 @@ class ReturnTag extends Tag
         if (null === $this->types) {
             $this->types = new Collection(
                 array($this->type),
-                $this->docblock ? $this->docblock->getContext() : null
+                $this->docblock ? $this->docblock->getContext() : null,
+                $this->docblock ? $this->docblock->getGenerics() : array()
             );
         }
         return $this->types;

@@ -509,3 +509,25 @@ namespace {
         }
     }
 }
+
+$anon = new class {
+    /**
+     * Tag and token number mismatch.
+     *
+     * @throws PHP_Exception1
+     * @throws PHP_Exception2
+     */
+    #[AnAttribute]
+    #[AnotherAttribute]
+    public function JumpOverAttributesToFindDocblock() {
+        throw new PHP_Exception1('Error');
+    }
+};
+
+
+/**
+ * @throws Wrong_Exception
+ */
+public function ImproveCommentTolerance() {
+    throw /*comment*/ new /*comment*/ Right_Exception('Error');
+}

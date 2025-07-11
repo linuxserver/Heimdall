@@ -28,7 +28,7 @@ class PasswordPromptRenderer extends Renderer
                     $this->strikethrough($this->dim($this->truncate($prompt->masked() ?: $prompt->placeholder, $maxWidth))),
                     color: 'red',
                 )
-                ->error('Cancelled.'),
+                ->error($prompt->cancelMessage),
 
             'error' => $this
                 ->box(

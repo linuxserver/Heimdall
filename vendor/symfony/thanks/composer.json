@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=8.1",
         "composer-plugin-api": "^1.0|^2.0"
     },
     "autoload": {
@@ -20,7 +20,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.2-dev"
+            "dev-main": "1.4-dev"
         },
         "class": "Symfony\\Thanks\\Thanks"
     }

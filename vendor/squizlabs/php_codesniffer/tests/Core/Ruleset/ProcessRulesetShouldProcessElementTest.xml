@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRulesetShouldProcessElementTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <file>.</file>
+
+    <!--
+    ################
+    # Neither set. #
+    ################
+    -->
+    <config name="neither" value="true"/>
+    <arg value="ps" />
+    <arg name="extensions" value="php,phpt" />
+    <ini name="bcmath.scale" value="2"/>
+
+    <exclude-pattern>./tests/</exclude-pattern>
+
+    <rule ref="PEAR.Formatting.MultiLineAssignment"/>
+
+    <!--
+    ###################
+    # phpcs-only set. #
+    ###################
+    -->
+    <config phpcs-only="true" name="csOnly" value="true"/>
+    <arg phpcs-only="true" name="colors"/>
+    <ini phpcs-only="true" name="docref_root" value="path/to/docs/"/>
+
+    <exclude-pattern phpcs-only="true">./vendor/</exclude-pattern>
+
+    <rule phpcs-only="true" ref="Generic.Arrays.ArrayIndent"/>
+
+    <rule ref="PEAR.Formatting.MultiLineAssignment">
+        <exclude phpcs-only="true" name="PEAR.Formatting.MultiLineAssignment.Indent"/>
+    </rule>
+
+    <!--
+    ####################
+    # phpcbf-only set. #
+    ####################
+    -->
+    <config phpcbf-only="true" name="cbfOnly" value="true"/>
+    <arg phpcbf-only="true" name="report" value="summary"/>
+    <ini phpcbf-only="true" name="user_agent" value="Never mind"/>
+
+    <exclude-pattern phpcbf-only="true">./node-modules/</exclude-pattern>
+
+    <rule phpcbf-only="true" ref="PSR2.Classes.ClassDeclaration"/>
+
+    <rule ref="PEAR.Formatting.MultiLineAssignment">
+        <exclude phpcbf-only="true" name="PEAR.Formatting.MultiLineAssignment.EqualSignLine"/>
+    </rule>
+
+</ruleset>

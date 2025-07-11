@@ -13,46 +13,30 @@ use const DIRECTORY_SEPARATOR;
 use function copy;
 use function date;
 use function dirname;
-use function substr;
+use function str_ends_with;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\InvalidArgumentException;
+use SebastianBergmann\CodeCoverage\FileCouldNotBeWrittenException;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
+use SebastianBergmann\CodeCoverage\Report\Thresholds;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
+use SebastianBergmann\Template\Exception;
+use SebastianBergmann\Template\Template;
 
 final class Facade
 {
-    /**
-     * @var string
-     */
-    private $templatePath;
+    private readonly string $templatePath;
+    private readonly string $generator;
+    private readonly Colors $colors;
+    private readonly Thresholds $thresholds;
+    private readonly CustomCssFile $customCssFile;
 
-    /**
-     * @var string
-     */
-    private $generator;
-
-    /**
-     * @var int
-     */
-    private $lowUpperBound;
-
-    /**
-     * @var int
-     */
-    private $highLowerBound;
-
-    public function __construct(int $lowUpperBound = 50, int $highLowerBound = 90, string $generator = '')
+    public function __construct(string $generator = '', ?Colors $colors = null, ?Thresholds $thresholds = null, ?CustomCssFile $customCssFile = null)
     {
-        if ($lowUpperBound > $highLowerBound) {
-            throw new InvalidArgumentException(
-                '$lowUpperBound must not be larger than $highLowerBound'
-            );
-        }
-
-        $this->generator      = $generator;
-        $this->highLowerBound = $highLowerBound;
-        $this->lowUpperBound  = $lowUpperBound;
-        $this->templatePath   = __DIR__ . '/Renderer/Template/';
+        $this->generator     = $generator;
+        $this->colors        = $colors ?? Colors::default();
+        $this->thresholds    = $thresholds ?? Thresholds::default();
+        $this->customCssFile = $customCssFile ?? CustomCssFile::default();
+        $this->templatePath  = __DIR__ . '/Renderer/Template/';
     }
 
     public function process(CodeCoverage $coverage, string $target): void
@@ -65,27 +49,24 @@ final class Facade
             $this->templatePath,
             $this->generator,
             $date,
-            $this->lowUpperBound,
-            $this->highLowerBound,
-            $coverage->collectsBranchAndPathCoverage()
+            $this->thresholds,
+            $coverage->collectsBranchAndPathCoverage(),
         );
 
         $directory = new Directory(
             $this->templatePath,
             $this->generator,
             $date,
-            $this->lowUpperBound,
-            $this->highLowerBound,
-            $coverage->collectsBranchAndPathCoverage()
+            $this->thresholds,
+            $coverage->collectsBranchAndPathCoverage(),
         );
 
         $file = new File(
             $this->templatePath,
             $this->generator,
             $date,
-            $this->lowUpperBound,
-            $this->highLowerBound,
-            $coverage->collectsBranchAndPathCoverage()
+            $this->thresholds,
+            $coverage->collectsBranchAndPathCoverage(),
         );
 
         $directory->render($report, $target . 'index.html');
@@ -109,6 +90,7 @@ final class Facade
         }
 
         $this->copyFiles($target);
+        $this->renderCss($target);
     }
 
     private function copyFiles(string $target): void
@@ -117,8 +99,7 @@ final class Facade
 
         copy($this->templatePath . 'css/bootstrap.min.css', $dir . 'bootstrap.min.css');
         copy($this->templatePath . 'css/nv.d3.min.css', $dir . 'nv.d3.min.css');
-        copy($this->templatePath . 'css/style.css', $dir . 'style.css');
-        copy($this->templatePath . 'css/custom.css', $dir . 'custom.css');
+        copy($this->customCssFile->path(), $dir . 'custom.css');
         copy($this->templatePath . 'css/octicons.css', $dir . 'octicons.css');
 
         $dir = $this->directory($target . '_icons');
@@ -134,9 +115,34 @@ final class Facade
         copy($this->templatePath . 'js/file.js', $dir . 'file.js');
     }
 
+    private function renderCss(string $target): void
+    {
+        $template = new Template($this->templatePath . 'css/style.css', '{{', '}}');
+
+        $template->setVar(
+            [
+                'success-low'    => $this->colors->successLow(),
+                'success-medium' => $this->colors->successMedium(),
+                'success-high'   => $this->colors->successHigh(),
+                'warning'        => $this->colors->warning(),
+                'danger'         => $this->colors->danger(),
+            ],
+        );
+
+        try {
+            $template->renderTo($this->directory($target . '_css') . 'style.css');
+        } catch (Exception $e) {
+            throw new FileCouldNotBeWrittenException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e,
+            );
+        }
+    }
+
     private function directory(string $directory): string
     {
-        if (substr($directory, -1, 1) != DIRECTORY_SEPARATOR) {
+        if (!str_ends_with($directory, DIRECTORY_SEPARATOR)) {
             $directory .= DIRECTORY_SEPARATOR;
         }
 

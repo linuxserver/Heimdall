@@ -14,7 +14,7 @@ final class Barcode implements Extension\BarcodeExtension
 {
     private Extension\NumberExtension $numberExtension;
 
-    public function __construct(Extension\NumberExtension $numberExtension = null)
+    public function __construct(?Extension\NumberExtension $numberExtension = null)
     {
         $this->numberExtension = $numberExtension ?: new Number();
     }

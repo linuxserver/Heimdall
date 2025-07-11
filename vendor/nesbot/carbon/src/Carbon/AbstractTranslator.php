@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the Carbon package.
  *
@@ -21,40 +23,40 @@ use Symfony\Component\Translation\Loader\ArrayLoader;
 
 abstract class AbstractTranslator extends Translation\Translator
 {
+    public const REGION_CODE_LENGTH = 2;
+
     /**
      * Translator singletons for each language.
      *
      * @var array
      */
-    protected static $singletons = [];
+    protected static array $singletons = [];
 
     /**
      * List of custom localized messages.
      *
      * @var array
      */
-    protected $messages = [];
+    protected array $messages = [];
 
     /**
      * List of custom directories that contain translation files.
      *
      * @var string[]
      */
-    protected $directories = [];
+    protected array $directories = [];
 
     /**
      * Set to true while constructing.
-     *
-     * @var bool
      */
-    protected $initializing = false;
+    protected bool $initializing = false;
 
     /**
      * List of locales aliases.
      *
      * @var array<string, string>
      */
-    protected $aliases = [
+    protected array $aliases = [
         'me' => 'sr_Latn_ME',
         'scr' => 'sh',
     ];
@@ -66,32 +68,31 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return static
      */
-    public static function get($locale = null)
+    public static function get(?string $locale = null): static
     {
         $locale = $locale ?: 'en';
         $key = static::class === Translator::class ? $locale : static::class.'|'.$locale;
+        $count = \count(static::$singletons);
 
-        if (!isset(static::$singletons[$key])) {
-            static::$singletons[$key] = new static($locale);
+        // Remember only the last 10 translators created
+        if ($count > 10) {
+            foreach (\array_slice(array_keys(static::$singletons), 0, $count - 10) as $index) {
+                unset(static::$singletons[$index]);
+            }
         }
+
+        static::$singletons[$key] ??= new static($locale);
 
         return static::$singletons[$key];
     }
 
-    public function __construct($locale, MessageFormatterInterface $formatter = null, $cacheDir = null, $debug = false)
+    public function __construct($locale, ?MessageFormatterInterface $formatter = null, $cacheDir = null, $debug = false)
     {
-        parent::setLocale($locale);
-        $this->initializing = true;
-        $this->directories = [__DIR__.'/Lang'];
-        $this->addLoader('array', new ArrayLoader());
-        parent::__construct($locale, new MessageFormatterMapper($formatter), $cacheDir, $debug);
-        $this->initializing = false;
+        $this->initialize($locale, $formatter, $cacheDir, $debug);
     }
 
     /**
      * Returns the list of directories translation files are searched in.
-     *
-     * @return array
      */
     public function getDirectories(): array
     {
@@ -105,7 +106,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return $this
      */
-    public function setDirectories(array $directories)
+    public function setDirectories(array $directories): static
     {
         $this->directories = $directories;
 
@@ -119,7 +120,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return $this
      */
-    public function addDirectory(string $directory)
+    public function addDirectory(string $directory): static
     {
         $this->directories[] = $directory;
 
@@ -133,25 +134,22 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return $this
      */
-    public function removeDirectory(string $directory)
+    public function removeDirectory(string $directory): static
     {
         $search = rtrim(strtr($directory, '\\', '/'), '/');
 
-        return $this->setDirectories(array_filter($this->getDirectories(), function ($item) use ($search) {
-            return rtrim(strtr($item, '\\', '/'), '/') !== $search;
-        }));
+        return $this->setDirectories(array_filter(
+            $this->getDirectories(),
+            static fn ($item) => rtrim(strtr($item, '\\', '/'), '/') !== $search,
+        ));
     }
 
     /**
      * Reset messages of a locale (all locale if no locale passed).
      * Remove custom messages and reload initial messages from matching
      * file in Lang directory.
-     *
-     * @param string|null $locale
-     *
-     * @return bool
      */
-    public function resetMessages($locale = null)
+    public function resetMessages(?string $locale = null): bool
     {
         if ($locale === null) {
             $this->messages = [];
@@ -159,8 +157,10 @@ abstract class AbstractTranslator extends Translation\Translator
             return true;
         }
 
+        $this->assertValidLocale($locale);
+
         foreach ($this->getDirectories() as $directory) {
-            $data = @include sprintf('%s/%s.php', rtrim($directory, '\\/'), $locale);
+            $data = @include \sprintf('%s/%s.php', rtrim($directory, '\\/'), $locale);
 
             if ($data !== false) {
                 $this->messages[$locale] = $data;
@@ -180,7 +180,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return array
      */
-    public function getLocalesFiles($prefix = '')
+    public function getLocalesFiles(string $prefix = ''): array
     {
         $files = [];
 
@@ -203,7 +203,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return array
      */
-    public function getAvailableLocales($prefix = '')
+    public function getAvailableLocales(string $prefix = ''): array
     {
         $locales = [];
         foreach ($this->getLocalesFiles($prefix) as $file) {
@@ -228,7 +228,7 @@ abstract class AbstractTranslator extends Translation\Translator
             // @codeCoverageIgnoreStart
             try {
                 $count = (new ReflectionFunction($format))->getNumberOfRequiredParameters();
-            } catch (ReflectionException $exception) {
+            } catch (ReflectionException) {
                 $count = 0;
             }
             // @codeCoverageIgnoreEnd
@@ -249,7 +249,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return bool
      */
-    protected function loadMessagesFromFile($locale)
+    protected function loadMessagesFromFile(string $locale): bool
     {
         return isset($this->messages[$locale]) || $this->resetMessages($locale);
     }
@@ -262,7 +262,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return $this
      */
-    public function setMessages($locale, $messages)
+    public function setMessages(string $locale, array $messages): static
     {
         $this->loadMessagesFromFile($locale);
         $this->addResource('array', $messages, $locale);
@@ -281,7 +281,7 @@ abstract class AbstractTranslator extends Translation\Translator
      *
      * @return $this
      */
-    public function setTranslations($messages)
+    public function setTranslations(array $messages): static
     {
         return $this->setMessages($this->getLocale(), $messages);
     }
@@ -289,12 +289,8 @@ abstract class AbstractTranslator extends Translation\Translator
     /**
      * Get messages of a locale, if none given, return all the
      * languages.
-     *
-     * @param string|null $locale
-     *
-     * @return array
      */
-    public function getMessages($locale = null)
+    public function getMessages(?string $locale = null): array
     {
         return $locale === null ? $this->messages : $this->messages[$locale];
     }
@@ -303,16 +299,14 @@ abstract class AbstractTranslator extends Translation\Translator
      * Set the current translator locale and indicate if the source locale file exists
      *
      * @param string $locale locale ex. en
-     *
-     * @return bool
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         $locale = preg_replace_callback('/[-_]([a-z]{2,}|\d{2,})/', function ($matches) {
             // _2-letters or YUE is a region, _3+-letters is a variant
             $upper = strtoupper($matches[1]);
 
-            if ($upper === 'YUE' || $upper === 'ISO' || \strlen($upper) < 3) {
+            if ($upper === 'YUE' || $upper === 'ISO' || \strlen($upper) <= static::REGION_CODE_LENGTH) {
                 return "_$upper";
             }
 
@@ -322,7 +316,7 @@ abstract class AbstractTranslator extends Translation\Translator
         $previousLocale = $this->getLocale();
 
         if ($previousLocale === $locale && isset($this->messages[$locale])) {
-            return true;
+            return;
         }
 
         unset(static::$singletons[$previousLocale]);
@@ -334,13 +328,12 @@ abstract class AbstractTranslator extends Translation\Translator
 
             $completeLocaleChunks = preg_split('/[_.-]+/', $completeLocale);
 
-            $getScore = function ($language) use ($completeLocaleChunks) {
-                return self::compareChunkLists($completeLocaleChunks, preg_split('/[_.-]+/', $language));
-            };
+            $getScore = static fn ($language) => self::compareChunkLists(
+                $completeLocaleChunks,
+                preg_split('/[_.-]+/', $language),
+            );
 
-            usort($locales, function ($first, $second) use ($getScore) {
-                return $getScore($second) <=> $getScore($first);
-            });
+            usort($locales, static fn ($first, $second) => $getScore($second) <=> $getScore($first));
 
             $locale = $locales[0];
         }
@@ -357,12 +350,10 @@ abstract class AbstractTranslator extends Translation\Translator
         }
 
         if (!$this->loadMessagesFromFile($locale) && !$this->initializing) {
-            return false;
+            return;
         }
 
         parent::setLocale($locale);
-
-        return true;
     }
 
     /**
@@ -375,6 +366,28 @@ abstract class AbstractTranslator extends Translation\Translator
         return [
             'locale' => $this->getLocale(),
         ];
+    }
+
+    public function __serialize(): array
+    {
+        return [
+            'locale' => $this->getLocale(),
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->initialize($data['locale'] ?? 'en');
+    }
+
+    private function initialize($locale, ?MessageFormatterInterface $formatter = null, $cacheDir = null, $debug = false): void
+    {
+        parent::setLocale($locale);
+        $this->initializing = true;
+        $this->directories = [__DIR__.'/Lang'];
+        $this->addLoader('array', new ArrayLoader());
+        parent::__construct($locale, new MessageFormatterMapper($formatter), $cacheDir, $debug);
+        $this->initializing = false;
     }
 
     private static function compareChunkLists($referenceChunks, $chunks)

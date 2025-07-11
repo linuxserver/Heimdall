@@ -58,6 +58,7 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
         if (! ($matched instanceof ListBlockParser) || ! $listData->equals($matched->getBlock()->getListData())) {
             $listBlockParser = new ListBlockParser($listData);
             // We start out with assuming a list is tight. If we find a blank line, we set it to loose later.
+            // TODO for 3.0: Just make them tight by default in the block so we can remove this call
             $listBlockParser->getBlock()->setTight(true);
 
             return BlockStart::of($listBlockParser, $listItemParser)->at($cursor);

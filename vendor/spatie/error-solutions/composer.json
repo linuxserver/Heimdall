@@ -1,0 +1,69 @@
+{
+    "name" : "spatie/error-solutions",
+    "description" : "This is my package error-solutions",
+    "keywords" : [
+        "Spatie",
+        "error-solutions"
+    ],
+    "homepage" : "https://github.com/spatie/error-solutions",
+    "license" : "MIT",
+    "authors" : [
+        {
+            "name" : "Ruben Van Assche",
+            "email" : "ruben@spatie.be",
+            "role" : "Developer"
+        }
+    ],
+    "require" : {
+        "php": "^8.0"
+    },
+    "require-dev" : {
+        "livewire/livewire": "^2.11|^3.5.20",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/broadcasting" : "^10.0|^11.0|^12.0",
+        "openai-php/client": "^0.10.1",
+        "illuminate/cache" : "^10.0|^11.0|^12.0",
+        "pestphp/pest" : "^2.20|^3.0",
+        "phpstan/phpstan" : "^2.1",
+        "psr/simple-cache-implementation" : "^3.0",
+        "psr/simple-cache" : "^3.0",
+        "spatie/ray" : "^1.28",
+        "symfony/cache" : "^5.4|^6.0|^7.0",
+        "symfony/process" : "^5.4|^6.0|^7.0",
+        "vlucas/phpdotenv" : "^5.5",
+        "orchestra/testbench": "8.22.3|^9.0|^10.0"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "Spatie\\ErrorSolutions\\" : "src",
+            "Spatie\\Ignition\\" : "legacy/ignition",
+            "Spatie\\LaravelIgnition\\" : "legacy/laravel-ignition"
+        }
+    },
+    "autoload-dev" : {
+        "psr-4" : {
+            "Spatie\\ErrorSolutions\\Tests\\" : "tests"
+        }
+    },
+    "suggest" : {
+        "openai-php/client" : "Require get solutions from OpenAI",
+        "simple-cache-implementation" : "To cache solutions from OpenAI"
+    },
+    "scripts" : {
+        "analyse" : "vendor/bin/phpstan analyse",
+        "baseline" : "vendor/bin/phpstan analyse --generate-baseline",
+        "test" : "vendor/bin/pest",
+        "test-coverage" : "vendor/bin/pest --coverage",
+        "format" : "vendor/bin/pint"
+    },
+    "config" : {
+        "sort-packages" : true,
+        "allow-plugins" : {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true,
+            "php-http/discovery": false
+        }
+    },
+    "minimum-stability" : "dev",
+    "prefer-stable" : true
+}

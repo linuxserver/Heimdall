@@ -17,6 +17,11 @@ if (!\function_exists('PhpParser\defineCompatibilityTokens')) {
             'T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG',
             'T_AMPERSAND_FOLLOWED_BY_VAR_OR_VARARG',
             'T_READONLY',
+            // PHP 8.4
+            'T_PROPERTY_C',
+            'T_PUBLIC_SET',
+            'T_PROTECTED_SET',
+            'T_PRIVATE_SET',
         ];
 
         // PHP-Parser might be used together with another library that also emulates some or all
@@ -26,6 +31,13 @@ if (!\function_exists('PhpParser\defineCompatibilityTokens')) {
         foreach ($compatTokens as $token) {
             if (\defined($token)) {
                 $tokenId = \constant($token);
+                if (!\is_int($tokenId)) {
+                    throw new \Error(sprintf(
+                        'Token %s has ID of type %s, should be int. ' .
+                        'You may be using a library with broken token emulation',
+                        $token, \gettype($tokenId)
+                    ));
+                }
                 $clashingToken = $usedTokenIds[$tokenId] ?? null;
                 if ($clashingToken !== null) {
                     throw new \Error(sprintf(

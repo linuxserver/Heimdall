@@ -4,17 +4,24 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Env;
+use Illuminate\Support\InteractsWithTime;
+use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+use function Illuminate\Support\php_binary;
 use function Termwind\terminal;
 
 #[AsCommand(name: 'serve')]
 class ServeCommand extends Command
 {
+    use InteractsWithTime;
+
     /**
      * The console command name.
      *
@@ -30,11 +37,25 @@ class ServeCommand extends Command
     protected $description = 'Serve the application on the PHP development server';
 
     /**
+     * The number of PHP CLI server workers.
+     *
+     * @var int<2, max>|false
+     */
+    protected $phpServerWorkers = 1;
+
+    /**
      * The current port offset.
      *
      * @var int
      */
     protected $portOffset = 0;
+
+    /**
+     * The list of lines that are pending to be output.
+     *
+     * @var string
+     */
+    protected $outputBuffer = '';
 
     /**
      * The list of requests being handled and their start time.
@@ -60,16 +81,31 @@ class ServeCommand extends Command
         'HERD_PHP_81_INI_SCAN_DIR',
         'HERD_PHP_82_INI_SCAN_DIR',
         'HERD_PHP_83_INI_SCAN_DIR',
+        'HERD_PHP_84_INI_SCAN_DIR',
         'IGNITION_LOCAL_SITES_PATH',
         'LARAVEL_SAIL',
         'PATH',
-        'PHP_CLI_SERVER_WORKERS',
         'PHP_IDE_CONFIG',
         'SYSTEMROOT',
         'XDEBUG_CONFIG',
         'XDEBUG_MODE',
         'XDEBUG_SESSION',
     ];
+
+    /** {@inheritdoc} */
+    #[\Override]
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        $this->phpServerWorkers = transform((int) env('PHP_CLI_SERVER_WORKERS', 1), function (int $workers) {
+            if ($workers < 2) {
+                return false;
+            }
+
+            return $workers > 1 && ! $this->option('no-reload') ? false : $workers;
+        });
+
+        parent::initialize($input, $output);
+    }
 
     /**
      * Execute the console command.
@@ -81,14 +117,14 @@ class ServeCommand extends Command
     public function handle()
     {
         $environmentFile = $this->option('env')
-                            ? base_path('.env').'.'.$this->option('env')
-                            : base_path('.env');
+            ? base_path('.env').'.'.$this->option('env')
+            : base_path('.env');
 
         $hasEnvironment = file_exists($environmentFile);
 
         $environmentLastModified = $hasEnvironment
-                            ? filemtime($environmentFile)
-                            : now()->addDays(30)->getTimestamp();
+            ? filemtime($environmentFile)
+            : now()->addDays(30)->getTimestamp();
 
         $process = $this->startProcess($hasEnvironment);
 
@@ -135,13 +171,13 @@ class ServeCommand extends Command
      */
     protected function startProcess($hasEnvironment)
     {
-        $process = new Process($this->serverCommand(), public_path(), collect($_ENV)->mapWithKeys(function ($value, $key) use ($hasEnvironment) {
+        $process = new Process($this->serverCommand(), public_path(), (new Collection($_ENV))->mapWithKeys(function ($value, $key) use ($hasEnvironment) {
             if ($this->option('no-reload') || ! $hasEnvironment) {
                 return [$key => $value];
             }
 
             return in_array($key, static::$passthroughVariables) ? [$key => $value] : [$key => false];
-        })->all());
+        })->merge(['PHP_CLI_SERVER_WORKERS' => $this->phpServerWorkers])->all());
 
         $this->trap(fn () => [SIGTERM, SIGINT, SIGHUP, SIGUSR1, SIGUSR2, SIGQUIT], function ($signal) use ($process) {
             if ($process->isRunning()) {
@@ -168,7 +204,7 @@ class ServeCommand extends Command
             : __DIR__.'/../resources/server.php';
 
         return [
-            (new PhpExecutableFinder)->find(false),
+            php_binary(),
             '-S',
             $this->host().':'.$this->port(),
             $server,
@@ -235,7 +271,7 @@ class ServeCommand extends Command
     protected function canTryAnotherPort()
     {
         return is_null($this->input->getOption('port')) &&
-               ($this->input->getOption('tries') > $this->portOffset);
+            ($this->input->getOption('tries') > $this->portOffset);
     }
 
     /**
@@ -245,68 +281,98 @@ class ServeCommand extends Command
      */
     protected function handleProcessOutput()
     {
-        return fn ($type, $buffer) => str($buffer)->explode("\n")->each(function ($line) {
-            if (str($line)->contains('Development Server (http')) {
-                if ($this->serverRunningHasBeenDisplayed) {
+        return function ($type, $buffer) {
+            $this->outputBuffer .= $buffer;
+
+            $this->flushOutputBuffer();
+        };
+    }
+
+    /**
+     * Flush the output buffer.
+     *
+     * @return void
+     */
+    protected function flushOutputBuffer()
+    {
+        $lines = (new Stringable($this->outputBuffer))->explode("\n");
+
+        $this->outputBuffer = (string) $lines->pop();
+
+        $lines
+            ->map(fn ($line) => trim($line))
+            ->filter()
+            ->each(function ($line) {
+                if ((new Stringable($line))->contains('Development Server (http')) {
+                    if ($this->serverRunningHasBeenDisplayed === false) {
+                        $this->serverRunningHasBeenDisplayed = true;
+
+                        $this->components->info("Server running on [http://{$this->host()}:{$this->port()}].");
+                        $this->comment('  <fg=yellow;options=bold>Press Ctrl+C to stop the server</>');
+
+                        $this->newLine();
+                    }
+
                     return;
                 }
 
-                $this->components->info("Server running on [http://{$this->host()}:{$this->port()}].");
-                $this->comment('  <fg=yellow;options=bold>Press Ctrl+C to stop the server</>');
+                if ((new Stringable($line))->contains(' Accepted')) {
+                    $requestPort = static::getRequestPortFromLine($line);
 
-                $this->newLine();
+                    $this->requestsPool[$requestPort] = [
+                        $this->getDateFromLine($line),
+                        $this->requestsPool[$requestPort][1] ?? false,
+                        microtime(true),
+                    ];
+                } elseif ((new Stringable($line))->contains([' [200]: GET '])) {
+                    $requestPort = static::getRequestPortFromLine($line);
 
-                $this->serverRunningHasBeenDisplayed = true;
-            } elseif (str($line)->contains(' Accepted')) {
-                $requestPort = $this->getRequestPortFromLine($line);
+                    $this->requestsPool[$requestPort][1] = trim(explode('[200]: GET', $line)[1]);
+                } elseif ((new Stringable($line))->contains('URI:')) {
+                    $requestPort = static::getRequestPortFromLine($line);
 
-                $this->requestsPool[$requestPort] = [
-                    $this->getDateFromLine($line),
-                    false,
-                ];
-            } elseif (str($line)->contains([' [200]: GET '])) {
-                $requestPort = $this->getRequestPortFromLine($line);
+                    $this->requestsPool[$requestPort][1] = trim(explode('URI: ', $line)[1]);
+                } elseif ((new Stringable($line))->contains(' Closing')) {
+                    $requestPort = static::getRequestPortFromLine($line);
 
-                $this->requestsPool[$requestPort][1] = trim(explode('[200]: GET', $line)[1]);
-            } elseif (str($line)->contains(' Closing')) {
-                $requestPort = $this->getRequestPortFromLine($line);
+                    if (empty($this->requestsPool[$requestPort])) {
+                        $this->requestsPool[$requestPort] = [
+                            $this->getDateFromLine($line),
+                            false,
+                            microtime(true),
+                        ];
+                    }
 
-                if (empty($this->requestsPool[$requestPort])) {
-                    return;
+                    [$startDate, $file, $startMicrotime] = $this->requestsPool[$requestPort];
+
+                    $formattedStartedAt = $startDate->format('Y-m-d H:i:s');
+
+                    unset($this->requestsPool[$requestPort]);
+
+                    [$date, $time] = explode(' ', $formattedStartedAt);
+
+                    $this->output->write("  <fg=gray>$date</> $time");
+
+                    $runTime = $this->runTimeForHumans($startMicrotime);
+
+                    if ($file) {
+                        $this->output->write($file = " $file");
+                    }
+
+                    $dots = max(terminal()->width() - mb_strlen($formattedStartedAt) - mb_strlen($file) - mb_strlen($runTime) - 9, 0);
+
+                    $this->output->write(' '.str_repeat('<fg=gray>.</>', $dots));
+                    $this->output->writeln(" <fg=gray>~ {$runTime}</>");
+                } elseif ((new Stringable($line))->contains(['Closed without sending a request', 'Failed to poll event'])) {
+                    // ...
+                } elseif (! empty($line)) {
+                    if ((new Stringable($line))->startsWith('[')) {
+                        $line = (new Stringable($line))->after('] ');
+                    }
+
+                    $this->output->writeln("  <fg=gray>$line</>");
                 }
-
-                [$startDate, $file] = $this->requestsPool[$requestPort];
-
-                $formattedStartedAt = $startDate->format('Y-m-d H:i:s');
-
-                unset($this->requestsPool[$requestPort]);
-
-                [$date, $time] = explode(' ', $formattedStartedAt);
-
-                $this->output->write("  <fg=gray>$date</> $time");
-
-                $runTime = $this->getDateFromLine($line)->diffInSeconds($startDate);
-
-                if ($file) {
-                    $this->output->write($file = " $file");
-                }
-
-                $dots = max(terminal()->width() - mb_strlen($formattedStartedAt) - mb_strlen($file) - mb_strlen($runTime) - 9, 0);
-
-                $this->output->write(' '.str_repeat('<fg=gray>.</>', $dots));
-                $this->output->writeln(" <fg=gray>~ {$runTime}s</>");
-            } elseif (str($line)->contains(['Closed without sending a request'])) {
-                // ...
-            } elseif (! empty($line)) {
-                $position = strpos($line, '] ');
-
-                if ($position !== false) {
-                    $line = substr($line, $position + 1);
-                }
-
-                $this->components->warn($line);
-            }
-        });
+            });
     }
 
     /**
@@ -317,7 +383,7 @@ class ServeCommand extends Command
      */
     protected function getDateFromLine($line)
     {
-        $regex = env('PHP_CLI_SERVER_WORKERS', 1) > 1
+        $regex = ! windows_os() && is_int($this->phpServerWorkers)
             ? '/^\[\d+]\s\[([a-zA-Z0-9: ]+)\]/'
             : '/^\[([^\]]+)\]/';
 
@@ -334,11 +400,15 @@ class ServeCommand extends Command
      * @param  string  $line
      * @return int
      */
-    protected function getRequestPortFromLine($line)
+    public static function getRequestPortFromLine($line)
     {
-        preg_match('/:(\d+)\s(?:(?:\w+$)|(?:\[.*))/', $line, $matches);
+        preg_match('/(\[\w+\s\w+\s\d+\s[\d:]+\s\d{4}\]\s)?:(\d+)\s(?:(?:\w+$)|(?:\[.*))/', $line, $matches);
 
-        return (int) $matches[1];
+        if (! isset($matches[2])) {
+            throw new \InvalidArgumentException("Failed to extract the request port. Ensure the log line contains a valid port: {$line}");
+        }
+
+        return (int) $matches[2];
     }
 
     /**

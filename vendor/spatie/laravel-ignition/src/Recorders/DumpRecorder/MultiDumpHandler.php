@@ -16,9 +16,11 @@ class MultiDumpHandler
         }
     }
 
-    public function addHandler(callable $callable = null): self
+    public function addHandler(?callable $callable = null): self
     {
-        $this->handlers[] = $callable;
+        if ($callable) {
+            $this->handlers[] = $callable;
+        }
 
         return $this;
     }

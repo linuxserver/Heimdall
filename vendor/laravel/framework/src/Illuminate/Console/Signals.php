@@ -72,7 +72,7 @@ class Signals
     /**
      * Gets the signal's existing handler in array format.
      *
-     * @return array<int, callable(int $signal): void>
+     * @return array<int, callable(int $signal): void>|null
      */
     protected function initializeSignal($signal)
     {
@@ -142,7 +142,7 @@ class Signals
     /**
      * Set the availability resolver.
      *
-     * @param  callable(): bool
+     * @param  (callable(): bool)  $resolver
      * @return void
      */
     public static function resolveAvailabilityUsing($resolver)

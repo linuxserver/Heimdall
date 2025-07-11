@@ -70,3 +70,18 @@ class MyClass {
 interface Base {
     protected $anonymous;
 }
+
+class PHP84FinalProperties {
+    final int $final;
+}
+
+class AsymVisibility {
+    // The read scope is public, but not specified. Error should use different error code.
+    public(set) $asymPublic  = 'hello';
+    protected(set) $asymProtected  = 'hello';
+    private(set) $asymPrivate  = 'hello';
+
+    public public(set) $asymPublicPublic  = 'hello';
+    protected(set) public $asymPublicProtected  = 'hello';
+    protected private(set) $asymProtectedPrivate  = 'hello';
+}

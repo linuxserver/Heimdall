@@ -182,7 +182,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider
             }
 
             // port is optional
-            if (empty($data[$profile]['csm_port'])) {
+            if (!filter_var($data[$profile]['csm_port'] ?? null, FILTER_VALIDATE_INT)) {
                 $data[$profile]['csm_port'] = self::DEFAULT_PORT;
             }
 

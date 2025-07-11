@@ -1,0 +1,7 @@
+
+-------------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: ONE ELEMENT CORRECT, ONE ELEMENT WRONG LEVEL |
+-------------------------------------------------------------------------------
+
+This is a standard block at the correct level.
+

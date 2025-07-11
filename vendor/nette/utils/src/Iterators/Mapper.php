@@ -10,9 +10,8 @@ declare(strict_types=1);
 namespace Nette\Iterators;
 
 
-
 /**
- * Applies the callback to the elements of the inner iterator.
+ * @deprecated use Nette\Utils\Iterables::map()
  */
 class Mapper extends \IteratorIterator
 {

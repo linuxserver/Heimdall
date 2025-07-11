@@ -8,6 +8,8 @@
     <exclude-pattern>*/Other/Main\.php$</exclude-pattern>
 
     <rule ref="Generic">
+        <exclude name="Generic.Debug"/>
+
         <!-- Standard specific directory pattern. -->
         <exclude-pattern>/anything/*</exclude-pattern>
         <!-- Standard specific file pattern. -->

@@ -27,10 +27,10 @@ final class HttpFactory implements RequestFactoryInterface, ResponseFactoryInter
 {
     public function createUploadedFile(
         StreamInterface $stream,
-        int $size = null,
+        ?int $size = null,
         int $error = \UPLOAD_ERR_OK,
-        string $clientFilename = null,
-        string $clientMediaType = null
+        ?string $clientFilename = null,
+        ?string $clientMediaType = null
     ): UploadedFileInterface {
         if ($size === null) {
             $size = $stream->getSize();

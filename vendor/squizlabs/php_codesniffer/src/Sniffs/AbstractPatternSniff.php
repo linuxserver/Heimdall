@@ -9,10 +9,10 @@
 
 namespace PHP_CodeSniffer\Sniffs;
 
-use PHP_CodeSniffer\Files\File;
-use PHP_CodeSniffer\Util\Tokens;
-use PHP_CodeSniffer\Tokenizers\PHP;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Tokenizers\PHP;
+use PHP_CodeSniffer\Util\Tokens;
 
 abstract class AbstractPatternSniff implements Sniff
 {
@@ -415,6 +415,11 @@ abstract class AbstractPatternSniff implements Sniff
         $stackPtr          = $origStackPtr;
         $lastAddedStackPtr = null;
         $patternLen        = count($pattern);
+
+        if (($stackPtr + $patternLen - $patternInfo['listen_pos']) > $phpcsFile->numTokens) {
+            // Pattern can never match as there are not enough tokens left in the file.
+            return false;
+        }
 
         for ($i = $patternInfo['listen_pos']; $i < $patternLen; $i++) {
             if (isset($tokens[$stackPtr]) === false) {

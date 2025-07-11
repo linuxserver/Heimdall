@@ -205,7 +205,7 @@ class ApiProvider
      * @param string $modelsDir Directory containing service models.
      * @param array  $manifest  The API version manifest data.
      */
-    private function __construct($modelsDir, array $manifest = null)
+    private function __construct($modelsDir, ?array $manifest = null)
     {
         $this->manifest = $manifest;
         $this->modelsDir = rtrim($modelsDir, '/');

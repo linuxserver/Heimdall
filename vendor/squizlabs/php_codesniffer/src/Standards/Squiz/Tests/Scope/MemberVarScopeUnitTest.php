@@ -39,6 +39,10 @@ final class MemberVarScopeUnitTest extends AbstractSniffUnitTest
             41 => 1,
             66 => 2,
             67 => 1,
+            75 => 1,
+            80 => 1,
+            81 => 1,
+            82 => 1,
         ];
 
     }//end getErrorList()
@@ -54,6 +58,7 @@ final class MemberVarScopeUnitTest extends AbstractSniffUnitTest
      */
     public function getWarningList()
     {
+        // Warning from getMemberProperties() about parse error.
         return [71 => 1];
 
     }//end getWarningList()

@@ -39,6 +39,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result startCanary(array $args = [])
  * @method \GuzzleHttp\Promise\Promise startCanaryAsync(array $args = [])
+ * @method \Aws\Result startCanaryDryRun(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startCanaryDryRunAsync(array $args = [])
  * @method \Aws\Result stopCanary(array $args = [])
  * @method \GuzzleHttp\Promise\Promise stopCanaryAsync(array $args = [])
  * @method \Aws\Result tagResource(array $args = [])

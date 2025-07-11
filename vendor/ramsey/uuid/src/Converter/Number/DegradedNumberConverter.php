@@ -15,10 +15,10 @@ declare(strict_types=1);
 namespace Ramsey\Uuid\Converter\Number;
 
 /**
- * @deprecated DegradedNumberConverter is no longer necessary for converting
- *     numbers on 32-bit systems. Transition to {@see GenericNumberConverter}.
+ * @deprecated DegradedNumberConverter is no longer necessary for converting numbers on 32-bit systems. Please
+ *     transition to {@see GenericNumberConverter}.
  *
- * @psalm-immutable
+ * @immutable
  */
 class DegradedNumberConverter extends BigNumberConverter
 {

@@ -21,7 +21,7 @@ abstract class AbstractErrorParser
     /**
      * @param Service $api
      */
-    public function __construct(Service $api = null)
+    public function __construct(?Service $api = null)
     {
         $this->api = $api;
     }
@@ -47,7 +47,7 @@ abstract class AbstractErrorParser
     protected function populateShape(
         array &$data,
         ResponseInterface $response,
-        CommandInterface $command = null
+        ?CommandInterface $command = null
     ) {
         $data['body'] = [];
 
@@ -60,9 +60,7 @@ abstract class AbstractErrorParser
                 foreach ($errors as $key => $error) {
 
                     // If error code matches a known error shape, populate the body
-                    if ($data['code'] == $error['name']
-                        && $error instanceof StructureShape
-                    ) {
+                    if ($this->errorCodeMatches($data, $error)) {
                         $modeledError = $error;
                         $data['body'] = $this->extractPayload(
                             $modeledError,
@@ -91,5 +89,11 @@ abstract class AbstractErrorParser
         }
 
         return $data;
+    }
+
+    private function errorCodeMatches(array $data, $error): bool
+    {
+        return $data['code'] == $error['name']
+            || (isset($error['error']['code']) && $data['code'] === $error['error']['code']);
     }
 }

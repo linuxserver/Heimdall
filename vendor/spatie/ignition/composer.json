@@ -20,13 +20,13 @@
         "php": "^8.0",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "spatie/backtrace": "^1.5.3",
-        "spatie/flare-client-php": "^1.4.0",
+        "spatie/flare-client-php": "^1.7",
         "symfony/console": "^5.4|^6.0|^7.0",
-        "symfony/var-dumper": "^5.4|^6.0|^7.0"
+        "symfony/var-dumper": "^5.4|^6.0|^7.0",
+        "spatie/error-solutions": "^1.0"
     },
     "require-dev" : {
-        "illuminate/cache" : "^9.52|^10.0|^11.0",
+        "illuminate/cache" : "^9.52|^10.0|^11.0|^12.0",
         "mockery/mockery" : "^1.4",
         "pestphp/pest" : "^1.20|^2.0",
         "phpstan/extension-installer" : "^1.1",

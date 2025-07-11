@@ -11,7 +11,7 @@
 
 namespace PHP_CodeSniffer\Filters;
 
-use PHP_CodeSniffer\Util;
+use PHP_CodeSniffer\Util\Common;
 
 class GitStaged extends ExactMatch
 {
@@ -67,7 +67,7 @@ class GitStaged extends ExactMatch
         }
 
         foreach ($output as $path) {
-            $path = Util\Common::realpath($path);
+            $path = Common::realpath($path);
             if ($path === false) {
                 // Skip deleted files.
                 continue;

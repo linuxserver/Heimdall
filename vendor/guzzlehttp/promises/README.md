@@ -38,10 +38,10 @@ composer require guzzlehttp/promises
 
 ## Version Guidance
 
-| Version | Status                 | PHP Version  |
-|---------|------------------------|--------------|
-| 1.x     | Bug and security fixes | >=5.5,<8.3   |
-| 2.x     | Latest                 | >=7.2.5,<8.4 |
+| Version | Status              | PHP Version  |
+|---------|---------------------|--------------|
+| 1.x     | Security fixes only | >=5.5,<8.3   |
+| 2.x     | Latest              | >=7.2.5,<8.5 |
 
 
 ## Quick Start

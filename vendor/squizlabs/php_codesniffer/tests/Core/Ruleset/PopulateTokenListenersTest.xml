@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="PopulateTokenListenersTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/TestStandard/"/>
+
+    <!-- Test registering when a deprecated sniff is loaded. -->
+    <rule ref="TestStandard.Deprecated.WithReplacement"/>
+
+    <!-- Test triggering property setting. -->
+    <rule ref="PSR12.ControlStructures.BooleanOperatorPlacement">
+        <properties>
+            <property name="allowOnly" value="first"/>
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.ControlStructures.ForEachLoopDeclaration">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="3"/>
+            <property name="requiredSpacesBeforeClose" value="8"/>
+        </properties>
+    </rule>
+
+    <!-- Test setting supported Tokenizers when provided. -->
+    <rule ref="TestStandard.SupportedTokenizers.ListensForPHPAndCSSAndJS"/>
+
+    <!-- Test that a sniff which doesn't register any tokens is accepted without errors. -->
+    <rule ref="TestStandard.ValidSniffs.RegisterEmptyArray"/>
+
+    <!-- Test handling of include patterns. -->
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName">
+        <include-pattern>/no-transformation/</include-pattern>
+        <include-pattern>/simple*transformation/*</include-pattern>
+        <include-pattern>/escaped\\,comma/becomes/comma/to/allow/commas/in/filenames.css</include-pattern>
+        <include-pattern>/pat?tern(is|regex)\.php$</include-pattern>
+    </rule>
+
+    <!-- Test handling of exclude patterns. -->
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>/no-transformation/</exclude-pattern>
+        <exclude-pattern>/simple*transformation/*</exclude-pattern>
+        <exclude-pattern>/escaped\\,comma/becomes/comma/to/allow/commas/in/filenames.css</exclude-pattern>
+        <exclude-pattern>/pat?tern(is|regex)\.php$</exclude-pattern>
+    </rule>
+
+</ruleset>

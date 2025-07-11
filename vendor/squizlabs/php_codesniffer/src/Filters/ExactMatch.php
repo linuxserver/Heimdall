@@ -11,7 +11,7 @@
 
 namespace PHP_CodeSniffer\Filters;
 
-use PHP_CodeSniffer\Util;
+use PHP_CodeSniffer\Util\Common;
 
 abstract class ExactMatch extends Filter
 {
@@ -64,7 +64,7 @@ abstract class ExactMatch extends Filter
             }
         }
 
-        $filePath = Util\Common::realpath($this->current());
+        $filePath = Common::realpath($this->current());
 
         // If a file is both disallowed and allowed, the disallowed files list takes precedence.
         if (isset($this->disallowedFiles[$filePath]) === true) {

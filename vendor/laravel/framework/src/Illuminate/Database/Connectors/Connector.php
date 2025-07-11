@@ -60,9 +60,11 @@ class Connector
      * @param  array  $options
      * @return \PDO
      */
-    protected function createPdoConnection($dsn, $username, $password, $options)
+    protected function createPdoConnection($dsn, $username, #[\SensitiveParameter] $password, $options)
     {
-        return new PDO($dsn, $username, $password, $options);
+        return version_compare(phpversion(), '8.4.0', '<')
+            ? new PDO($dsn, $username, $password, $options)
+            : PDO::connect($dsn, $username, $password, $options); /** @phpstan-ignore staticMethod.notFound (PHP 8.4) */
     }
 
     /**
@@ -75,9 +77,9 @@ class Connector
      * @param  array  $options
      * @return \PDO
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
-    protected function tryAgainIfCausedByLostConnection(Throwable $e, $dsn, $username, $password, $options)
+    protected function tryAgainIfCausedByLostConnection(Throwable $e, $dsn, $username, #[\SensitiveParameter] $password, $options)
     {
         if ($this->causedByLostConnection($e)) {
             return $this->createPdoConnection($dsn, $username, $password, $options);

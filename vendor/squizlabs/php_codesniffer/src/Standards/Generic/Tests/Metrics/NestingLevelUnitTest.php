@@ -26,11 +26,18 @@ final class NestingLevelUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of errors that should occur on that line.
      *
+     * @param string $testFile The name of the test file to process.
+     *
      * @return array<int, int>
      */
-    public function getErrorList()
+    public function getErrorList($testFile='')
     {
-        return [73 => 1];
+        switch ($testFile) {
+        case 'NestingLevelUnitTest.1.inc':
+            return [73 => 1];
+        default:
+            return [];
+        }
 
     }//end getErrorList()
 
@@ -41,14 +48,21 @@ final class NestingLevelUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of warnings that should occur on that line.
      *
+     * @param string $testFile The name of the test file to process.
+     *
      * @return array<int, int>
      */
-    public function getWarningList()
+    public function getWarningList($testFile='')
     {
-        return [
-            27 => 1,
-            46 => 1,
-        ];
+        switch ($testFile) {
+        case 'NestingLevelUnitTest.1.inc':
+            return [
+                27 => 1,
+                46 => 1,
+            ];
+        default:
+            return [];
+        }
 
     }//end getWarningList()
 

@@ -1,0 +1,9 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-TabsToSpaces.inc
++++ PHP_CodeSniffer
+@@ -3,5 +3,5 @@
+ $var = FALSE;
+ 
+ if ($var) {
+-    echo 'This line is tab indented';
++	echo 'This line is tab indented';
+ }

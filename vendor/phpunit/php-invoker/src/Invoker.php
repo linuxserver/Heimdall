@@ -20,15 +20,12 @@ use Throwable;
 
 final class Invoker
 {
-    /**
-     * @var int
-     */
-    private $timeout;
+    private int $timeout;
 
     /**
      * @throws Throwable
      */
-    public function invoke(callable $callable, array $arguments, int $timeout)
+    public function invoke(callable $callable, array $arguments, int $timeout): mixed
     {
         if (!$this->canInvokeWithTimeout()) {
             throw new ProcessControlExtensionNotLoadedException(
@@ -38,7 +35,8 @@ final class Invoker
 
         pcntl_signal(
             SIGALRM,
-            function (): void {
+            function (): void
+            {
                 throw new TimeoutException(
                     sprintf(
                         'Execution aborted after %d second%s',

@@ -25,7 +25,7 @@ class Validator
      *                           "max", and "pattern". If a key is not
      *                           provided, the constraint will assume false.
      */
-    public function __construct(array $constraints = null)
+    public function __construct(?array $constraints = null)
     {
         static $assumedFalseValues = [
             'required' => false,

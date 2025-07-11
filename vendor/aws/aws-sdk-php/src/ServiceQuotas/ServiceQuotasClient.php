@@ -7,6 +7,8 @@ use Aws\AwsClient;
  * This client is used to interact with the **Service Quotas** service.
  * @method \Aws\Result associateServiceQuotaTemplate(array $args = [])
  * @method \GuzzleHttp\Promise\Promise associateServiceQuotaTemplateAsync(array $args = [])
+ * @method \Aws\Result createSupportCase(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSupportCaseAsync(array $args = [])
  * @method \Aws\Result deleteServiceQuotaIncreaseRequestFromTemplate(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteServiceQuotaIncreaseRequestFromTemplateAsync(array $args = [])
  * @method \Aws\Result disassociateServiceQuotaTemplate(array $args = [])

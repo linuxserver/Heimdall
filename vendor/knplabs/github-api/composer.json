@@ -19,7 +19,7 @@
     "require": {
         "php": "^7.2.5 || ^8.0",
         "ext-json": "*",
-        "php-http/cache-plugin": "^1.7.1",
+        "php-http/cache-plugin": "^1.7.1|^2.0",
         "php-http/client-common": "^2.3",
         "php-http/discovery": "^1.12",
         "php-http/httplug": "^2.2",
@@ -33,7 +33,7 @@
     },
     "require-dev": {
         "symfony/cache": "^5.1.8",
-        "guzzlehttp/psr7": "^1.7",
+        "guzzlehttp/psr7": "^2.7",
         "http-interop/http-factory-guzzle": "^1.0",
         "guzzlehttp/guzzle": "^7.2",
         "php-http/mock-client": "^1.4.1",
@@ -52,7 +52,7 @@
     "extra": {
         "branch-alias": {
             "dev-2.x": "2.20.x-dev",
-            "dev-master": "3.12-dev"
+            "dev-master": "3.15-dev"
         }
     },
     "config": {

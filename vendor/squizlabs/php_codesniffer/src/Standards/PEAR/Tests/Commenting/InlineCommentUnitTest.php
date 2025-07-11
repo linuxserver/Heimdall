@@ -37,6 +37,7 @@ final class InlineCommentUnitTest extends AbstractSniffUnitTest
             27 => 1,
             28 => 1,
             29 => 1,
+            31 => 1,
         ];
 
     }//end getErrorList()

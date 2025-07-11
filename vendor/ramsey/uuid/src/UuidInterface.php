@@ -22,10 +22,9 @@ use Serializable;
 use Stringable;
 
 /**
- * A UUID is a universally unique identifier adhering to an agreed-upon
- * representation format and standard for generation
+ * A UUID is a universally unique identifier adhering to an agreed-upon representation format and standard for generation
  *
- * @psalm-immutable
+ * @immutable
  */
 interface UuidInterface extends
     DeprecatedUuidInterface,
@@ -34,15 +33,10 @@ interface UuidInterface extends
     Stringable
 {
     /**
-     * Returns -1, 0, or 1 if the UUID is less than, equal to, or greater than
-     * the other UUID
+     * Returns -1, 0, or 1 if the UUID is less than, equal to, or greater than the other UUID
      *
-     * The first of two UUIDs is greater than the second if the most
-     * significant field in which the UUIDs differ is greater for the first
-     * UUID.
-     *
-     * * Q. What's the value of being able to sort UUIDs?
-     * * A. Use them as keys in a B-Tree or similar mapping.
+     * The first of two UUIDs is greater than the second if the most significant field in which the UUIDs differ is
+     * greater for the first UUID.
      *
      * @param UuidInterface $other The UUID to compare
      *
@@ -53,11 +47,10 @@ interface UuidInterface extends
     /**
      * Returns true if the UUID is equal to the provided object
      *
-     * The result is true if and only if the argument is not null, is a UUID
-     * object, has the same variant, and contains the same value, bit for bit,
-     * as the UUID.
+     * The result is true if and only if the argument is not null, is a UUID object, has the same variant, and contains
+     * the same value, bit-for-bit, as the UUID.
      *
-     * @param object|null $other An object to test for equality with this UUID
+     * @param object | null $other An object to test for equality with this UUID
      *
      * @return bool True if the other object is equal to this UUID
      */
@@ -66,7 +59,9 @@ interface UuidInterface extends
     /**
      * Returns the binary string representation of the UUID
      *
-     * @psalm-return non-empty-string
+     * @return non-empty-string
+     *
+     * @pure
      */
     public function getBytes(): string;
 
@@ -89,21 +84,27 @@ interface UuidInterface extends
      * Returns the string standard representation of the UUID as a URN
      *
      * @link http://en.wikipedia.org/wiki/Uniform_Resource_Name Uniform Resource Name
-     * @link https://tools.ietf.org/html/rfc4122#section-3 RFC 4122, § 3: Namespace Registration Template
+     * @link https://www.rfc-editor.org/rfc/rfc9562.html#section-4 RFC 9562, 4. UUID Format
+     * @link https://www.rfc-editor.org/rfc/rfc9562.html#section-7 RFC 9562, 7. IANA Considerations
+     * @link https://www.rfc-editor.org/rfc/rfc4122.html#section-3 RFC 4122, 3. Namespace Registration Template
      */
     public function getUrn(): string;
 
     /**
      * Returns the string standard representation of the UUID
      *
-     * @psalm-return non-empty-string
+     * @return non-empty-string
+     *
+     * @pure
      */
     public function toString(): string;
 
     /**
      * Casts the UUID to the string standard representation
      *
-     * @psalm-return non-empty-string
+     * @return non-empty-string
+     *
+     * @pure
      */
     public function __toString(): string;
 }

@@ -1,4 +1,4 @@
-<documentation title="Namespace Declarations">
+<documentation title="Namespace Declaration">
     <standard>
     <![CDATA[
     There must be one blank line after the namespace declaration.
@@ -7,14 +7,14 @@
     <code_comparison>
         <code title="Valid: One blank line after the namespace declaration.">
         <![CDATA[
-namespace \Foo\Bar;
+namespace Foo\Bar;
 <em></em>
 use \Baz;
         ]]>
         </code>
         <code title="Invalid: No blank line after the namespace declaration.">
         <![CDATA[
-namespace \Foo\Bar;
+namespace Foo\Bar;
 use \Baz;
         ]]>
         </code>

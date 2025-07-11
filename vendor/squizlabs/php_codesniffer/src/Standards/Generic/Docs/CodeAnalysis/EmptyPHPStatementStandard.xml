@@ -20,11 +20,11 @@
     </code_comparison>
     <standard>
     <![CDATA[
-    Superfluous semi-colons are not allowed.
+    Superfluous semicolons are not allowed.
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: There is no superfluous semi-colon after a PHP statement.">
+        <code title="Valid: There is no superfluous semicolon after a PHP statement.">
             <![CDATA[
 function_call()<em>;</em>
 if (true) {
@@ -32,7 +32,7 @@ if (true) {
 }
         ]]>
         </code>
-        <code title="Invalid: There are one or more superfluous semi-colons after a PHP statement.">
+        <code title="Invalid: There are one or more superfluous semicolons after a PHP statement.">
             <![CDATA[
 function_call()<em>;;;</em>
 if (true) {

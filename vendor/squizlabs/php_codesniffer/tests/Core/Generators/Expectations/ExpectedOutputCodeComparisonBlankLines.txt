@@ -1,0 +1,18 @@
+
+---------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: CODE COMPARISON, BLANK LINES |
+---------------------------------------------------------------
+
+This is a standard block.
+
+----------------------------------------- CODE COMPARISON ------------------------------------------
+| Valid: Checking handling of blank lines.       | Invalid: Checking handling of blank lines.      |
+----------------------------------------------------------------------------------------------------
+| // First line of the code sample is            | // First line of the code sample is             |
+| // deliberately empty.                         | // deliberately empty.                          |
+|                                                |                                                 |
+| // We also have a blank line in the middle.    | // We also have a blank line in the middle.     |
+|                                                |                                                 |
+| // And a blank line at the end.                | // And a blank line at the end.                 |
+----------------------------------------------------------------------------------------------------
+

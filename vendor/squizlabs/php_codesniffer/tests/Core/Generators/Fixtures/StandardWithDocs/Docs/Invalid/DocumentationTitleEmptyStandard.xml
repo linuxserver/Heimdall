@@ -1,0 +1,19 @@
+<documentation title="">
+    <standard>
+    <![CDATA[
+    The above "documentation" element has an empty title attribute.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Lorem ipsum dolor sit amet.">
+        <![CDATA[
+<em>class Code</em> {}
+        ]]>
+        </code>
+        <code title="Invalid: Maecenas non rutrum dolor.">
+        <![CDATA[
+<em>class Comparison</em> {}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

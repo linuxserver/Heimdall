@@ -12,14 +12,14 @@
     ],
     "require": {
         "php": "^7.4.15 || ^8.0.2",
-        "illuminate/contracts": "^8.75 || ^9.0 || ^10.0 || ^11.0",
-        "illuminate/support": "^8.75 || ^9.0 || ^10.0 || ^11.0"
+        "illuminate/contracts": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+        "illuminate/support": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^4.1",
-        "graham-campbell/testbench-core": "^4.1",
-        "mockery/mockery": "^1.6.6",
-        "phpunit/phpunit": "^9.6.15 || ^10.5.1"
+        "graham-campbell/analyzer": "^4.2.1 || ^5.0.0",
+        "graham-campbell/testbench-core": "^4.2.1",
+        "mockery/mockery": "^1.6.12",
+        "phpunit/phpunit": "^9.6.22 || ^10.5.45 || ^11.5.10"
     },
     "autoload": {
         "psr-4": {

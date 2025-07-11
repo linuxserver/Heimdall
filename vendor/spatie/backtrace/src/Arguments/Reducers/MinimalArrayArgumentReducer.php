@@ -10,7 +10,7 @@ class MinimalArrayArgumentReducer implements ArgumentReducer
 {
     public function execute($argument): ReducedArgumentContract
     {
-        if(! is_array($argument)) {
+        if (! is_array($argument)) {
             return UnReducedArgument::create();
         }
 

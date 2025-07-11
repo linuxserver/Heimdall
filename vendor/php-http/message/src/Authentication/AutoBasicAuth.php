@@ -27,9 +27,6 @@ final class AutoBasicAuth implements Authentication
         $this->shouldRemoveUserInfo = (bool) $shouldRremoveUserInfo;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function authenticate(RequestInterface $request)
     {
         $uri = $request->getUri();

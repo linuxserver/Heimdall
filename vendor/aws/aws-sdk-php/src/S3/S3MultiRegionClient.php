@@ -20,6 +20,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise copyObjectAsync(array $args = [])
  * @method \Aws\Result createBucket(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createBucketAsync(array $args = [])
+ * @method \Aws\Result createBucketMetadataTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result createMultipartUpload(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createMultipartUploadAsync(array $args = [])
  * @method \Aws\Result createSession(array $args = [])
@@ -38,6 +40,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise deleteBucketInventoryConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketLifecycle(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteBucketLifecycleAsync(array $args = [])
+ * @method \Aws\Result deleteBucketMetadataTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketMetricsConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteBucketMetricsConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketOwnershipControls(array $args = [])
@@ -80,6 +84,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise getBucketLocationAsync(array $args = [])
  * @method \Aws\Result getBucketLogging(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getBucketLoggingAsync(array $args = [])
+ * @method \Aws\Result getBucketMetadataTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result getBucketMetricsConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getBucketMetricsConfigurationAsync(array $args = [])
  * @method \Aws\Result getBucketNotification(array $args = [])
@@ -200,6 +206,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise putObjectTaggingAsync(array $args = [])
  * @method \Aws\Result putPublicAccessBlock(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putPublicAccessBlockAsync(array $args = [])
+ * @method \Aws\Result renameObject(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise renameObjectAsync(array $args = [])
  * @method \Aws\Result restoreObject(array $args = [])
  * @method \GuzzleHttp\Promise\Promise restoreObjectAsync(array $args = [])
  * @method \Aws\Result selectObjectContent(array $args = [])
@@ -321,7 +329,8 @@ class S3MultiRegionClient extends BaseClient implements S3ClientInterface
         );
         return $client->createPresignedRequest(
             $client->getCommand($command->getName(), $command->toArray()),
-            $expires
+            $expires,
+            $options
         );
     }
 

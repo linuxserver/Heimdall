@@ -11,6 +11,7 @@
 
 namespace Psy\Command;
 
+use Psy\ConfigPaths;
 use Psy\Context;
 use Psy\ContextAware;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,15 +21,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EditCommand extends Command implements ContextAware
 {
-    /**
-     * @var string
-     */
-    private $runtimeDir = '';
-
-    /**
-     * @var Context
-     */
-    private $context;
+    private string $runtimeDir = '';
+    private Context $context;
 
     /**
      * Constructor.
@@ -97,6 +91,7 @@ class EditCommand extends Command implements ContextAware
         $shouldRemoveFile = false;
 
         if ($filePath === null) {
+            ConfigPaths::ensureDir($this->runtimeDir);
             $filePath = \tempnam($this->runtimeDir, 'psysh-edit-command');
             $shouldRemoveFile = true;
         }
@@ -104,7 +99,7 @@ class EditCommand extends Command implements ContextAware
         $editedContent = $this->editFile($filePath, $shouldRemoveFile);
 
         if ($execute) {
-            $this->getApplication()->addInput($editedContent);
+            $this->getShell()->addInput($editedContent);
         }
 
         return 0;
@@ -115,7 +110,7 @@ class EditCommand extends Command implements ContextAware
      * @param bool        $noExecOption
      * @param string|null $filePath
      */
-    private function shouldExecuteFile(bool $execOption, bool $noExecOption, string $filePath = null): bool
+    private function shouldExecuteFile(bool $execOption, bool $noExecOption, ?string $filePath = null): bool
     {
         if ($execOption) {
             return true;
@@ -136,7 +131,7 @@ class EditCommand extends Command implements ContextAware
      *
      * @throws \InvalidArgumentException If the variable is not found in the current context
      */
-    private function extractFilePath(string $fileArgument = null)
+    private function extractFilePath(?string $fileArgument = null)
     {
         // If the file argument was a variable, get it from the context
         if ($fileArgument !== null &&

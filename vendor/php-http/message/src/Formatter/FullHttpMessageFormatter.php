@@ -36,9 +36,6 @@ class FullHttpMessageFormatter implements Formatter
         $this->binaryDetectionRegex = $binaryDetectionRegex;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function formatRequest(RequestInterface $request)
     {
         $message = sprintf(
@@ -55,9 +52,6 @@ class FullHttpMessageFormatter implements Formatter
         return $this->addBody($request, $message);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function formatResponse(ResponseInterface $response)
     {
         $message = sprintf(

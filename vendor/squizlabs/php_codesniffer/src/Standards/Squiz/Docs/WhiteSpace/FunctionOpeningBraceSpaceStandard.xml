@@ -1,0 +1,26 @@
+<documentation title="Function Opening Brace Space">
+    <standard>
+    <![CDATA[
+    There should be no blank lines after the opening brace of a function.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: No blank lines after the opening brace.">
+        <![CDATA[
+function foo()
+{
+<em>    return 42;</em>
+}
+        ]]>
+        </code>
+        <code title="Invalid: A blank line after the opening brace.">
+        <![CDATA[
+function foo()
+{
+<em></em>
+    return 42;
+}
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

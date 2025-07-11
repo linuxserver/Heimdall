@@ -12,10 +12,11 @@
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\WhiteSpace;
 
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util;
 
-class LanguageConstructSpacingSniff implements Sniff
+class LanguageConstructSpacingSniff implements Sniff, DeprecatedSniff
 {
 
 
@@ -86,6 +87,42 @@ class LanguageConstructSpacingSniff implements Sniff
         }//end if
 
     }//end process()
+
+
+    /**
+     * Provide the version number in which the sniff was deprecated.
+     *
+     * @return string
+     */
+    public function getDeprecationVersion()
+    {
+        return 'v3.3.0';
+
+    }//end getDeprecationVersion()
+
+
+    /**
+     * Provide the version number in which the sniff will be removed.
+     *
+     * @return string
+     */
+    public function getRemovalVersion()
+    {
+        return 'v4.0.0';
+
+    }//end getRemovalVersion()
+
+
+    /**
+     * Provide a custom message to display with the deprecation.
+     *
+     * @return string
+     */
+    public function getDeprecationMessage()
+    {
+        return 'Use the Generic.WhiteSpace.LanguageConstructSpacing sniff instead.';
+
+    }//end getDeprecationMessage()
 
 
 }//end class

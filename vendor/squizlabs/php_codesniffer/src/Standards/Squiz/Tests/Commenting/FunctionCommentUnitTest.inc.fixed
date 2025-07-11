@@ -1158,3 +1158,12 @@ function paramVariation3($hasTypeNoComment): void {}
  * @return void
  */
 function paramVariation4($hasTypehasComment): void {}
+
+/**
+ * @param (Foo&Bar)|null $a Comment.
+ * @return void
+ */
+public function setTranslator($a): void
+{
+    $this->translator = $translator;
+}

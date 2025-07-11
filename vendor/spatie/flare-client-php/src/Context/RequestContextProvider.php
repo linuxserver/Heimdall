@@ -4,6 +4,8 @@ namespace Spatie\FlareClient\Context;
 
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Exception\InvalidArgumentException;
 use Throwable;
@@ -12,7 +14,7 @@ class RequestContextProvider implements ContextProvider
 {
     protected ?Request $request;
 
-    public function __construct(Request $request = null)
+    public function __construct(?Request $request = null)
     {
         $this->request = $request ?? Request::createFromGlobals();
     }
@@ -138,9 +140,24 @@ class RequestContextProvider implements ContextProvider
     {
         return [
             'queryString' => $this->request->query->all(),
-            'body' => $this->request->request->all(),
+            'body' => $this->getInputBag()->all() + $this->request->query->all(),
             'files' => $this->getFiles(),
         ];
+    }
+
+    protected function getInputBag(): InputBag|ParameterBag
+    {
+        $contentType = $this->request->headers->get('CONTENT_TYPE', 'text/html');
+
+        $isJson = str_contains($contentType, '/json') || str_contains($contentType, '+json');
+
+        if ($isJson) {
+            return new InputBag((array) json_decode($this->request->getContent(), true));
+        }
+
+        return in_array($this->request->getMethod(), ['GET', 'HEAD'])
+            ? $this->request->query
+            : $this->request->request;
     }
 
     /** @return array<string, mixed> */

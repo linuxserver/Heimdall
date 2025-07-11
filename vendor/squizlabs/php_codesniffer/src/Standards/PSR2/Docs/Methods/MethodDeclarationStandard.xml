@@ -37,7 +37,7 @@ class Foo
 }
         ]]>
         </code>
-        <code title="Invalid: static keyword used before visibility and final used after.">
+        <code title="Invalid: `static` keyword used before visibility and final used after.">
         <![CDATA[
 class Foo
 {

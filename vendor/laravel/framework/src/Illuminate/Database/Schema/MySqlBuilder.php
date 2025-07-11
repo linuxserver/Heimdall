@@ -31,6 +31,23 @@ class MySqlBuilder extends Builder
     }
 
     /**
+     * Determine if the given table exists.
+     *
+     * @param  string  $table
+     * @return bool
+     */
+    public function hasTable($table)
+    {
+        $table = $this->connection->getTablePrefix().$table;
+
+        $database = $this->connection->getDatabaseName();
+
+        return (bool) $this->connection->scalar(
+            $this->grammar->compileTableExists($database, $table)
+        );
+    }
+
+    /**
      * Get the tables for the database.
      *
      * @return array
@@ -55,34 +72,6 @@ class MySqlBuilder extends Builder
             $this->connection->selectFromWriteConnection(
                 $this->grammar->compileViews($this->connection->getDatabaseName())
             )
-        );
-    }
-
-    /**
-     * Get all of the table names for the database.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return array
-     */
-    public function getAllTables()
-    {
-        return $this->connection->select(
-            $this->grammar->compileGetAllTables()
-        );
-    }
-
-    /**
-     * Get all of the view names for the database.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return array
-     */
-    public function getAllViews()
-    {
-        return $this->connection->select(
-            $this->grammar->compileGetAllViews()
         );
     }
 

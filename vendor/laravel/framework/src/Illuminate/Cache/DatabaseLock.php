@@ -75,7 +75,7 @@ class DatabaseLock extends Lock
             $updated = $this->connection->table($this->table)
                 ->where('key', $this->name)
                 ->where(function ($query) {
-                    return $query->where('owner', $this->owner)->orWhere('expiration', '<=', time());
+                    return $query->where('owner', $this->owner)->orWhere('expiration', '<=', $this->currentTime());
                 })->update([
                     'owner' => $this->owner,
                     'expiration' => $this->expiresAt(),
@@ -85,7 +85,7 @@ class DatabaseLock extends Lock
         }
 
         if (random_int(1, $this->lottery[1]) <= $this->lottery[0]) {
-            $this->connection->table($this->table)->where('expiration', '<=', time())->delete();
+            $this->connection->table($this->table)->where('expiration', '<=', $this->currentTime())->delete();
         }
 
         return $acquired;
@@ -100,7 +100,7 @@ class DatabaseLock extends Lock
     {
         $lockTimeout = $this->seconds > 0 ? $this->seconds : $this->defaultTimeoutInSeconds;
 
-        return time() + $lockTimeout;
+        return $this->currentTime() + $lockTimeout;
     }
 
     /**
@@ -112,9 +112,9 @@ class DatabaseLock extends Lock
     {
         if ($this->isOwnedByCurrentProcess()) {
             $this->connection->table($this->table)
-                        ->where('key', $this->name)
-                        ->where('owner', $this->owner)
-                        ->delete();
+                ->where('key', $this->name)
+                ->where('owner', $this->owner)
+                ->delete();
 
             return true;
         }
@@ -130,8 +130,8 @@ class DatabaseLock extends Lock
     public function forceRelease()
     {
         $this->connection->table($this->table)
-                    ->where('key', $this->name)
-                    ->delete();
+            ->where('key', $this->name)
+            ->delete();
     }
 
     /**

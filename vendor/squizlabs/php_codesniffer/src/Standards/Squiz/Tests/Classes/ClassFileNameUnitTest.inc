@@ -15,7 +15,7 @@ class CLASSFILENAMEUNITTEST {}
 interface classFileNameUnitTest {}
 interface classfilenameunittest {}
 interface CLASSFILENAMEUNITTEST {}
-trait classFileNameUnitTest {}
+trait /*comment*/ classFileNameUnitTest {}
 trait classfilenameunittest {}
 trait CLASSFILENAMEUNITTEST {}
 enum classFileNameUnitTest {}
@@ -39,7 +39,6 @@ trait ExtraClassFileNameUnitTest {}
 enum CompletelyWrongClassName {}
 enum ClassFileNameUnitTestExtra {}
 enum ClassFileNameUnitTestInc {}
-enum ExtraClassFileNameUnitTest {}
-
-
-?>
+enum
+    // Comment
+    ExtraClassFileNameUnitTest {}

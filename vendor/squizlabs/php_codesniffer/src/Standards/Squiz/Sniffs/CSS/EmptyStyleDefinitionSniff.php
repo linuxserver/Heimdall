@@ -12,10 +12,11 @@
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\CSS;
 
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 
-class EmptyStyleDefinitionSniff implements Sniff
+class EmptyStyleDefinitionSniff implements Sniff, DeprecatedSniff
 {
 
     /**
@@ -61,6 +62,42 @@ class EmptyStyleDefinitionSniff implements Sniff
         }
 
     }//end process()
+
+
+    /**
+     * Provide the version number in which the sniff was deprecated.
+     *
+     * @return string
+     */
+    public function getDeprecationVersion()
+    {
+        return 'v3.9.0';
+
+    }//end getDeprecationVersion()
+
+
+    /**
+     * Provide the version number in which the sniff will be removed.
+     *
+     * @return string
+     */
+    public function getRemovalVersion()
+    {
+        return 'v4.0.0';
+
+    }//end getRemovalVersion()
+
+
+    /**
+     * Provide a custom message to display with the deprecation.
+     *
+     * @return string
+     */
+    public function getDeprecationMessage()
+    {
+        return 'Support for scanning CSS files will be removed completely in v4.0.0.';
+
+    }//end getDeprecationMessage()
 
 
 }//end class

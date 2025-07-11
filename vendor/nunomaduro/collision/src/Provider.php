@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace NunoMaduro\Collision;
 
-use NunoMaduro\Collision\Contracts\Handler as HandlerContract;
-use NunoMaduro\Collision\Contracts\Provider as ProviderContract;
 use Whoops\Run;
 use Whoops\RunInterface;
 
@@ -14,35 +12,31 @@ use Whoops\RunInterface;
  *
  * @see \Tests\Unit\ProviderTest
  */
-final class Provider implements ProviderContract
+final class Provider
 {
     /**
      * Holds an instance of the Run.
-     *
-     * @var \Whoops\RunInterface
      */
-    protected $run;
+    private RunInterface $run;
 
     /**
      * Holds an instance of the handler.
-     *
-     * @var \NunoMaduro\Collision\Contracts\Handler
      */
-    protected $handler;
+    private Handler $handler;
 
     /**
      * Creates a new instance of the Provider.
      */
-    public function __construct(RunInterface $run = null, HandlerContract $handler = null)
+    public function __construct(?RunInterface $run = null, ?Handler $handler = null)
     {
-        $this->run = $run ?: new Run();
-        $this->handler = $handler ?: new Handler();
+        $this->run = $run ?: new Run;
+        $this->handler = $handler ?: new Handler;
     }
 
     /**
-     * {@inheritdoc}
+     * Registers the current Handler as Error Handler.
      */
-    public function register(): ProviderContract
+    public function register(): self
     {
         $this->run->pushHandler($this->handler)
             ->register();
@@ -51,9 +45,9 @@ final class Provider implements ProviderContract
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the handler.
      */
-    public function getHandler(): HandlerContract
+    public function getHandler(): Handler
     {
         return $this->handler;
     }

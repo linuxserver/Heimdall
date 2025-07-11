@@ -1,0 +1,9 @@
+<documentation title="Standard Element, line wrapping handling">
+    <standard>
+    <![CDATA[
+    This line has to be exactly 99 chars to test part of the logic.------------------------------------
+    And this line has to be exactly 100 chars.----------------------------------------------------------
+    And here we have a line which should start wrapping as it is longer than 100 chars. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean pellentesque iaculis enim quis hendrerit. Morbi ultrices in odio pharetra commodo.
+    ]]>
+    </standard>
+</documentation>

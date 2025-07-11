@@ -8,7 +8,6 @@ use Aws\Api\Shape;
 use Aws\Api\StructureShape;
 use Aws\Api\TimestampShape;
 use Aws\CommandInterface;
-use Aws\EndpointV2\EndpointProviderV2;
 use Aws\EndpointV2\EndpointV2SerializerTrait;
 use Aws\EndpointV2\Ruleset\RulesetEndpoint;
 use GuzzleHttp\Psr7;
@@ -31,6 +30,9 @@ abstract class RestSerializer
     /** @var Uri */
     private $endpoint;
 
+    /** @var bool */
+    private $isUseEndpointV2;
+
     /**
      * @param Service $api      Service API description
      * @param string  $endpoint Endpoint to connect to
@@ -43,7 +45,6 @@ abstract class RestSerializer
 
     /**
      * @param CommandInterface $command Command to serialize into a request.
-     * @param $endpointProvider Provider used for dynamic endpoint resolution.
      * @param $clientArgs Client arguments used for dynamic endpoint resolution.
      *
      * @return RequestInterface
@@ -59,6 +60,7 @@ abstract class RestSerializer
         $headers = isset($opts['headers']) ? $opts['headers'] : [];
 
         if ($endpoint instanceof RulesetEndpoint) {
+            $this->isUseEndpointV2 = true;
             $this->setEndpointV2RequestOptions($endpoint, $headers);
         }
 
@@ -198,6 +200,7 @@ abstract class RestSerializer
 
     private function buildEndpoint(Operation $operation, array $args, array $opts)
     {
+        $serviceName = $this->api->getServiceName();
         // Create an associative array of variable definitions used in expansions
         $varDefinitions = $this->getVarDefinitions($operation, $args);
 
@@ -226,11 +229,7 @@ abstract class RestSerializer
 
         $path = $this->endpoint->getPath();
 
-        //Accounts for trailing '/' in path when custom endpoint
-        //is provided to endpointProviderV2
-        if ($this->api->isModifiedModel()
-            && $this->api->getServiceName() === 's3'
-        ) {
+        if ($this->isUseEndpointV2 && $serviceName === 's3') {
             if (substr($path, -1) === '/' && $relative[0] === '/') {
                 $path = rtrim($path, '/');
             }
@@ -246,6 +245,14 @@ abstract class RestSerializer
                 return new Uri($this->endpoint->withPath('') . $relative);
             }
         }
+
+        if (((!empty($relative) && $relative !== '/')
+            && !$this->isUseEndpointV2)
+            || (isset($serviceName) && str_starts_with($serviceName, 'geo-'))
+        ) {
+            $this->normalizePath($path);
+        }
+
         // If endpoint has path, remove leading '/' to preserve URI resolution.
         if ($path && $relative[0] === '/') {
             $relative = substr($relative, 1);
@@ -253,9 +260,7 @@ abstract class RestSerializer
 
         //Append path to endpoint when leading '//...'
         // present as uri cannot be properly resolved
-        if ($this->api->isModifiedModel()
-            && strpos($relative, '//') === 0
-        ) {
+        if ($this->isUseEndpointV2 && strpos($relative, '//') === 0) {
             return new Uri($this->endpoint . $relative);
         }
 
@@ -306,5 +311,20 @@ abstract class RestSerializer
             }
         }
         return $varDefinitions;
+    }
+
+    /**
+     * Appends trailing slash to non-empty paths with at least one segment
+     * to ensure proper URI resolution
+     *
+     * @param string $path
+     *
+     * @return void
+     */
+    private function normalizePath(string $path): void
+    {
+        if (!empty($path) && $path !== '/' && substr($path, -1) !== '/') {
+            $this->endpoint = $this->endpoint->withPath($path . '/');
+        }
     }
 }

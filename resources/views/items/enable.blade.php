@@ -1,6 +1,6 @@
 <div class="toggleinput">
     <label class="name">{{ __('app.apps.enable') }}</label>
-    {!! Form::hidden('config[enabled]', '0') !!}
+    {{ html()->hidden('config[enabled]', '0') }}
     <label class="switch">
         <?php
         $checked = false;

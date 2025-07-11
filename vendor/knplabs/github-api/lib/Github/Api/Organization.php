@@ -7,6 +7,7 @@ use Github\Api\Organization\Actions\SelfHostedRunners;
 use Github\Api\Organization\Actions\Variables;
 use Github\Api\Organization\Hooks;
 use Github\Api\Organization\Members;
+use Github\Api\Organization\OrganizationRoles;
 use Github\Api\Organization\OutsideCollaborators;
 use Github\Api\Organization\SecretScanning;
 use Github\Api\Organization\Teams;
@@ -157,5 +158,10 @@ class Organization extends AbstractApi
     public function secretScanning(): SecretScanning
     {
         return new SecretScanning($this->getClient());
+    }
+
+    public function organizationRoles(): OrganizationRoles
+    {
+        return new OrganizationRoles($this->getClient());
     }
 }

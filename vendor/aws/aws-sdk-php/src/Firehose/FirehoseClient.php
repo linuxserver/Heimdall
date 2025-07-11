@@ -12,8 +12,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise deleteDeliveryStreamAsync(array $args = [])
  * @method \Aws\Result describeDeliveryStream(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeDeliveryStreamAsync(array $args = [])
- * @method \Aws\Result getKinesisStream(array $args = [])
- * @method \GuzzleHttp\Promise\Promise getKinesisStreamAsync(array $args = [])
  * @method \Aws\Result listDeliveryStreams(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listDeliveryStreamsAsync(array $args = [])
  * @method \Aws\Result listTagsForDeliveryStream(array $args = [])
@@ -32,7 +30,5 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise untagDeliveryStreamAsync(array $args = [])
  * @method \Aws\Result updateDestination(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateDestinationAsync(array $args = [])
- * @method \Aws\Result verifyResourcesExistForTagris(array $args = [])
- * @method \GuzzleHttp\Promise\Promise verifyResourcesExistForTagrisAsync(array $args = [])
  */
 class FirehoseClient extends AwsClient {}

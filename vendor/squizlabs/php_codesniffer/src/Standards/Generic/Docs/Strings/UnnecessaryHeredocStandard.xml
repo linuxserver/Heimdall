@@ -1,0 +1,39 @@
+<documentation title="Unnecessary Heredoc">
+    <standard>
+    <![CDATA[
+    If no interpolation or expressions are used in the body of a heredoc, nowdoc syntax should be used instead.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Using nowdoc syntax for a text string without any interpolation or expressions.">
+        <![CDATA[
+$nowdoc = <em><<<'EOD'</em>
+some text
+EOD;
+        ]]>
+        </code>
+        <code title="Invalid: Using heredoc syntax for a text string without any interpolation or expressions.">
+        <![CDATA[
+$heredoc = <em><<<EOD</em>
+some text
+EOD;
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: Using heredoc syntax for a text string containing interpolation or expressions.">
+        <![CDATA[
+$heredoc = <em><<<"EOD"</em>
+some $text
+EOD;
+        ]]>
+        </code>
+        <code title="Invalid: Using heredoc syntax for a text string without any interpolation or expressions.">
+        <![CDATA[
+$heredoc = <em><<<"EOD"</em>
+some text
+EOD;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

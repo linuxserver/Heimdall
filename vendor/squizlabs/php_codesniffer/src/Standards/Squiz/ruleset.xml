@@ -74,8 +74,14 @@
     <!-- We don't want gsjlint throwing errors for things we already check -->
     <rule ref="Generic.Debug.ClosureLinter">
         <properties>
-            <property name="errorCodes" type="array" value="0210"/>
-            <property name="ignoreCodes" type="array" value="0001,0110,0240"/>
+            <property name="errorCodes" type="array">
+                <element value="0210"/>
+            </property>
+            <property name="ignoreCodes" type="array">
+                <element value="0001"/>
+                <element value="0110"/>
+                <element value="0240"/>
+            </property>
         </properties>
     </rule>
     <rule ref="Generic.Debug.ClosureLinter.ExternalToolError">

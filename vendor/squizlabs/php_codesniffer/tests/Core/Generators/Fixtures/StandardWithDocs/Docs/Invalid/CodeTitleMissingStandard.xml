@@ -1,0 +1,19 @@
+<documentation title="Code Title, missing">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code>
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+        <code>
+        <![CDATA[
+// Dummy.
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

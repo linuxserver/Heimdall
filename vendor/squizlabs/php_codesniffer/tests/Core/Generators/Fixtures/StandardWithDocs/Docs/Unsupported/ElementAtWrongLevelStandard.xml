@@ -1,0 +1,8 @@
+<documentation title="Code element at wrong level">
+    <code>
+    <![CDATA[
+// Code blocks must be nested
+// in a code comparison element.
+    ]]>
+    </code>
+</documentation>

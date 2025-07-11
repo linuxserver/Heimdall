@@ -1,0 +1,7 @@
+
+------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: CODE COMPARISON, MISSING CODE ELEMENT |
+------------------------------------------------------------------------
+
+This is a standard block.
+

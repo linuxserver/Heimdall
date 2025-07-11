@@ -3,8 +3,9 @@
 namespace Illuminate\Validation\Rules;
 
 use Illuminate\Support\Traits\Conditionable;
+use Stringable;
 
-class Dimensions
+class Dimensions implements Stringable
 {
     use Conditionable;
 
@@ -113,6 +114,47 @@ class Dimensions
     public function ratio($value)
     {
         $this->constraints['ratio'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set the minimum aspect ratio.
+     *
+     * @param  float  $value
+     * @return $this
+     */
+    public function minRatio($value)
+    {
+        $this->constraints['min_ratio'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set the maximum aspect ratio.
+     *
+     * @param  float  $value
+     * @return $this
+     */
+    public function maxRatio($value)
+    {
+        $this->constraints['max_ratio'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set the aspect ratio range.
+     *
+     * @param  float  $min
+     * @param  float  $max
+     * @return $this
+     */
+    public function ratioBetween($min, $max)
+    {
+        $this->constraints['min_ratio'] = $min;
+        $this->constraints['max_ratio'] = $max;
 
         return $this;
     }

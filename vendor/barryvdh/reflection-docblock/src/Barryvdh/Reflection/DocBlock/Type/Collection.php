@@ -37,7 +37,14 @@ class Collection extends \ArrayObject
     protected static $keywords = array(
         'string', 'int', 'integer', 'bool', 'boolean', 'float', 'double',
         'object', 'mixed', 'array', 'resource', 'void', 'null', 'scalar',
-        'callback', 'callable', 'false', 'true', 'self', '$this', 'static'
+        'callback', 'callable', 'false', 'true', 'self', '$this', 'static',
+        'array-key', 'number', 'iterable', 'pure-callable', 'closed-resource',
+        'open-resource', 'positive-int', 'negative-int', 'non-positive-int',
+        'non-negative-int', 'non-zero-int', 'non-empty-array', 'list',
+        'non-empty-list', 'key-of', 'value-of', 'template-type', 'class-string',
+        'callable-string', 'numeric-string', 'non-empty-string',
+        'non-falsy-string', 'literal-string', 'lowercase-string', 'never',
+        'never-return', 'never-returns', 'no-return', 'int-mask', 'int-mask-of'
     );
 
     /**
@@ -51,6 +58,13 @@ class Collection extends \ArrayObject
     protected $context = null;
 
     /**
+     * List of generics types
+     *
+     * @var string[]
+     */
+    protected $generics = array();
+
+    /**
      * Registers the namespace and aliases; uses that to add and expand the
      * given types.
      *
@@ -60,9 +74,11 @@ class Collection extends \ArrayObject
      */
     public function __construct(
         array $types = array(),
-        Context $context = null
+        ?Context $context = null,
+        array $generics = array()
     ) {
         $this->context = null === $context ? new Context() : $context;
+        $this->generics = array_merge($this->context->getGenerics(), $generics);
 
         foreach ($types as $type) {
             $this->add($type);
@@ -145,9 +161,9 @@ class Collection extends \ArrayObject
                 $type_parts[] = $curr_type;
                 $curr_type = '';
             } else {
-                if ($char === '<') {
+                if (in_array($char, ['<', '(', '[', '{'])) {
                     $nest_level++;
-                } else if ($char === '>') {
+                } else if (in_array($char, ['>', ')', ']', '}'])) {
                     $nest_level--;
                 }
 
@@ -185,7 +201,22 @@ class Collection extends \ArrayObject
             return '';
         }
 
-        if (substr($type, 0, 6) === 'array<' && substr($type, -1) === '>') {
+        // Check for generics values and array shapes
+        if (preg_match('/^[\w-]+(<.+>|\[.+\]|{.+})$/', $type)) {
+            return $type;
+        }
+
+        // Check for callable types
+        if (preg_match('/\(.*?(?=\:)/', $type)) {
+            return $type;
+        }
+
+        if($type[0] === '(') {
+            return $type;
+        }
+
+        // Literal strings
+        if ($type[0] === '"' || $type[0] === "'") {
             return $type;
         }
 
@@ -193,7 +224,7 @@ class Collection extends \ArrayObject
             return $this->expand(substr($type, 0, -2)) . self::OPERATOR_ARRAY;
         }
 
-        if ($this->isRelativeType($type) && !$this->isTypeAKeyword($type)) {
+        if ($this->isRelativeType($type) && !$this->isTypeAKeyword($type) && !$this->isTypeAGeneric($type)) {
 
             if($this->shouldBeAbsolute($type)){
                 return self::OPERATOR_NAMESPACE . $type;
@@ -267,6 +298,19 @@ class Collection extends \ArrayObject
     {
         return ($type[0] !== self::OPERATOR_NAMESPACE)
             || $this->isTypeAKeyword($type);
+    }
+
+    /**
+     * Detects whether the given type represents a generic.
+     *
+     * @param string $type A relative or absolute type as defined in the
+     *     phpDocumentor documentation.
+     *
+     * @return bool
+     */
+    protected function isTypeAGeneric($type)
+    {
+        return in_array($type, $this->generics, true);
     }
 
     /**

@@ -10,14 +10,14 @@
 for (<em></em>$i = 0; $i < 10; $i++<em></em>) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Invalid spacing used inside brackets.">
         <![CDATA[
 for (<em> </em>$i = 0; $i < 10; $i++<em> </em>) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
     <code_comparison>
@@ -26,14 +26,14 @@ for (<em> </em>$i = 0; $i < 10; $i++<em> </em>) {
 for ($i = 0<em></em>; $i < 10<em></em>; $i++) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Invalid spacing used before semicolons.">
         <![CDATA[
 for ($i = 0<em> </em>; $i < 10<em> </em>; $i++) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
     <code_comparison>
@@ -42,14 +42,14 @@ for ($i = 0<em> </em>; $i < 10<em> </em>; $i++) {
 for ($i = 0;<em> </em>$i < 10;<em> </em>$i++) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
         <code title="Invalid: Invalid spacing used after semicolons.">
         <![CDATA[
 for ($i = 0;<em></em>$i < 10;<em></em>$i++) {
     echo $i;
 }
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

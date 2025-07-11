@@ -41,7 +41,7 @@ final class ConfigDouble extends Config
      *                                              the ruleset auto-discovery.
      *                                              Note: there is no need to set this to `true` when a standard
      *                                              is being passed via the `$cliArgs`. Those settings will always
-     *                                              respected.
+     *                                              be respected.
      *                                              Defaults to `false`. Will result in the standard being set
      *                                              to "PSR1" if not provided via `$cliArgs`.
      * @param bool          $skipSettingReportWidth Whether to skip setting a report-width to prevent
@@ -70,6 +70,22 @@ final class ConfigDouble extends Config
         }
 
     }//end __construct()
+
+
+    /**
+     * Ensures the static properties in the Config class are reset to their default values
+     * when the ConfigDouble is no longer used.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        $this->setStaticConfigProperty('overriddenDefaults', []);
+        $this->setStaticConfigProperty('executablePaths', []);
+        $this->setStaticConfigProperty('configData', null);
+        $this->setStaticConfigProperty('configDataFile', null);
+
+    }//end __destruct()
 
 
     /**

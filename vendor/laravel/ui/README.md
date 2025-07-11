@@ -20,7 +20,7 @@ Only the latest major version of Laravel UI receives bug fixes. The table below 
 |---- |----|
 | [1.x](https://github.com/laravel/ui/tree/1.x) | 5.8, 6.x |
 | [2.x](https://github.com/laravel/ui/tree/2.x) | 7.x |
-| [3.x](https://github.com/laravel/ui/tree/3.x) | 8.x |
+| [3.x](https://github.com/laravel/ui/tree/3.x) | 8.x, 9.x |
 | [4.x](https://github.com/laravel/ui/tree/4.x) | 9.x, 10.x, 11.x |
 
 ### Installation
@@ -93,7 +93,7 @@ By default, the Laravel `vite.config.js` file compiles your SASS and the `resour
 
 #### Writing Vue Components
 
-When using the `laravel/ui` package to scaffold your frontend, an `ExampleComponent.vue` Vue component will be placed in the `resources/js/components` directory. The `ExampleComponent.vue` file is an example of a [single file Vue component](https://vuejs.org/guide/single-file-components) which defines its JavaScript and HTML template in the same file. Single file components provide a very convenient approach to building JavaScript driven applications. The example component is registered in your `app.js` file:
+When using the `laravel/ui` package to scaffold your frontend, an `ExampleComponent.vue` Vue component will be placed in the `resources/js/components` directory. The `ExampleComponent.vue` file is an example of a [single file Vue component](https://vuejs.org/guide/scaling-up/sfc.html) which defines its JavaScript and HTML template in the same file. Single file components provide a very convenient approach to building JavaScript driven applications. The example component is registered in your `app.js` file:
 
 ```javascript
 import ExampleComponent from './components/ExampleComponent.vue';

@@ -12,9 +12,13 @@
 
 namespace PHP_CodeSniffer;
 
+use Exception;
+use Phar;
 use PHP_CodeSniffer\Exceptions\DeepExitException;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
 use PHP_CodeSniffer\Util\Common;
+use PHP_CodeSniffer\Util\Help;
+use PHP_CodeSniffer\Util\Standards;
 
 /**
  * Stores the configuration used to run PHPCS and PHPCBF.
@@ -81,7 +85,7 @@ class Config
      *
      * @var string
      */
-    const VERSION = '3.9.0';
+    const VERSION = '3.13.2';
 
     /**
      * Package stability; either stable, beta or alpha.
@@ -165,6 +169,21 @@ class Config
      * @var string[]
      */
     private $cliArgs = [];
+
+    /**
+     * A list of valid generators.
+     *
+     * {@internal Once support for PHP < 5.6 is dropped, this property should be refactored into a
+     * class constant.}
+     *
+     * @var array<string, string> Keys are the lowercase version of the generator name, while values
+     *                            are the associated PHP generator class.
+     */
+    private $validGenerators = [
+        'text'     => 'Text',
+        'html'     => 'HTML',
+        'markdown' => 'Markdown',
+    ];
 
     /**
      * Command line values that the user has supplied directly.
@@ -265,7 +284,7 @@ class Config
             $cleaned = [];
 
             // Check if the standard name is valid, or if the case is invalid.
-            $installedStandards = Util\Standards::getInstalledStandards();
+            $installedStandards = Standards::getInstalledStandards();
             foreach ($value as $standard) {
                 foreach ($installedStandards as $validStandard) {
                     if (strtolower($standard) === strtolower($validStandard)) {
@@ -420,7 +439,7 @@ class Config
 
         // Check for content on STDIN.
         if ($this->stdin === true
-            || (Util\Common::isStdinATTY() === false
+            || (Common::isStdinATTY() === false
             && feof($handle) === false)
         ) {
             $readStreams = [$handle];
@@ -649,7 +668,7 @@ class Config
             throw new DeepExitException($output, 0);
         case 'i' :
             ob_start();
-            Util\Standards::printInstalledStandards();
+            Standards::printInstalledStandards();
             $output = ob_get_contents();
             ob_end_clean();
             throw new DeepExitException($output, 0);
@@ -812,7 +831,7 @@ class Config
 
             try {
                 $this->setConfigData($key, $value);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw new DeepExitException($e->getMessage().PHP_EOL, 3);
             }
 
@@ -840,7 +859,7 @@ class Config
             } else {
                 try {
                     $this->setConfigData($key, null);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     throw new DeepExitException($e->getMessage().PHP_EOL, 3);
                 }
 
@@ -881,32 +900,14 @@ class Config
                     break;
                 }
 
-                $sniffs = explode(',', substr($arg, 7));
-                foreach ($sniffs as $sniff) {
-                    if (substr_count($sniff, '.') !== 2) {
-                        $error  = 'ERROR: The specified sniff code "'.$sniff.'" is invalid'.PHP_EOL.PHP_EOL;
-                        $error .= $this->printShortUsage(true);
-                        throw new DeepExitException($error, 3);
-                    }
-                }
-
-                $this->sniffs = $sniffs;
+                $this->sniffs = $this->parseSniffCodes(substr($arg, 7), 'sniffs');
                 self::$overriddenDefaults['sniffs'] = true;
             } else if (substr($arg, 0, 8) === 'exclude=') {
                 if (isset(self::$overriddenDefaults['exclude']) === true) {
                     break;
                 }
 
-                $sniffs = explode(',', substr($arg, 8));
-                foreach ($sniffs as $sniff) {
-                    if (substr_count($sniff, '.') !== 2) {
-                        $error  = 'ERROR: The specified sniff code "'.$sniff.'" is invalid'.PHP_EOL.PHP_EOL;
-                        $error .= $this->printShortUsage(true);
-                        throw new DeepExitException($error, 3);
-                    }
-                }
-
-                $this->exclude = $sniffs;
+                $this->exclude = $this->parseSniffCodes(substr($arg, 8), 'exclude');
                 self::$overriddenDefaults['exclude'] = true;
             } else if (defined('PHP_CODESNIFFER_IN_TESTS') === false
                 && substr($arg, 0, 6) === 'cache='
@@ -922,7 +923,7 @@ class Config
                 $this->cache = true;
                 self::$overriddenDefaults['cache'] = true;
 
-                $this->cacheFile = Util\Common::realpath(substr($arg, 6));
+                $this->cacheFile = Common::realpath(substr($arg, 6));
 
                 // It may not exist and return false instead.
                 if ($this->cacheFile === false) {
@@ -941,9 +942,9 @@ class Config
                     } else {
                         if ($dir[0] === '/') {
                             // An absolute path.
-                            $dir = Util\Common::realpath($dir);
+                            $dir = Common::realpath($dir);
                         } else {
-                            $dir = Util\Common::realpath(getcwd().'/'.$dir);
+                            $dir = Common::realpath(getcwd().'/'.$dir);
                         }
 
                         if ($dir !== false) {
@@ -964,7 +965,7 @@ class Config
                 $files     = explode(',', substr($arg, 10));
                 $bootstrap = [];
                 foreach ($files as $file) {
-                    $path = Util\Common::realpath($file);
+                    $path = Common::realpath($file);
                     if ($path === false) {
                         $error  = 'ERROR: The specified bootstrap file "'.$file.'" does not exist'.PHP_EOL.PHP_EOL;
                         $error .= $this->printShortUsage(true);
@@ -978,7 +979,7 @@ class Config
                 self::$overriddenDefaults['bootstrap'] = true;
             } else if (substr($arg, 0, 10) === 'file-list=') {
                 $fileList = substr($arg, 10);
-                $path     = Util\Common::realpath($fileList);
+                $path     = Common::realpath($fileList);
                 if ($path === false) {
                     $error  = 'ERROR: The specified file list "'.$fileList.'" does not exist'.PHP_EOL.PHP_EOL;
                     $error .= $this->printShortUsage(true);
@@ -1001,7 +1002,7 @@ class Config
                     break;
                 }
 
-                $this->stdinPath = Util\Common::realpath(substr($arg, 11));
+                $this->stdinPath = Common::realpath(substr($arg, 11));
 
                 // It may not exist and return false instead, so use whatever they gave us.
                 if ($this->stdinPath === false) {
@@ -1009,18 +1010,18 @@ class Config
                 }
 
                 self::$overriddenDefaults['stdinPath'] = true;
-            } else if (PHP_CODESNIFFER_CBF === false && substr($arg, 0, 12) === 'report-file=') {
-                if (isset(self::$overriddenDefaults['reportFile']) === true) {
+            } else if (substr($arg, 0, 12) === 'report-file=') {
+                if (PHP_CODESNIFFER_CBF === true || isset(self::$overriddenDefaults['reportFile']) === true) {
                     break;
                 }
 
-                $this->reportFile = Util\Common::realpath(substr($arg, 12));
+                $this->reportFile = Common::realpath(substr($arg, 12));
 
                 // It may not exist and return false instead.
                 if ($this->reportFile === false) {
                     $this->reportFile = substr($arg, 12);
 
-                    $dir = Util\Common::realpath(dirname($this->reportFile));
+                    $dir = Common::realpath(dirname($this->reportFile));
                     if (is_dir($dir) === false) {
                         $error  = 'ERROR: The specified report file path "'.$this->reportFile.'" points to a non-existent directory'.PHP_EOL.PHP_EOL;
                         $error .= $this->printShortUsage(true);
@@ -1056,7 +1057,7 @@ class Config
                     break;
                 }
 
-                $this->basepath = Util\Common::realpath(substr($arg, 9));
+                $this->basepath = Common::realpath(substr($arg, 9));
 
                 // It may not exist and return false instead.
                 if ($this->basepath === false) {
@@ -1083,7 +1084,7 @@ class Config
                         if ($output === false) {
                             $output = null;
                         } else {
-                            $dir = Util\Common::realpath(dirname($output));
+                            $dir = Common::realpath(dirname($output));
                             if (is_dir($dir) === false) {
                                 $error  = 'ERROR: The specified '.$report.' report file path "'.$output.'" points to a non-existent directory'.PHP_EOL.PHP_EOL;
                                 $error .= $this->printShortUsage(true);
@@ -1140,21 +1141,24 @@ class Config
                     break;
                 }
 
-                $extensions    = explode(',', substr($arg, 11));
-                $newExtensions = [];
-                foreach ($extensions as $ext) {
-                    $slash = strpos($ext, '/');
-                    if ($slash !== false) {
-                        // They specified the tokenizer too.
-                        list($ext, $tokenizer) = explode('/', $ext);
-                        $newExtensions[$ext]   = strtoupper($tokenizer);
-                        continue;
-                    }
+                $extensionsString = substr($arg, 11);
+                $newExtensions    = [];
+                if (empty($extensionsString) === false) {
+                    $extensions = explode(',', $extensionsString);
+                    foreach ($extensions as $ext) {
+                        $slash = strpos($ext, '/');
+                        if ($slash !== false) {
+                            // They specified the tokenizer too.
+                            list($ext, $tokenizer) = explode('/', $ext);
+                            $newExtensions[$ext]   = strtoupper($tokenizer);
+                            continue;
+                        }
 
-                    if (isset($this->extensions[$ext]) === true) {
-                        $newExtensions[$ext] = $this->extensions[$ext];
-                    } else {
-                        $newExtensions[$ext] = 'PHP';
+                        if (isset($this->extensions[$ext]) === true) {
+                            $newExtensions[$ext] = $this->extensions[$ext];
+                        } else {
+                            $newExtensions[$ext] = 'PHP';
+                        }
                     }
                 }
 
@@ -1229,7 +1233,22 @@ class Config
                     break;
                 }
 
-                $this->generator = substr($arg, 10);
+                $generatorName          = substr($arg, 10);
+                $lowerCaseGeneratorName = strtolower($generatorName);
+
+                if (isset($this->validGenerators[$lowerCaseGeneratorName]) === false) {
+                    $validOptions = implode(', ', $this->validGenerators);
+                    $validOptions = substr_replace($validOptions, ' and', strrpos($validOptions, ','), 1);
+                    $error        = sprintf(
+                        'ERROR: "%s" is not a valid generator. The following generators are supported: %s.'.PHP_EOL.PHP_EOL,
+                        $generatorName,
+                        $validOptions
+                    );
+                    $error       .= $this->printShortUsage(true);
+                    throw new DeepExitException($error, 3);
+                }
+
+                $this->generator = $this->validGenerators[$lowerCaseGeneratorName];
                 self::$overriddenDefaults['generator'] = true;
             } else if (substr($arg, 0, 9) === 'encoding=') {
                 if (isset(self::$overriddenDefaults['encoding']) === true) {
@@ -1271,6 +1290,93 @@ class Config
         }//end switch
 
     }//end processLongArgument()
+
+
+    /**
+     * Parse supplied string into a list of validated sniff codes.
+     *
+     * @param string $input    Comma-separated string of sniff codes.
+     * @param string $argument The name of the argument which is being processed.
+     *
+     * @return array<string>
+     * @throws \PHP_CodeSniffer\Exceptions\DeepExitException When any of the provided codes are not valid as sniff codes.
+     */
+    private function parseSniffCodes($input, $argument)
+    {
+        $errors = [];
+        $sniffs = [];
+
+        $possibleSniffs = array_filter(explode(',', $input));
+
+        if ($possibleSniffs === []) {
+            $errors[] = 'No codes specified / empty argument';
+        }
+
+        foreach ($possibleSniffs as $sniff) {
+            $sniff = trim($sniff);
+
+            $partCount = substr_count($sniff, '.');
+            if ($partCount === 2) {
+                // Correct number of parts.
+                $sniffs[] = $sniff;
+                continue;
+            }
+
+            if ($partCount === 0) {
+                $errors[] = 'Standard codes are not supported: '.$sniff;
+            } else if ($partCount === 1) {
+                $errors[] = 'Category codes are not supported: '.$sniff;
+            } else if ($partCount === 3) {
+                $errors[] = 'Message codes are not supported: '.$sniff;
+            } else {
+                $errors[] = 'Too many parts: '.$sniff;
+            }
+
+            if ($partCount > 2) {
+                $parts    = explode('.', $sniff, 4);
+                $sniffs[] = $parts[0].'.'.$parts[1].'.'.$parts[2];
+            }
+        }//end foreach
+
+        $sniffs = array_reduce(
+            $sniffs,
+            static function ($carry, $item) {
+                $lower = strtolower($item);
+
+                foreach ($carry as $found) {
+                    if ($lower === strtolower($found)) {
+                        // This sniff is already in our list.
+                        return $carry;
+                    }
+                }
+
+                $carry[] = $item;
+
+                return $carry;
+            },
+            []
+        );
+
+        if ($errors !== []) {
+            $error  = 'ERROR: The --'.$argument.' option only supports sniff codes.'.PHP_EOL;
+            $error .= 'Sniff codes are in the form "Standard.Category.Sniff".'.PHP_EOL;
+            $error .= PHP_EOL;
+            $error .= 'The following problems were detected:'.PHP_EOL;
+            $error .= '* '.implode(PHP_EOL.'* ', $errors).PHP_EOL;
+
+            if ($sniffs !== []) {
+                $error .= PHP_EOL;
+                $error .= 'Perhaps try --'.$argument.'="'.implode(',', $sniffs).'" instead.'.PHP_EOL;
+            }
+
+            $error .= PHP_EOL;
+            $error .= $this->printShortUsage(true);
+            throw new DeepExitException(ltrim($error), 3);
+        }
+
+        return $sniffs;
+
+    }//end parseSniffCodes()
 
 
     /**
@@ -1317,7 +1423,7 @@ class Config
             return;
         }
 
-        $file = Util\Common::realpath($path);
+        $file = Common::realpath($path);
         if (file_exists($file) === false) {
             if ($this->dieOnUnknownArg === false) {
                 return;
@@ -1392,71 +1498,21 @@ class Config
      */
     public function printPHPCSUsage()
     {
-        echo 'Usage: phpcs [-nwlsaepqvi] [-d key[=value]] [--colors] [--no-colors]'.PHP_EOL;
-        echo '  [--cache[=<cacheFile>]] [--no-cache] [--tab-width=<tabWidth>]'.PHP_EOL;
-        echo '  [--report=<report>] [--report-file=<reportFile>] [--report-<report>=<reportFile>]'.PHP_EOL;
-        echo '  [--report-width=<reportWidth>] [--basepath=<basepath>] [--bootstrap=<bootstrap>]'.PHP_EOL;
-        echo '  [--severity=<severity>] [--error-severity=<severity>] [--warning-severity=<severity>]'.PHP_EOL;
-        echo '  [--runtime-set key value] [--config-set key value] [--config-delete key] [--config-show]'.PHP_EOL;
-        echo '  [--standard=<standard>] [--sniffs=<sniffs>] [--exclude=<sniffs>]'.PHP_EOL;
-        echo '  [--encoding=<encoding>] [--parallel=<processes>] [--generator=<generator>]'.PHP_EOL;
-        echo '  [--extensions=<extensions>] [--ignore=<patterns>] [--ignore-annotations]'.PHP_EOL;
-        echo '  [--stdin-path=<stdinPath>] [--file-list=<fileList>] [--filter=<filter>] <file> - ...'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' -     Check STDIN instead of local files and directories'.PHP_EOL;
-        echo ' -n    Do not print warnings (shortcut for --warning-severity=0)'.PHP_EOL;
-        echo ' -w    Print both warnings and errors (this is the default)'.PHP_EOL;
-        echo ' -l    Local directory only, no recursion'.PHP_EOL;
-        echo ' -s    Show error codes in all reports'.PHP_EOL;
-        echo ' -a    Run interactively'.PHP_EOL;
-        echo ' -e    Explain a standard by showing the sniffs it includes'.PHP_EOL;
-        echo ' -p    Show progress of the run'.PHP_EOL;
-        echo ' -q    Quiet mode; disables progress and verbose output'.PHP_EOL;
-        echo ' -m    Stop error messages from being recorded'.PHP_EOL;
-        echo '       (saves a lot of memory, but stops many reports from being used)'.PHP_EOL;
-        echo ' -v    Print processed files'.PHP_EOL;
-        echo ' -vv   Print ruleset and token output'.PHP_EOL;
-        echo ' -vvv  Print sniff processing information'.PHP_EOL;
-        echo ' -i    Show a list of installed coding standards'.PHP_EOL;
-        echo ' -d    Set the [key] php.ini value to [value] or [true] if value is omitted'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' --help                Print this help message'.PHP_EOL;
-        echo ' --version             Print version information'.PHP_EOL;
-        echo ' --colors              Use colors in output'.PHP_EOL;
-        echo ' --no-colors           Do not use colors in output (this is the default)'.PHP_EOL;
-        echo ' --cache               Cache results between runs'.PHP_EOL;
-        echo ' --no-cache            Do not cache results between runs (this is the default)'.PHP_EOL;
-        echo ' --ignore-annotations  Ignore all phpcs: annotations in code comments'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' <cacheFile>    Use a specific file for caching (uses a temporary file by default)'.PHP_EOL;
-        echo ' <basepath>     A path to strip from the front of file paths inside reports'.PHP_EOL;
-        echo ' <bootstrap>    A comma separated list of files to run before processing begins'.PHP_EOL;
-        echo ' <encoding>     The encoding of the files being checked (default is utf-8)'.PHP_EOL;
-        echo ' <extensions>   A comma separated list of file extensions to check'.PHP_EOL;
-        echo '                The type of the file can be specified using: ext/type'.PHP_EOL;
-        echo '                e.g., module/php,es/js'.PHP_EOL;
-        echo ' <file>         One or more files and/or directories to check'.PHP_EOL;
-        echo ' <fileList>     A file containing a list of files and/or directories to check (one per line)'.PHP_EOL;
-        echo ' <filter>       Use either the "GitModified" or "GitStaged" filter,'.PHP_EOL;
-        echo '                or specify the path to a custom filter class'.PHP_EOL;
-        echo ' <generator>    Use either the "HTML", "Markdown" or "Text" generator'.PHP_EOL;
-        echo '                (forces documentation generation instead of checking)'.PHP_EOL;
-        echo ' <patterns>     A comma separated list of patterns to ignore files and directories'.PHP_EOL;
-        echo ' <processes>    How many files should be checked simultaneously (default is 1)'.PHP_EOL;
-        echo ' <report>       Print either the "full", "xml", "checkstyle", "csv"'.PHP_EOL;
-        echo '                "json", "junit", "emacs", "source", "summary", "diff"'.PHP_EOL;
-        echo '                "svnblame", "gitblame", "hgblame", "notifysend" or "performance",'.PHP_EOL;
-        echo '                report or specify the path to a custom report class'.PHP_EOL;
-        echo '                (the "full" report is printed by default)'.PHP_EOL;
-        echo ' <reportFile>   Write the report to the specified file path'.PHP_EOL;
-        echo ' <reportWidth>  How many columns wide screen reports should be printed'.PHP_EOL;
-        echo '                or set to "auto" to use current screen width, where supported'.PHP_EOL;
-        echo ' <severity>     The minimum severity required to display an error or warning'.PHP_EOL;
-        echo ' <sniffs>       A comma separated list of sniff codes to include or exclude from checking'.PHP_EOL;
-        echo '                (all sniffs must be part of the specified standard)'.PHP_EOL;
-        echo ' <standard>     The name or path of the coding standard to use'.PHP_EOL;
-        echo ' <stdinPath>    If processing STDIN, the file path that STDIN will be processed as'.PHP_EOL;
-        echo ' <tabWidth>     The number of spaces each tab represents'.PHP_EOL;
+        $longOptions   = explode(',', Help::DEFAULT_LONG_OPTIONS);
+        $longOptions[] = 'cache';
+        $longOptions[] = 'no-cache';
+        $longOptions[] = 'report';
+        $longOptions[] = 'report-file';
+        $longOptions[] = 'report-report';
+        $longOptions[] = 'config-explain';
+        $longOptions[] = 'config-set';
+        $longOptions[] = 'config-delete';
+        $longOptions[] = 'config-show';
+        $longOptions[] = 'generator';
+
+        $shortOptions = Help::DEFAULT_SHORT_OPTIONS.'aems';
+
+        (new Help($this, $longOptions, $shortOptions))->display();
 
     }//end printPHPCSUsage()
 
@@ -1468,49 +1524,11 @@ class Config
      */
     public function printPHPCBFUsage()
     {
-        echo 'Usage: phpcbf [-nwli] [-d key[=value]] [--ignore-annotations] [--bootstrap=<bootstrap>]'.PHP_EOL;
-        echo '  [--standard=<standard>] [--sniffs=<sniffs>] [--exclude=<sniffs>] [--suffix=<suffix>]'.PHP_EOL;
-        echo '  [--severity=<severity>] [--error-severity=<severity>] [--warning-severity=<severity>]'.PHP_EOL;
-        echo '  [--tab-width=<tabWidth>] [--encoding=<encoding>] [--parallel=<processes>]'.PHP_EOL;
-        echo '  [--basepath=<basepath>] [--extensions=<extensions>] [--ignore=<patterns>]'.PHP_EOL;
-        echo '  [--stdin-path=<stdinPath>] [--file-list=<fileList>] [--filter=<filter>] <file> - ...'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' -     Fix STDIN instead of local files and directories'.PHP_EOL;
-        echo ' -n    Do not fix warnings (shortcut for --warning-severity=0)'.PHP_EOL;
-        echo ' -w    Fix both warnings and errors (on by default)'.PHP_EOL;
-        echo ' -l    Local directory only, no recursion'.PHP_EOL;
-        echo ' -p    Show progress of the run'.PHP_EOL;
-        echo ' -q    Quiet mode; disables progress and verbose output'.PHP_EOL;
-        echo ' -v    Print processed files'.PHP_EOL;
-        echo ' -vv   Print ruleset and token output'.PHP_EOL;
-        echo ' -vvv  Print sniff processing information'.PHP_EOL;
-        echo ' -i    Show a list of installed coding standards'.PHP_EOL;
-        echo ' -d    Set the [key] php.ini value to [value] or [true] if value is omitted'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' --help                Print this help message'.PHP_EOL;
-        echo ' --version             Print version information'.PHP_EOL;
-        echo ' --ignore-annotations  Ignore all phpcs: annotations in code comments'.PHP_EOL;
-        echo PHP_EOL;
-        echo ' <basepath>    A path to strip from the front of file paths inside reports'.PHP_EOL;
-        echo ' <bootstrap>   A comma separated list of files to run before processing begins'.PHP_EOL;
-        echo ' <encoding>    The encoding of the files being fixed (default is utf-8)'.PHP_EOL;
-        echo ' <extensions>  A comma separated list of file extensions to fix'.PHP_EOL;
-        echo '               The type of the file can be specified using: ext/type'.PHP_EOL;
-        echo '               e.g., module/php,es/js'.PHP_EOL;
-        echo ' <file>        One or more files and/or directories to fix'.PHP_EOL;
-        echo ' <fileList>    A file containing a list of files and/or directories to fix (one per line)'.PHP_EOL;
-        echo ' <filter>      Use either the "GitModified" or "GitStaged" filter,'.PHP_EOL;
-        echo '               or specify the path to a custom filter class'.PHP_EOL;
-        echo ' <patterns>    A comma separated list of patterns to ignore files and directories'.PHP_EOL;
-        echo ' <processes>   How many files should be fixed simultaneously (default is 1)'.PHP_EOL;
-        echo ' <severity>    The minimum severity required to fix an error or warning'.PHP_EOL;
-        echo ' <sniffs>      A comma separated list of sniff codes to include or exclude from fixing'.PHP_EOL;
-        echo '               (all sniffs must be part of the specified standard)'.PHP_EOL;
-        echo ' <standard>    The name or path of the coding standard to use'.PHP_EOL;
-        echo ' <stdinPath>   If processing STDIN, the file path that STDIN will be processed as'.PHP_EOL;
-        echo ' <suffix>      Write modified files to a filename using this suffix'.PHP_EOL;
-        echo '               ("diff" and "patch" are not used in this mode)'.PHP_EOL;
-        echo ' <tabWidth>    The number of spaces each tab represents'.PHP_EOL;
+        $longOptions   = explode(',', Help::DEFAULT_LONG_OPTIONS);
+        $longOptions[] = 'suffix';
+        $shortOptions  = Help::DEFAULT_SHORT_OPTIONS;
+
+        (new Help($this, $longOptions, $shortOptions))->display();
 
     }//end printPHPCBFUsage()
 
@@ -1608,7 +1626,7 @@ class Config
         if ($temp === false) {
             $path = '';
             if (is_callable('\Phar::running') === true) {
-                $path = \Phar::running(false);
+                $path = Phar::running(false);
             }
 
             if ($path !== '') {
@@ -1653,8 +1671,8 @@ class Config
         // If the installed paths are being set, make sure all known
         // standards paths are added to the autoloader.
         if ($key === 'installed_paths') {
-            $installedStandards = Util\Standards::getInstalledStandardDetails();
-            foreach ($installedStandards as $name => $details) {
+            $installedStandards = Standards::getInstalledStandardDetails();
+            foreach ($installedStandards as $details) {
                 Autoload::addSearchPath($details['path'], $details['namespace']);
             }
         }
@@ -1679,18 +1697,13 @@ class Config
 
         $path = '';
         if (is_callable('\Phar::running') === true) {
-            $path = \Phar::running(false);
+            $path = Phar::running(false);
         }
 
         if ($path !== '') {
             $configFile = dirname($path).DIRECTORY_SEPARATOR.'CodeSniffer.conf';
         } else {
             $configFile = dirname(__DIR__).DIRECTORY_SEPARATOR.'CodeSniffer.conf';
-            if (is_file($configFile) === false
-                && strpos('@data_dir@', '@data_dir') === false
-            ) {
-                $configFile = '@data_dir@/PHP_CodeSniffer/CodeSniffer.conf';
-            }
         }
 
         if (is_file($configFile) === false) {

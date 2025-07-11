@@ -152,7 +152,7 @@ class OpeningFunctionBraceBsdAllmanSniff implements Sniff
                     for ($i = $openingBrace; $i > $prev; $i--) {
                         if ($tokens[$i]['line'] === $tokens[$openingBrace]['line']) {
                             if ($tokens[$i]['column'] === 1) {
-                                $phpcsFile->fixer->addNewLineBefore($i);
+                                $phpcsFile->fixer->addNewlineBefore($i);
                             }
 
                             continue;

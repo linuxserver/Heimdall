@@ -111,14 +111,14 @@ class TelegramBotHandler extends AbstractProcessingHandler
         string $channel,
         $level = Level::Debug,
         bool   $bubble = true,
-        string $parseMode = null,
-        bool   $disableWebPagePreview = null,
-        bool   $disableNotification = null,
+        ?string $parseMode = null,
+        ?bool   $disableWebPagePreview = null,
+        ?bool   $disableNotification = null,
         bool   $splitLongMessages = false,
         bool   $delayBetweenMessages = false,
-        int    $topic = null
+        ?int   $topic = null
     ) {
-        if (!extension_loaded('curl')) {
+        if (!\extension_loaded('curl')) {
             throw new MissingExtensionException('The curl extension is needed to use the TelegramBotHandler');
         }
 
@@ -137,9 +137,9 @@ class TelegramBotHandler extends AbstractProcessingHandler
     /**
      * @return $this
      */
-    public function setParseMode(string $parseMode = null): self
+    public function setParseMode(string|null $parseMode = null): self
     {
-        if ($parseMode !== null && !in_array($parseMode, self::AVAILABLE_PARSE_MODES, true)) {
+        if ($parseMode !== null && !\in_array($parseMode, self::AVAILABLE_PARSE_MODES, true)) {
             throw new \InvalidArgumentException('Unknown parseMode, use one of these: ' . implode(', ', self::AVAILABLE_PARSE_MODES) . '.');
         }
 
@@ -151,7 +151,7 @@ class TelegramBotHandler extends AbstractProcessingHandler
     /**
      * @return $this
      */
-    public function disableWebPagePreview(bool $disableWebPagePreview = null): self
+    public function disableWebPagePreview(bool|null $disableWebPagePreview = null): self
     {
         $this->disableWebPagePreview = $disableWebPagePreview;
 
@@ -161,7 +161,7 @@ class TelegramBotHandler extends AbstractProcessingHandler
     /**
      * @return $this
      */
-    public function disableNotification(bool $disableNotification = null): self
+    public function disableNotification(bool|null $disableNotification = null): self
     {
         $this->disableNotification = $disableNotification;
 
@@ -196,7 +196,7 @@ class TelegramBotHandler extends AbstractProcessingHandler
     /**
      * @return $this
      */
-    public function setTopic(int $topic = null): self
+    public function setTopic(?int $topic = null): self
     {
         $this->topic = $topic;
 
@@ -271,7 +271,7 @@ class TelegramBotHandler extends AbstractProcessingHandler
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
 
         $result = Curl\Util::execute($ch);
-        if (!is_string($result)) {
+        if (!\is_string($result)) {
             throw new RuntimeException('Telegram API error. Description: No response');
         }
         $result = json_decode($result, true);
@@ -288,8 +288,8 @@ class TelegramBotHandler extends AbstractProcessingHandler
     private function handleMessageLength(string $message): array
     {
         $truncatedMarker = ' (...truncated)';
-        if (!$this->splitLongMessages && strlen($message) > self::MAX_MESSAGE_LENGTH) {
-            return [Utils::substr($message, 0, self::MAX_MESSAGE_LENGTH - strlen($truncatedMarker)) . $truncatedMarker];
+        if (!$this->splitLongMessages && \strlen($message) > self::MAX_MESSAGE_LENGTH) {
+            return [Utils::substr($message, 0, self::MAX_MESSAGE_LENGTH - \strlen($truncatedMarker)) . $truncatedMarker];
         }
 
         return str_split($message, self::MAX_MESSAGE_LENGTH);

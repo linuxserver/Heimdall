@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ProcessRulesetAutoloadTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <autoload>./tests/Core/Ruleset/Fixtures/ThisFileDoesNotExist.php</autoload>
+
+    <!-- Prevent a "no sniffs were registered" error. -->
+    <rule ref="Generic.PHP.BacktickOperator"/>
+</ruleset>

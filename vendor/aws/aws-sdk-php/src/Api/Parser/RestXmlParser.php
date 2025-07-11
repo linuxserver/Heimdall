@@ -17,7 +17,7 @@ class RestXmlParser extends AbstractRestParser
      * @param Service   $api    Service description
      * @param XmlParser $parser XML body parser
      */
-    public function __construct(Service $api, XmlParser $parser = null)
+    public function __construct(Service $api, ?XmlParser $parser = null)
     {
         parent::__construct($api);
         $this->parser = $parser ?: new XmlParser();

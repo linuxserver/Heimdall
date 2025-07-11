@@ -80,10 +80,12 @@ class MethodTag extends ReturnTag
                         (?:[\w\|_\\\\]*\$this[\w\|_\\\\]*)
                         |
                         (?:
-                            (?:[\w\|_\\\\]+)
+                            (?:[\w\|_\\\\]+(?:<[\s\S]*>)?)
                             # array notation
                             (?:\[\])*
                         )*
+                        |
+                        (?:\([\s\S]*\))?
                     )
                     \s+
                 )?

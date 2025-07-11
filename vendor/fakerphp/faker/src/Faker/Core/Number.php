@@ -63,7 +63,7 @@ final class Number implements Extension\NumberExtension
         return round($min + $this->numberBetween() / mt_getrandmax() * ($max - $min), $nbMaxDecimals);
     }
 
-    public function randomNumber(int $nbDigits = null, bool $strict = false): int
+    public function randomNumber(?int $nbDigits = null, bool $strict = false): int
     {
         if (null === $nbDigits) {
             $nbDigits = $this->randomDigitNotZero();

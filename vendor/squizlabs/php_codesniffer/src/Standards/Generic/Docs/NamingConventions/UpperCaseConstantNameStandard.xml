@@ -1,11 +1,11 @@
 <documentation title="Constant Names">
     <standard>
     <![CDATA[
-     Constants should always be all-uppercase, with underscores to separate words.
+    Constants should always be all-uppercase, with underscores to separate words.
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: all uppercase">
+        <code title="Valid: All uppercase constant name.">
         <![CDATA[
 define('<em>FOO_CONSTANT</em>', 'foo');
 
@@ -15,7 +15,7 @@ class FooClass
 }
         ]]>
         </code>
-        <code title="Invalid: mixed case">
+        <code title="Invalid: Mixed case or lowercase constant name.">
         <![CDATA[
 define('<em>Foo_Constant</em>', 'foo');
 

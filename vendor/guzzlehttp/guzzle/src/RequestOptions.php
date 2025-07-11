@@ -61,7 +61,7 @@ final class RequestOptions
      * Specifies whether or not cookies are used in a request or what cookie
      * jar to use or what cookies to send. This option only works if your
      * handler has the `cookie` middleware. Valid values are `false` and
-     * an instance of {@see \GuzzleHttp\Cookie\CookieJarInterface}.
+     * an instance of {@see Cookie\CookieJarInterface}.
      */
     public const COOKIES = 'cookies';
 

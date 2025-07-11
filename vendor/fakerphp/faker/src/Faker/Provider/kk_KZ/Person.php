@@ -211,7 +211,7 @@ class Person extends \Faker\Provider\Person
      *
      * @return string 12 digits, like 780322300455
      */
-    public static function individualIdentificationNumber(\DateTime $birthDate = null, $gender = self::GENDER_MALE)
+    public static function individualIdentificationNumber(?\DateTime $birthDate = null, $gender = self::GENDER_MALE)
     {
         if (!$birthDate) {
             $birthDate = DateTime::dateTimeBetween();

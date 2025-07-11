@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.7.2 - 2024-09-24
+
+- Updated code to not raise warnings for nullable parameters in PHP 8.4.
+- Cleaned up PHPDoc comments.
+
 ## 2.7.1 - 2023-11-30
 
 - Allow installation with Symfony 7.

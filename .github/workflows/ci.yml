@@ -16,7 +16,7 @@ jobs:
           extensions: mbstring, dom, fileinfo, mysql, libxml, xml, xmlwriter, dom, tokenizer, filter, json, phar, pcre, openssl, pdo, intl, curl
 
       - name: Cache composer dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
@@ -32,7 +32,7 @@ jobs:
           php artisan key:generate
 
       - name: Cache yarn dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: yarn-${{ hashFiles('yarn.lock') }}

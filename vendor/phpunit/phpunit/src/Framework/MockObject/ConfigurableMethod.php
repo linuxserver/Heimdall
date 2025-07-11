@@ -12,41 +12,71 @@ namespace PHPUnit\Framework\MockObject;
 use SebastianBergmann\Type\Type;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class ConfigurableMethod
 {
     /**
-     * @var string
+     * @psalm-var non-empty-string
      */
-    private $name;
+    private readonly string $name;
 
     /**
-     * @var Type
+     * @psalm-var array<int, mixed>
      */
-    private $returnType;
+    private readonly array $defaultParameterValues;
 
-    public function __construct(string $name, Type $returnType)
+    /**
+     * @psalm-var non-negative-int
+     */
+    private readonly int $numberOfParameters;
+    private readonly Type $returnType;
+
+    /**
+     * @psalm-param non-empty-string $name
+     * @psalm-param array<int, mixed> $defaultParameterValues
+     * @psalm-param non-negative-int $numberOfParameters
+     */
+    public function __construct(string $name, array $defaultParameterValues, int $numberOfParameters, Type $returnType)
     {
-        $this->name       = $name;
-        $this->returnType = $returnType;
+        $this->name                   = $name;
+        $this->defaultParameterValues = $defaultParameterValues;
+        $this->numberOfParameters     = $numberOfParameters;
+        $this->returnType             = $returnType;
     }
 
-    public function getName(): string
+    /**
+     * @psalm-return non-empty-string
+     */
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function mayReturn($value): bool
+    /**
+     * @psalm-return array<int, mixed>
+     */
+    public function defaultParameterValues(): array
     {
-        if ($value === null && $this->returnType->allowsNull()) {
-            return true;
-        }
+        return $this->defaultParameterValues;
+    }
 
+    /**
+     * @psalm-return non-negative-int
+     */
+    public function numberOfParameters(): int
+    {
+        return $this->numberOfParameters;
+    }
+
+    public function mayReturn(mixed $value): bool
+    {
         return $this->returnType->isAssignable(Type::fromValue($value, false));
     }
 
-    public function getReturnTypeDeclaration(): string
+    public function returnTypeDeclaration(): string
     {
         return $this->returnType->asString();
     }

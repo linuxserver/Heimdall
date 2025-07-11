@@ -119,33 +119,44 @@ class FunctionCommentSniff implements Sniff
             return;
         }
 
+        // Check there are no blank lines in the preamble for the property,
+        // but ignore blank lines _within_ attributes as that's not the concern of this sniff.
         if ($tokens[$commentEnd]['line'] !== ($tokens[$stackPtr]['line'] - 1)) {
             for ($i = ($commentEnd + 1); $i < $stackPtr; $i++) {
-                if ($tokens[$i]['column'] !== 1) {
+                // Skip over the contents of attributes.
+                if (isset($tokens[$i]['attribute_closer']) === true) {
+                    $i = $tokens[$i]['attribute_closer'];
                     continue;
                 }
 
-                if ($tokens[$i]['code'] === T_WHITESPACE
-                    && $tokens[$i]['line'] !== $tokens[($i + 1)]['line']
+                if ($tokens[$i]['column'] !== 1
+                    || $tokens[$i]['code'] !== T_WHITESPACE
+                    || $tokens[$i]['line'] === $tokens[($i + 1)]['line']
+                    // Do not report blank lines after a PHPCS annotation as removing the blank lines could change the meaning.
+                    || isset(Tokens::$phpcsCommentTokens[$tokens[($i - 1)]['code']]) === true
                 ) {
-                    $error = 'There must be no blank lines after the function comment';
-                    $fix   = $phpcsFile->addFixableError($error, $commentEnd, 'SpacingAfter');
+                    continue;
+                }
 
-                    if ($fix === true) {
-                        $phpcsFile->fixer->beginChangeset();
+                $nextNonWhitespace = $phpcsFile->findNext(T_WHITESPACE, ($i + 1), null, true);
+                $error = 'There must be no blank lines between the function comment and the declaration';
+                $fix   = $phpcsFile->addFixableError($error, $i, 'SpacingAfter');
 
-                        while ($i < $stackPtr
-                            && $tokens[$i]['code'] === T_WHITESPACE
-                            && $tokens[$i]['line'] !== $tokens[($i + 1)]['line']
-                        ) {
-                            $phpcsFile->fixer->replaceToken($i++, '');
+                if ($fix === true) {
+                    $phpcsFile->fixer->beginChangeset();
+
+                    for ($j = $i; $j < $nextNonWhitespace; $j++) {
+                        if ($tokens[$j]['line'] === $tokens[$nextNonWhitespace]['line']) {
+                            break;
                         }
 
-                        $phpcsFile->fixer->endChangeset();
+                        $phpcsFile->fixer->replaceToken($j, '');
                     }
 
-                    break;
+                    $phpcsFile->fixer->endChangeset();
                 }
+
+                $i = $nextNonWhitespace;
             }//end for
         }//end if
 

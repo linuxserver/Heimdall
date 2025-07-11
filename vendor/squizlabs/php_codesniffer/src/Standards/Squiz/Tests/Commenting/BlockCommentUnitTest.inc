@@ -307,3 +307,27 @@ abstract class MyClass
 enum MyEnum {
 
 }
+
+class FinalProperties {
+    /**
+     * Comment should be ignored.
+     */
+    final int $prop = 1;
+}
+
+class AsymVisibility {
+    /**
+     * Comment should be ignored.
+     */
+    public(set) int $prop = 1;
+
+    /**
+     * Comment should be ignored.
+     */
+    protected(set) int $prop = 1;
+
+    /**
+     * Comment should be ignored.
+     */
+    private(set) int $prop = 1;
+}

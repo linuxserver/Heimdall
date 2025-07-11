@@ -19,14 +19,14 @@ final class Reflection
 {
 	use Nette\StaticClass;
 
-	/** @deprecated use Nette\Utils\Validator::isBuiltinType() */
+	/** @deprecated use Nette\Utils\Validators::isBuiltinType() */
 	public static function isBuiltinType(string $type): bool
 	{
 		return Validators::isBuiltinType($type);
 	}
 
 
-	/** @deprecated use Nette\Utils\Validator::isClassKeyword() */
+	/** @deprecated use Nette\Utils\Validators::isClassKeyword() */
 	public static function isClassKeyword(string $name): bool
 	{
 		return Validators::isClassKeyword($name);
@@ -100,7 +100,7 @@ final class Reflection
 
 		$hash = [$method->getFileName(), $method->getStartLine(), $method->getEndLine()];
 		if (($alias = $decl->getTraitAliases()[$method->name] ?? null)
-			&& ($m = new \ReflectionMethod($alias))
+			&& ($m = new \ReflectionMethod(...explode('::', $alias, 2)))
 			&& $hash === [$m->getFileName(), $m->getStartLine(), $m->getEndLine()]
 		) {
 			return self::getMethodDeclaringMethod($m);
@@ -125,7 +125,7 @@ final class Reflection
 	public static function areCommentsAvailable(): bool
 	{
 		static $res;
-		return $res ?? $res = (bool) (new \ReflectionMethod(__METHOD__))->getDocComment();
+		return $res ?? $res = (bool) (new \ReflectionMethod(self::class, __FUNCTION__))->getDocComment();
 	}
 
 
@@ -136,7 +136,9 @@ final class Reflection
 		} elseif ($ref instanceof \ReflectionMethod) {
 			return $ref->getDeclaringClass()->name . '::' . $ref->name . '()';
 		} elseif ($ref instanceof \ReflectionFunction) {
-			return $ref->name . '()';
+			return PHP_VERSION_ID >= 80200 && $ref->isAnonymous()
+				? '{closure}()'
+				: $ref->name . '()';
 		} elseif ($ref instanceof \ReflectionProperty) {
 			return self::getPropertyDeclaringClass($ref)->name . '::$' . $ref->name;
 		} elseif ($ref instanceof \ReflectionParameter) {
@@ -238,9 +240,7 @@ final class Reflection
 				case T_CLASS:
 				case T_INTERFACE:
 				case T_TRAIT:
-				case PHP_VERSION_ID < 80100
-					? T_CLASS
-					: T_ENUM:
+				case PHP_VERSION_ID < 80100 ? T_CLASS : T_ENUM:
 					if ($name = self::fetch($tokens, T_STRING)) {
 						$class = $namespace . $name;
 						$classLevel = $level + 1;

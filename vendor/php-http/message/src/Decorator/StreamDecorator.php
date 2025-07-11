@@ -86,7 +86,7 @@ trait StreamDecorator
         return $this->stream->getContents();
     }
 
-    public function getMetadata(string $key = null)
+    public function getMetadata(?string $key = null)
     {
         return $this->stream->getMetadata($key);
     }

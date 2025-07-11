@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ExpandRulesetReferenceInternalTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/Internal/"/>
+
+    <rule ref="Internal"/>
+
+</ruleset>

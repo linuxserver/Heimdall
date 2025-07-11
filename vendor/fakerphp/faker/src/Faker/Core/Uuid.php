@@ -11,7 +11,7 @@ final class Uuid implements Extension\UuidExtension
 {
     private Extension\NumberExtension $numberExtension;
 
-    public function __construct(Extension\NumberExtension $numberExtension = null)
+    public function __construct(?Extension\NumberExtension $numberExtension = null)
     {
 
         $this->numberExtension = $numberExtension ?: new Number();

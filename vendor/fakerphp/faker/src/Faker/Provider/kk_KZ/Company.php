@@ -56,7 +56,7 @@ class Company extends \Faker\Provider\Company
      *
      * @return string 12 digits, like 150140000019
      */
-    public static function businessIdentificationNumber(\DateTime $registrationDate = null)
+    public static function businessIdentificationNumber(?\DateTime $registrationDate = null)
     {
         if (!$registrationDate) {
             $registrationDate = \Faker\Provider\DateTime::dateTimeThisYear();

@@ -34,22 +34,14 @@ final class TranslationPullCommand extends Command
 {
     use TranslationTrait;
 
-    private TranslationProviderCollection $providerCollection;
-    private TranslationWriterInterface $writer;
-    private TranslationReaderInterface $reader;
-    private string $defaultLocale;
-    private array $transPaths;
-    private array $enabledLocales;
-
-    public function __construct(TranslationProviderCollection $providerCollection, TranslationWriterInterface $writer, TranslationReaderInterface $reader, string $defaultLocale, array $transPaths = [], array $enabledLocales = [])
-    {
-        $this->providerCollection = $providerCollection;
-        $this->writer = $writer;
-        $this->reader = $reader;
-        $this->defaultLocale = $defaultLocale;
-        $this->transPaths = $transPaths;
-        $this->enabledLocales = $enabledLocales;
-
+    public function __construct(
+        private TranslationProviderCollection $providerCollection,
+        private TranslationWriterInterface $writer,
+        private TranslationReaderInterface $reader,
+        private string $defaultLocale,
+        private array $transPaths = [],
+        private array $enabledLocales = [],
+    ) {
         parent::__construct();
     }
 
@@ -92,10 +84,10 @@ final class TranslationPullCommand extends Command
                 new InputArgument('provider', null !== $defaultProvider ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'The provider to pull translations from.', $defaultProvider),
                 new InputOption('force', null, InputOption::VALUE_NONE, 'Override existing translations with provider ones (it will delete not synchronized messages).'),
                 new InputOption('intl-icu', null, InputOption::VALUE_NONE, 'Associated to --force option, it will write messages in "%domain%+intl-icu.%locale%.xlf" files.'),
-                new InputOption('domains', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Specify the domains to pull.'),
-                new InputOption('locales', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Specify the locales to pull.'),
-                new InputOption('format', null, InputOption::VALUE_OPTIONAL, 'Override the default output format.', 'xlf12'),
-                new InputOption('as-tree', null, InputOption::VALUE_OPTIONAL, 'Write messages as a tree-like structure. Needs --format=yaml. The given value defines the level where to switch to inline YAML'),
+                new InputOption('domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Specify the domains to pull.'),
+                new InputOption('locales', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Specify the locales to pull.'),
+                new InputOption('format', null, InputOption::VALUE_REQUIRED, 'Override the default output format.', 'xlf12'),
+                new InputOption('as-tree', null, InputOption::VALUE_REQUIRED, 'Write messages as a tree-like structure. Needs --format=yaml. The given value defines the level where to switch to inline YAML'),
             ])
             ->setHelp(<<<'EOF'
 The <info>%command.name%</> command pulls translations from the given provider. Only
@@ -163,7 +155,7 @@ EOF
                 $this->writer->write($operation->getResult(), $format, $writeOptions);
             }
 
-            $io->success(sprintf('Local translations has been updated from "%s" (for "%s" locale(s), and "%s" domain(s)).', parse_url($provider, \PHP_URL_SCHEME), implode(', ', $locales), implode(', ', $domains)));
+            $io->success(\sprintf('Local translations has been updated from "%s" (for "%s" locale(s), and "%s" domain(s)).', parse_url($provider, \PHP_URL_SCHEME), implode(', ', $locales), implode(', ', $domains)));
 
             return 0;
         }
@@ -177,7 +169,7 @@ EOF
             $this->writer->write($catalogue, $format, $writeOptions);
         }
 
-        $io->success(sprintf('New translations from "%s" has been written locally (for "%s" locale(s), and "%s" domain(s)).', parse_url($provider, \PHP_URL_SCHEME), implode(', ', $locales), implode(', ', $domains)));
+        $io->success(\sprintf('New translations from "%s" has been written locally (for "%s" locale(s), and "%s" domain(s)).', parse_url($provider, \PHP_URL_SCHEME), implode(', ', $locales), implode(', ', $domains)));
 
         return 0;
     }

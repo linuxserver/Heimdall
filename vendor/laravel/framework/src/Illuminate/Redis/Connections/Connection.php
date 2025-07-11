@@ -32,7 +32,7 @@ abstract class Connection
     /**
      * The event dispatcher instance.
      *
-     * @var \Illuminate\Contracts\Events\Dispatcher
+     * @var \Illuminate\Contracts\Events\Dispatcher|null
      */
     protected $events;
 
@@ -87,7 +87,7 @@ abstract class Connection
      */
     public function subscribe($channels, Closure $callback)
     {
-        return $this->createSubscription($channels, $callback, __FUNCTION__);
+        $this->createSubscription($channels, $callback, __FUNCTION__);
     }
 
     /**
@@ -99,7 +99,7 @@ abstract class Connection
      */
     public function psubscribe($channels, Closure $callback)
     {
-        return $this->createSubscription($channels, $callback, __FUNCTION__);
+        $this->createSubscription($channels, $callback, __FUNCTION__);
     }
 
     /**
@@ -117,11 +117,9 @@ abstract class Connection
 
         $time = round((microtime(true) - $start) * 1000, 2);
 
-        if (isset($this->events)) {
-            $this->event(new CommandExecuted(
-                $method, $this->parseParametersForEvent($parameters), $time, $this
-            ));
-        }
+        $this->events?->dispatch(new CommandExecuted(
+            $method, $this->parseParametersForEvent($parameters), $time, $this
+        ));
 
         return $result;
     }
@@ -142,6 +140,8 @@ abstract class Connection
      *
      * @param  mixed  $event
      * @return void
+     *
+     * @deprecated since Laravel 11.x
      */
     protected function event($event)
     {

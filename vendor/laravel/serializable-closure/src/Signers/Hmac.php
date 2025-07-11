@@ -41,7 +41,7 @@ class Hmac implements Signer
     /**
      * Verify the given signature.
      *
-     * @param  array  $signature
+     * @param  array{serializable: string, hash: string}  $signature
      * @return bool
      */
     public function verify($signature)

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="PropertyTypeHandlingTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <rule ref="./tests/Core/Ruleset/Fixtures/TestStandard/Sniffs/SetProperty/PropertyTypeHandlingSniff.php">
+        <properties>
+            <property name="expectsString" value="arbitraryvalue"/>
+            <property name="expectsTrimmedString" value="   some value    "/>
+            <property name="emptyStringBecomesNull" value="   	"/>
+
+            <property name="expectsIntButAcceptsString" value="12345"/>
+            <property name="expectsFloatButAcceptsString" value="12.345"/>
+
+            <property name="expectsNull" value="null"/>
+            <property name="expectsNullCase" value="NULL"/>
+
+            <!-- Also tests that property names get cleaned of surrounding whitespace. -->
+            <property name="  expectsBooleanTrue " value="true"/>
+            <property name="expectsBooleanTrueCase" value="True"/>
+            <property name="expectsBooleanTrueTrimmed" value="true   "/>
+            <property name="expectsBooleanFalse" value="false"/>
+            <property name="expectsBooleanFalseCase" value="fALSe"/>
+            <property name="expectsBooleanFalseTrimmed" value="  false  "/>
+
+            <property name="expectsArrayWithOnlyValues" type="array">
+                <element value="string"/>
+                <element value="10"/>
+                <element value="1.5"/>
+                <element value="null"/>
+                <element value="true"/>
+                <element value="false"/>
+            </property>
+
+            <property name="expectsArrayWithKeysAndValues" type="array">
+                <element key="string" value="string"/>
+                <element key="10" value="10"/>
+                <element key="float" value="1.5"/>
+                <element key="null" value="null"/>
+                <element key="true" value="true"/>
+                <element key="false" value="false"/>
+            </property>
+
+            <property name="expectsArrayWithExtendedValues" type="array">
+                <element value="string"/>
+            </property>
+
+            <property name="expectsArrayWithExtendedValues" type="array" extend="true">
+                <element value="15"/>
+                <element value="another string"/>
+            </property>
+
+            <property name="expectsArrayWithExtendedKeysAndValues" type="array">
+                <element key="10" value="10"/>
+                <element key="string" value="string"/>
+            </property>
+
+            <property name="expectsArrayWithExtendedKeysAndValues" type="array" extend="true">
+                <element key="15" value="15"/>
+                <element key="another string" value="another string"/>
+            </property>
+
+            <property name="expectsEmptyArray" type="array"/>
+
+            <property name="expectsOldSchoolArrayWithOnlyValues" type="array" value="string, 10, 1.5, null, true, false" />
+
+            <property name="expectsOldSchoolArrayWithKeysAndValues" type="array" value="string=>string,10=>10,float=>1.5,null=>null,true=>true,false=>false" />
+
+            <property name="expectsOldSchoolArrayWithExtendedValues" type="array" value="string" />
+            <property name="expectsOldSchoolArrayWithExtendedValues" type="array" extend="true" value="15,another string" />
+
+            <property name="expectsOldSchoolArrayWithExtendedKeysAndValues" type="array" value="10=>10,string=>string" />
+            <property name="expectsOldSchoolArrayWithExtendedKeysAndValues" type="array" extend="true" value="15=>15,another string=>another string" />
+
+            <property name="expectsOldSchoolEmptyArray" type="array" value=""/>
+        </properties>
+    </rule>
+
+</ruleset>

@@ -14,3 +14,7 @@ ReadOnly class MyClass
 $a = new CLASS() {};
 
 $anon = new ReadOnly class() {};
+
+class FinalProperties {
+    FINAL int $prop = 1;
+}

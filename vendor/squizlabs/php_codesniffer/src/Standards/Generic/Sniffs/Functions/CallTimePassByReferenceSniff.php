@@ -5,15 +5,18 @@
  * @author    Florian Grandel <jerico.dev@gmail.com>
  * @copyright 2009-2014 Florian Grandel
  * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ *
+ * @deprecated 3.12.1
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\Functions;
 
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 
-class CallTimePassByReferenceSniff implements Sniff
+class CallTimePassByReferenceSniff implements Sniff, DeprecatedSniff
 {
 
 
@@ -27,6 +30,10 @@ class CallTimePassByReferenceSniff implements Sniff
         return [
             T_STRING,
             T_VARIABLE,
+            T_ANON_CLASS,
+            T_PARENT,
+            T_SELF,
+            T_STATIC,
         ];
 
     }//end register()
@@ -50,12 +57,12 @@ class CallTimePassByReferenceSniff implements Sniff
 
         $prev = $phpcsFile->findPrevious($findTokens, ($stackPtr - 1), null, true);
 
-        // Skip tokens that are the names of functions or classes
+        // Skip tokens that are the names of functions
         // within their definitions. For example: function myFunction...
         // "myFunction" is T_STRING but we should skip because it is not a
         // function or method *call*.
         $prevCode = $tokens[$prev]['code'];
-        if ($prevCode === T_FUNCTION || $prevCode === T_CLASS) {
+        if ($prevCode === T_FUNCTION) {
             return;
         }
 
@@ -69,7 +76,7 @@ class CallTimePassByReferenceSniff implements Sniff
             true
         );
 
-        if ($tokens[$openBracket]['code'] !== T_OPEN_PARENTHESIS) {
+        if ($openBracket === false || $tokens[$openBracket]['code'] !== T_OPEN_PARENTHESIS) {
             return;
         }
 
@@ -86,10 +93,6 @@ class CallTimePassByReferenceSniff implements Sniff
         ];
 
         while (($nextSeparator = $phpcsFile->findNext($find, ($nextSeparator + 1), $closeBracket)) !== false) {
-            if (isset($tokens[$nextSeparator]['nested_parenthesis']) === false) {
-                continue;
-            }
-
             if ($tokens[$nextSeparator]['code'] === T_OPEN_SHORT_ARRAY) {
                 $nextSeparator = $tokens[$nextSeparator]['bracket_closer'];
                 continue;
@@ -136,6 +139,42 @@ class CallTimePassByReferenceSniff implements Sniff
         }//end while
 
     }//end process()
+
+
+    /**
+     * Provide the version number in which the sniff was deprecated.
+     *
+     * @return string
+     */
+    public function getDeprecationVersion()
+    {
+        return 'v3.12.1';
+
+    }//end getDeprecationVersion()
+
+
+    /**
+     * Provide the version number in which the sniff will be removed.
+     *
+     * @return string
+     */
+    public function getRemovalVersion()
+    {
+        return 'v4.0.0';
+
+    }//end getRemovalVersion()
+
+
+    /**
+     * Provide a custom message to display with the deprecation.
+     *
+     * @return string
+     */
+    public function getDeprecationMessage()
+    {
+        return '';
+
+    }//end getDeprecationMessage()
 
 
 }//end class

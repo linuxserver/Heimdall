@@ -29,7 +29,7 @@ class HashingStream implements StreamInterface
     public function __construct(
         StreamInterface $stream,
         HashInterface $hash,
-        callable $onComplete = null
+        ?callable $onComplete = null
     ) {
         $this->stream = $stream;
         $this->hash = $hash;

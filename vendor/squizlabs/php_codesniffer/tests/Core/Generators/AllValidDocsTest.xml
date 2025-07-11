@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="GeneratorTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Generators/Fixtures/"/>
+
+    <rule ref="StandardWithDocs">
+        <exclude name="StandardWithDocs.Structure.NoDocumentationElement"/>
+    </rule>
+
+</ruleset>

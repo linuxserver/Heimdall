@@ -10,7 +10,8 @@
 namespace PHP_CodeSniffer\Tokenizers;
 
 use PHP_CodeSniffer\Exceptions\TokenizerException;
-use PHP_CodeSniffer\Util;
+use PHP_CodeSniffer\Util\Common;
+use PHP_CodeSniffer\Util\Tokens;
 
 abstract class Tokenizer
 {
@@ -53,7 +54,7 @@ abstract class Tokenizer
     /**
      * A list of tokens that end the scope.
      *
-     * @var array
+     * @var array<int|string, int|string>
      */
     public $endScopeTokens = [];
 
@@ -75,9 +76,9 @@ abstract class Tokenizer
     /**
      * Initialise and run the tokenizer.
      *
-     * @param string                         $content The content to tokenize,
-     * @param \PHP_CodeSniffer\Config | null $config  The config data for the run.
-     * @param string                         $eolChar The EOL char used in the content.
+     * @param string                       $content The content to tokenize.
+     * @param \PHP_CodeSniffer\Config|null $config  The config data for the run.
+     * @param string                       $eolChar The EOL char used in the content.
      *
      * @return void
      * @throws \PHP_CodeSniffer\Exceptions\TokenizerException If the file appears to be minified.
@@ -192,11 +193,14 @@ abstract class Tokenizer
             T_DOC_COMMENT_STRING       => true,
             T_CONSTANT_ENCAPSED_STRING => true,
             T_DOUBLE_QUOTED_STRING     => true,
+            T_START_HEREDOC            => true,
+            T_START_NOWDOC             => true,
             T_HEREDOC                  => true,
             T_NOWDOC                   => true,
             T_END_HEREDOC              => true,
             T_END_NOWDOC               => true,
             T_INLINE_HTML              => true,
+            T_YIELD_FROM               => true,
         ];
 
         $this->numTokens = count($this->tokens);
@@ -617,7 +621,7 @@ abstract class Tokenizer
                 if ($content !== '') {
                     $newContent .= $content;
                     if ($checkEncoding === true) {
-                        // Not using the default encoding, so take a bit more care.
+                        // Not using ASCII encoding, so take a bit more care.
                         $oldLevel = error_reporting();
                         error_reporting(0);
                         $contentLength = iconv_strlen($content, $this->config->encoding);
@@ -680,7 +684,7 @@ abstract class Tokenizer
                 Parenthesis mapping.
             */
 
-            if (isset(Util\Tokens::$parenthesisOpeners[$this->tokens[$i]['code']]) === true) {
+            if (isset(Tokens::$parenthesisOpeners[$this->tokens[$i]['code']]) === true) {
                 $this->tokens[$i]['parenthesis_opener'] = null;
                 $this->tokens[$i]['parenthesis_closer'] = null;
                 $this->tokens[$i]['parenthesis_owner']  = $i;
@@ -896,7 +900,7 @@ abstract class Tokenizer
             if (isset($this->scopeOpeners[$this->tokens[$i]['code']]) === true) {
                 if (PHP_CODESNIFFER_VERBOSITY > 1) {
                     $type    = $this->tokens[$i]['type'];
-                    $content = Util\Common::prepareForOutput($this->tokens[$i]['content']);
+                    $content = Common::prepareForOutput($this->tokens[$i]['content']);
                     echo "\tStart scope map at $i:$type => $content".PHP_EOL;
                 }
 
@@ -958,7 +962,7 @@ abstract class Tokenizer
             if (PHP_CODESNIFFER_VERBOSITY > 1) {
                 $type    = $this->tokens[$i]['type'];
                 $line    = $this->tokens[$i]['line'];
-                $content = Util\Common::prepareForOutput($this->tokens[$i]['content']);
+                $content = Common::prepareForOutput($this->tokens[$i]['content']);
 
                 echo str_repeat("\t", $depth);
                 echo "Process token $i on line $line [";
@@ -1314,13 +1318,13 @@ abstract class Tokenizer
                         // Make sure this is actually an opener and not a
                         // string offset (e.g., $var{0}).
                         for ($x = ($i - 1); $x > 0; $x--) {
-                            if (isset(Util\Tokens::$emptyTokens[$this->tokens[$x]['code']]) === true) {
+                            if (isset(Tokens::$emptyTokens[$this->tokens[$x]['code']]) === true) {
                                 continue;
                             } else {
                                 // If the first non-whitespace/comment token looks like this
                                 // brace is a string offset, or this brace is mid-way through
                                 // a new statement, it isn't a scope opener.
-                                $disallowed  = Util\Tokens::$assignmentTokens;
+                                $disallowed  = Tokens::$assignmentTokens;
                                 $disallowed += [
                                     T_DOLLAR                   => true,
                                     T_VARIABLE                 => true,
@@ -1388,7 +1392,7 @@ abstract class Tokenizer
             } else if ($tokenType === T_OPEN_PARENTHESIS) {
                 if (isset($this->tokens[$i]['parenthesis_owner']) === true) {
                     $owner = $this->tokens[$i]['parenthesis_owner'];
-                    if (isset(Util\Tokens::$scopeOpeners[$this->tokens[$owner]['code']]) === true
+                    if (isset(Tokens::$scopeOpeners[$this->tokens[$owner]['code']]) === true
                         && isset($this->tokens[$i]['parenthesis_closer']) === true
                     ) {
                         // If we get into here, then we opened a parenthesis for
@@ -1427,7 +1431,7 @@ abstract class Tokenizer
                 // token was empty (in which case we'll just confirm there is
                 // more code in this file and not just a big comment).
                 if ($this->tokens[$i]['line'] >= ($startLine + 30)
-                    && isset(Util\Tokens::$emptyTokens[$this->tokens[($i - 1)]['code']]) === false
+                    && isset(Tokens::$emptyTokens[$this->tokens[($i - 1)]['code']]) === false
                 ) {
                     if ($this->scopeOpeners[$currType]['strict'] === true) {
                         if (PHP_CODESNIFFER_VERBOSITY > 1) {
@@ -1516,14 +1520,14 @@ abstract class Tokenizer
                 $len  = $this->tokens[$i]['length'];
                 $col  = $this->tokens[$i]['column'];
 
-                $content = Util\Common::prepareForOutput($this->tokens[$i]['content']);
+                $content = Common::prepareForOutput($this->tokens[$i]['content']);
 
                 echo str_repeat("\t", ($level + 1));
                 echo "Process token $i on line $line [col:$col;len:$len;lvl:$level;";
                 if (empty($conditions) !== true) {
                     $conditionString = 'conds;';
                     foreach ($conditions as $condition) {
-                        $conditionString .= Util\Tokens::tokenName($condition).',';
+                        $conditionString .= Tokens::tokenName($condition).',';
                     }
 
                     echo rtrim($conditionString, ',').';';
@@ -1584,14 +1588,14 @@ abstract class Tokenizer
                                     $type     = $this->tokens[$x]['type'];
                                     $oldConds = '';
                                     foreach ($oldConditions as $condition) {
-                                        $oldConds .= Util\Tokens::tokenName($condition).',';
+                                        $oldConds .= Tokens::tokenName($condition).',';
                                     }
 
                                     $oldConds = rtrim($oldConds, ',');
 
                                     $newConds = '';
                                     foreach ($this->tokens[$x]['conditions'] as $condition) {
-                                        $newConds .= Util\Tokens::tokenName($condition).',';
+                                        $newConds .= Tokens::tokenName($condition).',';
                                     }
 
                                     $newConds = rtrim($newConds, ',');
@@ -1660,7 +1664,7 @@ abstract class Tokenizer
                             $oldCondition = array_pop($conditions);
                             if (PHP_CODESNIFFER_VERBOSITY > 1) {
                                 echo str_repeat("\t", ($level + 1));
-                                echo '* token '.Util\Tokens::tokenName($oldCondition).' removed from conditions array *'.PHP_EOL;
+                                echo '* token '.Tokens::tokenName($oldCondition).' removed from conditions array *'.PHP_EOL;
                             }
 
                             // Make sure this closer actually belongs to us.
@@ -1672,7 +1676,7 @@ abstract class Tokenizer
                                     $badToken = $this->tokens[$oldOpener]['scope_condition'];
 
                                     if (PHP_CODESNIFFER_VERBOSITY > 1) {
-                                        $type = Util\Tokens::tokenName($oldCondition);
+                                        $type = Tokens::tokenName($oldCondition);
                                         echo str_repeat("\t", ($level + 1));
                                         echo "* scope closer was bad, cleaning up $badToken:$type *".PHP_EOL;
                                     }
@@ -1686,14 +1690,14 @@ abstract class Tokenizer
                                             $type     = $this->tokens[$x]['type'];
                                             $oldConds = '';
                                             foreach ($oldConditions as $condition) {
-                                                $oldConds .= Util\Tokens::tokenName($condition).',';
+                                                $oldConds .= Tokens::tokenName($condition).',';
                                             }
 
                                             $oldConds = rtrim($oldConds, ',');
 
                                             $newConds = '';
                                             foreach ($this->tokens[$x]['conditions'] as $condition) {
-                                                $newConds .= Util\Tokens::tokenName($condition).',';
+                                                $newConds .= Tokens::tokenName($condition).',';
                                             }
 
                                             $newConds = rtrim($newConds, ',');

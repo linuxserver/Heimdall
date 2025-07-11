@@ -52,6 +52,8 @@ final class ESLintUnitTest extends AbstractSniffUnitTest
         $cwd = getcwd();
         file_put_contents($cwd.'/.eslintrc.json', self::ESLINT_CONFIG);
 
+        putenv('ESLINT_USE_FLAT_CONFIG=false');
+
     }//end setUpPrerequisites()
 
 

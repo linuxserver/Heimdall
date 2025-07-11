@@ -32,6 +32,7 @@ use League\CommonMark\Parser\Block\BlockStart;
 use League\CommonMark\Parser\Block\BlockStartParserInterface;
 use League\CommonMark\Parser\Block\DocumentBlockParser;
 use League\CommonMark\Parser\Block\ParagraphParser;
+use League\CommonMark\Reference\MemoryLimitedReferenceMap;
 use League\CommonMark\Reference\ReferenceInterface;
 use League\CommonMark\Reference\ReferenceMap;
 
@@ -102,7 +103,7 @@ final class MarkdownParser implements MarkdownParserInterface
 
         // finalizeAndProcess
         $this->closeBlockParsers(\count($this->activeBlockParsers), $this->lineNumber);
-        $this->processInlines();
+        $this->processInlines(\strlen($input));
 
         $this->environment->dispatch(new DocumentParsedEvent($documentParser->getBlock()));
 
@@ -115,6 +116,9 @@ final class MarkdownParser implements MarkdownParserInterface
      */
     private function parseLine(string $line): void
     {
+        // replace NUL characters for security
+        $line = \str_replace("\0", "\u{FFFD}", $line);
+
         $this->cursor = new Cursor($line);
 
         $matches = $this->parseBlockContinuation();
@@ -158,12 +162,13 @@ final class MarkdownParser implements MarkdownParserInterface
                 $unmatchedBlocks = 0;
             }
 
+            $oldBlockLineStart = null;
             if ($blockStart->isReplaceActiveBlockParser()) {
-                $this->prepareActiveBlockParserForReplacement();
+                $oldBlockLineStart = $this->prepareActiveBlockParserForReplacement();
             }
 
             foreach ($blockStart->getBlockParsers() as $newBlockParser) {
-                $blockParser    = $this->addChild($newBlockParser);
+                $blockParser    = $this->addChild($newBlockParser, $oldBlockLineStart);
                 $tryBlockStarts = $newBlockParser->isContainer();
             }
         }
@@ -176,7 +181,7 @@ final class MarkdownParser implements MarkdownParserInterface
         } else {
             // finalize any blocks not matched
             if ($unmatchedBlocks > 0) {
-                $this->closeBlockParsers($unmatchedBlocks, $this->lineNumber);
+                $this->closeBlockParsers($unmatchedBlocks, $this->lineNumber - 1);
             }
 
             if (! $blockParser->isContainer()) {
@@ -262,9 +267,9 @@ final class MarkdownParser implements MarkdownParserInterface
     /**
      * Walk through a block & children recursively, parsing string content into inline content where appropriate.
      */
-    private function processInlines(): void
+    private function processInlines(int $inputSize): void
     {
-        $p = new InlineParserEngine($this->environment, $this->referenceMap);
+        $p = new InlineParserEngine($this->environment, new MemoryLimitedReferenceMap($this->referenceMap, $inputSize));
 
         foreach ($this->closedBlockParsers as $blockParser) {
             $blockParser->parseInlines($p);
@@ -275,12 +280,12 @@ final class MarkdownParser implements MarkdownParserInterface
      * Add block of type tag as a child of the tip. If the tip can't accept children, close and finalize it and try
      * its parent, and so on til we find a block that can accept children.
      */
-    private function addChild(BlockContinueParserInterface $blockParser): BlockContinueParserInterface
+    private function addChild(BlockContinueParserInterface $blockParser, ?int $startLineNumber = null): BlockContinueParserInterface
     {
-        $blockParser->getBlock()->setStartLine($this->lineNumber);
+        $blockParser->getBlock()->setStartLine($startLineNumber ?? $this->lineNumber);
 
         while (! $this->getActiveBlockParser()->canContain($blockParser->getBlock())) {
-            $this->closeBlockParsers(1, $this->lineNumber - 1);
+            $this->closeBlockParsers(1, ($startLineNumber ?? $this->lineNumber) - 1);
         }
 
         $this->getActiveBlockParser()->getBlock()->appendChild($blockParser->getBlock());
@@ -307,7 +312,10 @@ final class MarkdownParser implements MarkdownParserInterface
         return $popped;
     }
 
-    private function prepareActiveBlockParserForReplacement(): void
+    /**
+     * @return int|null The line number where the old block started
+     */
+    private function prepareActiveBlockParserForReplacement(): ?int
     {
         // Note that we don't want to parse inlines or finalize this block, as it's getting replaced.
         $old = $this->deactivateBlockParser();
@@ -317,6 +325,8 @@ final class MarkdownParser implements MarkdownParserInterface
         }
 
         $old->getBlock()->detach();
+
+        return $old->getBlock()->getStartLine();
     }
 
     /**

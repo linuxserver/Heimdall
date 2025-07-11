@@ -10,14 +10,14 @@
 /**
 <em> </em>* @see foo()
 <em> </em>*/
-]]>
+        ]]>
         </code>
         <code title="Invalid: Asterisks are not aligned.">
         <![CDATA[
 /**
 <em>  </em>* @see foo()
 <em></em>*/
-]]>
+        ]]>
         </code>
     </code_comparison>
     <code_comparison>
@@ -26,14 +26,14 @@
 /**
  *<em> </em>@see foo()
  */
-]]>
+        ]]>
         </code>
         <code title="Invalid: Incorrect spacing used.">
         <![CDATA[
 /**
  *<em>  </em>@see foo()
  */
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

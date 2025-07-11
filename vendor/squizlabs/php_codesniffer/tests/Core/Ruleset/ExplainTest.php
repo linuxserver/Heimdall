@@ -10,7 +10,6 @@
 namespace PHP_CodeSniffer\Tests\Core\Ruleset;
 
 use PHP_CodeSniffer\Ruleset;
-use PHP_CodeSniffer\Runner;
 use PHP_CodeSniffer\Tests\ConfigDouble;
 use PHPUnit\Framework\TestCase;
 
@@ -185,74 +184,29 @@ final class ExplainTest extends TestCase
         $ruleset  = new Ruleset($config);
 
         $expected  = PHP_EOL;
-        $expected .= 'The SniffDeprecationTest standard contains 9 sniffs'.PHP_EOL.PHP_EOL;
+        $expected .= 'The ShowSniffDeprecationsTest standard contains 11 sniffs'.PHP_EOL.PHP_EOL;
 
-        $expected .= 'Fixtures (9 sniffs)'.PHP_EOL;
-        $expected .= '-------------------'.PHP_EOL;
-        $expected .= '  Fixtures.Deprecated.WithLongReplacement *'.PHP_EOL;
-        $expected .= '  Fixtures.Deprecated.WithoutReplacement *'.PHP_EOL;
-        $expected .= '  Fixtures.Deprecated.WithReplacement *'.PHP_EOL;
-        $expected .= '  Fixtures.Deprecated.WithReplacementContainingLinuxNewlines *'.PHP_EOL;
-        $expected .= '  Fixtures.Deprecated.WithReplacementContainingNewlines *'.PHP_EOL;
-        $expected .= '  Fixtures.SetProperty.AllowedAsDeclared'.PHP_EOL;
-        $expected .= '  Fixtures.SetProperty.AllowedViaMagicMethod'.PHP_EOL;
-        $expected .= '  Fixtures.SetProperty.AllowedViaStdClass'.PHP_EOL;
-        $expected .= '  Fixtures.SetProperty.NotAllowedViaAttribute'.PHP_EOL.PHP_EOL;
+        $expected .= 'TestStandard (11 sniffs)'.PHP_EOL;
+        $expected .= '------------------------'.PHP_EOL;
+        $expected .= '  TestStandard.Deprecated.WithLongReplacement *'.PHP_EOL;
+        $expected .= '  TestStandard.Deprecated.WithoutReplacement *'.PHP_EOL;
+        $expected .= '  TestStandard.Deprecated.WithReplacement *'.PHP_EOL;
+        $expected .= '  TestStandard.Deprecated.WithReplacementContainingLinuxNewlines *'.PHP_EOL;
+        $expected .= '  TestStandard.Deprecated.WithReplacementContainingNewlines *'.PHP_EOL;
+        $expected .= '  TestStandard.SetProperty.AllowedAsDeclared'.PHP_EOL;
+        $expected .= '  TestStandard.SetProperty.AllowedViaMagicMethod'.PHP_EOL;
+        $expected .= '  TestStandard.SetProperty.AllowedViaStdClass'.PHP_EOL;
+        $expected .= '  TestStandard.SetProperty.NotAllowedViaAttribute'.PHP_EOL;
+        $expected .= '  TestStandard.SetProperty.PropertyTypeHandling'.PHP_EOL;
+        $expected .= '  TestStandard.ValidSniffs.RegisterEmptyArray'.PHP_EOL.PHP_EOL;
 
-        $expected .= '* Sniffs marked with an asterix are deprecated.'.PHP_EOL;
+        $expected .= '* Sniffs marked with an asterisk are deprecated.'.PHP_EOL;
 
         $this->expectOutputString($expected);
 
         $ruleset->explain();
 
     }//end testExplainWithDeprecatedSniffs()
-
-
-    /**
-     * Test that each standard passed on the command-line is explained separately.
-     *
-     * @covers \PHP_CodeSniffer\Runner::runPHPCS
-     *
-     * @return void
-     */
-    public function testExplainWillExplainEachStandardSeparately()
-    {
-        $standard        = __DIR__.'/ExplainSingleSniffTest.xml';
-        $_SERVER['argv'] = [
-            'phpcs',
-            '-e',
-            "--standard=PSR1,$standard",
-            '--report-width=80',
-        ];
-
-        $expected  = PHP_EOL;
-        $expected .= 'The PSR1 standard contains 8 sniffs'.PHP_EOL.PHP_EOL;
-        $expected .= 'Generic (4 sniffs)'.PHP_EOL;
-        $expected .= '------------------'.PHP_EOL;
-        $expected .= '  Generic.Files.ByteOrderMark'.PHP_EOL;
-        $expected .= '  Generic.NamingConventions.UpperCaseConstantName'.PHP_EOL;
-        $expected .= '  Generic.PHP.DisallowAlternativePHPTags'.PHP_EOL;
-        $expected .= '  Generic.PHP.DisallowShortOpenTag'.PHP_EOL.PHP_EOL;
-        $expected .= 'PSR1 (3 sniffs)'.PHP_EOL;
-        $expected .= '---------------'.PHP_EOL;
-        $expected .= '  PSR1.Classes.ClassDeclaration'.PHP_EOL;
-        $expected .= '  PSR1.Files.SideEffects'.PHP_EOL;
-        $expected .= '  PSR1.Methods.CamelCapsMethodName'.PHP_EOL.PHP_EOL;
-        $expected .= 'Squiz (1 sniff)'.PHP_EOL;
-        $expected .= '---------------'.PHP_EOL;
-        $expected .= '  Squiz.Classes.ValidClassName'.PHP_EOL.PHP_EOL;
-
-        $expected .= 'The ExplainSingleSniffTest standard contains 1 sniff'.PHP_EOL.PHP_EOL;
-        $expected .= 'Squiz (1 sniff)'.PHP_EOL;
-        $expected .= '---------------'.PHP_EOL;
-        $expected .= '  Squiz.Scope.MethodScope'.PHP_EOL;
-
-        $this->expectOutputString($expected);
-
-        $runner   = new Runner();
-        $exitCode = $runner->runPHPCS();
-
-    }//end testExplainWillExplainEachStandardSeparately()
 
 
 }//end class

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ExpandRulesetReferenceTest" xsi:noNamespaceSchemaLocation="https://schema.phpcodesniffer.com/phpcs.xsd">
+
+    <config name="installed_paths" value="./tests/Core/Ruleset/Fixtures/TestStandard/"/>
+
+    <!-- This test deliberately includes a non-existent sniff in a known standard (which won't resolve).
+         That is exactly what this test is about. -->
+    <rule ref="TestStandard.InvalidSniffs.UnknownRule"/>
+
+</ruleset>

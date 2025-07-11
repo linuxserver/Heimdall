@@ -2,6 +2,7 @@
 
 namespace Illuminate\Testing;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -49,9 +50,9 @@ class ParallelConsoleOutput extends ConsoleOutput
      * @param  int  $options
      * @return void
      */
-    public function write($messages, bool $newline = false, int $options = 0)
+    public function write($messages, bool $newline = false, int $options = 0): void
     {
-        $messages = collect($messages)->filter(function ($message) {
+        $messages = (new Collection($messages))->filter(function ($message) {
             return ! Str::contains($message, $this->ignore);
         });
 

@@ -11,11 +11,12 @@
 
 namespace PHP_CodeSniffer\Standards\MySource\Sniffs\Strings;
 
+use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Util\Tokens;
 
-class JoinStringsSniff implements Sniff
+class JoinStringsSniff implements Sniff, DeprecatedSniff
 {
 
     /**
@@ -73,6 +74,42 @@ class JoinStringsSniff implements Sniff
         }
 
     }//end process()
+
+
+    /**
+     * Provide the version number in which the sniff was deprecated.
+     *
+     * @return string
+     */
+    public function getDeprecationVersion()
+    {
+        return 'v3.9.0';
+
+    }//end getDeprecationVersion()
+
+
+    /**
+     * Provide the version number in which the sniff will be removed.
+     *
+     * @return string
+     */
+    public function getRemovalVersion()
+    {
+        return 'v4.0.0';
+
+    }//end getRemovalVersion()
+
+
+    /**
+     * Provide a custom message to display with the deprecation.
+     *
+     * @return string
+     */
+    public function getDeprecationMessage()
+    {
+        return 'The MySource standard will be removed completely in v4.0.0.';
+
+    }//end getDeprecationMessage()
 
 
 }//end class

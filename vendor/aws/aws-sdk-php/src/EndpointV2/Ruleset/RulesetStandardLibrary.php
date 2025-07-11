@@ -61,6 +61,13 @@ class RulesetStandardLibrary
      */
     public function getAttr($from, $path)
     {
+        // Handles the case where "[<int|string]" is provided as the top-level path
+        if (preg_match('/^\[(\w+)\]$/', $path, $matches)) {
+            $index = is_numeric($matches[1]) ? (int) $matches[1] : $matches[1];
+
+            return $from[$index] ?? null;
+        }
+
         $parts = explode('.', $path);
         foreach ($parts as $part) {
             $sliceIdx = strpos($part, '[');
@@ -68,10 +75,9 @@ class RulesetStandardLibrary
                 if (substr($part, -1) !== ']') {
                     return null;
                 }
-                $slice = intval(substr($part, $sliceIdx + 1, strlen($part) - 1));
-                $from = isset($from[substr($part,0, $sliceIdx)][$slice])
-                    ? $from[substr($part,0, $sliceIdx)][$slice]
-                    : null;
+                $slice = (int) substr($part, $sliceIdx + 1, strlen($part) - 1);
+                $fromIndex = substr($part, 0, $sliceIdx);
+                $from = $from[$fromIndex][$slice] ?? null;
             } else {
                 $from = $from[$part];
             }

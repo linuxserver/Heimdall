@@ -9,6 +9,7 @@
 
 namespace PHP_CodeSniffer\Util;
 
+use DirectoryIterator;
 use PHP_CodeSniffer\Config;
 
 class Standards
@@ -35,7 +36,7 @@ class Standards
         $resolvedInstalledPaths = [];
         foreach ($installedPaths as $installedPath) {
             if (substr($installedPath, 0, 1) === '.') {
-                $installedPath = Common::realPath(__DIR__.$ds.'..'.$ds.'..'.$ds.$installedPath);
+                $installedPath = Common::realpath(__DIR__.$ds.'..'.$ds.'..'.$ds.$installedPath);
                 if ($installedPath === false) {
                     continue;
                 }
@@ -99,7 +100,7 @@ class Standards
                 continue;
             }
 
-            $di = new \DirectoryIterator($standardsDir);
+            $di = new DirectoryIterator($standardsDir);
             foreach ($di as $file) {
                 if ($file->isDir() === true && $file->isDot() === false) {
                     $filename = $file->getFilename();
@@ -190,7 +191,7 @@ class Standards
                 continue;
             }
 
-            $di = new \DirectoryIterator($standardsDir);
+            $di = new DirectoryIterator($standardsDir);
             $standardsInDir = [];
             foreach ($di as $file) {
                 if ($file->isDir() === true && $file->isDot() === false) {
@@ -238,7 +239,7 @@ class Standards
         } else {
             // This could be a custom standard, installed outside our
             // standards directory.
-            $standard = Common::realPath($standard);
+            $standard = Common::realpath($standard);
             if ($standard === false) {
                 return false;
             }

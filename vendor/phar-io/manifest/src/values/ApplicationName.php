@@ -2,12 +2,16 @@
 /*
  * This file is part of PharIo\Manifest.
  *
- * (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de>
+ * Copyright (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de> and contributors
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+ *
  */
 namespace PharIo\Manifest;
+
+use function preg_match;
+use function sprintf;
 
 class ApplicationName {
     /** @var string */
@@ -27,9 +31,9 @@ class ApplicationName {
     }
 
     private function ensureValidFormat(string $name): void {
-        if (!\preg_match('#\w/\w#', $name)) {
+        if (!preg_match('#\w/\w#', $name)) {
             throw new InvalidApplicationNameException(
-                \sprintf('Format of name "%s" is not valid - expected: vendor/packagename', $name),
+                sprintf('Format of name "%s" is not valid - expected: vendor/packagename', $name),
                 InvalidApplicationNameException::InvalidFormat
             );
         }

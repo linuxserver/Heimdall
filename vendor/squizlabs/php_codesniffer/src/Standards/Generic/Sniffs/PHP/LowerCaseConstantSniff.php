@@ -43,21 +43,23 @@ class LowerCaseConstantSniff implements Sniff
      * @var array<int|string, int|string>
      */
     private $propertyTypeTokens = [
-        T_CALLABLE             => T_CALLABLE,
-        T_SELF                 => T_SELF,
-        T_PARENT               => T_PARENT,
-        T_FALSE                => T_FALSE,
-        T_TRUE                 => T_TRUE,
-        T_NULL                 => T_NULL,
-        T_STRING               => T_STRING,
-        T_NAME_QUALIFIED       => T_NAME_QUALIFIED,
-        T_NAME_FULLY_QUALIFIED => T_NAME_FULLY_QUALIFIED,
-        T_NAME_RELATIVE        => T_NAME_RELATIVE,
-        T_NS_SEPARATOR         => T_NS_SEPARATOR,
-        T_NAMESPACE            => T_NAMESPACE,
-        T_TYPE_UNION           => T_TYPE_UNION,
-        T_TYPE_INTERSECTION    => T_TYPE_INTERSECTION,
-        T_NULLABLE             => T_NULLABLE,
+        T_CALLABLE               => T_CALLABLE,
+        T_SELF                   => T_SELF,
+        T_PARENT                 => T_PARENT,
+        T_FALSE                  => T_FALSE,
+        T_TRUE                   => T_TRUE,
+        T_NULL                   => T_NULL,
+        T_STRING                 => T_STRING,
+        T_NAME_QUALIFIED         => T_NAME_QUALIFIED,
+        T_NAME_FULLY_QUALIFIED   => T_NAME_FULLY_QUALIFIED,
+        T_NAME_RELATIVE          => T_NAME_RELATIVE,
+        T_NS_SEPARATOR           => T_NS_SEPARATOR,
+        T_NAMESPACE              => T_NAMESPACE,
+        T_TYPE_UNION             => T_TYPE_UNION,
+        T_TYPE_INTERSECTION      => T_TYPE_INTERSECTION,
+        T_TYPE_OPEN_PARENTHESIS  => T_TYPE_OPEN_PARENTHESIS,
+        T_TYPE_CLOSE_PARENTHESIS => T_TYPE_CLOSE_PARENTHESIS,
+        T_NULLABLE               => T_NULLABLE,
     ];
 
 
@@ -75,6 +77,7 @@ class LowerCaseConstantSniff implements Sniff
         $targets[] = T_VAR;
         $targets[] = T_STATIC;
         $targets[] = T_READONLY;
+        $targets[] = T_FINAL;
 
         // Register function keywords to filter out param/return type declarations.
         $targets[] = T_FUNCTION;
@@ -135,6 +138,7 @@ class LowerCaseConstantSniff implements Sniff
             || $tokens[$stackPtr]['code'] === T_VAR
             || $tokens[$stackPtr]['code'] === T_STATIC
             || $tokens[$stackPtr]['code'] === T_READONLY
+            || $tokens[$stackPtr]['code'] === T_FINAL
         ) {
             $skipOver = (Tokens::$emptyTokens + $this->propertyTypeTokens);
             $skipTo   = $phpcsFile->findNext($skipOver, ($stackPtr + 1), null, true);

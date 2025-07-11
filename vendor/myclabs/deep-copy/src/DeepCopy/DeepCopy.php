@@ -4,6 +4,7 @@ namespace DeepCopy;
 
 use ArrayObject;
 use DateInterval;
+use DatePeriod;
 use DateTimeInterface;
 use DateTimeZone;
 use DeepCopy\Exception\CloneException;
@@ -12,6 +13,7 @@ use DeepCopy\Filter\Filter;
 use DeepCopy\Matcher\Matcher;
 use DeepCopy\Reflection\ReflectionHelper;
 use DeepCopy\TypeFilter\Date\DateIntervalFilter;
+use DeepCopy\TypeFilter\Date\DatePeriodFilter;
 use DeepCopy\TypeFilter\Spl\ArrayObjectFilter;
 use DeepCopy\TypeFilter\Spl\SplDoublyLinkedListFilter;
 use DeepCopy\TypeFilter\TypeFilter;
@@ -64,6 +66,7 @@ class DeepCopy
 
         $this->addTypeFilter(new ArrayObjectFilter($this), new TypeMatcher(ArrayObject::class));
         $this->addTypeFilter(new DateIntervalFilter(), new TypeMatcher(DateInterval::class));
+        $this->addTypeFilter(new DatePeriodFilter(), new TypeMatcher(DatePeriod::class));
         $this->addTypeFilter(new SplDoublyLinkedListFilter($this), new TypeMatcher(SplDoublyLinkedList::class));
     }
 
@@ -84,9 +87,11 @@ class DeepCopy
     /**
      * Deep copies the given object.
      *
-     * @param mixed $object
+     * @template TObject
      *
-     * @return mixed
+     * @param TObject $object
+     *
+     * @return TObject
      */
     public function copy($object)
     {
@@ -117,6 +122,14 @@ class DeepCopy
             'matcher' => $matcher,
             'filter'  => $filter,
         ];
+    }
+
+    public function prependTypeFilter(TypeFilter $filter, TypeMatcher $matcher)
+    {
+        array_unshift($this->typeFilters, [
+            'matcher' => $matcher,
+            'filter'  => $filter,
+        ]);
     }
 
     private function recursiveCopy($var)
@@ -221,6 +234,11 @@ class DeepCopy
     {
         // Ignore static properties
         if ($property->isStatic()) {
+            return;
+        }
+
+        // Ignore readonly properties
+        if (method_exists($property, 'isReadOnly') && $property->isReadOnly()) {
             return;
         }
 

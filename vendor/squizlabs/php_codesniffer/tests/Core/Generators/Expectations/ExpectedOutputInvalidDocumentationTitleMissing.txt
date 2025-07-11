@@ -1,0 +1,13 @@
+
+--------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: DOCUMENTATION TITLE MISSING |
+--------------------------------------------------------------
+
+The above "documentation" element is missing the title attribute.
+
+----------------------------------------- CODE COMPARISON ------------------------------------------
+| Valid: Lorem ipsum dolor sit amet.             | Invalid: Maecenas non rutrum dolor.             |
+----------------------------------------------------------------------------------------------------
+| class Code {}                                  | class Comparison {}                             |
+----------------------------------------------------------------------------------------------------
+

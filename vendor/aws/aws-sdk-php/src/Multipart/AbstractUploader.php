@@ -12,6 +12,9 @@ abstract class AbstractUploader extends AbstractUploadManager
     /** @var Stream Source of the data to be uploaded. */
     protected $source;
 
+    /** @var bool Configuration used to indicate if upload progress will be displayed. */
+    protected $displayProgress;
+
     /**
      * @param Client $client
      * @param mixed  $source

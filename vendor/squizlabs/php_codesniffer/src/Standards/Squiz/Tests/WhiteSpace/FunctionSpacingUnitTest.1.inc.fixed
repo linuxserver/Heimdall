@@ -671,3 +671,180 @@ function Foo() {} function bar($name){}
 
 
 echo 'this line belongs with the #3904 test';
+
+
+/**
+ * foo.
+ */
+function a() {
+}
+
+
+/**
+ * foo.
+ */
+function b() {
+}
+
+
+// phpcs:set Squiz.WhiteSpace.FunctionSpacing spacingBeforeFirst 1
+// phpcs:set Squiz.WhiteSpace.FunctionSpacing spacingAfterLast 0
+
+class DocblockFollowedByAttributesCorrectSpacing {
+
+    /**
+     * No error.
+     */
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+class DocblockFollowedByAttributesTooMuchSpacing {
+
+    /**
+     * Docblock.
+     */
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+class DocblockFollowedByAttributesTooLittleSpacing {
+
+    /**
+     * Docblock.
+     */
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+class DocblockPrecededByAttributesCorrectSpacing {
+
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    /**
+     * No error.
+     */
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+class DocblockPrecededByAttributesTooMuchSpacing {
+
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    /**
+     * Docblock.
+     */
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+class DocblockPrecededByAttributesTooLittleSpacing {
+
+    #[AttributesShouldBeJumpedOver]
+    #[
+        ASecondAttributeShouldBeJumpedOverToo
+    ]#[AndAThirdAsWell]
+    /**
+     * Docblock.
+     */
+    function FirstFunction()
+    {
+        // Code
+    }
+}
+
+// Reset properties to their default value.
+// phpcs:set Squiz.WhiteSpace.FunctionSpacing spacingBeforeFirst 2
+// phpcs:set Squiz.WhiteSpace.FunctionSpacing spacingAfterLast 2
+
+class SilenceBeforeErrorIfPreviousThingWasAFunctionBug
+{
+
+
+    /**
+     * Docblock.
+     */
+
+    #[ReturnTypeWillChange]
+
+
+
+
+
+    #[
+
+        AnotherAttribute
+
+    ]#[AndAThirdAsWell]
+
+    public function blankLineDetectionA()
+    {
+
+    }//end blankLineDetectionA()
+
+
+    /**
+     * Docblock.
+     */
+    #[ReturnTypeWillChange]
+
+    public function blankLineDetectionB()
+    {
+
+    }//end blankLineDetectionB()
+
+
+}//end class
+
+// Issue #945.
+class OnlyAcceptFirstDocblockAsBelongingWithFunction {
+    /**
+     * Superfluous docblock
+     */
+
+
+    /**
+     * Function docblock
+     */
+    function correctSpacing($x) {}
+
+
+    /**
+     * Superfluous docblock
+     */
+
+
+    /**
+     * Function docblock
+     */
+    function incorrectSpacing($x) {}
+
+
+}

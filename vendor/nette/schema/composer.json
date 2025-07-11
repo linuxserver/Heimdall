@@ -15,11 +15,11 @@
 		}
 	],
 	"require": {
-		"php": "8.1 - 8.3",
+		"php": "8.1 - 8.4",
 		"nette/utils": "^4.0"
 	},
 	"require-dev": {
-		"nette/tester": "^2.4",
+		"nette/tester": "^2.5.2",
 		"tracy/tracy": "^2.8",
 		"phpstan/phpstan-nette": "^1.0"
 	},

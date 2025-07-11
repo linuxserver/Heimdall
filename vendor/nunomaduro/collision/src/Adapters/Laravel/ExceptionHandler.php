@@ -6,7 +6,7 @@ namespace NunoMaduro\Collision\Adapters\Laravel;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
-use NunoMaduro\Collision\Contracts\Provider as ProviderContract;
+use NunoMaduro\Collision\Provider;
 use Symfony\Component\Console\Exception\ExceptionInterface as SymfonyConsoleExceptionInterface;
 use Throwable;
 
@@ -62,8 +62,8 @@ final class ExceptionHandler implements ExceptionHandlerContract
         if ($e instanceof SymfonyConsoleExceptionInterface) {
             $this->appExceptionHandler->renderForConsole($output, $e);
         } else {
-            /** @var \NunoMaduro\Collision\Contracts\Provider $provider */
-            $provider = $this->container->make(ProviderContract::class);
+            /** @var Provider $provider */
+            $provider = $this->container->make(Provider::class);
 
             $handler = $provider->register()
                 ->getHandler()
@@ -83,5 +83,39 @@ final class ExceptionHandler implements ExceptionHandlerContract
     public function shouldReport(Throwable $e)
     {
         return $this->appExceptionHandler->shouldReport($e);
+    }
+
+    /**
+     * Register a reportable callback.
+     *
+     * @return \Illuminate\Foundation\Exceptions\ReportableHandler
+     */
+    public function reportable(callable $reportUsing)
+    {
+        return $this->appExceptionHandler->reportable($reportUsing);
+    }
+
+    /**
+     * Register a renderable callback.
+     *
+     * @return $this
+     */
+    public function renderable(callable $renderUsing)
+    {
+        $this->appExceptionHandler->renderable($renderUsing);
+
+        return $this;
+    }
+
+    /**
+     * Do not report duplicate exceptions.
+     *
+     * @return $this
+     */
+    public function dontReportDuplicates()
+    {
+        $this->appExceptionHandler->dontReportDuplicates();
+
+        return $this;
     }
 }

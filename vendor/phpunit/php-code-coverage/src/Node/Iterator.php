@@ -17,15 +17,12 @@ use RecursiveIterator;
  */
 final class Iterator implements RecursiveIterator
 {
-    /**
-     * @var int
-     */
-    private $position;
+    private int $position;
 
     /**
-     * @var AbstractNode[]
+     * @var list<AbstractNode>
      */
-    private $nodes;
+    private readonly array $nodes;
 
     public function __construct(Directory $node)
     {

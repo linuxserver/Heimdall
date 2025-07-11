@@ -30,7 +30,14 @@ abstract class AbstractSet extends AbstractCollection
             return false;
         }
 
-        return parent::add($element);
+        // Call offsetSet() on the parent instead of add(), since calling
+        // parent::add() will invoke $this->offsetSet(), which will call
+        // $this->contains() a second time. This can cause performance issues
+        // with extremely large collections. For more information, see
+        // https://github.com/ramsey/collection/issues/68.
+        parent::offsetSet(null, $element);
+
+        return true;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void

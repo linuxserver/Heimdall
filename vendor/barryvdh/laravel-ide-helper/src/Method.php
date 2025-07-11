@@ -17,8 +17,6 @@ use Barryvdh\Reflection\DocBlock\Serializer as DocBlockSerializer;
 use Barryvdh\Reflection\DocBlock\Tag;
 use Barryvdh\Reflection\DocBlock\Tag\ParamTag;
 use Barryvdh\Reflection\DocBlock\Tag\ReturnTag;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class Method
 {
@@ -39,6 +37,10 @@ class Method
     protected $return = null;
     protected $root;
     protected $classAliases;
+    protected $returnTypeNormalizers;
+
+    /** @var string[] */
+    protected $templateNames = [];
 
     /**
      * @param \ReflectionMethod|\ReflectionFunctionAbstract $method
@@ -47,14 +49,18 @@ class Method
      * @param string|null $methodName
      * @param array $interfaces
      * @param array $classAliases
+     * @param array $returnTypeNormalizers
+     * @param string[] $templateNames
      */
-    public function __construct($method, $alias, $class, $methodName = null, $interfaces = [], array $classAliases = [])
+    public function __construct($method, $alias, $class, $methodName = null, $interfaces = [], array $classAliases = [], array $returnTypeNormalizers = [], array $templateNames = [])
     {
         $this->method = $method;
         $this->interfaces = $interfaces;
         $this->classAliases = $classAliases;
+        $this->returnTypeNormalizers = $returnTypeNormalizers;
         $this->name = $methodName ?: $method->name;
         $this->real_name = $method->isClosure() ? $this->name : $method->name;
+        $this->templateNames = $templateNames;
         $this->initClassDefinedProperties($method, $class);
 
         //Reference the 'real' function in the declaring class
@@ -83,7 +89,7 @@ class Method
      */
     protected function initPhpDoc($method)
     {
-        $this->phpdoc = new DocBlock($method, new Context($this->namespace, $this->classAliases));
+        $this->phpdoc = new DocBlock($method, new Context($this->namespace, $this->classAliases, generics: $this->templateNames));
     }
 
     /**
@@ -181,6 +187,25 @@ class Method
     }
 
     /**
+     * @param DocBlock|null $phpdoc
+     * @return ReturnTag|null
+     */
+    public function getReturnTag($phpdoc = null)
+    {
+        if ($phpdoc === null) {
+            $phpdoc = $this->phpdoc;
+        }
+
+        $returnTags = $phpdoc->getTagsByName('return');
+
+        if (count($returnTags) === 0) {
+            return null;
+        }
+
+        return reset($returnTags);
+    }
+
+    /**
      * Get the parameters for this method including default values
      *
      * @param bool $implode Wether to implode the array or not
@@ -248,24 +273,30 @@ class Method
     }
 
     /**
-     * Normalize the return tag (make full namespace, replace interfaces)
+     * Normalize the return tag (make full namespace, replace interfaces, resolve $this)
      *
      * @param DocBlock $phpdoc
      */
     protected function normalizeReturn(DocBlock $phpdoc)
     {
         //Get the return type and adjust them for better autocomplete
-        $returnTags = $phpdoc->getTagsByName('return');
+        $tag = $this->getReturnTag($phpdoc);
 
-        if (count($returnTags) === 0) {
+        if ($tag === null) {
             $this->return = null;
             return;
         }
 
-        /** @var ReturnTag $tag */
-        $tag = reset($returnTags);
         // Get the expanded type
         $returnValue = $tag->getType();
+
+        if (array_key_exists($returnValue, $this->returnTypeNormalizers)) {
+            $returnValue = $this->returnTypeNormalizers[$returnValue];
+        }
+
+        if ($returnValue === '$this') {
+            $returnValue = $this->root;
+        }
 
         // Replace the interfaces
         foreach ($this->interfaces as $interface => $real) {
@@ -275,12 +306,6 @@ class Method
         // Set the changed content
         $tag->setContent($returnValue . ' ' . $tag->getDescription());
         $this->return = $returnValue;
-
-        if ($tag->getType() === '$this') {
-            Str::contains($this->root, Builder::class)
-                ? $tag->setType($this->root . '|static')
-                : $tag->setType($this->root);
-        }
     }
 
     /**
@@ -366,7 +391,7 @@ class Method
         }
         if ($method) {
             $namespace = $method->getDeclaringClass()->getNamespaceName();
-            $phpdoc = new DocBlock($method, new Context($namespace, $this->classAliases));
+            $phpdoc = new DocBlock($method, new Context($namespace, $this->classAliases, generics: $this->templateNames));
 
             if (strpos($phpdoc->getText(), '{@inheritdoc}') !== false) {
                 //Not at the end yet, try another parent/interface..

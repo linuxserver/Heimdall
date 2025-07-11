@@ -58,6 +58,9 @@ interface DelimiterProcessorInterface
      * return 0 when it doesn't want to allow this particular combination of
      * delimiter runs.
      *
+     * IMPORTANT: Unless this method returns the same hard-coded value in all cases,
+     * you MUST implement the CacheableDelimiterProcessorInterface interface instead.
+     *
      * @param DelimiterInterface $opener The opening delimiter run
      * @param DelimiterInterface $closer The closing delimiter run
      */

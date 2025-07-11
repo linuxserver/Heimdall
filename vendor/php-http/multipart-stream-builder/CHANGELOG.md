@@ -1,8 +1,26 @@
 # Change Log
 
+## 1.4.2 - 2024-09-04
+
+- Fix phpdoc syntax.
+
+## 1.4.1 - 2024-09-04
+
+- Fix phpdoc for addResource options to make the options not required.
+
+## 1.4.0 - 2024-09-01
+
+- No longer automatically add a `Content-Length` header for each part in MultipartStreamBuilder class to comply with RFC 7578 section 4.8.
+
+## 1.3.1 - 2024-06-10
+
+- Added missing mimetype for `.webp` images.
+
 ## 1.3.0 - 2023-04-28
 
 - Removed unnecessary dependency on deprecated `php-http/message-factory`
+- Allow `psr/http-message` 2.*
+- Also skip setting filename if URI starts with `data://`
 
 ## 1.2.0 - 2021-05-21
 

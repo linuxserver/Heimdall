@@ -1,0 +1,9 @@
+--- tests/Core/Fixer/Fixtures/GenerateDiffTest-BlankLinesAtStart.inc
++++ PHP_CodeSniffer
+@@ -1,6 +1,3 @@
+-
+-
+-
+ <?php
+ // Comment with 2 spaces trailing whitespace.  
+ $var = FALSE;

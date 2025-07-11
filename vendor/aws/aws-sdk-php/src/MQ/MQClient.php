@@ -15,6 +15,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise createUserAsync(array $args = [])
  * @method \Aws\Result deleteBroker(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteBrokerAsync(array $args = [])
+ * @method \Aws\Result deleteConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteTags(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteTagsAsync(array $args = [])
  * @method \Aws\Result deleteUser(array $args = [])

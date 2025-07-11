@@ -1,6 +1,6 @@
-phpcs:set Generic.WhiteSpace.ScopeIndent tabIndent false
-phpcs:set Generic.WhiteSpace.ScopeIndent exact true
 <?php
+// phpcs:set Generic.WhiteSpace.ScopeIndent tabIndent false
+// phpcs:set Generic.WhiteSpace.ScopeIndent exact true
 function test()
 {
      echo 'test';
@@ -26,3 +26,9 @@ if ($foo) {
 $this->foo()
     ->bar()
     ->baz();
+
+// Issue squizlabs/PHP_CodeSniffer#3808
+function test() {
+    yield
+        from [ 3, 4 ];
+}

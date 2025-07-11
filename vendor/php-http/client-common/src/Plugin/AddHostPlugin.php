@@ -48,9 +48,6 @@ final class AddHostPlugin implements Plugin
         $this->replace = $options['replace'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         if ($this->replace || '' === $request->getUri()->getHost()) {

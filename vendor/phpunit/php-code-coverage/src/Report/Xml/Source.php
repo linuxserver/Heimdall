@@ -19,8 +19,7 @@ use TheSeer\Tokenizer\XMLSerializer;
  */
 final class Source
 {
-    /** @var DOMElement */
-    private $context;
+    private readonly DOMElement $context;
 
     public function __construct(DOMElement $context)
     {
@@ -36,7 +35,7 @@ final class Source
 
         $context->parentNode->replaceChild(
             $context->ownerDocument->importNode($srcDom->documentElement, true),
-            $context
+            $context,
         );
     }
 }

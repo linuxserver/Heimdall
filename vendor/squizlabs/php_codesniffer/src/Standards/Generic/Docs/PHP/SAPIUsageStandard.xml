@@ -12,7 +12,7 @@ if (<em>PHP_SAPI</em> === 'cli') {
 }
         ]]>
         </code>
-        <code title="Invalid: php_sapi_name() is used.">
+        <code title="Invalid: Function call to php_sapi_name() is used.">
         <![CDATA[
 if (<em>php_sapi_name()</em> === 'cli') {
     echo "Hello, CLI user.";

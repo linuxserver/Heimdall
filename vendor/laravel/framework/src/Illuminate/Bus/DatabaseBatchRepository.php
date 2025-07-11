@@ -6,10 +6,10 @@ use Carbon\CarbonImmutable;
 use Closure;
 use DateTimeInterface;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Str;
+use Throwable;
 
 class DatabaseBatchRepository implements PrunableBatchRepository
 {
@@ -58,14 +58,14 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     public function get($limit = 50, $before = null)
     {
         return $this->connection->table($this->table)
-                            ->orderByDesc('id')
-                            ->take($limit)
-                            ->when($before, fn ($q) => $q->where('id', '<', $before))
-                            ->get()
-                            ->map(function ($batch) {
-                                return $this->toBatch($batch);
-                            })
-                            ->all();
+            ->orderByDesc('id')
+            ->take($limit)
+            ->when($before, fn ($q) => $q->where('id', '<', $before))
+            ->get()
+            ->map(function ($batch) {
+                return $this->toBatch($batch);
+            })
+            ->all();
     }
 
     /**
@@ -77,9 +77,9 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     public function find(string $batchId)
     {
         $batch = $this->connection->table($this->table)
-                            ->useWritePdo()
-                            ->where('id', $batchId)
-                            ->first();
+            ->useWritePdo()
+            ->where('id', $batchId)
+            ->first();
 
         if ($batch) {
             return $this->toBatch($batch);
@@ -185,8 +185,8 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     {
         return $this->connection->transaction(function () use ($batchId, $callback) {
             $batch = $this->connection->table($this->table)->where('id', $batchId)
-                        ->lockForUpdate()
-                        ->first();
+                ->lockForUpdate()
+                ->first();
 
             return is_null($batch) ? [] : tap($callback($batch), function ($values) use ($batchId) {
                 $this->connection->table($this->table)->where('id', $batchId)->update($values);
@@ -319,7 +319,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
      */
     public function rollBack()
     {
-        $this->connection->rollBack();
+        $this->connection->rollBack(toLevel: 0);
     }
 
     /**
@@ -352,7 +352,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
 
         try {
             return unserialize($serialized);
-        } catch (ModelNotFoundException) {
+        } catch (Throwable) {
             return [];
         }
     }
@@ -374,9 +374,9 @@ class DatabaseBatchRepository implements PrunableBatchRepository
             (int) $batch->failed_jobs,
             (array) json_decode($batch->failed_job_ids, true),
             $this->unserialize($batch->options),
-            CarbonImmutable::createFromTimestamp($batch->created_at),
-            $batch->cancelled_at ? CarbonImmutable::createFromTimestamp($batch->cancelled_at) : $batch->cancelled_at,
-            $batch->finished_at ? CarbonImmutable::createFromTimestamp($batch->finished_at) : $batch->finished_at
+            CarbonImmutable::createFromTimestamp($batch->created_at, date_default_timezone_get()),
+            $batch->cancelled_at ? CarbonImmutable::createFromTimestamp($batch->cancelled_at, date_default_timezone_get()) : $batch->cancelled_at,
+            $batch->finished_at ? CarbonImmutable::createFromTimestamp($batch->finished_at, date_default_timezone_get()) : $batch->finished_at
         );
     }
 

@@ -28,8 +28,6 @@ final class MailerTestCommand extends Command
 {
     public function __construct(private TransportInterface $transport)
     {
-        $this->transport = $transport;
-
         parent::__construct();
     }
 
@@ -37,10 +35,10 @@ final class MailerTestCommand extends Command
     {
         $this
             ->addArgument('to', InputArgument::REQUIRED, 'The recipient of the message')
-            ->addOption('from', null, InputOption::VALUE_OPTIONAL, 'The sender of the message', 'from@example.org')
-            ->addOption('subject', null, InputOption::VALUE_OPTIONAL, 'The subject of the message', 'Testing transport')
-            ->addOption('body', null, InputOption::VALUE_OPTIONAL, 'The body of the message', 'Testing body')
-            ->addOption('transport', null, InputOption::VALUE_OPTIONAL, 'The transport to be used')
+            ->addOption('from', null, InputOption::VALUE_REQUIRED, 'The sender of the message', 'from@example.org')
+            ->addOption('subject', null, InputOption::VALUE_REQUIRED, 'The subject of the message', 'Testing transport')
+            ->addOption('body', null, InputOption::VALUE_REQUIRED, 'The body of the message', 'Testing body')
+            ->addOption('transport', null, InputOption::VALUE_REQUIRED, 'The transport to be used')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command tests a Mailer transport by sending a simple email message:
 

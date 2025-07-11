@@ -1,3 +1,11 @@
+== Version 2.1.1: Released Apr 30 2025 ==
+
+* Fix implicitly nullable via default value null for PHP 8.4 (#85)
+
+== Version 2.1.0: Released Apr 29 2025 ==
+
+* Dropped support for PHP <=7.3
+
 == Version 2.0.1: Released Jul 09 2020 ==
 
 * Added support for PHP 8

@@ -24,7 +24,7 @@ class RestJsonSerializer extends RestSerializer
     public function __construct(
         Service $api,
         $endpoint,
-        JsonBody $jsonFormatter = null
+        ?JsonBody $jsonFormatter = null
     ) {
         parent::__construct($api, $endpoint);
         $this->contentType = JsonBody::getContentType($api);

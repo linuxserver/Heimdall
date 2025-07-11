@@ -16,10 +16,7 @@ use DOMElement;
  */
 final class Method
 {
-    /**
-     * @var DOMElement
-     */
-    private $contextNode;
+    private readonly DOMElement $contextNode;
 
     public function __construct(DOMElement $context, string $name)
     {

@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use function get_class;
 use function is_object;
 use PHPUnit\Framework\ActualValueIsNotAnObjectException;
 use PHPUnit\Framework\ComparisonMethodDoesNotAcceptParameterTypeException;
@@ -25,15 +24,8 @@ use ReflectionObject;
  */
 final class ObjectEquals extends Constraint
 {
-    /**
-     * @var object
-     */
-    private $expected;
-
-    /**
-     * @var string
-     */
-    private $method;
+    private readonly object $expected;
+    private readonly string $method;
 
     public function __construct(object $object, string $method = 'equals')
     {
@@ -54,7 +46,7 @@ final class ObjectEquals extends Constraint
      * @throws ComparisonMethodDoesNotDeclareParameterTypeException
      * @throws ComparisonMethodDoesNotExistException
      */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         if (!is_object($other)) {
             throw new ActualValueIsNotAnObjectException;
@@ -64,17 +56,16 @@ final class ObjectEquals extends Constraint
 
         if (!$object->hasMethod($this->method)) {
             throw new ComparisonMethodDoesNotExistException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
 
-        /** @noinspection PhpUnhandledExceptionInspection */
         $method = $object->getMethod($this->method);
 
         if (!$method->hasReturnType()) {
             throw new ComparisonMethodDoesNotDeclareBoolReturnTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
@@ -83,28 +74,28 @@ final class ObjectEquals extends Constraint
 
         if (!$returnType instanceof ReflectionNamedType) {
             throw new ComparisonMethodDoesNotDeclareBoolReturnTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
 
         if ($returnType->allowsNull()) {
             throw new ComparisonMethodDoesNotDeclareBoolReturnTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
 
         if ($returnType->getName() !== 'bool') {
             throw new ComparisonMethodDoesNotDeclareBoolReturnTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
 
         if ($method->getNumberOfParameters() !== 1 || $method->getNumberOfRequiredParameters() !== 1) {
             throw new ComparisonMethodDoesNotDeclareExactlyOneParameterException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
@@ -113,7 +104,7 @@ final class ObjectEquals extends Constraint
 
         if (!$parameter->hasType()) {
             throw new ComparisonMethodDoesNotDeclareParameterTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
@@ -122,7 +113,7 @@ final class ObjectEquals extends Constraint
 
         if (!$type instanceof ReflectionNamedType) {
             throw new ComparisonMethodDoesNotDeclareParameterTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
             );
         }
@@ -130,22 +121,22 @@ final class ObjectEquals extends Constraint
         $typeName = $type->getName();
 
         if ($typeName === 'self') {
-            $typeName = get_class($other);
+            $typeName = $other::class;
         }
 
         if (!$this->expected instanceof $typeName) {
             throw new ComparisonMethodDoesNotAcceptParameterTypeException(
-                get_class($other),
+                $other::class,
                 $this->method,
-                get_class($this->expected),
+                $this->expected::class,
             );
         }
 
         return $other->{$this->method}($this->expected);
     }
 
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
-        return $this->toString();
+        return $this->toString(true);
     }
 }

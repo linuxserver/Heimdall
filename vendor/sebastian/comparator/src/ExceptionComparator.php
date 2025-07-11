@@ -9,36 +9,23 @@
  */
 namespace SebastianBergmann\Comparator;
 
+use function assert;
 use Exception;
 
 /**
  * Compares Exception instances for equality.
  */
-class ExceptionComparator extends ObjectComparator
+final class ExceptionComparator extends ObjectComparator
 {
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
+    public function accepts(mixed $expected, mixed $actual): bool
     {
         return $expected instanceof Exception && $actual instanceof Exception;
     }
 
-    /**
-     * Converts an object to an array containing all of its private, protected
-     * and public properties.
-     *
-     * @param object $object
-     *
-     * @return array
-     */
-    protected function toArray($object)
+    protected function toArray(object $object): array
     {
+        assert($object instanceof Exception);
+
         $array = parent::toArray($object);
 
         unset(
@@ -46,7 +33,7 @@ class ExceptionComparator extends ObjectComparator
             $array['line'],
             $array['trace'],
             $array['string'],
-            $array['xdebug_message']
+            $array['xdebug_message'],
         );
 
         return $array;

@@ -10,10 +10,13 @@ use App\User;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use App\Services\CustomFormBuilder;
+use Spatie\Html\Html;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -88,8 +91,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('trianglify_seed', $trianglify_seed);
             $view->with('allusers', $allusers);
             $view->with('current_user', $current_user);
-            if (config('app.auth_roles_enable')){
-                $view->with('enable_auth_admin_controls', in_array(config('app.auth_roles_admin'),explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
+            if (config('app.auth_roles_enable')) {
+                $view->with('enable_auth_admin_controls', in_array(config('app.auth_roles_admin'), explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
             } else {
                 $view->with('enable_auth_admin_controls', true);
             }
@@ -127,6 +130,10 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(IdeHelperServiceProvider::class);
         }
 
+        $this->app->singleton('custom-form', function ($app) {
+            return new CustomFormBuilder($app->make(Html::class));
+        });
+
         $this->app->singleton('settings', function () {
             return new Setting();
         });
@@ -144,6 +151,7 @@ class AppServiceProvider extends ServiceProvider
 
         if ($db_type == 'sqlite') {
             $db_file = database_path(env('DB_DATABASE', 'app.sqlite'));
+            Log::debug('SQLite Database Path: ' . $db_file);
             if (! is_file($db_file)) {
                 touch($db_file);
             }

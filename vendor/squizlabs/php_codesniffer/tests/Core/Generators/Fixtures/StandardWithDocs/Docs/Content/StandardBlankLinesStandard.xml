@@ -1,0 +1,13 @@
+<documentation title="Standard Element, blank line handling">
+    <standard>
+    <![CDATA[
+
+    There is a blank line at the start of this standard.
+
+    And the above blank line is also deliberate to test part of the logic.
+
+    Let's also end on a blank line to test that too.
+
+    ]]>
+    </standard>
+</documentation>

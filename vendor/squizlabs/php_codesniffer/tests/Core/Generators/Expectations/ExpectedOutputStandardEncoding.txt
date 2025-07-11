@@ -1,0 +1,9 @@
+
+--------------------------------------------------------------------------
+| GENERATORTEST CODING STANDARD: STANDARD ELEMENT, HANDLING OF HTML TAGS |
+--------------------------------------------------------------------------
+
+The use of *tags* in standard descriptions is allowed and their handling should be *safeguarded*.
+Other tags, like <a href="example.com">link</a>, <b>bold</bold>, <script></script> are not allowed
+and will be encoded for display when the HTML or Markdown report is used.
+

@@ -28,7 +28,7 @@ class TextPromptRenderer extends Renderer
                     $this->strikethrough($this->dim($this->truncate($prompt->value() ?: $prompt->placeholder, $maxWidth))),
                     color: 'red',
                 )
-                ->error('Cancelled.'),
+                ->error($prompt->cancelMessage),
 
             'error' => $this
                 ->box(

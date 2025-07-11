@@ -38,7 +38,7 @@ final class JwtFacade
         Key $signingKey,
         Closure $customiseBuilder,
     ): UnencryptedToken {
-        $builder = new Token\Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $builder = Token\Builder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
 
         $now     = $this->clock->now();
         $builder = $builder

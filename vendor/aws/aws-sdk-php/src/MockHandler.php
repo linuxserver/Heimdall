@@ -30,8 +30,8 @@ class MockHandler implements \Countable
      */
     public function __construct(
         array $resultOrQueue = [],
-        callable $onFulfilled = null,
-        callable $onRejected = null
+        ?callable $onFulfilled = null,
+        ?callable $onRejected = null
     ) {
         $this->queue = [];
         $this->onFulfilled = $onFulfilled;
@@ -118,7 +118,7 @@ class MockHandler implements \Countable
     /**
      * Get the last received request.
      *
-     * @return RequestInterface
+     * @return RequestInterface|null
      */
     public function getLastRequest()
     {

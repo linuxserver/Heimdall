@@ -10,6 +10,7 @@
 namespace PHPUnit\Framework\Constraint;
 
 use const DIRECTORY_SEPARATOR;
+use const PHP_EOL;
 use function explode;
 use function implode;
 use function preg_match;
@@ -22,50 +23,51 @@ use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class StringMatchesFormatDescription extends RegularExpression
+final class StringMatchesFormatDescription extends Constraint
 {
-    /**
-     * @var string
-     */
-    private $string;
+    private readonly string $formatDescription;
 
-    public function __construct(string $string)
+    public function __construct(string $formatDescription)
     {
-        parent::__construct(
-            $this->createPatternFromFormat(
-                $this->convertNewlines($string),
-            ),
-        );
+        $this->formatDescription = $formatDescription;
+    }
 
-        $this->string = $string;
+    public function toString(): string
+    {
+        return 'matches format description:' . PHP_EOL . $this->formatDescription;
     }
 
     /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
-     *
-     * @param mixed $other value or object to evaluate
      */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
-        return parent::matches(
-            $this->convertNewlines($other),
+        $other = $this->convertNewlines($other);
+
+        $matches = preg_match(
+            $this->regularExpressionForFormatDescription(
+                $this->convertNewlines($this->formatDescription),
+            ),
+            $other,
         );
+
+        return $matches > 0;
     }
 
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         return 'string matches format description';
     }
 
-    protected function additionalFailureDescription($other): string
+    protected function additionalFailureDescription(mixed $other): string
     {
-        $from = explode("\n", $this->string);
+        $from = explode("\n", $this->formatDescription);
         $to   = explode("\n", $this->convertNewlines($other));
 
         foreach ($from as $index => $line) {
             if (isset($to[$index]) && $line !== $to[$index]) {
-                $line = $this->createPatternFromFormat($line);
+                $line = $this->regularExpressionForFormatDescription($line);
 
                 if (preg_match($line, $to[$index]) > 0) {
                     $from[$index] = $to[$index];
@@ -73,29 +75,30 @@ final class StringMatchesFormatDescription extends RegularExpression
             }
         }
 
-        $this->string = implode("\n", $from);
-        $other        = implode("\n", $to);
+        $from = implode("\n", $from);
+        $to   = implode("\n", $to);
 
-        return (new Differ(new UnifiedDiffOutputBuilder("--- Expected\n+++ Actual\n")))->diff($this->string, $other);
+        return $this->differ()->diff($from, $to);
     }
 
-    private function createPatternFromFormat(string $string): string
+    private function regularExpressionForFormatDescription(string $string): string
     {
         $string = strtr(
             preg_quote($string, '/'),
             [
                 '%%' => '%',
-                '%e' => '\\' . DIRECTORY_SEPARATOR,
+                '%e' => preg_quote(DIRECTORY_SEPARATOR, '/'),
                 '%s' => '[^\r\n]+',
                 '%S' => '[^\r\n]*',
-                '%a' => '.+',
-                '%A' => '.*',
+                '%a' => '.+?',
+                '%A' => '.*?',
                 '%w' => '\s*',
                 '%i' => '[+-]?\d+',
                 '%d' => '\d+',
                 '%x' => '[0-9a-fA-F]+',
-                '%f' => '[+-]?\.?\d+\.?\d*(?:[Ee][+-]?\d+)?',
+                '%f' => '[+-]?(?:\d+|(?=\.\d))(?:\.\d+)?(?:[Ee][+-]?\d+)?',
                 '%c' => '.',
+                '%0' => '\x00',
             ],
         );
 
@@ -105,5 +108,10 @@ final class StringMatchesFormatDescription extends RegularExpression
     private function convertNewlines(string $text): string
     {
         return preg_replace('/\r\n/', "\n", $text);
+    }
+
+    private function differ(): Differ
+    {
+        return new Differ(new UnifiedDiffOutputBuilder("--- Expected\n+++ Actual\n"));
     }
 }

@@ -87,6 +87,12 @@ final class LowerCaseTypeUnitTest extends AbstractSniffUnitTest
             123 => 2,
             124 => 3,
             125 => 3,
+            129 => 2,
+            131 => 1,
+            134 => 1,
+            135 => 1,
+            136 => 1,
+            139 => 2,
         ];
 
     }//end getErrorList()
@@ -103,7 +109,7 @@ final class LowerCaseTypeUnitTest extends AbstractSniffUnitTest
     public function getWarningList()
     {
         // Warning from getMemberProperties() about parse error.
-        return [130 => 1];
+        return [144 => 1];
 
     }//end getWarningList()
 

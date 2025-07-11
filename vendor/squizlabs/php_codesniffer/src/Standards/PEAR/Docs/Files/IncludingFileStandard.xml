@@ -10,12 +10,12 @@
     ]]>
     </standard>
     <code_comparison>
-        <code title="Valid: used as statement">
+        <code title="Valid: Used as statement.">
         <![CDATA[
 require_once 'PHP/CodeSniffer.php';
         ]]>
         </code>
-        <code title="Invalid: used as function">
+        <code title="Invalid: Used as function.">
         <![CDATA[
 require_once<em>(</em>'PHP/CodeSniffer.php'<em>)</em>;
         ]]>

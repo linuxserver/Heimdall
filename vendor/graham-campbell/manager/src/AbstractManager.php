@@ -67,7 +67,7 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @return object
      */
-    public function connection(string $name = null): object
+    public function connection(?string $name = null): object
     {
         $name = $name ?: $this->getDefaultConnection();
 
@@ -87,7 +87,7 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @return object
      */
-    public function reconnect(string $name = null): object
+    public function reconnect(?string $name = null): object
     {
         $name = $name ?: $this->getDefaultConnection();
 
@@ -103,7 +103,7 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @return void
      */
-    public function disconnect(string $name = null): void
+    public function disconnect(?string $name = null): void
     {
         $name = $name ?: $this->getDefaultConnection();
 
@@ -163,7 +163,7 @@ abstract class AbstractManager implements ManagerInterface
      *
      * @return array
      */
-    public function getConnectionConfig(string $name = null): array
+    public function getConnectionConfig(?string $name = null): array
     {
         $name = $name ?: $this->getDefaultConnection();
 

@@ -46,6 +46,10 @@ final class DisallowLongArraySyntaxUnitTest extends AbstractSniffUnitTest
                 2 => 1,
                 9 => 1,
             ];
+        case 'DisallowLongArraySyntaxUnitTest.3.inc':
+            return [
+                7 => 1,
+            ];
         default:
             return [];
         }//end switch

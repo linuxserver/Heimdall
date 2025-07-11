@@ -5,6 +5,7 @@ namespace Illuminate\Database\Schema\Grammars;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use LogicException;
 
@@ -69,13 +70,20 @@ class PostgresGrammar extends Grammar
     }
 
     /**
-     * Compile the query to determine if a table exists.
+     * Compile the query to determine if the given table exists.
      *
+     * @param  string  $schema
+     * @param  string  $table
      * @return string
      */
-    public function compileTableExists()
+    public function compileTableExists($schema, $table)
     {
-        return "select * from information_schema.tables where table_catalog = ? and table_schema = ? and table_name = ? and table_type = 'BASE TABLE'";
+        return sprintf(
+            'select exists (select 1 from pg_class c, pg_namespace n where '
+            ."n.nspname = %s and c.relname = %s and c.relkind in ('r', 'p') and n.oid = c.relnamespace)",
+            $this->quoteString($schema),
+            $this->quoteString($table)
+        );
     }
 
     /**
@@ -120,58 +128,20 @@ class PostgresGrammar extends Grammar
     }
 
     /**
-     * Compile the SQL needed to retrieve all table names.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @param  string|array  $searchPath
-     * @return string
-     */
-    public function compileGetAllTables($searchPath)
-    {
-        return "select tablename, concat('\"', schemaname, '\".\"', tablename, '\"') as qualifiedname from pg_catalog.pg_tables where schemaname in ('".implode("','", (array) $searchPath)."')";
-    }
-
-    /**
-     * Compile the SQL needed to retrieve all view names.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @param  string|array  $searchPath
-     * @return string
-     */
-    public function compileGetAllViews($searchPath)
-    {
-        return "select viewname, concat('\"', schemaname, '\".\"', viewname, '\"') as qualifiedname from pg_catalog.pg_views where schemaname in ('".implode("','", (array) $searchPath)."')";
-    }
-
-    /**
-     * Compile the query to determine the list of columns.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return string
-     */
-    public function compileColumnListing()
-    {
-        return 'select column_name from information_schema.columns where table_catalog = ? and table_schema = ? and table_name = ?';
-    }
-
-    /**
      * Compile the query to determine the columns.
      *
-     * @param  string  $database
      * @param  string  $schema
      * @param  string  $table
      * @return string
      */
-    public function compileColumns($database, $schema, $table)
+    public function compileColumns($schema, $table)
     {
         return sprintf(
             'select a.attname as name, t.typname as type_name, format_type(a.atttypid, a.atttypmod) as type, '
             .'(select tc.collcollate from pg_catalog.pg_collation tc where tc.oid = a.attcollation) as collation, '
             .'not a.attnotnull as nullable, '
             .'(select pg_get_expr(adbin, adrelid) from pg_attrdef where c.oid = pg_attrdef.adrelid and pg_attrdef.adnum = a.attnum) as default, '
+            .(version_compare($this->connection?->getServerVersion(), '12.0', '<') ? "'' as generated, " : 'a.attgenerated as generated, ')
             .'col_description(c.oid, a.attnum) as comment '
             .'from pg_attribute a, pg_class c, pg_type t, pg_namespace n '
             .'where c.relname = %s and n.nspname = %s and a.attnum > 0 and a.attrelid = c.oid and a.atttypid = t.oid and n.oid = c.relnamespace '
@@ -262,9 +232,9 @@ class PostgresGrammar extends Grammar
      */
     public function compileAdd(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf('alter table %s %s',
+        return sprintf('alter table %s add column %s',
             $this->wrapTable($blueprint),
-            implode(', ', $this->prefixArray('add column', $this->getColumns($blueprint)))
+            $this->getColumn($blueprint, $command->column)
         );
     }
 
@@ -279,27 +249,10 @@ class PostgresGrammar extends Grammar
     {
         if ($command->column->autoIncrement
             && $value = $command->column->get('startingValue', $command->column->get('from'))) {
-            return 'alter sequence '.$blueprint->getTable().'_'.$command->column->name.'_seq restart with '.$value;
-        }
-    }
+            $table = last(explode('.', $blueprint->getTable()));
 
-    /**
-     * Compile a rename column command.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @param  \Illuminate\Database\Connection  $connection
-     * @return array|string
-     */
-    public function compileRenameColumn(Blueprint $blueprint, Fluent $command, Connection $connection)
-    {
-        return $connection->usingNativeSchemaOperations()
-            ? sprintf('alter table %s rename column %s to %s',
-                $this->wrapTable($blueprint),
-                $this->wrap($command->from),
-                $this->wrap($command->to)
-            )
-            : parent::compileRenameColumn($blueprint, $command, $connection);
+            return 'alter sequence '.$blueprint->getPrefix().$table.'_'.$command->column->name.'_seq restart with '.$value;
+        }
     }
 
     /**
@@ -314,33 +267,28 @@ class PostgresGrammar extends Grammar
      */
     public function compileChange(Blueprint $blueprint, Fluent $command, Connection $connection)
     {
-        if (! $connection->usingNativeSchemaOperations()) {
-            return parent::compileChange($blueprint, $command, $connection);
-        }
+        $column = $command->column;
 
-        $columns = [];
+        $changes = ['type '.$this->getType($column).$this->modifyCollate($blueprint, $column)];
 
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $changes = ['type '.$this->getType($column).$this->modifyCollate($blueprint, $column)];
-
-            foreach ($this->modifiers as $modifier) {
-                if ($modifier === 'Collate') {
-                    continue;
-                }
-
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $constraints = (array) $this->{$method}($blueprint, $column);
-
-                    foreach ($constraints as $constraint) {
-                        $changes[] = $constraint;
-                    }
-                }
+        foreach ($this->modifiers as $modifier) {
+            if ($modifier === 'Collate') {
+                continue;
             }
 
-            $columns[] = implode(', ', $this->prefixArray('alter column '.$this->wrap($column), $changes));
+            if (method_exists($this, $method = "modify{$modifier}")) {
+                $constraints = (array) $this->{$method}($blueprint, $column);
+
+                foreach ($constraints as $constraint) {
+                    $changes[] = $constraint;
+                }
+            }
         }
 
-        return 'alter table '.$this->wrapTable($blueprint).' '.implode(', ', $columns);
+        return sprintf('alter table %s %s',
+            $this->wrapTable($blueprint),
+            implode(', ', $this->prefixArray('alter column '.$this->wrap($column), $changes))
+        );
     }
 
     /**
@@ -533,18 +481,6 @@ class PostgresGrammar extends Grammar
     }
 
     /**
-     * Compile the SQL needed to retrieve all type names.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return string
-     */
-    public function compileGetAllTypes()
-    {
-        return 'select distinct pg_type.typname from pg_type inner join pg_enum on pg_enum.enumtypid = pg_type.oid';
-    }
-
-    /**
      * Compile a drop column command.
      *
      * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
@@ -567,7 +503,8 @@ class PostgresGrammar extends Grammar
      */
     public function compileDropPrimary(Blueprint $blueprint, Fluent $command)
     {
-        $index = $this->wrap("{$blueprint->getPrefix()}{$blueprint->getTable()}_pkey");
+        $table = last(explode('.', $blueprint->getTable()));
+        $index = $this->wrap("{$blueprint->getPrefix()}{$table}_pkey");
 
         return 'alter table '.$this->wrapTable($blueprint)." drop constraint {$index}";
     }
@@ -727,7 +664,7 @@ class PostgresGrammar extends Grammar
     public function escapeNames($names)
     {
         return array_map(static function ($name) {
-            return '"'.collect(explode('.', $name))
+            return '"'.(new Collection(explode('.', $name)))
                 ->map(fn ($segment) => trim($segment, '\'"'))
                 ->implode('"."').'"';
         }, $names);
@@ -815,7 +752,7 @@ class PostgresGrammar extends Grammar
      */
     protected function typeInteger(Fluent $column)
     {
-        return $column->autoIncrement && is_null($column->generatedAs) ? 'serial' : 'integer';
+        return $column->autoIncrement && is_null($column->generatedAs) && ! $column->change ? 'serial' : 'integer';
     }
 
     /**
@@ -826,7 +763,7 @@ class PostgresGrammar extends Grammar
      */
     protected function typeBigInteger(Fluent $column)
     {
-        return $column->autoIncrement && is_null($column->generatedAs) ? 'bigserial' : 'bigint';
+        return $column->autoIncrement && is_null($column->generatedAs) && ! $column->change ? 'bigserial' : 'bigint';
     }
 
     /**
@@ -859,7 +796,7 @@ class PostgresGrammar extends Grammar
      */
     protected function typeSmallInteger(Fluent $column)
     {
-        return $column->autoIncrement && is_null($column->generatedAs) ? 'smallserial' : 'smallint';
+        return $column->autoIncrement && is_null($column->generatedAs) && ! $column->change ? 'smallserial' : 'smallint';
     }
 
     /**
@@ -870,7 +807,11 @@ class PostgresGrammar extends Grammar
      */
     protected function typeFloat(Fluent $column)
     {
-        return $this->typeDouble($column);
+        if ($column->precision) {
+            return "float({$column->precision})";
+        }
+
+        return 'float';
     }
 
     /**
@@ -1102,115 +1043,45 @@ class PostgresGrammar extends Grammar
      */
     protected function typeGeometry(Fluent $column)
     {
-        return $this->formatPostGisType('geometry', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial Point type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typePoint(Fluent $column)
-    {
-        return $this->formatPostGisType('point', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial LineString type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typeLineString(Fluent $column)
-    {
-        return $this->formatPostGisType('linestring', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial Polygon type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typePolygon(Fluent $column)
-    {
-        return $this->formatPostGisType('polygon', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial GeometryCollection type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typeGeometryCollection(Fluent $column)
-    {
-        return $this->formatPostGisType('geometrycollection', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial MultiPoint type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typeMultiPoint(Fluent $column)
-    {
-        return $this->formatPostGisType('multipoint', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial MultiLineString type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeMultiLineString(Fluent $column)
-    {
-        return $this->formatPostGisType('multilinestring', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial MultiPolygon type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typeMultiPolygon(Fluent $column)
-    {
-        return $this->formatPostGisType('multipolygon', $column);
-    }
-
-    /**
-     * Create the column definition for a spatial MultiPolygonZ type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    protected function typeMultiPolygonZ(Fluent $column)
-    {
-        return $this->formatPostGisType('multipolygonz', $column);
-    }
-
-    /**
-     * Format the column definition for a PostGIS spatial type.
-     *
-     * @param  string  $type
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    private function formatPostGisType($type, Fluent $column)
-    {
-        if ($column->isGeometry === null) {
-            return sprintf('geography(%s, %s)', $type, $column->projection ?? '4326');
+        if ($column->subtype) {
+            return sprintf('geometry(%s%s)',
+                strtolower($column->subtype),
+                $column->srid ? ','.$column->srid : ''
+            );
         }
 
-        if ($column->projection !== null) {
-            return sprintf('geometry(%s, %s)', $type, $column->projection);
+        return 'geometry';
+    }
+
+    /**
+     * Create the column definition for a spatial Geography type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeGeography(Fluent $column)
+    {
+        if ($column->subtype) {
+            return sprintf('geography(%s%s)',
+                strtolower($column->subtype),
+                $column->srid ? ','.$column->srid : ''
+            );
         }
 
-        return "geometry({$type})";
+        return 'geography';
+    }
+
+    /**
+     * Create the column definition for a vector type.
+     *
+     * @param  \Illuminate\Support\Fluent  $column
+     * @return string
+     */
+    protected function typeVector(Fluent $column)
+    {
+        return isset($column->dimensions) && $column->dimensions !== ''
+            ? "vector({$column->dimensions})"
+            : 'vector';
     }
 
     /**
@@ -1253,7 +1124,11 @@ class PostgresGrammar extends Grammar
     protected function modifyDefault(Blueprint $blueprint, Fluent $column)
     {
         if ($column->change) {
-            return is_null($column->default) ? 'drop default' : 'set default '.$this->getDefaultValue($column->default);
+            if (! $column->autoIncrement || ! is_null($column->generatedAs)) {
+                return is_null($column->default) ? 'drop default' : 'set default '.$this->getDefaultValue($column->default);
+            }
+
+            return null;
         }
 
         if (! is_null($column->default)) {
@@ -1271,6 +1146,7 @@ class PostgresGrammar extends Grammar
     protected function modifyIncrement(Blueprint $blueprint, Fluent $column)
     {
         if (! $column->change
+            && ! $this->hasCommand($blueprint, 'primary')
             && (in_array($column->type, $this->serials) || ($column->generatedAs !== null))
             && $column->autoIncrement) {
             return ' primary key';
@@ -1345,7 +1221,7 @@ class PostgresGrammar extends Grammar
         }
 
         if ($column->change) {
-            $changes = ['drop identity if exists'];
+            $changes = $column->autoIncrement && is_null($sql) ? [] : ['drop identity if exists'];
 
             if (! is_null($sql)) {
                 $changes[] = 'add '.$sql;

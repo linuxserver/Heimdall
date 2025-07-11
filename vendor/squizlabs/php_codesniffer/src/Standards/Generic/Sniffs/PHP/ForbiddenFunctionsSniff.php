@@ -14,6 +14,7 @@ namespace PHP_CodeSniffer\Standards\Generic\Sniffs\PHP;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 class ForbiddenFunctionsSniff implements Sniff
 {
@@ -135,12 +136,12 @@ class ForbiddenFunctionsSniff implements Sniff
             T_IMPLEMENTS               => true,
         ];
 
-        $prevToken = $phpcsFile->findPrevious(T_WHITESPACE, ($stackPtr - 1), null, true);
+        $prevToken = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($stackPtr - 1), null, true);
 
         // If function call is directly preceded by a NS_SEPARATOR it points to the
         // global namespace, so we should still catch it.
         if ($tokens[$prevToken]['code'] === T_NS_SEPARATOR) {
-            $prevToken = $phpcsFile->findPrevious(T_WHITESPACE, ($prevToken - 1), null, true);
+            $prevToken = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($prevToken - 1), null, true);
             if ($tokens[$prevToken]['code'] === T_STRING) {
                 // Not in the global namespace.
                 return;
@@ -152,7 +153,7 @@ class ForbiddenFunctionsSniff implements Sniff
             return;
         }
 
-        $nextToken = $phpcsFile->findNext(T_WHITESPACE, ($stackPtr + 1), null, true);
+        $nextToken = $phpcsFile->findNext(Tokens::$emptyTokens, ($stackPtr + 1), null, true);
         if (isset($ignore[$tokens[$nextToken]['code']]) === true) {
             // Not a call to a PHP function.
             return;

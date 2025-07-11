@@ -16,10 +16,7 @@ use DOMElement;
  */
 final class Unit
 {
-    /**
-     * @var DOMElement
-     */
-    private $contextNode;
+    private readonly DOMElement $contextNode;
 
     public function __construct(DOMElement $context, string $name)
     {
@@ -44,15 +41,15 @@ final class Unit
     {
         $node = $this->contextNode->getElementsByTagNameNS(
             'https://schema.phpunit.de/coverage/1.0',
-            'namespace'
+            'namespace',
         )->item(0);
 
         if (!$node) {
             $node = $this->contextNode->appendChild(
                 $this->contextNode->ownerDocument->createElementNS(
                     'https://schema.phpunit.de/coverage/1.0',
-                    'namespace'
-                )
+                    'namespace',
+                ),
             );
         }
 
@@ -64,8 +61,8 @@ final class Unit
         $node = $this->contextNode->appendChild(
             $this->contextNode->ownerDocument->createElementNS(
                 'https://schema.phpunit.de/coverage/1.0',
-                'method'
-            )
+                'method',
+            ),
         );
 
         return new Method($node, $name);

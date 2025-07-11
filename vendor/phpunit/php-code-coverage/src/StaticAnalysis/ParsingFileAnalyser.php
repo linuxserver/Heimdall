@@ -31,48 +31,47 @@ use SebastianBergmann\LinesOfCode\LineCountingVisitor;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @psalm-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @psalm-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @psalm-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @psalm-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @psalm-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @psalm-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
  */
 final class ParsingFileAnalyser implements FileAnalyser
 {
     /**
-     * @var array
+     * @psalm-var array<string, array<string, CodeUnitClassType>>
      */
-    private $classes = [];
+    private array $classes = [];
 
     /**
-     * @var array
+     * @psalm-var array<string, array<string, CodeUnitTraitType>>
      */
-    private $traits = [];
+    private array $traits = [];
 
     /**
-     * @var array
+     * @psalm-var array<string, array<string, CodeUnitFunctionType>>
      */
-    private $functions = [];
+    private array $functions = [];
 
     /**
-     * @var array<string,array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}>
+     * @var array<string, LinesOfCodeType>
      */
-    private $linesOfCode = [];
+    private array $linesOfCode = [];
 
     /**
-     * @var array
+     * @var array<string, LinesType>
      */
-    private $ignoredLines = [];
+    private array $ignoredLines = [];
 
     /**
-     * @var array
+     * @var array<string, LinesType>
      */
-    private $executableLines = [];
-
-    /**
-     * @var bool
-     */
-    private $useAnnotationsForIgnoringCode;
-
-    /**
-     * @var bool
-     */
-    private $ignoreDeprecatedCode;
+    private array $executableLines = [];
+    private readonly bool $useAnnotationsForIgnoringCode;
+    private readonly bool $ignoreDeprecatedCode;
 
     public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
     {
@@ -101,9 +100,6 @@ final class ParsingFileAnalyser implements FileAnalyser
         return $this->functions[$filename];
     }
 
-    /**
-     * @psalm-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
-     */
     public function linesOfCodeFor(string $filename): array
     {
         $this->analyse($filename);
@@ -141,6 +137,8 @@ final class ParsingFileAnalyser implements FileAnalyser
             $linesOfCode = 1;
         }
 
+        assert($linesOfCode > 0);
+
         $parser = (new ParserFactory)->createForHostVersion();
 
         try {
@@ -169,10 +167,10 @@ final class ParsingFileAnalyser implements FileAnalyser
                 sprintf(
                     'Cannot parse %s: %s',
                     $filename,
-                    $error->getMessage()
+                    $error->getMessage(),
                 ),
                 $error->getCode(),
-                $error
+                $error,
             );
         }
         // @codeCoverageIgnoreEnd
@@ -188,8 +186,8 @@ final class ParsingFileAnalyser implements FileAnalyser
         $this->ignoredLines[$filename] = array_unique(
             array_merge(
                 $this->ignoredLines[$filename],
-                $ignoredLinesFindingVisitor->ignoredLines()
-            )
+                $ignoredLinesFindingVisitor->ignoredLines(),
+            ),
         );
 
         sort($this->ignoredLines[$filename]);
@@ -241,7 +239,7 @@ final class ParsingFileAnalyser implements FileAnalyser
 
                 $this->ignoredLines[$filename] = array_merge(
                     $this->ignoredLines[$filename],
-                    range($start, $token[2])
+                    range($start, $token[2]),
                 );
             }
         }

@@ -15,6 +15,7 @@ namespace PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\AbstractScopeSniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 class ConstructorNameSniff extends AbstractScopeSniff
 {
@@ -77,8 +78,13 @@ class ConstructorNameSniff extends AbstractScopeSniff
             $this->currentClass = $className;
         }
 
-        $methodName = strtolower($phpcsFile->getDeclarationName($stackPtr));
+        $methodName = $phpcsFile->getDeclarationName($stackPtr);
+        if ($methodName === null) {
+            // Live coding or parse error. Bow out.
+            return;
+        }
 
+        $methodName = strtolower($methodName);
         if ($methodName === $className) {
             if (in_array('__construct', $this->functionList, true) === false) {
                 $error = 'PHP4 style constructors are not allowed; use "__construct()" instead';
@@ -90,27 +96,41 @@ class ConstructorNameSniff extends AbstractScopeSniff
         }
 
         // Stop if the constructor doesn't have a body, like when it is abstract.
-        if (isset($tokens[$stackPtr]['scope_closer']) === false) {
+        if (isset($tokens[$stackPtr]['scope_opener'], $tokens[$stackPtr]['scope_closer']) === false) {
             return;
         }
 
-        $parentClassName = strtolower($phpcsFile->findExtendedClassName($currScope));
+        $parentClassName = $phpcsFile->findExtendedClassName($currScope);
         if ($parentClassName === false) {
             return;
         }
 
+        $parentClassNameLc = strtolower($parentClassName);
+
         $endFunctionIndex = $tokens[$stackPtr]['scope_closer'];
-        $startIndex       = $stackPtr;
-        while (($doubleColonIndex = $phpcsFile->findNext(T_DOUBLE_COLON, $startIndex, $endFunctionIndex)) !== false) {
-            if ($tokens[($doubleColonIndex + 1)]['code'] === T_STRING
-                && strtolower($tokens[($doubleColonIndex + 1)]['content']) === $parentClassName
+        $startIndex       = $tokens[$stackPtr]['scope_opener'];
+        while (($doubleColonIndex = $phpcsFile->findNext(T_DOUBLE_COLON, ($startIndex + 1), $endFunctionIndex)) !== false) {
+            $nextNonEmpty = $phpcsFile->findNext(Tokens::$emptyTokens, ($doubleColonIndex + 1), null, true);
+            if ($tokens[$nextNonEmpty]['code'] !== T_STRING
+                || strtolower($tokens[$nextNonEmpty]['content']) !== $parentClassNameLc
             ) {
-                $error = 'PHP4 style calls to parent constructors are not allowed; use "parent::__construct()" instead';
-                $phpcsFile->addError($error, ($doubleColonIndex + 1), 'OldStyleCall');
+                $startIndex = $nextNonEmpty;
+                continue;
             }
 
-            $startIndex = ($doubleColonIndex + 1);
-        }
+            $prevNonEmpty = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($doubleColonIndex - 1), null, true);
+            if ($tokens[$prevNonEmpty]['code'] === T_PARENT
+                || $tokens[$prevNonEmpty]['code'] === T_SELF
+                || $tokens[$prevNonEmpty]['code'] === T_STATIC
+                || ($tokens[$prevNonEmpty]['code'] === T_STRING
+                && strtolower($tokens[$prevNonEmpty]['content']) === $parentClassNameLc)
+            ) {
+                $error = 'PHP4 style calls to parent constructors are not allowed; use "parent::__construct()" instead';
+                $phpcsFile->addError($error, $nextNonEmpty, 'OldStyleCall');
+            }
+
+            $startIndex = $nextNonEmpty;
+        }//end while
 
     }//end processTokenWithinScope()
 
@@ -149,7 +169,13 @@ class ConstructorNameSniff extends AbstractScopeSniff
                 continue;
             }
 
-            $this->functionList[] = trim(strtolower($phpcsFile->getDeclarationName($i)));
+            $methodName = $phpcsFile->getDeclarationName($i);
+            if ($methodName === null) {
+                // Live coding or parse error. Ignore.
+                continue;
+            }
+
+            $this->functionList[] = trim(strtolower($methodName));
 
             if (isset($tokens[$i]['scope_closer']) !== false) {
                 // Skip past nested functions and such.

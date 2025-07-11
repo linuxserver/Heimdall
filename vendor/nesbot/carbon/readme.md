@@ -2,11 +2,14 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/nesbot/carbon)
 [![Total Downloads](https://img.shields.io/packagist/dt/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/nesbot/carbon)
-[![GitHub Actions](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fbriannesbitt%2FCarbon%2Fbadge&style=flat-square&label=Build&logo=none)](https://github.com/briannesbitt/Carbon/actions)
-[![codecov.io](https://img.shields.io/codecov/c/github/briannesbitt/Carbon.svg?style=flat-square)](https://codecov.io/github/briannesbitt/Carbon?branch=master)
-[![Tidelift](https://tidelift.com/badges/github/briannesbitt/Carbon)](https://tidelift.com/subscription/pkg/packagist-nesbot-carbon?utm_source=packagist-nesbot-carbon&utm_medium=referral&utm_campaign=readme)
+[![GitHub Actions](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FCarbonPHP%2Fcarbon%2Fbadge&style=flat-square&label=Build&logo=none)](https://github.com/CarbonPHP/carbon/actions)
+[![codecov.io](https://img.shields.io/codecov/c/github/CarbonPHP/carbon.svg?style=flat-square)](https://codecov.io/github/CarbonPHP/carbon/actions?branch=master)
 
 An international PHP extension for DateTime. [https://carbon.nesbot.com](https://carbon.nesbot.com)
+
+> [!NOTE]  
+> We're migrating the repository from [briannesbitt/Carbon](https://github.com/briannesbitt/Carbon) to [CarbonPHP/carbon](https://github.com/CarbonPHP/carbon),
+> which means if you're looking specific issues/pull-requests, you may have to search both. No other impact as code on both will be kept up to date. 
 
 ```php
 <?php
@@ -17,7 +20,6 @@ printf("Right now is %s", Carbon::now()->toDateTimeString());
 printf("Right now in Vancouver is %s", Carbon::now('America/Vancouver'));  //implicit __toString()
 $tomorrow = Carbon::now()->addDay();
 $lastWeek = Carbon::now()->subWeek();
-$nextSummerOlympics = Carbon::createFromDate(2016)->addYears(4);
 
 $officialDate = Carbon::now()->toRfc2822String();
 
@@ -50,10 +52,15 @@ echo Carbon::parse('2019-07-23 14:51')->locale('fr_FR')->isoFormat('LLLL'); // '
 // ... but also does 'from now', 'after' and 'before'
 // rolling up to seconds, minutes, hours, days, months, years
 
-$daysSinceEpoch = Carbon::createFromTimestamp(0)->diffInDays();
-```
+$daysSinceEpoch = Carbon::createFromTimestamp(0)->diffInDays(); // something such as:
+                                                                // 19817.6771
+$daysUntilInternetBlowUp = $internetWillBlowUpOn->diffInDays(); // Negative value since it's in the future:
+                                                                // -5037.4560
 
-[Get supported nesbot/carbon with the Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-nesbot-carbon?utm_source=packagist-nesbot-carbon&utm_medium=referral&utm_campaign=readme)
+// Without parameter, difference is calculated from now, but doing $a->diff($b)
+// it will count time from $a to $b.
+Carbon::createFromTimestamp(0)->diffInDays($internetWillBlowUpOn); // 24855.1348
+```
 
 ## Installation
 
@@ -66,7 +73,7 @@ $ composer require nesbot/carbon
 ```json
 {
     "require": {
-        "nesbot/carbon": "^2.16"
+        "nesbot/carbon": "^3"
     }
 }
 ```
@@ -82,7 +89,7 @@ printf("Now: %s", Carbon::now());
 
 ### Without Composer
 
-Why are you not using [composer](https://getcomposer.org/)? Download the Carbon [latest release](https://github.com/briannesbitt/Carbon/releases) and put the contents of the ZIP archive into a directory in your project. Then require the file `autoload.php` to get all classes and dependencies loaded on need.
+Why are you not using [composer](https://getcomposer.org/)? Download the Carbon [latest release](https://github.com/CarbonPHP/carbon/releases) and put the contents of the ZIP archive into a directory in your project. Then require the file `autoload.php` to get all classes and dependencies loaded on need.
 
 ```php
 <?php
@@ -93,7 +100,7 @@ use Carbon\Carbon;
 printf("Now: %s", Carbon::now());
 ```
 
-## Docs
+## Documentation
 
 [https://carbon.nesbot.com/docs](https://carbon.nesbot.com/docs)
 
@@ -109,7 +116,7 @@ Tidelift will coordinate the fix and disclosure.
 
 This project exists thanks to all the people who contribute. 
 
-<a href="https://github.com/briannesbitt/Carbon/graphs/contributors" target="_blank"><img src="https://opencollective.com/Carbon/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/CarbonPHP/carbon/graphs/contributors" target="_blank"><img src="https://opencollective.com/Carbon/contributors.svg?width=890&button=false" /></a>
 
 ### Translators
 
@@ -119,46 +126,57 @@ This project exists thanks to all the people who contribute.
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website.
 
-<a href="https://tidelift.com/subscription/pkg/packagist-nesbot-carbon?utm_source=packagist-nesbot-carbon&utm_medium=referral&utm_campaign=readme" target="_blank"><img src="https://carbon.nesbot.com/tidelift-brand.png" width="256" height="64"></a><!-- <open-collective-sponsors> -->
-<a title="Онлайн казино 777 Україна" href="https://777.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн казино" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/7e572d50-1ce8-4d69-ae12-86cc80371373/ok-ua-777.png" width="64" height="64"></a>
-<a title="#1 Guide To Online Gambling In Canada" href="https://casinohex.org/canada/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="CasinoHex Canada" src="https://opencollective-production.s3.us-west-1.amazonaws.com/79fdbcc0-a997-11eb-abbc-25e48b63c6dc.jpg" width="85" height="64"></a>
-<a title="Znajdź najlepsze zakłady bukmacherskie w Polsce w 2023 roku. Probukmacher.pl to Twoje kompendium wiedzy na temat bukmacherów!" href="https://www.probukmacher.pl?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Probukmacher" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/caf50271-4560-4ffe-a434-ea15239168db/Screenshot_1.png" width="89" height="64"></a>
-<a title="Gives a fun for our users" href="https://slotoking.ua/games/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Игровые автоматы" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/94601d07-3205-4c60-9c2d-9b8194dbefb7/skg-blue.png" width="64" height="64"></a>
-<a title="Casino-portugal.pt" href="https://casino-portugal.pt/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Casino-portugal.pt" src="https://logo.clearbit.com/casino-portugal.pt" width="64" height="64"></a>
-<a title="Slots City® ➢ Лучшее лицензионно казино онлайн и оффлайн на гривны в Украине. 【 Более1500 игровых автоматов и слотов】✅ Официально и Безопасно" href="https://slotscity.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Slots City" src="https://opencollective-production.s3.us-west-1.amazonaws.com/d7e298c0-7abe-11ed-8553-230872f5e54d.png" width="90" height="64"></a>
+<!-- <open-collective-sponsors> -->
+<a title="Онлайн казино 777 Україна" href="https://777.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн казино 777" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/7e572d50-1ce8-4d69-ae12-86cc80371373/ok-ua-777.png" width="96" height="96"></a>
+<a title="Best non Gamstop sites in the UK" href="https://www.pieria.co.uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Best non Gamstop sites in the UK" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/34e340b8-e1de-4932-8a76-1b3ce2ec7ee8/logo_white%20bg%20(8).png" width="96" height="96"></a>
+<a title="Real Money Pokies" href="https://onlinecasinoskiwi.co.nz/real-money-pokies/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Real Money Pokies" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/d0f7382e-32ea-4425-a8c4-3019f9ed501c/NZ_logo%20(6)%20(2).jpg" width="96" height="96"></a>
+<a title="Non GamStop Bookies UK" href="https://netto.co.uk/betting-sites-not-on-gamstop/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Non GamStop Bookies UK" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/43c5561c-8907-4ef7-a4ee-c6da054788b8/logo-site%20(3).jpg" width="96" height="96"></a>
+<a title="Trusted last mile route planning and route optimization" href="https://route4me.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Route4Me Route Planner" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/237386c3-48a2-47c6-97ac-5f888cdb4cda/Route4MeIconLogo.png" width="96" height="96"></a>
+<a title="Onlinecasinosgr.com" href="https://onlinecasinosgr.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Onlinecasinosgr.com" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/a9b971ee-db5f-4400-8c4b-76cf9bc35015/IMAGE%202024-06-14%2013%3A54%3A14.jpg" width="96" height="96"></a>
+<a title="Онлайн казино та БК (ставки на спорт) в Україні" href="https://betking.com.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Betking казино" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/08587758-582c-4136-aba5-2519230960d3/betking.jpg" width="96" height="96"></a>
+<a title="Ставки на спорт, БК в Україні" href="https://betking.com.ua/sports-book/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Букмекер" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/065e61d2-f890-42db-b06c-8d40b39b2f0e/bk.jpg" width="96" height="96"></a>
+<a title="WestNews –  проект Александра Победы о гемблинге и онлайн-казино в Украине, предлагающий новости, обзоры, рейтинги и гиды по игорным заведениям." href="https://westnews.com.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="WestNews онлайн казино Украины" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/7fae83dd-0d53-42f7-b63c-d7062a86ccb1/3502ab17-a150-40e1-8f01-c26ff60c4cf8.png" width="96" height="96"></a>
+<a title="Best Casinos not on Gamstop in the UK 2025" href="https://www.vso.org.uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="best non Gamstop casinos" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/3f48874e-f2f6-4062-a2a2-1500677ee3d9/125%D1%85125%20(1).jpg" width="96" height="96"></a>
+<a title="Slots not on GamStop" href="https://nogamstopcasinos.uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Slots not on GamStop" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/3b5fedc2-f3e5-41f5-84a9-869e2cbeb632/%D0%97%D0%BD%D1%96%D0%BC%D0%BE%D0%BA%20%D0%B5%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-01%20%D0%BE%2019.38.02%20(1)%20(1)%20(1).jpg" width="96" height="96"></a>
+<a title="#1 Guide To Online Gambling In Canada" href="https://casinohex.org/canada/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="CasinoHex Canada" src="https://opencollective-production.s3.us-west-1.amazonaws.com/79fdbcc0-a997-11eb-abbc-25e48b63c6dc.jpg" width="127.5" height="96"></a>
+<a title="OnlineCasinosSpelen" href="https://onlinecasinosspelen.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="OnlineCasinosSpelen" src="https://logo.clearbit.com/onlinecasinosspelen.com" width="64" height="64"></a>
+<a title="Betwinner is an online bookmaker offering sports betting, casino games, and more." href="https://guidebook.betwinner.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Guidebook.BetWinner" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/82cab29a-7002-4924-83bf-2eecb03d07c4/0x0.png" width="64" height="64"></a>
+<a title="Онлайн казино casino.ua" href="https://casino.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн казино casino.ua" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/32790ee6-245b-45bd-acf7-7a661fe2cf9f/logo.png" width="64" height="64"></a>
+<a title="Best PayID Pokies in Australia" href="https://payid-gambler.net/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="PayIDGambler" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/b120ff74-a4cc-4e25-a96f-2b040d60de14/payidgambler.png" width="64" height="64"></a>
+<a title="Legal-casino.net – незалежний інтернет-портал, присвячений ліцензійним онлайн казино України та азартним іграм в інтернеті. На якому не проводяться ігри на реальні чи віртуальні гроші." href="https://legal-casino.net/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Legal Casino" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/79978436-a1cb-42f1-8269-d495b232934a/legal-casino.jpg" width="64" height="64"></a>
+<a title="WildWinz online casino" href="https://wildwinz.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="WildWinz Casino" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/ccfcee7c-775c-4d43-ba23-3f0d2969497b/wildwinz.jpg" width="64" height="64"></a>
+<a title="Playfortune.net.br" href="https://playfortune.net.br/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Playfortune.net.br" src="https://logo.clearbit.com/playfortune.net.br" width="64" height="64"></a>
+<a title="https://play-fortune.pl/kasyno/z-minimalnym-depozytem/" href="https://play-fortune.pl/kasyno/z-minimalnym-depozytem/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="https://play-fortune.pl/kasyno/z-minimalnym-depozytem/" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/cbeea308-5148-4f6c-ac6e-dbfa029aadd1/PL.png" width="64" height="64"></a>
+<a title="Sites not on GamStop" href="https://casinonotongamstop.uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Sites not on GamStop" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/5c5977b8-1e94-43d6-b2d7-4af25bb85dbd/%D0%97%D0%BD%D1%96%D0%BC%D0%BE%D0%BA%20%D0%B5%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-01%20%D0%BE%2015.08.38%20(1)%20(2).jpg" width="103" height="64"></a>
+<a title="Проект с обзорами легальных онлайн казино Украины. Мы помогаем выбрать лучше казино онлайн игрокам." href="https://sportarena.com/casino/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Лучшие онлайн казино Украины на Sportarena" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/765475f7-3fea-4867-8f83-7b6f91b06128/sportarena%20(1).png" width="60" height="64"></a>
+<a title="Проєкт з оглядами онлайн казино та їхніх бонусів. На сайті можна знайти актуальні промокоди та інші бонуси онлайн казино України." href="https://y-k.com.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн казино та їхні бонуси y-k.com.ua" src="https://logo.clearbit.com/y-k.com.ua" width="64" height="64"></a>
 <a title="inkedin" href="https://inkedin.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="inkedin" src="https://logo.clearbit.com/inkedin.com" width="64" height="64"></a>
 <a title="Актуальний та повносправний рейтинг онлайн казино України, ґрунтований на відгуках реальних гравців." href="https://uk.onlinecasino.in.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн казино України" src="https://opencollective-production.s3.us-west-1.amazonaws.com/c0b4b090-eef8-11ec-9cb7-0527a205b226.png" width="64" height="64"></a>
-<a title="OnlineCasinosSpelen" href="https://onlinecasinosspelen.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="OnlineCasinosSpelen" src="https://logo.clearbit.com/onlinecasinosspelen.com" width="64" height="64"></a>
-<a title="Best non Gamstop sites in the UK" href="https://nongamstopcasinos.net/gb/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Best non Gamstop sites in the UK" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/34e340b8-e1de-4932-8a76-1b3ce2ec7ee8/logo_white%20bg%20(8).png" width="64" height="64"></a>
-<a title="Real Money Pokies" href="https://www.nzfirst.org.nz/real-money-pokies/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Real Money Pokies" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/30d38232-a9d6-4e95-a48c-641fdc4d96fd/NZ_logo%20(6)%20(1)%20(1).jpg" width="64" height="64"></a>
-<a title="Non GamStop Bookies UK" href="https://nongamstopbookies.com/uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Non GamStop Bookies UK" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/43c5561c-8907-4ef7-a4ee-c6da054788b8/logo-site%20(3).jpg" width="64" height="64"></a>
-<a title="Актуальний топ-рейтинг українських онлайн казино на гривні! Щоденне оновлення топу та унікальна система ранжування, основана на відгуках гравців!" href="https://onlinecasino.in.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Онлайн Казино Украины" src="https://opencollective-production.s3.us-west-1.amazonaws.com/8fdd8aa0-e273-11ec-a95e-d38fd331cabf.png" width="64" height="64"></a>
-<a title="Twitter Video Downloader HD Tool allows you to store tweets on your device (mobile or PC) for free." href="https://ssstwitter.online/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="SSSTwitter" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/ba0d1daf-a894-4d98-95f7-a44d321364b3/Screenshot%202024-01-16%20at%2011.43.22.png" width="76" height="64"></a>
-<a title="Entertainment" href="https://www.nongamstopbets.com/casinos-not-on-gamstop/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Non-GamStop Bets UK" src="https://logo.clearbit.com/nongamstopbets.com" width="64" height="64"></a>
-<a title="Chudovo - international software development company with representative offices in Kyiv, Cologne, New York, Tallinn and London. It has been working on the market since 2006. Company has domain expertise in video security, logistics, medicine, finance and" href="https://chudovo.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Chudovo" src="https://opencollective-production.s3.us-west-1.amazonaws.com/326c19a0-2e87-11eb-a13a-c99a2a201d11.png" width="84" height="42"></a>
-<a title="Entertainment" href="https://casinogap.org/uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="UK Casino Gap" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/143f9301-beec-4118-89d5-9a07a01345f3/casinogap-uk.png" width="42" height="42"></a>
-<a title="NZ Gaming Portal" href="https://casinodeps.co.nz?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="NZ Casino Deps" src="https://logo.clearbit.com/casinodeps.co.nz" width="42" height="42"></a>
-<a title="NonStop Sites" href="https://uk.nonstopcasino.org/non-gamstop-casinos/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="NonStopCasino.org" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/fd7ad905-8752-468f-ad20-582a24cca9d9/non-stop-casino.png" width="42" height="42"></a>
-<a title="Siti Non AAMS" href="https://www.outlookindia.com/outlook-spotlight/migliori-siti-non-aams-siti-scommesse-senza-licenza-sicuri-news-294715?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Migliori Siti Non AAMS" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/392810da-6cb6-4938-a3cb-38bd0e1eb7de/migliori-siti-non-aams.png" width="42" height="42"></a>
-<a title="List of trusted non GamStop casino reviews" href="https://nongamstopcasinos.org?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="UK NonGamStopCasinos" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/cbda0ee1-26ea-4252-9580-f1f9b317b1f7/nongamstopcasinos-uk.png" width="42" height="42"></a>
-<a title="Online TikTok Video Download Tool" href="https://snaptik.pro?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="SnapTik" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/546bcd53-6615-457d-ab21-1db1c52b3af5/logo.jpg" width="42" height="42"></a>
-<a title="IG Downloader is an Instagram Downloader service that offers a variety of tools to download Instagram content for free. Listed below are all the tools" href="https://indownloader.app/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="IG Downloader" src="https://logo.clearbit.com/indownloader.app" width="42" height="42"></a>
-<a title="Proxidize is a mobile proxy creation and management platform that provides all needed components from hardware to cloud software and SIM cards." href="https://proxidize.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Proxidize" src="https://logo.clearbit.com/proxidize.com" width="42" height="42"></a>
-<a title="Blastup offers Instagram growth services like buying likes, views, and followers, emphasizing real user engagement and instant delivery." href="https://blastup.com/buy-instagram-likes?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Blastup" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/955a0beb-9fe8-4753-ad92-fae8ef5382fc/favicon--dark.jpg" width="42" height="42"></a>
-<a title="A self-hosted web radio management suite, including turnkey installer tools and an easy-to-use web app to manage your stations." href="https://azuracast.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="AzuraCast" src="https://opencollective-production.s3.us-west-1.amazonaws.com/3c12ea10-cdfb-11eb-9cf4-3760b386b76d.png" width="42" height="42"></a>
-<a title="Triplebyte is the first software engineering job platform that is on the developer&#039;s side. Take our coding quiz!" href="https://triplebyte.com/os/opencollective?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Triplebyte" src="https://opencollective-production.s3.us-west-1.amazonaws.com/43e4f9d0-30cd-11ea-9c6b-e1142996e8b2.png" width="42" height="42"></a>
-<a title="Connect your Collective to GitHub Sponsors: https://docs.opencollective.com/help/collectives/github-sponsors" href="https://github.com/sponsors/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="GitHub Sponsors" src="https://opencollective-production.s3.us-west-1.amazonaws.com/87b1d240-f617-11ea-9960-fd7e8ab20fe4.png" width="48" height="42"></a>
-<a title="Salesforce" href="https://engineering.salesforce.com?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Salesforce" src="https://opencollective-production.s3.us-west-1.amazonaws.com/24d34880-df8d-11e9-949c-6bc2037b6bd5.png" width="42" height="42"></a>
-<!-- </open-collective-sponsors> -->
+<a title="The Betwinner program allows individuals and businesses to earn commissions." href="https://betwinnerpartner.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Betwinner Partner" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/46a67975-2b70-4b91-9106-0e224c664b21/images%20(12).jpg" width="64" height="64"></a>
+<a title="Offshore bookmakers review site." href="https://www.sportsbookreviewsonline.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Sportsbook Reviews Online" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/6d499f24-d669-4fc6-bb5f-b87184aa7963/sportsbookreviewsonline_com.png" width="64" height="64"></a>
+<a title="Ставки на спорт Favbet" href="https://www.favbet.ua/uk/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Ставки на спорт Favbet" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/d86d313e-7b17-42fa-8b76-3f17fbf681a2/favbet-logo.jpg" width="64" height="64"></a>
+<a title="Casino-portugal.pt" href="https://casino-portugal.pt/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Casino-portugal.pt" src="https://logo.clearbit.com/casino-portugal.pt" width="42" height="42"></a>
+<a title="Znajdź najlepsze zakłady bukmacherskie w Polsce w 2023 roku. Probukmacher.pl to Twoje kompendium wiedzy na temat bukmacherów!" href="https://www.probukmacher.pl?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Probukmacher" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/caf50271-4560-4ffe-a434-ea15239168db/Screenshot_1.png" width="58" height="42"></a>
+<a title="Get professional support for Carbon" href="https://tidelift.com/subscription/pkg/packagist-nesbot-carbon?utm_source=packagist-nesbot-carbon&amp;utm_medium=referral&amp;utm_campaign=docs" target="_blank"><img alt="Tidelift" src="https://carbon.nesbot.com/docs/sponsors/tidelift-brand.png" width="84" height="42"></a>
+<a title="Top Casinos Canada" href="https://topcasino.net/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Top Casinos Canada" src="https://topcasino.net/img/topcasino-logo-cover.png" width="42" height="42"></a>
+<a title="Best-betting.net is an Indian website where you can always find interesting, useful, and up-to-date information about cricket and other sports. Additionally, on our portal, you can explore predictions and betting opportunities for the most exciting sports" href="https://best-betting.net/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Best Betting" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/4b437e94-747c-4cf5-be67-d11bf8472d76/bestbetting-logo-cover.png" width="42" height="42"></a>
+<a title="Slots City® ➢ Лучшее лицензионно казино онлайн и оффлайн на гривны в Украине. 【 Более1500 игровых автоматов и слотов】✅ Официально и Безопасно" href="https://slotscity.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Slots City" src="https://opencollective-production.s3.us-west-1.amazonaws.com/d7e298c0-7abe-11ed-8553-230872f5e54d.png" width="59" height="42"></a>
+<a title="ігрові автомати беткінг" href="https://betking.com.ua/games/all-slots/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Ігрові автомати" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/94601d07-3205-4c60-9c2d-9b8194dbefb7/skg-blue.png" width="42" height="42"></a>
+<a title="Casinos not on Gamstop" href="https://lgcnews.com/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Non Gamstop Casinos" src="https://lgcnews.com/wp-content/uploads/2018/01/LGC-logo-v8-temp.png" width="84" height="42"></a>
+<a title="Slotozilla website" href="https://www.slotozilla.com/nz/free-spins" target="_blank"><img alt="Slotozilla" src="https://carbon.nesbot.com/docs/sponsors/slotozilla.png" width="42" height="42"></a>
+<a title="Per tutte le ultime notizie sul gioco d&#039;azzardo Non AAMS, le recensioni e i bonus di iscrizione." href="https://casinononaams.online?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="casino non aams" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/c60b92d1-590c-48a5-9527-fb0909431a86/casino%20non%20aams%20icon.jpg" width="42" height="42"></a>
+<a title="Credit Zaim" href="https://creditzaim.com.ua/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="Credit Zaim" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/a856ed4e-651d-47c9-aa7a-98059423b3a6/creditzaim_logo.png" width="42" height="42"></a>
+<a title="smmcity" href="https://www.reddit.com/r/instagramTalk/comments/1k0xp04/my_personal_experience_of_smmcity/?utm_source=opencollective&amp;utm_medium=github&amp;utm_campaign=Carbon" target="_blank"><img alt="smmcity" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-avatar/61338199-8fce-4dd4-997e-930122efc337/bada_bada.jpg" width="42" height="42"></a><!-- </open-collective-sponsors> -->
 
-[[Become a sponsor via OpenCollective](https://opencollective.com/Carbon#sponsor)]
+[[See all](https://carbon.nesbot.com/#sponsors)]
+[[Become a sponsor via OpenCollective*](https://opencollective.com/Carbon#sponsor)]
 
-<a href="https://github.com/johnrsimeone" target="_blank"><img src="https://avatars.githubusercontent.com/u/22871068?s=70&v=4" width="64" height="64"></a>
-<a href="https://github.com/taylorotwell" target="_blank"><img src="https://avatars.githubusercontent.com/u/463230?s=128&v=4" width="64" height="64"></a>
-<a href="https://github.com/getsentry" target="_blank"><img src="https://avatars.githubusercontent.com/u/1396951?s=128&v=4" width="64" height="64"></a>
-<a href="https://github.com/codecov" target="_blank"><img src="https://avatars.githubusercontent.com/u/8226205?s=128&v=4" width="64" height="64"></a>
+<a href="https://github.com/ssddanbrown" target="_blank"><img src="https://avatars.githubusercontent.com/u/8343178?s=128&v=4" width="42" height="42"></a>
+<a href="https://github.com/BallymaloeCookerySchool" target="_blank"><img src="https://avatars.githubusercontent.com/u/123261043?s=128&v=4" width="42" height="42"></a>
 
-[[Become a sponsor via GitHub](https://github.com/sponsors/kylekatarnls)]
+[[Become a sponsor via GitHub*](https://github.com/sponsors/kylekatarnls)]
+
+<small>* This is a donation. No goods or services are expected in return. Any requests for refunds for those purposes will be rejected.</small>
 
 ### Backers
 

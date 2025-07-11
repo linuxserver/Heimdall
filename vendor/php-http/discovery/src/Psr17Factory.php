@@ -49,12 +49,12 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
     private $uriFactory;
 
     public function __construct(
-        RequestFactoryInterface $requestFactory = null,
-        ResponseFactoryInterface $responseFactory = null,
-        ServerRequestFactoryInterface $serverRequestFactory = null,
-        StreamFactoryInterface $streamFactory = null,
-        UploadedFileFactoryInterface $uploadedFileFactory = null,
-        UriFactoryInterface $uriFactory = null
+        ?RequestFactoryInterface $requestFactory = null,
+        ?ResponseFactoryInterface $responseFactory = null,
+        ?ServerRequestFactoryInterface $serverRequestFactory = null,
+        ?StreamFactoryInterface $streamFactory = null,
+        ?UploadedFileFactoryInterface $uploadedFileFactory = null,
+        ?UriFactoryInterface $uriFactory = null
     ) {
         $this->requestFactory = $requestFactory;
         $this->responseFactory = $responseFactory;
@@ -98,7 +98,7 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
         return $factory->createServerRequest(...\func_get_args());
     }
 
-    public function createServerRequestFromGlobals(array $server = null, array $get = null, array $post = null, array $cookie = null, array $files = null, StreamInterface $body = null): ServerRequestInterface
+    public function createServerRequestFromGlobals(?array $server = null, ?array $get = null, ?array $post = null, ?array $cookie = null, ?array $files = null, ?StreamInterface $body = null): ServerRequestInterface
     {
         $server = $server ?? $_SERVER;
         $request = $this->createServerRequest($server['REQUEST_METHOD'] ?? 'GET', $this->createUriFromGlobals($server), $server);
@@ -134,7 +134,7 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
         return $factory->createStreamFromResource($resource);
     }
 
-    public function createUploadedFile(StreamInterface $stream, int $size = null, int $error = \UPLOAD_ERR_OK, string $clientFilename = null, string $clientMediaType = null): UploadedFileInterface
+    public function createUploadedFile(StreamInterface $stream, ?int $size = null, int $error = \UPLOAD_ERR_OK, ?string $clientFilename = null, ?string $clientMediaType = null): UploadedFileInterface
     {
         $factory = $this->uploadedFileFactory ?? $this->setFactory(Psr17FactoryDiscovery::findUploadedFileFactory());
 
@@ -148,7 +148,7 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
         return $factory->createUri(...\func_get_args());
     }
 
-    public function createUriFromGlobals(array $server = null): UriInterface
+    public function createUriFromGlobals(?array $server = null): UriInterface
     {
         return $this->buildUriFromGlobals($this->createUri(''), $server ?? $_SERVER);
     }

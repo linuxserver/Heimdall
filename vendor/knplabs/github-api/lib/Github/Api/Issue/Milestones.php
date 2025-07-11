@@ -36,9 +36,9 @@ class Milestones extends AbstractApi
         }
 
         return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/milestones', array_merge([
-            'page'      => 1,
-            'state'     => 'open',
-            'sort'      => 'due_date',
+            'page' => 1,
+            'state' => 'open',
+            'sort' => 'due_date',
             'direction' => 'asc',
         ], $params));
     }

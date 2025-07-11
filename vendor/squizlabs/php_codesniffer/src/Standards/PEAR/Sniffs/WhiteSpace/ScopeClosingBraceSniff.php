@@ -93,16 +93,19 @@ class ScopeClosingBraceSniff implements Sniff
         }
 
         // Check that the closing brace is on it's own line.
-        $lastContent = $phpcsFile->findPrevious(
-            [
-                T_WHITESPACE,
-                T_INLINE_HTML,
-                T_OPEN_TAG,
-            ],
-            ($scopeEnd - 1),
-            $scopeStart,
-            true
-        );
+        for ($lastContent = ($scopeEnd - 1); $lastContent > $scopeStart; $lastContent--) {
+            if ($tokens[$lastContent]['code'] === T_WHITESPACE || $tokens[$lastContent]['code'] === T_OPEN_TAG) {
+                continue;
+            }
+
+            if ($tokens[$lastContent]['code'] === T_INLINE_HTML
+                && ltrim($tokens[$lastContent]['content']) === ''
+            ) {
+                continue;
+            }
+
+            break;
+        }
 
         if ($tokens[$lastContent]['line'] === $tokens[$scopeEnd]['line']) {
             $error = 'Closing brace must be on a line by itself';

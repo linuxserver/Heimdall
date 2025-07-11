@@ -8,12 +8,12 @@
         <code title="Valid: Using echo without parentheses.">
         <![CDATA[
 echo<em> </em>"Hello";
-]]>
+        ]]>
         </code>
         <code title="Invalid: Using echo with parentheses.">
         <![CDATA[
 echo<em>(</em>"Hello"<em>)</em>;
-]]>
+        ]]>
         </code>
     </code_comparison>
 </documentation>

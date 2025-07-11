@@ -1,0 +1,35 @@
+<documentation title="Code Comparison, block length">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: code sample A has more lines than B.">
+        <![CDATA[
+// This code sample has more lines
+// than the "invalid" one.
+<em>$one</em> = 10;
+        ]]>
+        </code>
+        <code title="Invalid: shorter.">
+        <![CDATA[
+<em>$a</em> = 10;
+        ]]>
+        </code>
+    </code_comparison>
+    <code_comparison>
+        <code title="Valid: shorter.">
+        <![CDATA[
+<em>echo</em> $foo;
+        ]]>
+        </code>
+        <code title="Invalid: code sample B has more lines than A.">
+        <![CDATA[
+// This code sample has more lines
+// than the "valid" one.
+<em>print</em> $foo;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

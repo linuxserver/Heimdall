@@ -1,0 +1,42 @@
+<documentation title="Code Comparison, char encoding">
+    <standard>
+    <![CDATA[
+    This is a standard block.
+    ]]>
+    </standard>
+    <code_comparison>
+        <code title="Valid: Vestibulum et orci condimentum.">
+        <![CDATA[
+<?php
+
+// The above PHP tag is specifically testing
+// handling of that in generated HTML doc.
+
+// Now let's also check the handling of
+// comparison operators in code samples...
+$a = $b < $c;
+$d = $e > $f;
+$g = $h <= $i;
+$j = $k >= $l;
+$m = $n <=> $o;
+        ]]>
+        </code>
+        <code title="Invalid: Donec in nisl ut tortor convallis interdum.">
+        <![CDATA[
+<em><?php</em>
+
+// The above PHP tag is specifically testing
+// handling of that in generated HTML doc.
+
+// Now let's also check the handling of
+// comparison operators in code samples
+// in combination with "em" tags.
+$a = $b <em><</em> $c;
+$d = $e > $f;
+$g = <em>$h <= $i</em>;
+$j = $k >= $l;
+$m = $n <em><=></em> $o;
+        ]]>
+        </code>
+    </code_comparison>
+</documentation>

@@ -90,7 +90,7 @@ class ForEachLoopDeclarationSniff implements Sniff
                     $this->requiredSpacesAfterOpen,
                     $spaceAfterOpen,
                 ];
-                $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'SpacingAfterOpen', $data);
+                $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'SpaceAfterOpen', $data);
                 if ($fix === true) {
                     $padding = str_repeat(' ', $this->requiredSpacesAfterOpen);
                     if ($spaceAfterOpen === 0) {

@@ -14,7 +14,7 @@ class TwoFactorAuthenticationRequiredException extends RuntimeException
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $type, int $code = 0, Throwable $previous = null)
+    public function __construct(string $type, int $code = 0, ?Throwable $previous = null)
     {
         $this->type = $type;
         parent::__construct('Two factor authentication is enabled on this account', $code, $previous);
