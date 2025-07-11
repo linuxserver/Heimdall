@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use App\Services\CustomFormBuilder;
+use Spatie\Html\Html;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -127,6 +129,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isLocal()) {
             $this->app->register(IdeHelperServiceProvider::class);
         }
+
+        $this->app->singleton('custom-form', function ($app) {
+            return new CustomFormBuilder($app->make(Html::class));
+        });
 
         $this->app->singleton('settings', function () {
             return new Setting();
