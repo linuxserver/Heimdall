@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use enshrined\svgSanitize\Sanitizer;
 
 /**
  * @param $bytes
@@ -129,7 +130,11 @@ function isImage(string $file, string $extension): bool
     fwrite($handle, $file);
     fclose($handle);
 
-    if ($extension == 'svg') {
+    if ($extension === 'svg') {
+        $sanitizer = new Sanitizer();
+        $sanitizedSvg = $sanitizer->sanitize(file_get_contents($tempFileName));
+        file_put_contents($tempFileName, $sanitizedSvg);
+
         return 'image/svg+xml' === mime_content_type($tempFileName);
     }
 

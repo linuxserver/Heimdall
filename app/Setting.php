@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\Store;
+use enshrined\svgSanitize\Sanitizer;
 
 /**
  * App\Setting
@@ -70,9 +71,23 @@ class Setting extends Model
 
     public static function getInput(Request $request): object
     {
+        $image = $request->file('value');
+        if ($image && $image->getClientOriginalExtension() === 'svg') {
+            $sanitizer = new Sanitizer();
+            $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
+
+            // Verify that the sanitization removed malicious content
+            if (strpos($sanitizedSvg, '<script>') !== false) {
+                throw new \Exception('SVG contains malicious content and cannot be uploaded.');
+            }
+
+            // Save the sanitized SVG back to the file
+            file_put_contents($image->getRealPath(), $sanitizedSvg);
+        }
+
         return (object) [
             'value' => $request->input('value'),
-            'image' => $request->file('value'),
+            'image' => $image,
         ];
     }
 
@@ -192,7 +207,7 @@ class Setting extends Model
 
         return $value;
     }
-    
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(\App\SettingGroup::class, 'group_id');
