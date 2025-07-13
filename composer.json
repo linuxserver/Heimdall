@@ -9,18 +9,19 @@
     "type": "project",
     "require": {
         "php": "^8.2",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "enshrined/svg-sanitize": "^0.21.0",
         "graham-campbell/github": "^12.5",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.45",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.4",
-        "nunomaduro/collision": "^8.0",
-        "symfony/yaml": "^7.0",
-        "ext-json": "*",
-        "ext-intl": "*",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "nunomaduro/collision": "^8.0",
+        "spatie/laravel-html": "^3.11",
         "spatie/laravel-ignition": "^2.4",
-        "spatie/laravel-html": "^3.11"
+        "symfony/yaml": "^7.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",

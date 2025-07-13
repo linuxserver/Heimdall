@@ -1,0 +1,33 @@
+{
+    "name": "enshrined/svg-sanitize",
+    "description": "An SVG sanitizer for PHP",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daryll Doyle",
+            "email": "daryll@enshrined.co.uk"
+        }
+    ],
+    "scripts": {
+        "test": "phpunit --no-coverage",
+        "test:coverage": "phpunit"
+    },
+    "autoload": {
+        "psr-4": {
+            "enshrined\\svgSanitize\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "enshrined\\svgSanitize\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "php": "^7.1 || ^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5 || ^8.5"
+    }
+}

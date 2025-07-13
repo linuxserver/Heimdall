@@ -54,6 +54,10 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         array (
             'voku\\' => 5,
         ),
+        'e' => 
+        array (
+            'enshrined\\svgSanitize\\' => 22,
+        ),
         'W' => 
         array (
             'Whoops\\' => 7,
@@ -226,6 +230,10 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'voku\\' => 
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
+        ),
+        'enshrined\\svgSanitize\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/enshrined/svg-sanitize/src',
         ),
         'Whoops\\' => 
         array (
@@ -720,6 +728,7 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'App\\Application' => __DIR__ . '/../..' . '/app/Application.php',
         'App\\Console\\Commands\\RegisterApp' => __DIR__ . '/../..' . '/app/Console/Commands/RegisterApp.php',
         'App\\EnhancedApps' => __DIR__ . '/../..' . '/app/EnhancedApps.php',
+        'App\\Facades\\Form' => __DIR__ . '/../..' . '/app/Facades/Form.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
@@ -745,10 +754,13 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
         'App\\Search' => __DIR__ . '/../..' . '/app/Search.php',
         'App\\SearchInterface' => __DIR__ . '/../..' . '/app/SearchInterface.php',
+        'App\\Services\\CustomFormBuilder' => __DIR__ . '/../..' . '/app/Services/CustomFormBuilder.php',
         'App\\Setting' => __DIR__ . '/../..' . '/app/Setting.php',
         'App\\SettingGroup' => __DIR__ . '/../..' . '/app/SettingGroup.php',
         'App\\SettingUser' => __DIR__ . '/../..' . '/app/SettingUser.php',
         'App\\SupportedApps' => __DIR__ . '/../..' . '/app/SupportedApps.php',
+        'App\\SupportedApps\\Nzbget\\Nzbget' => __DIR__ . '/../..' . '/app/SupportedApps/Nzbget/Nzbget.php',
+        'App\\SupportedApps\\SABnzbd\\SABnzbd' => __DIR__ . '/../..' . '/app/SupportedApps/SABnzbd/SABnzbd.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Aws\\ACMPCA\\ACMPCAClient' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/ACMPCA/ACMPCAClient.php',
@@ -8791,6 +8803,17 @@ class ComposerStaticInitb2555e5ff7197b9e020da74bbd3b7cfa
         'Whoops\\Util\\Misc' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/Misc.php',
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
+        'enshrined\\svgSanitize\\ElementReference\\Resolver' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Resolver.php',
+        'enshrined\\svgSanitize\\ElementReference\\Subject' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Subject.php',
+        'enshrined\\svgSanitize\\ElementReference\\Usage' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Usage.php',
+        'enshrined\\svgSanitize\\Exceptions\\NestingException' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Exceptions/NestingException.php',
+        'enshrined\\svgSanitize\\Helper' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Helper.php',
+        'enshrined\\svgSanitize\\Sanitizer' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Sanitizer.php',
+        'enshrined\\svgSanitize\\data\\AllowedAttributes' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/AllowedAttributes.php',
+        'enshrined\\svgSanitize\\data\\AllowedTags' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/AllowedTags.php',
+        'enshrined\\svgSanitize\\data\\AttributeInterface' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/AttributeInterface.php',
+        'enshrined\\svgSanitize\\data\\TagInterface' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/TagInterface.php',
+        'enshrined\\svgSanitize\\data\\XPath' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/XPath.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
         '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
     );

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use enshrined\svgSanitize\Sanitizer;
 
 class ItemController extends Controller
 {
@@ -236,7 +237,23 @@ class ItemController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('icons', 'public');
+            $image = $request->file('file');
+            $extension = $image->getClientOriginalExtension();
+
+            if ($extension === 'svg') {
+                $sanitizer = new Sanitizer();
+                $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
+
+                // Verify that the sanitization removed malicious content
+                if (strpos($sanitizedSvg, '<script>') !== false) {
+                    throw ValidationException::withMessages(['file' => 'SVG contains malicious content and cannot be uploaded.']);
+                }
+
+                // Save the sanitized SVG back to the file
+                file_put_contents($image->getRealPath(), $sanitizedSvg);
+            }
+
+            $path = $image->store('icons', 'public');
             $request->merge([
                 'icon' => $path,
             ]);
@@ -256,6 +273,16 @@ class ItemController extends Controller
             $extension = $path_parts['extension'];
 
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
+
+            if ($extension === 'svg') {
+                $sanitizer = new Sanitizer();
+                $contents = $sanitizer->sanitize($contents);
+
+                // Verify that the sanitization removed malicious content
+                if (strpos($contents, '<script>') !== false) {
+                    throw ValidationException::withMessages(['file' => 'SVG contains malicious content and cannot be uploaded.']);
+                }
+            }
 
             if (!isImage($contents, $extension)) {
                 throw ValidationException::withMessages(['file' => 'Icon must be an image.']);

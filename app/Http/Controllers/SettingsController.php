@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\SettingGroup;
 use Exception;
+use enshrined\svgSanitize\Sanitizer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,16 +69,30 @@ class SettingsController extends Controller
 
             if ($setting->type === 'image') {
                 $validatedData = $request->validate([
-                    'value' => 'image'
+                    'value' => 'image',
                 ]);
 
                 if (!$request->hasFile('value')) {
-                    throw new \Exception(
-                        'file_too_big'
-                    );
+                    throw new \Exception('file_too_big');
                 }
 
-                $path = $request->file('value')->store('backgrounds', 'public');
+                $image = $request->file('value');
+                $extension = $image->getClientOriginalExtension();
+
+                if ($extension === 'svg') {
+                    $sanitizer = new Sanitizer();
+                    $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
+
+                    // Verify that the sanitization removed malicious content
+                    if (strpos($sanitizedSvg, '<script>') !== false) {
+                        throw new \Exception('SVG contains malicious content and cannot be uploaded.');
+                    }
+
+                    // Save the sanitized SVG back to the file
+                    file_put_contents($image->getRealPath(), $sanitizedSvg);
+                }
+
+                $path = $image->store('backgrounds', 'public');
 
                 if ($path === null) {
                     throw new \Exception('file_not_stored');
@@ -99,7 +114,7 @@ class SettingsController extends Controller
         } catch (Exception $e) {
             return redirect($route)
                 ->with([
-                    'errors' => collect([__('app.alert.error.'.$e->getMessage())]),
+                    'errors' => collect([__('app.alert.error.' . $e->getMessage())]),
                 ]);
         }
     }
