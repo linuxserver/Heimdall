@@ -2,12 +2,12 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
+        "development": "npx mix",
+        "watch": "npx mix watch",
+        "watch-poll": "npx mix watch -- --watch-options-poll=1000",
+        "hot": "npx mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production",
+        "production": "npx mix --production",
         "lint": "eslint 'resources/assets/js/*'"
     },
     "devDependencies": {
@@ -21,7 +21,9 @@
         "laravel-mix": "^6.0.49",
         "prettier": "^2.8.1",
         "sass": "^1.56.1",
-        "sass-loader": "13.*"
+        "sass-loader": "13.*",
+        "webpack": "^5.100.1",
+        "webpack-cli": "^6.0.1"
     },
     "dependencies": {
         "select2": "^4.0.13",

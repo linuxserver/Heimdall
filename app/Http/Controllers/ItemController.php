@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Illuminate\Http\Response;
 use enshrined\svgSanitize\Sanitizer;
 
 class ItemController extends Controller
@@ -490,25 +491,48 @@ class ItemController extends Controller
      */
     public function execute($url, array $attrs = [], $overridevars = false): ?ResponseInterface
     {
-        $vars = ($overridevars !== false) ?
-            $overridevars : [
-                'http_errors' => false,
-                'timeout' => 15,
-                'connect_timeout' => 15,
-                'verify' => false,
-            ];
+        // Default Guzzle client configuration
+        $clientOptions = [
+            'http_errors' => false,
+            'timeout' => 15,
+            'connect_timeout' => 15,
+            'verify' => false, // In production, set this to `true` and manage certs.
+        ];
 
-        $client = new Client($vars);
+        // If the user provided overrides, use them.
+        if ($overridevars !== false) {
+            $clientOptions = $overridevars;
+        }
 
+        // Resolve the hostname to an IP address
+        $host = parse_url($url, PHP_URL_HOST);
+        $ip = gethostbyname($host);
+
+        // Check if the IP is private or reserved
+        $allowInternalIps = env('ALLOW_INTERNAL_REQUESTS', false);
+        if (!$allowInternalIps && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            Log::warning('Blocked access to private or reserved IPs.', ['ip' => $ip, 'host' => $host]);
+            abort(Response::HTTP_FORBIDDEN, 'Access to private or reserved IPs is not allowed.');
+        }
+
+        // Force Guzzle to use the resolved IP address
+        $clientOptions['curl'][CURLOPT_RESOLVE] = ["{$host}:80:{$ip}", "{$host}:443:{$ip}"];
+
+        $client = new Client($clientOptions);
         $method = 'GET';
 
         try {
             return $client->request($method, $url, $attrs);
         } catch (ConnectException $e) {
-            Log::error('Connection refused');
-            Log::debug($e->getMessage());
+            Log::warning('SSRF Attempt Blocked: Connection to a private IP was prevented.', [
+                'url' => $url,
+                'error' => $e->getMessage()
+            ]);
+            return null;
         } catch (ServerException $e) {
             Log::debug($e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('General error: ' . $e->getMessage());
         }
 
         return null;
@@ -520,10 +544,22 @@ class ItemController extends Controller
      */
     public function websitelookup($url): StreamInterface
     {
-        $url = base64_decode($url);
-        $data = $this->execute($url);
+        $decodedUrl = base64_decode($url);
 
-        return $data->getBody();
+        // Validate the URL format.
+        if (filter_var($decodedUrl, FILTER_VALIDATE_URL) === false) {
+            abort(Response::HTTP_BAD_REQUEST, 'Invalid URL format provided.');
+        }
+
+        $response = $this->execute($decodedUrl);
+
+        // If execute() returns null, it means the connection failed.
+        // This can happen for many reasons, including our SSRF protection kicking in.
+        if ($response === null) {
+            abort(Response::HTTP_FORBIDDEN, 'Access to the requested resource is not allowed or the resource is unavailable.');
+        }
+    
+        return $response->getBody();
     }
 
     /**

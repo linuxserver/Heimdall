@@ -183,6 +183,35 @@ openssl.cafile = /config/heimdall.pem
 
 Restart the container and the Enhanced apps should now be able to access your local HTTP websites. This configuration will survive updating or recreating the Heimdall container.
 
+## Allow Internal IP Requests
+
+By default, Heimdall blocks requests to private or reserved IP addresses to mitigate potential security risks such as Server-Side Request Forgery (SSRF). However, you can enable access to internal IPs by setting the `ALLOW_INTERNAL_REQUESTS` environment variable in your `.env` file.
+
+### Steps to Enable Internal IP Requests
+1. Open your `.env` file located in the root directory of your Heimdall installation.
+2. Add the following line:
+   ```env
+   ALLOW_INTERNAL_REQUESTS=true
+   ```
+   Setting this to `true` allows Heimdall to make requests to internal IP addresses (e.g., `192.168.x.x`, `10.x.x.x`, `127.0.0.1`).
+
+3. Save the file and clear the Laravel configuration cache:
+   ```bash
+   php artisan config:clear
+   ```
+
+4. Restart your web server or development server:
+   ```bash
+   php artisan serve
+   ```
+
+### Default Behavior
+If the `ALLOW_INTERNAL_REQUESTS` variable is not set or is set to `false`, Heimdall will block requests to private or reserved IP addresses and return a `403 Forbidden` error.
+
+### Important Notes
+- Enabling internal IP requests may expose your application to SSRF risks if your Heimdall instance is accessible from the internet. Ensure your instance is properly secured and not publicly accessible.
+- Use this feature only if you trust the internal network and understand the security implications.
+
 ## Running offline
 The apps list is hosted on github, you have a couple of options if you want to run without a connection to the outside world:
 1) Clone the repository and host it yourself, look at the .github actions file to see how to generate the apps list.
