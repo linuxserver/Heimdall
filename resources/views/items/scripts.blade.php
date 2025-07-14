@@ -153,7 +153,12 @@
                     $('#tile-preview .title').text($('#appname').val());
                     $('#websiteiconoptions').html('<div class="header"><span>Select Icon</span><span class="selectclose">Close</span></div><div class="results"></div>')
                     icons.forEach(icon => {
-                        $('#websiteiconoptions .results').append('<div class="iconbutton"><img class="selecticon" src="' + icon + '" /></div>')
+                        $('#websiteiconoptions .results').append(`
+    <div class="iconbutton">
+        <img class="selecticon" src="${icon}" />
+        <span class="icon-name">${icon.split('/').pop()}</span>
+    </div>
+`);
                     })
                     console.log(websitedata)
                 })

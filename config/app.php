@@ -9,6 +9,7 @@ return [
 
     'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
 
+    'allow_internal_requests' => env('ALLOW_INTERNAL_REQUESTS', false),
 
     'aliases' => Facade::defaultAliases()->merge([
         'EnhancedApps' => App\EnhancedApps::class,
