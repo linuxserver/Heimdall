@@ -45,13 +45,13 @@
         <div style="margin-top: -40px; width: 100%; padding: 0" class="create">
             <div class="input">
                 <label>{{ __('app.apps.password') }} *</label>
-                {{ html()->password('password', array('class' => 'form-control'))->attributes(null) }}
+                {{ html()->password('password', array('class' => 'form-control'))->attributes([]) }}
                 <hr />
 
             </div>
             <div class="input">
                 <label>{{ __('app.user.password_confirm') }} *</label>
-                {{ html()->password('password_confirmation', array('class' => 'form-control'))->attributes(null) }}
+                {{ html()->password('password_confirmation', array('class' => 'form-control'))->attributes([]) }}
             </div>
         </div>
 
