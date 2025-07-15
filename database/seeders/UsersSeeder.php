@@ -18,6 +18,7 @@ class UsersSeeder extends Seeder
             $user->username = 'admin';
             $user->email = 'admin@test.com';
             $user->password = null;
+            $user->public_front = 0; // Default value for public_front
             $user->save();
 
             $user_id = $user->id;
