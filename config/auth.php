@@ -9,5 +9,11 @@ return [
             'hash' => false,
         ],
     ],
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\User::class, // Update this to the correct namespace
+        ],
+    ],
 
 ];

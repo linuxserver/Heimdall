@@ -322,7 +322,7 @@ class ItemController extends Controller
             'user_id' => $current_user->getId(),
         ]);
 
-        if ($request->input('appid') === 'null') {
+        if ($request->input('appid') === 'null' || $request->input('appid') === null) {
             $request->merge([
                 'class' => null,
             ]);
