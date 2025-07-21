@@ -35,5 +35,12 @@ class CustomFormBuilder
         );
     }
 
+    public function input($type, $name, $value = null, $options = [])
+    {
+        return new HtmlString(
+            $this->html->input($type, $name, $value)->attributes($options)
+        );
+    }
+
     // Add other methods as needed
 }
