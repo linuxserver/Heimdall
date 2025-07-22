@@ -194,6 +194,7 @@ class ItemController extends Controller
     public function create(): View
     {
         //
+        $data['item'] = new \App\Item();
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = '0';
