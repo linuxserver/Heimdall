@@ -194,6 +194,7 @@ class ItemController extends Controller
     public function create(): View
     {
         //
+        $data['item'] = new \App\Item();
         $data['tags'] = Item::ofType('tag')->orderBy('title', 'asc')->pluck('title', 'id');
         $data['tags']->prepend(__('app.dashboard'), 0);
         $data['current_tags'] = '0';
@@ -422,6 +423,7 @@ class ItemController extends Controller
     {
         $output = [];
         $appid = $request->input('app');
+        $itemId = $request->input('item_id');
 
         if ($appid === 'null') {
             return null;
@@ -436,8 +438,10 @@ class ItemController extends Controller
         $appdetails = Application::getApp($appid);
 
         if ((bool)$app->enhanced === true) {
+            $item = $itemId ? Item::find($itemId) : Item::where('appid', $appid)->first();
             // if(!isset($app->config)) { // class based config
             $output['custom'] = className($appdetails->name) . '.config';
+            $output['appvalue'] = $item->description;
             // }
         }
 
