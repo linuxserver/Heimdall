@@ -171,13 +171,14 @@
             })
 
             function appload(appvalue) {
+                const itemId = $('input[name="item_id"]').val();
                 if(appvalue == 'null') {
                     $('#sapconfig').html('').hide();
                     $('#tile-preview .app-icon').attr('src', '/img/heimdall-icon-small.png');
                     $('#appimage').html("<img src='/img/heimdall-icon-small.png' />");
                     $('#sapconfig').html('').hide();
                 } else {
-                    $.post('{{ route('appload') }}', { app: appvalue }, function(data) {
+                    $.post('{{ route('appload') }}', { app: appvalue, item_id: itemId }, function(data) {
                         // Main details
                         $('#appimage').html("<img src='"+data.iconview+"' /><input type='hidden' name='icon' value='"+data.iconview+"' />");
                         $('input[name=colour]').val(data.colour);
@@ -194,6 +195,21 @@
                         if(data.custom != null) {
                             $.get(base+'view/'+data.custom, function(getdata) {
                                 $('#sapconfig').html(getdata).show();
+                                // Populate fields in the loaded form with description data
+                                if (data.description) {
+                                    const description = JSON.parse(data.appvalue);
+                                    Object.keys(description).forEach(function(key) {
+                                        const value = description[key];
+                                        const field = $(`#sapconfig [name="config[${key}]"]`);
+                                        if (field.length) {
+                                            if (field.is(':checkbox')) {
+                                                field.prop('checked', value);
+                                            } else {
+                                                field.val(value);
+                                            }
+                                        }
+                                    });
+                                }
                             });
                         } else {
                             $('#sapconfig').html('').hide();

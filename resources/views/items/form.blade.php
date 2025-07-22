@@ -1,6 +1,7 @@
 <section class="module-container">
         @if($enable_auth_admin_controls)
         <header>
+            {{ html()->hidden('app_id', $item->id) }}
             <div class="section-title">{{ __('app.apps.preview') }}</div>
             <div class="module-actions">
             <div class="toggleinput">
@@ -120,7 +121,7 @@
             @if(isset($item) && $item->enhanced())
 
             <div id="sapconfig" style="display: block;">
-                @if(isset($item))
+                @if(isset($item) && $item->class)
                 @include('SupportedApps::'.App\Item::nameFromClass($item->class).'.config')
                 @endif
             </div>
