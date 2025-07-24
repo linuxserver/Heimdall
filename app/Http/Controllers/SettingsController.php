@@ -45,6 +45,7 @@ class SettingsController extends Controller
         if (! is_null($setting)) {
             return view('settings.edit')->with([
                 'setting' => $setting,
+                'value' => $setting->value,
             ]);
         } else {
             $route = route('settings.list', []);

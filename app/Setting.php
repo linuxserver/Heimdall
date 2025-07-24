@@ -150,41 +150,41 @@ class Setting extends Model
         switch ($this->type) {
             case 'image':
                 $value = '';
-                if (isset($this->value) && ! empty($this->value)) {
-                    $value .= '<a class="setting-view-image" href="'.
-                        asset('storage/'.$this->value).
-                        '" title="'.
-                        __('app.settings.view').
-                        '" target="_blank"><img src="'.
-                        asset('storage/'.
-                            $this->value).
+                if (isset($this->value) && !empty($this->value)) {
+                    $value .= '<a class="setting-view-image" href="' .
+                        asset('storage/' . $this->value) .
+                        '" title="' .
+                        __('app.settings.view') .
+                        '" target="_blank"><img src="' .
+                        asset('storage/' .
+                            $this->value) .
                         '" /></a>';
                 }
                 $value .= '<input type="file" name="value" class="form-control" />';
-                if (isset($this->value) && ! empty($this->value)) {
-                    $value .= '<a class="settinglink" href="'.
-                        route('settings.clear', $this->id).
-                        '" title="'.
-                        __('app.settings.remove').
-                        '">'.
-                        __('app.settings.reset').
+                if (isset($this->value) && !empty($this->value)) {
+                    $value .= '<a class="settinglink" href="' .
+                        route('settings.clear', $this->id) .
+                        '" title="' .
+                        __('app.settings.remove') .
+                        '">' .
+                        __('app.settings.reset') .
                         '</a>';
                 }
-
+    
                 break;
             case 'boolean':
                 $checked = false;
-                if (isset($this->value) && (bool) $this->value === true) {
+                if (isset($this->value) && (bool)$this->value === true) {
                     $checked = true;
                 }
                 $set_checked = ($checked) ? ' checked="checked"' : '';
                 $value = '
                 <input type="hidden" name="value" value="0" />
                 <label class="switch">
-                    <input type="checkbox" name="value" value="1"'.$set_checked.' />
+                    <input type="checkbox" name="value" value="1"' . $set_checked . ' />
                     <span class="slider round"></span>
                 </label>';
-
+    
                 break;
             case 'select':
                 $options = json_decode($this->options);
@@ -193,21 +193,21 @@ class Setting extends Model
                 }
                 $value = '<select name="value" class="form-control">';
                 foreach ($options as $key => $opt) {
-                    $value .= '<option value="'.$key.'" '.(($this->value == $key) ? 'selected' : '').'>'.__($opt).'</option>';
+                    $value .= '<option value="' . $key . '" ' . (($this->value == $key) ? 'selected' : '') . '>' . __($opt) . '</option>';
                 }
                 $value .= '</select>';
                 break;
             case 'textarea':
-                $value = '<textarea name="value" class="form-control" cols="44" rows="15"></textarea>';
+                $value = '<textarea name="value" class="form-control" cols="44" rows="15">' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '</textarea>';
                 break;
             default:
-                $value = '<input type="text" name="value" class="form-control" />';
+                $value = '<input type="text" name="value" class="form-control" value="' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '" />';
                 break;
         }
-
+    
         return $value;
     }
-
+    
     public function group(): BelongsTo
     {
         return $this->belongsTo(\App\SettingGroup::class, 'group_id');
