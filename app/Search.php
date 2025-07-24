@@ -121,7 +121,7 @@ abstract class Search
                     $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
                 }
                 $output .= '</select>';
-                $output .= '<input type="text" name="q" value="'.(Input::get('q') ?? '').'" class="homesearch" autofocus placeholder="'.__('app.settings.search').'..." />';
+                $output .= '<input type="text" name="q" value="'.e(Input::get('q') ?? '').'" class="homesearch" autofocus placeholder="'.__('app.settings.search').'..." />';
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';
                 $output .= '</form>';

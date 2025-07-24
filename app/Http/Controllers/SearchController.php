@@ -18,6 +18,9 @@ class SearchController extends Controller
         $requestprovider = $request->input('provider');
         $query = $request->input('q');
 
+        // Sanitize the query to prevent XSS
+        $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8'); 
+
         // Validate the presence and non-emptiness of the query parameter
         if (!$query || trim($query) === '') {
             abort(400, 'Missing or empty query parameter');
