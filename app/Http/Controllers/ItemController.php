@@ -267,6 +267,11 @@ class ItemController extends Controller
                 ],
             ];
 
+            // Proxy management
+            if (isset(getenv('HTTPS_PROXY')) || isset(getenv('https_proxy'))) {
+                $options['proxy']['http'] = getenv('HTTPS_PROXY') ?: getenv('https_proxy');
+            }
+
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
             if (!isset($path_parts['extension'])) {
