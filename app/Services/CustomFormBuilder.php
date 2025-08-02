@@ -21,6 +21,20 @@ class CustomFormBuilder
         );
     }
 
+    public function hidden($name, $value = null, $options = [])
+    {
+        return new HtmlString(
+            $this->html->input('hidden', $name, $value)->attributes($options)
+        );
+    }
+
+    public function checkbox($name, $value = null, $checked = false, $options = [])
+    {
+        return new HtmlString(
+            $this->html->checkbox($name, $value, $checked)->attributes($options)
+        );
+    }
+
     public function select($name, $list = [], $selected = null, $options = [])
     {
         return new HtmlString(

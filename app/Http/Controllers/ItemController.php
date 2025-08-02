@@ -429,20 +429,31 @@ class ItemController extends Controller
             return null;
         }
 
-        $output['config'] = null;
-        $output['custom'] = null;
-
         $app = Application::single($appid);
+
+        if (!$app) {
+            return response()->json(['error' => 'Application not found.'], 404);
+        }
+
         $output = (array)$app;
 
         $appdetails = Application::getApp($appid);
 
+        if (!$appdetails) {
+            return response()->json(['error' => 'Application details not found.'], 404);
+        }
+
         if ((bool)$app->enhanced === true) {
             $item = $itemId ? Item::find($itemId) : Item::where('appid', $appid)->first();
-            // if(!isset($app->config)) { // class based config
-            $output['custom'] = className($appdetails->name) . '.config';
-            $output['appvalue'] = $item->description;
-            // }
+
+            if ($item) {
+                $output['custom'] = className($appdetails->name) . '.config';
+                $output['appvalue'] = $item->description;
+            } else {
+                // Ensure the app is installed if not found
+                $output['custom'] = className($appdetails->name) . '.config';
+                $output['appvalue'] = null;
+            }
         }
 
         $output['colour'] = ($app->tile_background == 'light') ? '#fafbfc' : '#161b1f';
@@ -450,13 +461,11 @@ class ItemController extends Controller
         if (strpos($app->icon, '://') !== false) {
             $output['iconview'] = $app->icon;
         } elseif (strpos($app->icon, 'icons/') !== false) {
-            // Private apps have the icon locally
             $output['iconview'] = URL::to('/') . '/storage/' . $app->icon;
             $output['icon'] = str_replace('icons/', '', $output['icon']);
         } else {
             $output['iconview'] = config('app.appsource') . 'icons/' . $app->icon;
         }
-
 
         return json_encode($output);
     }
