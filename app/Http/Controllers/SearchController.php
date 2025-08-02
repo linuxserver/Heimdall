@@ -21,15 +21,15 @@ class SearchController extends Controller
         // Sanitize the query to prevent XSS
         $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8'); 
 
-        // Validate the presence and non-emptiness of the query parameter
-        if (!$query || trim($query) === '') {
-            abort(400, 'Missing or empty query parameter');
-        }
-
         $provider = Search::providerDetails($requestprovider);
 
         if (!$provider || !isset($provider->type)) {
             abort(404, 'Invalid provider');
+        }
+
+        // If the query is empty, redirect to the provider's base URL
+        if (!$query || trim($query) === '') {
+            return redirect($provider->url);
         }
 
         if ($provider->type == 'standard') {
@@ -39,5 +39,6 @@ class SearchController extends Controller
             return $class->getResults($query, $provider);
         }
 
-        abort(404, 'Provider type not supported');}
+        abort(404, 'Provider type not supported');
+    }
 }
