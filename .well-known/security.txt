@@ -1,0 +1,5 @@
+Contact: mailto:security@linuxserver.io
+Expires: 2026-01-25T23:00:00.000Z
+Preferred-Languages: en
+Canonical: https://linuxserver.io/.well-known/security.txt
+Policy: https://github.com/linuxserver/.github/blob/main/SECURITY.md
