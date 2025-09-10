@@ -269,7 +269,7 @@ class ItemController extends Controller
 
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
-            if (!isset($path_parts['extension'])) {
+            if (!array_key_exists('extension', $path_parts)) {
                 throw ValidationException::withMessages(['file' => 'Icon URL must have a valid file extension.']);
             }
             $extension = $path_parts['extension'];
