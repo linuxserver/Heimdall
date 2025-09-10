@@ -267,6 +267,7 @@ class ItemController extends Controller
                 ],
             ];
 
+            
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
             if (!array_key_exists('extension', $path_parts)) {
