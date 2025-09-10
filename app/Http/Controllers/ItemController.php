@@ -268,13 +268,15 @@ class ItemController extends Controller
             ];
 
             // Proxy management
-            if (isset(getenv('HTTPS_PROXY')) || isset(getenv('https_proxy'))) {
-                $options['proxy']['http'] = getenv('HTTPS_PROXY') ?: getenv('https_proxy');
+            $httpsProxy = getenv('HTTPS_PROXY');
+            $httpsProxyLower = getenv('https_proxy');
+            if ($httpsProxy !== false || $httpsProxyLower !== false) {
+                $options['proxy']['http'] = $httpsProxy ?: $httpsProxyLower;
             }
 
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
-            if (!isset($path_parts['extension'])) {
+            if (!array_key_exists('extension', $path_parts)) {
                 throw ValidationException::withMessages(['file' => 'Icon URL must have a valid file extension.']);
             }
             $extension = $path_parts['extension'];
@@ -317,7 +319,11 @@ class ItemController extends Controller
             $storedConfigObject = json_decode($storedItem->getAttribute('description'));
 
             $configObject = json_decode($config);
-            $configObject->password = $storedConfigObject->password;
+            if ($storedConfigObject && property_exists($storedConfigObject, 'password')) {
+                $configObject->password = $storedConfigObject->password;
+            } else {
+                $configObject->password = null;
+            }
 
             $config = json_encode($configObject);
         }
