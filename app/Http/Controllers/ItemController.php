@@ -312,7 +312,11 @@ class ItemController extends Controller
             $storedConfigObject = json_decode($storedItem->getAttribute('description'));
 
             $configObject = json_decode($config);
-            $configObject->password = $storedConfigObject->password;
+            if ($storedConfigObject && property_exists($storedConfigObject, 'password')) {
+                $configObject->password = $storedConfigObject->password;
+            } else {
+                $configObject->password = null;
+            }
 
             $config = json_encode($configObject);
         }
