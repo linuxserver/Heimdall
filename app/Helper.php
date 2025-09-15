@@ -27,6 +27,17 @@ function format_bytes($bytes, bool $is_drive_size = true, string $beforeunit = '
     }
 }
 
+function parse_size($size) {
+    $unit = strtolower(substr($size, -1));
+    $bytes = (int)$size;
+    switch($unit) {
+        case 'g': $bytes *= 1024 * 1024 * 1024; break;
+        case 'm': $bytes *= 1024 * 1024; break;
+        case 'k': $bytes *= 1024; break;
+    }
+    return $bytes;
+}
+
 /**
  * @param $title
  * @param string $separator
