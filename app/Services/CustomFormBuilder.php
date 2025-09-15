@@ -21,6 +21,13 @@ class CustomFormBuilder
         );
     }
 
+    public function password($name, $options = [])
+    {
+        return new HtmlString(
+            $this->html->input('password', $name)->attributes($options)
+        );
+    }
+
     public function hidden($name, $value = null, $options = [])
     {
         return new HtmlString(
