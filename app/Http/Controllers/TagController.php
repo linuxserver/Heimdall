@@ -101,6 +101,8 @@ class TagController extends Controller
         $data['tag'] = $item->id;
         $data['all_apps'] = $item->children;
 
+        $data['taglist'] = Item::ofType('tag')->where('id', '>', 0)->orderBy('title', 'asc')->get();
+
         return view('welcome', $data);
     }
 
