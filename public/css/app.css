@@ -1130,6 +1130,9 @@ a.settinglink {
   position: relative;
   z-index: 4;
 }
+.searchform:has(input[name=provider][type=hidden]) {
+  max-width: 520px;
+}
 .searchform form {
   width: 100%;
 }
@@ -1146,6 +1149,10 @@ a.settinglink {
   border: 0 none;
   width: 100%;
   background: transparent;
+}
+.searchform input[name=q]:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 .searchform button {
   position: absolute;
@@ -1169,6 +1176,10 @@ a.settinglink {
   border-right: 1px solid #ddd;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
+}
+.searchform select ~ input[name=q] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 #search-autocomplete {
