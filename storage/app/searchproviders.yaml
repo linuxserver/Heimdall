@@ -18,6 +18,7 @@ bing:
    method: get
    target: _blank
    query: q
+   autocomplete: https://api.bing.com/osjson.aspx?query={query}
 
 ddg:
    id: ddg
@@ -26,6 +27,7 @@ ddg:
    method: get
    target: _blank
    query: q
+   autocomplete: https://duckduckgo.com/ac/?q={query}&type=list
 
 google:
    id: google
@@ -34,6 +36,7 @@ google:
    method: get
    target: _blank
    query: q
+   autocomplete: https://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q={query}
 
 startpage:
    id: startpage
