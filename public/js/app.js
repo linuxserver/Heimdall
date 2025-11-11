@@ -4120,20 +4120,20 @@ $.when($.ready).then(function () {
     var width = $input.outerWidth();
     var $autocomplete = $('<div id="search-autocomplete"></div>');
     suggestions.forEach(function (suggestion) {
-      var $item = $('<div class="autocomplete-item"></div>').text(suggestion).on('click', function () {
+      var $item = $('<div class="autocomplete-item"></div>').text(suggestion).on("click", function () {
         $input.val(suggestion);
         hideAutocomplete();
-        $input.closest('form').submit();
+        $input.closest("form").submit();
       });
       $autocomplete.append($item);
     });
     $autocomplete.css({
-      position: 'absolute',
-      top: position.top + $input.outerHeight() + 'px',
-      left: position.left + 'px',
-      width: width + 'px'
+      position: "absolute",
+      top: "".concat(position.top + $input.outerHeight(), "px"),
+      left: "".concat(position.left, "px"),
+      width: "".concat(width, "px")
     });
-    $input.closest('#search-container').append($autocomplete);
+    $input.closest("#search-container").append($autocomplete);
   }
   function fetchAutocomplete(query, provider) {
     // Cancel previous request if any
@@ -4145,8 +4145,8 @@ $.when($.ready).then(function () {
       return;
     }
     currentAutocompleteRequest = $.ajax({
-      url: base + 'search/autocomplete',
-      method: 'GET',
+      url: "".concat(base, "search/autocomplete"),
+      method: "GET",
       data: {
         q: query,
         provider: provider
@@ -4209,15 +4209,15 @@ $.when($.ready).then(function () {
   });
 
   // Hide autocomplete when clicking outside
-  $(document).on('click', function (e) {
-    if (!$(e.target).closest('#search-container').length) {
+  $(document).on("click", function (e) {
+    if (!$(e.target).closest("#search-container").length) {
       hideAutocomplete();
     }
   });
 
   // Hide autocomplete on Escape key
-  $(document).on('keydown', function (e) {
-    if (e.key === 'Escape') {
+  $(document).on("keydown", function (e) {
+    if (e.key === "Escape") {
       hideAutocomplete();
     }
   });

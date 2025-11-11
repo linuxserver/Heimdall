@@ -118,7 +118,7 @@ $.when($.ready).then(() => {
 
   function showAutocomplete(suggestions, inputElement) {
     hideAutocomplete();
-    
+
     if (!suggestions || suggestions.length === 0) {
       return;
     }
@@ -128,26 +128,26 @@ $.when($.ready).then(() => {
     const width = $input.outerWidth();
 
     const $autocomplete = $('<div id="search-autocomplete"></div>');
-    
+
     suggestions.forEach((suggestion) => {
       const $item = $('<div class="autocomplete-item"></div>')
         .text(suggestion)
-        .on('click', function() {
+        .on("click", () => {
           $input.val(suggestion);
           hideAutocomplete();
-          $input.closest('form').submit();
+          $input.closest("form").submit();
         });
       $autocomplete.append($item);
     });
 
     $autocomplete.css({
-      position: 'absolute',
-      top: position.top + $input.outerHeight() + 'px',
-      left: position.left + 'px',
-      width: width + 'px'
+      position: "absolute",
+      top: `${position.top + $input.outerHeight()}px`,
+      left: `${position.left}px`,
+      width: `${width}px`,
     });
 
-    $input.closest('#search-container').append($autocomplete);
+    $input.closest("#search-container").append($autocomplete);
   }
 
   function fetchAutocomplete(query, provider) {
@@ -162,22 +162,22 @@ $.when($.ready).then(() => {
     }
 
     currentAutocompleteRequest = $.ajax({
-      url: base + 'search/autocomplete',
-      method: 'GET',
+      url: `${base}search/autocomplete`,
+      method: "GET",
       data: {
         q: query,
-        provider: provider
+        provider,
       },
-      success: function(data) {
+      success(data) {
         const inputElement = $("#search-container input[name=q]")[0];
         showAutocomplete(data, inputElement);
       },
-      error: function() {
+      error() {
         hideAutocomplete();
       },
-      complete: function() {
+      complete() {
         currentAutocompleteRequest = null;
-      }
+      },
     });
   }
 
@@ -186,7 +186,7 @@ $.when($.ready).then(() => {
       const search = this.value;
       const items = $("#sortable").find(".item-container");
       const provider = $("#search-container select[name=provider]").val();
-      
+
       if (provider === "tiles") {
         hideAutocomplete();
         if (search.length > 0) {
@@ -202,7 +202,7 @@ $.when($.ready).then(() => {
         }
       } else {
         items.show();
-        
+
         // Debounce autocomplete requests
         clearTimeout(autocompleteTimeout);
         autocompleteTimeout = setTimeout(() => {
@@ -234,15 +234,15 @@ $.when($.ready).then(() => {
     });
 
   // Hide autocomplete when clicking outside
-  $(document).on('click', function(e) {
-    if (!$(e.target).closest('#search-container').length) {
+  $(document).on("click", (e) => {
+    if (!$(e.target).closest("#search-container").length) {
       hideAutocomplete();
     }
   });
 
   // Hide autocomplete on Escape key
-  $(document).on('keydown', function(e) {
-    if (e.key === 'Escape') {
+  $(document).on("keydown", (e) => {
+    if (e.key === "Escape") {
       hideAutocomplete();
     }
   });
