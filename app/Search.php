@@ -111,16 +111,31 @@ abstract class Search
             if ((bool) $user_search_provider) {
                 $name = 'app.options.'.$user_search_provider;
                 $provider = self::providerDetails($user_search_provider);
+                $providers = self::providers();
+                $providerCount = count($providers);
+
+                // If there's only one provider, use its key instead of the user's setting
+                if ($providerCount === 1) {
+                    $user_search_provider = $providers->keys()->first();
+                }
 
                 $output .= '<div class="searchform">';
                 $output .= '<form action="'.url('search').'"'.getLinkTargetAttribute().' method="get">';
                 $output .= '<div id="search-container" class="input-container">';
-                $output .= '<select name="provider">';
-                foreach (self::providers() as $key => $searchprovider) {
-                    $selected = ((string) $key === (string) $user_search_provider) ? ' selected="selected"' : '';
-                    $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
+                
+                // Only show dropdown if there's more than one provider
+                if ($providerCount > 1) {
+                    $output .= '<select name="provider">';
+                    foreach ($providers as $key => $searchprovider) {
+                        $selected = ((string) $key === (string) $user_search_provider) ? ' selected="selected"' : '';
+                        $output .= '<option value="'.$key.'"'.$selected.'>'.$searchprovider['name'].'</option>';
+                    }
+                    $output .= '</select>';
+                } else {
+                    // Hidden input for single provider
+                    $output .= '<input type="hidden" name="provider" value="'.$user_search_provider.'" />';
                 }
-                $output .= '</select>';
+                
                 $output .= '<input type="text" name="q" value="'.e(Input::get('q') ?? '').'" class="homesearch" autofocus placeholder="'.__('app.settings.search').'..." />';
                 $output .= '<button type="submit">'.ucwords(__('app.settings.search')).'</button>';
                 $output .= '</div>';

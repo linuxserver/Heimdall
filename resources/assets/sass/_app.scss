@@ -926,6 +926,12 @@ div.create {
 	  max-width: 620px;
 	  position: relative;
 	  z-index: 4;
+	  
+	  // Reduce width when there's no select dropdown (only has hidden input)
+	  &:has(input[name="provider"][type="hidden"]) {
+		max-width: 520px;
+	  }
+	  
 	  form { 
 		width: 100%;
 	  }
@@ -943,6 +949,11 @@ div.create {
 		  border: 0 none;
 		  width: 100%;
 		  background: transparent;
+	  }
+	  // When there's no select dropdown, round the input's left corners
+	  input[name="q"]:first-child {
+		  border-top-left-radius: 5px;
+		  border-bottom-left-radius: 5px;
 	  }
 	  button {
 		  position: absolute;
@@ -966,6 +977,11 @@ div.create {
 		border-right: 1px solid #ddd;
 		border-top-left-radius: 5px;
 		border-bottom-left-radius: 5px;
+	  }
+	  // When select exists, remove input's left border radius
+	  select ~ input[name="q"] {
+		  border-top-left-radius: 0;
+		  border-bottom-left-radius: 0;
 	  }
   }
 

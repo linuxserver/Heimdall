@@ -185,7 +185,10 @@ $.when($.ready).then(() => {
     .on("input", "input[name=q]", function () {
       const search = this.value;
       const items = $("#sortable").find(".item-container");
-      const provider = $("#search-container select[name=provider]").val();
+      // Get provider from either select or hidden input
+      const provider =
+        $("#search-container select[name=provider]").val() ||
+        $("#search-container input[name=provider]").val();
 
       if (provider === "tiles") {
         hideAutocomplete();
