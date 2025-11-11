@@ -75,6 +75,7 @@ Route::post('test_config', [ItemController::class,'testConfig'])->name('test_con
 Route::get('get_stats/{id}', [ItemController::class,'getStats'])->name('get_stats');
 
 Route::get('/search', [SearchController::class,'index'])->name('search');
+Route::get('/search/autocomplete', [SearchController::class,'autocomplete'])->name('search.autocomplete');
 
 Route::get('view/{name_view}', function ($name_view) {
     return view('SupportedApps::'.$name_view)->render();

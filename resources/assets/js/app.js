@@ -108,11 +108,87 @@ $.when($.ready).then(() => {
     }
   });
 
+  // Autocomplete functionality
+  let autocompleteTimeout = null;
+  let currentAutocompleteRequest = null;
+
+  function hideAutocomplete() {
+    $("#search-autocomplete").remove();
+  }
+
+  function showAutocomplete(suggestions, inputElement) {
+    hideAutocomplete();
+
+    if (!suggestions || suggestions.length === 0) {
+      return;
+    }
+
+    const $input = $(inputElement);
+    const position = $input.position();
+    const width = $input.outerWidth();
+
+    const $autocomplete = $('<div id="search-autocomplete"></div>');
+
+    suggestions.forEach((suggestion) => {
+      const $item = $('<div class="autocomplete-item"></div>')
+        .text(suggestion)
+        .on("click", () => {
+          $input.val(suggestion);
+          hideAutocomplete();
+          $input.closest("form").submit();
+        });
+      $autocomplete.append($item);
+    });
+
+    $autocomplete.css({
+      position: "absolute",
+      top: `${position.top + $input.outerHeight()}px`,
+      left: `${position.left}px`,
+      width: `${width}px`,
+    });
+
+    $input.closest("#search-container").append($autocomplete);
+  }
+
+  function fetchAutocomplete(query, provider) {
+    // Cancel previous request if any
+    if (currentAutocompleteRequest) {
+      currentAutocompleteRequest.abort();
+    }
+
+    if (!query || query.trim().length < 2) {
+      hideAutocomplete();
+      return;
+    }
+
+    currentAutocompleteRequest = $.ajax({
+      url: `${base}search/autocomplete`,
+      method: "GET",
+      data: {
+        q: query,
+        provider,
+      },
+      success(data) {
+        const inputElement = $("#search-container input[name=q]")[0];
+        showAutocomplete(data, inputElement);
+      },
+      error() {
+        hideAutocomplete();
+      },
+      complete() {
+        currentAutocompleteRequest = null;
+      },
+    });
+  }
+
   $("#search-container")
     .on("input", "input[name=q]", function () {
       const search = this.value;
       const items = $("#sortable").find(".item-container");
-      if ($("#search-container select[name=provider]").val() === "tiles") {
+      const provider = $("#search-container select[name=provider]").val();
+
+      if (provider === "tiles") {
+        hideAutocomplete();
         if (search.length > 0) {
           items.hide();
           items
@@ -126,6 +202,12 @@ $.when($.ready).then(() => {
         }
       } else {
         items.show();
+
+        // Debounce autocomplete requests
+        clearTimeout(autocompleteTimeout);
+        autocompleteTimeout = setTimeout(() => {
+          fetchAutocomplete(search, provider);
+        }, 300);
       }
     })
     .on("change", "select[name=provider]", function () {
@@ -147,8 +229,23 @@ $.when($.ready).then(() => {
       } else {
         $("#search-container button").show();
         items.show();
+        hideAutocomplete();
       }
     });
+
+  // Hide autocomplete when clicking outside
+  $(document).on("click", (e) => {
+    if (!$(e.target).closest("#search-container").length) {
+      hideAutocomplete();
+    }
+  });
+
+  // Hide autocomplete on Escape key
+  $(document).on("keydown", (e) => {
+    if (e.key === "Escape") {
+      hideAutocomplete();
+    }
+  });
 
   $("#search-container select[name=provider]").trigger("change");
 

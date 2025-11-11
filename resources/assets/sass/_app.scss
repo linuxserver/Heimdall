@@ -933,7 +933,6 @@ div.create {
 		background: white;
 		border-radius: 5px;
 		box-shadow: 0px 0px 5px 0 rgba(0,0,0,0.4);
-		overflow: hidden;	
 		position: relative;	  
 		display: flex;
 		
@@ -965,7 +964,37 @@ div.create {
 		background: #f5f5f5;
 		border: none;
 		border-right: 1px solid #ddd;
+		border-top-left-radius: 5px;
+		border-bottom-left-radius: 5px;
 	  }
+  }
+
+  #search-autocomplete {
+	position: absolute;
+	z-index: 1000;
+	background: white;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0 0 5px 5px;
+	box-shadow: 0px 4px 8px 0 rgba(0,0,0,0.2);
+	max-height: 300px;
+	overflow-y: auto;
+	
+	.autocomplete-item {
+	  padding: 12px 15px;
+	  cursor: pointer;
+	  font-size: 15px;
+	  border-bottom: 1px solid #f0f0f0;
+	  transition: background-color 0.2s ease;
+	  
+	  &:last-child {
+		border-bottom: none;
+	  }
+	  
+	  &:hover {
+		background-color: #f5f5f5;
+	  }
+	}
   }
 
   .ui-autocomplete {

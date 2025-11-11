@@ -12,7 +12,6 @@ const mix = require("laravel-mix");
  */
 
 mix
-  .js("resources/assets/js/app.js", "public/js/dummy.js")
   .babel(
     [
       "node_modules/sortablejs/Sortable.min.js",
