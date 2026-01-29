@@ -33,7 +33,20 @@ abstract class Search
             return false;
         }
 
-        return (object) $providers[$provider] ?? false;
+        $details = (object) $providers[$provider] ?? false;
+
+        // For SearXNG, use user-configured URL
+        if ($provider === 'searx') {
+            $searxUrl = Setting::fetch('searx_url');
+            if (!empty($searxUrl)) {
+                // Ensure URL doesn't have trailing slash
+                $searxUrl = rtrim($searxUrl, '/');
+                $details->url = $searxUrl . '/search';
+                $details->autocomplete = $searxUrl . '/autocompleter?format=x-suggestions&q={query}';
+            }
+        }
+
+        return $details;
     }
 
     /**

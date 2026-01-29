@@ -145,6 +145,7 @@ class SettingsSeeder extends Seeder
             'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
             'startpage' => 'app.options.startpage',
+            'searx' => 'app.options.searx',
         ]);
 
         if (! $setting = Setting::find(4)) {
@@ -347,6 +348,20 @@ class SettingsSeeder extends Seeder
         } else {
             $setting->options = $tag_options;
             $setting->label = 'app.settings.treat_tags_as';
+            $setting->save();
+        }
+
+        if (! $setting = Setting::find(15)) {
+            $setting = new Setting;
+            $setting->id = 15;
+            $setting->group_id = 3;
+            $setting->key = 'searx_url';
+            $setting->type = 'text';
+            $setting->label = 'app.settings.searx_url';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.searx_url';
             $setting->save();
         }
     }

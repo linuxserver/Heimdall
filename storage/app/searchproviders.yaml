@@ -45,3 +45,12 @@ startpage:
    method: get
    target: _blank
    query: query
+
+searx:
+   id: searx
+   url: https://searx.example.com/search
+   name: SearXNG
+   method: get
+   target: _blank
+   query: q
+   autocomplete: https://searx.example.com/autocompleter?format=x-suggestions&q={query}
