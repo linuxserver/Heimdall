@@ -11,8 +11,6 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,7 +43,6 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        Session::put('backUrl', URL::previous());
         $this->middleware('guest')->except(['logout','autologin']);
     }
 
@@ -135,7 +132,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user): RedirectResponse
     {
-        return back();
+        return redirect()->route('dash');
     }
 
     /**
@@ -143,6 +140,6 @@ class LoginController extends Controller
      */
     public function redirectTo()
     {
-        return Session::get('url.intended') ? Session::get('url.intended') : $this->redirectTo;
+        return $this->redirectTo;
     }
 }
