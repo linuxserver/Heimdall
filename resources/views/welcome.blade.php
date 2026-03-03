@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    @include('partials.taglist')
     @include('partials.search')
+    @include('partials.taglist')
 
     @if((isset($apps) && $apps->first()) || (isset($categories) && $categories->first()))
         @include('sortable')        
