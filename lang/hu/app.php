@@ -34,6 +34,7 @@ return array (
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
   'options.startpage' => 'Kezdő oldal',
+  'options.kagi' => 'Kagi',
   'options.yes' => 'Igen',
   'options.no' => 'Nem',
   'options.nzbhydra' => 'NZBHydra',

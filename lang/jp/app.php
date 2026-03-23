@@ -34,6 +34,7 @@ return array (
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
   'options.startpage' => 'スタートページ',
+  'options.kagi' => 'Kagi',
   'options.yes' => 'はい',
   'options.no' => 'いいえ',
   'options.nzbhydra' => 'NZBHydra',

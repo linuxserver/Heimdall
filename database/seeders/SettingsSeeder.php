@@ -145,6 +145,7 @@ class SettingsSeeder extends Seeder
             'qwant' => 'app.options.qwant',
             'bing' => 'app.options.bing',
             'startpage' => 'app.options.startpage',
+            'kagi' => 'app.options.kagi',
         ]);
 
         if (! $setting = Setting::find(4)) {

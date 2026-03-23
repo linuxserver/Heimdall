@@ -48,6 +48,7 @@ return [
     'options.bing' => 'Bing',
     'options.qwant' => 'Qwant',
     'options.startpage' => '起始页',
+    'options.kagi' => 'Kagi',
     'options.yes' => '是',
     'options.no' => '否',
     'options.nzbhydra' => 'NZBHydra',

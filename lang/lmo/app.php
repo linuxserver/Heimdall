@@ -80,6 +80,8 @@ return [
 
     'options.startpage' => 'StartPage',
 
+    'options.kagi' => 'Kagi',
+
     'options.yes' => 'Sì',
 
     'options.no' => 'No',

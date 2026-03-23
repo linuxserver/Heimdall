@@ -45,6 +45,7 @@ return [
     'options.bing' => 'Bing',
     'options.qwant' => 'Qwant',
     'options.startpage' => 'Página inicial',
+    'options.kagi' => 'Kagi',
     'options.yes' => 'Sim',
     'options.no' => 'Não',
     'options.nzbhydra' => 'NZBHydra',

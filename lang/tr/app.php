@@ -34,6 +34,7 @@ return array (
   'options.bing' => 'Bing',
   'options.qwant' => 'Qwant',
   'options.startpage' => 'Başlangıç sayfası',
+  'options.kagi' => 'Kagi',
   'options.yes' => 'Evet',
   'options.no' => 'Hayır',
   'options.nzbhydra' => 'NZBHydra',
