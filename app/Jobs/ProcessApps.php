@@ -74,7 +74,9 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
     public function failed(Throwable $exception): void
     {
         Log::error(static::class . ' permanently failed', [
-            'exception' => $exception->getMessage(),
+            'exception_class' => $exception::class,
+            'exception_message' => $exception->getMessage(),
+            'file' => $exception->getFile() . ':' . $exception->getLine(),
         ]);
     }
 }

@@ -69,7 +69,9 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
         Cache::lock('updateApps')->forceRelease();
 
         Log::error(static::class . ' permanently failed', [
-            'exception' => $exception->getMessage(),
+            'exception_class' => $exception::class,
+            'exception_message' => $exception->getMessage(),
+            'file' => $exception->getFile() . ':' . $exception->getLine(),
         ]);
     }
 }
