@@ -21,21 +21,16 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Bound total attempts so a failed job stops after three retries across
-     * worker restarts, independent of the broker's reserved-job recovery path.
+     * Most failures here are GitHub rate-limit responses; retries inside the
+     * same window do not help, so a single attempt is enough.
      */
-    public int $tries = 3;
-
-    /** @var array<int, int> seconds between retries */
-    public array $backoff = [30, 60, 120];
-
-    public int $timeout = 60;
+    public int $tries = 1;
 
     /**
-     * Expire the ShouldBeUnique lock after 1 hour so a crashed worker does
-     * not permanently block future ProcessApps dispatches.
+     * Expire the ShouldBeUnique lock after 10 minutes so a crashed worker
+     * does not permanently block future ProcessApps dispatches.
      */
-    public int $uniqueFor = 3600;
+    public int $uniqueFor = 600;
 
     /**
      * Create a new job instance.
