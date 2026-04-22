@@ -14,10 +14,28 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProcessApps implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Bound total attempts so a failed job stops after three retries across
+     * worker restarts, independent of the broker's reserved-job recovery path.
+     */
+    public int $tries = 3;
+
+    /** @var array<int, int> seconds between retries */
+    public array $backoff = [30, 60, 120];
+
+    public int $timeout = 60;
+
+    /**
+     * Expire the ShouldBeUnique lock after 1 hour so a crashed worker does
+     * not permanently block future ProcessApps dispatches.
+     */
+    public int $uniqueFor = 3600;
 
     /**
      * Create a new job instance.
@@ -56,5 +74,12 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
                 }
             }
         }
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error(static::class . ' permanently failed', [
+            'exception' => $exception->getMessage(),
+        ]);
     }
 }
