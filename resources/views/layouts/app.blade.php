@@ -90,7 +90,9 @@
                         <img class="user-img" src="{{ asset('/img/heimdall-icon-small.png') }}" />
                         @endif
                         {{ $current_user->username }}
+                        @unless(config('services.oidc.enabled'))
                         <a class="btn" href="{{ route('user.select') }}">Switch User</a>
+                        @endunless
                     </div>
                     @endif
                     @yield('content')

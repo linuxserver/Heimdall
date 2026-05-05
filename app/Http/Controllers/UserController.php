@@ -37,8 +37,13 @@ class UserController extends Controller
         return view('users.create', $data);
     }
 
-    public function selectUser(): \Illuminate\View\View
+    public function selectUser(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
     {
+        // When OIDC SSO is active, skip the user-select screen entirely and
+        // send the authenticated user straight to their own dashboard.
+        if (config('services.oidc.enabled') && Auth::check()) {
+            return redirect()->route('dash');
+        }
         Auth::logout();
         $data['users'] = User::all();
 
