@@ -34,7 +34,28 @@ class ItemExportTest extends TestCase
 
         $response = $this->get('api/item');
 
-        $response->assertExactJson([(object)$exampleItem]);
+        $response->assertExactJson([$exampleItem + ["tags" => []]]);
+    }
+
+    public function test_exports_assigned_tag_titles_excluding_the_root_tag(): void
+    {
+        $item = Item::factory()
+            ->create([
+                'title' => 'Tagged Item',
+            ]);
+        $tag = Item::factory()
+            ->create([
+                'type' => 1,
+                'title' => 'Media',
+            ]);
+
+        // Assign both the root/default dashboard (id 0) and the Media tag.
+        $item->parents()->sync([0, $tag->id]);
+
+        $response = $this->get('api/item');
+
+        $response->assertJsonCount(1);
+        $response->assertJsonPath('0.tags', ['Media']);
     }
 
     public function test_returns_all_items(): void
