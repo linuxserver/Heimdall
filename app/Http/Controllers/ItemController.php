@@ -271,7 +271,7 @@ class ItemController extends Controller
             $httpsProxy = getenv('HTTPS_PROXY');
             $httpsProxyLower = getenv('https_proxy');
             if ($httpsProxy !== false || $httpsProxyLower !== false) {
-                $options['proxy']['http'] = $httpsProxy ?: $httpsProxyLower;
+                $options['http']['proxy'] = $httpsProxy ?: $httpsProxyLower;
             }
 
             $file = $request->input('icon');
