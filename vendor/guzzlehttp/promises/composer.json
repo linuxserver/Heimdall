@@ -1,8 +1,10 @@
 {
     "name": "guzzlehttp/promises",
     "description": "Guzzle promises library",
-    "keywords": ["promise"],
     "license": "MIT",
+    "keywords": [
+        "promise"
+    ],
     "authors": [
         {
             "name": "Graham Campbell",
@@ -26,11 +28,12 @@
         }
     ],
     "require": {
-        "php": "^7.2.5 || ^8.0"
+        "php": "^7.2.5 || ^8.0",
+        "symfony/deprecation-contracts": "^2.5 || ^3.0"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^8.5.39 || ^9.6.20"
+        "phpunit/phpunit": "^8.5.52 || ^9.6.34"
     },
     "autoload": {
         "psr-4": {
@@ -42,17 +45,17 @@
             "GuzzleHttp\\Promise\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "bamarni-bin": {
-            "bin-links": true,
-            "forward-command": false
-        }
-    },
     "config": {
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true
         },
         "preferred-install": "dist",
         "sort-packages": true
+    },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "forward-command": false
+        }
     }
 }

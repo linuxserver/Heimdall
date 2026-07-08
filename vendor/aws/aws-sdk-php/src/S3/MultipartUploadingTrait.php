@@ -17,6 +17,17 @@ trait MultipartUploadingTrait
      * @param string            $bucket   Bucket for the multipart upload.
      * @param string            $key      Object key for the multipart upload.
      * @param string            $uploadId Upload ID for the multipart upload.
+     * @param array             $config   Optional config to retain on the
+     *                                    state. Pass the directive keys
+     *                                    (`metadata_directive`,
+     *                                    `tags_directive`,
+     *                                    `annotations_directive`) the
+     *                                    original copy was launched with so
+     *                                    a resumed `MultipartCopy` replays
+     *                                    Phase 3 with the same behavior. The
+     *                                    caller can also override directives
+     *                                    on the resume by passing them again
+     *                                    to the `MultipartCopy` constructor.
      *
      * @return UploadState
      */
@@ -24,13 +35,14 @@ trait MultipartUploadingTrait
         S3ClientInterface $client,
         $bucket,
         $key,
-        $uploadId
+        $uploadId,
+        array $config = []
     ) {
         $state = new UploadState([
             'Bucket'   => $bucket,
             'Key'      => $key,
             'UploadId' => $uploadId,
-        ]);
+        ], $config);
 
         foreach ($client->getPaginator('ListParts', $state->getId()) as $result) {
             // Get the part size from the first part in the first result.
@@ -148,4 +160,30 @@ trait MultipartUploadingTrait
      * @return string|null
      */
     abstract protected function getSourceMimeType();
+
+    /**
+     * Parses an S3 Tagging query-string (`k=v&k2=v2`) into a TagSet array
+     * (`[['Key' => k, 'Value' => v], ...]`).
+     *
+     * Shared between MultipartUpload (where callers may pass a Tagging string
+     * via params) and MultipartCopy's tags_directive=REPLACE path.
+     *
+     * @param string $tagging
+     * @return array
+     */
+    protected static function parseTaggingQueryString(string $tagging): array
+    {
+        $tagSet = [];
+        foreach (explode('&', $tagging) as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+            $parts = explode('=', $pair, 2);
+            $tagSet[] = [
+                'Key'   => urldecode($parts[0]),
+                'Value' => urldecode($parts[1] ?? ''),
+            ];
+        }
+        return $tagSet;
+    }
 }

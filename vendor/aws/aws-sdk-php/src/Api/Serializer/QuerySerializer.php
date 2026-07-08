@@ -36,9 +36,7 @@ class QuerySerializer
      * containing "method", "uri", "headers", and "body" key value pairs.
      *
      * @param CommandInterface $command Command to serialize into a request.
-     * @param $endpointProvider Provider used for dynamic endpoint resolution.
-     * @param $clientArgs Client arguments used for dynamic endpoint resolution.
-     *
+     * @param null $endpoint Endpoint resolved using EndpointProviderV2
      * @return RequestInterface
      */
     public function __invoke(
@@ -63,17 +61,20 @@ class QuerySerializer
         }
         $body = http_build_query($body, '', '&', PHP_QUERY_RFC3986);
         $headers = [
-            'Content-Length' => strlen($body),
+            'Content-Length' => (string) strlen($body),
             'Content-Type'   => 'application/x-www-form-urlencoded'
         ];
+        $requestUri = $operation['http']['requestUri'] ?? null;
 
         if ($endpoint instanceof RulesetEndpoint) {
             $this->setEndpointV2RequestOptions($endpoint, $headers);
         }
+        $absoluteUri = str_ends_with($this->endpoint, '/')
+            ? $this->endpoint : $this->endpoint . $requestUri;
 
         return new Request(
             'POST',
-            $this->endpoint,
+            $absoluteUri,
             $headers,
             $body
         );

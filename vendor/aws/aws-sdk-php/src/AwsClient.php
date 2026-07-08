@@ -272,7 +272,7 @@ class AwsClient implements AwsClientInterface
         if ($this->isUseEndpointV2()) {
             $this->addEndpointV2Middleware();
         }
-        $this->addAuthSelectionMiddleware();
+        $this->addAuthSelectionMiddleware($config['config']);
 
         if (!is_null($this->api->getMetadata('awsQueryCompatible'))) {
             $this->addQueryCompatibleInputMiddleware($this->api);
@@ -283,6 +283,7 @@ class AwsClient implements AwsClientInterface
             $args['with_resolved']($config);
         }
         $this->addUserAgentMiddleware($config);
+        $this->addEventStreamHttpFlagMiddleware();
     }
 
     public function getHandlerList()
@@ -300,6 +301,12 @@ class AwsClient implements AwsClientInterface
     public function getCredentials()
     {
         $fn = $this->credentialProvider;
+        return $fn();
+    }
+
+    public function getToken()
+    {
+        $fn = $this->tokenProvider;
         return $fn();
     }
 
@@ -537,7 +544,7 @@ class AwsClient implements AwsClientInterface
     {
         $list = $this->getHandlerList();
         $list->appendBuild(
-            Middleware::mapRequest(function (RequestInterface $r) {
+            Middleware::mapRequest(static function (RequestInterface $r) {
                 return $r->withHeader(
                     'x-amzn-query-mode',
                     "true"
@@ -562,8 +569,14 @@ class AwsClient implements AwsClientInterface
             $aliases = \Aws\load_compiled_json($file);
             $serviceId = $this->api->getServiceId();
             $version = $this->getApi()->getApiVersion();
-            if (!empty($aliases['operations'][$serviceId][$version])) {
-                $this->aliases = array_flip($aliases['operations'][$serviceId][$version]);
+            $serviceAliases = null;
+
+            if (!is_null($serviceId) && isset($aliases['operations'][$serviceId])) {
+                $serviceAliases = $aliases['operations'][$serviceId];
+            }
+
+            if ($serviceAliases && isset($serviceAliases[$version])) {
+                $this->aliases = array_flip($serviceAliases[$version]);
             }
         }
     }
@@ -589,14 +602,15 @@ class AwsClient implements AwsClientInterface
         );
     }
 
-    private function addAuthSelectionMiddleware()
+    private function addAuthSelectionMiddleware(array $args)
     {
         $list = $this->getHandlerList();
 
         $list->prependBuild(
             AuthSelectionMiddleware::wrap(
                 $this->authSchemeResolver,
-                $this->getApi()
+                $this->getApi(),
+                $args['auth_scheme_preference'] ?? null
             ),
             'auth-selection'
         );
@@ -634,6 +648,34 @@ class AwsClient implements AwsClientInterface
             UserAgentMiddleware::wrap($args),
             'user-agent'
         );
+    }
+
+    /**
+     * Enables streaming the response by using the stream flag.
+     *
+     * @return void
+     */
+    private function addEventStreamHttpFlagMiddleware(): void
+    {
+        $api = $this->getApi();
+        $this->getHandlerList()
+            -> appendInit(
+                static function (callable $handler) use ($api) {
+                    return static function (CommandInterface $command, $request = null) use ($handler, $api) {
+                        $operation = $api->getOperation($command->getName());
+                        $output = $operation->getOutput();
+                        foreach ($output->getMembers() as $memberProps) {
+                            if (!empty($memberProps['eventstream'])) {
+                                $command['@http']['stream'] = true;
+                                break;
+                            }
+                        }
+
+                        return $handler($command, $request);
+                    };
+                },
+                'event-streaming-flag-middleware'
+            );
     }
 
     /**
@@ -722,29 +764,6 @@ class AwsClient implements AwsClientInterface
     protected function isUseEndpointV2()
     {
         return $this->endpointProvider instanceof EndpointProviderV2;
-    }
-
-    public static function emitDeprecationWarning() {
-        trigger_error(
-            "This method is deprecated. It will be removed in an upcoming release."
-            , E_USER_DEPRECATED
-        );
-
-        $phpVersion = PHP_VERSION_ID;
-        if ($phpVersion <  70205) {
-            $phpVersionString = phpversion();
-            @trigger_error(
-                "This installation of the SDK is using PHP version"
-                .  " {$phpVersionString}, which will be deprecated on August"
-                .  " 15th, 2023.  Please upgrade your PHP version to a minimum of"
-                .  " 7.2.5 before then to continue receiving updates to the AWS"
-                .  " SDK for PHP.  To disable this warning, set"
-                .  " suppress_php_deprecation_warning to true on the client constructor"
-                .  " or set the environment variable AWS_SUPPRESS_PHP_DEPRECATION_WARNING"
-                .  " to true.",
-                E_USER_DEPRECATED
-            );
-        }
     }
 
 

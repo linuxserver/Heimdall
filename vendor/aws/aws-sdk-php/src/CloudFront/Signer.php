@@ -81,8 +81,10 @@ class Signer
         $signatureHash = [];
         if ($policy) {
             $policy = preg_replace('/\s/s', '', $policy);
+            self::validatePolicy($policy);
             $signatureHash['Policy'] = $this->encode($policy);
         } elseif ($resource && $expires) {
+            self::validateResourceUrl($resource);
             $expires = (int) $expires; // Handle epoch passed as string
             $policy = $this->createCannedPolicy($resource, $expires);
             $signatureHash['Expires'] = $expires;
@@ -135,5 +137,36 @@ class Signer
     private function encode($policy)
     {
         return strtr(base64_encode($policy), '+=/', '-_~');
+    }
+
+    /**
+     * Validates a customer provided json document.
+     *
+     * @param string $jsonPolicy
+     *
+     * @return void
+     */
+    private static function validatePolicy(string $jsonPolicy): void
+    {
+        $policy = json_decode($jsonPolicy, true);
+        foreach ($policy['Statement'] ?? [] as $statement) {
+            if (isset($statement['Resource'])) {
+                self::validateResourceUrl($statement['Resource']);
+            }
+        }
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return void
+     */
+    private static function validateResourceUrl(string $url): void
+    {
+        if (preg_match('/["\\\\\x00-\x1F]/', $url)) {
+            throw new \InvalidArgumentException(
+                'URL contains invalid characters: ", \\, or control characters'
+            );
+        }
     }
 }

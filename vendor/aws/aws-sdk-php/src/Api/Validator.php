@@ -2,6 +2,7 @@
 namespace Aws\Api;
 
 use Aws;
+use stdClass;
 
 /**
  * Validates a schema against a hash of input.
@@ -248,17 +249,7 @@ class Validator
 
     private function checkArray($arr)
     {
-        return $this->isIndexed($arr) || $this->isAssociative($arr);
-    }
-
-    private function isAssociative($arr)
-    {
-        return count(array_filter(array_keys($arr), "is_string")) == count($arr);
-    }
-
-    private function isIndexed(array $arr)
-    {
-        return $arr == array_values($arr);
+        return array_is_list($arr) || Aws\is_associative($arr);
     }
 
     private function checkCanString($value)
@@ -302,6 +293,12 @@ class Validator
 
     private function checkDocumentType($value)
     {
+        // To allow objects like value, which
+        // can be used within a member which type is `Document`
+        if ($value instanceof stdClass) {
+            $value = (array) $value;
+        }
+
         if (is_array($value)) {
             $typeOfFirstKey = gettype(key($value));
             foreach ($value as $key => $val) {

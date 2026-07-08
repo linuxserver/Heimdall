@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GuzzleHttp\Psr7;
 
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -37,6 +36,11 @@ final class Utils
      * Copy the contents of a stream into another stream until the given number
      * of bytes have been read.
      *
+     * The copy stops if the destination write returns 0, for example a
+     * BufferStream at its high water mark or a full DroppingStream. For a
+     * guaranteed full copy use a normal writable stream such as a file or
+     * php://temp stream.
+     *
      * @param StreamInterface $source Stream to read from
      * @param StreamInterface $dest   Stream to write to
      * @param int             $maxLen Maximum number of bytes to read. Pass -1
@@ -50,7 +54,12 @@ final class Utils
 
         if ($maxLen === -1) {
             while (!$source->eof()) {
-                if (!$dest->write($source->read($bufferSize))) {
+                $buf = $source->read($bufferSize);
+                if ($buf === '') {
+                    break;
+                }
+
+                if (!self::writeAll($dest, $buf)) {
                     break;
                 }
             }
@@ -63,9 +72,33 @@ final class Utils
                     break;
                 }
                 $remaining -= $len;
-                $dest->write($buf);
+                if (!self::writeAll($dest, $buf)) {
+                    break;
+                }
             }
         }
+    }
+
+    /**
+     * Writes the full buffer to the destination, retrying short writes.
+     *
+     * Returns false when the destination write returns 0 or less.
+     */
+    private static function writeAll(StreamInterface $dest, string $buf): bool
+    {
+        $written = 0;
+        $len = strlen($buf);
+
+        while ($written < $len) {
+            $result = $dest->write(substr($buf, $written));
+            if ($result <= 0) {
+                return false;
+            }
+
+            $written += $result;
+        }
+
+        return true;
     }
 
     /**
@@ -146,9 +179,14 @@ final class Utils
      *
      * The changes can be one of:
      * - method: (string) Changes the HTTP method.
-     * - set_headers: (array) Sets the given headers.
-     * - remove_headers: (array) Remove the given headers.
-     * - body: (mixed) Sets the given body.
+     * - set_headers: (array) Sets the given headers. Values must be strings
+     *   or non-empty arrays of strings.
+     * - remove_headers: (array) Remove the given headers. Values may be
+     *   strings or integers.
+     * - body: (mixed) Sets the given body. Present non-null values are converted
+     *   with self::streamFor(), including scalar values, resources, streams,
+     *   iterators, callable arrays, closures, invokable objects, and objects
+     *   with __toString(). String inputs remain literal bodies.
      * - uri: (UriInterface) Set the URI.
      * - query: (string) Set the query string value of the URI.
      * - version: (string) Set the protocol version.
@@ -162,13 +200,26 @@ final class Utils
             return $request;
         }
 
+        self::warnOnInvalidModifyRequestChanges($changes);
+
         $headers = $request->getHeaders();
 
         if (!isset($changes['uri'])) {
             $uri = $request->getUri();
         } else {
             // Remove the host header if one is on the URI
-            if ($host = $changes['uri']->getHost()) {
+            $host = $changes['uri']->getHost();
+            if ($host !== '') {
+                if (isset($changes['set_headers']) && is_array($changes['set_headers'])) {
+                    foreach (array_keys($changes['set_headers']) as $header) {
+                        if (strtolower((string) $header) === 'host') {
+                            throw new \InvalidArgumentException(
+                                'Cannot modify request with both a URI containing a host and an explicit Host header.'
+                            );
+                        }
+                    }
+                }
+
                 $changes['set_headers']['Host'] = $host;
 
                 if ($port = $changes['uri']->getPort()) {
@@ -195,33 +246,150 @@ final class Utils
             $uri = $uri->withQuery($changes['query']);
         }
 
-        if ($request instanceof ServerRequestInterface) {
-            $new = (new ServerRequest(
-                $changes['method'] ?? $request->getMethod(),
-                $uri,
-                $headers,
-                $changes['body'] ?? $request->getBody(),
-                $changes['version'] ?? $request->getProtocolVersion(),
-                $request->getServerParams()
-            ))
-            ->withParsedBody($request->getParsedBody())
-            ->withQueryParams($request->getQueryParams())
-            ->withCookieParams($request->getCookieParams())
-            ->withUploadedFiles($request->getUploadedFiles());
-
-            foreach ($request->getAttributes() as $key => $value) {
-                $new = $new->withAttribute($key, $value);
+        $hasHost = false;
+        foreach (array_keys($headers) as $header) {
+            if (strtolower((string) $header) === 'host') {
+                $hasHost = true;
+                break;
             }
-
-            return $new;
         }
 
-        return new Request(
-            $changes['method'] ?? $request->getMethod(),
-            $uri,
-            $headers,
-            $changes['body'] ?? $request->getBody(),
-            $changes['version'] ?? $request->getProtocolVersion()
+        // Match Request::__construct() by adding a Host header when one is not provided.
+        if (!$hasHost && $uri->getHost() !== '') {
+            $host = $uri->getHost();
+
+            if (($port = $uri->getPort()) !== null) {
+                $host .= ':'.$port;
+            }
+
+            $headers = ['Host' => [$host]] + $headers;
+        }
+
+        $new = $request;
+
+        if (isset($changes['method'])) {
+            $new = $new->withMethod($changes['method']);
+        }
+
+        if (isset($changes['uri']) || isset($changes['query'])) {
+            $new = $new->withUri($uri, true);
+        }
+
+        if ($headers !== $new->getHeaders()) {
+            foreach (array_keys($new->getHeaders()) as $header) {
+                /** @var RequestInterface */
+                $new = $new->withoutHeader((string) $header);
+            }
+
+            $addedHeaders = [];
+            foreach ($headers as $header => $value) {
+                $header = (string) $header;
+                $normalized = strtolower($header);
+
+                if (isset($addedHeaders[$normalized])) {
+                    /** @var RequestInterface */
+                    $new = $new->withAddedHeader($addedHeaders[$normalized], $value);
+                } else {
+                    /** @var RequestInterface */
+                    $new = $new->withHeader($header, $value);
+                    $addedHeaders[$normalized] = $header;
+                }
+            }
+        }
+
+        if (isset($changes['body'])) {
+            /** @var RequestInterface */
+            $new = $new->withBody(self::streamFor($changes['body']));
+        }
+
+        if (isset($changes['version'])) {
+            /** @var RequestInterface */
+            $new = $new->withProtocolVersion($changes['version']);
+        }
+
+        return $new;
+    }
+
+    /**
+     * @param array<array-key, mixed> $changes
+     */
+    private static function warnOnInvalidModifyRequestChanges(array $changes): void
+    {
+        foreach (['method', 'query', 'version'] as $key) {
+            if (\array_key_exists($key, $changes) && !\is_string($changes[$key])) {
+                self::warnOnInvalidModifyRequestChange($key, 'string', $changes[$key]);
+            }
+        }
+
+        if (\array_key_exists('uri', $changes) && !$changes['uri'] instanceof UriInterface) {
+            self::warnOnInvalidModifyRequestChange('uri', 'UriInterface', $changes['uri']);
+        }
+
+        if (\array_key_exists('body', $changes) && $changes['body'] === null) {
+            self::warnOnInvalidModifyRequestChange('body', 'resource|string|int|float|bool|StreamInterface|callable|\Iterator|\Stringable', $changes['body']);
+        }
+
+        if (\array_key_exists('set_headers', $changes)) {
+            if (!\is_array($changes['set_headers'])) {
+                self::warnOnInvalidModifyRequestChange('set_headers', 'array<array-key, string|non-empty-array<array-key, string>>', $changes['set_headers']);
+            } else {
+                foreach ($changes['set_headers'] as $header => $value) {
+                    $headerPath = \sprintf('set_headers.%s', (string) $header);
+
+                    if (\is_array($value)) {
+                        if ($value === []) {
+                            self::warnOnInvalidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
+
+                            break;
+                        }
+
+                        foreach ($value as $index => $item) {
+                            if (!\is_string($item)) {
+                                self::warnOnInvalidModifyRequestChange(\sprintf('%s.%s', $headerPath, (string) $index), 'string', $item);
+
+                                break 2;
+                            }
+                        }
+                    } elseif (!\is_string($value)) {
+                        self::warnOnInvalidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!\array_key_exists('remove_headers', $changes)) {
+            return;
+        }
+
+        if (!\is_array($changes['remove_headers'])) {
+            self::warnOnInvalidModifyRequestChange('remove_headers', 'array<array-key, string|int>', $changes['remove_headers']);
+
+            return;
+        }
+
+        foreach ($changes['remove_headers'] as $index => $header) {
+            if (!\is_string($header) && !\is_int($header)) {
+                self::warnOnInvalidModifyRequestChange(\sprintf('remove_headers.%s', (string) $index), 'string|int', $header);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function warnOnInvalidModifyRequestChange(string $key, string $expected, $value): void
+    {
+        \trigger_deprecation(
+            'guzzlehttp/psr7',
+            '2.11',
+            'Passing %s to Utils::modifyRequest() change "%s" is deprecated; guzzlehttp/psr7 3.0 requires %s.',
+            \get_debug_type($value),
+            $key,
+            $expected
         );
     }
 
@@ -285,13 +453,17 @@ final class Utils
      *   the object will be cast to a string and then a stream will be returned that
      *   uses the string value.
      * - `NULL`: When `null` is passed, an empty stream object is returned.
-     * - `callable` When a callable is passed, a read-only stream object will be
-     *   created that invokes the given callable. The callable is invoked with the
-     *   number of suggested bytes to read. The callable can return any number of
-     *   bytes, but MUST return `false` when there is no more data to return. The
-     *   stream object that wraps the callable will invoke the callable until the
-     *   number of requested bytes are available. Any additional bytes will be
-     *   buffered and used in subsequent reads.
+     * - `callable`: When a callable array, closure, or invokable object is passed
+     *   and no earlier resource or object rule applies, a read-only stream object
+     *   will be created that invokes the given callable. The callable is invoked
+     *   with the suggested number of bytes to read. The callable can return fewer
+     *   or more bytes than requested, but MUST return `false` or `null` when there
+     *   is no more data to return. Any additional bytes will be buffered and used
+     *   in subsequent reads. String inputs are always treated as string bodies,
+     *   even when they name callable functions.
+     *
+     * Passing a non-string scalar (`int`, `float`, or `bool`) is deprecated; cast
+     * it to a string instead. guzzlehttp/psr7 3.0 will reject non-string scalars.
      *
      * @param resource|string|int|float|bool|StreamInterface|callable|\Iterator|null $resource Entity body data
      * @param array{size?: int, metadata?: array}                                    $options  Additional options
@@ -301,6 +473,22 @@ final class Utils
     public static function streamFor($resource = '', array $options = []): StreamInterface
     {
         if (is_scalar($resource)) {
+            if (!is_string($resource)) {
+                \trigger_deprecation(
+                    'guzzlehttp/psr7',
+                    '2.12',
+                    'Passing %s to Utils::streamFor() is deprecated; cast it to a string. guzzlehttp/psr7 3.0 will only accept string, resource, StreamInterface, Stringable, Iterator, callable, or null.',
+                    \gettype($resource)
+                );
+
+                if (is_float($resource) && !is_finite($resource)) {
+                    // Normalized only to avoid PHP 8.5's (string) NAN warning
+                    // while deprecated; 3.0 rejects non-finite floats with every
+                    // other non-string scalar.
+                    $resource = is_nan($resource) ? 'NAN' : ($resource > 0 ? 'INF' : '-INF');
+                }
+            }
+
             $stream = self::tryFopen('php://temp', 'r+');
             if ($resource !== '') {
                 fwrite($stream, (string) $resource);
@@ -397,7 +585,7 @@ final class Utils
         restore_error_handler();
 
         if ($ex) {
-            /** @var $ex \RuntimeException */
+            /** @var \RuntimeException $ex */
             throw $ex;
         }
 
@@ -444,7 +632,7 @@ final class Utils
         restore_error_handler();
 
         if ($ex) {
-            /** @var $ex \RuntimeException */
+            /** @var \RuntimeException $ex */
             throw $ex;
         }
 

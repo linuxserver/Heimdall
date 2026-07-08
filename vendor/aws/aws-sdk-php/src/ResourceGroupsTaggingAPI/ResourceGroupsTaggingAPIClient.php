@@ -15,6 +15,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getTagKeysAsync(array $args = [])
  * @method \Aws\Result getTagValues(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTagValuesAsync(array $args = [])
+ * @method \Aws\Result listRequiredTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listRequiredTagsAsync(array $args = [])
  * @method \Aws\Result startReportCreation(array $args = [])
  * @method \GuzzleHttp\Promise\Promise startReportCreationAsync(array $args = [])
  * @method \Aws\Result tagResources(array $args = [])

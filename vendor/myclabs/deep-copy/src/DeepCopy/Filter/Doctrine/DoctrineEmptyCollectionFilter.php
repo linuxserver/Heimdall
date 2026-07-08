@@ -21,7 +21,9 @@ class DoctrineEmptyCollectionFilter implements Filter
     public function apply($object, $property, $objectCopier)
     {
         $reflectionProperty = ReflectionHelper::getProperty($object, $property);
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
 
         $reflectionProperty->setValue($object, new ArrayCollection());
     }

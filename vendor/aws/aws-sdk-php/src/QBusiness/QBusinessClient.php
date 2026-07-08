@@ -77,6 +77,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getDataAccessorAsync(array $args = [])
  * @method \Aws\Result getDataSource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getDataSourceAsync(array $args = [])
+ * @method \Aws\Result getDocumentContent(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getDocumentContentAsync(array $args = [])
  * @method \Aws\Result getGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getGroupAsync(array $args = [])
  * @method \Aws\Result getIndex(array $args = [])

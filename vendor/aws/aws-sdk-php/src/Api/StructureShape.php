@@ -67,6 +67,32 @@ class StructureShape extends Shape
         return $members[$name];
     }
 
+    /**
+     * Used to look up the shape's original definition.
+     * ShapeMap::resolve() merges properties from both
+     * member and target shape definitions, causing certain
+     * properties like `locationName` to be overwritten.
+     *
+     * @return ShapeMap
+     * @internal This method is for internal use only and should not be used
+     * by external code. It may be changed or removed without notice.
+     */
+    public function getShapeMap(): ShapeMap
+    {
+        return $this->shapeMap;
+    }
+
+    /**
+     * Used to look up a shape's original definition.
+     *
+     * @param string $name
+     *
+     * @return array|null
+     */
+    public function getOriginalDefinition(string $name): ?array
+    {
+        return $this->shapeMap[$name] ?? null;
+    }
 
     private function generateMembersHash()
     {

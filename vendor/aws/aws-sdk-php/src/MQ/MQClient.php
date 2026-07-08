@@ -31,6 +31,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeConfigurationAsync(array $args = [])
  * @method \Aws\Result describeConfigurationRevision(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeConfigurationRevisionAsync(array $args = [])
+ * @method \Aws\Result describeSharedResources(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSharedResourcesAsync(array $args = [])
  * @method \Aws\Result describeUser(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeUserAsync(array $args = [])
  * @method \Aws\Result listBrokers(array $args = [])

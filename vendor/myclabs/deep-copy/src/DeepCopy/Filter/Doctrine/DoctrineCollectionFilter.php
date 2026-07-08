@@ -19,7 +19,9 @@ class DoctrineCollectionFilter implements Filter
     {
         $reflectionProperty = ReflectionHelper::getProperty($object, $property);
 
-        $reflectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflectionProperty->setAccessible(true);
+        }
         $oldCollection = $reflectionProperty->getValue($object);
 
         $newCollection = $oldCollection->map(

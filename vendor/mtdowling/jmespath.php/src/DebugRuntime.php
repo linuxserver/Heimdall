@@ -83,12 +83,12 @@ class DebugRuntime
     private function dumpCompiledCode($expression)
     {
         fwrite($this->out, "Code\n========\n\n");
-        $dir = sys_get_temp_dir();
-        $hash = md5($expression);
-        $functionName = "jmespath_{$hash}";
-        $filename = "{$dir}/{$functionName}.php";
+        $functionName = CompilerRuntime::functionName($expression);
+        $filename = $this->runtime->getCacheDir() . '/' . $functionName . '.php';
         fwrite($this->out, "File: {$filename}\n\n");
-        fprintf($this->out, file_get_contents($filename));
+        fwrite($this->out, is_file($filename)
+            ? file_get_contents($filename)
+            : "(not present: {$functionName} was already loaded in this process, likely from another cache directory)\n");
     }
 
     private function debugCallback(callable $debugFn, $expression, $data)

@@ -29,6 +29,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeSignalingChannelAsync(array $args = [])
  * @method \Aws\Result describeStream(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeStreamAsync(array $args = [])
+ * @method \Aws\Result describeStreamStorageConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeStreamStorageConfigurationAsync(array $args = [])
  * @method \Aws\Result getDataEndpoint(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getDataEndpointAsync(array $args = [])
  * @method \Aws\Result getSignalingChannelEndpoint(array $args = [])
@@ -65,5 +67,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updateSignalingChannelAsync(array $args = [])
  * @method \Aws\Result updateStream(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateStreamAsync(array $args = [])
+ * @method \Aws\Result updateStreamStorageConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateStreamStorageConfigurationAsync(array $args = [])
  */
 class KinesisVideoClient extends AwsClient {}

@@ -172,7 +172,11 @@ class UserAgentMiddleware
         if (function_exists('php_uname')
             && !in_array('php_uname', $disabledFunctions, true)
         ) {
-            $osName = "OS/" . php_uname('s') . '#' . php_uname('r');
+            // Replace spaces with underscores to prevent breaking the user agent format
+            $os = str_replace(' ', '_', php_uname('s'));
+            $release = php_uname('r');
+            $osName = "OS/{$os}#{$release}";
+
             if (!empty($osName)) {
                 return $osName;
             }

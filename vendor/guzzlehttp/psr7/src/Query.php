@@ -96,7 +96,7 @@ final class Query
             $k = $encoder((string) $k);
             if (!is_array($v)) {
                 $qs .= $k;
-                $v = is_bool($v) ? $castBool($v) : $v;
+                $v = is_bool($v) ? $castBool($v) : self::normalizeNonFiniteFloat($v);
                 if ($v !== null) {
                     $qs .= '='.$encoder((string) $v);
                 }
@@ -104,7 +104,7 @@ final class Query
             } else {
                 foreach ($v as $vv) {
                     $qs .= $k;
-                    $vv = is_bool($vv) ? $castBool($vv) : $vv;
+                    $vv = is_bool($vv) ? $castBool($vv) : self::normalizeNonFiniteFloat($vv);
                     if ($vv !== null) {
                         $qs .= '='.$encoder((string) $vv);
                     }
@@ -114,5 +114,28 @@ final class Query
         }
 
         return $qs ? (string) substr($qs, 0, -1) : '';
+    }
+
+    /**
+     * Converts non-finite floats to the strings PHP coerces them to, as
+     * implicit coercion of NAN emits a warning on PHP 8.5.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private static function normalizeNonFiniteFloat($value)
+    {
+        if (is_float($value) && !is_finite($value)) {
+            \trigger_deprecation(
+                'guzzlehttp/psr7',
+                '2.12',
+                'Passing a non-finite float to Query::build() is deprecated; guzzlehttp/psr7 3.0 rejects non-finite floats.'
+            );
+
+            return is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+        }
+
+        return $value;
     }
 }

@@ -2,6 +2,18 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [5.0.5] - 2026-01-24
+
+### Changed
+
+* [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
+## [5.0.4] - 2025-09-07
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
+
 ## [5.0.3] - 2024-10-18
 
 ### Fixed
@@ -156,10 +168,14 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Added `SebastianBergmann\Comparator\Factory::reset()` to unregister all non-default comparators
 * Added support for `phpunit/phpunit-mock-objects` version `^5.0`
 
+[5.0.5]: https://github.com/sebastianbergmann/comparator/compare/5.0.4...5.0.5
+[5.0.4]: https://github.com/sebastianbergmann/comparator/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/sebastianbergmann/comparator/compare/5.0.2...5.0.3
 [5.0.2]: https://github.com/sebastianbergmann/comparator/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/sebastianbergmann/comparator/compare/5.0.0...5.0.1
-[5.0.0]: https://github.com/sebastianbergmann/comparator/compare/4.0.8...5.0.0
+[5.0.0]: https://github.com/sebastianbergmann/comparator/compare/4.0...5.0.0
+[4.0.10]: https://github.com/sebastianbergmann/comparator/compare/4.0.9...4.0.10
+[4.0.9]: https://github.com/sebastianbergmann/comparator/compare/4.0.8...4.0.9
 [4.0.8]: https://github.com/sebastianbergmann/comparator/compare/4.0.7...4.0.8
 [4.0.7]: https://github.com/sebastianbergmann/comparator/compare/4.0.6...4.0.7
 [4.0.6]: https://github.com/sebastianbergmann/comparator/compare/4.0.5...4.0.6
@@ -168,7 +184,9 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 [4.0.3]: https://github.com/sebastianbergmann/comparator/compare/4.0.2...4.0.3
 [4.0.2]: https://github.com/sebastianbergmann/comparator/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/sebastianbergmann/comparator/compare/4.0.0...4.0.1
-[4.0.0]: https://github.com/sebastianbergmann/comparator/compare/3.0.5...4.0.0
+[4.0.0]: https://github.com/sebastianbergmann/comparator/compare/3.0...4.0.0
+[3.0.7]: https://github.com/sebastianbergmann/comparator/compare/3.0.6...3.0.7
+[3.0.6]: https://github.com/sebastianbergmann/comparator/compare/3.0.5...3.0.6
 [3.0.5]: https://github.com/sebastianbergmann/comparator/compare/3.0.4...3.0.5
 [3.0.4]: https://github.com/sebastianbergmann/comparator/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/sebastianbergmann/comparator/compare/3.0.2...3.0.3

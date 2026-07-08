@@ -1244,11 +1244,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return MockObject&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
      * @throws NoPreviousThrowableException
+     *
+     * @psalm-return MockObject&RealInstanceType
      */
     protected function createMock(string $originalClassName): MockObject
     {
@@ -1296,11 +1296,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return MockObject&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
      * @throws NoPreviousThrowableException
+     *
+     * @psalm-return MockObject&RealInstanceType
      */
     protected function createConfiguredMock(string $originalClassName, array $configuration): MockObject
     {
@@ -1322,10 +1322,10 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return MockObject&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
+     *
+     * @psalm-return MockObject&RealInstanceType
      */
     protected function createPartialMock(string $originalClassName, array $methods): MockObject
     {
@@ -1352,10 +1352,10 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return MockObject&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
+     *
+     * @psalm-return MockObject&RealInstanceType
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5240
      */
@@ -1383,10 +1383,10 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return MockObject&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
+     *
+     * @psalm-return MockObject&RealInstanceType
      *
      * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5241
      */
@@ -1869,21 +1869,23 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      */
     private function compareGlobalStateSnapshotPart(array $before, array $after, string $header): void
     {
-        if ($before != $after) {
-            $differ   = new Differ(new UnifiedDiffOutputBuilder($header));
-            $exporter = new Exporter;
-
-            Event\Facade::emitter()->testConsideredRisky(
-                $this->valueObjectForEvents(),
-                'This test modified global state but was not expected to do so' . PHP_EOL .
-                trim(
-                    $differ->diff(
-                        $exporter->export($before),
-                        $exporter->export($after),
-                    ),
-                ),
-            );
+        if ($before == $after) {
+            return;
         }
+
+        $differ   = new Differ(new UnifiedDiffOutputBuilder($header));
+        $exporter = new Exporter;
+
+        Event\Facade::emitter()->testConsideredRisky(
+            $this->valueObjectForEvents(),
+            'This test modified global state but was not expected to do so' . PHP_EOL .
+            trim(
+                $differ->diff(
+                    $exporter->export($before),
+                    $exporter->export($after),
+                ),
+            ),
+        );
     }
 
     private function shouldInvocationMockerBeReset(MockObject $mock): bool
@@ -2347,11 +2349,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return Stub&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
      * @throws NoPreviousThrowableException
+     *
+     * @psalm-return Stub&RealInstanceType
      */
     protected static function createStub(string $originalClassName): Stub
     {
@@ -2393,11 +2395,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      *
      * @psalm-param class-string<RealInstanceType> $originalClassName
      *
-     * @psalm-return Stub&RealInstanceType
-     *
      * @throws InvalidArgumentException
      * @throws MockObjectException
      * @throws NoPreviousThrowableException
+     *
+     * @psalm-return Stub&RealInstanceType
      */
     final protected static function createConfiguredStub(string $originalClassName, array $configuration): Stub
     {

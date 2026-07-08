@@ -63,11 +63,16 @@ class JsonRpcParser extends AbstractParser
             }
         }
 
+        $body = $response->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
         $result = $this->parseMemberFromStream(
-                $response->getBody(),
-                $operation->getOutput(),
-                $response
-            );
+            $body,
+            $operation->getOutput(),
+            $response
+        );
 
         return new Result(is_null($result) ? [] : $result);
     }

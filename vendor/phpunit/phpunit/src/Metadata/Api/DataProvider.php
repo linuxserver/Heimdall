@@ -39,6 +39,7 @@ use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\TestWith;
 use PHPUnit\Util\Reflection;
+use PHPUnit\Util\Test;
 use ReflectionClass;
 use ReflectionMethod;
 use Throwable;
@@ -118,6 +119,19 @@ final class DataProvider
             try {
                 $class  = new ReflectionClass($_dataProvider->className());
                 $method = $class->getMethod($_dataProvider->methodName());
+
+                if (Test::isTestMethod($method)) {
+                    Event\Facade::emitter()->testRunnerTriggeredPhpunitWarning(
+                        sprintf(
+                            'Method %s::%s() used by test method %s::%s() is also a test method',
+                            $_dataProvider->className(),
+                            $_dataProvider->methodName(),
+                            $className,
+                            $methodName,
+                        ),
+                    );
+                }
+
                 $object = null;
 
                 if (!$method->isPublic()) {

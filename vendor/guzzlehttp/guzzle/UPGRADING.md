@@ -12,7 +12,7 @@ Please make sure:
 - You are calling a function or a method with the correct type.
 - If you extend a class of Guzzle; update all signatures on methods you override.
 
-#### Other backwards compatibility breaking changes
+#### Other Backwards Compatibility Breaking Changes
 
 - Class `GuzzleHttp\UriTemplate` is removed.
 - Class `GuzzleHttp\Exception\SeekException` is removed.
@@ -35,7 +35,7 @@ Please make sure:
 - The `log` middleware will log the errors with level `error` instead of `notice` 
 - Support for international domain names (IDN) is now disabled by default, and enabling it requires installing ext-intl, linked against a modern version of the C library (ICU 4.6 or higher).
 
-#### Native functions calls
+#### Native Functions Calls
 
 All internal native functions calls of Guzzle are now prefixed with a slash. This
 change makes it impossible for method overloading by other libraries or applications.
@@ -49,7 +49,7 @@ curl_version();
 \curl_version();
 ```
 
-For the full diff you can check [here](https://github.com/guzzle/guzzle/compare/6.5.4..master).
+For the full diff you can check [here](https://github.com/guzzle/guzzle/compare/6.5.4..7.0.0).
 
 5.0 to 6.0
 ----------
@@ -189,11 +189,11 @@ $client = new GuzzleHttp\Client(['handler' => $handler]);
 
 ## POST Requests
 
-This version added the [`form_params`](https://docs.guzzlephp.org/en/latest/request-options.html#form_params)
+This version added the [`form_params`](https://github.com/guzzle/guzzle/blob/6.5/docs/request-options.rst#form_params)
 and `multipart` request options. `form_params` is an associative array of
 strings or array of strings and is used to serialize an
 `application/x-www-form-urlencoded` POST request. The
-[`multipart`](https://docs.guzzlephp.org/en/latest/request-options.html#multipart)
+[`multipart`](https://github.com/guzzle/guzzle/blob/6.5/docs/request-options.rst#multipart)
 option is now used to send a multipart/form-data POST request.
 
 `GuzzleHttp\Post\PostFile` has been removed. Use the `multipart` option to add
@@ -209,7 +209,7 @@ The `base_url` option has been renamed to `base_uri`.
 
 ## Rewritten Adapter Layer
 
-Guzzle now uses [RingPHP](https://ringphp.readthedocs.org/en/latest) to send
+Guzzle now uses [RingPHP](https://github.com/guzzle/RingPHP) to send
 HTTP requests. The `adapter` option in a `GuzzleHttp\Client` constructor
 is still supported, but it has now been renamed to `handler`. Instead of
 passing a `GuzzleHttp\Adapter\AdapterInterface`, you must now pass a PHP
@@ -574,8 +574,6 @@ event emits a `GuzzleHttp\Event\HeadersEvent`.
 You can intercept a request and inject a response using the `intercept()` event
 of a `GuzzleHttp\Event\BeforeEvent`, `GuzzleHttp\Event\CompleteEvent`, and
 `GuzzleHttp\Event\ErrorEvent` event.
-
-See: https://docs.guzzlephp.org/en/latest/events.html
 
 ## Inflection
 

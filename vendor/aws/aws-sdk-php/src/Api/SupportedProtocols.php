@@ -8,6 +8,7 @@ namespace Aws\Api;
 enum SupportedProtocols: string
 {
     case JSON = 'json';
+    case CBOR = 'smithy-rpc-v2-cbor';
     case REST_JSON = 'rest-json';
     case REST_XML = 'rest-xml';
     case QUERY = 'query';

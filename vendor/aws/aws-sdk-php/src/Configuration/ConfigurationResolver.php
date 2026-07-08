@@ -2,56 +2,50 @@
 
 namespace Aws\Configuration;
 
+/**
+ * Resolves configuration values from, in order of precedence:
+ *   1. An AWS_-prefixed environment variable.
+ *   2. The shared config file (AWS_CONFIG_FILE, defaulting to ~/.aws/config).
+ *   3. A caller-supplied default.
+ */
 class ConfigurationResolver
 {
     const ENV_PROFILE = 'AWS_PROFILE';
     const ENV_CONFIG_FILE = 'AWS_CONFIG_FILE';
 
+    const DEFAULT_PROFILE = 'default';
+
+    /** Prefix AWS applies to every non-default profile section in the config file. */
+    const PROFILE_PREFIX = 'profile ';
+
     public static $envPrefix = 'AWS_';
 
     /**
-     * Generic configuration resolver that first checks for environment
-     * variables, then checks for a specified profile in the environment-defined
-     * config file location (env variable is 'AWS_CONFIG_FILE', file location
-     * defaults to ~/.aws/config), then checks for the "default" profile in the
-     * environment-defined config file location, and failing those uses a default
-     * fallback value.
-     *
-     * @param string $key      Configuration key to be used when attempting
-     *                         to retrieve value from the environment or ini file.
-     * @param mixed $defaultValue
-     * @param string $expectedType  The expected type of the retrieved value.
-     * @param array $config additional configuration options.
+     * @param string $key          Key to look up in the environment / config file.
+     * @param mixed  $defaultValue Returned when nothing else resolves.
+     * @param string $expectedType Type to coerce the resolved value to.
+     * @param array  $config       Options: 'ini_resolver_options',
+     *                             'use_aws_shared_config_files'.
      *
      * @return mixed
      */
-    public static function resolve(
-        $key,
-        $defaultValue,
-        $expectedType,
-        $config = []
-    )
+    public static function resolve($key, $defaultValue, $expectedType, $config = [])
     {
-        $iniOptions = isset($config['ini_resolver_options'])
-            ? $config['ini_resolver_options']
-            : [];
-
         $envValue = self::env($key, $expectedType);
-        if (!is_null($envValue)) {
+        if ($envValue !== null) {
             return $envValue;
         }
 
-        if (!isset($config['use_aws_shared_config_files'])
-            || $config['use_aws_shared_config_files'] != false
-        ) {
+        $useSharedConfig = $config['use_aws_shared_config_files'] ?? true;
+        if ($useSharedConfig !== false) {
             $iniValue = self::ini(
                 $key,
                 $expectedType,
                 null,
                 null,
-                $iniOptions
+                $config['ini_resolver_options'] ?? []
             );
-            if(!is_null($iniValue)) {
+            if ($iniValue !== null) {
                 return $iniValue;
             }
         }
@@ -60,43 +54,41 @@ class ConfigurationResolver
     }
 
     /**
-     * Resolves config values from environment variables.
+     * Resolves a value from an AWS_-prefixed environment variable.
      *
-     * @param string $key      Configuration key to be used when attempting
-     *                         to retrieve value from the environment.
-     * @param string $expectedType  The expected type of the retrieved value.
+     * @param string $key
+     * @param string $expectedType
      *
-     * @return null | mixed
+     * @return mixed|null
      */
-    public static function env($key, $expectedType)
+    public static function env($key, $expectedType = 'string')
     {
-        // Use config from environment variables, if available
         $envValue = getenv(self::$envPrefix . strtoupper($key));
-        if (!empty($envValue)) {
-            if ($expectedType) {
-                $envValue = self::convertType($envValue, $expectedType);
-            }
-            return $envValue;
+
+        // false => variable is unset; '' => set but empty. Both resolve to null.
+        // A literal "0" is a valid value and must NOT be treated as empty.
+        if ($envValue === false || $envValue === '') {
+            return null;
         }
 
-        return null;
+        return $expectedType
+            ? self::convertType($envValue, $expectedType)
+            : $envValue;
     }
 
     /**
-     * Gets config values from a config file whose location
-     * is specified by an environment variable 'AWS_CONFIG_FILE', defaulting to
-     * ~/.aws/config if not specified
+     * Resolves a value from the shared config file.
      *
+     * @param string      $key
+     * @param string      $expectedType
+     * @param string|null $profile  Profile to read. Defaults to AWS_PROFILE,
+     *                              then "default".
+     * @param string|null $filename Config file path. Defaults to AWS_CONFIG_FILE,
+     *                              then ~/.aws/config.
+     * @param array       $options  Subsection lookup options
+     *                             ('section', 'subsection', 'key').
      *
-     * @param string $key      Configuration key to be used when attempting
-     *                         to retrieve value from ini file.
-     * @param string $expectedType  The expected type of the retrieved value.
-     * @param string|null $profile  Profile to use. If not specified will use
-     *                              the "default" profile.
-     * @param string|null $filename If provided, uses a custom filename rather
-     *                              than looking in the default directory.
-     *
-     * @return null | mixed
+     * @return mixed|null
      */
     public static function ini(
         $key,
@@ -104,21 +96,23 @@ class ConfigurationResolver
         $profile = null,
         $filename = null,
         $options = []
-    ){
-        $filename = $filename ?: (self::getDefaultConfigFilename());
-        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+    ) {
+        $filename = $filename ?: self::getDefaultConfigFilename();
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: self::DEFAULT_PROFILE);
 
         if (!@is_readable($filename)) {
             return null;
         }
-        // Use INI_SCANNER_NORMAL instead of INI_SCANNER_TYPED for PHP 5.5 compatibility
-        //TODO change after deprecation
-        $data = @\Aws\parse_ini_file($filename, true, INI_SCANNER_NORMAL);
 
-        if (isset($options['section'])
-            && isset($options['subsection'])
-            && isset($options['key']))
-        {
+        // INI_SCANNER_TYPED coerces bool/int/float/null at parse time; a value
+        // left empty (key =) still comes back as an empty string. convertType()
+        // normalizes both these typed values and the raw strings from env().
+        $data = @\Aws\parse_ini_file($filename, true, INI_SCANNER_TYPED);
+        if ($data === false) {
+            return null;
+        }
+
+        if (isset($options['section'], $options['subsection'], $options['key'])) {
             return self::retrieveValueFromIniSubsection(
                 $data,
                 $profile,
@@ -128,38 +122,102 @@ class ConfigurationResolver
             );
         }
 
-        if ($data === false
-            || !isset($data[$profile])
-            || !isset($data[$profile][$key])
-        ) {
+        $section = self::getProfileSection($data, $profile);
+        if ($section === null || !isset($section[$key])) {
             return null;
         }
 
-        // INI_SCANNER_NORMAL parses false-y values as an empty string
-        if ($data[$profile][$key] === "") {
-            if ($expectedType === 'bool') {
-                $data[$profile][$key] = false;
-            } elseif ($expectedType === 'int') {
-                $data[$profile][$key] = 0;
-            }
+        return self::convertType($section[$key], $expectedType);
+    }
+
+    /**
+     * Returns the config-file section for a profile, accounting for the
+     * "profile " prefix AWS applies to every non-default profile.
+     *
+     * For a non-default profile "foo" the lookup order is:
+     *   1. [profile foo]  (canonical AWS form)
+     *   2. [foo]          (lenient fallback for hand-written files)
+     *
+     * The default profile is conventionally written as [default], with
+     * [profile default] tolerated as a fallback.
+     *
+     * @param array  $data
+     * @param string $profile
+     *
+     * @return array|null
+     */
+    private static function getProfileSection(array $data, $profile)
+    {
+        if ($profile === self::DEFAULT_PROFILE) {
+            return $data[self::DEFAULT_PROFILE]
+                ?? $data[self::PROFILE_PREFIX . self::DEFAULT_PROFILE]
+                ?? null;
         }
 
-        return self::convertType($data[$profile][$key], $expectedType);
+        return $data[self::PROFILE_PREFIX . $profile]
+            ?? $data[$profile]
+            ?? null;
+    }
+
+    /**
+     * Resolves a value nested in a referenced section (e.g. a profile that
+     * points at a "services" section via `services = my-services`).
+     *
+     * @param array  $data
+     * @param string $profile
+     * @param string $filename
+     * @param string $expectedType
+     * @param array  $options
+     *
+     * @return mixed|null
+     */
+    private static function retrieveValueFromIniSubsection(
+        array $data,
+        $profile,
+        $filename,
+        $expectedType,
+        array $options
+    ) {
+        $profileData = self::getProfileSection($data, $profile);
+        $section = $options['section'];
+
+        // The profile must name a referenced section, and that section must exist.
+        if ($profileData === null || !isset($profileData[$section])) {
+            return null;
+        }
+
+        $referencedSection = "{$section} {$profileData[$section]}";
+        if (!isset($data[$referencedSection])) {
+            return null;
+        }
+
+        $subsections = \Aws\parse_ini_section_with_subsections(
+            $filename,
+            $referencedSection
+        );
+
+        $subsection = $options['subsection'];
+        $subKey = $options['key'];
+        if (!isset($subsections[$subsection][$subKey])) {
+            return null;
+        }
+
+        return self::convertType($subsections[$subsection][$subKey], $expectedType);
     }
 
     /**
      * Gets the environment's HOME directory if available.
      *
-     * @return null | string
+     * @return string|null
      */
     private static function getHomeDir()
     {
-        // On Linux/Unix-like systems, use the HOME environment variable
+        // Linux / Unix-like systems.
         if ($homeDir = getenv('HOME')) {
             return $homeDir;
         }
 
-        // Get the HOMEDRIVE and HOMEPATH values for Windows hosts
+        // Windows hosts.
         $homeDrive = getenv('HOMEDRIVE');
         $homePath = getenv('HOMEPATH');
 
@@ -167,84 +225,73 @@ class ConfigurationResolver
     }
 
     /**
-     * Gets default config file location from environment, falling back to aws
-     * default location
+     * Gets the config file location from the environment, falling back to the
+     * AWS default location.
      *
      * @return string
      */
     private static function getDefaultConfigFilename()
     {
-        if ($filename = getenv(self::ENV_CONFIG_FILE)) {
-            return $filename;
-        }
-        return self::getHomeDir() . '/.aws/config';
+        return getenv(self::ENV_CONFIG_FILE)
+            ?: self::getHomeDir() . '/.aws/config';
     }
 
     /**
-     * Normalizes string values pulled out of ini files and
-     * environment variables.
+     * Coerces a value to the expected type. The value may be a raw string
+     * (from env()) or already typed by INI_SCANNER_TYPED (from ini()).
+     * Unrecognized values are returned unchanged.
      *
-     * @param string $value The value retrieved from the environment or
-     *                      ini file.
-     * @param $type $string The type that the value needs to be converted to.
+     * @param mixed  $value
+     * @param string $type
      *
      * @return mixed
      */
-    private static function convertType($value, $type)
+    private static function convertType(mixed $value, string $type): mixed
     {
-        if ($type === 'bool'
-            && !is_null($convertedValue = \Aws\boolean_value($value))
-        ) {
-            return $convertedValue;
-        }
-
-        if ($type === 'int'
-            && filter_var($value, FILTER_VALIDATE_INT)
-        ) {
-            $value = intVal($value);
-        }
-        return $value;
+        // INI_SCANNER_TYPED may already yield a bool/int for keyword or numeric
+        // values; env() always passes a string. Each arm fast-paths the
+        // already-typed case and delegates conversion otherwise. TYPED may also
+        // return int/float/bool for numeric or keyword 'string' values, so the
+        // string arm casts those back to string as it did under NORMAL.
+        return match ($type) {
+            'bool'   => is_bool($value) ? $value : self::toBool($value),
+            'int'    => is_int($value) ? $value : self::toInt($value),
+            'string' => is_string($value) ? $value : (string) $value,
+            default  => $value,
+        };
     }
 
     /**
-     * Normalizes string values pulled out of ini files and
-     * environment variables.
+     * Coerces a non-bool value (typically a string from env()) to bool.
+     * \Aws\boolean_value() returns null when it can't interpret the value.
      *
-     * @param array $data The data retrieved the ini file
-     * @param string $profile The specified ini profile
-     * @param string $filename The full path to the ini file
-     * @param array $options Additional arguments passed to the configuration resolver
+     * @param mixed $value
      *
      * @return mixed
      */
-    private static function retrieveValueFromIniSubsection(
-        $data,
-        $profile,
-        $filename,
-        $expectedType,
-        $options
-    ){
-        $section = $options['section'];
-        if ($data === false
-            || !isset($data[$profile][$section])
-            || !isset($data["{$section} {$data[$profile][$section]}"])
-        ) {
-            return null;
+    private static function toBool(mixed $value): mixed
+    {
+        if ($value === '') {
+            return false;
         }
+        return \Aws\boolean_value($value) ?? $value;
+    }
 
-        $services_section = \Aws\parse_ini_section_with_subsections(
-            $filename,
-            "services {$data[$profile]['services']}"
-        );
-
-        if (!isset($services_section[$options['subsection']][$options['key']])
-        ) {
-            return null;
+    /**
+     * Coerces a non-int value (typically a string from env()) to int. Uses
+     * !== false on filter_var() so a valid "0" is not dropped; if the value
+     * is not a valid int, the original is returned unchanged.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private static function toInt(mixed $value): mixed
+    {
+        if ($value === '') {
+            return 0;
         }
-
-        return self::convertType(
-            $services_section[$options['subsection']][$options['key']],
-            $expectedType
-        );
+        $int = filter_var($value, FILTER_VALIDATE_INT);
+        return $int !== false ? $int : $value;
     }
 }

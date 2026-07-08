@@ -13,6 +13,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise createApplicationAsync(array $args = [])
  * @method \Aws\Result createStreamGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createStreamGroupAsync(array $args = [])
+ * @method \Aws\Result createStreamSessionAdminShell(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createStreamSessionAdminShellAsync(array $args = [])
  * @method \Aws\Result createStreamSessionConnection(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createStreamSessionConnectionAsync(array $args = [])
  * @method \Aws\Result deleteApplication(array $args = [])

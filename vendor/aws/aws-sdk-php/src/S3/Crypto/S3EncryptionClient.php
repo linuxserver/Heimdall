@@ -54,6 +54,14 @@ class S3EncryptionClient extends AbstractCryptoClient
         S3Client $client,
         $instructionFileSuffix = null
     ) {
+        trigger_error(
+            'S3EncryptionClient is deprecated and will be removed in a future ' .
+            'release due to security vulnerabilities. Please migrate to ' .
+            'S3EncryptionClientV3 as soon as possible.' . "\n" .
+            'See https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/' .
+            'security.html for upgrade guidance.',
+            E_USER_DEPRECATED
+        );
         $this->client = $client;
         $this->instructionFileSuffix = $instructionFileSuffix;
         MetricsBuilder::appendMetricsCaptureMiddleware(
@@ -119,8 +127,15 @@ class S3EncryptionClient extends AbstractCryptoClient
 
         $envelope = new MetadataEnvelope();
 
+        $bodyStream = Psr7\Utils::streamFor($args['Body']);
+        // User-owned resource which should be detached instead of closed
+        // during garbage-collection
+        if (is_resource($args['Body'])) {
+            $bodyStream = \Aws\detach_on_close_stream($bodyStream);
+        }
+
         return Promise\Create::promiseFor($this->encrypt(
-            Psr7\Utils::streamFor($args['Body']),
+            $bodyStream,
             $args['@CipherOptions'] ?: [],
             $provider,
             $envelope

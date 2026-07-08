@@ -22,11 +22,9 @@ class RulesetStandardLibrary
                     . 1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]
                     . {1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]
                     . |1{0,1}[0-9]){0,1}[0-9])/';
-    const TEMPLATE_ESCAPE_RE = '/{\{\s*(.*?)\s*\}\}/';
-    const TEMPLATE_SEARCH_RE = '/\{[a-zA-Z#]+\}/';
-    const TEMPLATE_PARSE_RE = '#\{((?>[^\{\}]+)|(?R))*\}#x';
+    const TEMPLATE_SEARCH_RE = '/\{\{.*?\}\}|\{[a-zA-Z0-9_#]+\}/';
+    const TEMPLATE_PARSE_RE = '/\{\{\s*([^{}]*?)\s*\}\}|\{([a-zA-Z0-9_]+(?:#[a-zA-Z0-9_]+)*)\}/';
     const HOST_LABEL_RE = '/^(?!-)[a-zA-Z\d-]{1,63}(?<!-)$/';
-
     private $partitions;
 
     public function __construct($partitions)
@@ -181,11 +179,11 @@ class RulesetStandardLibrary
 
         $urlInfo = [];
         $urlInfo['scheme'] = $parsed['scheme'];
-        $urlInfo['authority'] = isset($parsed['host']) ? $parsed['host'] : '';
+        $urlInfo['authority'] = $parsed['host'] ?? '';
         if (isset($parsed['port'])) {
             $urlInfo['authority'] = $urlInfo['authority'] . ":" . $parsed['port'];
         }
-        $urlInfo['path'] = isset($parsed['path']) ? $parsed['path'] : '';
+        $urlInfo['path'] = $parsed['path'] ?? '';
         $urlInfo['normalizedPath'] = !empty($parsed['path'])
             ? rtrim($urlInfo['path'] ?: '', '/' .  "/") . '/'
             : '/';
@@ -229,34 +227,37 @@ class RulesetStandardLibrary
      */
     public function parseArn($arnString)
     {
-        if (is_null($arnString)
-            || substr( $arnString, 0, 3 ) !== "arn"
+        if (!is_string($arnString)
+            || strncmp($arnString, 'arn', 3) !== 0
         ) {
             return null;
         }
 
-        $arn = [];
         $parts = explode(':', $arnString, 6);
-        if (sizeof($parts) < 6) {
+        if (count($parts) < 6) {
             return null;
         }
 
-        $arn['partition'] = isset($parts[1]) ? $parts[1] : null;
-        $arn['service'] = isset($parts[2]) ? $parts[2] : null;
-        $arn['region'] = isset($parts[3]) ? $parts[3] : null;
-        $arn['accountId'] = isset($parts[4]) ? $parts[4] : null;
-        $arn['resourceId'] = isset($parts[5]) ? $parts[5] : null;
+        $partition = $parts[1];
+        $service = $parts[2];
+        $region = $parts[3];
+        $accountId = $parts[4];
+        $resource = $parts[5];
 
-        if (empty($arn['partition'])
-            || empty($arn['service'])
-            || empty($arn['resourceId'])
+        if ($partition === ''
+            || $service === ''
+            || $resource === ''
         ) {
             return null;
         }
-        $resource = $arn['resourceId'];
-        $arn['resourceId'] = preg_split("/[:\/]/", $resource);
 
-        return $arn;
+        return [
+            'partition' => $partition,
+            'service' => $service,
+            'region' => $region,
+            'accountId' => $accountId,
+            'resourceId' => preg_split("/[:\/]/", $resource),
+        ];
     }
 
     /**
@@ -282,6 +283,61 @@ class RulesetStandardLibrary
         }
         //return `aws` partition if no match is found.
         return $partitions['partitions'][0]['outputs'];
+    }
+
+    /**
+     * Returns the first non-null argument, or null if every argument is null.
+     * Mirrors the standard library `coalesce` function and accepts any number
+     * of already-resolved values.
+     *
+     * @return mixed
+     */
+    public function coalesce(...$values)
+    {
+        foreach ($values as $value) {
+            if (!is_null($value)) {
+                return $value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Splits a string on a delimiter up to an optional limit, returning an
+     * array of string parts. Mirrors the smithy `split` function: a `null` or
+     * `0` limit means "no limit", a positive limit caps the number of parts,
+     * and any other input (non-string, empty delimiter, negative limit)
+     * returns null so downstream conditions treat it as "no value".
+     *
+     * @return array|null
+     */
+    public function split($input, $delimiter, $limit = null)
+    {
+        if (!is_string($input) || !is_string($delimiter) || $delimiter === '') {
+            return null;
+        }
+
+        if (is_null($limit) || $limit === 0) {
+            return explode($delimiter, $input);
+        }
+
+        if (!is_int($limit) || $limit < 0) {
+            return null;
+        }
+
+        return explode($delimiter, $input, $limit);
+    }
+
+    /**
+     * Functional if-then-else. Returns `$then` when `$condition` is truthy,
+     * otherwise `$else`. Arguments are resolved eagerly by the caller, which
+     * matches the rules engine semantics for function arguments.
+     *
+     * @return mixed
+     */
+    public function ite($condition, $then, $else)
+    {
+        return filter_var($condition, FILTER_VALIDATE_BOOLEAN) ? $then : $else;
     }
 
     /**
@@ -313,25 +369,86 @@ class RulesetStandardLibrary
 
     public function callFunction($funcCondition, &$inputParameters)
     {
-        $funcArgs = [];
+        $argv = $funcCondition['argv'];
+        $assign = $funcCondition['assign'] ?? null;
+        $fn = $funcCondition['fn'];
+        switch ($fn) {
+            case 'aws.parseArn':
+                $result = $this->parseArn(
+                    $this->resolveValue($argv[0], $inputParameters)
+                );
+                break;
 
-        forEach($funcCondition['argv'] as $arg) {
-            $funcArgs[] = $this->resolveValue($arg, $inputParameters);
+            case 'getAttr':
+                $result = $this->getAttr(
+                    $this->resolveValue($argv[0], $inputParameters),
+                    $argv[1]
+                );
+                break;
+
+            case 'stringEquals':
+                $result = $this->stringEquals(
+                    $this->resolveValue($argv[0], $inputParameters),
+                    $this->resolveValue($argv[1], $inputParameters)
+                );
+                break;
+
+            case 'booleanEquals':
+                $result = $this->booleanEquals(
+                    $this->resolveValue($argv[0], $inputParameters),
+                    $this->resolveValue($argv[1], $inputParameters)
+                );
+                break;
+
+            case 'isSet':
+                $arg = $argv[0];
+                $result = isset($arg['ref'])
+                    ? isset($inputParameters[$arg['ref']])
+                    : $this->is_set($this->resolveValue($arg, $inputParameters));
+                break;
+
+            case 'not':
+                $result = $this->not(
+                    $this->resolveValue($argv[0], $inputParameters)
+                );
+                break;
+
+            case 'substring':
+                $result = $this->substring(
+                    $this->resolveValue($argv[0], $inputParameters),
+                    $this->resolveValue($argv[1], $inputParameters),
+                    $this->resolveValue($argv[2], $inputParameters),
+                    isset($argv[3])
+                        ? $this->resolveValue($argv[3], $inputParameters)
+                        : false
+                );
+                break;
+
+            default:
+                $funcArgs = [];
+                foreach ($argv as $arg) {
+                    $funcArgs[] = $this->resolveValue($arg, $inputParameters);
+                }
+
+                $funcName = str_replace('aws.', '', $fn);
+                if ($funcName === 'isSet') {
+                    $funcName = 'is_set';
+                }
+
+                if (!method_exists($this, $funcName)) {
+                    throw new UnresolvedEndpointException(
+                        "Unknown endpoint function `{$fn}`."
+                    );
+                }
+
+                $result = call_user_func_array(
+                    [$this, $funcName],
+                    $funcArgs
+                );
         }
 
-        $funcName = str_replace('aws.', '', $funcCondition['fn']);
-        if ($funcName === 'isSet') {
-            $funcName = 'is_set';
-        }
-
-        $result = call_user_func_array(
-            [RulesetStandardLibrary::class, $funcName],
-            $funcArgs
-        );
-
-        if (isset($funcCondition['assign'])) {
-            $assign = $funcCondition['assign'];
-            if (isset($inputParameters[$assign])){
+        if ($assign !== null) {
+            if (isset($inputParameters[$assign])) {
                 throw new UnresolvedEndpointException(
                     "Assignment `{$assign}` already exists in input parameters" .
                     " or has already been assigned by an endpoint rule and cannot be overwritten."
@@ -346,13 +463,20 @@ class RulesetStandardLibrary
     {
         //Given a value, check if it's a function, reference or template.
         //returns resolved value
-        if ($this->isFunc($value)) {
-            return $this->callFunction($value, $inputParameters);
-        } elseif ($this->isRef($value)) {
-            return isset($inputParameters[$value['ref']]) ? $inputParameters[$value['ref']] : null;
-        } elseif ($this->isTemplate($value)) {
+        if (is_array($value)) {
+            if (isset($value['fn'])) {
+                return $this->callFunction($value, $inputParameters);
+            }
+            if (isset($value['ref'])) {
+                return $inputParameters[$value['ref']] ?? null;
+            }
+        } elseif (is_string($value)
+            && str_contains($value, '{')
+            && $this->isTemplate($value)
+        ) {
             return $this->resolveTemplateString($value, $inputParameters);
         }
+
         return $value;
     }
 
@@ -368,7 +492,9 @@ class RulesetStandardLibrary
 
     public function isTemplate($arg)
     {
-        return is_string($arg) && !empty(preg_match(self::TEMPLATE_SEARCH_RE, $arg));
+        return is_string($arg)
+            && str_contains($arg, '{')
+            && preg_match(self::TEMPLATE_SEARCH_RE, $arg) === 1;
     }
 
     public function resolveTemplateString($value, $inputParameters)
@@ -376,14 +502,14 @@ class RulesetStandardLibrary
         return preg_replace_callback(
             self::TEMPLATE_PARSE_RE,
             function ($match) use ($inputParameters) {
-                if (preg_match(self::TEMPLATE_ESCAPE_RE, $match[0])) {
-                    return $match[1];
+                if (str_starts_with($match[0], '{{')) {
+                    return '{' . $match[1] . '}';
                 }
 
                 $notFoundMessage = 'Resolved value was null.  Please check rules and ' .
                     'input parameters and try again.';
 
-                $parts = explode("#", $match[1]);
+                $parts = explode("#", $match[2]);
                 if (count($parts) > 1) {
                     $resolvedValue = $inputParameters;
                     foreach($parts as $part) {

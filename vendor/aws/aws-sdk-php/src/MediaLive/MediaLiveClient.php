@@ -245,5 +245,11 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listSdiSourcesAsync(array $args = [])
  * @method \Aws\Result updateSdiSource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateSdiSourceAsync(array $args = [])
+ * @method \Aws\Result listAlerts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAlertsAsync(array $args = [])
+ * @method \Aws\Result listClusterAlerts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listClusterAlertsAsync(array $args = [])
+ * @method \Aws\Result listMultiplexAlerts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listMultiplexAlertsAsync(array $args = [])
  */
 class MediaLiveClient extends AwsClient {}

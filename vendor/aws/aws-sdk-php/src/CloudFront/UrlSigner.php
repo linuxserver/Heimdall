@@ -101,7 +101,7 @@ class UrlSigner
                 $parts = parse_url($url);
                 $pathParts = pathinfo($parts['path']);
                 $resource = ltrim(
-                    $pathParts['dirname'] . '/' . $pathParts['basename'],
+                    str_replace('\\', '/', $pathParts['dirname']) . '/' . $pathParts['basename'],
                     '/'
                 );
 

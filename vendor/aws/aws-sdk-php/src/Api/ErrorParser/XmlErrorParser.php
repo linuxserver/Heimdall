@@ -1,6 +1,7 @@
 <?php
 namespace Aws\Api\ErrorParser;
 
+use Aws\Api\Parser\AbstractParser;
 use Aws\Api\Parser\PayloadParserTrait;
 use Aws\Api\Parser\XmlParser;
 use Aws\Api\Service;
@@ -27,6 +28,7 @@ class XmlErrorParser extends AbstractErrorParser
         ResponseInterface $response,
         ?CommandInterface $command = null
     ) {
+        $response = AbstractParser::getResponseWithCachingStream($response);
         $code = (string) $response->getStatusCode();
 
         $data = [
@@ -37,9 +39,9 @@ class XmlErrorParser extends AbstractErrorParser
             'parsed' => null
         ];
 
-        $body = $response->getBody();
-        if ($body->getSize() > 0) {
-            $this->parseBody($this->parseXml($body, $response), $data);
+        $rawBody = AbstractParser::getBodyContents($response);
+        if (!empty($rawBody)) {
+            $this->parseBody($this->parseXml($rawBody, $response), $data);
         } else {
             $this->parseHeaders($response, $data);
         }
@@ -100,12 +102,20 @@ class XmlErrorParser extends AbstractErrorParser
         ResponseInterface $response,
         StructureShape $member
     ) {
-        $xmlBody = $this->parseXml($response->getBody(), $response);
+        $rawBody = AbstractParser::getBodyContents($response);
+
+        if (empty($rawBody)) {
+            return $rawBody;
+        }
+
+        $xmlBody = $this->parseXml($rawBody, $response);
         $prefix = $this->registerNamespacePrefix($xmlBody);
         $errorBody = $xmlBody->xpath("//{$prefix}Error");
 
         if (is_array($errorBody) && !empty($errorBody[0])) {
             return $this->parser->parse($member, $errorBody[0]);
         }
+
+        return $rawBody;
     }
 }

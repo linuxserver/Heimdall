@@ -31,7 +31,7 @@ final class SplObjectStorageComparator extends Comparator
         $exporter = new Exporter;
 
         foreach ($actual as $object) {
-            if (!$expected->contains($object)) {
+            if (!$expected->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,
@@ -43,7 +43,7 @@ final class SplObjectStorageComparator extends Comparator
         }
 
         foreach ($expected as $object) {
-            if (!$actual->contains($object)) {
+            if (!$actual->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,

@@ -7,8 +7,14 @@ use Aws\ClientResolver;
 use Aws\Exception\AwsException;
 use Aws\HandlerList;
 use Aws\Middleware;
+use Aws\Retry\Configuration as RetryConfiguration;
+use Aws\Retry\ConfigurationInterface as RetryConfigurationInterface;
+use Aws\Retry\ConfigurationProvider as RetryConfigurationProvider;
+use Aws\Retry\V3\OptIn as NewRetriesOptIn;
+use Aws\Retry\V3\RetryMiddleware as RetryV3Middleware;
 use Aws\RetryMiddleware;
 use Aws\RetryMiddlewareV2;
+use GuzzleHttp\Promise\Create;
 
 /**
  * This client is used to interact with the **Amazon DynamoDB** service.
@@ -130,14 +136,48 @@ use Aws\RetryMiddlewareV2;
  */
 class DynamoDbClient extends AwsClient
 {
+    /** @internal Default attempts for the AWS_NEW_RETRIES_2026 path. */
+    private const DYNAMODB_MAX_ATTEMPTS = 4;
+    /** @internal Base backoff in ms for the AWS_NEW_RETRIES_2026 path. */
+    private const DEFAULT_BASE_DELAY_MS = 25;
+    /**
+     * @internal Legacy-mode fallback when an array config does not specify
+     *           max_attempts. Only consulted on the AWS_NEW_RETRIES_2026 path.
+     */
+    public const DEFAULT_LEGACY_MAX_ATTEMPTS = 10;
+
     public static function getArguments()
     {
         $args = parent::getArguments();
-        $args['retries']['default'] = 10;
+        $args['retries']['default'] = NewRetriesOptIn::isEnabled()
+            ? [__CLASS__, '_defaultRetries']
+            : self::DEFAULT_LEGACY_MAX_ATTEMPTS;
         $args['retries']['fn'] = [__CLASS__, '_applyRetryConfig'];
         $args['api_provider']['fn'] = [__CLASS__, '_applyApiProvider'];
 
         return $args;
+    }
+
+    /**
+     * @internal Default retry-config provider for the AWS_NEW_RETRIES_2026
+     *           path. Falls through to env/INI before applying the DynamoDB
+     *           default of {@see self::DYNAMODB_MAX_ATTEMPTS} attempts in
+     *           the specs standard mode.
+     */
+    public static function _defaultRetries()
+    {
+        return RetryConfigurationProvider::chain(
+            RetryConfigurationProvider::env(),
+            RetryConfigurationProvider::ini(),
+            function () {
+                return Create::promiseFor(
+                    new RetryConfiguration(
+                        RetryConfigurationProvider::getDefaultMode(),
+                        self::DYNAMODB_MAX_ATTEMPTS
+                    )
+                );
+            }
+        );
     }
 
     /**
@@ -159,40 +199,103 @@ class DynamoDbClient extends AwsClient
     /** @internal */
     public static function _applyRetryConfig($value, array &$args, HandlerList $list)
     {
-        if ($value) {
-            $config = \Aws\Retry\ConfigurationProvider::unwrap($value);
-
-            if ($config->getMode() === 'legacy') {
-                $list->appendSign(
-                    Middleware::retry(
-                        RetryMiddleware::createDefaultDecider(
-                            $config->getMaxAttempts() - 1,
-                            ['error_codes' => ['TransactionInProgressException']]
-                        ),
-                        function ($retries) {
-                            return $retries
-                                ? RetryMiddleware::exponentialDelay($retries) / 2
-                                : 0;
-                        },
-                        isset($args['stats']['retries'])
-                            ? (bool)$args['stats']['retries']
-                            : false
-                    ),
-                    'retry'
-                );
-            } else {
-                $list->appendSign(
-                    RetryMiddlewareV2::wrap(
-                        $config,
-                        [
-                            'collect_stats' => $args['stats']['retries'],
-                            'transient_error_codes' => ['TransactionInProgressException']
-                        ]
-                    ),
-                    'retry'
-                );
-            }
+        if (!$value) {
+            return;
         }
+
+        $config = RetryConfigurationProvider::unwrap($value);
+
+        if ($config->getMode() === 'legacy') {
+            self::appendLegacyModeRetries($value, $config, $args, $list);
+            return;
+        }
+
+        if (NewRetriesOptIn::isEnabled()) {
+            self::appendStandardModeRetriesNew($config, $args, $list);
+            return;
+        }
+
+        self::appendStandardModeRetries($config, $args, $list);
+    }
+
+    private static function appendLegacyModeRetries(
+        $value,
+        RetryConfigurationInterface $config,
+        array &$args,
+        HandlerList $list
+    ): void
+    {
+        $maxRetries = self::resolveLegacyModeMaxRetries($value, $config);
+
+        $list->appendSign(
+            Middleware::retry(
+                RetryMiddleware::createDefaultDecider(
+                    $maxRetries,
+                    ['error_codes' => ['TransactionInProgressException']]
+                ),
+                function ($retries) {
+                    return $retries
+                        ? RetryMiddleware::exponentialDelay($retries) / 2
+                        : 0;
+                },
+                isset($args['stats']['retries']) ? (bool) $args['stats']['retries'] : false
+            ),
+            'retry'
+        );
+    }
+
+    private static function resolveLegacyModeMaxRetries(
+        $value,
+        RetryConfigurationInterface $config
+    ): int
+    {
+        if (
+            NewRetriesOptIn::isEnabled()
+            && is_array($value)
+            && !isset($value['max_attempts'])
+        ) {
+            return self::DEFAULT_LEGACY_MAX_ATTEMPTS;
+        }
+
+        return $config->getMaxAttempts() - 1;
+    }
+
+    private static function appendStandardModeRetries(
+        RetryConfigurationInterface $config,
+        array &$args,
+        HandlerList $list
+    ): void
+    {
+        $list->appendSign(
+            RetryMiddlewareV2::wrap(
+                $config,
+                [
+                    'collect_stats' => $args['stats']['retries'],
+                    'transient_error_codes' => ['TransactionInProgressException'],
+                ]
+            ),
+            'retry'
+        );
+    }
+
+    private static function appendStandardModeRetriesNew(
+        RetryConfigurationInterface $config,
+        array &$args,
+        HandlerList $list
+    ): void
+    {
+        $list->appendSign(
+            RetryV3Middleware::wrap(
+                $config,
+                [
+                    'collect_stats' => $args['stats']['retries'],
+                    'service'       => $args['service'],
+                    'base_delay'    => self::DEFAULT_BASE_DELAY_MS,
+                    'transient_error_codes' => ['TransactionInProgressException'],
+                ]
+            ),
+            'retry'
+        );
     }
 
     /** @internal */

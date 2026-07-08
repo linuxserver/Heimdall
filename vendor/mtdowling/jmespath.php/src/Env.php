@@ -57,7 +57,10 @@ final class Env
     public static function cleanCompileDir()
     {
         $total = 0;
-        $compileDir = self::getEnvVariable(self::COMPILE_DIR) ?: sys_get_temp_dir();
+        $compileDir = self::getEnvVariable(self::COMPILE_DIR);
+        if ($compileDir === 'on' || !$compileDir) {
+            $compileDir = sys_get_temp_dir();
+        }
 
         foreach (glob("{$compileDir}/jmespath_*.php") as $file) {
             $total++;

@@ -64,10 +64,21 @@ class NonSeekableStreamDecodingEventStreamIterator extends DecodingEventStreamIt
         while (!empty($this->tempBuffer) && $num > 0) {
             $byte = array_shift($this->tempBuffer);
             $bytes .= $byte;
-            $num = $num - 1;
+            $num -= 1;
         }
 
-        $bytes = $bytes . $this->stream->read($num);
+        // Loop until we've read the expected number of bytes
+        while ($num > 0 && !$this->stream->eof()) {
+            $chunk = $this->stream->read($num);
+            $chunkLen = strlen($chunk);
+            $bytes .= $chunk;
+            $num -= $chunkLen;
+
+            if ($chunkLen === 0) {
+                break; // Prevent infinite loop on unexpected EOF
+            }
+        }
+
         hash_update($this->hashContext, $bytes);
 
         return $bytes;

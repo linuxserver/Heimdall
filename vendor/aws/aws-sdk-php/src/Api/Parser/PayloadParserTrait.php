@@ -2,7 +2,6 @@
 namespace Aws\Api\Parser;
 
 use Aws\Api\Parser\Exception\ParserException;
-use Psr\Http\Message\ResponseInterface;
 
 trait PayloadParserTrait
 {

@@ -91,7 +91,8 @@ class Service extends AbstractModel
             'json'      => Serializer\JsonRpcSerializer::class,
             'query'     => Serializer\QuerySerializer::class,
             'rest-json' => Serializer\RestJsonSerializer::class,
-            'rest-xml'  => Serializer\RestXmlSerializer::class
+            'rest-xml'  => Serializer\RestXmlSerializer::class,
+            'smithy-rpc-v2-cbor' => Serializer\RpcV2CborSerializer::class
         ];
 
         $proto = $api->getProtocol();
@@ -126,7 +127,8 @@ class Service extends AbstractModel
             'query'     => ErrorParser\XmlErrorParser::class,
             'rest-json' => ErrorParser\RestJsonErrorParser::class,
             'rest-xml'  => ErrorParser\XmlErrorParser::class,
-            'ec2'       => ErrorParser\XmlErrorParser::class
+            'ec2'       => ErrorParser\XmlErrorParser::class,
+            'smithy-rpc-v2-cbor' => ErrorParser\RpcV2CborErrorParser::class
         ];
 
         if (isset($mapping[$protocol])) {
@@ -149,7 +151,8 @@ class Service extends AbstractModel
             'json'      => Parser\JsonRpcParser::class,
             'query'     => Parser\QueryParser::class,
             'rest-json' => Parser\RestJsonParser::class,
-            'rest-xml'  => Parser\RestXmlParser::class
+            'rest-xml'  => Parser\RestXmlParser::class,
+            'smithy-rpc-v2-cbor' => Parser\RpcV2CborParser::class
         ];
 
         $proto = $api->getProtocol();

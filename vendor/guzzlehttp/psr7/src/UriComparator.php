@@ -34,7 +34,7 @@ final class UriComparator
         return false;
     }
 
-    private static function computePort(UriInterface $uri): int
+    private static function computePort(UriInterface $uri): ?int
     {
         $port = $uri->getPort();
 
@@ -42,7 +42,15 @@ final class UriComparator
             return $port;
         }
 
-        return 'https' === $uri->getScheme() ? 443 : 80;
+        if ('http' === $uri->getScheme()) {
+            return 80;
+        }
+
+        if ('https' === $uri->getScheme()) {
+            return 443;
+        }
+
+        return null;
     }
 
     private function __construct()
