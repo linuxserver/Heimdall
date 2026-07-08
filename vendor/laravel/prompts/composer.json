@@ -20,14 +20,14 @@
         "php": "^8.1",
         "ext-mbstring": "*",
         "composer-runtime-api": "^2.2",
-        "symfony/console": "^6.2|^7.0"
+        "symfony/console": "^6.2|^7.0|^8.0"
     },
     "require-dev": {
-        "illuminate/collections": "^10.0|^11.0|^12.0",
-        "phpstan/phpstan": "^1.11",
-        "pestphp/pest": "^2.3|^3.4",
+        "illuminate/collections": "^10.0|^11.0|^12.0|^13.0",
+        "phpstan/phpstan": "^1.12.28",
+        "pestphp/pest": "^2.3|^3.4|^4.0",
         "mockery/mockery": "^1.5",
-        "phpstan/phpstan-mockery": "^1.1"
+        "phpstan/phpstan-mockery": "^1.1.3"
     },
     "conflict": {
         "illuminate/console": ">=10.17.0 <10.25.0",
@@ -37,6 +37,9 @@
         "ext-pcntl": "Required for the spinner to be animated."
     },
     "config": {
+        "audit": {
+            "block-insecure": false
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }

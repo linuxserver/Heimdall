@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\PHP;
@@ -66,6 +66,11 @@ class NonExecutableCodeSniff implements Sniff
         $tokens = $phpcsFile->getTokens();
 
         $prev = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($stackPtr - 1), null, true);
+
+        // Allow for PHP 8.4+ fully qualified use of exit/die.
+        if ($tokens[$stackPtr]['code'] === T_EXIT && $tokens[$prev]['code'] === T_NS_SEPARATOR) {
+            $prev = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($prev - 1), null, true);
+        }
 
         // Tokens which can be used in inline expressions need special handling.
         if (isset($this->expressionTokens[$tokens[$stackPtr]['code']]) === true) {

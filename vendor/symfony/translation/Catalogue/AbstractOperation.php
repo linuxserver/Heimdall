@@ -147,7 +147,7 @@ abstract class AbstractOperation implements OperationInterface
      */
     public function moveMessagesToIntlDomainsIfPossible(string $batch = self::ALL_BATCH): void
     {
-        // If MessageFormatter class does not exists, intl domains are not supported.
+        // If MessageFormatter class does not exist, intl domains are not supported.
         if (!class_exists(\MessageFormatter::class)) {
             return;
         }
@@ -170,6 +170,12 @@ abstract class AbstractOperation implements OperationInterface
             $currentMessages = array_diff_key($messages, $result->all($domain));
             $result->replace($currentMessages, $domain);
             $result->replace($allIntlMessages + $messages, $intlDomain);
+
+            foreach ($result->getCatalogueMetadata('', $domain) ?? [] as $key => $value) {
+                if (null === $this->result->getCatalogueMetadata($key, $intlDomain)) {
+                    $result->setCatalogueMetadata($key, $value, $intlDomain);
+                }
+            }
         }
     }
 

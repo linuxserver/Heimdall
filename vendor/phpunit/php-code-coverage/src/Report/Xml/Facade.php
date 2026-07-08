@@ -10,18 +10,13 @@
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
 use const DIRECTORY_SEPARATOR;
-use const PHP_EOL;
 use function count;
 use function dirname;
 use function file_get_contents;
-use function file_put_contents;
 use function is_array;
 use function is_dir;
 use function is_file;
 use function is_writable;
-use function libxml_clear_errors;
-use function libxml_get_errors;
-use function libxml_use_internal_errors;
 use function sprintf;
 use function strlen;
 use function substr;
@@ -33,7 +28,9 @@ use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
+use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Util\Filesystem as DirectoryUtil;
+use SebastianBergmann\CodeCoverage\Util\Xml;
 use SebastianBergmann\CodeCoverage\Version;
 use SebastianBergmann\CodeCoverage\XmlException;
 use SebastianBergmann\Environment\Runtime;
@@ -67,17 +64,17 @@ final class Facade
             $coverage->getReport()->name(),
         );
 
-        $this->setBuildInformation();
+        $this->setBuildInformation($coverage);
         $this->processTests($coverage->getTests());
         $this->processDirectory($report, $this->project);
 
         $this->saveDocument($this->project->asDom(), 'index');
     }
 
-    private function setBuildInformation(): void
+    private function setBuildInformation(CodeCoverage $coverage): void
     {
         $buildNode = $this->project->buildInformation();
-        $buildNode->setRuntimeInformation(new Runtime);
+        $buildNode->setRuntimeInformation(new Runtime, $coverage);
         $buildNode->setBuildTime(new DateTimeImmutable);
         $buildNode->setGeneratorVersions($this->phpUnitVersion, Version::id());
     }
@@ -269,36 +266,8 @@ final class Facade
     {
         $filename = sprintf('%s/%s.xml', $this->targetDirectory(), $name);
 
-        $document->formatOutput       = true;
-        $document->preserveWhiteSpace = false;
         $this->initTargetDirectory(dirname($filename));
 
-        file_put_contents($filename, $this->documentAsString($document));
-    }
-
-    /**
-     * @throws XmlException
-     *
-     * @see https://bugs.php.net/bug.php?id=79191
-     */
-    private function documentAsString(DOMDocument $document): string
-    {
-        $xmlErrorHandling = libxml_use_internal_errors(true);
-        $xml              = $document->saveXML();
-
-        if ($xml === false) {
-            $message = 'Unable to generate the XML';
-
-            foreach (libxml_get_errors() as $error) {
-                $message .= PHP_EOL . $error->message;
-            }
-
-            throw new XmlException($message);
-        }
-
-        libxml_clear_errors();
-        libxml_use_internal_errors($xmlErrorHandling);
-
-        return $xml;
+        Filesystem::write($filename, Xml::asString($document));
     }
 }

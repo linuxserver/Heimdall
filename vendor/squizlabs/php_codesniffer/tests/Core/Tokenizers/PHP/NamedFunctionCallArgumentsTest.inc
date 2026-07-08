@@ -106,6 +106,22 @@ $closure = $cond ? function() : bool {return true;} : function() : int {return 1
 /* testTernaryWithArrowFunctionsAndReturnTypes */
 $fn = $cond ? fn() : bool => true : fn() : int => 123;
 
+/* testPHP84Exit */
+// Exit is a language construct, not a function prior to PHP 8.4. Prior to PHP 8.4, named params were not supported, handle it anyway.
+exit(status: $value);
+
+/* testPHP84Die */
+// Die is a language construct, not a function prior to PHP 8.4. Prior to PHP 8.4, named params were not supported, handle it anyway.
+die(status: $value);
+
+/* testPHP84FullyQualifiedExit */
+// Exit is a language construct, not a function prior to PHP 8.4. Prior to PHP 8.4, named params were not supported, handle it anyway.
+\exit(status: $value);
+
+/* testPHP84FullyQualifiedDie */
+// Die is a language construct, not a function prior to PHP 8.4. Prior to PHP 8.4, named params were not supported, handle it anyway.
+\die(status: $value);
+
 
 /* testCompileErrorNamedBeforePositional */
 // Not the concern of PHPCS. Should still be handled.
@@ -130,10 +146,6 @@ test(param1:, param2:);
 /* testParseErrorDynamicName */
 // Parse error. Ignore.
 function_name($variableStoringParamName: $value);
-
-/* testParseErrorExit */
-// Exit is a language construct, not a function. Named params not supported, handle it anyway.
-exit(status: $value);
 
 /* testParseErrorEmpty */
 // Empty is a language construct, not a function. Named params not supported, handle it anyway.

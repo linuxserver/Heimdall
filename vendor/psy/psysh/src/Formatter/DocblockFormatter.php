@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -87,13 +87,7 @@ class DocblockFormatter implements ReflectorFormatter
         $template = \implode(' ', $template);
 
         return \implode("\n", \array_map(function ($line) use ($template) {
-            $escaped = \array_map(function ($l) {
-                if ($l === null) {
-                    return '';
-                }
-
-                return OutputFormatter::escape($l);
-            }, $line);
+            $escaped = \array_map(fn ($l) => ($l === null) ? '' : OutputFormatter::escape($l), $line);
 
             return \rtrim(\vsprintf($template, $escaped));
         }, $lines));

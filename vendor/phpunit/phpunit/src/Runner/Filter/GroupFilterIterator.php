@@ -9,12 +9,13 @@
  */
 namespace PHPUnit\Runner\Filter;
 
-use function array_map;
+use function array_merge;
 use function array_push;
 use function in_array;
-use function spl_object_id;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Runner\PhptTestCase;
 use RecursiveFilterIterator;
 use RecursiveIterator;
 
@@ -26,28 +27,29 @@ use RecursiveIterator;
 abstract class GroupFilterIterator extends RecursiveFilterIterator
 {
     /**
-     * @psalm-var list<int>
+     * @var list<non-empty-string>
      */
-    protected array $groupTests = [];
+    private readonly array $groupTests;
 
     /**
-     * @psalm-param RecursiveIterator<int, Test> $iterator
-     * @psalm-param list<non-empty-string> $groups
+     * @param RecursiveIterator<int, Test> $iterator
+     * @param list<non-empty-string>       $groups
      */
     public function __construct(RecursiveIterator $iterator, array $groups, TestSuite $suite)
     {
         parent::__construct($iterator);
 
-        foreach ($suite->groupDetails() as $group => $tests) {
-            if (in_array((string) $group, $groups, true)) {
-                $testHashes = array_map(
-                    'spl_object_id',
-                    $tests,
-                );
+        $groupTests = [];
 
-                array_push($this->groupTests, ...$testHashes);
+        foreach ($suite->groups() as $group => $tests) {
+            if (in_array($group, $groups, true)) {
+                $groupTests = array_merge($groupTests, $tests);
+
+                array_push($groupTests, ...$groupTests);
             }
         }
+
+        $this->groupTests = $groupTests;
     }
 
     public function accept(): bool
@@ -58,8 +60,16 @@ abstract class GroupFilterIterator extends RecursiveFilterIterator
             return true;
         }
 
-        return $this->doAccept(spl_object_id($test));
+        if ($test instanceof TestCase || $test instanceof PhptTestCase) {
+            return $this->doAccept($test->valueObjectForEvents()->id(), $this->groupTests);
+        }
+
+        return true;
     }
 
-    abstract protected function doAccept(int $id): bool;
+    /**
+     * @param non-empty-string       $id
+     * @param list<non-empty-string> $groupTests
+     */
+    abstract protected function doAccept(string $id, array $groupTests): bool;
 }

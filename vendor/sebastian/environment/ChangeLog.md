@@ -2,6 +2,43 @@
 
 All notable changes in `sebastianbergmann/environment` are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [7.2.1] - 2025-05-21
+
+### Fixed
+
+* Take Xdebug mode into account for `Runtime::canCollectCodeCoverage()`
+
+## [7.2.0] - 2024-07-03
+
+### Changed
+
+* Synced `Console::hasColorSupport()` with Symfony's `StreamOutput::hasColorSupport()` implementation
+* Removed code left over from a time before PHP 5.4 and when HHVM was still supported
+* This project now uses PHPStan instead of Psalm for static analysis
+
+### Deprecated
+
+* The `Runtime::getBinary()` method is now deprecated, use `escapeshellarg(PHP_BINARY)` instead
+* The `Runtime::getRawBinary()` method is now deprecated, use the `PHP_BINARY` constant instead
+
+## [7.1.0] - 2024-03-23
+
+### Added
+
+* [#72](https://github.com/sebastianbergmann/environment/pull/72): `Runtime::getRawBinary()`
+
+## [7.0.0] - 2024-02-02
+
+### Removed
+
+* This component is no longer supported on PHP 8.1
+
+## [6.1.1] - 2024-MM-DD
+
+### Changed
+
+* Synced `Console::hasColorSupport()` with Symfony's `StreamOutput::hasColorSupport()` implementation
+
 ## [6.1.0] - 2024-03-23
 
 ### Added
@@ -178,6 +215,11 @@ All notable changes in `sebastianbergmann/environment` are documented in this fi
 
 * This component is no longer supported on PHP 5.6
 
+[7.2.1]: https://github.com/sebastianbergmann/environment/compare/7.2.0...7.2.1
+[7.2.0]: https://github.com/sebastianbergmann/environment/compare/7.1.0...7.2.0
+[7.1.0]: https://github.com/sebastianbergmann/environment/compare/7.0.0...7.1.0
+[7.0.0]: https://github.com/sebastianbergmann/environment/compare/6.1...7.0.0
+[6.1.1]: https://github.com/sebastianbergmann/environment/compare/6.1.0...6.1
 [6.1.0]: https://github.com/sebastianbergmann/environment/compare/6.0.1...6.1.0
 [6.0.1]: https://github.com/sebastianbergmann/environment/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/sebastianbergmann/environment/compare/5.1.5...6.0.0

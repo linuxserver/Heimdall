@@ -24,11 +24,17 @@ class HandleCors
     protected $cors;
 
     /**
+     * All of the registered skip callbacks.
+     *
+     * @var array<int, \Closure(\Illuminate\Http\Request): bool>
+     */
+    protected static $skipCallbacks = [];
+
+    /**
      * Create a new middleware instance.
      *
      * @param  \Illuminate\Contracts\Container\Container  $container
      * @param  \Fruitcake\Cors\CorsService  $cors
-     * @return void
      */
     public function __construct(Container $container, CorsService $cors)
     {
@@ -45,6 +51,12 @@ class HandleCors
      */
     public function handle($request, Closure $next)
     {
+        foreach (static::$skipCallbacks as $callback) {
+            if ($callback($request)) {
+                return $next($request);
+            }
+        }
+
         if (! $this->hasMatchingPath($request)) {
             return $next($request);
         }
@@ -108,5 +120,26 @@ class HandleCors
         return array_filter($paths, function ($path) {
             return is_string($path);
         });
+    }
+
+    /**
+     * Register a callback that instructs the middleware to be skipped.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public static function skipWhen(Closure $callback)
+    {
+        static::$skipCallbacks[] = $callback;
+    }
+
+    /**
+     * Flush the middleware's global state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$skipCallbacks = [];
     }
 }

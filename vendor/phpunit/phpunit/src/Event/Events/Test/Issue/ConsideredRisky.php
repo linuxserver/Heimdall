@@ -16,22 +16,22 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ConsideredRisky implements Event
+final readonly class ConsideredRisky implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly Code\Test $test;
+    private Telemetry\Info $telemetryInfo;
+    private Code\Test $test;
 
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $message;
+    private string $message;
 
     /**
-     * @psalm-param non-empty-string $message
+     * @param non-empty-string $message
      */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, string $message)
     {
@@ -51,7 +51,7 @@ final class ConsideredRisky implements Event
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function message(): string
     {

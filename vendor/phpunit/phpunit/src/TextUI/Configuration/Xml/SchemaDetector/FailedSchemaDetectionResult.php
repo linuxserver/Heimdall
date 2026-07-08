@@ -14,8 +14,8 @@ namespace PHPUnit\TextUI\XmlConfiguration;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class FailedSchemaDetectionResult extends SchemaDetectionResult
+final readonly class FailedSchemaDetectionResult extends SchemaDetectionResult
 {
 }

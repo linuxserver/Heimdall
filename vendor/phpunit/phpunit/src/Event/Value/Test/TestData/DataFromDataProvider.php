@@ -10,14 +10,14 @@
 namespace PHPUnit\Event\TestData;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class DataFromDataProvider extends TestData
+final readonly class DataFromDataProvider extends TestData
 {
-    private readonly int|string $dataSetName;
-    private readonly string $dataAsStringForResultOutput;
+    private int|string $dataSetName;
+    private string $dataAsStringForResultOutput;
 
     public static function from(int|string $dataSetName, string $data, string $dataAsStringForResultOutput): self
     {
@@ -45,10 +45,7 @@ final class DataFromDataProvider extends TestData
         return $this->dataAsStringForResultOutput;
     }
 
-    /**
-     * @psalm-assert-if-true DataFromDataProvider $this
-     */
-    public function isFromDataProvider(): bool
+    public function isFromDataProvider(): true
     {
         return true;
     }

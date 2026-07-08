@@ -10,7 +10,6 @@
 namespace PHPUnit\Runner;
 
 use function array_diff;
-use function array_values;
 use function basename;
 use function get_declared_classes;
 use function realpath;
@@ -29,17 +28,19 @@ use ReflectionClass;
 final class TestSuiteLoader
 {
     /**
-     * @psalm-var list<class-string>
+     * @var list<class-string>
      */
     private static array $declaredClasses = [];
 
     /**
-     * @psalm-var array<non-empty-string, list<class-string>>
+     * @var array<non-empty-string, list<class-string>>
      */
     private static array $fileToClassesMap = [];
 
     /**
      * @throws Exception
+     *
+     * @return ReflectionClass<TestCase>
      */
     public function load(string $suiteClassFile): ReflectionClass
     {
@@ -100,7 +101,7 @@ final class TestSuiteLoader
     }
 
     /**
-     * @psalm-return list<class-string>
+     * @return array<class-string>
      */
     private function loadSuiteClassFile(string $suiteClassFile): array
     {
@@ -114,11 +115,9 @@ final class TestSuiteLoader
 
         require_once $suiteClassFile;
 
-        $loadedClasses = array_values(
-            array_diff(
-                get_declared_classes(),
-                self::$declaredClasses,
-            ),
+        $loadedClasses = array_diff(
+            get_declared_classes(),
+            self::$declaredClasses,
         );
 
         foreach ($loadedClasses as $loadedClass) {

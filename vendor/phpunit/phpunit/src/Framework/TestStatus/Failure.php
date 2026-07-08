@@ -10,18 +10,15 @@
 namespace PHPUnit\Framework\TestStatus;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Failure extends Known
+final readonly class Failure extends Known
 {
-    /**
-     * @psalm-assert-if-true Failure $this
-     */
-    public function isFailure(): bool
+    public function isFailure(): true
     {
         return true;
     }

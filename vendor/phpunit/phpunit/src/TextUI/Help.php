@@ -32,7 +32,7 @@ final class Help
     private const LEFT_MARGIN              = '  ';
     private int $lengthOfLongestOptionName = 0;
     private readonly int $columnsAvailableForDescription;
-    private ?bool $hasColor;
+    private bool $hasColor;
 
     public function __construct(?int $width = null, ?bool $withColor = null)
     {
@@ -144,7 +144,7 @@ final class Help
     }
 
     /**
-     * @psalm-return array<non-empty-string, non-empty-list<array{text: non-empty-string}|array{arg: non-empty-string, desc: non-empty-string}|array{spacer: ''}>>
+     * @return array<non-empty-string, non-empty-list<array{arg: non-empty-string, desc: non-empty-string}|array{spacer: ''}|array{text: non-empty-string}>>
      */
     private function elements(): array
     {
@@ -157,7 +157,8 @@ final class Help
                 ['arg' => '--bootstrap <file>', 'desc' => 'A PHP script that is included before the tests run'],
                 ['arg' => '-c|--configuration <file>', 'desc' => 'Read configuration from XML file'],
                 ['arg' => '--no-configuration', 'desc' => 'Ignore default configuration file (phpunit.xml)'],
-                ['arg' => '--no-extensions', 'desc' => 'Do not load PHPUnit extensions'],
+                ['arg' => '--extension <class>', 'desc' => 'Register test runner extension with bootstrap <class>'],
+                ['arg' => '--no-extensions', 'desc' => 'Do not register test runner extensions'],
                 ['arg' => '--include-path <path(s)>', 'desc' => 'Prepend PHP\'s include_path with given path(s)'],
                 ['arg' => '-d <key[=value]>', 'desc' => 'Sets a php.ini value'],
                 ['arg' => '--cache-directory <dir>', 'desc' => 'Specify cache directory'],
@@ -177,9 +178,12 @@ final class Help
                 ['arg' => '--exclude-group <name>', 'desc' => 'Exclude tests from the specified group(s)'],
                 ['arg' => '--covers <name>', 'desc' => 'Only run tests that intend to cover <name>'],
                 ['arg' => '--uses <name>', 'desc' => 'Only run tests that intend to use <name>'],
+                ['arg' => '--requires-php-extension <name>', 'desc' => 'Only run tests that require PHP extension <name>'],
+                ['arg' => '--list-test-files', 'desc' => 'List available test files'],
                 ['arg' => '--list-tests', 'desc' => 'List available tests'],
                 ['arg' => '--list-tests-xml <file>', 'desc' => 'List available tests in XML format'],
                 ['arg' => '--filter <pattern>', 'desc' => 'Filter which tests to run'],
+                ['arg' => '--exclude-filter <pattern>', 'desc' => 'Exclude tests for the specified filter pattern'],
                 ['arg' => '--test-suffix <suffixes>', 'desc' => 'Only search for test in files with specified suffix(es). Default: Test.php,.phpt'],
             ],
 
@@ -264,6 +268,7 @@ final class Help
 
                 ['arg'    => '--teamcity', 'desc' => 'Replace default progress and result output with TeamCity format'],
                 ['arg'    => '--testdox', 'desc' => 'Replace default result output with TestDox format'],
+                ['arg'    => '--testdox-summary', 'desc' => 'Repeat TestDox output for tests with errors, failures, or issues'],
                 ['spacer' => ''],
 
                 ['arg' => '--debug', 'desc' => 'Replace default progress and result output with debugging information'],

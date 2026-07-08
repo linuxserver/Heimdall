@@ -10,14 +10,11 @@
 namespace SebastianBergmann\CodeCoverage\Test\TestStatus;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 abstract class Known extends TestStatus
 {
-    /**
-     * @psalm-assert-if-true Known $this
-     */
-    public function isKnown(): bool
+    public function isKnown(): true
     {
         return true;
     }

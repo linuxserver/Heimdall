@@ -36,11 +36,13 @@ class LocaleListener implements EventSubscriberInterface
         private bool $useAcceptLanguageHeader = false,
         private array $enabledLocales = [],
     ) {
+        $this->enabledLocales = $enabledLocales ? array_values(array_unique(array_merge([$defaultLocale], $enabledLocales))) : [];
     }
 
     public function setDefaultLocale(KernelEvent $event): void
     {
         $event->getRequest()->setDefaultLocale($this->defaultLocale);
+        $this->setRouterLocale($this->defaultLocale);
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -48,14 +50,12 @@ class LocaleListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $this->setLocale($request);
-        $this->setRouterContext($request);
+        $this->setRouterLocale($request->getLocale());
     }
 
     public function onKernelFinishRequest(FinishRequestEvent $event): void
     {
-        if (null !== $parentRequest = $this->requestStack->getParentRequest()) {
-            $this->setRouterContext($parentRequest);
-        }
+        $this->setRouterLocale($this->requestStack->getParentRequest()?->getLocale() ?? $this->defaultLocale);
     }
 
     private function setLocale(Request $request): void
@@ -70,9 +70,9 @@ class LocaleListener implements EventSubscriberInterface
         }
     }
 
-    private function setRouterContext(Request $request): void
+    private function setRouterLocale(string $locale): void
     {
-        $this->router?->getContext()->setParameter('_locale', $request->getLocale());
+        $this->router?->getContext()->setParameter('_locale', $locale);
     }
 
     public static function getSubscribedEvents(): array

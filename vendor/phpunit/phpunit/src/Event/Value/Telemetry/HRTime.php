@@ -13,14 +13,14 @@ use function sprintf;
 use PHPUnit\Event\InvalidArgumentException;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class HRTime
+final readonly class HRTime
 {
-    private readonly int $seconds;
-    private readonly int $nanoseconds;
+    private int $seconds;
+    private int $nanoseconds;
 
     /**
      * @throws InvalidArgumentException

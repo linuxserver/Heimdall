@@ -31,7 +31,6 @@ class PendingDispatch
      * Create a new pending job dispatch.
      *
      * @param  mixed  $job
-     * @return void
      */
     public function __construct($job)
     {
@@ -60,6 +59,36 @@ class PendingDispatch
     public function onQueue($queue)
     {
         $this->job->onQueue($queue);
+
+        return $this;
+    }
+
+    /**
+     * Set the desired job "group".
+     *
+     * This feature is only supported by some queues, such as Amazon SQS.
+     *
+     * @param  \UnitEnum|string  $group
+     * @return $this
+     */
+    public function onGroup($group)
+    {
+        $this->job->onGroup($group);
+
+        return $this;
+    }
+
+    /**
+     * Set the desired job deduplicator callback.
+     *
+     * This feature is only supported by some queues, such as Amazon SQS FIFO.
+     *
+     * @param  callable|null  $deduplicator
+     * @return $this
+     */
+    public function withDeduplicator($deduplicator)
+    {
+        $this->job->withDeduplicator($deduplicator);
 
         return $this;
     }
@@ -155,11 +184,12 @@ class PendingDispatch
     /**
      * Indicate that the job should be dispatched after the response is sent to the browser.
      *
+     * @param  bool  $afterResponse
      * @return $this
      */
-    public function afterResponse()
+    public function afterResponse($afterResponse = true)
     {
-        $this->afterResponse = true;
+        $this->afterResponse = $afterResponse;
 
         return $this;
     }

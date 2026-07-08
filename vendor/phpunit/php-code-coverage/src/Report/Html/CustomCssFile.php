@@ -13,7 +13,7 @@ use function is_file;
 use SebastianBergmann\CodeCoverage\InvalidArgumentException;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 final class CustomCssFile
 {

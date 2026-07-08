@@ -1,4 +1,7 @@
-<p align="center"><img width="386" height="68" src="/art/logo.svg" alt="Laravel Prompts"></p>
+<p align="center">
+    <img alt="Prompts Logo Dark Mode" src="/art/prompts-light.svg#gh-light-mode-only"/>
+    <img alt="Prompts Logo Dark Mode" src="/art/prompts-dark.svg#gh-dark-mode-only"/>
+</p>
 
 <p align="center">
 <a href="https://github.com/laravel/prompts/actions"><img src="https://github.com/laravel/prompts/workflows/tests/badge.svg" alt="Build Status"></a>

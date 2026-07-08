@@ -16,19 +16,21 @@ use Throwable;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Cloner
+final readonly class Cloner
 {
     /**
-     * @psalm-template OriginalType of object
+     * @template OriginalType of object
      *
-     * @psalm-param OriginalType $original
+     * @param OriginalType $original
      *
-     * @psalm-return OriginalType
+     * @return OriginalType
      */
     public static function clone(object $original): object
     {
         try {
             return clone $original;
+
+            /** @phpstan-ignore catch.neverThrown */
         } catch (Throwable) {
             return $original;
         }

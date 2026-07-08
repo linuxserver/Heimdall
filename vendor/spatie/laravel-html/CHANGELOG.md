@@ -2,6 +2,47 @@
 
 All notable changes to `laravel-html` will be documented in this file.
 
+## 3.12.3 - 2025-12-22
+
+### What's Changed
+
+* make BaseElement::unless() compatible with Conditionable::unless() by @miken32 in https://github.com/spatie/laravel-html/pull/260
+
+**Full Changelog**: https://github.com/spatie/laravel-html/compare/3.12.2...3.12.3
+
+## 3.12.2 - 2025-12-22
+
+### What's Changed
+
+* Document conditional methods by @miken32 in https://github.com/spatie/laravel-html/pull/261
+
+**Full Changelog**: https://github.com/spatie/laravel-html/compare/3.12.1...3.12.2
+
+## 3.12.1 - 2025-10-02
+
+### What's Changed
+
+* Update issue template by @AlexVanderbist in https://github.com/spatie/laravel-html/pull/257
+* Add support for multiples requests in the same process by @gtg-bantonio in https://github.com/spatie/laravel-html/pull/258
+
+### New Contributors
+
+* @gtg-bantonio made their first contribution in https://github.com/spatie/laravel-html/pull/258
+
+**Full Changelog**: https://github.com/spatie/laravel-html/compare/3.12.0...3.12.1
+
+## 3.12.0 - 2025-03-21
+
+### What's Changed
+
+* add disabled option to file input by @it-can in https://github.com/spatie/laravel-html/pull/253
+
+### New Contributors
+
+* @it-can made their first contribution in https://github.com/spatie/laravel-html/pull/253
+
+**Full Changelog**: https://github.com/spatie/laravel-html/compare/3.11.3...3.12.0
+
 ## 3.11.3 - 2025-02-17
 
 ### What's Changed

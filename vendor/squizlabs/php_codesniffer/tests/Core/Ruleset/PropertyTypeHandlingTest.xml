@@ -25,6 +25,7 @@
                 <element value="string"/>
                 <element value="10"/>
                 <element value="1.5"/>
+                <element value=""/>
                 <element value="null"/>
                 <element value="true"/>
                 <element value="false"/>
@@ -34,6 +35,7 @@
                 <element key="string" value="string"/>
                 <element key="10" value="10"/>
                 <element key="float" value="1.5"/>
+                <element key="" value=""/>
                 <element key="null" value="null"/>
                 <element key="true" value="true"/>
                 <element key="false" value="false"/>
@@ -60,9 +62,9 @@
 
             <property name="expectsEmptyArray" type="array"/>
 
-            <property name="expectsOldSchoolArrayWithOnlyValues" type="array" value="string, 10, 1.5, null, true, false" />
+            <property name="expectsOldSchoolArrayWithOnlyValues" type="array" value="string, 10, 1.5, , null, true, false" />
 
-            <property name="expectsOldSchoolArrayWithKeysAndValues" type="array" value="string=>string,10=>10,float=>1.5,null=>null,true=>true,false=>false" />
+            <property name="expectsOldSchoolArrayWithKeysAndValues" type="array" value="string=>string,10=>10,float=>1.5,=>,null=>null,true=>true,false=>false" />
 
             <property name="expectsOldSchoolArrayWithExtendedValues" type="array" value="string" />
             <property name="expectsOldSchoolArrayWithExtendedValues" type="array" extend="true" value="15,another string" />

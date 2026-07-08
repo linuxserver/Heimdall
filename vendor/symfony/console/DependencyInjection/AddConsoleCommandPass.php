@@ -79,7 +79,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             if (null === $commandName) {
-                if (!$definition->isPublic() || $definition->isPrivate() || $definition->hasTag('container.private')) {
+                if ($definition->isPrivate() || $definition->hasTag('container.private')) {
                     $commandId = 'console.command.public_alias.'.$id;
                     $container->setAlias($commandId, $id)->setPublic(true);
                     $id = $commandId;
@@ -91,6 +91,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
 
             $description = $tags[0]['description'] ?? null;
             $help = $tags[0]['help'] ?? null;
+            $usages = $tags[0]['usages'] ?? null;
 
             unset($tags[0]);
             $lazyCommandMap[$commandName] = $id;
@@ -108,6 +109,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
 
                 $description ??= $tag['description'] ?? null;
                 $help ??= $tag['help'] ?? null;
+                $usages ??= $tag['usages'] ?? null;
             }
 
             $definition->addMethodCall('setName', [$commandName]);
@@ -124,6 +126,12 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
             }
 
+            if ($usages) {
+                foreach ($usages as $usage) {
+                    $definition->addMethodCall('addUsage', [$usage]);
+                }
+            }
+
             if (!$description) {
                 if (Command::class !== (new \ReflectionMethod($class, 'getDefaultDescription'))->class) {
                     trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
@@ -135,10 +143,11 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             if ($description) {
-                $definition->addMethodCall('setDescription', [str_replace('%', '%%', $description)]);
+                $escapedDescription = str_replace('%', '%%', $description);
+                $definition->addMethodCall('setDescription', [$escapedDescription]);
 
                 $container->register('.'.$id.'.lazy', LazyCommand::class)
-                    ->setArguments([$commandName, $aliases, $description, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);
+                    ->setArguments([$commandName, $aliases, $escapedDescription, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);
 
                 $lazyCommandRefs[$id] = new Reference('.'.$id.'.lazy');
             }

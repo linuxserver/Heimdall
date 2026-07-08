@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,6 +14,7 @@ namespace Psy\CodeCleaner;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Exit_;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\Expression;
@@ -74,14 +75,14 @@ class ImplicitReturnPass extends CodeCleanerPass
                     $case->stmts[] = $caseLast;
                 }
             }
-        } elseif ($last instanceof Expr && !($last instanceof Exit_)) {
+        } elseif ($last instanceof Expr && !($last instanceof Exit_) && !self::isThrowNode($last)) {
             // @codeCoverageIgnoreStart
             $nodes[\count($nodes) - 1] = new Return_($last, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
             ]);
             // @codeCoverageIgnoreEnd
-        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
+        } elseif ($last instanceof Expression && !($last->expr instanceof Exit_) && !self::isThrowNode($last->expr)) {
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
@@ -100,7 +101,7 @@ class ImplicitReturnPass extends CodeCleanerPass
         // We're not adding a fallback return after namespace statements,
         // because code outside namespace statements doesn't really work, and
         // there's already an implicit return in the namespace statement anyway.
-        if (self::isNonExpressionStmt($last)) {
+        if (self::isNonExpressionStmt($last) && !self::isThrowNode($last)) {
             $nodes[] = new Return_(NoReturnValue::create());
         }
 
@@ -121,5 +122,14 @@ class ImplicitReturnPass extends CodeCleanerPass
             !$node instanceof Expression &&
             !$node instanceof Return_ &&
             !$node instanceof Namespace_;
+    }
+
+    /**
+     * PHP-Parser 4.x modeled standalone `throw` as Stmt\Throw_, while newer
+     * versions expose it as Expr\Throw_ inside Stmt\Expression.
+     */
+    private static function isThrowNode(Node $node): bool
+    {
+        return $node instanceof Throw_ || $node->getType() === 'Stmt_Throw';
     }
 }

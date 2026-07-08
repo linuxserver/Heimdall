@@ -85,3 +85,7 @@ class AsymVisibility {
     protected(set) public $asymPublicProtected  = 'hello';
     protected private(set) $asymProtectedPrivate  = 'hello';
 }
+
+abstract class PHP84AbstractProperties {
+    abstract string $abstract {get;}
+}

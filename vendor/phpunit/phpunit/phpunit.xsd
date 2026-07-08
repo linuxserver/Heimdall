@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:annotation>
         <xs:documentation source="https://phpunit.de/documentation.html">
-            This Schema file defines the rules by which the XML configuration file of PHPUnit 10.5 may be structured.
+            This Schema file defines the rules by which the XML configuration file of PHPUnit 11.5 may be structured.
         </xs:documentation>
         <xs:appinfo source="https://phpunit.de/documentation.html"/>
     </xs:annotation>
@@ -23,9 +23,9 @@
                     <xs:group ref="sourcePathGroup"/>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="deprecationTrigger" type="deprecationTriggerType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="baseline" type="xs:anyURI"/>
-        <xs:attribute name="restrictDeprecations" type="xs:boolean" default="false"/>
         <xs:attribute name="restrictNotices" type="xs:boolean" default="false"/>
         <xs:attribute name="restrictWarnings" type="xs:boolean" default="false"/>
         <xs:attribute name="ignoreSuppressionOfDeprecations" type="xs:boolean" default="false"/>
@@ -35,6 +35,10 @@
         <xs:attribute name="ignoreSuppressionOfPhpNotices" type="xs:boolean" default="false"/>
         <xs:attribute name="ignoreSuppressionOfWarnings" type="xs:boolean" default="false"/>
         <xs:attribute name="ignoreSuppressionOfPhpWarnings" type="xs:boolean" default="false"/>
+        <xs:attribute name="identifyIssueTrigger" type="xs:boolean" default="true"/>
+        <xs:attribute name="ignoreSelfDeprecations" type="xs:boolean" default="false"/>
+        <xs:attribute name="ignoreDirectDeprecations" type="xs:boolean" default="false"/>
+        <xs:attribute name="ignoreIndirectDeprecations" type="xs:boolean" default="false"/>
     </xs:complexType>
     <xs:group name="sourcePathGroup">
         <xs:sequence>
@@ -60,7 +64,6 @@
                 </xs:complexType>
             </xs:element>
         </xs:all>
-        <xs:attribute name="cacheDirectory" type="xs:anyURI"/>
         <xs:attribute name="pathCoverage" type="xs:boolean" default="false"/>
         <xs:attribute name="includeUncoveredFiles" type="xs:boolean" default="true"/>
         <xs:attribute name="ignoreDeprecatedCodeUnits" type="xs:boolean" default="false"/>
@@ -171,7 +174,6 @@
         <xs:attribute name="bootstrap" type="xs:anyURI"/>
         <xs:attribute name="cacheDirectory" type="xs:anyURI"/>
         <xs:attribute name="cacheResult" type="xs:boolean" default="true"/>
-        <xs:attribute name="cacheResultFile" type="xs:anyURI"/>
         <xs:attribute name="colors" type="xs:boolean" default="false"/>
         <xs:attribute name="columns" type="columnsType" default="80"/>
         <xs:attribute name="controlGarbageCollector" type="xs:boolean" default="false"/>
@@ -208,9 +210,9 @@
         <xs:attribute name="timeoutForLargeTests" type="xs:integer" default="60"/>
         <xs:attribute name="defaultTestSuite" type="xs:string" default=""/>
         <xs:attribute name="testdox" type="xs:boolean" default="false"/>
+        <xs:attribute name="testdoxSummary" type="xs:boolean" default="false"/>
         <xs:attribute name="stderr" type="xs:boolean" default="false"/>
         <xs:attribute name="reverseDefectList" type="xs:boolean" default="false"/>
-        <xs:attribute name="registerMockObjectsFromTestArgumentsRecursively" type="xs:boolean" default="false"/>
         <xs:attribute name="extensionsDirectory" type="xs:anyURI"/>
         <xs:attribute name="executionOrder" type="executionOrderType" default="default"/>
         <xs:attribute name="resolveDependencies" type="xs:boolean" default="true"/>
@@ -222,6 +224,7 @@
         <xs:attribute name="displayDetailsOnTestsThatTriggerErrors" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerNotices" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerWarnings" type="xs:boolean" default="false"/>
+        <xs:attribute name="shortenArraysForExportThreshold" type="xs:integer" default="0"/>
     </xs:attributeGroup>
     <xs:group name="configGroup">
         <xs:all>
@@ -265,6 +268,7 @@
                 <xs:attribute type="xs:string" name="prefix" default=""/>
                 <xs:attribute type="xs:string" name="suffix" default="Test.php"/>
                 <xs:attributeGroup ref="phpVersionGroup"/>
+                <xs:attribute type="xs:string" name="groups"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -272,6 +276,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:anyURI">
                 <xs:attributeGroup ref="phpVersionGroup"/>
+                <xs:attribute type="xs:string" name="groups"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -323,5 +328,13 @@
         <xs:attribute name="outputFile" type="xs:anyURI" use="required"/>
         <xs:attribute name="showUncoveredFiles" type="xs:boolean" default="false"/>
         <xs:attribute name="showOnlySummary" type="xs:boolean" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="deprecationTriggerType">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element name="function" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="method" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+        </xs:sequence>
     </xs:complexType>
 </xs:schema>

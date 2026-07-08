@@ -11,6 +11,9 @@ namespace SebastianBergmann\Type;
 
 use Throwable;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for this library
+ */
 interface Exception extends Throwable
 {
 }

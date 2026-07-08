@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,9 @@
 
 namespace Psy\TabCompletion;
 
+use Psy\Completion\CompletionEngine;
+use Psy\Completion\CompletionRequest;
+use Psy\Completion\Source\MatcherAdapterSource;
 use Psy\TabCompletion\Matcher\AbstractMatcher;
 
 /**
@@ -21,7 +24,8 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
 class AutoCompleter
 {
     /** @var Matcher\AbstractMatcher[] */
-    protected $matchers;
+    protected $matchers = [];
+    private ?CompletionEngine $completionEngine = null;
 
     /**
      * Register a tab completion Matcher.
@@ -31,6 +35,22 @@ class AutoCompleter
     public function addMatcher(AbstractMatcher $matcher)
     {
         $this->matchers[] = $matcher;
+
+        if ($this->completionEngine !== null) {
+            $this->completionEngine->addSource(new MatcherAdapterSource([$matcher]));
+        }
+    }
+
+    /**
+     * Use the canonical completion engine for readline callbacks.
+     */
+    public function setCompletionEngine(CompletionEngine $completionEngine): void
+    {
+        $this->completionEngine = $completionEngine;
+
+        if ($this->matchers !== []) {
+            $this->completionEngine->addSource(new MatcherAdapterSource($this->matchers));
+        }
     }
 
     /**
@@ -52,33 +72,15 @@ class AutoCompleter
      */
     public function processCallback(string $input, int $index, array $info = []): array
     {
-        // Some (Windows?) systems provide incomplete `readline_info`, so let's
-        // try to work around it.
-        $line = $info['line_buffer'];
-        if (isset($info['end'])) {
-            $line = \substr($line, 0, $info['end']);
-        }
-        if ($line === '' && $input !== '') {
-            $line = $input;
+        $line = $this->normalizeLineBuffer($input, $info);
+
+        if ($this->completionEngine === null) {
+            throw new \LogicException('AutoCompleter requires a CompletionEngine.');
         }
 
-        $tokens = \token_get_all('<?php '.$line);
-
-        // remove whitespaces
-        $tokens = \array_filter($tokens, function ($token) {
-            return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
-        });
-        // reset index from 0 to remove missing index number
-        $tokens = \array_values($tokens);
-
-        $matches = [];
-        foreach ($this->matchers as $matcher) {
-            if ($matcher->hasMatched($tokens)) {
-                $matches = \array_merge($matcher->getMatches($tokens, $info), $matches);
-            }
-        }
-
-        $matches = \array_unique($matches);
+        $matches = $this->completionEngine->getCompletions(
+            new CompletionRequest($line, \mb_strlen($line), CompletionRequest::MODE_TAB, $info)
+        );
 
         return !empty($matches) ? $matches : [''];
     }
@@ -96,6 +98,19 @@ class AutoCompleter
     public function callback(string $input, int $index): array
     {
         return $this->processCallback($input, $index, \readline_info());
+    }
+
+    private function normalizeLineBuffer(string $input, array $info): string
+    {
+        $line = $info['line_buffer'] ?? '';
+        if (isset($info['end'])) {
+            $line = \substr($line, 0, $info['end']);
+        }
+        if ($line === '' && $input !== '') {
+            $line = $input;
+        }
+
+        return $line;
     }
 
     /**

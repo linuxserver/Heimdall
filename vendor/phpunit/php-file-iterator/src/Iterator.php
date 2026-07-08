@@ -9,18 +9,16 @@
  */
 namespace SebastianBergmann\FileIterator;
 
-use function assert;
 use function preg_match;
 use function realpath;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
-use AppendIterator;
 use FilterIterator;
 use SplFileInfo;
 
 /**
- * @template-extends FilterIterator<int, string, AppendIterator>
+ * @template-extends FilterIterator<int, SplFileInfo, \Iterator>
  *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-file-iterator
  */
@@ -28,21 +26,21 @@ final class Iterator extends FilterIterator
 {
     public const PREFIX = 0;
     public const SUFFIX = 1;
-    private string|false $basePath;
+    private false|string $basePath;
 
     /**
-     * @psalm-var list<string>
+     * @var list<string>
      */
     private array $suffixes;
 
     /**
-     * @psalm-var list<string>
+     * @var list<string>
      */
     private array $prefixes;
 
     /**
-     * @psalm-param list<string> $suffixes
-     * @psalm-param list<string> $prefixes
+     * @param list<string> $suffixes
+     * @param list<string> $prefixes
      */
     public function __construct(string $basePath, \Iterator $iterator, array $suffixes = [], array $prefixes = [])
     {
@@ -56,8 +54,6 @@ final class Iterator extends FilterIterator
     public function accept(): bool
     {
         $current = $this->getInnerIterator()->current();
-
-        assert($current instanceof SplFileInfo);
 
         $filename = $current->getFilename();
         $realPath = $current->getRealPath();
@@ -94,7 +90,7 @@ final class Iterator extends FilterIterator
     }
 
     /**
-     * @psalm-param list<string> $subStrings
+     * @param list<string> $subStrings
      */
     private function acceptSubString(string $filename, array $subStrings, int $type): bool
     {

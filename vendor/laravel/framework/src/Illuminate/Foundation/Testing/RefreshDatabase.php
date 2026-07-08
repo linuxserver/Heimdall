@@ -18,7 +18,7 @@ trait RefreshDatabase
     {
         $this->beforeRefreshingDatabase();
 
-        if ($this->usingInMemoryDatabase()) {
+        if ($this->usingInMemoryDatabases()) {
             $this->restoreInMemoryDatabase();
         }
 
@@ -28,15 +28,33 @@ trait RefreshDatabase
     }
 
     /**
-     * Determine if an in-memory database is being used.
+     * Determine if any of the connections transacting is using in-memory databases.
      *
      * @return bool
      */
-    protected function usingInMemoryDatabase()
+    protected function usingInMemoryDatabases()
     {
-        $default = config('database.default');
+        foreach ($this->connectionsToTransact() as $name) {
+            if ($this->usingInMemoryDatabase($name)) {
+                return true;
+            }
+        }
 
-        return config("database.connections.$default.database") === ':memory:';
+        return false;
+    }
+
+    /**
+     * Determine if a given database connection is an in-memory database.
+     *
+     * @return bool
+     */
+    protected function usingInMemoryDatabase(?string $name = null)
+    {
+        if (is_null($name)) {
+            $name = config('database.default');
+        }
+
+        return config("database.connections.{$name}.database") === ':memory:';
     }
 
     /**
@@ -63,14 +81,42 @@ trait RefreshDatabase
     protected function refreshTestDatabase()
     {
         if (! RefreshDatabaseState::$migrated) {
-            $this->artisan('migrate:fresh', $this->migrateFreshUsing());
+            $this->migrateDatabases();
 
             $this->app[Kernel::class]->setArtisan(null);
+
+            $this->updateLocalCacheOfInMemoryDatabases();
 
             RefreshDatabaseState::$migrated = true;
         }
 
         $this->beginDatabaseTransaction();
+    }
+
+    /**
+     * Update locally cached in-memory PDO connections after migration.
+     *
+     * @return void
+     */
+    protected function updateLocalCacheOfInMemoryDatabases()
+    {
+        $database = $this->app->make('db');
+
+        foreach ($this->connectionsToTransact() as $name) {
+            if ($this->usingInMemoryDatabase($name)) {
+                RefreshDatabaseState::$inMemoryConnections[$name] = $database->connection($name)->getPdo();
+            }
+        }
+    }
+
+    /**
+     * Migrate the database.
+     *
+     * @return void
+     */
+    protected function migrateDatabases()
+    {
+        $this->artisan('migrate:fresh', $this->migrateFreshUsing());
     }
 
     /**
@@ -91,7 +137,7 @@ trait RefreshDatabase
 
             $connection->setTransactionManager($transactionsManager);
 
-            if ($this->usingInMemoryDatabase()) {
+            if ($this->usingInMemoryDatabase($name)) {
                 RefreshDatabaseState::$inMemoryConnections[$name] ??= $connection->getPdo();
             }
 
@@ -128,7 +174,8 @@ trait RefreshDatabase
     protected function connectionsToTransact()
     {
         return property_exists($this, 'connectionsToTransact')
-                            ? $this->connectionsToTransact : [null];
+            ? $this->connectionsToTransact
+            : [config('database.default')];
     }
 
     /**

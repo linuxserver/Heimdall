@@ -21,6 +21,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use Prophecy\Prophecy\ProphecySubjectInterface;
 use ProxyManager\Proxy\ProxyInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Argument\LazyClosure;
 use Symfony\Component\ErrorHandler\Internal\TentativeTypes;
 use Symfony\Component\VarExporter\LazyObjectInterface;
@@ -133,6 +134,21 @@ class DebugClassLoader
     private static array $internalMethods = [];
     private static array $annotatedParameters = [];
     private static array $darwinCache = ['/' => ['/', []]];
+    /**
+     * @var array<string, list<array{0: string, 1: bool, 2: string, 3: string, 4: string|null}>>
+     *
+     * Maps an interface FQCN (or an abstract class accumulating entries from its interfaces) to the list of
+     * "@method" annotations declared on it. For interfaces, the entry is populated directly by parsing the
+     * annotations from the interface's docblock. For abstract classes, the information from all implemented
+     * interfaces is merged together, so that the check can later be applied to the first concrete subclass.
+     *
+     * Each entry is a tuple of:
+     *   [0] string      $interface   - FQCN of the interface that carries the "@method" annotation
+     *   [1] bool        $static      - whether the method is declared static
+     *   [2] string      $returnType  - return type from the annotation, or '' if absent
+     *   [3] string      $name        - method name plus its parameter signature, e.g. "foo($arg, int $n)"
+     *   [4] string|null $description - description text (period-normalised), or null if absent
+     */
     private static array $method = [];
     private static array $returnTypes = [];
     private static array $methodTraits = [];
@@ -189,7 +205,7 @@ class DebugClassLoader
     {
         // Ensures we don't hit https://bugs.php.net/42098
         class_exists(ErrorHandler::class);
-        class_exists(\Psr\Log\LogLevel::class);
+        class_exists(LogLevel::class);
 
         if (!\is_array($functions = spl_autoload_functions())) {
             return;
@@ -379,7 +395,7 @@ class DebugClassLoader
 
         // Don't trigger deprecations for classes in the same vendor
         if ($class !== $className) {
-            $vendor = preg_match('/^namespace ([^;\\\\\s]++)[;\\\\]/m', @file_get_contents($refl->getFileName()), $vendor) ? $vendor[1].'\\' : '';
+            $vendor = $refl->getFileName() && preg_match('/^namespace ([^;\\\\\s]++)[;\\\\]/m', @file_get_contents($refl->getFileName()) ?: '', $vendor) ? $vendor[1].'\\' : '';
             $vendorLen = \strlen($vendor);
         } elseif (2 > $vendorLen = 1 + (strpos($class, '\\') ?: strpos($class, '_'))) {
             $vendorLen = 0;
@@ -404,6 +420,14 @@ class DebugClassLoader
 
             if ($refl->isInterface() && isset($doc['method'])) {
                 foreach ($doc['method'] as $name => [$static, $returnType, $signature, $description]) {
+                    if ($refl->hasMethod($static ? '__callStatic' : '__call')) {
+                        // When the interface has "virtual" @method declarations but at the same time contains a __call/__callStatic magic method,
+                        // do not trigger a deprecation notice. This is to address special use cases like in Predis' ClientInterface where the
+                        // "@method" annotations never intend to actually add the method to the interface, but are used to document the "virtual"
+                        // API provided by the interface through the technical implementation of magic calls. This might cause false negatives
+                        // (missing notices) in the case that such interfaces are later amended with actual (real) methods.
+                        continue;
+                    }
                     self::$method[$class][] = [$class, $static, $returnType, $name.$signature, $description];
 
                     if ('' !== $returnType) {
@@ -426,6 +450,15 @@ class DebugClassLoader
             }
         }
 
+        // When the parent is a concrete class, we will trigger deprecation notices to make it aware that it needs
+        // to add the new methods announced with @method. The parent will have to provide all those methods.
+        // For child classes this means they will not need to deal with @method coming from any of the interfaces
+        // the parent implements.
+        // Put those interfaces that we can ignore into $parentInterfaces.
+        // The ternary makes use of the fact that abstract parent classes will accumulate the methods in self::$method,
+        // so !isset(self::$method[$parent]) indicates a concrete parent class.
+        $parentInterfaces = ($parent && !isset(self::$method[$parent])) ? class_implements($parent, false) : [];
+
         // Detect if the parent is annotated
         foreach ($parentAndOwnInterfaces + class_uses($class, false) as $use) {
             if (!isset(self::$checkedClasses[$use])) {
@@ -441,13 +474,15 @@ class DebugClassLoader
                 $deprecations[] = \sprintf('The "%s" %s is considered internal%s It may change without further notice. You should not use it from "%s".', $use, class_exists($use, false) ? 'class' : (interface_exists($use, false) ? 'interface' : 'trait'), self::$internal[$use], $className);
             }
             if (isset(self::$method[$use])) {
-                if ($refl->isAbstract()) {
+                if ($refl->isAbstract() || $refl->isInterface()) {
+                    // Abstract classes and interfaces inherit @method from interfaces they
+                    // implement directly or through inheritance.
                     if (isset(self::$method[$class])) {
                         self::$method[$class] = array_merge(self::$method[$class], self::$method[$use]);
                     } else {
                         self::$method[$class] = self::$method[$use];
                     }
-                } elseif (!$refl->isInterface()) {
+                } else {
                     if (!strncmp($vendor, str_replace('_', '\\', $use), $vendorLen)
                         && str_starts_with($className, 'Symfony\\')
                         && (!class_exists(InstalledVersions::class)
@@ -456,14 +491,14 @@ class DebugClassLoader
                         // skip "same vendor" @method deprecations for Symfony\* classes unless symfony/symfony is being tested
                         continue;
                     }
-                    $hasCall = $refl->hasMethod('__call');
-                    $hasStaticCall = $refl->hasMethod('__callStatic');
                     foreach (self::$method[$use] as [$interface, $static, $returnType, $name, $description]) {
-                        if ($static ? $hasStaticCall : $hasCall) {
+                        if (isset($parentInterfaces[$interface])) {
+                            // The @method annotation comes from an interface that has already been implemented by a concrete parent class,
+                            // so we can ignore it here.
                             continue;
                         }
                         $realName = substr($name, 0, strpos($name, '('));
-                        if (!$refl->hasMethod($realName) || !($methodRefl = $refl->getMethod($realName))->isPublic() || ($static && !$methodRefl->isStatic()) || (!$static && $methodRefl->isStatic())) {
+                        if (!$refl->hasMethod($realName) || !($methodRefl = $refl->getMethod($realName))->isPublic() || ($static xor $methodRefl->isStatic())) {
                             $deprecations[] = \sprintf('Class "%s" should implement method "%s::%s%s"%s', $className, ($static ? 'static ' : '').$interface, $name, $returnType ? ': '.$returnType : '', null === $description ? '.' : ': '.$description);
                         }
                     }
@@ -846,8 +881,8 @@ class DebugClassLoader
         $iterable = $object = true;
         foreach ($typesMap as $n => $t) {
             if ('null' !== $n) {
-                $iterable = $iterable && (\in_array($n, ['array', 'iterable']) || str_contains($n, 'Iterator'));
-                $object = $object && (\in_array($n, ['callable', 'object', '$this', 'static']) || !isset(self::SPECIAL_RETURN_TYPES[$n]));
+                $iterable = $iterable && (\in_array($n, ['array', 'iterable'], true) || str_contains($n, 'Iterator'));
+                $object = $object && (\in_array($n, ['callable', 'object', '$this', 'static'], true) || !isset(self::SPECIAL_RETURN_TYPES[$n]));
             }
         }
 
@@ -1070,11 +1105,11 @@ class DebugClassLoader
                 $code[$startLine] = "     * @return $returnType\n".$code[$startLine];
             } else {
                 $code[$startLine] .= <<<EOTXT
-    /**
-     * @return $returnType
-     */
+                        /**
+                         * @return $returnType
+                         */
 
-EOTXT;
+                    EOTXT;
             }
 
             $fileOffset += substr_count($code[$startLine], "\n") - 1;
@@ -1244,7 +1279,7 @@ EOTXT;
             $static = 'static' === $parts[0];
 
             for ($i = $static ? 2 : 0; null !== $p = $parts[$i] ?? null; $i += 2) {
-                if (\in_array($p, ['', '|', '&', 'callable'], true) || \in_array(substr($returnType, -1), ['|', '&'], true)) {
+                if (\in_array($p, ['', 'callable'], true) || \in_array(substr($returnType, -1), ['|', '&'], true) || \in_array($p[0], ['|', '&'], true)) {
                     $returnType .= trim($parts[$i - 1] ?? '').$p;
                     continue;
                 }

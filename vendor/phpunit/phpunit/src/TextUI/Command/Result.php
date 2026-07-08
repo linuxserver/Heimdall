@@ -10,20 +10,20 @@
 namespace PHPUnit\TextUI\Command;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Result
+final readonly class Result
 {
     public const SUCCESS   = 0;
     public const FAILURE   = 1;
     public const EXCEPTION = 2;
     public const CRASH     = 255;
-    private readonly string $output;
-    private readonly int $shellExitCode;
+    private string $output;
+    private int $shellExitCode;
 
     public static function from(string $output = '', int $shellExitCode = self::SUCCESS): self
     {

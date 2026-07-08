@@ -70,8 +70,8 @@ final class IsIdentical extends Constraint
                 $f = new ComparisonFailure(
                     $this->value,
                     $other,
-                    Exporter::export($this->value, true),
-                    Exporter::export($other, true),
+                    Exporter::export($this->value),
+                    Exporter::export($other),
                 );
             }
 
@@ -84,14 +84,14 @@ final class IsIdentical extends Constraint
     /**
      * Returns a string representation of the constraint.
      */
-    public function toString(bool $exportObjects = false): string
+    public function toString(): string
     {
         if (is_object($this->value)) {
             return 'is identical to an object of class "' .
                 $this->value::class . '"';
         }
 
-        return 'is identical to ' . Exporter::export($this->value, $exportObjects);
+        return 'is identical to ' . Exporter::export($this->value);
     }
 
     /**

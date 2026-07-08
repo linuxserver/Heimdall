@@ -401,3 +401,27 @@ class AsymVisibility {
     /* testPHP84IllegalAsymPublicProtectedSetStaticProperty */
     public protected(set) static mixed $prop10;
 }
+
+abstract class WithAbstractProperties {
+    /* testPHP84AbstractPublicTypedProp */
+    abstract public string $val1 { get; }
+    /* testPHP84AbstractProtectedTypedProp */
+    abstract protected Union|Type $val2 { set; }
+    /* testPHP84AbstractMiddleTypedProp */
+    public abstract Intersection&Type $val3 { get; }
+    /* testPHP84AbstractImplicitVisibilityTypedProp */
+    abstract int $val4 { set; }
+    /* testPHP84AbstractImplicitVisibilityProp */
+    abstract $val5 { get; }
+    /* testPHP84AbstractNullableTypedProp */
+    abstract public ?string $val6 { set; }
+    /* testPHP84AbstractComplexTypedProp */
+    abstract protected (Foo&\Bar)|false $val7 { get; }
+
+    /* testPHP84IllegalAbstractPrivateProp */
+    private abstract string $val8 { get; }
+    /* testPHP84IllegalAbstractReadonlyProp */
+    public readonly abstract string $val9 { get; }
+    /* testPHP84IllegalAbstractStaticProp */
+    public abstract static string $val10 { get; }
+}

@@ -36,14 +36,16 @@ trait CollectsResources
             : $resource->toBase();
 
         return ($resource instanceof AbstractPaginator || $resource instanceof AbstractCursorPaginator)
-                    ? $resource->setCollection($this->collection)
-                    : $this->collection;
+            ? $resource->setCollection($this->collection)
+            : $this->collection;
     }
 
     /**
      * Get the resource that this resource collects.
      *
-     * @return string|null
+     * @return class-string<\Illuminate\Http\Resources\Json\JsonResource>|null
+     *
+     * @throws \LogicException
      */
     protected function collects()
     {

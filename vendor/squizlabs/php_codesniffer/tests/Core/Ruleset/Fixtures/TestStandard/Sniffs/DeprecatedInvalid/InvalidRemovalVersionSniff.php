@@ -11,7 +11,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
-class InvalidRemovalVersionSniff implements Sniff,DeprecatedSniff
+class InvalidRemovalVersionSniff implements Sniff, DeprecatedSniff
 {
 
     public function getDeprecationVersion()

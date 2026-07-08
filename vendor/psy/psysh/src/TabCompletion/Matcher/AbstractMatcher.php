@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -48,7 +48,7 @@ abstract class AbstractMatcher
      *
      * @param array $tokens Tokenized readline input
      *
-     * @return false
+     * @return bool
      */
     public function hasMatched(array $tokens): bool
     {
@@ -157,6 +157,7 @@ abstract class AbstractMatcher
             return false;
         }
 
+        // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally searching for token in constant string
         return \strpos(self::MISC_OPERATORS, $token) !== false;
     }
 

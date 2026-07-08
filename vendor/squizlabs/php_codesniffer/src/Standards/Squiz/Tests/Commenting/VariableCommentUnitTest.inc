@@ -486,3 +486,10 @@ class AsymVisibility {
      */
     private(set) protected int $hasDocblockC;
 }
+
+abstract class PHP84AbstractProperties {
+    /**
+     * @var Type
+     */
+    abstract Type $hasDocblock {get;}
+}

@@ -59,6 +59,6 @@ final class ArrayHasKey extends Constraint
      */
     protected function failureDescription(mixed $other): string
     {
-        return 'an array ' . $this->toString(true);
+        return 'an array ' . $this->toString();
     }
 }

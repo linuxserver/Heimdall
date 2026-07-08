@@ -10,13 +10,10 @@
 namespace SebastianBergmann\CodeUnit;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
-final class ClassUnit extends CodeUnit
+final readonly class ClassUnit extends CodeUnit
 {
-    /**
-     * @psalm-assert-if-true ClassUnit $this
-     */
     public function isClass(): bool
     {
         return true;

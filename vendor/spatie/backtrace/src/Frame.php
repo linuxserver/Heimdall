@@ -101,7 +101,7 @@ class Frame
             return new LaravelSerializableClosureSnippetProvider($this->textSnippet);
         }
 
-        if (@file_exists($this->file)) {
+        if (@is_file($this->file)) {
             return new FileSnippetProvider($this->file);
         }
 

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,11 +11,17 @@
 
 namespace Psy\Command;
 
+use Psy\CodeCleanerAware;
+use Psy\ContextAware;
+use Psy\Output\ShellOutputAdapter;
+use Psy\Readline\ReadlineAware;
 use Psy\Shell;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -55,6 +61,23 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
+    public function run(InputInterface $input, OutputInterface $output): int
+    {
+        if (
+            $this instanceof ContextAware ||
+            $this instanceof CodeCleanerAware ||
+            $this instanceof PresenterAware ||
+            $this instanceof ReadlineAware
+        ) {
+            $this->getShell()->boot($input, $output);
+        }
+
+        return parent::run($input, $output);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function asText(): string
     {
         $messages = [
@@ -84,15 +107,24 @@ abstract class Command extends BaseCommand
     }
 
     /**
+     * Render help text for the current input context.
+     */
+    public function asTextForInput(InputInterface $input): string
+    {
+        return $this->asText();
+    }
+
+    /**
      * {@inheritdoc}
      */
     private function getArguments(): array
     {
         $hidden = $this->getHiddenArguments();
 
-        return \array_filter($this->getNativeDefinition()->getArguments(), function ($argument) use ($hidden) {
-            return !\in_array($argument->getName(), $hidden);
-        });
+        return \array_filter(
+            $this->getNativeDefinition()->getArguments(),
+            fn ($argument) => !\in_array($argument->getName(), $hidden)
+        );
     }
 
     /**
@@ -112,9 +144,10 @@ abstract class Command extends BaseCommand
     {
         $hidden = $this->getHiddenOptions();
 
-        return \array_filter($this->getNativeDefinition()->getOptions(), function ($option) use ($hidden) {
-            return !\in_array($option->getName(), $hidden);
-        });
+        return \array_filter(
+            $this->getNativeDefinition()->getOptions(),
+            fn ($option) => !\in_array($option->getName(), $hidden)
+        );
     }
 
     /**
@@ -154,7 +187,9 @@ abstract class Command extends BaseCommand
                 }
 
                 $name = $argument->getName();
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $pad = \str_pad('', $max - \strlen($name));
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $argument->getDescription());
 
                 $messages[] = \sprintf(' <info>%s</info>%s %s%s', $name, $pad, $description, $default);
@@ -186,6 +221,7 @@ abstract class Command extends BaseCommand
                 }
 
                 $multiple = $option->isArray() ? '<comment> (multiple values allowed)</comment>' : '';
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $option->getDescription());
 
                 $optionMax = $max - \strlen($option->getName()) - 2;
@@ -267,5 +303,13 @@ abstract class Command extends BaseCommand
         return $table
             ->setRows([])
             ->setStyle($style);
+    }
+
+    /**
+     * Get a ShellOutputAdapter for the given output.
+     */
+    protected function shellOutput(OutputInterface $output): ShellOutputAdapter
+    {
+        return new ShellOutputAdapter($output);
     }
 }

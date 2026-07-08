@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static autocompleteIf(bool $condition, bool|string $autocomplete)
+ * @method static autocompleteIfNotNull(bool $condition, bool|string $autocomplete)
+ * @method static autocompleteUnless(bool $condition, bool|string $autocomplete)
+ */
 trait Autocomplete
 {
     /**

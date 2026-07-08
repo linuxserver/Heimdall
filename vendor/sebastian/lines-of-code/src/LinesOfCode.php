@@ -10,57 +10,57 @@
 namespace SebastianBergmann\LinesOfCode;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
-final class LinesOfCode
+final readonly class LinesOfCode
 {
     /**
-     * @psalm-var non-negative-int
+     * @var non-negative-int
      */
-    private readonly int $linesOfCode;
+    private int $linesOfCode;
 
     /**
-     * @psalm-var non-negative-int
+     * @var non-negative-int
      */
-    private readonly int $commentLinesOfCode;
+    private int $commentLinesOfCode;
 
     /**
-     * @psalm-var non-negative-int
+     * @var non-negative-int
      */
-    private readonly int $nonCommentLinesOfCode;
+    private int $nonCommentLinesOfCode;
 
     /**
-     * @psalm-var non-negative-int
+     * @var non-negative-int
      */
-    private readonly int $logicalLinesOfCode;
+    private int $logicalLinesOfCode;
 
     /**
-     * @psalm-param non-negative-int $linesOfCode
-     * @psalm-param non-negative-int $commentLinesOfCode
-     * @psalm-param non-negative-int $nonCommentLinesOfCode
-     * @psalm-param non-negative-int $logicalLinesOfCode
+     * @param non-negative-int $linesOfCode
+     * @param non-negative-int $commentLinesOfCode
+     * @param non-negative-int $nonCommentLinesOfCode
+     * @param non-negative-int $logicalLinesOfCode
      *
      * @throws IllogicalValuesException
      * @throws NegativeValueException
      */
     public function __construct(int $linesOfCode, int $commentLinesOfCode, int $nonCommentLinesOfCode, int $logicalLinesOfCode)
     {
-        /** @psalm-suppress DocblockTypeContradiction */
+        /** @phpstan-ignore smaller.alwaysFalse */
         if ($linesOfCode < 0) {
             throw new NegativeValueException('$linesOfCode must not be negative');
         }
 
-        /** @psalm-suppress DocblockTypeContradiction */
+        /** @phpstan-ignore smaller.alwaysFalse */
         if ($commentLinesOfCode < 0) {
             throw new NegativeValueException('$commentLinesOfCode must not be negative');
         }
 
-        /** @psalm-suppress DocblockTypeContradiction */
+        /** @phpstan-ignore smaller.alwaysFalse */
         if ($nonCommentLinesOfCode < 0) {
             throw new NegativeValueException('$nonCommentLinesOfCode must not be negative');
         }
 
-        /** @psalm-suppress DocblockTypeContradiction */
+        /** @phpstan-ignore smaller.alwaysFalse */
         if ($logicalLinesOfCode < 0) {
             throw new NegativeValueException('$logicalLinesOfCode must not be negative');
         }
@@ -76,7 +76,7 @@ final class LinesOfCode
     }
 
     /**
-     * @psalm-return non-negative-int
+     * @return non-negative-int
      */
     public function linesOfCode(): int
     {
@@ -84,7 +84,7 @@ final class LinesOfCode
     }
 
     /**
-     * @psalm-return non-negative-int
+     * @return non-negative-int
      */
     public function commentLinesOfCode(): int
     {
@@ -92,7 +92,7 @@ final class LinesOfCode
     }
 
     /**
-     * @psalm-return non-negative-int
+     * @return non-negative-int
      */
     public function nonCommentLinesOfCode(): int
     {
@@ -100,7 +100,7 @@ final class LinesOfCode
     }
 
     /**
-     * @psalm-return non-negative-int
+     * @return non-negative-int
      */
     public function logicalLinesOfCode(): int
     {

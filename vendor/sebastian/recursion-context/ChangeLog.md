@@ -2,6 +2,30 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [6.0.3] - 2025-08-13
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
+
+## [6.0.2] - 2024-07-03
+
+### Changed
+
+* This project now uses PHPStan instead of Psalm for static analysis
+
+## [6.0.1] - 2024-06-17
+
+### Changed
+
+* [#30](https://github.com/sebastianbergmann/recursion-context/pull/30): Use more efficient `spl_object_id()` over `spl_object_hash()`
+
+## [6.0.0] - 2024-02-02
+
+### Removed
+
+* This component is no longer supported on PHP 8.1
+
 ## [5.0.1] - 2025-08-10
 
 ### Changed
@@ -45,6 +69,10 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Tests etc. are now ignored for archive exports
 
+[6.0.3]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.2...6.0.3
+[6.0.2]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/recursion-context/compare/5.0...6.0.0
 [5.0.1]: https://github.com/sebastianbergmann/recursion-context/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/sebastianbergmann/recursion-context/compare/4.0.5...5.0.0
 [4.0.5]: https://github.com/sebastianbergmann/recursion-context/compare/4.0.4...4.0.5

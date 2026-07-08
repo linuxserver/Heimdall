@@ -9,6 +9,7 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
+use function assert;
 use DOMElement;
 
 /**
@@ -52,6 +53,8 @@ final class Unit
                 ),
             );
         }
+
+        assert($node instanceof DOMElement);
 
         $node->setAttribute('name', $namespace);
     }

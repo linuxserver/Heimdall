@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Carbon;
 
 use Closure;
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -65,10 +66,12 @@ use Throwable;
  * @method Carbon              createStrict(?int $year = 0, ?int $month = 1, ?int $day = 1, ?int $hour = 0, ?int $minute = 0, ?int $second = 0, $timezone = null)   Create a new Carbon instance from a specific date and time using strict validation.
  * @method mixed               executeWithLocale(string $locale, callable $func)                                                                                    Set the current locale to the given, execute the passed function, reset the locale to previous one,
  *                                                                                                                                                                  then return the result of the closure (or null if the closure was void).
- * @method Carbon              fromSerialized($value)                                                                                                               Create an instance from a serialized string.
+ * @method Carbon              fromSerialized($value, array $options = [])                                                                                          Create an instance from a serialized string.
+ *                                                                                                                                                                  If $value is not from a trusted source, consider using the allowed_classes option to limit
+ *                                                                                                                                                                  the types of objects that can be built, for instance:
  * @method array               getAvailableLocales()                                                                                                                Returns the list of internally available locales and already loaded custom locales.
  *                                                                                                                                                                  (It will ignore custom translator dynamic loading.)
- * @method Language[]          getAvailableLocalesInfo()                                                                                                            Returns list of Language object for each available locale. This object allow you to get the ISO name, native
+ * @method array               getAvailableLocalesInfo()                                                                                                            Returns list of Language object for each available locale. This object allow you to get the ISO name, native
  *                                                                                                                                                                  name, region and variant of the locale.
  * @method array               getDays()                                                                                                                            Get the days of the week.
  * @method ?string             getFallbackLocale()                                                                                                                  Get the fallback locale.
@@ -551,15 +554,12 @@ class Factory
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
      *   - When the string "now" is passed to the constructor or parse(), ex. new Carbon('now')
      *   - When a string containing the desired time is passed to Carbon::parse().
-     *
-     * Note the timezone parameter was left out of the examples above and
-     * has no affect as the mock value will be returned regardless of its value.
      *
      * Only the moment is mocked with setTestNow(), the timezone will still be the one passed
      * as parameter of date_default_timezone_get() as a fallback (see setTestNowAndTimezone()).
@@ -574,14 +574,14 @@ class Factory
     public function setTestNow(mixed $testNow = null): void
     {
         $this->useTimezoneFromTestNow = false;
-        $this->testNow = $testNow instanceof self || $testNow instanceof Closure
+        $this->testNow = $testNow instanceof Closure
             ? $testNow
             : $this->make($testNow);
     }
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
@@ -639,12 +639,13 @@ class Factory
      */
     public function withTestNow(mixed $testNow, callable $callback): mixed
     {
+        $previousTestNow = $this->getTestNow();
         $this->setTestNow($testNow);
 
         try {
             $result = $callback();
         } finally {
-            $this->setTestNow();
+            $this->setTestNow($previousTestNow);
         }
 
         return $result;
@@ -693,9 +694,19 @@ class Factory
             }
 
             if (!($testNow instanceof CarbonInterface)) {
-                $timezone ??= $this->useTimezoneFromTestNow ? $testNow->getTimezone() : null;
+                $timezone ??= $this->useTimezoneFromTestNow
+                    ? $testNow->getTimezone()
+                    : new CarbonTimeZone(date_default_timezone_get());
                 $testNow = $this->__call('instance', [$testNow, $timezone]);
             }
+        }
+
+        if ($testNow !== null && $timezone === null) {
+            if ($testNow instanceof DateTime) {
+                $testNow = clone $testNow;
+            }
+
+            $testNow = $testNow->setTimezone(date_default_timezone_get());
         }
 
         return $testNow;

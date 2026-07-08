@@ -58,7 +58,7 @@ function attribute_multiline_with_comment_test() {}
 function single_attribute_on_parameter_test(#[ParamAttribute] int $param) {}
 
 /* testMultipleAttributesOnParameter */
-function multiple_attributes_on_parameter_test(#[ParamAttribute, AttributeWithParams(/* another comment */ 'foo')] int $param) {}
+function multiple_attributes_on_parameter_test(#[ParamAttribute, AttributeWithParams(/* another comment */ 'foo')] array $param) {}
 
 /* testFqcnAttribute */
 #[Boo\QualifiedName, \Foo\FullyQualifiedName('foo')]
@@ -73,7 +73,7 @@ function multiline_attributes_on_parameter_test(#[
     AttributeWithParams(
         'foo'
     )
-                                                ] int $param) {}
+                                                ] null $param) {}
 
 /* testAttributeContainingTextLookingLikeCloseTag */
 #[DeprecationReason('reason: <https://some-website/reason?>')]
@@ -84,7 +84,3 @@ function attribute_containing_text_looking_like_close_tag() {}
     'reason: <https://some-website/reason?>'
 )]
 function attribute_containing_mulitline_text_looking_like_close_tag() {}
-
-/* testInvalidAttribute */
-#[ThisIsNotAnAttribute
-function invalid_attribute_test() {}

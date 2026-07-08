@@ -26,22 +26,15 @@ use InvalidArgumentException;
 class ConnectionFactory
 {
     /**
-     * The cache factory instance.
-     *
-     * @var \Illuminate\Contracts\Cache\Factory|null
-     */
-    private ?Factory $cache;
-
-    /**
      * Create a new connection factory instance.
      *
      * @param \Illuminate\Contracts\Cache\Factory|null $cache
      *
      * @return void
      */
-    public function __construct(?Factory $cache = null)
-    {
-        $this->cache = $cache;
+    public function __construct(
+        private readonly ?Factory $cache = null,
+    ) {
     }
 
     /**

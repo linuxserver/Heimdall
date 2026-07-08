@@ -5,7 +5,7 @@
  * @author    Oleg Lobach <oleg@lobach.info>
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Reports;
@@ -115,7 +115,7 @@ class Junit implements Report
         $tests   = 0;
         $matches = [];
         preg_match_all('/tests="([0-9]+)"/', $cachedData, $matches);
-        if (isset($matches[1]) === true) {
+        if (empty($matches[1]) === false) {
             foreach ($matches[1] as $match) {
                 $tests += $match;
             }

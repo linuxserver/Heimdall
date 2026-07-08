@@ -2,6 +2,17 @@
 
 # Version 2
 
+## 2.1.0 - 2026-05-12
+
+### Added
+
+- Added `EtagCachePlugin` to cache only ETag-backed responses and always revalidate them before serving cached bodies.
+
+## 2.0.2 - 2025-12-01
+
+- Support Symfony 8.
+- Test with PHP 8.5.
+
 ## 2.0.1 - 2024-10-02
 
 - Test with PHP 8.3 and 8.4.

@@ -5,8 +5,12 @@
     "keywords": [
         "url",
         "uri",
+        "urn",
+        "uri-template",
+        "rfc2141",
         "rfc3986",
         "rfc3987",
+        "rfc8141",
         "rfc6570",
         "psr-7",
         "parse_url",
@@ -20,8 +24,7 @@
         "parse_str",
         "query-string",
         "querystring",
-        "hostname",
-        "uri-template"
+        "hostname"
     ],
     "license": "MIT",
     "homepage": "https://uri.thephpleague.com",
@@ -45,7 +48,8 @@
     ],
     "require": {
         "php": "^8.1",
-        "league/uri-interfaces": "^7.5"
+        "league/uri-interfaces": "^7.8.1",
+        "psr/http-factory": "^1"
     },
     "autoload": {
         "psr-4": {
@@ -57,13 +61,17 @@
     },
     "suggest": {
         "ext-bcmath": "to improve IPV4 host parsing",
+        "ext-dom": "to convert the URI into an HTML anchor tag",
         "ext-fileinfo": "to create Data URI from file contennts",
         "ext-gmp": "to improve IPV4 host parsing",
         "ext-intl": "to handle IDN host with the best performance",
-        "jeremykendall/php-domain-parser": "to resolve Public Suffix and Top Level Domain",
-        "league/uri-components" : "Needed to easily manipulate URI objects components",
+        "ext-uri": "to use the PHP native URI class",
+        "jeremykendall/php-domain-parser": "to further parse the URI host and resolve its Public Suffix and Top Level Domain",
+        "league/uri-components" : "to provide additional tools to manipulate URI objects components",
+        "league/uri-polyfill" : "to backport the PHP URI extension for older versions of PHP",
         "php-64bit": "to improve IPV4 host parsing",
-        "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present"
+        "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present",
+        "rowbot/url": "to handle URLs using the WHATWG URL Living Standard specification"
     },
     "extra": {
         "branch-alias": {

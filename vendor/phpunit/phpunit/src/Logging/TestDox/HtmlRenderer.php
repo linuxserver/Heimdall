@@ -16,7 +16,7 @@ use function sprintf;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class HtmlRenderer
+final readonly class HtmlRenderer
 {
     /**
      * @var string
@@ -104,7 +104,7 @@ EOT;
 EOT;
 
     /**
-     * @psalm-param array<string, TestResultCollection> $tests
+     * @param array<string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
@@ -131,7 +131,7 @@ EOT;
     }
 
     /**
-     * @psalm-return array<string, 'success'|'defect'>
+     * @return array<string, 'defect'|'success'>
      */
     private function reduce(TestResultCollection $tests): array
     {

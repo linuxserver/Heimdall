@@ -42,10 +42,10 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\TestDox;
 use PHPUnit\Util\Color;
+use PHPUnit\Util\Exporter;
 use ReflectionEnum;
 use ReflectionMethod;
 use ReflectionObject;
-use SebastianBergmann\Exporter\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -55,12 +55,12 @@ use SebastianBergmann\Exporter\Exporter;
 final class NamePrettifier
 {
     /**
-     * @psalm-var array<string, int>
+     * @var array<string, int>
      */
-    private static array $strings = [];
+    private array $strings = [];
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public function prettifyTestClassName(string $className): string
     {
@@ -118,10 +118,10 @@ final class NamePrettifier
 
         $string = rtrim($name, '0123456789');
 
-        if (array_key_exists($string, self::$strings)) {
+        if (array_key_exists($string, $this->strings)) {
             $name = $string;
         } elseif ($string === $name) {
-            self::$strings[$string] = 1;
+            $this->strings[$string] = 1;
         }
 
         if (str_starts_with($name, 'test_')) {
@@ -167,7 +167,7 @@ final class NamePrettifier
             }
         }
 
-        return $buffer;
+        return trim($buffer);
     }
 
     public function prettifyTestCase(TestCase $test, bool $colorize): string
@@ -222,6 +222,9 @@ final class NamePrettifier
         return Color::dim(' with ') . Color::colorize('fg-cyan', Color::visualizeWhitespace($test->dataName()));
     }
 
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
     private function mapTestMethodParameterNamesToProvidedDataValues(TestCase $test, bool $colorize): array
     {
         assert(method_exists($test, $test->name()));
@@ -255,7 +258,7 @@ final class NamePrettifier
             }
 
             if (is_bool($value) || is_int($value) || is_float($value)) {
-                $value = (new Exporter)->export($value);
+                $value = Exporter::export($value);
             }
 
             if ($value === '') {

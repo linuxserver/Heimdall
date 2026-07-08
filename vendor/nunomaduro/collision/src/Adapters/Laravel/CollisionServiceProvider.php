@@ -57,7 +57,7 @@ class CollisionServiceProvider extends ServiceProvider
                 return new Provider(null, $handler);
             });
 
-            /** @var \Illuminate\Contracts\Debug\ExceptionHandler $appExceptionHandler */
+            /** @var ExceptionHandlerContract $appExceptionHandler */
             $appExceptionHandler = $this->app->make(ExceptionHandlerContract::class);
 
             $this->app->singleton(

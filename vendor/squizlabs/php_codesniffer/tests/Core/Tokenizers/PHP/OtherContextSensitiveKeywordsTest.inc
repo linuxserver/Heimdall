@@ -2,12 +2,12 @@
 
 class OtherContextSensitiveKeywords
 {
-    const /* testParent */ PARENT = 'PARENT';
-    const /* testSelf */ SELF = 'SELF';
+    const /* testKeywordParentAsConstantNameShouldBeString */ PARENT = 'PARENT';
+    const /* testKeywordSelfAsConstantNameShouldBeString */ SELF = 'SELF';
 
-    const /* testFalse */ FALSE = 'FALSE',
-    const /* testTrue */ TRUE = 'TRUE',
-    const /* testNull */ NULL = 'NULL',
+    const /* testKeywordFalseAsConstantNameShouldBeString */ FALSE = 'FALSE';
+    const /* testKeywordTrueAsConstantNameShouldBeString */ TRUE = 'TRUE';
+    const /* testKeywordNullAsConstantNameShouldBeString */ NULL = 'NULL';
 }
 
 abstract class SomeClass
@@ -245,3 +245,17 @@ class DNFTypes extends Something {
         ) : parent|(A&B) => $param->get();
     }
 }
+
+/* testFalseIsKeywordUppercase */
+if ($a === FALSE) {
+/* testTrueIsKeywordMixedCase */
+} elseif ( $b === True) {
+/* testNullIsKeywordUppercase */
+} elseif ($c === NULL) {}
+
+/* testFullyQualifiedFalseIsKeyword */
+$a = \false;
+/* testFullyQualifiedTrueIsKeyword */
+$b = \true;
+/* testFullyQualifiedNullIsKeyword */
+$c = \null;

@@ -140,3 +140,14 @@ $someObject
                     ->someOtherFunc(nameA: 23, nameB: 42)
 ->endSomething($value, name: $value)
 ->endEverything();
+
+// Issue https://github.com/PHPCSStandards/PHP_CodeSniffer/issues/1154
+$array = [
+    [
+        $item->one()->two(),
+    ],
+    $item->one()
+        ->two(),
+    $item->one()
+            ->two(),
+];

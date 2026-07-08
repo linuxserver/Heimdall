@@ -37,7 +37,6 @@ use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Throwable;
 
 /**
  * @mixin \League\Flysystem\FilesystemOperator
@@ -92,12 +91,18 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected $temporaryUrlCallback;
 
     /**
+     * The temporary upload URL builder callback.
+     *
+     * @var \Closure|null
+     */
+    protected $temporaryUploadUrlCallback;
+
+    /**
      * Create a new filesystem adapter instance.
      *
      * @param  \League\Flysystem\FilesystemOperator  $driver
      * @param  \League\Flysystem\FilesystemAdapter  $adapter
      * @param  array  $config
-     * @return void
      */
     public function __construct(FilesystemOperator $driver, FlysystemAdapter $adapter, array $config = [])
     {
@@ -160,7 +165,7 @@ class FilesystemAdapter implements CloudFilesystemContract
         $actual = count($this->files($path, $recursive));
 
         PHPUnit::assertEquals(
-            $actual, $count, "Expected [{$count}] files at [{$path}], but found [{$actual}]."
+            $count, $actual, "Expected [{$count}] files at [{$path}], but found [{$actual}]."
         );
 
         return $this;
@@ -318,6 +323,8 @@ class FilesystemAdapter implements CloudFilesystemContract
      * @param  array  $headers
      * @param  string|null  $disposition
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws UnableToRetrieveMetadata
      */
     public function response($path, $name = null, array $headers = [], $disposition = 'inline')
     {
@@ -355,6 +362,8 @@ class FilesystemAdapter implements CloudFilesystemContract
      * @param  string|null  $name
      * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws UnableToRetrieveMetadata
      */
     public function serve(Request $request, $path, $name = null, array $headers = [])
     {
@@ -370,6 +379,8 @@ class FilesystemAdapter implements CloudFilesystemContract
      * @param  string|null  $name
      * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws UnableToRetrieveMetadata
      */
     public function download($path, $name = null, array $headers = [])
     {
@@ -398,8 +409,8 @@ class FilesystemAdapter implements CloudFilesystemContract
     public function put($path, $contents, $options = [])
     {
         $options = is_string($options)
-                     ? ['visibility' => $options]
-                     : (array) $options;
+            ? ['visibility' => $options]
+            : (array) $options;
 
         // If the given contents is actually a file or uploaded file instance than we will
         // automatically store the file using a stream. This provides a convenient path
@@ -658,6 +669,8 @@ class FilesystemAdapter implements CloudFilesystemContract
      *
      * @param  string  $path
      * @return string|false
+     *
+     * @throws UnableToRetrieveMetadata
      */
     public function mimeType($path)
     {
@@ -753,8 +766,8 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected function getFtpUrl($path)
     {
         return isset($this->config['url'])
-                ? $this->concatPathToUrl($this->config['url'], $path)
-                : $path;
+            ? $this->concatPathToUrl($this->config['url'], $path)
+            : $path;
     }
 
     /**
@@ -792,6 +805,16 @@ class FilesystemAdapter implements CloudFilesystemContract
     public function providesTemporaryUrls()
     {
         return method_exists($this->adapter, 'getTemporaryUrl') || isset($this->temporaryUrlCallback);
+    }
+
+    /**
+     * Determine if temporary upload URLs can be generated.
+     *
+     * @return bool
+     */
+    public function providesTemporaryUploadUrls()
+    {
+        return method_exists($this->adapter, 'temporaryUploadUrl') || isset($this->temporaryUploadUrlCallback);
     }
 
     /**
@@ -833,6 +856,12 @@ class FilesystemAdapter implements CloudFilesystemContract
     {
         if (method_exists($this->adapter, 'temporaryUploadUrl')) {
             return $this->adapter->temporaryUploadUrl($path, $expiration, $options);
+        }
+
+        if ($this->temporaryUploadUrlCallback) {
+            return $this->temporaryUploadUrlCallback->bindTo($this, static::class)(
+                $path, $expiration, $options
+            );
         }
 
         throw new RuntimeException('This driver does not support creating temporary upload URLs.');
@@ -1044,6 +1073,17 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
+     * Define a custom temporary upload URL builder callback.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function buildTemporaryUploadUrlsUsing(Closure $callback)
+    {
+        $this->temporaryUploadUrlCallback = $callback;
+    }
+
+    /**
      * Determine if Flysystem exceptions should be thrown.
      *
      * @return bool
@@ -1054,10 +1094,12 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
-     * @param  Throwable  $exception
+     * Report the exception.
+     *
+     * @param  \Throwable  $exception
      * @return void
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function report($exception)
     {

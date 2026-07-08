@@ -69,6 +69,13 @@ class DatabaseStore implements LockProvider, Store
     protected $defaultLockTimeoutInSeconds;
 
     /**
+     * The classes that should be allowed during unserialization.
+     *
+     * @var array|bool|null
+     */
+    protected $serializableClasses;
+
+    /**
      * Create a new database store.
      *
      * @param  \Illuminate\Database\ConnectionInterface  $connection
@@ -76,7 +83,8 @@ class DatabaseStore implements LockProvider, Store
      * @param  string  $prefix
      * @param  string  $lockTable
      * @param  array  $lockLottery
-     * @return void
+     * @param  int  $defaultLockTimeoutInSeconds
+     * @param  array|bool|null  $serializableClasses
      */
     public function __construct(
         ConnectionInterface $connection,
@@ -85,6 +93,7 @@ class DatabaseStore implements LockProvider, Store
         $lockTable = 'cache_locks',
         $lockLottery = [2, 100],
         $defaultLockTimeoutInSeconds = 86400,
+        $serializableClasses = null,
     ) {
         $this->table = $table;
         $this->prefix = $prefix;
@@ -92,6 +101,7 @@ class DatabaseStore implements LockProvider, Store
         $this->lockTable = $lockTable;
         $this->lockLottery = $lockLottery;
         $this->defaultLockTimeoutInSeconds = $defaultLockTimeoutInSeconds;
+        $this->serializableClasses = $serializableClasses;
     }
 
     /**
@@ -170,6 +180,7 @@ class DatabaseStore implements LockProvider, Store
     /**
      * Store multiple items in the cache for a given number of seconds.
      *
+     * @param  array  $values
      * @param  int  $seconds
      * @return bool
      */
@@ -445,7 +456,30 @@ class DatabaseStore implements LockProvider, Store
     }
 
     /**
-     * Specify the name of the connection that should be used to manage locks.
+     * Set the underlying database connection.
+     *
+     * @param  \Illuminate\Database\ConnectionInterface  $connection
+     * @return $this
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    /**
+     * Get the connection used to manage locks.
+     *
+     * @return \Illuminate\Database\ConnectionInterface
+     */
+    public function getLockConnection()
+    {
+        return $this->lockConnection;
+    }
+
+    /**
+     * Specify the connection that should be used to manage locks.
      *
      * @param  \Illuminate\Database\ConnectionInterface  $connection
      * @return $this
@@ -509,6 +543,10 @@ class DatabaseStore implements LockProvider, Store
              $this->connection instanceof SQLiteConnection) &&
             ! Str::contains($value, [':', ';'])) {
             $value = base64_decode($value);
+        }
+
+        if ($this->serializableClasses !== null) {
+            return unserialize($value, ['allowed_classes' => $this->serializableClasses]);
         }
 
         return unserialize($value);

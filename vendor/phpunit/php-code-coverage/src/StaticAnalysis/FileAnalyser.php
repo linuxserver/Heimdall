@@ -12,49 +12,47 @@ namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @psalm-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @psalm-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @phpstan-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @phpstan-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
+ * @phpstan-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
  *
- * @psalm-type LinesOfCodeType = array{
+ * @phpstan-type LinesOfCodeType = array{
  *     linesOfCode: int,
  *     commentLinesOfCode: int,
  *     nonCommentLinesOfCode: int
  * }
- * @psalm-type LinesType = array<int, int>
+ * @phpstan-type LinesType = array<int, int>
  */
 interface FileAnalyser
 {
     /**
-     * @psalm-return array<string, CodeUnitClassType>
+     * @return array<string, CodeUnitClassType>
      */
     public function classesIn(string $filename): array;
 
     /**
-     * @psalm-return array<string, CodeUnitTraitType>
+     * @return array<string, CodeUnitTraitType>
      */
     public function traitsIn(string $filename): array;
 
     /**
-     * @psalm-return array<string, CodeUnitFunctionType>
+     * @return array<string, CodeUnitFunctionType>
      */
     public function functionsIn(string $filename): array;
 
     /**
-     * @psalm-return LinesOfCodeType
+     * @return LinesOfCodeType
      */
     public function linesOfCodeFor(string $filename): array;
 
     /**
-     * @psalm-return LinesType
+     * @return LinesType
      */
     public function executableLinesIn(string $filename): array;
 
     /**
-     * @psalm-return LinesType
+     * @return LinesType
      */
     public function ignoredLinesFor(string $filename): array;
 }

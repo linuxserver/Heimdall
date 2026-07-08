@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static autofocusIf(bool $condition, bool $autofocus)
+ * @method static autofocusIfNotNull(bool $condition, bool $autofocus)
+ * @method static autofocusUnless(bool $condition, bool $autofocus)
+ */
 trait Autofocus
 {
     /**

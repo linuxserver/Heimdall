@@ -12,18 +12,19 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/sebastianbergmann/code-unit/issues"
+        "issues": "https://github.com/sebastianbergmann/code-unit/issues",
+        "security": "https://github.com/sebastianbergmann/code-unit/security/policy"
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^11.5"
     },
     "config": {
         "platform": {
-            "php": "8.1.0"
+            "php": "8.2.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
@@ -39,12 +40,13 @@
         ],
         "files": [
             "tests/_fixture/file_with_multiple_code_units.php",
-            "tests/_fixture/function.php"
+            "tests/_fixture/function.php",
+            "tests/_fixture/issue_9.php"
         ]
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "2.0-dev"
+            "dev-main": "3.0-dev"
         }
     }
 }

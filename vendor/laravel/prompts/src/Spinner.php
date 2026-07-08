@@ -40,14 +40,14 @@ class Spinner extends Prompt
      *
      * @template TReturn of mixed
      *
-     * @param  \Closure(): TReturn  $callback
+     * @param  Closure(): TReturn  $callback
      * @return TReturn
      */
     public function spin(Closure $callback): mixed
     {
         $this->capturePreviousNewLines();
 
-        if (! function_exists('pcntl_fork')) {
+        if (! static::output()->isDecorated() || ! (function_exists('pcntl_fork') && function_exists('posix_kill'))) {
             return $this->renderStatically($callback);
         }
 
@@ -99,7 +99,7 @@ class Spinner extends Prompt
      *
      * @template TReturn of mixed
      *
-     * @param  \Closure(): TReturn  $callback
+     * @param  Closure(): TReturn  $callback
      * @return TReturn
      */
     protected function renderStatically(Closure $callback): mixed
@@ -121,7 +121,7 @@ class Spinner extends Prompt
     /**
      * Disable prompting for input.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function prompt(): never
     {

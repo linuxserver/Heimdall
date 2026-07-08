@@ -14,35 +14,41 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class MockObjectFromWsdlCreated implements Event
+final readonly class MockObjectFromWsdlCreated implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly string $wsdlFile;
+    private Telemetry\Info $telemetryInfo;
+    private string $wsdlFile;
 
     /**
-     * @psalm-var class-string
+     * @var class-string
      */
-    private readonly string $originalClassName;
+    private string $originalClassName;
 
     /**
-     * @psalm-var class-string
+     * @var class-string
      */
-    private readonly string $mockClassName;
+    private string $mockClassName;
 
     /**
-     * @psalm-var list<string>
+     * @var list<string>
      */
-    private readonly array $methods;
-    private readonly bool $callOriginalConstructor;
-    private readonly array $options;
+    private array $methods;
+    private bool $callOriginalConstructor;
 
     /**
-     * @psalm-param class-string $originalClassName
-     * @psalm-param class-string $mockClassName
+     * @var list<mixed>
+     */
+    private array $options;
+
+    /**
+     * @param class-string $originalClassName
+     * @param class-string $mockClassName
+     * @param list<string> $methods
+     * @param list<mixed>  $options
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $wsdlFile, string $originalClassName, string $mockClassName, array $methods, bool $callOriginalConstructor, array $options)
     {
@@ -66,7 +72,7 @@ final class MockObjectFromWsdlCreated implements Event
     }
 
     /**
-     * @psalm-return class-string
+     * @return class-string
      */
     public function originalClassName(): string
     {
@@ -74,7 +80,7 @@ final class MockObjectFromWsdlCreated implements Event
     }
 
     /**
-     * @psalm-return class-string
+     * @return class-string
      */
     public function mockClassName(): string
     {
@@ -82,7 +88,7 @@ final class MockObjectFromWsdlCreated implements Event
     }
 
     /**
-     * @psalm-return list<string>
+     * @return list<string>
      */
     public function methods(): array
     {
@@ -94,6 +100,9 @@ final class MockObjectFromWsdlCreated implements Event
         return $this->callOriginalConstructor;
     }
 
+    /**
+     * @return list<mixed>
+     */
     public function options(): array
     {
         return $this->options;

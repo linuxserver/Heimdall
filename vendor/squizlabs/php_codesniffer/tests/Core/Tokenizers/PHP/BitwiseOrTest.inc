@@ -7,7 +7,7 @@
 /* testBitwiseOr1 */
 $result = $value | $test /* testBitwiseOr2 */ | $another;
 
-class TypeUnion
+abstract class TypeUnion
 {
     /* testTypeUnionOOConstSimple */
     public const Foo|Bar SIMPLE = new Foo;
@@ -95,6 +95,15 @@ class TypeUnion
 
     /* testTypeUnionPropertyPublicProtected */
     public protected(set) Foo|Bar $asym4;
+
+    /* testTypeUnionWithPHP84AbstractKeyword */
+    abstract int|string $abstractKeywordA { get; }
+
+    /* testTypeUnionWithPHP84AbstractKeywordFirst */
+    abstract protected float|null $abstractKeywordB { set; }
+
+    /* testTypeUnionWithPHP84AbstractKeywordAndFQN */
+    abstract \MyClass|false $abstractKeywordC { get; }
 
     public function paramTypes(
         /* testTypeUnionParam1 */

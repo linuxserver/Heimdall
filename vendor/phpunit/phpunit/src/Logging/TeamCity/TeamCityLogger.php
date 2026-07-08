@@ -51,7 +51,7 @@ final class TeamCityLogger
     private readonly Printer $printer;
     private bool $isSummaryTestCountPrinted = false;
     private ?HRTime $time                   = null;
-    private ?int $flowId;
+    private ?int $flowId                    = null;
 
     /**
      * @throws EventFacadeIsSealedException
@@ -342,6 +342,9 @@ final class TeamCityLogger
         }
     }
 
+    /**
+     * @param array<non-empty-string, int|string> $parameters
+     */
     private function writeMessage(string $eventName, array $parameters = []): void
     {
         $this->printer->print(

@@ -30,9 +30,9 @@ use SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @psalm-import-type XdebugFunctionsCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
- * @psalm-import-type XdebugCodeCoverageWithoutPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
- * @psalm-import-type XdebugCodeCoverageWithPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ * @phpstan-import-type XdebugFunctionsCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ * @phpstan-import-type XdebugCodeCoverageWithoutPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ * @phpstan-import-type XdebugCodeCoverageWithPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  */
 final class RawCodeCoverageData
 {
@@ -42,17 +42,17 @@ final class RawCodeCoverageData
     private static array $emptyLineCache = [];
 
     /**
-     * @psalm-var XdebugCodeCoverageWithoutPathCoverageType
+     * @var XdebugCodeCoverageWithoutPathCoverageType
      */
     private array $lineCoverage;
 
     /**
-     * @psalm-var array<string, XdebugFunctionsCoverageType>
+     * @var array<string, XdebugFunctionsCoverageType>
      */
     private array $functionCoverage;
 
     /**
-     * @psalm-param XdebugCodeCoverageWithoutPathCoverageType $rawCoverage
+     * @param XdebugCodeCoverageWithoutPathCoverageType $rawCoverage
      */
     public static function fromXdebugWithoutPathCoverage(array $rawCoverage): self
     {
@@ -60,7 +60,7 @@ final class RawCodeCoverageData
     }
 
     /**
-     * @psalm-param XdebugCodeCoverageWithPathCoverageType $rawCoverage
+     * @param XdebugCodeCoverageWithPathCoverageType $rawCoverage
      */
     public static function fromXdebugWithPathCoverage(array $rawCoverage): self
     {
@@ -96,15 +96,13 @@ final class RawCodeCoverageData
     }
 
     /**
-     * @psalm-param XdebugCodeCoverageWithoutPathCoverageType $lineCoverage
-     * @psalm-param array<string, XdebugFunctionsCoverageType> $functionCoverage
+     * @param XdebugCodeCoverageWithoutPathCoverageType  $lineCoverage
+     * @param array<string, XdebugFunctionsCoverageType> $functionCoverage
      */
     private function __construct(array $lineCoverage, array $functionCoverage)
     {
         $this->lineCoverage     = $lineCoverage;
         $this->functionCoverage = $functionCoverage;
-
-        $this->skipEmptyLines();
     }
 
     public function clear(): void
@@ -113,7 +111,7 @@ final class RawCodeCoverageData
     }
 
     /**
-     * @psalm-return XdebugCodeCoverageWithoutPathCoverageType
+     * @return XdebugCodeCoverageWithoutPathCoverageType
      */
     public function lineCoverage(): array
     {
@@ -121,7 +119,7 @@ final class RawCodeCoverageData
     }
 
     /**
-     * @psalm-return array<string, XdebugFunctionsCoverageType>
+     * @return array<string, XdebugFunctionsCoverageType>
      */
     public function functionCoverage(): array
     {
@@ -251,7 +249,7 @@ final class RawCodeCoverageData
      *
      * @see https://github.com/sebastianbergmann/php-code-coverage/issues/799
      */
-    private function skipEmptyLines(): void
+    public function skipEmptyLines(): void
     {
         foreach ($this->lineCoverage as $filename => $coverage) {
             foreach ($this->getEmptyLinesForFile($filename) as $emptyLine) {

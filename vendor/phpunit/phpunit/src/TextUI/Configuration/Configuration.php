@@ -10,11 +10,11 @@
 namespace PHPUnit\TextUI\Configuration;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class Configuration
+final readonly class Configuration
 {
     public const COLOR_NEVER   = 'never';
     public const COLOR_AUTO    = 'auto';
@@ -22,267 +22,305 @@ final class Configuration
     public const COLOR_DEFAULT = self::COLOR_NEVER;
 
     /**
-     * @psalm-var list<non-empty-string>
+     * @var list<non-empty-string>
      */
-    private readonly array $cliArguments;
-    private readonly ?string $configurationFile;
-    private readonly ?string $bootstrap;
-    private readonly bool $cacheResult;
-    private readonly ?string $cacheDirectory;
-    private readonly ?string $coverageCacheDirectory;
-    private readonly Source $source;
-    private readonly bool $pathCoverage;
-    private readonly ?string $coverageClover;
-    private readonly ?string $coverageCobertura;
-    private readonly ?string $coverageCrap4j;
-    private readonly int $coverageCrap4jThreshold;
-    private readonly ?string $coverageHtml;
-    private readonly int $coverageHtmlLowUpperBound;
-    private readonly int $coverageHtmlHighLowerBound;
-    private readonly string $coverageHtmlColorSuccessLow;
-    private readonly string $coverageHtmlColorSuccessMedium;
-    private readonly string $coverageHtmlColorSuccessHigh;
-    private readonly string $coverageHtmlColorWarning;
-    private readonly string $coverageHtmlColorDanger;
-    private readonly ?string $coverageHtmlCustomCssFile;
-    private readonly ?string $coveragePhp;
-    private readonly ?string $coverageText;
-    private readonly bool $coverageTextShowUncoveredFiles;
-    private readonly bool $coverageTextShowOnlySummary;
-    private readonly ?string $coverageXml;
-    private readonly string $testResultCacheFile;
-    private readonly bool $ignoreDeprecatedCodeUnitsFromCodeCoverage;
-    private readonly bool $disableCodeCoverageIgnore;
-    private readonly bool $failOnAllIssues;
-    private readonly bool $failOnDeprecation;
-    private readonly bool $failOnPhpunitDeprecation;
-    private readonly bool $failOnPhpunitWarning;
-    private readonly bool $failOnEmptyTestSuite;
-    private readonly bool $failOnIncomplete;
-    private readonly bool $failOnNotice;
-    private readonly bool $failOnRisky;
-    private readonly bool $failOnSkipped;
-    private readonly bool $failOnWarning;
-    private readonly bool $doNotFailOnDeprecation;
-    private readonly bool $doNotFailOnPhpunitDeprecation;
-    private readonly bool $doNotFailOnPhpunitWarning;
-    private readonly bool $doNotFailOnEmptyTestSuite;
-    private readonly bool $doNotFailOnIncomplete;
-    private readonly bool $doNotFailOnNotice;
-    private readonly bool $doNotFailOnRisky;
-    private readonly bool $doNotFailOnSkipped;
-    private readonly bool $doNotFailOnWarning;
-    private readonly bool $stopOnDefect;
-    private readonly bool $stopOnDeprecation;
-    private readonly bool $stopOnError;
-    private readonly bool $stopOnFailure;
-    private readonly bool $stopOnIncomplete;
-    private readonly bool $stopOnNotice;
-    private readonly bool $stopOnRisky;
-    private readonly bool $stopOnSkipped;
-    private readonly bool $stopOnWarning;
-    private readonly bool $outputToStandardErrorStream;
-    private readonly int $columns;
-    private readonly bool $noExtensions;
+    private array $cliArguments;
+    private ?string $configurationFile;
+    private ?string $bootstrap;
+    private bool $cacheResult;
+    private ?string $cacheDirectory;
+    private ?string $coverageCacheDirectory;
+    private Source $source;
+    private bool $pathCoverage;
+    private ?string $coverageClover;
+    private ?string $coverageCobertura;
+    private ?string $coverageCrap4j;
+    private int $coverageCrap4jThreshold;
+    private ?string $coverageHtml;
+    private int $coverageHtmlLowUpperBound;
+    private int $coverageHtmlHighLowerBound;
+    private string $coverageHtmlColorSuccessLow;
+    private string $coverageHtmlColorSuccessMedium;
+    private string $coverageHtmlColorSuccessHigh;
+    private string $coverageHtmlColorWarning;
+    private string $coverageHtmlColorDanger;
+    private ?string $coverageHtmlCustomCssFile;
+    private ?string $coveragePhp;
+    private ?string $coverageText;
+    private bool $coverageTextShowUncoveredFiles;
+    private bool $coverageTextShowOnlySummary;
+    private ?string $coverageXml;
+    private string $testResultCacheFile;
+    private bool $ignoreDeprecatedCodeUnitsFromCodeCoverage;
+    private bool $disableCodeCoverageIgnore;
+    private bool $failOnAllIssues;
+    private bool $failOnDeprecation;
+    private bool $failOnPhpunitDeprecation;
+    private bool $failOnPhpunitWarning;
+    private bool $failOnEmptyTestSuite;
+    private bool $failOnIncomplete;
+    private bool $failOnNotice;
+    private bool $failOnRisky;
+    private bool $failOnSkipped;
+    private bool $failOnWarning;
+    private bool $doNotFailOnDeprecation;
+    private bool $doNotFailOnPhpunitDeprecation;
+    private bool $doNotFailOnPhpunitWarning;
+    private bool $doNotFailOnEmptyTestSuite;
+    private bool $doNotFailOnIncomplete;
+    private bool $doNotFailOnNotice;
+    private bool $doNotFailOnRisky;
+    private bool $doNotFailOnSkipped;
+    private bool $doNotFailOnWarning;
+    private bool $stopOnDefect;
+    private bool $stopOnDeprecation;
+    private ?string $specificDeprecationToStopOn;
+    private bool $stopOnError;
+    private bool $stopOnFailure;
+    private bool $stopOnIncomplete;
+    private bool $stopOnNotice;
+    private bool $stopOnRisky;
+    private bool $stopOnSkipped;
+    private bool $stopOnWarning;
+    private bool $outputToStandardErrorStream;
+    private int $columns;
+    private bool $noExtensions;
 
     /**
-     * @psalm-var ?non-empty-string
+     * @var ?non-empty-string
      */
-    private readonly ?string $pharExtensionDirectory;
+    private ?string $pharExtensionDirectory;
 
     /**
-     * @psalm-var list<array{className: class-string, parameters: array<string, string>}>
+     * @var list<array{className: non-empty-string, parameters: array<string, string>}>
      */
-    private readonly array $extensionBootstrappers;
-    private readonly bool $backupGlobals;
-    private readonly bool $backupStaticProperties;
-    private readonly bool $beStrictAboutChangesToGlobalState;
-    private readonly bool $colors;
-    private readonly bool $processIsolation;
-    private readonly bool $enforceTimeLimit;
-    private readonly int $defaultTimeLimit;
-    private readonly int $timeoutForSmallTests;
-    private readonly int $timeoutForMediumTests;
-    private readonly int $timeoutForLargeTests;
-    private readonly bool $reportUselessTests;
-    private readonly bool $strictCoverage;
-    private readonly bool $disallowTestOutput;
-    private readonly bool $displayDetailsOnAllIssues;
-    private readonly bool $displayDetailsOnIncompleteTests;
-    private readonly bool $displayDetailsOnSkippedTests;
-    private readonly bool $displayDetailsOnTestsThatTriggerDeprecations;
-    private readonly bool $displayDetailsOnPhpunitDeprecations;
-    private readonly bool $displayDetailsOnTestsThatTriggerErrors;
-    private readonly bool $displayDetailsOnTestsThatTriggerNotices;
-    private readonly bool $displayDetailsOnTestsThatTriggerWarnings;
-    private readonly bool $reverseDefectList;
-    private readonly bool $requireCoverageMetadata;
-    private readonly bool $registerMockObjectsFromTestArgumentsRecursively;
-    private readonly bool $noProgress;
-    private readonly bool $noResults;
-    private readonly bool $noOutput;
-    private readonly int $executionOrder;
-    private readonly int $executionOrderDefects;
-    private readonly bool $resolveDependencies;
-    private readonly ?string $logfileTeamcity;
-    private readonly ?string $logfileJunit;
-    private readonly ?string $logfileTestdoxHtml;
-    private readonly ?string $logfileTestdoxText;
-    private readonly ?string $logEventsText;
-    private readonly ?string $logEventsVerboseText;
-    private readonly ?array $testsCovering;
-    private readonly ?array $testsUsing;
-    private readonly bool $teamCityOutput;
-    private readonly bool $testDoxOutput;
-    private readonly ?string $filter;
-    private readonly ?array $groups;
-    private readonly ?array $excludeGroups;
-    private readonly int $randomOrderSeed;
-    private readonly bool $includeUncoveredFiles;
-    private readonly TestSuiteCollection $testSuite;
-    private readonly string $includeTestSuite;
-    private readonly string $excludeTestSuite;
-    private readonly ?string $defaultTestSuite;
+    private array $extensionBootstrappers;
+    private bool $backupGlobals;
+    private bool $backupStaticProperties;
+    private bool $beStrictAboutChangesToGlobalState;
+    private bool $colors;
+    private bool $processIsolation;
+    private bool $enforceTimeLimit;
+    private int $defaultTimeLimit;
+    private int $timeoutForSmallTests;
+    private int $timeoutForMediumTests;
+    private int $timeoutForLargeTests;
+    private bool $reportUselessTests;
+    private bool $strictCoverage;
+    private bool $disallowTestOutput;
+    private bool $displayDetailsOnAllIssues;
+    private bool $displayDetailsOnIncompleteTests;
+    private bool $displayDetailsOnSkippedTests;
+    private bool $displayDetailsOnTestsThatTriggerDeprecations;
+    private bool $displayDetailsOnPhpunitDeprecations;
+    private bool $displayDetailsOnTestsThatTriggerErrors;
+    private bool $displayDetailsOnTestsThatTriggerNotices;
+    private bool $displayDetailsOnTestsThatTriggerWarnings;
+    private bool $reverseDefectList;
+    private bool $requireCoverageMetadata;
+    private bool $noProgress;
+    private bool $noResults;
+    private bool $noOutput;
+    private int $executionOrder;
+    private int $executionOrderDefects;
+    private bool $resolveDependencies;
+    private ?string $logfileTeamcity;
+    private ?string $logfileJunit;
+    private ?string $logfileTestdoxHtml;
+    private ?string $logfileTestdoxText;
+    private ?string $logEventsText;
+    private ?string $logEventsVerboseText;
 
     /**
-     * @psalm-var non-empty-list<non-empty-string>
+     * @var ?non-empty-list<non-empty-string>
      */
-    private readonly array $testSuffixes;
-    private readonly Php $php;
-    private readonly bool $controlGarbageCollector;
-    private readonly int $numberOfTestsBeforeGarbageCollection;
-    private readonly ?string $generateBaseline;
-    private readonly bool $debug;
+    private ?array $testsCovering;
 
     /**
-     * @psalm-param list<non-empty-string> $cliArguments
-     * @psalm-param ?non-empty-string $pharExtensionDirectory
-     * @psalm-param non-empty-list<non-empty-string> $testSuffixes
-     * @psalm-param list<array{className: class-string, parameters: array<string, string>}> $extensionBootstrappers
+     * @var ?non-empty-list<non-empty-string>
      */
-    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $doNotFailOnDeprecation, bool $doNotFailOnPhpunitDeprecation, bool $doNotFailOnPhpunitWarning, bool $doNotFailOnEmptyTestSuite, bool $doNotFailOnIncomplete, bool $doNotFailOnNotice, bool $doNotFailOnRisky, bool $doNotFailOnSkipped, bool $doNotFailOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int|string $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $registerMockObjectsFromTestArgumentsRecursively, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, ?array $testsCovering, ?array $testsUsing, ?string $filter, ?array $groups, ?array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug)
+    private ?array $testsUsing;
+
+    /**
+     * @var ?non-empty-list<non-empty-string>
+     */
+    private ?array $testsRequiringPhpExtension;
+    private bool $teamCityOutput;
+    private bool $testDoxOutput;
+    private bool $testDoxOutputSummary;
+    private ?string $filter;
+    private ?string $excludeFilter;
+
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $groups;
+
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $excludeGroups;
+    private int $randomOrderSeed;
+    private bool $includeUncoveredFiles;
+    private TestSuiteCollection $testSuite;
+    private string $includeTestSuite;
+    private string $excludeTestSuite;
+    private ?string $defaultTestSuite;
+
+    /**
+     * @var non-empty-list<non-empty-string>
+     */
+    private array $testSuffixes;
+    private Php $php;
+    private bool $controlGarbageCollector;
+    private int $numberOfTestsBeforeGarbageCollection;
+    private ?string $generateBaseline;
+    private bool $debug;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $shortenArraysForExportThreshold;
+
+    /**
+     * @param list<non-empty-string>                                                      $cliArguments
+     * @param ?non-empty-string                                                           $pharExtensionDirectory
+     * @param list<array{className: non-empty-string, parameters: array<string, string>}> $extensionBootstrappers
+     * @param ?non-empty-list<non-empty-string>                                           $testsCovering
+     * @param ?non-empty-list<non-empty-string>                                           $testsUsing
+     * @param ?non-empty-list<non-empty-string>                                           $testsRequiringPhpExtension
+     * @param list<non-empty-string>                                                      $groups
+     * @param list<non-empty-string>                                                      $excludeGroups
+     * @param non-empty-list<non-empty-string>                                            $testSuffixes
+     * @param non-negative-int                                                            $shortenArraysForExportThreshold
+     */
+    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $doNotFailOnDeprecation, bool $doNotFailOnPhpunitDeprecation, bool $doNotFailOnPhpunitWarning, bool $doNotFailOnEmptyTestSuite, bool $doNotFailOnIncomplete, bool $doNotFailOnNotice, bool $doNotFailOnRisky, bool $doNotFailOnSkipped, bool $doNotFailOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int|string $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, int $shortenArraysForExportThreshold)
     {
-        $this->cliArguments                                    = $cliArguments;
-        $this->configurationFile                               = $configurationFile;
-        $this->bootstrap                                       = $bootstrap;
-        $this->cacheResult                                     = $cacheResult;
-        $this->cacheDirectory                                  = $cacheDirectory;
-        $this->coverageCacheDirectory                          = $coverageCacheDirectory;
-        $this->source                                          = $source;
-        $this->testResultCacheFile                             = $testResultCacheFile;
-        $this->coverageClover                                  = $coverageClover;
-        $this->coverageCobertura                               = $coverageCobertura;
-        $this->coverageCrap4j                                  = $coverageCrap4j;
-        $this->coverageCrap4jThreshold                         = $coverageCrap4jThreshold;
-        $this->coverageHtml                                    = $coverageHtml;
-        $this->coverageHtmlLowUpperBound                       = $coverageHtmlLowUpperBound;
-        $this->coverageHtmlHighLowerBound                      = $coverageHtmlHighLowerBound;
-        $this->coverageHtmlColorSuccessLow                     = $coverageHtmlColorSuccessLow;
-        $this->coverageHtmlColorSuccessMedium                  = $coverageHtmlColorSuccessMedium;
-        $this->coverageHtmlColorSuccessHigh                    = $coverageHtmlColorSuccessHigh;
-        $this->coverageHtmlColorWarning                        = $coverageHtmlColorWarning;
-        $this->coverageHtmlColorDanger                         = $coverageHtmlColorDanger;
-        $this->coverageHtmlCustomCssFile                       = $coverageHtmlCustomCssFile;
-        $this->coveragePhp                                     = $coveragePhp;
-        $this->coverageText                                    = $coverageText;
-        $this->coverageTextShowUncoveredFiles                  = $coverageTextShowUncoveredFiles;
-        $this->coverageTextShowOnlySummary                     = $coverageTextShowOnlySummary;
-        $this->coverageXml                                     = $coverageXml;
-        $this->pathCoverage                                    = $pathCoverage;
-        $this->ignoreDeprecatedCodeUnitsFromCodeCoverage       = $ignoreDeprecatedCodeUnitsFromCodeCoverage;
-        $this->disableCodeCoverageIgnore                       = $disableCodeCoverageIgnore;
-        $this->failOnAllIssues                                 = $failOnAllIssues;
-        $this->failOnDeprecation                               = $failOnDeprecation;
-        $this->failOnPhpunitDeprecation                        = $failOnPhpunitDeprecation;
-        $this->failOnPhpunitWarning                            = $failOnPhpunitWarning;
-        $this->failOnEmptyTestSuite                            = $failOnEmptyTestSuite;
-        $this->failOnIncomplete                                = $failOnIncomplete;
-        $this->failOnNotice                                    = $failOnNotice;
-        $this->failOnRisky                                     = $failOnRisky;
-        $this->failOnSkipped                                   = $failOnSkipped;
-        $this->failOnWarning                                   = $failOnWarning;
-        $this->doNotFailOnDeprecation                          = $doNotFailOnDeprecation;
-        $this->doNotFailOnPhpunitDeprecation                   = $doNotFailOnPhpunitDeprecation;
-        $this->doNotFailOnPhpunitWarning                       = $doNotFailOnPhpunitWarning;
-        $this->doNotFailOnEmptyTestSuite                       = $doNotFailOnEmptyTestSuite;
-        $this->doNotFailOnIncomplete                           = $doNotFailOnIncomplete;
-        $this->doNotFailOnNotice                               = $doNotFailOnNotice;
-        $this->doNotFailOnRisky                                = $doNotFailOnRisky;
-        $this->doNotFailOnSkipped                              = $doNotFailOnSkipped;
-        $this->doNotFailOnWarning                              = $doNotFailOnWarning;
-        $this->stopOnDefect                                    = $stopOnDefect;
-        $this->stopOnDeprecation                               = $stopOnDeprecation;
-        $this->stopOnError                                     = $stopOnError;
-        $this->stopOnFailure                                   = $stopOnFailure;
-        $this->stopOnIncomplete                                = $stopOnIncomplete;
-        $this->stopOnNotice                                    = $stopOnNotice;
-        $this->stopOnRisky                                     = $stopOnRisky;
-        $this->stopOnSkipped                                   = $stopOnSkipped;
-        $this->stopOnWarning                                   = $stopOnWarning;
-        $this->outputToStandardErrorStream                     = $outputToStandardErrorStream;
-        $this->columns                                         = $columns;
-        $this->noExtensions                                    = $noExtensions;
-        $this->pharExtensionDirectory                          = $pharExtensionDirectory;
-        $this->extensionBootstrappers                          = $extensionBootstrappers;
-        $this->backupGlobals                                   = $backupGlobals;
-        $this->backupStaticProperties                          = $backupStaticProperties;
-        $this->beStrictAboutChangesToGlobalState               = $beStrictAboutChangesToGlobalState;
-        $this->colors                                          = $colors;
-        $this->processIsolation                                = $processIsolation;
-        $this->enforceTimeLimit                                = $enforceTimeLimit;
-        $this->defaultTimeLimit                                = $defaultTimeLimit;
-        $this->timeoutForSmallTests                            = $timeoutForSmallTests;
-        $this->timeoutForMediumTests                           = $timeoutForMediumTests;
-        $this->timeoutForLargeTests                            = $timeoutForLargeTests;
-        $this->reportUselessTests                              = $reportUselessTests;
-        $this->strictCoverage                                  = $strictCoverage;
-        $this->disallowTestOutput                              = $disallowTestOutput;
-        $this->displayDetailsOnAllIssues                       = $displayDetailsOnAllIssues;
-        $this->displayDetailsOnIncompleteTests                 = $displayDetailsOnIncompleteTests;
-        $this->displayDetailsOnSkippedTests                    = $displayDetailsOnSkippedTests;
-        $this->displayDetailsOnTestsThatTriggerDeprecations    = $displayDetailsOnTestsThatTriggerDeprecations;
-        $this->displayDetailsOnPhpunitDeprecations             = $displayDetailsOnPhpunitDeprecations;
-        $this->displayDetailsOnTestsThatTriggerErrors          = $displayDetailsOnTestsThatTriggerErrors;
-        $this->displayDetailsOnTestsThatTriggerNotices         = $displayDetailsOnTestsThatTriggerNotices;
-        $this->displayDetailsOnTestsThatTriggerWarnings        = $displayDetailsOnTestsThatTriggerWarnings;
-        $this->reverseDefectList                               = $reverseDefectList;
-        $this->requireCoverageMetadata                         = $requireCoverageMetadata;
-        $this->registerMockObjectsFromTestArgumentsRecursively = $registerMockObjectsFromTestArgumentsRecursively;
-        $this->noProgress                                      = $noProgress;
-        $this->noResults                                       = $noResults;
-        $this->noOutput                                        = $noOutput;
-        $this->executionOrder                                  = $executionOrder;
-        $this->executionOrderDefects                           = $executionOrderDefects;
-        $this->resolveDependencies                             = $resolveDependencies;
-        $this->logfileTeamcity                                 = $logfileTeamcity;
-        $this->logfileJunit                                    = $logfileJunit;
-        $this->logfileTestdoxHtml                              = $logfileTestdoxHtml;
-        $this->logfileTestdoxText                              = $logfileTestdoxText;
-        $this->logEventsText                                   = $logEventsText;
-        $this->logEventsVerboseText                            = $logEventsVerboseText;
-        $this->teamCityOutput                                  = $teamCityOutput;
-        $this->testDoxOutput                                   = $testDoxOutput;
-        $this->testsCovering                                   = $testsCovering;
-        $this->testsUsing                                      = $testsUsing;
-        $this->filter                                          = $filter;
-        $this->groups                                          = $groups;
-        $this->excludeGroups                                   = $excludeGroups;
-        $this->randomOrderSeed                                 = $randomOrderSeed;
-        $this->includeUncoveredFiles                           = $includeUncoveredFiles;
-        $this->testSuite                                       = $testSuite;
-        $this->includeTestSuite                                = $includeTestSuite;
-        $this->excludeTestSuite                                = $excludeTestSuite;
-        $this->defaultTestSuite                                = $defaultTestSuite;
-        $this->testSuffixes                                    = $testSuffixes;
-        $this->php                                             = $php;
-        $this->controlGarbageCollector                         = $controlGarbageCollector;
-        $this->numberOfTestsBeforeGarbageCollection            = $numberOfTestsBeforeGarbageCollection;
-        $this->generateBaseline                                = $generateBaseline;
-        $this->debug                                           = $debug;
+        $this->cliArguments                                 = $cliArguments;
+        $this->configurationFile                            = $configurationFile;
+        $this->bootstrap                                    = $bootstrap;
+        $this->cacheResult                                  = $cacheResult;
+        $this->cacheDirectory                               = $cacheDirectory;
+        $this->coverageCacheDirectory                       = $coverageCacheDirectory;
+        $this->source                                       = $source;
+        $this->testResultCacheFile                          = $testResultCacheFile;
+        $this->coverageClover                               = $coverageClover;
+        $this->coverageCobertura                            = $coverageCobertura;
+        $this->coverageCrap4j                               = $coverageCrap4j;
+        $this->coverageCrap4jThreshold                      = $coverageCrap4jThreshold;
+        $this->coverageHtml                                 = $coverageHtml;
+        $this->coverageHtmlLowUpperBound                    = $coverageHtmlLowUpperBound;
+        $this->coverageHtmlHighLowerBound                   = $coverageHtmlHighLowerBound;
+        $this->coverageHtmlColorSuccessLow                  = $coverageHtmlColorSuccessLow;
+        $this->coverageHtmlColorSuccessMedium               = $coverageHtmlColorSuccessMedium;
+        $this->coverageHtmlColorSuccessHigh                 = $coverageHtmlColorSuccessHigh;
+        $this->coverageHtmlColorWarning                     = $coverageHtmlColorWarning;
+        $this->coverageHtmlColorDanger                      = $coverageHtmlColorDanger;
+        $this->coverageHtmlCustomCssFile                    = $coverageHtmlCustomCssFile;
+        $this->coveragePhp                                  = $coveragePhp;
+        $this->coverageText                                 = $coverageText;
+        $this->coverageTextShowUncoveredFiles               = $coverageTextShowUncoveredFiles;
+        $this->coverageTextShowOnlySummary                  = $coverageTextShowOnlySummary;
+        $this->coverageXml                                  = $coverageXml;
+        $this->pathCoverage                                 = $pathCoverage;
+        $this->ignoreDeprecatedCodeUnitsFromCodeCoverage    = $ignoreDeprecatedCodeUnitsFromCodeCoverage;
+        $this->disableCodeCoverageIgnore                    = $disableCodeCoverageIgnore;
+        $this->failOnAllIssues                              = $failOnAllIssues;
+        $this->failOnDeprecation                            = $failOnDeprecation;
+        $this->failOnPhpunitDeprecation                     = $failOnPhpunitDeprecation;
+        $this->failOnPhpunitWarning                         = $failOnPhpunitWarning;
+        $this->failOnEmptyTestSuite                         = $failOnEmptyTestSuite;
+        $this->failOnIncomplete                             = $failOnIncomplete;
+        $this->failOnNotice                                 = $failOnNotice;
+        $this->failOnRisky                                  = $failOnRisky;
+        $this->failOnSkipped                                = $failOnSkipped;
+        $this->failOnWarning                                = $failOnWarning;
+        $this->doNotFailOnDeprecation                       = $doNotFailOnDeprecation;
+        $this->doNotFailOnPhpunitDeprecation                = $doNotFailOnPhpunitDeprecation;
+        $this->doNotFailOnPhpunitWarning                    = $doNotFailOnPhpunitWarning;
+        $this->doNotFailOnEmptyTestSuite                    = $doNotFailOnEmptyTestSuite;
+        $this->doNotFailOnIncomplete                        = $doNotFailOnIncomplete;
+        $this->doNotFailOnNotice                            = $doNotFailOnNotice;
+        $this->doNotFailOnRisky                             = $doNotFailOnRisky;
+        $this->doNotFailOnSkipped                           = $doNotFailOnSkipped;
+        $this->doNotFailOnWarning                           = $doNotFailOnWarning;
+        $this->stopOnDefect                                 = $stopOnDefect;
+        $this->stopOnDeprecation                            = $stopOnDeprecation;
+        $this->specificDeprecationToStopOn                  = $specificDeprecationToStopOn;
+        $this->stopOnError                                  = $stopOnError;
+        $this->stopOnFailure                                = $stopOnFailure;
+        $this->stopOnIncomplete                             = $stopOnIncomplete;
+        $this->stopOnNotice                                 = $stopOnNotice;
+        $this->stopOnRisky                                  = $stopOnRisky;
+        $this->stopOnSkipped                                = $stopOnSkipped;
+        $this->stopOnWarning                                = $stopOnWarning;
+        $this->outputToStandardErrorStream                  = $outputToStandardErrorStream;
+        $this->columns                                      = $columns;
+        $this->noExtensions                                 = $noExtensions;
+        $this->pharExtensionDirectory                       = $pharExtensionDirectory;
+        $this->extensionBootstrappers                       = $extensionBootstrappers;
+        $this->backupGlobals                                = $backupGlobals;
+        $this->backupStaticProperties                       = $backupStaticProperties;
+        $this->beStrictAboutChangesToGlobalState            = $beStrictAboutChangesToGlobalState;
+        $this->colors                                       = $colors;
+        $this->processIsolation                             = $processIsolation;
+        $this->enforceTimeLimit                             = $enforceTimeLimit;
+        $this->defaultTimeLimit                             = $defaultTimeLimit;
+        $this->timeoutForSmallTests                         = $timeoutForSmallTests;
+        $this->timeoutForMediumTests                        = $timeoutForMediumTests;
+        $this->timeoutForLargeTests                         = $timeoutForLargeTests;
+        $this->reportUselessTests                           = $reportUselessTests;
+        $this->strictCoverage                               = $strictCoverage;
+        $this->disallowTestOutput                           = $disallowTestOutput;
+        $this->displayDetailsOnAllIssues                    = $displayDetailsOnAllIssues;
+        $this->displayDetailsOnIncompleteTests              = $displayDetailsOnIncompleteTests;
+        $this->displayDetailsOnSkippedTests                 = $displayDetailsOnSkippedTests;
+        $this->displayDetailsOnTestsThatTriggerDeprecations = $displayDetailsOnTestsThatTriggerDeprecations;
+        $this->displayDetailsOnPhpunitDeprecations          = $displayDetailsOnPhpunitDeprecations;
+        $this->displayDetailsOnTestsThatTriggerErrors       = $displayDetailsOnTestsThatTriggerErrors;
+        $this->displayDetailsOnTestsThatTriggerNotices      = $displayDetailsOnTestsThatTriggerNotices;
+        $this->displayDetailsOnTestsThatTriggerWarnings     = $displayDetailsOnTestsThatTriggerWarnings;
+        $this->reverseDefectList                            = $reverseDefectList;
+        $this->requireCoverageMetadata                      = $requireCoverageMetadata;
+        $this->noProgress                                   = $noProgress;
+        $this->noResults                                    = $noResults;
+        $this->noOutput                                     = $noOutput;
+        $this->executionOrder                               = $executionOrder;
+        $this->executionOrderDefects                        = $executionOrderDefects;
+        $this->resolveDependencies                          = $resolveDependencies;
+        $this->logfileTeamcity                              = $logfileTeamcity;
+        $this->logfileJunit                                 = $logfileJunit;
+        $this->logfileTestdoxHtml                           = $logfileTestdoxHtml;
+        $this->logfileTestdoxText                           = $logfileTestdoxText;
+        $this->logEventsText                                = $logEventsText;
+        $this->logEventsVerboseText                         = $logEventsVerboseText;
+        $this->teamCityOutput                               = $teamCityOutput;
+        $this->testDoxOutput                                = $testDoxOutput;
+        $this->testDoxOutputSummary                         = $testDoxOutputSummary;
+        $this->testsCovering                                = $testsCovering;
+        $this->testsUsing                                   = $testsUsing;
+        $this->testsRequiringPhpExtension                   = $testsRequiringPhpExtension;
+        $this->filter                                       = $filter;
+        $this->excludeFilter                                = $excludeFilter;
+        $this->groups                                       = $groups;
+        $this->excludeGroups                                = $excludeGroups;
+        $this->randomOrderSeed                              = $randomOrderSeed;
+        $this->includeUncoveredFiles                        = $includeUncoveredFiles;
+        $this->testSuite                                    = $testSuite;
+        $this->includeTestSuite                             = $includeTestSuite;
+        $this->excludeTestSuite                             = $excludeTestSuite;
+        $this->defaultTestSuite                             = $defaultTestSuite;
+        $this->testSuffixes                                 = $testSuffixes;
+        $this->php                                          = $php;
+        $this->controlGarbageCollector                      = $controlGarbageCollector;
+        $this->numberOfTestsBeforeGarbageCollection         = $numberOfTestsBeforeGarbageCollection;
+        $this->generateBaseline                             = $generateBaseline;
+        $this->debug                                        = $debug;
+        $this->shortenArraysForExportThreshold              = $shortenArraysForExportThreshold;
     }
 
     /**
-     * @psalm-assert-if-true !empty $this->cliArguments
+     * @phpstan-assert-if-true !empty $this->cliArguments
      */
     public function hasCliArguments(): bool
     {
@@ -290,7 +328,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-return list<non-empty-string>
+     * @return list<non-empty-string>
      */
     public function cliArguments(): array
     {
@@ -298,33 +336,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !empty $this->cliArguments
-     *
-     * @deprecated Use hasCliArguments() instead
-     */
-    public function hasCliArgument(): bool
-    {
-        return !empty($this->cliArguments);
-    }
-
-    /**
-     * @throws NoCliArgumentException
-     *
-     * @return non-empty-string
-     *
-     * @deprecated Use cliArguments()[0] instead
-     */
-    public function cliArgument(): string
-    {
-        if (!$this->hasCliArguments()) {
-            throw new NoCliArgumentException;
-        }
-
-        return $this->cliArguments[0];
-    }
-
-    /**
-     * @psalm-assert-if-true !null $this->configurationFile
+     * @phpstan-assert-if-true !null $this->configurationFile
      */
     public function hasConfigurationFile(): bool
     {
@@ -344,7 +356,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->bootstrap
+     * @phpstan-assert-if-true !null $this->bootstrap
      */
     public function hasBootstrap(): bool
     {
@@ -369,7 +381,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->cacheDirectory
+     * @phpstan-assert-if-true !null $this->cacheDirectory
      */
     public function hasCacheDirectory(): bool
     {
@@ -389,7 +401,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageCacheDirectory
+     * @phpstan-assert-if-true !null $this->coverageCacheDirectory
      */
     public function hasCoverageCacheDirectory(): bool
     {
@@ -411,70 +423,6 @@ final class Configuration
     public function source(): Source
     {
         return $this->source;
-    }
-
-    /**
-     * @deprecated Use source()->restrictDeprecations() instead
-     */
-    public function restrictDeprecations(): bool
-    {
-        return $this->source()->restrictDeprecations();
-    }
-
-    /**
-     * @deprecated Use source()->restrictNotices() instead
-     */
-    public function restrictNotices(): bool
-    {
-        return $this->source()->restrictNotices();
-    }
-
-    /**
-     * @deprecated Use source()->restrictWarnings() instead
-     */
-    public function restrictWarnings(): bool
-    {
-        return $this->source()->restrictWarnings();
-    }
-
-    /**
-     * @deprecated Use source()->notEmpty() instead
-     */
-    public function hasNonEmptyListOfFilesToBeIncludedInCodeCoverageReport(): bool
-    {
-        return $this->source->notEmpty();
-    }
-
-    /**
-     * @deprecated Use source()->includeDirectories() instead
-     */
-    public function coverageIncludeDirectories(): FilterDirectoryCollection
-    {
-        return $this->source()->includeDirectories();
-    }
-
-    /**
-     * @deprecated Use source()->includeFiles() instead
-     */
-    public function coverageIncludeFiles(): FileCollection
-    {
-        return $this->source()->includeFiles();
-    }
-
-    /**
-     * @deprecated Use source()->excludeDirectories() instead
-     */
-    public function coverageExcludeDirectories(): FilterDirectoryCollection
-    {
-        return $this->source()->excludeDirectories();
-    }
-
-    /**
-     * @deprecated Use source()->excludeFiles() instead
-     */
-    public function coverageExcludeFiles(): FileCollection
-    {
-        return $this->source()->excludeFiles();
     }
 
     public function testResultCacheFile(): string
@@ -500,16 +448,16 @@ final class Configuration
     public function hasCoverageReport(): bool
     {
         return $this->hasCoverageClover() ||
-               $this->hasCoverageCobertura() ||
-               $this->hasCoverageCrap4j() ||
-               $this->hasCoverageHtml() ||
-               $this->hasCoveragePhp() ||
-               $this->hasCoverageText() ||
-               $this->hasCoverageXml();
+            $this->hasCoverageCobertura() ||
+            $this->hasCoverageCrap4j() ||
+            $this->hasCoverageHtml() ||
+            $this->hasCoveragePhp() ||
+            $this->hasCoverageText() ||
+            $this->hasCoverageXml();
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageClover
+     * @phpstan-assert-if-true !null $this->coverageClover
      */
     public function hasCoverageClover(): bool
     {
@@ -529,7 +477,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageCobertura
+     * @phpstan-assert-if-true !null $this->coverageCobertura
      */
     public function hasCoverageCobertura(): bool
     {
@@ -549,7 +497,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageCrap4j
+     * @phpstan-assert-if-true !null $this->coverageCrap4j
      */
     public function hasCoverageCrap4j(): bool
     {
@@ -574,7 +522,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageHtml
+     * @phpstan-assert-if-true !null $this->coverageHtml
      */
     public function hasCoverageHtml(): bool
     {
@@ -629,7 +577,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageHtmlCustomCssFile
+     * @phpstan-assert-if-true !null $this->coverageHtmlCustomCssFile
      */
     public function hasCoverageHtmlCustomCssFile(): bool
     {
@@ -649,7 +597,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coveragePhp
+     * @phpstan-assert-if-true !null $this->coveragePhp
      */
     public function hasCoveragePhp(): bool
     {
@@ -669,7 +617,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageText
+     * @phpstan-assert-if-true !null $this->coverageText
      */
     public function hasCoverageText(): bool
     {
@@ -699,7 +647,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->coverageXml
+     * @phpstan-assert-if-true !null $this->coverageXml
      */
     public function hasCoverageXml(): bool
     {
@@ -823,6 +771,26 @@ final class Configuration
         return $this->stopOnDeprecation;
     }
 
+    /**
+     * @phpstan-assert-if-true !null $this->specificDeprecationToStopOn
+     */
+    public function hasSpecificDeprecationToStopOn(): bool
+    {
+        return $this->specificDeprecationToStopOn !== null;
+    }
+
+    /**
+     * @throws SpecificDeprecationToStopOnNotConfiguredException
+     */
+    public function specificDeprecationToStopOn(): string
+    {
+        if (!$this->hasSpecificDeprecationToStopOn()) {
+            throw new SpecificDeprecationToStopOnNotConfiguredException;
+        }
+
+        return $this->specificDeprecationToStopOn;
+    }
+
     public function stopOnError(): bool
     {
         return $this->stopOnError;
@@ -868,21 +836,13 @@ final class Configuration
         return $this->columns;
     }
 
-    /**
-     * @deprecated Use noExtensions() instead
-     */
-    public function loadPharExtensions(): bool
-    {
-        return $this->noExtensions;
-    }
-
     public function noExtensions(): bool
     {
         return $this->noExtensions;
     }
 
     /**
-     * @psalm-assert-if-true !null $this->pharExtensionDirectory
+     * @phpstan-assert-if-true !null $this->pharExtensionDirectory
      */
     public function hasPharExtensionDirectory(): bool
     {
@@ -892,7 +852,7 @@ final class Configuration
     /**
      * @throws NoPharExtensionDirectoryException
      *
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function pharExtensionDirectory(): string
     {
@@ -904,7 +864,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-return list<array{className: class-string, parameters: array<string, string>}>
+     * @return list<array{className: non-empty-string, parameters: array<string, string>}>
      */
     public function extensionBootstrappers(): array
     {
@@ -1026,14 +986,6 @@ final class Configuration
         return $this->requireCoverageMetadata;
     }
 
-    /**
-     * @deprecated
-     */
-    public function registerMockObjectsFromTestArgumentsRecursively(): bool
-    {
-        return $this->registerMockObjectsFromTestArgumentsRecursively;
-    }
-
     public function noProgress(): bool
     {
         return $this->noProgress;
@@ -1065,7 +1017,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logfileTeamcity
+     * @phpstan-assert-if-true !null $this->logfileTeamcity
      */
     public function hasLogfileTeamcity(): bool
     {
@@ -1085,7 +1037,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logfileJunit
+     * @phpstan-assert-if-true !null $this->logfileJunit
      */
     public function hasLogfileJunit(): bool
     {
@@ -1105,7 +1057,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logfileTestdoxHtml
+     * @phpstan-assert-if-true !null $this->logfileTestdoxHtml
      */
     public function hasLogfileTestdoxHtml(): bool
     {
@@ -1125,7 +1077,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logfileTestdoxText
+     * @phpstan-assert-if-true !null $this->logfileTestdoxText
      */
     public function hasLogfileTestdoxText(): bool
     {
@@ -1145,7 +1097,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logEventsText
+     * @phpstan-assert-if-true !null $this->logEventsText
      */
     public function hasLogEventsText(): bool
     {
@@ -1165,7 +1117,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->logEventsVerboseText
+     * @phpstan-assert-if-true !null $this->logEventsVerboseText
      */
     public function hasLogEventsVerboseText(): bool
     {
@@ -1194,8 +1146,13 @@ final class Configuration
         return $this->testDoxOutput;
     }
 
+    public function testDoxOutputWithSummary(): bool
+    {
+        return $this->testDoxOutputSummary;
+    }
+
     /**
-     * @psalm-assert-if-true !empty $this->testsCovering
+     * @phpstan-assert-if-true !empty $this->testsCovering
      */
     public function hasTestsCovering(): bool
     {
@@ -1205,7 +1162,7 @@ final class Configuration
     /**
      * @throws FilterNotConfiguredException
      *
-     * @psalm-return list<string>
+     * @return list<string>
      */
     public function testsCovering(): array
     {
@@ -1217,7 +1174,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !empty $this->testsUsing
+     * @phpstan-assert-if-true !empty $this->testsUsing
      */
     public function hasTestsUsing(): bool
     {
@@ -1227,7 +1184,7 @@ final class Configuration
     /**
      * @throws FilterNotConfiguredException
      *
-     * @psalm-return list<string>
+     * @return list<string>
      */
     public function testsUsing(): array
     {
@@ -1239,7 +1196,29 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->filter
+     * @phpstan-assert-if-true !empty $this->testsRequiringPhpExtension
+     */
+    public function hasTestsRequiringPhpExtension(): bool
+    {
+        return !empty($this->testsRequiringPhpExtension);
+    }
+
+    /**
+     * @throws FilterNotConfiguredException
+     *
+     * @return non-empty-list<non-empty-string>
+     */
+    public function testsRequiringPhpExtension(): array
+    {
+        if (!$this->hasTestsRequiringPhpExtension()) {
+            throw new FilterNotConfiguredException;
+        }
+
+        return $this->testsRequiringPhpExtension;
+    }
+
+    /**
+     * @phpstan-assert-if-true !null $this->filter
      */
     public function hasFilter(): bool
     {
@@ -1259,7 +1238,27 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !empty $this->groups
+     * @phpstan-assert-if-true !null $this->excludeFilter
+     */
+    public function hasExcludeFilter(): bool
+    {
+        return $this->excludeFilter !== null;
+    }
+
+    /**
+     * @throws FilterNotConfiguredException
+     */
+    public function excludeFilter(): string
+    {
+        if (!$this->hasExcludeFilter()) {
+            throw new FilterNotConfiguredException;
+        }
+
+        return $this->excludeFilter;
+    }
+
+    /**
+     * @phpstan-assert-if-true !empty $this->groups
      */
     public function hasGroups(): bool
     {
@@ -1268,6 +1267,8 @@ final class Configuration
 
     /**
      * @throws FilterNotConfiguredException
+     *
+     * @return non-empty-list<non-empty-string>
      */
     public function groups(): array
     {
@@ -1279,7 +1280,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !empty $this->excludeGroups
+     * @phpstan-assert-if-true !empty $this->excludeGroups
      */
     public function hasExcludeGroups(): bool
     {
@@ -1288,6 +1289,8 @@ final class Configuration
 
     /**
      * @throws FilterNotConfiguredException
+     *
+     * @return non-empty-list<non-empty-string>
      */
     public function excludeGroups(): array
     {
@@ -1324,7 +1327,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->defaultTestSuite
+     * @phpstan-assert-if-true !null $this->defaultTestSuite
      */
     public function hasDefaultTestSuite(): bool
     {
@@ -1344,7 +1347,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-return non-empty-list<non-empty-string>
+     * @return non-empty-list<non-empty-string>
      */
     public function testSuffixes(): array
     {
@@ -1367,7 +1370,7 @@ final class Configuration
     }
 
     /**
-     * @psalm-assert-if-true !null $this->generateBaseline
+     * @phpstan-assert-if-true !null $this->generateBaseline
      */
     public function hasGenerateBaseline(): bool
     {
@@ -1389,5 +1392,13 @@ final class Configuration
     public function debug(): bool
     {
         return $this->debug;
+    }
+
+    /**
+     * @return non-negative-int
+     */
+    public function shortenArraysForExportThreshold(): int
+    {
+        return $this->shortenArraysForExportThreshold;
     }
 }

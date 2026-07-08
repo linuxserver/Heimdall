@@ -9,9 +9,13 @@
  */
 namespace SebastianBergmann\CodeCoverage\Util;
 
+use function dirname;
+use function file_put_contents;
 use function is_dir;
 use function mkdir;
 use function sprintf;
+use function str_contains;
+use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
@@ -32,6 +36,22 @@ final class Filesystem
                     $directory,
                 ),
             );
+        }
+    }
+
+    /**
+     * @param non-empty-string $target
+     *
+     * @throws WriteOperationFailedException
+     */
+    public static function write(string $target, string $buffer): void
+    {
+        if (!str_contains($target, '://')) {
+            self::createDirectory(dirname($target));
+        }
+
+        if (@file_put_contents($target, $buffer) === false) {
+            throw new WriteOperationFailedException($target);
         }
     }
 }

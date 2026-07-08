@@ -10,32 +10,32 @@
 namespace SebastianBergmann\CodeCoverage\Test\TestSize;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 abstract class TestSize
 {
-    public static function unknown(): self
+    public static function unknown(): Unknown
     {
         return new Unknown;
     }
 
-    public static function small(): self
+    public static function small(): Small
     {
         return new Small;
     }
 
-    public static function medium(): self
+    public static function medium(): Medium
     {
         return new Medium;
     }
 
-    public static function large(): self
+    public static function large(): Large
     {
         return new Large;
     }
 
     /**
-     * @psalm-assert-if-true Known $this
+     * @phpstan-assert-if-true Known $this
      */
     public function isKnown(): bool
     {
@@ -43,7 +43,7 @@ abstract class TestSize
     }
 
     /**
-     * @psalm-assert-if-true Unknown $this
+     * @phpstan-assert-if-true Unknown $this
      */
     public function isUnknown(): bool
     {
@@ -51,7 +51,7 @@ abstract class TestSize
     }
 
     /**
-     * @psalm-assert-if-true Small $this
+     * @phpstan-assert-if-true Small $this
      */
     public function isSmall(): bool
     {
@@ -59,7 +59,7 @@ abstract class TestSize
     }
 
     /**
-     * @psalm-assert-if-true Medium $this
+     * @phpstan-assert-if-true Medium $this
      */
     public function isMedium(): bool
     {
@@ -67,7 +67,7 @@ abstract class TestSize
     }
 
     /**
-     * @psalm-assert-if-true Large $this
+     * @phpstan-assert-if-true Large $this
      */
     public function isLarge(): bool
     {

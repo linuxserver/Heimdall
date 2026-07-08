@@ -7,6 +7,23 @@ use Spatie\Html\Elements\Attributes\Autocomplete;
 use Spatie\Html\Elements\Attributes\Name;
 use Spatie\Html\Elements\Attributes\Target;
 
+/**
+ * @method static actionIf(bool $condition, string|null $action)
+ * @method static actionIfNotNull(bool $condition, string|null $action)
+ * @method static actionUnless(bool $condition, string|null $action)
+ * @method static routeIf(bool $condition, string|null $route, mixed $params)
+ * @method static routeIfNotNull(bool $condition, string|null $route, mixed $params)
+ * @method static routeUnless(bool $condition, string|null $route, mixed $params)
+ * @method static methodIf(bool $condition, string|null $method)
+ * @method static methodIfNotNull(bool $condition, string|null $method)
+ * @method static methodUnless(bool $condition, string|null $method)
+ * @method static novalidateIf(bool $condition, bool $novalidate)
+ * @method static novalidateIfNotNull(bool $condition, bool $novalidate)
+ * @method static novalidateUnless(bool $condition, bool $novalidate)
+ * @method static acceptsFilesIf(bool $condition)
+ * @method static acceptsFilesIfNotNull(bool $condition)
+ * @method static acceptsFilesUnless(bool $condition)
+ */
 class Form extends BaseElement
 {
     use Autocomplete;

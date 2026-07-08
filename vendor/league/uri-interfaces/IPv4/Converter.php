@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Uri\IPv4;
 
+use BackedEnum;
 use League\Uri\Exceptions\MissingFeature;
 use League\Uri\FeatureDetection;
 use Stringable;
@@ -21,6 +22,8 @@ use function array_pop;
 use function count;
 use function explode;
 use function extension_loaded;
+use function hexdec;
+use function long2ip;
 use function ltrim;
 use function preg_match;
 use function str_ends_with;
@@ -100,8 +103,12 @@ final class Converter
         };
     }
 
-    public function isIpv4(Stringable|string|null $host): bool
+    public function isIpv4(BackedEnum|Stringable|string|null $host): bool
     {
+        if ($host instanceof BackedEnum) {
+            $host = (string) $host->value;
+        }
+
         if (null === $host) {
             return false;
         }
@@ -125,12 +132,16 @@ final class Converter
         }
 
         $hexParts = explode(':', substr($ipAddress, 5, 9));
+        if (count($hexParts) < 2) {
+            return false;
+        }
 
-        return count($hexParts) > 1
-            && false !== long2ip((int) hexdec($hexParts[0]) * 65536 + (int) hexdec($hexParts[1]));
+        $ipAddress = long2ip((int) hexdec($hexParts[0]) * 65536 + (int) hexdec($hexParts[1]));
+
+        return '' !== ''.$ipAddress;
     }
 
-    public function toIPv6Using6to4(Stringable|string|null $host): ?string
+    public function toIPv6Using6to4(BackedEnum|Stringable|string|null $host): ?string
     {
         $host = $this->toDecimal($host);
         if (null === $host) {
@@ -146,7 +157,7 @@ final class Converter
         return '['.self::IPV6_6TO4_PREFIX.$parts[0].$parts[1].':'.$parts[2].$parts[3].'::]';
     }
 
-    public function toIPv6UsingMapping(Stringable|string|null $host): ?string
+    public function toIPv6UsingMapping(BackedEnum|Stringable|string|null $host): ?string
     {
         $host = $this->toDecimal($host);
         if (null === $host) {
@@ -156,7 +167,7 @@ final class Converter
         return '['.self::IPV4_MAPPED_PREFIX.$host.']';
     }
 
-    public function toOctal(Stringable|string|null $host): ?string
+    public function toOctal(BackedEnum|Stringable|string|null $host): ?string
     {
         $host = $this->toDecimal($host);
 
@@ -169,7 +180,7 @@ final class Converter
         };
     }
 
-    public function toHexadecimal(Stringable|string|null $host): ?string
+    public function toHexadecimal(BackedEnum|Stringable|string|null $host): ?string
     {
         $host = $this->toDecimal($host);
 
@@ -188,8 +199,12 @@ final class Converter
      *
      * @see https://url.spec.whatwg.org/#concept-ipv4-parser
      */
-    public function toDecimal(Stringable|string|null $host): ?string
+    public function toDecimal(BackedEnum|Stringable|string|null $host): ?string
     {
+        if ($host instanceof BackedEnum) {
+            $host = $host->value;
+        }
+
         $host = (string) $host;
         if (str_starts_with($host, '[') && str_ends_with($host, ']')) {
             $host = substr($host, 1, -1);

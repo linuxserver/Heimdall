@@ -185,7 +185,7 @@ trait InteractsWithQueue
             PHPUnit::assertEquals(
                 $exception->getMessage(),
                 $this->job->failedWith->getMessage(),
-                'Expected exceptoin message ['.$exception->getMessage().'] but job failed with exception message ['.$this->job->failedWith->getMessage().'].');
+                'Expected exception message ['.$exception->getMessage().'] but job failed with exception message ['.$this->job->failedWith->getMessage().'].');
         }
 
         return $this;
@@ -211,7 +211,7 @@ trait InteractsWithQueue
     /**
      * Assert that the job was released back onto the queue.
      *
-     * @param  \DateTimeInterface|\DateInterval|int  $delay
+     * @param  \DateTimeInterface|\DateInterval|int|null  $delay
      * @return $this
      */
     public function assertReleased($delay = null)

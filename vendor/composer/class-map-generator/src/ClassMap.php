@@ -94,7 +94,7 @@ class ClassMap implements \Countable
 
         $ambiguousClasses = [];
         foreach ($this->ambiguousClasses as $class => $paths) {
-            $paths = array_filter($paths, function ($path) use ($duplicatesFilter) {
+            $paths = array_filter($paths, static function ($path) use ($duplicatesFilter): bool {
                 return !Preg::isMatch($duplicatesFilter, strtr($path, '\\', '/'));
             });
             if (\count($paths) > 0) {
@@ -157,7 +157,7 @@ class ClassMap implements \Countable
         $pathPrefix = rtrim(strtr($pathPrefix, '\\', '/'), '/');
 
         foreach ($this->psrViolations as $path => $violations) {
-            if ($path === $pathPrefix || 0 === \strpos($path, $pathPrefix.'/')) {
+            if ($path === $pathPrefix || 0 === strpos($path, $pathPrefix.'/')) {
                 unset($this->psrViolations[$path]);
             }
         }

@@ -51,7 +51,7 @@ class Email implements Rule, DataAwareRule, ValidatorAwareRule
     protected $messages = [];
 
     /**
-     * The callback that will generate the "default" version of the file rule.
+     * The callback that will generate the "default" version of the email rule.
      *
      * @var string|array|callable|null
      */
@@ -64,6 +64,10 @@ class Email implements Rule, DataAwareRule, ValidatorAwareRule
      *
      * @param  static|callable|null  $callback
      * @return static|void
+     *
+     * @phpstan-return ($callback is null ? static : ($callback is callable ? void : ($callback is static ? void : never)))
+     *
+     * @throws \InvalidArgumentException
      */
     public static function defaults($callback = null)
     {
@@ -79,7 +83,7 @@ class Email implements Rule, DataAwareRule, ValidatorAwareRule
     }
 
     /**
-     * Get the default configuration of the file rule.
+     * Get the default configuration of the email rule.
      *
      * @return static
      */
@@ -185,10 +189,6 @@ class Email implements Rule, DataAwareRule, ValidatorAwareRule
     public function passes($attribute, $value)
     {
         $this->messages = [];
-
-        if (! is_string($value) && ! (is_object($value) && method_exists($value, '__toString'))) {
-            return false;
-        }
 
         $validator = Validator::make(
             $this->data,

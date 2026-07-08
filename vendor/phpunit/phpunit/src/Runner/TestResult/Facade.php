@@ -9,9 +9,13 @@
  */
 namespace PHPUnit\TestRunner\TestResult;
 
+use function str_contains;
 use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\UnknownSubscriberTypeException;
+use PHPUnit\Runner\DeprecationCollector\Facade as DeprecationCollectorFacade;
+use PHPUnit\TestRunner\IssueFilter;
+use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 
 /**
@@ -66,7 +70,7 @@ final class Facade
             return true;
         }
 
-        if ($configuration->stopOnDeprecation() && $collector->hasDeprecations()) {
+        if (self::stopOnDeprecation($configuration)) {
             return true;
         }
 
@@ -96,10 +100,31 @@ final class Facade
 
             self::$collector = new Collector(
                 EventFacade::instance(),
-                $configuration->source(),
+                new IssueFilter($configuration->source()),
             );
         }
 
         return self::$collector;
+    }
+
+    private static function stopOnDeprecation(Configuration $configuration): bool
+    {
+        if (!$configuration->stopOnDeprecation()) {
+            return false;
+        }
+
+        $deprecations = DeprecationCollectorFacade::filteredDeprecations();
+
+        if (!$configuration->hasSpecificDeprecationToStopOn()) {
+            return $deprecations !== [];
+        }
+
+        foreach ($deprecations as $deprecation) {
+            if (str_contains($deprecation, $configuration->specificDeprecationToStopOn())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

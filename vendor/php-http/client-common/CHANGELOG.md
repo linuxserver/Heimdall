@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.7.3 - 2025-11-29
+
+- Allow installation with Symfony 8.
+- Run tests with PHP 8.5.
+
 ## 2.7.2 - 2024-09-24
 
 - Updated code to not raise warnings for nullable parameters in PHP 8.4.

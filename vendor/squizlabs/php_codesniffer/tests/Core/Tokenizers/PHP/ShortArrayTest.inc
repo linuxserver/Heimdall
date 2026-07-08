@@ -68,6 +68,19 @@ $var = $obj?->function_call()[$x];
 /* testInterpolatedStringDereferencing */
 $var = "PHP{$rocks}"[1];
 
+/* testNewAnonClassNoParenthesesExpressionDereferencing */
+$a = new class {}[0];
+
+$a = new class (['value'])
+    /* testNewAnonClassParenthesesExpressionDereferencing */
+    {}[0];
+
+/* testNewAnonClassExtendsExpressionDereferencing */
+$a = new readonly class extends ArrayObject {}[0];
+
+/* testNewAnonClassImplementsExpressionDereferencing */
+$a = new class implements ArrayAccess {}[0];
+
 /*
  * Short array brackets.
  */
@@ -105,6 +118,10 @@ if ( true ) :
     /* testShortListDeclarationAfterAlternativeControlStructure */
     [ $a ] = [ 'hi' ];
 endif;
+
+class Foo extends ArrayObject {}
+/* testShortListDeclarationAfterClassDeclaration */
+[$a] = ['hi'];
 
 /* testLiveCoding */
 // Intentional parse error. This has to be the last test in the file.

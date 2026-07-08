@@ -136,3 +136,9 @@ if (empty($argTags > 0)) {
 }
 
 myFunction($var1 === true ? "" : "foobar");
+
+// Verify that FQN true/false are handled the same as unqualified.
+if (true) {}
+if (\true) {}
+for ($var1 = 10; FALSE; $var1--) {}
+for ($var1 = 10; \FALSE; $var1--) {}

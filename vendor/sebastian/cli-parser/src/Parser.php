@@ -34,15 +34,15 @@ use function substr;
 final class Parser
 {
     /**
-     * @psalm-param list<string> $argv
-     * @psalm-param list<string> $longOptions
-     *
-     * @psalm-return array{0: array, 1: array}
+     * @param list<string> $argv
+     * @param list<string> $longOptions
      *
      * @throws AmbiguousOptionException
      * @throws OptionDoesNotAllowArgumentException
      * @throws RequiredOptionArgumentMissingException
      * @throws UnknownOptionException
+     *
+     * @return array{0: list<array{0: non-empty-string, 1: ?non-empty-string}>, 1: list<non-empty-string>}
      */
     public function parse(array $argv, string $shortOptions, ?array $longOptions = null): array
     {
@@ -53,7 +53,7 @@ final class Parser
         $options    = [];
         $nonOptions = [];
 
-        if ($longOptions) {
+        if ($longOptions !== null) {
             sort($longOptions);
         }
 
@@ -82,7 +82,7 @@ final class Parser
                 break;
             }
 
-            if ($arg[0] !== '-' || (strlen($arg) > 1 && $arg[1] === '-' && !$longOptions)) {
+            if ($arg[0] !== '-' || (strlen($arg) > 1 && $arg[1] === '-' && $longOptions === null)) {
                 $nonOptions[] = $arg;
 
                 continue;
@@ -111,6 +111,9 @@ final class Parser
     }
 
     /**
+     * @param list<array{0: non-empty-string, 1: ?non-empty-string}> $options
+     * @param list<string>                                           $argv
+     *
      * @throws RequiredOptionArgumentMissingException
      */
     private function parseShortOption(string $argument, string $shortOptions, array &$options, array &$argv): void
@@ -135,7 +138,7 @@ final class Parser
                 if (!(strlen($spec) > 2 && $spec[2] === ':')) {
                     $optionArgument = current($argv);
 
-                    if (!$optionArgument) {
+                    if ($optionArgument === false) {
                         throw new RequiredOptionArgumentMissingException('-' . $option);
                     }
 
@@ -150,7 +153,9 @@ final class Parser
     }
 
     /**
-     * @psalm-param list<string> $longOptions
+     * @param list<string>                                           $longOptions
+     * @param list<array{0: non-empty-string, 1: ?non-empty-string}> $options
+     * @param list<string>                                           $argv
      *
      * @throws AmbiguousOptionException
      * @throws OptionDoesNotAllowArgumentException
@@ -191,7 +196,7 @@ final class Parser
 
                     next($argv);
                 }
-            } elseif ($optionArgument) {
+            } elseif ($optionArgument !== null) {
                 throw new OptionDoesNotAllowArgumentException('--' . $option);
             }
 

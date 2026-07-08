@@ -10,17 +10,15 @@
 namespace SebastianBergmann\CodeCoverage\Report;
 
 use function date;
-use function dirname;
-use function file_put_contents;
 use function htmlspecialchars;
 use function is_string;
 use function round;
-use function str_contains;
 use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Node\File;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
+use SebastianBergmann\CodeCoverage\Util\Xml;
 
 final class Crap4j
 {
@@ -32,12 +30,14 @@ final class Crap4j
     }
 
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws WriteOperationFailedException
      */
     public function process(CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
     {
-        $document               = new DOMDocument('1.0', 'UTF-8');
-        $document->formatOutput = true;
+        $document = new DOMDocument('1.0', 'UTF-8');
 
         $root = $document->createElement('crap_result');
         $document->appendChild($root);
@@ -119,16 +119,10 @@ final class Crap4j
         $root->appendChild($stats);
         $root->appendChild($methodsNode);
 
-        $buffer = $document->saveXML();
+        $buffer = Xml::asString($document);
 
         if ($target !== null) {
-            if (!str_contains($target, '://')) {
-                Filesystem::createDirectory(dirname($target));
-            }
-
-            if (@file_put_contents($target, $buffer) === false) {
-                throw new WriteOperationFailedException($target);
-            }
+            Filesystem::write($target, $buffer);
         }
 
         return $buffer;

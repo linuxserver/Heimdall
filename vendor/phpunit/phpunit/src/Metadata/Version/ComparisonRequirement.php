@@ -13,14 +13,14 @@ use function version_compare;
 use PHPUnit\Util\VersionComparisonOperator;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ComparisonRequirement extends Requirement
+final readonly class ComparisonRequirement extends Requirement
 {
-    private readonly string $version;
-    private readonly VersionComparisonOperator $operator;
+    private string $version;
+    private VersionComparisonOperator $operator;
 
     public function __construct(string $version, VersionComparisonOperator $operator)
     {

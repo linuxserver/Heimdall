@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 interface OutputPager extends OutputInterface
 {
+    // TODO: Add doWrite to the OutputPager interface.
+    // /**
+    //  * Writes a message to the output.
+    //  *
+    //  * @todo tighten up param types?
+    //  *
+    //  * @param string $message A message to write to the output
+    //  * @param bool   $newline Whether to add a newline or not
+    //  */
+    // public function doWrite($message, $newline): void;
+
     /**
      * Close the current pager process.
      */

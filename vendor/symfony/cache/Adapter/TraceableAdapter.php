@@ -39,6 +39,8 @@ class TraceableAdapter implements AdapterInterface, CacheInterface, NamespacedPo
     }
 
     /**
+     * @param-immediately-invoked-callable $callback
+     *
      * @throws BadMethodCallException When the item pool is not a CacheInterface
      */
     public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
@@ -51,7 +53,7 @@ class TraceableAdapter implements AdapterInterface, CacheInterface, NamespacedPo
         }
 
         $isHit = true;
-        $callback = function (CacheItem $item, bool &$save) use ($callback, &$isHit) {
+        $callback = static function (CacheItem $item, bool &$save) use ($callback, &$isHit) {
             $isHit = $item->isHit();
 
             return $callback($item, $save);
@@ -156,7 +158,7 @@ class TraceableAdapter implements AdapterInterface, CacheInterface, NamespacedPo
         } finally {
             $event->end = microtime(true);
         }
-        $f = function () use ($result, $event) {
+        $f = static function () use ($result, $event) {
             $event->result = [];
             foreach ($result as $key => $item) {
                 if ($event->result[$key] = $item->isHit()) {

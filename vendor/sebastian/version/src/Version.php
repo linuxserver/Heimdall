@@ -20,20 +20,36 @@ use function stream_get_contents;
 use function substr_count;
 use function trim;
 
-final class Version
+final readonly class Version
 {
-    private readonly string $version;
+    /**
+     * @var non-empty-string
+     */
+    private string $version;
 
+    /**
+     * @param non-empty-string $release
+     * @param non-empty-string $path
+     */
     public function __construct(string $release, string $path)
     {
         $this->version = $this->generate($release, $path);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return $this->version;
     }
 
+    /**
+     * @param non-empty-string $release
+     * @param non-empty-string $path
+     *
+     * @return non-empty-string
+     */
     private function generate(string $release, string $path): string
     {
         if (substr_count($release, '.') + 1 === 3) {
@@ -57,27 +73,30 @@ final class Version
         return $release . '-' . end($git);
     }
 
-    private function getGitInformation(string $path): bool|string
+    /**
+     * @param non-empty-string $path
+     */
+    private function getGitInformation(string $path): false|string
     {
         if (!is_dir($path . DIRECTORY_SEPARATOR . '.git')) {
             return false;
         }
 
         $process = proc_open(
-            'git describe --tags',
+            ['git', 'describe', '--tags'],
             [
                 1 => ['pipe', 'w'],
                 2 => ['pipe', 'w'],
             ],
             $pipes,
-            $path
+            $path,
         );
 
         if (!is_resource($process)) {
             return false;
         }
 
-        $result = trim(stream_get_contents($pipes[1]));
+        $result = trim((string) stream_get_contents($pipes[1]));
 
         fclose($pipes[1]);
         fclose($pipes[2]);

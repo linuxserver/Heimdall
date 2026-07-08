@@ -17,7 +17,7 @@ namespace PHPUnit\Framework\MockObject\Generator;
 interface MockType
 {
     /**
-     * @psalm-return class-string
+     * @return class-string
      */
     public function generate(): string;
 }

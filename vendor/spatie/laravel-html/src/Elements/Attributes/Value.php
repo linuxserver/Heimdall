@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static valueIf(bool $condition, string|null $value)
+ * @method static valueIfNotNull(bool $condition, string|null $value)
+ * @method static valueUnless(bool $condition, string|null $value)
+ */
 trait Value
 {
     /**

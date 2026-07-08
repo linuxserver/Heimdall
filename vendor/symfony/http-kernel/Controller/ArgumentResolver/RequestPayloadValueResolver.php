@@ -25,6 +25,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NearMissValueResolverException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException as SerializerInvalidArgumentException;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Exception\PartialDenormalizationException;
 use Symfony\Component\Serializer\Exception\UnexpectedPropertyException;
@@ -125,7 +126,7 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                 try {
                     $payload = $payloadMapper($request, $argument->metadata, $argument);
                 } catch (PartialDenormalizationException $e) {
-                    $trans = $this->translator ? $this->translator->trans(...) : fn ($m, $p) => strtr($m, $p);
+                    $trans = $this->translator ? $this->translator->trans(...) : static fn ($m, $p) => strtr($m, $p);
                     foreach ($e->getErrors() as $error) {
                         $parameters = [];
                         $template = 'This value was of an unexpected type.';
@@ -140,6 +141,9 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                         $violations->add(new ConstraintViolation($message, $template, $parameters, null, $error->getPath(), null));
                     }
                     $payload = $e->getData();
+                } catch (SerializerInvalidArgumentException $e) {
+                    $violations->add(new ConstraintViolation($e->getMessage(), $e->getMessage(), [], null, '', null));
+                    $payload = null;
                 }
 
                 if (null !== $payload && !\count($violations)) {
@@ -147,7 +151,11 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                     if (\is_array($payload) && !empty($constraints) && !$constraints instanceof Assert\All) {
                         $constraints = new Assert\All($constraints);
                     }
-                    $violations->addAll($this->validator->validate($payload, $constraints, $argument->validationGroups ?? null));
+                    if ($argument instanceof MapUploadedFile) {
+                        $violations->addAll($this->validator->startContext()->atPath($argument->metadata->getName())->validate($payload, $constraints, $argument->validationGroups ?? null)->getViolations());
+                    } else {
+                        $violations->addAll($this->validator->validate($payload, $constraints, $argument->validationGroups ?? null));
+                    }
                 }
 
                 if (\count($violations)) {
@@ -158,7 +166,14 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                     $payload = $payloadMapper($request, $argument->metadata, $argument);
                 } catch (PartialDenormalizationException $e) {
                     throw HttpException::fromStatusCode($validationFailedCode, implode("\n", array_map(static fn ($e) => $e->getMessage(), $e->getErrors())), $e);
+                } catch (SerializerInvalidArgumentException $e) {
+                    throw HttpException::fromStatusCode($validationFailedCode, $e->getMessage(), $e);
                 }
+            }
+
+            if ($argument->metadata->isVariadic()) {
+                array_splice($arguments, $i, 1, $payload ?? []);
+                continue;
             }
 
             if (null === $payload) {
@@ -193,6 +208,10 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
 
     private function mapRequestPayload(Request $request, ArgumentMetadata $argument, MapRequestPayload $attribute): object|array|null
     {
+        if ('' === ($data = $request->request->all() ?: $request->getContent()) && ($argument->isNullable() || $argument->hasDefaultValue())) {
+            return null;
+        }
+
         if (null === $format = $request->getContentTypeFormat()) {
             throw new UnsupportedMediaTypeHttpException('Unsupported format.');
         }
@@ -207,12 +226,8 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
             $type = $argument->getType();
         }
 
-        if ($data = $request->request->all()) {
-            return $this->serializer->denormalize($data, $type, 'csv', $attribute->serializationContext + self::CONTEXT_DENORMALIZE + ('form' === $format ? ['filter_bool' => true] : []));
-        }
-
-        if ('' === ($data = $request->getContent()) && ($argument->isNullable() || $argument->hasDefaultValue())) {
-            return null;
+        if (\is_array($data)) {
+            return $this->serializer->denormalize($data, $type, self::hasNonStringScalar($data) ? $format : 'csv', $attribute->serializationContext + self::CONTEXT_DENORMALIZE + ('form' === $format ? ['filter_bool' => true] : []));
         }
 
         if ('form' === $format) {
@@ -232,10 +247,31 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
 
     private function mapUploadedFile(Request $request, ArgumentMetadata $argument, MapUploadedFile $attribute): UploadedFile|array|null
     {
-        if (!($files = $request->files->get($attribute->name ?? $argument->getName(), [])) && ($argument->isNullable() || $argument->hasDefaultValue())) {
+        if ($files = $request->files->get($attribute->name ?? $argument->getName())) {
+            return !\is_array($files) && $argument->isVariadic() ? [$files] : $files;
+        }
+
+        if ($argument->isNullable() || $argument->hasDefaultValue()) {
             return null;
         }
 
-        return $files;
+        return 'array' === $argument->getType() ? [] : null;
+    }
+
+    private static function hasNonStringScalar(array $data): bool
+    {
+        $stack = [$data];
+
+        while ($stack) {
+            foreach (array_pop($stack) as $v) {
+                if (\is_array($v)) {
+                    $stack[] = $v;
+                } elseif (!\is_string($v)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,9 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\RuntimeException;
 use Psy\Input\CodeArgument;
-use Psy\Output\ShellOutput;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,7 +40,7 @@ class DumpCommand extends ReflectingCommand implements PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('dump')
@@ -73,13 +71,9 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$output instanceof ShellOutput) {
-            throw new RuntimeException('DumpCommand requires a ShellOutput');
-        }
-
         $depth = $input->getOption('depth');
         $target = $this->resolveCode($input->getArgument('target'));
-        $output->page($this->presenter->present($target, $depth, $input->getOption('all') ? Presenter::VERBOSE : 0));
+        $this->shellOutput($output)->page($this->presenter->present($target, $depth, ($input->getOption('all') ? Presenter::VERBOSE : 0) | Presenter::RAW), OutputInterface::OUTPUT_RAW);
 
         if (\is_object($target)) {
             $this->setCommandScopeVariables(new \ReflectionObject($target));

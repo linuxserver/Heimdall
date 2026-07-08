@@ -18,14 +18,14 @@ use PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Text as TestDoxText;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class Logging
+final readonly class Logging
 {
-    private readonly ?Junit $junit;
-    private readonly ?TeamCity $teamCity;
-    private readonly ?TestDoxHtml $testDoxHtml;
-    private readonly ?TestDoxText $testDoxText;
+    private ?Junit $junit;
+    private ?TeamCity $teamCity;
+    private ?TestDoxHtml $testDoxHtml;
+    private ?TestDoxText $testDoxText;
 
     public function __construct(?Junit $junit, ?TeamCity $teamCity, ?TestDoxHtml $testDoxHtml, ?TestDoxText $testDoxText)
     {

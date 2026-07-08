@@ -195,3 +195,8 @@ class AsymVisibility {
     protected(set) public $asymPublicProtected  = 'hello';
     protected private(set) $asymProtectedPrivate  = 'hello';
 }
+
+abstract class AbstractProperties {
+    abstract public ?MyType $spacing_correct {get;}
+    protected abstract $spacing_incorrect { set; }
+}

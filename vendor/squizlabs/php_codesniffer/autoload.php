@@ -11,7 +11,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -190,8 +190,8 @@ if (class_exists('PHP_CodeSniffer\Autoload', false) === false) {
         /**
          * Determine which class was loaded based on the before and after lists of loaded classes.
          *
-         * @param array $classesBeforeLoad The classes/interfaces/traits before the file was included.
-         * @param array $classesAfterLoad  The classes/interfaces/traits after the file was included.
+         * @param array<string, array<string>> $classesBeforeLoad The classes/interfaces/traits before the file was included.
+         * @param array<string, array<string>> $classesAfterLoad  The classes/interfaces/traits after the file was included.
          *
          * @return string The fully qualified name of the class in the loaded file.
          */
@@ -210,7 +210,7 @@ if (class_exists('PHP_CodeSniffer\Autoload', false) === false) {
             // That way, at the end, only the "main" class just included will remain.
             $newClasses = array_reduce(
                 $newClasses,
-                function ($remaining, $current) {
+                static function ($remaining, $current) {
                     return array_diff($remaining, class_parents($current));
                 },
                 $newClasses
@@ -266,7 +266,7 @@ if (class_exists('PHP_CodeSniffer\Autoload', false) === false) {
         /**
          * Retrieve the namespaces and paths registered by external standards.
          *
-         * @return array
+         * @return array<string>
          */
         public static function getSearchPaths()
         {

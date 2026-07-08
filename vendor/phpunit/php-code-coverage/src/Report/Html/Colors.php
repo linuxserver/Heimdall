@@ -10,7 +10,7 @@
 namespace SebastianBergmann\CodeCoverage\Report\Html;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 final class Colors
 {

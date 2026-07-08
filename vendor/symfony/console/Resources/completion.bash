@@ -37,7 +37,7 @@ _sf_{{ COMMAND_NAME }}() {
 
     local completecmd=("$sf_cmd" "_complete" "--no-interaction" "-sbash" "-c$cword" "-a{{ VERSION }}")
     for w in ${words[@]}; do
-        w=$(printf -- '%b' "$w")
+        w="${w//\\\\/\\}"
         # remove quotes from typed values
         quote="${w:0:1}"
         if [ "$quote" == \' ]; then
@@ -54,7 +54,7 @@ _sf_{{ COMMAND_NAME }}() {
     done
 
     local sfcomplete
-    if sfcomplete=$(${completecmd[@]} 2>&1); then
+    if sfcomplete=$(SHELL_VERBOSITY=0 ${completecmd[@]} 2>&1); then
         local quote suggestions
         quote=${cur:0:1}
 

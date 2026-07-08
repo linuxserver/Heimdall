@@ -41,10 +41,7 @@ final class VarSpecifier
 
     public static function new(string $specification): self
     {
-        if (1 !== preg_match(self::REGEXP_VARSPEC, $specification, $parsed)) {
-            throw new SyntaxError('The variable specification "'.$specification.'" is invalid.');
-        }
-
+        1 === preg_match(self::REGEXP_VARSPEC, $specification, $parsed) || throw new SyntaxError('The variable specification "'.$specification.'" is invalid.');
         $properties = ['name' => $parsed['name'], 'modifier' => $parsed['modifier'] ?? '', 'position' => $parsed['position'] ?? ''];
 
         if ('' !== $properties['position']) {

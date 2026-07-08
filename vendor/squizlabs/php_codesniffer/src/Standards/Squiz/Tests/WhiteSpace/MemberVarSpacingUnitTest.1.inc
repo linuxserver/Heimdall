@@ -459,3 +459,16 @@ class AsymVisibility {
 
     private(set) private bool $asymPrivate;
 }
+
+abstract class PHP84AbstractProperties {
+    abstract int $abstractA {get;}
+
+    /**
+     * Docblock
+     */
+    public abstract string $publicAbstract { set; }
+    #[AnAttribute]
+    abstract bool $abstractB {get;}
+
+    abstract protected bool $abstractProtected { set; }
+}

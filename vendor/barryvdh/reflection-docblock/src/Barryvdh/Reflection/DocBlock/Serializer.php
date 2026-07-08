@@ -206,8 +206,9 @@ class Serializer
             $text = wordwrap($text, $wrapLength);
         }
         $text = str_replace("\n", "\n{$indent} * ", $text);
+        $text = preg_replace('/^(\s*\*)[ \t]+$/m', '$1', $text);
 
-        $comment = "{$firstIndent}/**\n{$indent} * {$text}\n{$indent} *\n";
+        $comment = !empty($text)? "{$firstIndent}/**\n{$indent} * {$text}\n{$indent} *\n" : "{$firstIndent}/**\n";
 
         $tags = array_values($docblock->getTags());
 
@@ -220,6 +221,7 @@ class Serializer
                 $tagText = wordwrap($tagText, $wrapLength);
             }
             $tagText = str_replace("\n", "\n{$indent} * ", $tagText);
+            $tagText = preg_replace('/^(\s*\*)[ \t]+$/m', '$1', $tagText);
 
             $comment .= "{$indent} * {$tagText}\n";
 

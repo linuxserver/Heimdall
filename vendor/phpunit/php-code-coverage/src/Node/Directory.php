@@ -10,6 +10,7 @@
 namespace SebastianBergmann\CodeCoverage\Node;
 
 use function array_merge;
+use function assert;
 use function count;
 use IteratorAggregate;
 use RecursiveIteratorIterator;
@@ -17,12 +18,12 @@ use RecursiveIteratorIterator;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @psalm-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
  */
 final class Directory extends AbstractNode implements IteratorAggregate
 {
     /**
-     * @var list<AbstractNode>
+     * @var list<Directory|File>
      */
     private array $children = [];
 
@@ -40,7 +41,7 @@ final class Directory extends AbstractNode implements IteratorAggregate
     private ?array $functions = null;
 
     /**
-     * @psalm-var null|LinesOfCodeType
+     * @var null|LinesOfCodeType
      */
     private ?array $linesOfCode        = null;
     private int $numFiles              = -1;
@@ -83,6 +84,8 @@ final class Directory extends AbstractNode implements IteratorAggregate
     public function addDirectory(string $name): self
     {
         $directory = new self($name, $this);
+
+        assert($directory instanceof self);
 
         $this->children[]    = $directory;
         $this->directories[] = &$this->children[count($this->children) - 1];
@@ -163,7 +166,7 @@ final class Directory extends AbstractNode implements IteratorAggregate
     }
 
     /**
-     * @psalm-return LinesOfCodeType
+     * @return LinesOfCodeType
      */
     public function linesOfCode(): array
     {

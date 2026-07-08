@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -37,6 +37,7 @@ abstract class AbstractListener implements Listener
      */
     public function onInput(Shell $shell, string $input)
     {
+        return null;
     }
 
     /**
@@ -44,6 +45,7 @@ abstract class AbstractListener implements Listener
      */
     public function onExecute(Shell $shell, string $code)
     {
+        return null;
     }
 
     /**
@@ -56,7 +58,7 @@ abstract class AbstractListener implements Listener
     /**
      * {@inheritdoc}
      */
-    public function afterRun(Shell $shell)
+    public function afterRun(Shell $shell, int $exitCode = 0)
     {
     }
 }

@@ -17,7 +17,7 @@ use function sprintf;
 final class ResourceUsageFormatter
 {
     /**
-     * @psalm-var array<string,int>
+     * @var array<string,int>
      */
     private const SIZES = [
         'GB' => 1073741824,
@@ -30,7 +30,7 @@ final class ResourceUsageFormatter
         return sprintf(
             'Time: %s, Memory: %s',
             $duration->asString(),
-            $this->bytesToString(memory_get_peak_usage(true))
+            $this->bytesToString(memory_get_peak_usage(true)),
         );
     }
 
@@ -41,20 +41,20 @@ final class ResourceUsageFormatter
     {
         if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
             throw new TimeSinceStartOfRequestNotAvailableException(
-                'Cannot determine time at which the request started because $_SERVER[\'REQUEST_TIME_FLOAT\'] is not available'
+                'Cannot determine time at which the request started because $_SERVER[\'REQUEST_TIME_FLOAT\'] is not available',
             );
         }
 
         if (!is_float($_SERVER['REQUEST_TIME_FLOAT'])) {
             throw new TimeSinceStartOfRequestNotAvailableException(
-                'Cannot determine time at which the request started because $_SERVER[\'REQUEST_TIME_FLOAT\'] is not of type float'
+                'Cannot determine time at which the request started because $_SERVER[\'REQUEST_TIME_FLOAT\'] is not of type float',
             );
         }
 
         return $this->resourceUsage(
             Duration::fromMicroseconds(
-                (1000000 * (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']))
-            )
+                (1000000 * (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'])),
+            ),
         );
     }
 

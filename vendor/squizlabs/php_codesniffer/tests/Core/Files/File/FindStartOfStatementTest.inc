@@ -162,6 +162,10 @@ switch ($foo) {
         /* testInsideCaseGotoStatement */
         goto myLabel;
 
+    case 7:
+        /* testInsideCaseFullyQualifiedDieStatement */
+        \die(1);
+
     /* testDefaultStatement */
     default:
         /* testInsideDefaultContinueStatement */

@@ -9,6 +9,9 @@
  */
 namespace SebastianBergmann\Type;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for this library
+ */
 final class NullType extends Type
 {
     public function isAssignable(Type $other): bool
@@ -16,11 +19,17 @@ final class NullType extends Type
         return !($other instanceof VoidType);
     }
 
+    /**
+     * @return 'null'
+     */
     public function name(): string
     {
         return 'null';
     }
 
+    /**
+     * @return 'null'
+     */
     public function asString(): string
     {
         return 'null';
@@ -31,9 +40,6 @@ final class NullType extends Type
         return true;
     }
 
-    /**
-     * @psalm-assert-if-true NullType $this
-     */
     public function isNull(): bool
     {
         return true;

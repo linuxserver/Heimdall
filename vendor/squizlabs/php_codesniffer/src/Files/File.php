@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Files;
@@ -1851,6 +1851,7 @@ class File
      *    'is_static'       => boolean,       // TRUE if the static keyword was found.
      *    'is_readonly'     => boolean,       // TRUE if the readonly keyword was found.
      *    'is_final'        => boolean,       // TRUE if the final keyword was found.
+     *    'is_abstract'     => boolean,       // TRUE if the abstract keyword was found.
      *    'type'            => string,        // The type of the var (empty if no type specified).
      *    'type_token'      => integer|false, // The stack pointer to the start of the type
      *                                        // or FALSE if there is no type.
@@ -1873,6 +1874,10 @@ class File
     {
         if ($this->tokens[$stackPtr]['code'] !== T_VARIABLE) {
             throw new RuntimeException('$stackPtr must be of type T_VARIABLE');
+        }
+
+        if (empty($this->tokens[$stackPtr]['conditions']) === true) {
+            throw new RuntimeException('$stackPtr is not a class member var');
         }
 
         $conditions = array_keys($this->tokens[$stackPtr]['conditions']);
@@ -1921,6 +1926,7 @@ class File
             T_VAR      => T_VAR,
             T_READONLY => T_READONLY,
             T_FINAL    => T_FINAL,
+            T_ABSTRACT => T_ABSTRACT,
         ];
 
         $valid += Tokens::$scopeModifiers;
@@ -1932,6 +1938,7 @@ class File
         $isStatic       = false;
         $isReadonly     = false;
         $isFinal        = false;
+        $isAbstract     = false;
 
         $startOfStatement = $this->findPrevious(
             [
@@ -1978,6 +1985,9 @@ class File
                 break;
             case T_FINAL:
                 $isFinal = true;
+                break;
+            case T_ABSTRACT:
+                $isAbstract = true;
                 break;
             }//end switch
         }//end for
@@ -2037,6 +2047,7 @@ class File
             'is_static'       => $isStatic,
             'is_readonly'     => $isReadonly,
             'is_final'        => $isFinal,
+            'is_abstract'     => $isAbstract,
             'type'            => $type,
             'type_token'      => $typeToken,
             'type_end_token'  => $typeEndToken,
@@ -2432,8 +2443,8 @@ class File
     /**
      * Returns the position of the first non-whitespace token in a statement.
      *
-     * @param int              $start  The position to start searching from in the token stack.
-     * @param int|string|array $ignore Token types that should not be considered stop points.
+     * @param int                   $start  The position to start searching from in the token stack.
+     * @param int|string|array|null $ignore Token types that should not be considered stop points.
      *
      * @return int
      */
@@ -2623,8 +2634,8 @@ class File
     /**
      * Returns the position of the last non-whitespace token in a statement.
      *
-     * @param int              $start  The position to start searching from in the token stack.
-     * @param int|string|array $ignore Token types that should not be considered stop points.
+     * @param int                   $start  The position to start searching from in the token stack.
+     * @param int|string|array|null $ignore Token types that should not be considered stop points.
      *
      * @return int
      */
@@ -2745,7 +2756,7 @@ class File
      *                                  token stack.
      * @param bool             $exclude If true, find the token that is NOT of
      *                                  the types specified in $types.
-     * @param string           $value   The value that the token must be equal to.
+     * @param string|null      $value   The value that the token must be equal to.
      *                                  If value is omitted, tokens with any value will
      *                                  be returned.
      *

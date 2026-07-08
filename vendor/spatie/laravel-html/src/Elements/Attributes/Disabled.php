@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static disabledIf(bool $condition, bool $disabled)
+ * @method static disabledIfNotNull(bool $condition, bool $disabled)
+ * @method static disabledUnless(bool $condition, bool $disabled)
+ */
 trait Disabled
 {
     /**

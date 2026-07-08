@@ -5,6 +5,8 @@ namespace Illuminate\Foundation\Exceptions\Renderer;
 use Illuminate\Foundation\Concerns\ResolvesDumpSource;
 use Symfony\Component\ErrorHandler\Exception\FlattenException;
 
+use function Illuminate\Filesystem\join_paths;
+
 class Frame
 {
     use ResolvesDumpSource;
@@ -38,20 +40,35 @@ class Frame
     protected $basePath;
 
     /**
+     * The previous frame.
+     *
+     * @var \Illuminate\Foundation\Exceptions\Renderer\Frame|null
+     */
+    protected $previous;
+
+    /**
+     * Whether this frame is the main (first non-vendor) frame.
+     *
+     * @var bool
+     */
+    protected $isMain = false;
+
+    /**
      * Create a new frame instance.
      *
      * @param  \Symfony\Component\ErrorHandler\Exception\FlattenException  $exception
      * @param  array<string, string>  $classMap
-     * @param  array{file: string, line: int, class?: string, type?: string, function?: string}  $frame
+     * @param  array{file: string, line: int, class?: string, type?: string, function?: string, args?: array}  $frame
      * @param  string  $basePath
-     * @return void
+     * @param  \Illuminate\Foundation\Exceptions\Renderer\Frame|null  $previous
      */
-    public function __construct(FlattenException $exception, array $classMap, array $frame, string $basePath)
+    public function __construct(FlattenException $exception, array $classMap, array $frame, string $basePath, ?Frame $previous = null)
     {
         $this->exception = $exception;
         $this->classMap = $classMap;
         $this->frame = $frame;
         $this->basePath = $basePath;
+        $this->previous = $previous;
     }
 
     /**
@@ -84,6 +101,10 @@ class Frame
      */
     public function class()
     {
+        if (! empty($this->frame['class'])) {
+            return $this->frame['class'];
+        }
+
         $class = array_search((string) realpath($this->frame['file']), $this->classMap, true);
 
         return $class === false ? null : $class;
@@ -96,7 +117,11 @@ class Frame
      */
     public function file()
     {
-        return str_replace($this->basePath.'/', '', $this->frame['file']);
+        return match (true) {
+            ! isset($this->frame['file']) => '[internal function]',
+            ! is_string($this->frame['file']) => '[unknown file]',
+            default => str_replace($this->basePath.DIRECTORY_SEPARATOR, '', $this->frame['file']),
+        };
     }
 
     /**
@@ -116,6 +141,16 @@ class Frame
     }
 
     /**
+     * Get the frame's function operator.
+     *
+     * @return '::'|'->'|''
+     */
+    public function operator()
+    {
+        return $this->frame['type'] ?? '';
+    }
+
+    /**
      * Get the frame's function or method.
      *
      * @return string
@@ -126,6 +161,27 @@ class Frame
             ! empty($this->frame['function']) => $this->frame['function'],
             default => 'throw',
         };
+    }
+
+    /**
+     * Get the frame's arguments.
+     *
+     * @return array
+     */
+    public function args()
+    {
+        if (! isset($this->frame['args']) || ! is_array($this->frame['args']) || count($this->frame['args']) === 0) {
+            return [];
+        }
+
+        return array_map(function ($argument) {
+            [$key, $value] = $argument;
+
+            return match ($key) {
+                'object' => "{$key}({$value})",
+                default => $key,
+            };
+        }, $this->frame['args']);
     }
 
     /**
@@ -156,6 +212,36 @@ class Frame
     public function isFromVendor()
     {
         return ! str_starts_with($this->frame['file'], $this->basePath)
-            || str_starts_with($this->frame['file'], $this->basePath.'/vendor');
+            || str_starts_with($this->frame['file'], join_paths($this->basePath, 'vendor'));
+    }
+
+    /**
+     * Get the previous frame.
+     *
+     * @return \Illuminate\Foundation\Exceptions\Renderer\Frame|null
+     */
+    public function previous()
+    {
+        return $this->previous;
+    }
+
+    /**
+     * Mark this frame as the main frame.
+     *
+     * @return void
+     */
+    public function markAsMain()
+    {
+        $this->isMain = true;
+    }
+
+    /**
+     * Determine if this is the main frame.
+     *
+     * @return bool
+     */
+    public function isMain()
+    {
+        return $this->isMain;
     }
 }

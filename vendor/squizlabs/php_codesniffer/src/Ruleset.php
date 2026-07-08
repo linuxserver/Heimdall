@@ -6,7 +6,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -1215,7 +1215,7 @@ class Ruleset
                                 }
 
                                 $value = (string) $element['value'];
-                                if (isset($element['key']) === true) {
+                                if (isset($element['key']) === true && trim($element['key']) !== '') {
                                     $key          = (string) $element['key'];
                                     $values[$key] = $value;
                                     $printValue  .= $key.'=>'.$value.',';
@@ -1698,8 +1698,8 @@ class Ruleset
      * Optionally takes a listener to get ignore patterns specified
      * for that sniff only.
      *
-     * @param string $listener The listener to get patterns for. If NULL, all
-     *                         patterns are returned.
+     * @param string|null $listener The listener to get patterns for. If NULL, all
+     *                              patterns are returned.
      *
      * @return array
      */
@@ -1724,8 +1724,8 @@ class Ruleset
      * Optionally takes a listener to get include patterns specified
      * for that sniff only.
      *
-     * @param string $listener The listener to get patterns for. If NULL, all
-     *                         patterns are returned.
+     * @param string|null $listener The listener to get patterns for. If NULL, all
+     *                              patterns are returned.
      *
      * @return array
      */

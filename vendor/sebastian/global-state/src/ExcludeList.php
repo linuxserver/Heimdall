@@ -15,38 +15,80 @@ use ReflectionClass;
 
 final class ExcludeList
 {
-    private array $globalVariables   = [];
-    private array $classes           = [];
-    private array $classNamePrefixes = [];
-    private array $parentClasses     = [];
-    private array $interfaces        = [];
-    private array $staticProperties  = [];
+    /**
+     * @var array<non-empty-string, true>
+     */
+    private array $globalVariables = [];
 
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $classes = [];
+
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $classNamePrefixes = [];
+
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $parentClasses = [];
+
+    /**
+     * @var list<non-empty-string>
+     */
+    private array $interfaces = [];
+
+    /**
+     * @var array<string, array<non-empty-string, true>>
+     */
+    private array $staticProperties = [];
+
+    /**
+     * @param non-empty-string $variableName
+     */
     public function addGlobalVariable(string $variableName): void
     {
         $this->globalVariables[$variableName] = true;
     }
 
+    /**
+     * @param non-empty-string $className
+     */
     public function addClass(string $className): void
     {
         $this->classes[] = $className;
     }
 
+    /**
+     * @param non-empty-string $className
+     */
     public function addSubclassesOf(string $className): void
     {
         $this->parentClasses[] = $className;
     }
 
+    /**
+     * @param non-empty-string $interfaceName
+     */
     public function addImplementorsOf(string $interfaceName): void
     {
         $this->interfaces[] = $interfaceName;
     }
 
+    /**
+     * @param non-empty-string $classNamePrefix
+     */
     public function addClassNamePrefix(string $classNamePrefix): void
     {
         $this->classNamePrefixes[] = $classNamePrefix;
     }
 
+    /**
+     * @param non-empty-string $className
+     * @param non-empty-string $propertyName
+     */
     public function addStaticProperty(string $className, string $propertyName): void
     {
         if (!isset($this->staticProperties[$className])) {
@@ -62,7 +104,8 @@ final class ExcludeList
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string     $className
+     * @param non-empty-string $propertyName
      */
     public function isStaticPropertyExcluded(string $className, string $propertyName): bool
     {

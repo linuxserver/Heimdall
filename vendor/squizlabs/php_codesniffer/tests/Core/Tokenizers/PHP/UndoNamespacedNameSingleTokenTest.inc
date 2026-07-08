@@ -118,7 +118,7 @@ class MyClass
 
         /* testDoubleColonPartiallyQualified */
         $value = Level\ClassName::CONSTANT_NAME['key'];
-        
+
         /* testInstanceOfRelative */
         $is = $obj instanceof namespace\ClassName;
 
@@ -131,6 +131,59 @@ class MyClass
         /* testInstanceOfPartiallyQualified */
         $is = $obj instanceof Partially\ClassName;
     }
+}
+
+function testHandlingExitDieTrueFalseNull() {
+    /* testExitInNamespacedNameStart */
+    echo Exit\Name;
+    /* testExitInNamespacedNameMiddle */
+    echo \Not\exit\Name;
+    /* testExitInNamespacedNameEnd */
+    echo \Not\Exit;
+    /* testFullyQualifiedExitFunctionCall */
+    \Exit();
+    /* testFullyQualifiedExitConstant */
+    // This is a parse error in PHP, but that's not our concern
+    \exit;
+
+    /* testDieInNamespacedNameStart */
+    echo \Die\Name;
+    /* testDieInNamespacedNameMiddle */
+    echo \Not\die\Name;
+    /* testDieInNamespacedNameEnd */
+    echo \Not\DIE;
+    /* testFullyQualifiedDieFunctionCall */
+    \die();
+    /* testFullyQualifiedDieConstant */
+    // This is a parse error in PHP, but that's not our concern
+    \DIE;
+
+    /* testFalseInNamespacedNameStart */
+    echo False\Name;
+    /* testFalseInNamespacedNameMiddle */
+    echo \Not\false\Name;
+    /* testFalseInNamespacedNameEnd */
+    echo \Not\FALSE;
+    /* testFullyQualifiedFalse */
+    echo \false;
+
+    /* testTrueInNamespacedNameStart */
+    echo \True\Name;
+    /* testTrueInNamespacedNameMiddle */
+    echo \Not\true\Name;
+    /* testTrueInNamespacedNameEnd */
+    echo \Not\True;
+    /* testFullyQualifiedTrue */
+    echo \TRUE;
+
+    /* testNullInNamespacedNameStart */
+    echo Null\Name;
+    /* testNullInNamespacedNameMiddle */
+    echo \Not\Null\Name;
+    /* testNullInNamespacedNameEnd */
+    echo \Not\null;
+    /* testFullyQualifiedNull */
+    echo \Null;
 }
 
 /* testInvalidInPHP8Whitespace */

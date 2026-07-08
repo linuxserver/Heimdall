@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting;
@@ -67,7 +67,7 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
 
         // Skip constructor and destructor.
         $methodName      = $phpcsFile->getDeclarationName($stackPtr);
-        $isSpecialMethod = in_array($methodName,  $this->specialMethods, true);
+        $isSpecialMethod = in_array($methodName, $this->specialMethods, true);
 
         if ($return !== null) {
             $content = $tokens[($return + 2)]['content'];
@@ -76,7 +76,7 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
                 $phpcsFile->addError($error, $return, 'MissingReturnType');
             } else {
                 // Support both a return type and a description.
-                preg_match('`^((?:\|?(?:array\([^\)]*\)|[\\\\a-z0-9\[\]]+))*)( .*)?`i', $content, $returnParts);
+                preg_match('`^((?:\|?(?:array\([^\)]*\)|[\\\\a-z0-9_\[\]]+))*)( .*)?`i', $content, $returnParts);
                 if (isset($returnParts[1]) === false) {
                     return;
                 }
@@ -781,7 +781,7 @@ class FunctionCommentSniff extends PEARFunctionCommentSniff
             T_DOC_COMMENT_STAR,
         ];
         for ($i = $commentStart; $i <= $tokens[$commentStart]['comment_closer']; $i++) {
-            if (in_array($tokens[$i]['code'], $allowedTokens) === false) {
+            if (in_array($tokens[$i]['code'], $allowedTokens, true) === false) {
                 $trimmedContent = strtolower(trim($tokens[$i]['content']));
 
                 if ($trimmedContent === '{@inheritdoc}') {

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -56,7 +56,7 @@ class ValidClassNamePass extends NamespaceAwarePass
         if (self::isConditional($node)) {
             $this->conditionalScopes++;
 
-            return;
+            return null;
         }
 
         if ($this->conditionalScopes === 0) {
@@ -68,6 +68,8 @@ class ValidClassNamePass extends NamespaceAwarePass
                 $this->validateTraitStatement($node);
             }
         }
+
+        return null;
     }
 
     /**
@@ -80,6 +82,8 @@ class ValidClassNamePass extends NamespaceAwarePass
         if (self::isConditional($node)) {
             $this->conditionalScopes--;
         }
+
+        return null;
     }
 
     private static function isConditional(Node $node): bool
@@ -137,7 +141,7 @@ class ValidClassNamePass extends NamespaceAwarePass
     protected function ensureCanDefine(Stmt $stmt, string $scopeType = self::CLASS_TYPE)
     {
         // Anonymous classes don't have a name, and uniqueness shouldn't be enforced.
-        if ($stmt->name === null) {
+        if (!\property_exists($stmt, 'name') || $stmt->name === null) {
             return;
         }
 
@@ -311,6 +315,8 @@ class ValidClassNamePass extends NamespaceAwarePass
         if (isset($this->currentScope[$name])) {
             return $this->currentScope[$name];
         }
+
+        return null;
     }
 
     /**

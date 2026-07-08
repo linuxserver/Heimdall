@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,6 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Include_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
-use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\LNumber;
 use Psy\Exception\ErrorException;
 use Psy\Exception\FatalErrorException;
@@ -36,7 +35,7 @@ class RequirePass extends CodeCleanerPass
     public function enterNode(Node $origNode)
     {
         if (!$this->isRequireNode($origNode)) {
-            return;
+            return null;
         }
 
         $node = clone $origNode;
@@ -50,10 +49,10 @@ class RequirePass extends CodeCleanerPass
          *
          *   $foo = require \Psy\CodeCleaner\RequirePass::resolve($bar)
          */
-        // @todo Remove LNumber once we drop support for PHP-Parser 4.x
-        $arg = \class_exists('PhpParser\Node\Scalar\Int_') ?
-            new Int_($origNode->getStartLine()) :
-            new LNumber($origNode->getStartLine());
+        // PHP-Parser 4.x uses LNumber, 5.x has LNumber as an alias to Int_
+        // Just use LNumber for compatibility with both versions
+        // @todo Switch to Int_ once we drop support for PHP-Parser 4.x
+        $arg = new LNumber($origNode->getStartLine());
 
         $node->expr = new StaticCall(
             new FullyQualifiedName(self::class),

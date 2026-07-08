@@ -31,6 +31,7 @@ use PHPUnit\Framework\MockObject\MethodNameAlreadyConfiguredException;
 use PHPUnit\Framework\MockObject\MethodNameNotConfiguredException;
 use PHPUnit\Framework\MockObject\MethodParametersAlreadyConfiguredException;
 use PHPUnit\Framework\MockObject\Rule;
+use PHPUnit\Framework\MockObject\Runtime\PropertyHook;
 use PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls;
 use PHPUnit\Framework\MockObject\Stub\Exception;
 use PHPUnit\Framework\MockObject\Stub\ReturnArgument;
@@ -51,12 +52,12 @@ final class InvocationMocker implements InvocationStubber, MethodNameMatch
     private readonly Matcher $matcher;
 
     /**
-     * @psalm-var list<ConfigurableMethod>
+     * @var list<ConfigurableMethod>
      */
     private readonly array $configurableMethods;
 
     /**
-     * @psalm-var ?array<string, int>
+     * @var ?array<string, int>
      */
     private ?array $configurableMethodNames = null;
 
@@ -143,13 +144,13 @@ final class InvocationMocker implements InvocationStubber, MethodNameMatch
             $returnValue = array_pop($mapping);
 
             foreach (range(0, $numberOfParameters - 1) as $i) {
-                if (isset($mapping[$i])) {
+                if (array_key_exists($i, $mapping)) {
                     $_mapping[] = $mapping[$i];
 
                     continue;
                 }
 
-                if (isset($defaultValues[$i])) {
+                if (array_key_exists($i, $defaultValues)) {
                     $_mapping[] = $defaultValues[$i];
                 }
             }
@@ -246,10 +247,14 @@ final class InvocationMocker implements InvocationStubber, MethodNameMatch
      *
      * @return $this
      */
-    public function method(Constraint|string $constraint): self
+    public function method(Constraint|PropertyHook|string $constraint): self
     {
         if ($this->matcher->hasMethodNameRule()) {
             throw new MethodNameAlreadyConfiguredException;
+        }
+
+        if ($constraint instanceof PropertyHook) {
+            $constraint = $constraint->asString();
         }
 
         if (is_string($constraint)) {
@@ -303,6 +308,8 @@ final class InvocationMocker implements InvocationStubber, MethodNameMatch
     }
 
     /**
+     * @param array<mixed> $values
+     *
      * @throws IncompatibleReturnValueException
      */
     private function ensureTypeOfReturnValues(array $values): void

@@ -87,29 +87,44 @@ class Command implements SignalableCommandInterface
      *
      * @throws LogicException When the command name is empty
      */
-    public function __construct(?string $name = null)
+    public function __construct(?string $name = null, ?callable $code = null)
     {
+        if (null !== $code) {
+            if (!\is_object($code) || $code instanceof \Closure) {
+                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', self::class));
+            }
+            /** @var AsCommand $attribute */
+            $attribute = ((new \ReflectionObject($code))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()
+                ?? throw new LogicException(\sprintf('The command must use the "%s" attribute.', AsCommand::class));
+            $this->setCode($code);
+        } else {
+            $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
+        }
+
         $this->definition = new InputDefinition();
-
-        $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
-
         if (null === $name) {
             if (self::class !== (new \ReflectionMethod($this, 'getDefaultName'))->class) {
                 trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
 
-                $defaultName = static::getDefaultName();
+                $name = static::getDefaultName();
             } else {
-                $defaultName = $attribute?->name;
+                $name = $attribute?->name;
             }
         }
 
-        if (null === $name && null !== $name = $defaultName) {
+        if (null !== $name) {
             $aliases = explode('|', $name);
 
             if ('' === $name = array_shift($aliases)) {
                 $this->setHidden(true);
                 $name = array_shift($aliases);
             }
+
+            // we must not overwrite existing aliases, combine new ones with existing ones
+            $aliases = array_unique([
+                ...$this->aliases,
+                ...$aliases,
+            ]);
 
             $this->setAliases($aliases);
         }
@@ -134,7 +149,11 @@ class Command implements SignalableCommandInterface
             $this->setHelp($attribute?->help ?? '');
         }
 
-        if (\is_callable($this) && (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name === self::class) {
+        foreach ($attribute?->usages ?? [] as $usage) {
+            $this->addUsage($usage);
+        }
+
+        if (!$code && \is_callable($this) && self::class === (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name) {
             $this->code = new InvokableCommand($this, $this(...));
         }
 
@@ -300,6 +319,10 @@ class Command implements SignalableCommandInterface
 
         if ($input->isInteractive()) {
             $this->interact($input, $output);
+
+            if ($this->code?->isInteractive()) {
+                $this->code->interact($input, $output);
+            }
         }
 
         // The command name argument is often omitted when a command is executed directly with its run() method.
@@ -329,6 +352,16 @@ class Command implements SignalableCommandInterface
         } elseif (CompletionInput::TYPE_ARGUMENT_VALUE === $input->getCompletionType() && $definition->hasArgument($input->getCompletionName())) {
             $definition->getArgument($input->getCompletionName())->complete($input, $suggestions);
         }
+    }
+
+    /**
+     * Gets the code that is executed by the command.
+     *
+     * @return ?callable null if the code has not been set with setCode()
+     */
+    public function getCode(): ?callable
+    {
+        return $this->code?->getCode();
     }
 
     /**

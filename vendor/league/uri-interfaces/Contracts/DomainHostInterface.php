@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Uri\Contracts;
 
+use BackedEnum;
 use Countable;
 use Iterator;
 use IteratorAggregate;
@@ -20,7 +21,14 @@ use League\Uri\Exceptions\SyntaxError;
 use Stringable;
 
 /**
- * @extends IteratorAggregate<string>
+ * @extends IteratorAggregate<int, string>
+ *
+ * @method bool isSubdomainOf(BackedEnum|Stringable|string|null $parentHost) Tells whether the current domain instance is a subdomain of the parent host.
+ * @method bool hasSubdomain(BackedEnum|Stringable|string|null $childHost) Tells whether the submitted host is a subdomain of the current instance.
+ * @method bool isSiblingOf(BackedEnum|Stringable|string|null $siblingHost) Tells whether the submitted host share the same parent domain as the current instance.
+ * @method static commonAncestorWith(BackedEnum|Stringable|string|null $other) Returns the common longest ancestor between 2 domain. The returned domain is empty if no ancestor is found
+ * @method static parentHost() Returns the current parent domain for the current instance. The returned domain is empty if no ancestor is found
+ * @method bool isEmpty() Tells whether the domain contains any label.
  */
 interface DomainHostInterface extends Countable, HostInterface, IteratorAggregate
 {

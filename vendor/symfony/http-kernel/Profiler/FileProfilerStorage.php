@@ -37,7 +37,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
         }
         $this->folder = substr($dsn, 5);
 
-        if (!is_dir($this->folder) && false === @mkdir($this->folder, 0777, true) && !is_dir($this->folder)) {
+        if (!is_dir($this->folder) && false === @mkdir($this->folder, 0o777, true) && !is_dir($this->folder)) {
             throw new \RuntimeException(\sprintf('Unable to create the storage directory (%s).', $this->folder));
         }
     }
@@ -136,7 +136,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
         if (!$profileIndexed) {
             // Create directory
             $dir = \dirname($file);
-            if (!is_dir($dir) && false === @mkdir($dir, 0777, true) && !is_dir($dir)) {
+            if (!is_dir($dir) && false === @mkdir($dir, 0o777, true) && !is_dir($dir)) {
                 throw new \RuntimeException(\sprintf('Unable to create the storage directory (%s).', $dir));
             }
         }
@@ -145,7 +145,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
         // when there are errors in sub-requests, the parent and/or children tokens
         // may equal the profile token, resulting in infinite loops
         $parentToken = $profile->getParentToken() !== $profileToken ? $profile->getParentToken() : null;
-        $childrenToken = array_filter(array_map(fn (Profile $p) => $profileToken !== $p->getToken() ? $p->getToken() : null, $profile->getChildren()));
+        $childrenToken = array_filter(array_map(static fn (Profile $p) => $profileToken !== $p->getToken() ? $p->getToken() : null, $profile->getChildren()));
 
         // Store profile
         $data = [
@@ -189,7 +189,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
             ], ',', '"', '\\');
             fclose($file);
 
-            if (1 === mt_rand(1, 10)) {
+            if (1 === random_int(1, 10)) {
                 $this->removeExpiredProfiles();
             }
         }
@@ -306,7 +306,7 @@ class FileProfilerStorage implements ProfilerStorageInterface
             $data = @gzdecode($data) ?: $data;
         }
 
-        if (!$data = unserialize($data)) {
+        if (!$data = unserialize($data, ['allowed_classes' => true])) {
             return null;
         }
 

@@ -5,6 +5,8 @@ namespace Illuminate\Console\Scheduling;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 
+use function Illuminate\Support\enum_value;
+
 trait ManagesFrequencies
 {
     /**
@@ -143,11 +145,17 @@ trait ManagesFrequencies
     /**
      * Schedule the event to run multiple times per minute.
      *
-     * @param  int<0, 59>  $seconds
+     * @param  int<1, 59>  $seconds
      * @return $this
+     *
+     * @throws \InvalidArgumentException
      */
     protected function repeatEvery($seconds)
     {
+        if ($seconds <= 0) {
+            throw new InvalidArgumentException("The seconds [$seconds] must be greater than zero.");
+        }
+
         if (60 % $seconds !== 0) {
             throw new InvalidArgumentException("The seconds [$seconds] are not evenly divisible by 60.");
         }
@@ -345,7 +353,7 @@ trait ManagesFrequencies
         $segments = explode(':', $time);
 
         return $this->hourBasedSchedule(
-            count($segments) === 2 ? (int) $segments[1] : '0',
+            count($segments) >= 2 ? (int) $segments[1] : '0',
             (int) $segments[0]
         );
     }
@@ -499,7 +507,7 @@ trait ManagesFrequencies
     /**
      * Schedule the event to run weekly on a given day and time.
      *
-     * @param  array|mixed  $dayOfWeek
+     * @param  mixed  $dayOfWeek
      * @param  string  $time
      * @return $this
      */
@@ -567,6 +575,21 @@ trait ManagesFrequencies
     }
 
     /**
+     * Schedule the event to run on specific days of the month.
+     *
+     * @param  array<int<1, 31>>|int<1, 31>  ...$days
+     * @return $this
+     */
+    public function daysOfMonth(...$days)
+    {
+        $days = count($days) === 1 && is_array($days[0]) ? $days[0] : $days;
+
+        $this->dailyAt('0:0');
+
+        return $this->spliceIntoPosition(3, implode(',', $days));
+    }
+
+    /**
      * Schedule the event to run quarterly.
      *
      * @return $this
@@ -626,7 +649,7 @@ trait ManagesFrequencies
     /**
      * Set the days of the week the command should run on.
      *
-     * @param  array|mixed  $days
+     * @param  mixed  $days
      * @return $this
      */
     public function days($days)
@@ -639,12 +662,12 @@ trait ManagesFrequencies
     /**
      * Set the timezone the date should be evaluated on.
      *
-     * @param  \DateTimeZone|string  $timezone
+     * @param  \UnitEnum|\DateTimeZone|string  $timezone
      * @return $this
      */
     public function timezone($timezone)
     {
-        $this->timezone = $timezone;
+        $this->timezone = enum_value($timezone);
 
         return $this;
     }
@@ -653,7 +676,7 @@ trait ManagesFrequencies
      * Splice the given value into the given position of the expression.
      *
      * @param  int  $position
-     * @param  string  $value
+     * @param  string|int  $value
      * @return $this
      */
     protected function spliceIntoPosition($position, $value)

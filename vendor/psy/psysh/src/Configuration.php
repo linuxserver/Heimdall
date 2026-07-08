@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,13 +11,27 @@
 
 namespace Psy;
 
+use Psy\Clipboard\ClipboardMethod;
+use Psy\Clipboard\CommandClipboardMethod;
+use Psy\Clipboard\NullClipboardMethod;
+use Psy\Clipboard\Osc52ClipboardMethod;
 use Psy\Exception\DeprecatedException;
+use Psy\Exception\InvalidManualException;
 use Psy\Exception\RuntimeException;
+use Psy\ExecutionLoop\ExecutionLoggingListener;
+use Psy\ExecutionLoop\InputLoggingListener;
 use Psy\ExecutionLoop\ProcessForker;
+use Psy\Formatter\SignatureFormatter;
+use Psy\Logger\CallbackLogger;
+use Psy\Manual\ManualInterface;
+use Psy\Manual\V2Manual;
+use Psy\Manual\V3Manual;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Output\Theme;
+use Psy\Readline\Interactive\Input\History as InteractiveHistory;
 use Psy\TabCompletion\AutoCompleter;
+use Psy\Util\Tty;
 use Psy\VarDumper\Presenter;
 use Psy\VersionUpdater\Checker;
 use Psy\VersionUpdater\GitHubChecker;
@@ -26,6 +40,7 @@ use Psy\VersionUpdater\NoopChecker;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -41,11 +56,25 @@ class Configuration
     const INTERACTIVE_MODE_FORCED = 'forced';
     const INTERACTIVE_MODE_DISABLED = 'disabled';
 
+    const PROJECT_TRUST_PROMPT = 'prompt';
+    const PROJECT_TRUST_ALWAYS = 'always';
+    const PROJECT_TRUST_NEVER = 'never';
+
     const VERBOSITY_QUIET = 'quiet';
     const VERBOSITY_NORMAL = 'normal';
     const VERBOSITY_VERBOSE = 'verbose';
     const VERBOSITY_VERY_VERBOSE = 'very_verbose';
     const VERBOSITY_DEBUG = 'debug';
+
+    const SEMICOLONS_SUPPRESS_RETURN_DOUBLE = 'double';
+
+    private const KNOWN_CLIPBOARD_COMMANDS = [
+        'wl-copy',
+        'xsel --clipboard --input',
+        'xclip -selection clipboard',
+        'pbcopy',
+        'clip.exe',
+    ];
 
     private const AVAILABLE_OPTIONS = [
         'codeCleaner',
@@ -54,28 +83,41 @@ class Configuration
         'dataDir',
         'defaultIncludes',
         'eraseDuplicates',
+        'exceptionDetails',
         'errorLoggingLevel',
+        'useExperimentalReadline',
+        'useSyntaxHighlighting',
+        'useSuggestions',
         'forceArrayIndexes',
         'formatterStyles',
         'historyFile',
         'historySize',
+        'implicitUse',
         'interactiveMode',
+        'logging',
         'manualDbFile',
+        'useDeprecatedMultilineStrings',
+        'trustProject',
         'pager',
         'prompt',
         'rawOutput',
         'requireSemicolons',
         'runtimeDir',
+        'semicolonsSuppressReturn',
         'startupMessage',
         'strictTypes',
         'theme',
         'updateCheck',
+        'updateManualCheck',
+        'clipboardCommand',
         'useBracketedPaste',
+        'useOsc52Clipboard',
         'usePcntl',
         'useReadline',
         'useTabCompletion',
         'useUnicode',
         'verbosity',
+        'warmAutoload',
         'warnOnMultipleConfigs',
         'yolo',
     ];
@@ -89,33 +131,50 @@ class Configuration
     private $historyFile;
     private int $historySize = 0;
     private ?bool $eraseDuplicates = null;
+    private bool $useExperimentalReadline = false;
+    private bool $useSyntaxHighlighting = true;
+    private bool $useSuggestions = false;
     private ?string $manualDbFile = null;
     private bool $hasReadline;
     private ?bool $useReadline = null;
     private bool $useBracketedPaste = false;
     private bool $hasPcntl;
     private ?bool $usePcntl = null;
-    private array $newCommands = [];
+    private array $commands = [];
+    private array $matchers = [];
+    /** @var Completion\Source\SourceInterface[] */
+    private array $completionSources = [];
     private ?bool $pipedInput = null;
     private ?bool $pipedOutput = null;
     private bool $rawOutput = false;
     private bool $requireSemicolons = false;
+    /** @var bool|string */
+    private $semicolonsSuppressReturn = false;
     private bool $strictTypes = false;
+    private ?string $clipboardCommand = null;
     private ?bool $useUnicode = null;
     private ?bool $useTabCompletion = null;
-    private array $newMatchers = [];
+    private bool $useOsc52Clipboard = false;
+    private ?array $autoloadWarmers = null;
+    private $implicitUse = false;
+    private ?ShellLogger $logger = null;
+    private ?\Closure $exceptionDetails = null;
     private int $errorLoggingLevel = \E_ALL;
     private bool $warnOnMultipleConfigs = false;
     private string $colorMode = self::COLOR_MODE_AUTO;
     private string $interactiveMode = self::INTERACTIVE_MODE_AUTO;
+    private ProjectTrust $projectTrust;
     private ?string $updateCheck = null;
+    private ?string $updateManualCheck = null;
     private ?string $startupMessage = null;
     private bool $forceArrayIndexes = false;
+    private bool $useDeprecatedMultilineStrings = false;
     /** @deprecated */
     private array $formatterStyles = [];
     private string $verbosity = self::VERBOSITY_NORMAL;
     private bool $yolo = false;
     private ?Theme $theme = null;
+    private bool $localConfigLoaded = false;
 
     // services
     private ?Readline\Readline $readline = null;
@@ -125,9 +184,12 @@ class Configuration
     /** @var string|OutputPager|false|null */
     private $pager = null;
     private ?\PDO $manualDb = null;
+    private ?ManualInterface $manual = null;
     private ?Presenter $presenter = null;
+    private array $casters = [];
     private ?AutoCompleter $autoCompleter = null;
     private ?Checker $checker = null;
+    private ?ClipboardMethod $clipboard = null;
     /** @deprecated */
     private ?string $prompt = null;
     private ConfigPaths $configPaths;
@@ -142,6 +204,7 @@ class Configuration
     public function __construct(array $config = [])
     {
         $this->configPaths = new ConfigPaths();
+        $this->projectTrust = new ProjectTrust($this->configPaths);
 
         // explicit configFile option
         if (isset($config['configFile'])) {
@@ -152,6 +215,21 @@ class Configuration
             $this->configFile = $configFile;
         }
 
+        $trustOverride = null;
+        if (isset($config['trustProject'])) {
+            $this->setTrustProject($config['trustProject']);
+            $trustOverride = $this->projectTrust->getMode();
+        } elseif (isset($_SERVER['PSYSH_TRUST_PROJECT']) && $_SERVER['PSYSH_TRUST_PROJECT'] !== '') {
+            $this->projectTrust->setModeFromEnv($_SERVER['PSYSH_TRUST_PROJECT']);
+            $trustOverride = $this->projectTrust->getMode();
+        } elseif (\PHP_SAPI === 'cli-server') {
+            $trust = \getenv('PSYSH_TRUST_PROJECT');
+            if ($trust !== false && $trust !== '') {
+                $this->projectTrust->setModeFromEnv($trust);
+                $trustOverride = $this->projectTrust->getMode();
+            }
+        }
+
         // legacy baseDir option
         if (isset($config['baseDir'])) {
             $msg = "The 'baseDir' configuration option is deprecated; ".
@@ -159,10 +237,20 @@ class Configuration
             throw new DeprecatedException($msg);
         }
 
-        unset($config['configFile'], $config['baseDir']);
+        unset(
+            $config['configFile'],
+            $config['baseDir'],
+            $config['trustProject']
+        );
 
         // go go gadget, config!
         $this->loadConfig($config);
+
+        // Ensure that explicit project trust settings are applied
+        if ($trustOverride !== null && $this->projectTrust->getMode() !== $trustOverride) {
+            $this->projectTrust->setMode($trustOverride);
+        }
+
         $this->init();
     }
 
@@ -184,7 +272,12 @@ class Configuration
      */
     public static function fromInput(InputInterface $input): self
     {
-        $config = new self(['configFile' => self::getConfigFileFromInput($input)]);
+        $configOptions = [
+            'configFile'   => self::getConfigFileFromInput($input),
+            'trustProject' => self::getProjectTrustFromInput($input),
+        ];
+
+        $config = new self($configOptions);
 
         // Handle --color and --no-color (and --ansi and --no-ansi aliases)
         if (self::getOptionFromInput($input, ['color', 'ansi'])) {
@@ -210,6 +303,18 @@ class Configuration
             $config->setTheme('compact');
         }
 
+        // Handle --pager and --no-pager
+        if (self::hasPagerOption($input)) {
+            $pager = self::getPagerFromInput($input);
+            if ($pager === null) {
+                $config->setDefaultPager();
+            } else {
+                $config->setPager($pager);
+            }
+        } elseif (self::getOptionFromInput($input, ['no-pager'])) {
+            $config->setPager(false);
+        }
+
         // Handle --raw-output
         // @todo support raw output with interactive input?
         if (!$config->getInputInteractive()) {
@@ -218,9 +323,19 @@ class Configuration
             }
         }
 
+        // Handle --warm-autoload
+        if (self::getOptionFromInput($input, ['warm-autoload'])) {
+            $config->setWarmAutoload(true);
+        }
+
         // Handle --yolo
         if (self::getOptionFromInput($input, ['yolo'])) {
             $config->setYolo(true);
+        }
+
+        // Handle --experimental-readline
+        if (self::getOptionFromInput($input, ['experimental-readline'])) {
+            $config->setUseExperimentalReadline(true);
         }
 
         return $config;
@@ -239,6 +354,70 @@ class Configuration
         }
 
         return $input->getParameterOption('--config', null, true) ?: $input->getParameterOption('-c', null, true);
+    }
+
+    /**
+     * Get the desired project trust from the given input.
+     *
+     * @return bool|null project trust, or null if none is specified
+     */
+    private static function getProjectTrustFromInput(InputInterface $input): ?bool
+    {
+        if (self::getOptionFromInput($input, ['no-trust-project'])) {
+            return false;
+        } elseif (self::getOptionFromInput($input, ['trust-project'])) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the desired pager from the given input.
+     *
+     * @return string|null pager command, or null to use default pager resolution
+     */
+    private static function getPagerFromInput(InputInterface $input): ?string
+    {
+        // Best case, input is properly bound and validated.
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager)) {
+                return $pager === '' ? null : $pager;
+            }
+
+            if ($pager === true) {
+                return null;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            $pager = $input->getParameterOption('--pager', null, true);
+
+            if (\is_string($pager) && isset($pager[0]) && $pager[0] === '-') {
+                return null;
+            }
+
+            return ($pager === null || $pager === '') ? null : $pager;
+        }
+
+        return null;
+    }
+
+    private static function hasPagerOption(InputInterface $input): bool
+    {
+        if ($input->hasOption('pager')) {
+            $pager = $input->getOption('pager');
+            if (\is_string($pager) || $pager === true) {
+                return true;
+            }
+        }
+
+        if ($input->hasParameterOption('--pager', true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -316,7 +495,7 @@ class Configuration
                 case 'vvvvvvv':
                     return self::VERBOSITY_DEBUG;
                 default: // implicitly normal, config file default wins
-                    return;
+                    return null;
             }
         }
 
@@ -341,6 +520,8 @@ class Configuration
         if ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true)) {
             return self::VERBOSITY_VERBOSE;
         }
+
+        return null;
     }
 
     /**
@@ -355,6 +536,8 @@ class Configuration
         return [
             new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Use an alternate PsySH config file location.'),
             new InputOption('cwd', null, InputOption::VALUE_REQUIRED, 'Use an alternate working directory.'),
+            new InputOption('trust-project', null, InputOption::VALUE_NONE, 'Trust the current project for this run.'),
+            new InputOption('no-trust-project', null, InputOption::VALUE_NONE, 'Run in Restricted Mode for this project.'),
 
             new InputOption('color', null, InputOption::VALUE_NONE, 'Force colors in output.'),
             new InputOption('no-color', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
@@ -370,11 +553,16 @@ class Configuration
             // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
             new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
+            new InputOption('pager', null, InputOption::VALUE_OPTIONAL, 'Use an alternate output pager command. Without a value, use the default pager selection.', false),
+            new InputOption('no-pager', null, InputOption::VALUE_NONE, 'Disable paging output for this run.'),
             new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
 
             new InputOption('self-update', 'u', InputOption::VALUE_NONE, 'Update to the latest version'),
 
+            new InputOption('experimental-readline', null, InputOption::VALUE_NONE, 'Use experimental interactive readline implementation.'),
             new InputOption('yolo', null, InputOption::VALUE_NONE, 'Run PsySH with minimal input validation. You probably don\'t want this.'),
+            new InputOption('warm-autoload', null, InputOption::VALUE_NONE, 'Enable autoload warming for better tab completion.'),
+            new InputOption('info', null, InputOption::VALUE_NONE, 'Display PsySH environment and configuration info.'),
         ];
     }
 
@@ -386,7 +574,8 @@ class Configuration
      * If a config file is available, it will be loaded and merged with the current config.
      *
      * If no custom config file was specified and a local project config file
-     * is available, it will be loaded and merged with the current config.
+     * is available, it may be loaded and merged with the current config
+     * depending on project trust settings.
      */
     public function init()
     {
@@ -398,9 +587,7 @@ class Configuration
             $this->loadConfigFile($configFile);
         }
 
-        if (!$this->configFile && $localConfig = $this->getLocalConfigFile()) {
-            $this->loadConfigFile($localConfig);
-        }
+        $this->loadLocalConfigIfTrusted();
 
         $this->configPaths->overrideDirs([
             'configDir'  => $this->configDir,
@@ -433,12 +620,15 @@ class Configuration
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
             return $files[0];
         }
+
+        return null;
     }
 
     /**
@@ -456,6 +646,232 @@ class Configuration
         if (@\is_file($localConfig)) {
             return $localConfig;
         }
+
+        return null;
+    }
+
+    /**
+     * Configure the project trust mode.
+     *
+     * Accepts boolean values or one of: 'prompt', 'always', 'never'.
+     *
+     * @param bool|string|null $mode
+     */
+    public function setTrustProject($mode): void
+    {
+        if ($mode === null) {
+            $this->projectTrust->setMode(self::PROJECT_TRUST_PROMPT);
+
+            return;
+        }
+
+        if (\is_bool($mode)) {
+            $this->projectTrust->setMode($mode ? self::PROJECT_TRUST_ALWAYS : self::PROJECT_TRUST_NEVER);
+
+            return;
+        }
+
+        if (!\is_string($mode)) {
+            throw new \InvalidArgumentException('Invalid trustProject value. Expected: prompt, always, or never');
+        }
+
+        switch (\strtolower(\trim($mode))) {
+            case 'prompt':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_PROMPT);
+                break;
+            case 'always':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_ALWAYS);
+                break;
+            case 'never':
+                $this->projectTrust->setMode(self::PROJECT_TRUST_NEVER);
+                break;
+            default:
+                throw new \InvalidArgumentException('Invalid trustProject value. Expected: prompt, always, or never');
+        }
+    }
+
+    /**
+     * Get the current project trust mode.
+     */
+    public function getProjectTrustMode(): string
+    {
+        return $this->projectTrust->getMode();
+    }
+
+    /**
+     * @deprecated explicit autoload warming always respects project trust restrictions
+     */
+    public function setForceWarmAutoload(bool $force = true): void
+    {
+    }
+
+    /**
+     * Load local config with an interactive trust prompt when appropriate.
+     *
+     * When stdin is not interactive, loads local config without prompting and
+     * writes a warning to stderr.
+     */
+    public function loadLocalConfigWithPrompt(InputInterface $input, OutputInterface $output): void
+    {
+        if ($this->localConfigLoaded) {
+            return;
+        }
+
+        $localConfigRoot = $this->projectTrust->getLocalConfigRoot();
+        $composerRoot = $this->projectTrust->getProjectRoot();
+        $checkLocalPsyshBinary = $this->projectTrust->shouldPromptForLocalPsyshBinary();
+
+        // Collect features by root that need trust
+        $featuresByRoot = [];
+
+        // Check for local config (cwd only)
+        if ($localConfigRoot !== null && $this->hasLocalConfig($localConfigRoot)) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($localConfigRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$localConfigRoot][] = 'Local config (.psysh.php)';
+            }
+        }
+
+        // Check for local PsySH binary (at Composer root, where vendor/bin lives)
+        if ($checkLocalPsyshBinary && $composerRoot !== null && $this->projectTrust->getLocalPsyshProjectRoot($composerRoot) !== null) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($composerRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$composerRoot][] = 'local PsySH binary';
+            }
+        }
+
+        // Check for autoload warming (Composer root, may differ from cwd)
+        if ($composerRoot !== null && $this->shouldReportAutoloadWarming($composerRoot)) {
+            $trustStatus = $this->projectTrust->getProjectTrustStatus($composerRoot);
+            if ($trustStatus === null) {
+                $featuresByRoot[$composerRoot][] = 'Project autoload (vendor/autoload.php)';
+            }
+        }
+
+        // If nothing needs trust, we're done
+        if (empty($featuresByRoot)) {
+            // Load local config if it's already trusted
+            if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+                $this->loadLocalConfigIfPresent($localConfigRoot);
+            }
+
+            return;
+        }
+
+        // Handle force untrust
+        if ($this->projectTrust->getForceUntrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_NEVER) {
+            return;
+        }
+
+        // Non-interactive: warn and skip untrusted features (do not auto-trust)
+        if (!$this->getInputInteractive() || !$input->isInteractive()) {
+            $errorOutput = $output;
+            if ($errorOutput instanceof ConsoleOutput) {
+                $errorOutput = $errorOutput->getErrorOutput();
+            }
+
+            foreach ($featuresByRoot as $root => $features) {
+                $prettyDir = ConfigPaths::prettyPath($root);
+                $errorOutput->writeln(
+                    "<comment>Restricted Mode: skipping untrusted project features from {$prettyDir} (non-interactive mode). Use --trust-project to allow.</comment>"
+                );
+            }
+
+            if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+                $this->loadLocalConfigIfPresent($localConfigRoot);
+            }
+
+            return;
+        }
+
+        // Interactive: prompt per-root
+        foreach ($featuresByRoot as $root => $features) {
+            if ($this->projectTrust->promptForTrust($input, $output, $root, $features)) {
+                // Check for local PsySH binary that needs re-run message
+                if ($checkLocalPsyshBinary && ($localPsyshRoot = $this->projectTrust->getLocalPsyshProjectRoot($root))) {
+                    $prettyLocal = ConfigPaths::prettyPath($localPsyshRoot);
+                    $output->writeln('');
+                    $output->writeln("<comment>Local PsySH version detected at {$prettyLocal}.</comment>");
+                    $output->writeln('Re-run PsySH to use the trusted local version, or pass --trust-project to use it immediately.');
+                    $output->writeln('');
+                }
+            }
+        }
+
+        // Load local config if now trusted
+        if ($localConfigRoot !== null && $this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+            $this->loadLocalConfigIfPresent($localConfigRoot);
+        }
+    }
+
+    /**
+     * Check if a local config file exists at the given root.
+     */
+    private function hasLocalConfig(string $root): bool
+    {
+        if (isset($this->configFile)) {
+            return false;
+        }
+
+        return @\is_file($root.'/.psysh.php');
+    }
+
+    private function loadLocalConfigIfTrusted(): void
+    {
+        if ($this->localConfigLoaded || isset($this->configFile)) {
+            return;
+        }
+
+        $localConfigRoot = $this->projectTrust->getLocalConfigRoot();
+        if ($localConfigRoot === null) {
+            return;
+        }
+
+        if ($this->projectTrust->getProjectTrustStatus($localConfigRoot) === true) {
+            $this->loadLocalConfigIfPresent($localConfigRoot);
+        }
+    }
+
+    private function loadLocalConfigIfPresent(string $projectRoot): void
+    {
+        if ($this->localConfigLoaded || isset($this->configFile)) {
+            return;
+        }
+
+        $localConfig = $projectRoot.'/.psysh.php';
+        if (@\is_file($localConfig)) {
+            $this->loadConfigFile($localConfig);
+            $this->localConfigLoaded = true;
+            $this->configPaths->overrideDirs([
+                'configDir'  => $this->configDir,
+                'dataDir'    => $this->dataDir,
+                'runtimeDir' => $this->runtimeDir,
+            ]);
+        }
+    }
+
+    private function shouldReportAutoloadWarming(string $projectRoot): bool
+    {
+        if (!$this->hasComposerAutoloadWarmerConfigured()) {
+            return false;
+        }
+
+        return $this->projectTrust->hasComposerAutoloadFiles($projectRoot);
+    }
+
+    private function hasComposerAutoloadWarmerConfigured(): bool
+    {
+        if ($this->autoloadWarmers === null) {
+            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
+        }
+
+        foreach ($this->autoloadWarmers as $warmer) {
+            if ($warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -480,7 +896,7 @@ class Configuration
             $this->setUseTabCompletion($options['tabCompletion']);
         }
 
-        foreach (['commands', 'matchers', 'casters'] as $option) {
+        foreach (['commands', 'matchers', 'completionSources', 'casters'] as $option) {
             if (isset($options[$option])) {
                 $method = 'add'.\ucfirst($option);
                 $this->$method($options[$option]);
@@ -510,7 +926,7 @@ class Configuration
     public function loadConfigFile(string $file)
     {
         if (!\is_file($file)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', $file));
+            throw new \InvalidArgumentException(\sprintf('Invalid configuration file specified, %s does not exist', ConfigPaths::prettyPath($file)));
         }
 
         $__psysh_config_file__ = $file;
@@ -655,8 +1071,9 @@ class Configuration
     /**
      * Get the readline history file path.
      *
-     * Defaults to `/history` inside the shell's base config dir unless
-     * explicitly overridden.
+     * Defaults to `/psysh_history` (standard readline) or
+     * `/psysh_history.jsonl` (interactive readline) in the shell's config dir
+     * unless explicitly overridden.
      */
     public function getHistoryFile(): ?string
     {
@@ -664,26 +1081,73 @@ class Configuration
             return $this->historyFile;
         }
 
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return null;
+        }
+
+        if ($this->usesInteractiveHistoryFormat()) {
+            $jsonlHistoryFile = $configDir.'/psysh_history.jsonl';
+            $this->bootstrapInteractiveHistoryFile($jsonlHistoryFile);
+            $this->setHistoryFile($jsonlHistoryFile);
+
+            return $this->historyFile;
+        }
+
         $files = $this->configPaths->configFiles(['psysh_history', 'history']);
 
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
             $this->setHistoryFile($files[0]);
         } else {
-            // fallback: create our own history file
-            $configDir = $this->configPaths->currentConfigDir();
-            if ($configDir === null) {
-                return null;
-            }
-
             $this->setHistoryFile($configDir.'/psysh_history');
         }
 
         return $this->historyFile;
+    }
+
+    /**
+     * Determine whether history should use the interactive JSONL format.
+     */
+    private function usesInteractiveHistoryFormat(): bool
+    {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return true;
+        }
+
+        return $this->getReadlineClass() === Readline\InteractiveReadline::class;
+    }
+
+    /**
+     * Bootstrap interactive JSONL history from legacy history file if needed.
+     *
+     * This is intentionally one-way: once JSONL exists, legacy and JSONL
+     * history files diverge.
+     */
+    private function bootstrapInteractiveHistoryFile(string $jsonlHistoryFile): void
+    {
+        if (@\is_file($jsonlHistoryFile)) {
+            return;
+        }
+
+        $legacyFiles = $this->configPaths->configFiles(['psysh_history', 'history']);
+        if (empty($legacyFiles)) {
+            return;
+        }
+
+        $legacyHistoryFile = $legacyFiles[0];
+        if (!@\is_readable($legacyHistoryFile)) {
+            return;
+        }
+
+        $history = new InteractiveHistory($this->getHistorySize(), $this->getEraseDuplicates() ?? false);
+        $history->importFromFile($legacyHistoryFile);
+        $history->saveToFile($jsonlHistoryFile);
     }
 
     /**
@@ -816,6 +1280,7 @@ class Configuration
     {
         if (!isset($this->readline)) {
             $className = $this->getReadlineClass();
+
             $this->readline = new $className(
                 $this->getHistoryFile(),
                 $this->getHistorySize(),
@@ -833,6 +1298,11 @@ class Configuration
      */
     private function getReadlineClass(): string
     {
+        // Experimental interactive readline (opt-in via config or --experimental-readline)
+        if ($this->useExperimentalReadline() && Readline\InteractiveReadline::isSupported()) {
+            return Readline\InteractiveReadline::class;
+        }
+
         if ($this->useReadline()) {
             if (Readline\GNUReadline::isSupported()) {
                 return Readline\GNUReadline::class;
@@ -883,6 +1353,111 @@ class Configuration
 
         // @todo mebbe turn this on by default some day?
         // return $readlineClass::supportsBracketedPaste() && $this->useBracketedPaste !== false;
+    }
+
+    /**
+     * Set a custom clipboard command.
+     *
+     * @param string|null $clipboardCommand
+     */
+    public function setClipboardCommand(?string $clipboardCommand)
+    {
+        $this->clipboardCommand = $clipboardCommand !== null && \trim($clipboardCommand) !== ''
+            ? $clipboardCommand
+            : null;
+        $this->clipboard = null;
+    }
+
+    /**
+     * Get the configured clipboard command, if any.
+     */
+    public function clipboardCommand(): ?string
+    {
+        return $this->clipboardCommand;
+    }
+
+    /**
+     * Set the ClipboardMethod service.
+     */
+    public function setClipboard(ClipboardMethod $clipboard)
+    {
+        $this->clipboard = $clipboard;
+    }
+
+    /**
+     * Get the ClipboardMethod service.
+     */
+    public function getClipboard(): ClipboardMethod
+    {
+        if (isset($this->clipboard)) {
+            return $this->clipboard;
+        }
+
+        if ($this->clipboardCommand !== null && \function_exists('proc_open')) {
+            return $this->clipboard = new CommandClipboardMethod($this->clipboardCommand);
+        }
+
+        $isSsh = $this->isSshSession();
+        if ($isSsh) {
+            return $this->clipboard = $this->useOsc52Clipboard()
+                ? new Osc52ClipboardMethod()
+                : new NullClipboardMethod(true);
+        }
+
+        if (\function_exists('proc_open')) {
+            foreach (self::KNOWN_CLIPBOARD_COMMANDS as $command) {
+                if ($this->clipboardCommandExists($command)) {
+                    return $this->clipboard = new CommandClipboardMethod($command);
+                }
+            }
+        }
+
+        if ($this->useOsc52Clipboard()) {
+            return $this->clipboard = new Osc52ClipboardMethod();
+        }
+
+        return $this->clipboard = new NullClipboardMethod(
+            false,
+            $this->clipboardCommand !== null
+                ? NullClipboardMethod::REASON_NO_COMMAND_SUPPORT
+                : NullClipboardMethod::REASON_NO_COMMAND
+        );
+    }
+
+    /**
+     * Enable or disable OSC 52 clipboard support.
+     *
+     * @param bool $useOsc52Clipboard
+     */
+    public function setUseOsc52Clipboard(bool $useOsc52Clipboard)
+    {
+        $this->useOsc52Clipboard = (bool) $useOsc52Clipboard;
+        $this->clipboard = null;
+    }
+
+    /**
+     * Check whether to use OSC 52 clipboard support.
+     */
+    public function useOsc52Clipboard(): bool
+    {
+        return $this->useOsc52Clipboard;
+    }
+
+    private function isSshSession(): bool
+    {
+        return \getenv('SSH_TTY') !== false
+            || \getenv('SSH_CLIENT') !== false
+            || \getenv('SSH_CONNECTION') !== false;
+    }
+
+    /**
+     * @phpstan-param non-empty-string $command
+     */
+    private function clipboardCommandExists(string $command): bool
+    {
+        $bin = \explode(' ', $command, 2)[0];
+
+        return $this->configPaths->which($bin) !== null;
     }
 
     /**
@@ -973,6 +1548,47 @@ class Configuration
     public function requireSemicolons(): bool
     {
         return $this->requireSemicolons;
+    }
+
+    /**
+     * Enable or disable semicolons suppressing return value display.
+     *
+     * @see self::semicolonsSuppressReturn()
+     */
+    public function setSemicolonsSuppressReturn($semicolonsSuppressReturn)
+    {
+        if (\is_bool($semicolonsSuppressReturn)) {
+            $this->semicolonsSuppressReturn = $semicolonsSuppressReturn;
+
+            return;
+        }
+
+        if ($semicolonsSuppressReturn === self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE) {
+            $this->semicolonsSuppressReturn = self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE;
+
+            return;
+        }
+
+        $given = \is_scalar($semicolonsSuppressReturn)
+            ? (string) $semicolonsSuppressReturn
+            : \gettype($semicolonsSuppressReturn);
+
+        throw new \InvalidArgumentException(\sprintf('Invalid semicolonsSuppressReturn value: %s. Accepted values: true, false, \'%s\'', $given, self::SEMICOLONS_SUPPRESS_RETURN_DOUBLE));
+    }
+
+    /**
+     * Check whether semicolons suppress return value display.
+     *
+     * When enabled, an unnecessary trailing semicolon suppresses the return
+     * value display (like Pry and MATLAB). The return value is still captured
+     * in $_. In `double` mode, a double semicolon (`;;`) is always required
+     * to suppress, regardless of the `requireSemicolons` setting.
+     *
+     * @return bool|string
+     */
+    public function semicolonsSuppressReturn()
+    {
+        return $this->semicolonsSuppressReturn;
     }
 
     /**
@@ -1071,7 +1687,7 @@ class Configuration
     public function getCodeCleaner(): CodeCleaner
     {
         if (!isset($this->cleaner)) {
-            $this->cleaner = new CodeCleaner(null, null, null, $this->yolo(), $this->strictTypes());
+            $this->cleaner = new CodeCleaner(null, null, null, $this->yolo(), $this->strictTypes(), $this->implicitUse);
         }
 
         return $this->cleaner;
@@ -1093,6 +1709,54 @@ class Configuration
     public function yolo(): bool
     {
         return $this->yolo;
+    }
+
+    /**
+     * Enable experimental interactive readline implementation.
+     */
+    public function setUseExperimentalReadline(bool $enabled): void
+    {
+        $this->useExperimentalReadline = $enabled;
+    }
+
+    /**
+     * Check whether to use experimental interactive readline.
+     */
+    public function useExperimentalReadline(): bool
+    {
+        return $this->useExperimentalReadline;
+    }
+
+    /**
+     * Enable or disable syntax highlighting in interactive readline.
+     */
+    public function setUseSyntaxHighlighting(bool $enabled): void
+    {
+        $this->useSyntaxHighlighting = $enabled;
+    }
+
+    /**
+     * Check whether syntax highlighting is enabled in interactive readline.
+     */
+    public function useSyntaxHighlighting(): bool
+    {
+        return $this->useSyntaxHighlighting;
+    }
+
+    /**
+     * Enable inline suggestions in interactive readline.
+     */
+    public function setUseSuggestions(bool $enabled): void
+    {
+        $this->useSuggestions = $enabled;
+    }
+
+    /**
+     * Check whether inline suggestions are enabled.
+     */
+    public function useSuggestions(): bool
+    {
+        return $this->useSuggestions;
     }
 
     /**
@@ -1127,6 +1791,10 @@ class Configuration
      */
     public function useTabCompletion(): bool
     {
+        if (isset($this->readline) && $this->readline instanceof Readline\InteractiveReadlineInterface) {
+            return $this->useTabCompletion ?? true;
+        }
+
         return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
     }
 
@@ -1155,6 +1823,7 @@ class Configuration
         }
 
         $this->applyFormatterStyles();
+        $this->invalidatePresenter();
     }
 
     /**
@@ -1169,11 +1838,18 @@ class Configuration
     public function getOutput(): ShellOutput
     {
         if (!isset($this->output)) {
+            // `true` means "use the built-in userland pager"; we can't
+            // construct it here because the interactive readline hasn't
+            // booted yet. Start with no pager and let Shell wire it up.
+            $pagerArg = $this->getPager();
+            if ($pagerArg === true) {
+                $pagerArg = null;
+            }
             $this->setOutput(new ShellOutput(
                 $this->getOutputVerbosity(),
                 null,
                 null,
-                $this->getPager() ?: null,
+                $pagerArg ?: null,
                 $this->theme()
             ));
 
@@ -1181,7 +1857,7 @@ class Configuration
             // output stream to figure out if it's piped or not, so create it
             // first, then update after we have a stream.
             $decorated = $this->getOutputDecorated();
-            if ($decorated !== null) {
+            if ($decorated !== null && $this->output !== null) {
                 $this->output->setDecorated($decorated);
             }
         }
@@ -1226,14 +1902,16 @@ class Configuration
     /**
      * Set the OutputPager service.
      *
-     * If a string is supplied, a ProcOutputPager will be used which shells out
-     * to the specified command.
+     * Accepted values:
+     *   - `false` (or `null`, or `'cat'`): never page.
+     *   - `true`: use the built-in userland pager when interactive readline
+     *     is active.
+     *   - a string command: shell out to that command via ProcOutputPager.
+     *   - an OutputPager instance: use it directly.
      *
-     * `cat` is special-cased to use the PassthruPager directly.
+     * @throws \InvalidArgumentException if $pager is not one of the above
      *
-     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance
-     *
-     * @param string|OutputPager|false $pager
+     * @param string|OutputPager|bool|null $pager
      */
     public function setPager($pager)
     {
@@ -1241,11 +1919,19 @@ class Configuration
             $pager = false;
         }
 
-        if ($pager !== false && !\is_string($pager) && !$pager instanceof OutputPager) {
+        if ($pager !== false && $pager !== true && !\is_string($pager) && !$pager instanceof OutputPager) {
             throw new \InvalidArgumentException('Unexpected pager instance');
         }
 
         $this->pager = $pager;
+    }
+
+    /**
+     * Use the default pager resolution for this configuration.
+     */
+    public function setDefaultPager(): void
+    {
+        $this->pager = null;
     }
 
     /**
@@ -1254,10 +1940,20 @@ class Configuration
      * If no Pager has been explicitly provided, and Pcntl is available, this
      * will default to `cli.pager` ini value, falling back to `which less`.
      *
-     * @return string|OutputPager|false
+     * @return string|OutputPager|bool
      */
     public function getPager()
     {
+        // When the interactive readline is configured, prefer the built-in
+        // userland pager. Wired up by Shell after the readline boots.
+        if (!isset($this->pager)
+            && $this->useExperimentalReadline()
+            && $this->getInputInteractive()
+            && Readline\InteractiveReadline::isSupported()
+        ) {
+            return true;
+        }
+
         if (!isset($this->pager) && $this->usePcntl()) {
             if (\getenv('TERM') === 'dumb') {
                 return false;
@@ -1331,22 +2027,372 @@ class Configuration
      */
     public function addMatchers(array $matchers)
     {
-        $this->newMatchers = \array_merge($this->newMatchers, $matchers);
+        $this->matchers = \array_merge($this->matchers, $matchers);
         if (isset($this->shell)) {
-            $this->doAddMatchers();
+            $this->syncShellExtensions();
         }
     }
 
     /**
-     * Internal method for adding tab completion matchers. This will set any new
-     * matchers once a Shell is available.
+     * Add completion sources.
+     *
+     * @internal experimental; API may change before Interactive Readline is stable
+     *
+     * @param Completion\Source\SourceInterface[] $sources
      */
-    private function doAddMatchers()
+    public function addCompletionSources(array $sources)
     {
-        if (!empty($this->newMatchers)) {
-            $this->shell->addMatchers($this->newMatchers);
-            $this->newMatchers = [];
+        $this->completionSources = \array_merge($this->completionSources, $sources);
+        if (isset($this->shell)) {
+            $this->syncShellExtensions();
         }
+    }
+
+    /**
+     * Configure autoload warming.
+     *
+     * @param bool|array $config False to disable, true for defaults, or array for custom config
+     */
+    public function setWarmAutoload($config): void
+    {
+        if (!\is_bool($config) && !\is_array($config)) {
+            throw new \InvalidArgumentException('warmAutoload must be a boolean or configuration array');
+        }
+
+        // Parse and store warmers immediately
+        $this->autoloadWarmers = $this->parseWarmAutoloadConfig($config);
+    }
+
+    /**
+     * Get configured autoload warmers.
+     *
+     * If no warmers are explicitly configured, returns a default ComposerAutoloadWarmer
+     * with smart settings that work for most projects.
+     *
+     * To disable autoload warming, set 'warmAutoload' to false.
+     *
+     * @return TabCompletion\AutoloadWarmer\AutoloadWarmerInterface[]
+     */
+    public function getAutoloadWarmers(): array
+    {
+        if ($this->autoloadWarmers === null) {
+            $this->autoloadWarmers = $this->parseWarmAutoloadConfig(false);
+        }
+
+        if ($this->projectTrust->getForceTrust() || $this->projectTrust->getMode() === self::PROJECT_TRUST_ALWAYS) {
+            return $this->autoloadWarmers;
+        }
+
+        $projectRoot = $this->projectTrust->getProjectRoot();
+        if ($projectRoot !== null && ($this->projectTrust->getForceUntrust() || !$this->projectTrust->isProjectTrusted($projectRoot))) {
+            $filtered = \array_values(\array_filter(
+                $this->autoloadWarmers,
+                fn ($warmer) => !$warmer instanceof TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer
+            ));
+
+            if (\count($filtered) !== \count($this->autoloadWarmers)) {
+                $this->projectTrust->warnUntrustedAutoloadWarming($projectRoot, $this->getOutput());
+            }
+
+            return $filtered;
+        }
+
+        return $this->autoloadWarmers;
+    }
+
+    /**
+     * Parse warmAutoload configuration into autoload warmers.
+     *
+     * Accepts three types of configuration:
+     * - true: Enable with default ComposerAutoloadWarmer
+     * - false: Disable warming entirely (default)
+     * - array: Custom configuration for ComposerAutoloadWarmer and/or custom warmers
+     *
+     * When a config array is provided:
+     * - Empty array [] disables warming
+     * - 'warmers' key provides custom warmer instances
+     * - Other keys configure a ComposerAutoloadWarmer (implicitly enables)
+     * - Both can be combined: custom warmers + configured ComposerAutoloadWarmer
+     *
+     * @param bool|array $config Configuration value
+     *
+     * @return TabCompletion\AutoloadWarmer\AutoloadWarmerInterface[]
+     */
+    private function parseWarmAutoloadConfig($config): array
+    {
+        // false = disable entirely
+        if ($config === false) {
+            return [];
+        }
+
+        // true = use default ComposerAutoloadWarmer
+        if ($config === true) {
+            return [new TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer()];
+        }
+
+        // array = custom configuration
+        if (!\is_array($config)) {
+            throw new \InvalidArgumentException('warmAutoload must be a boolean or configuration array');
+        }
+
+        $warmers = [];
+
+        // Extract explicit warmers if provided
+        if (isset($config['warmers'])) {
+            $explicitWarmers = $config['warmers'];
+            if (!\is_array($explicitWarmers)) {
+                throw new \InvalidArgumentException('warmAutoload[\'warmers\'] must be an array');
+            }
+
+            foreach ($explicitWarmers as $warmer) {
+                if (!$warmer instanceof TabCompletion\AutoloadWarmer\AutoloadWarmerInterface) {
+                    throw new \InvalidArgumentException('Autoload warmers must implement AutoloadWarmerInterface');
+                }
+                $warmers[] = $warmer;
+            }
+
+            unset($config['warmers']);
+        }
+
+        // If there are remaining config options, create a ComposerAutoloadWarmer with them
+        if (!empty($config)) {
+            $warmers[] = new TabCompletion\AutoloadWarmer\ComposerAutoloadWarmer($config);
+        }
+
+        return $warmers;
+    }
+
+    /**
+     * Set implicit use statement configuration.
+     *
+     * Automatically adds use statements for unqualified class references when
+     * a single, non-ambiguous match is found among currently defined classes,
+     * interfaces, and traits within the configured namespaces.
+     *
+     * Works great with autoload warming (--warm-autoload) to pre-load classes
+     * for better resolution. Also works with dynamically defined classes.
+     *
+     * Examples:
+     *
+     *     // Disable implicit use (default)
+     *     $config->setImplicitUse(false);
+     *
+     *     // Enable for specific namespaces
+     *     $config->setImplicitUse([
+     *         'includeNamespaces' => ['App\\', 'Domain\\'],
+     *     ]);
+     *
+     *     // Enable with exclusions
+     *     $config->setImplicitUse([
+     *         'includeNamespaces' => ['App\\'],
+     *         'excludeNamespaces' => ['App\\Legacy\\'],
+     *     ]);
+     *
+     * Note: At least one of includeNamespaces or excludeNamespaces must be provided.
+     * If neither is provided, implicit use effectively does nothing.
+     *
+     * @param false|array $config False to disable, or array with includeNamespaces/excludeNamespaces
+     */
+    public function setImplicitUse($config): void
+    {
+        if ($config === false) {
+            $this->implicitUse = false;
+
+            return;
+        }
+
+        if (!\is_array($config)) {
+            throw new \InvalidArgumentException('implicitUse must be false or a configuration array with includeNamespaces and/or excludeNamespaces');
+        }
+
+        $this->implicitUse = $config;
+    }
+
+    /**
+     * Get implicit use configuration.
+     *
+     * @return bool|array Implicit use configuration
+     */
+    public function getImplicitUse()
+    {
+        return $this->implicitUse;
+    }
+
+    /**
+     * Configure logging.
+     *
+     * Logs PsySH input, commands, and executed code to the provided logger.
+     * Accepts a PSR-3 logger, a simple callback, or an array for more control
+     * over log levels.
+     *
+     * Examples:
+     *
+     *     // Simple callback logging
+     *     $config->setLogging(function ($kind, $data) {
+     *         $line = sprintf("[%s] %s\n", $kind, $data);
+     *         file_put_contents('/tmp/psysh.log', $line, FILE_APPEND);
+     *     });
+     *
+     *     // PSR-3 logger with defaults (input=info, command=info, execute=debug)
+     *     $config->setLogging($psrLogger);
+     *
+     *     // Set single level for all event types
+     *     $config->setLogging([
+     *         'logger' => $psrLogger,
+     *         'level' => 'debug',
+     *     ]);
+     *
+     *     // Granular control over each event type
+     *     $config->setLogging([
+     *         'logger' => $psrLogger,
+     *         'level' => [
+     *             'input'   => 'info',
+     *             'command' => false, // disable logging
+     *             'execute' => 'debug',
+     *         ],
+     *     ]);
+     *
+     * @param \Psr\Log\LoggerInterface|callable|array $logging
+     */
+    public function setLogging($logging): void
+    {
+        $this->logger = $this->parseLoggingConfig($logging);
+    }
+
+    /**
+     * Get a ShellLogger instance if logging is configured.
+     *
+     * @return ShellLogger|null
+     */
+    public function getLogger(): ?ShellLogger
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Configure a callback that returns additional structured exception details.
+     *
+     * The callback receives the thrown exception and may return any dumpable
+     * value; returning null suppresses additional output.
+     */
+    public function setExceptionDetails(callable $exceptionDetails): void
+    {
+        $this->exceptionDetails = \Closure::fromCallable($exceptionDetails);
+    }
+
+    /**
+     * Get the configured exception details callback, if any.
+     */
+    public function getExceptionDetails(): ?\Closure
+    {
+        return $this->exceptionDetails;
+    }
+
+    /**
+     * Get an InputLoggingListener if input logging is enabled.
+     *
+     * @return InputLoggingListener|null
+     */
+    public function getInputLogger(): ?InputLoggingListener
+    {
+        $logger = $this->getLogger();
+        if ($logger === null || $logger->isInputDisabled()) {
+            return null;
+        }
+
+        return new InputLoggingListener($logger);
+    }
+
+    /**
+     * Get an ExecutionLoggingListener if execution logging is enabled.
+     *
+     * @return ExecutionLoggingListener|null
+     */
+    public function getExecutionLogger(): ?ExecutionLoggingListener
+    {
+        $logger = $this->getLogger();
+        if ($logger === null || $logger->isExecuteDisabled()) {
+            return null;
+        }
+
+        return new ExecutionLoggingListener($logger);
+    }
+
+    /**
+     * Parse logging configuration.
+     *
+     * @param \Psr\Log\LoggerInterface|Logger\CallbackLogger|callable|array $config
+     *
+     * @return ShellLogger
+     */
+    private function parseLoggingConfig($config): ShellLogger
+    {
+        if (!\is_array($config)) {
+            $config = ['logger' => $config];
+        }
+
+        if (!isset($config['logger'])) {
+            throw new \InvalidArgumentException('Logging config array must include a "logger" key');
+        }
+
+        $logger = $config['logger'];
+
+        if (\is_callable($logger)) {
+            $logger = new CallbackLogger($logger);
+        }
+
+        if (!$this->isLogger($logger)) {
+            throw new \InvalidArgumentException('Logging "logger" must be a logger instance or callable');
+        }
+
+        $defaults = [
+            'input'   => 'info',
+            'command' => 'info',
+            'execute' => 'debug',
+        ];
+
+        if (isset($config['level'])) {
+            $level = $config['level'];
+
+            // String: apply same level to all types
+            if (\is_string($level)) {
+                $levels = [
+                    'input'   => $level,
+                    'command' => $level,
+                    'execute' => $level,
+                ];
+            } elseif (\is_array($level)) {
+                // Array: granular per-type levels
+                $levels = [
+                    'input'   => $level['input'] ?? $defaults['input'],
+                    'command' => $level['command'] ?? $defaults['command'],
+                    'execute' => $level['execute'] ?? $defaults['execute'],
+                ];
+            } else {
+                throw new \InvalidArgumentException('Logging "level" must be a string or array');
+            }
+        } else {
+            $levels = $defaults;
+        }
+
+        return new ShellLogger($logger, $levels);
+    }
+
+    /**
+     * Check if a value is a valid logger instance.
+     *
+     * @param mixed $logger
+     *
+     * @return bool
+     */
+    private function isLogger($logger): bool
+    {
+        if ($logger instanceof CallbackLogger) {
+            return true;
+        }
+
+        // Safe check for LoggerInterface without requiring psr/log as a dependency
+        return \interface_exists('Psr\Log\LoggerInterface') && $logger instanceof \Psr\Log\LoggerInterface;
     }
 
     /**
@@ -1373,22 +2419,22 @@ class Configuration
      */
     public function addCommands(array $commands)
     {
-        $this->newCommands = \array_merge($this->newCommands, $commands);
+        $this->commands = \array_merge($this->commands, $commands);
         if (isset($this->shell)) {
-            $this->doAddCommands();
+            $this->syncShellExtensions();
         }
     }
 
     /**
-     * Internal method for adding commands. This will set any new commands once
-     * a Shell is available.
+     * Sync configuration-driven extensions into the active shell.
+     *
+     * The shell handles deduplication, so we can safely forward everything.
      */
-    private function doAddCommands()
+    private function syncShellExtensions(): void
     {
-        if (!empty($this->newCommands)) {
-            $this->shell->addCommands($this->newCommands);
-            $this->newCommands = [];
-        }
+        $this->shell->addCommands($this->commands);
+        $this->shell->addMatchers($this->matchers);
+        $this->shell->addCompletionSources($this->completionSources);
     }
 
     /**
@@ -1399,8 +2445,10 @@ class Configuration
     public function setShell(Shell $shell)
     {
         $this->shell = $shell;
-        $this->doAddCommands();
-        $this->doAddMatchers();
+        $this->syncShellExtensions();
+
+        // Configure SignatureFormatter for hyperlinks
+        SignatureFormatter::setManual($this->getManual());
     }
 
     /**
@@ -1414,12 +2462,24 @@ class Configuration
     public function setManualDbFile(string $filename)
     {
         $this->manualDbFile = (string) $filename;
+
+        // Reconfigure SignatureFormatter with new manual database
+        try {
+            SignatureFormatter::setManual($this->getManual());
+        } catch (InvalidManualException $e) {
+            // Show user-friendly error for invalid explicitly configured manual
+            throw new \InvalidArgumentException($e->getMessage(), 0, $e);
+        }
     }
 
     /**
      * Get the current PHP manual database file.
      *
-     * @return string|null Default: '~/.local/share/psysh/php_manual.sqlite'
+     * Searches for manual files in order of preference:
+     *  1. php_manual.php (v3 format)
+     *  2. php_manual.sqlite (v2 format, legacy)
+     *
+     * @return string|null Default: '~/.local/share/psysh/php_manual.*'
      */
     public function getManualDbFile()
     {
@@ -1427,19 +2487,25 @@ class Configuration
             return $this->manualDbFile;
         }
 
-        $files = $this->configPaths->dataFiles(['php_manual.sqlite']);
+        // Prefer v3 format over v2
+        $files = $this->configPaths->dataFiles(['php_manual.php', 'php_manual.sqlite']);
         if (!empty($files)) {
             if ($this->warnOnMultipleConfigs && \count($files) > 1) {
-                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $files), $files[0]);
+                $prettyFiles = \array_map([ConfigPaths::class, 'prettyPath'], $files);
+                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode(', ', $prettyFiles), $prettyFiles[0]);
                 \trigger_error($msg, \E_USER_NOTICE);
             }
 
             return $this->manualDbFile = $files[0];
         }
+
+        return null;
     }
 
     /**
      * Get a PHP manual database connection.
+     *
+     * @deprecated Use getManual() instead for unified access to all manual formats
      *
      * @return \PDO|null
      */
@@ -1447,14 +2513,20 @@ class Configuration
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
-            if ($dbFile !== null && \is_file($dbFile)) {
+            if ($dbFile !== null && \is_file($dbFile) && \substr($dbFile, -7) === '.sqlite') {
                 try {
                     $this->manualDb = new \PDO('sqlite:'.$dbFile);
+
+                    // Validate the database has the required structure
+                    $result = $this->manualDb->query("SELECT name FROM sqlite_master WHERE type='table' AND name='php_manual'");
+                    if ($result === false || $result->fetchColumn() === false) {
+                        throw new InvalidManualException('Manual database is missing required tables', $dbFile);
+                    }
                 } catch (\PDOException $e) {
                     if ($e->getMessage() === 'could not find driver') {
                         throw new RuntimeException('SQLite PDO driver not found', 0, $e);
                     } else {
-                        throw $e;
+                        throw new InvalidManualException('Invalid SQLite manual database: '.$e->getMessage(), $dbFile, 0, $e);
                     }
                 }
             }
@@ -1464,13 +2536,134 @@ class Configuration
     }
 
     /**
+     * Get a PHP manual instance.
+     *
+     * Automatically detects the manual format and returns the appropriate manual type.
+     * Supports v2 (SQLite) and v3 (PHP) formats.
+     *
+     * @return ManualInterface|null
+     */
+    public function getManual()
+    {
+        if (!isset($this->manual)) {
+            $this->manual = $this->loadManual();
+        }
+
+        return $this->manual;
+    }
+
+    /**
+     * Load manual from filesystem or bundled Phar, preferring newest English version.
+     *
+     * Priority:
+     *  1. Explicit config: if user configured a specific file, use it
+     *  2. Local non-English: user downloaded a specific language
+     *  3. Newest English: compare local vs bundled
+     *
+     * @return ManualInterface|null
+     */
+    private function loadManual()
+    {
+        // Priority 1: If user explicitly configured a manual file, use it
+        if (isset($this->manualDbFile)) {
+            $manual = $this->loadManualFromFile($this->manualDbFile);
+            if ($manual !== null) {
+                return $manual;
+            }
+        }
+
+        // Check filesystem locations (auto-discovered)
+        $localFile = $this->getManualDbFile();
+        $localManual = null;
+        $localMeta = null;
+
+        if ($localFile !== null && \is_file($localFile)) {
+            try {
+                $localManual = $this->loadManualFromFile($localFile);
+                if ($localManual !== null) {
+                    $localMeta = $localManual->getMeta();
+                }
+            } catch (InvalidManualException $e) {
+                // Auto-discovered file is invalid - fall back to bundled
+            }
+        }
+
+        // Check bundled manual in Phar
+        $bundledManual = null;
+        $bundledMeta = null;
+
+        if (\Phar::running(false)) {
+            $bundledFile = 'phar://'.\Phar::running(false).'/php_manual.php';
+            if (\is_file($bundledFile)) {
+                $bundledManual = $this->loadManualFromFile($bundledFile);
+                if ($bundledManual !== null) {
+                    $bundledMeta = $bundledManual->getMeta();
+                }
+            }
+        }
+
+        // Priority 2: If local exists and is not English, use local (user wants that language)
+        // Priority 3: Otherwise, use newest English (compare local vs bundled)
+
+        if ($localManual !== null) {
+            $localLang = $localMeta['lang'] ?? 'en';
+
+            // Non-English local manual takes priority
+            if ($localLang !== 'en') {
+                return $localManual;
+            }
+
+            // Both are English, pick newest
+            $localTimestamp = $localMeta['built_at'] ?? 0;
+            $bundledTimestamp = $bundledMeta['built_at'] ?? 0;
+
+            if ($localTimestamp >= $bundledTimestamp) {
+                return $localManual;
+            } else {
+                return $bundledManual;
+            }
+        }
+
+        // No local manual, use bundled if available
+        return $bundledManual;
+    }
+
+    /**
+     * Load a manual from a file path.
+     *
+     * @param string $file
+     *
+     * @return ManualInterface|null
+     *
+     * @throws InvalidManualException if manual file is invalid
+     */
+    private function loadManualFromFile(string $file)
+    {
+        // Detect format by extension
+        if (\substr($file, -4) === '.php') {
+            return new V3Manual($file);
+        } elseif (\substr($file, -7) === '.sqlite') {
+            // Legacy v2 format
+            if ($db = $this->getManualDb()) {
+                return new V2Manual($db);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Add an array of casters definitions.
      *
      * @param array $casters
      */
     public function addCasters(array $casters)
     {
-        $this->getPresenter()->addCasters($casters);
+        $this->casters = \array_merge($this->casters, $casters);
+
+        if (isset($this->presenter)) {
+            $this->presenter->addCasters($casters);
+        }
     }
 
     /**
@@ -1479,7 +2672,10 @@ class Configuration
     public function getPresenter(): Presenter
     {
         if (!isset($this->presenter)) {
-            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes(), $this->useDeprecatedMultilineStrings());
+            if ($this->casters !== []) {
+                $this->presenter->addCasters($this->casters);
+            }
         }
 
         return $this->presenter;
@@ -1667,6 +2863,134 @@ class Configuration
     }
 
     /**
+     * Get the current manual update check interval.
+     *
+     * One of 'always', 'daily', 'weekly', 'monthly' or 'never'. If none is
+     * explicitly set, default to 'weekly'.
+     */
+    public function getUpdateManualCheck(): string
+    {
+        return isset($this->updateManualCheck) ? $this->updateManualCheck : ManualUpdater\Checker::WEEKLY;
+    }
+
+    /**
+     * Set the manual update check interval.
+     *
+     * @throws \InvalidArgumentException if the update check interval is unknown
+     *
+     * @param string $interval
+     */
+    public function setUpdateManualCheck(string $interval)
+    {
+        $validIntervals = [
+            ManualUpdater\Checker::ALWAYS,
+            ManualUpdater\Checker::DAILY,
+            ManualUpdater\Checker::WEEKLY,
+            ManualUpdater\Checker::MONTHLY,
+            ManualUpdater\Checker::NEVER,
+        ];
+
+        if (!\in_array($interval, $validIntervals)) {
+            throw new \InvalidArgumentException('Invalid manual update check interval: '.$interval);
+        }
+
+        $this->updateManualCheck = $interval;
+    }
+
+    /**
+     * Get a manual update checker.
+     *
+     * If none has been explicitly defined, this will create a new instance.
+     *
+     * @param string|null $lang   Override language (otherwise uses current manual's language or 'en')
+     * @param bool        $always Force immediate check, ignoring interval setting
+     *
+     * @return ManualUpdater\Checker|null
+     */
+    public function getManualChecker(?string $lang = null, bool $always = false): ?ManualUpdater\Checker
+    {
+        // Get current manual info
+        $manualFile = $this->getManualDbFile();
+        $currentMeta = null;
+        if ($manualFile && \file_exists($manualFile)) {
+            $manual = $this->getManual();
+            if ($manual) {
+                $currentMeta = $manual->getMeta();
+            }
+        }
+
+        $currentVersion = $currentMeta['version'] ?? null;
+        $currentLang = $currentMeta['lang'] ?? null;
+
+        // Determine language (priority: explicit param, current manual, default to English)
+        if ($lang === null) {
+            $lang = $currentLang ?? 'en';
+        }
+
+        // Determine format from current manual file extension, default to v3
+        $format = 'php';
+        if ($manualFile && \substr($manualFile, -7) === '.sqlite') {
+            $format = 'sqlite';
+        }
+
+        $interval = $always ? ManualUpdater\Checker::ALWAYS : $this->getUpdateManualCheck();
+        switch ($interval) {
+            case ManualUpdater\Checker::ALWAYS:
+                return new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
+
+            case ManualUpdater\Checker::DAILY:
+            case ManualUpdater\Checker::WEEKLY:
+            case ManualUpdater\Checker::MONTHLY:
+                $checkFile = $this->getManualUpdateCheckCacheFile();
+                if ($checkFile === false) {
+                    return null; // No writable cache file
+                }
+
+                $baseChecker = new ManualUpdater\GitHubChecker($lang, $format, $currentVersion, $currentLang);
+
+                return new ManualUpdater\IntervalChecker($baseChecker, $checkFile, $interval);
+
+            case ManualUpdater\Checker::NEVER:
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get a cache file path for the manual update checker.
+     *
+     * @return string|false Return false if config file/directory is not writable
+     */
+    public function getManualUpdateCheckCacheFile()
+    {
+        $configDir = $this->configPaths->currentConfigDir();
+        if ($configDir === null) {
+            return false;
+        }
+
+        return ConfigPaths::touchFileWithMkdir($configDir.'/manual_update_check.json');
+    }
+
+    /**
+     * Get the manual installation directory path.
+     *
+     * @return string|false Return false if data directory is not writable
+     */
+    public function getManualInstallDir()
+    {
+        $dataDir = $this->configPaths->currentDataDir();
+        if ($dataDir === null) {
+            return false;
+        }
+
+        if (!ConfigPaths::ensureDir($dataDir)) {
+            return false;
+        }
+
+        return $dataDir;
+    }
+
+    /**
      * Set the startup message.
      *
      * @param string $message
@@ -1730,6 +3054,28 @@ class Configuration
     public function setForceArrayIndexes(bool $forceArrayIndexes)
     {
         $this->forceArrayIndexes = $forceArrayIndexes;
+        $this->invalidatePresenter();
+    }
+
+    /**
+     * @deprecated temporary compatibility flag for triple-quoted multiline strings.
+     *
+     * This will be removed in the next stable release.
+     */
+    public function useDeprecatedMultilineStrings(): bool
+    {
+        return $this->useDeprecatedMultilineStrings;
+    }
+
+    /**
+     * @deprecated temporary compatibility flag for triple-quoted multiline strings
+     *
+     * This will be removed in the next stable release
+     */
+    public function setUseDeprecatedMultilineStrings(bool $useDeprecatedMultilineStrings): void
+    {
+        $this->useDeprecatedMultilineStrings = $useDeprecatedMultilineStrings;
+        $this->invalidatePresenter();
     }
 
     /**
@@ -1743,14 +3089,18 @@ class Configuration
             $theme = new Theme($theme);
         }
 
-        $this->theme = $theme;
-
         if (isset($this->prompt)) {
-            $this->theme->setPrompt($this->prompt);
+            $theme->setPrompt($this->prompt);
         }
 
+        if (isset($this->theme) && $this->theme->equals($theme)) {
+            return;
+        }
+
+        $this->theme = $theme;
+
         if (isset($this->output)) {
-            $this->output->setTheme($theme);
+            $this->output->setTheme($this->theme);
             $this->applyFormatterStyles();
         }
     }
@@ -1770,6 +3120,11 @@ class Configuration
         }
 
         return $this->theme;
+    }
+
+    private function invalidatePresenter(): void
+    {
+        $this->presenter = null;
     }
 
     /**
@@ -1919,13 +3274,6 @@ class Configuration
      */
     private static function looksLikeAPipe($stream): bool
     {
-        if (\function_exists('posix_isatty')) {
-            return !\posix_isatty($stream);
-        }
-
-        $stat = \fstat($stream);
-        $mode = $stat['mode'] & 0170000;
-
-        return $mode === 0010000 || $mode === 0040000 || $mode === 0100000 || $mode === 0120000;
+        return !Tty::isatty($stream);
     }
 }

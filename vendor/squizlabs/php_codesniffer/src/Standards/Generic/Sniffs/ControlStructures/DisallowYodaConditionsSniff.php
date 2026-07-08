@@ -5,7 +5,7 @@
  * @author    Mponos George <gmponos@gmail.com>
  * @author    Mark Scherer <username@example.com>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\ControlStructures;
@@ -110,9 +110,7 @@ class DisallowYodaConditionsSniff implements Sniff
                 if ($prev === false) {
                     return;
                 }
-            } else if ($tokens[$beforeOpeningParenthesisIndex]['code'] === T_ARRAY
-                && $this->isArrayStatic($phpcsFile, $beforeOpeningParenthesisIndex) === false
-            ) {
+            } else if ($this->isArrayStatic($phpcsFile, $beforeOpeningParenthesisIndex) === false) {
                 return;
             }//end if
         }//end if
@@ -164,6 +162,8 @@ class DisallowYodaConditionsSniff implements Sniff
             T_COMMA        => T_COMMA,
             T_TRUE         => T_TRUE,
             T_FALSE        => T_FALSE,
+            T_NULL         => T_NULL,
+            T_NS_SEPARATOR => T_NS_SEPARATOR,
         ];
 
         for ($i = ($start + 1); $i < $end; $i++) {

@@ -15,17 +15,24 @@ namespace League\Uri;
 
 use Deprecated;
 use JsonSerializable;
+use League\Uri\Contracts\Conditionable;
+use League\Uri\Contracts\Transformable;
 use League\Uri\Contracts\UriException;
 use League\Uri\Contracts\UriInterface;
 use League\Uri\Exceptions\SyntaxError;
 use League\Uri\UriTemplate\TemplateCanNotBeExpanded;
 use Psr\Http\Message\UriInterface as Psr7UriInterface;
 use Stringable;
+use Uri\Rfc3986\Uri as Rfc3986Uri;
+use Uri\WhatWg\Url as WhatWgUrl;
+
+use function is_bool;
+use function ltrim;
 
 /**
  * @phpstan-import-type InputComponentMap from UriString
  */
-final class Http implements Stringable, Psr7UriInterface, JsonSerializable
+final class Http implements Stringable, Psr7UriInterface, JsonSerializable, Conditionable, Transformable
 {
     private readonly UriInterface $uri;
 
@@ -75,9 +82,21 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
     /**
      * Create a new instance from a string or a stringable object.
      */
-    public static function new(Stringable|string $uri = ''): self
+    public static function new(Rfc3986Uri|WhatwgUrl|Stringable|string $uri = ''): self
     {
-        return self::fromComponents(UriString::parse($uri));
+        return new self(Uri::new($uri));
+    }
+
+    /**
+     * Create a new instance from a string or a stringable structure or returns null on failure.
+     */
+    public static function tryNew(Rfc3986Uri|WhatwgUrl|Stringable|string $uri = ''): ?self
+    {
+        try {
+            return self::new($uri);
+        } catch (UriException) {
+            return null;
+        }
     }
 
     /**
@@ -121,16 +140,6 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
     }
 
     /**
-     * Create a new instance from a URI and a Base URI.
-     *
-     * The returned URI must be absolute.
-     */
-    public static function fromBaseUri(Stringable|string $uri, Stringable|string|null $baseUri = null): self
-    {
-        return new self(Uri::fromBaseUri($uri, $baseUri));
-    }
-
-    /**
      * Creates a new instance from a template.
      *
      * @throws TemplateCanNotBeExpanded if the variables are invalid or missing
@@ -139,6 +148,16 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
     public static function fromTemplate(Stringable|string $template, iterable $variables = []): self
     {
         return new self(Uri::fromTemplate($template, $variables));
+    }
+
+    /**
+     * Returns a new instance from a URI and a Base URI.or null on failure.
+     *
+     * The returned URI must be absolute if a base URI is provided
+     */
+    public static function parse(WhatWgUrl|Rfc3986Uri|Stringable|string $uri, WhatWgUrl|Rfc3986Uri|Stringable|string|null $baseUri = null): ?self
+    {
+        return null !== ($uri = Uri::parse($uri, $baseUri)) ? new self($uri) : null;
     }
 
     public function getScheme(): string
@@ -168,7 +187,12 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
 
     public function getPath(): string
     {
-        return $this->uri->getPath();
+        $path = $this->uri->getPath();
+
+        return match (true) {
+            str_starts_with($path, '//') => '/'.ltrim($path, '/'),
+            default => $path,
+        };
     }
 
     public function getQuery(): string
@@ -210,6 +234,24 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
         };
     }
 
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): static
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
+    }
+
+    public function transform(callable $callback): static
+    {
+        return $callback($this);
+    }
+
     public function withScheme(string $scheme): self
     {
         return $this->newInstance($this->uri->withScheme($this->filterInput($scheme)));
@@ -243,6 +285,23 @@ final class Http implements Stringable, Psr7UriInterface, JsonSerializable
     public function withFragment(string $fragment): self
     {
         return $this->newInstance($this->uri->withFragment($this->filterInput($fragment)));
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated Since version 7.6.0
+     * @codeCoverageIgnore
+     * @see Http::parse()
+     *
+     * Create a new instance from a URI and a Base URI.
+     *
+     * The returned URI must be absolute.
+     */
+    #[Deprecated(message:'use League\Uri\Http::parse() instead', since:'league/uri:7.6.0')]
+    public static function fromBaseUri(Rfc3986Uri|WhatwgUrl|Stringable|string $uri, Rfc3986Uri|WhatwgUrl|Stringable|string|null $baseUri = null): self
+    {
+        return new self(Uri::fromBaseUri($uri, $baseUri));
     }
 
     /**

@@ -11,9 +11,12 @@ namespace PHPUnit\TextUI\Command;
 
 use const PHP_EOL;
 use const STDIN;
+use function assert;
+use function defined;
 use function fgets;
 use function file_put_contents;
 use function getcwd;
+use function is_file;
 use function sprintf;
 use function trim;
 use PHPUnit\Runner\Version;
@@ -24,11 +27,13 @@ use PHPUnit\TextUI\XmlConfiguration\Generator;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class GenerateConfigurationCommand implements Command
+final readonly class GenerateConfigurationCommand implements Command
 {
     public function execute(): Result
     {
-        print 'Generating phpunit.xml in ' . getcwd() . PHP_EOL . PHP_EOL;
+        $directory = getcwd();
+
+        print 'Generating phpunit.xml in ' . $directory . PHP_EOL . PHP_EOL;
         print 'Bootstrap script (relative to path shown above; default: vendor/autoload.php): ';
 
         $bootstrapScript = $this->read();
@@ -61,12 +66,22 @@ final class GenerateConfigurationCommand implements Command
             $cacheDirectory = '.phpunit.cache';
         }
 
+        if (defined('PHPUNIT_COMPOSER_INSTALL') &&
+            is_file($directory . '/vendor/phpunit/phpunit/phpunit.xsd')) {
+            $schemaLocation = 'vendor/phpunit/phpunit/phpunit.xsd';
+        } else {
+            $schemaLocation = sprintf(
+                'https://schema.phpunit.de/%s/phpunit.xsd',
+                Version::series(),
+            );
+        }
+
         $generator = new Generator;
 
         $result = @file_put_contents(
-            'phpunit.xml',
+            $directory . '/phpunit.xml',
             $generator->generateDefaultConfiguration(
-                Version::series(),
+                $schemaLocation,
                 $bootstrapScript,
                 $testsDirectory,
                 $src,
@@ -79,7 +94,7 @@ final class GenerateConfigurationCommand implements Command
                 sprintf(
                     PHP_EOL . 'Generated phpunit.xml in %s.' . PHP_EOL .
                     'Make sure to exclude the %s directory from version control.' . PHP_EOL,
-                    getcwd(),
+                    $directory,
                     $cacheDirectory,
                 ),
             );
@@ -89,7 +104,7 @@ final class GenerateConfigurationCommand implements Command
         return Result::from(
             sprintf(
                 PHP_EOL . 'Could not write phpunit.xml in %s.' . PHP_EOL,
-                getcwd(),
+                $directory,
             ),
             Result::EXCEPTION,
         );
@@ -98,6 +113,10 @@ final class GenerateConfigurationCommand implements Command
 
     private function read(): string
     {
-        return trim(fgets(STDIN));
+        $buffer = fgets(STDIN);
+
+        assert($buffer !== false);
+
+        return trim($buffer);
     }
 }

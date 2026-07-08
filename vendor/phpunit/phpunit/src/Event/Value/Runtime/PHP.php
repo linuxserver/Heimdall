@@ -21,24 +21,24 @@ use function get_loaded_extensions;
 use function sort;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class PHP
+final readonly class PHP
 {
-    private readonly string $version;
-    private readonly int $versionId;
-    private readonly int $majorVersion;
-    private readonly int $minorVersion;
-    private readonly int $releaseVersion;
-    private readonly string $extraVersion;
-    private readonly string $sapi;
+    private string $version;
+    private int $versionId;
+    private int $majorVersion;
+    private int $minorVersion;
+    private int $releaseVersion;
+    private string $extraVersion;
+    private string $sapi;
 
     /**
-     * @psalm-var list<string>
+     * @var list<string>
      */
-    private readonly array $extensions;
+    private array $extensions;
 
     public function __construct()
     {
@@ -96,7 +96,7 @@ final class PHP
     }
 
     /**
-     * @psalm-return list<string>
+     * @return list<string>
      */
     public function extensions(): array
     {

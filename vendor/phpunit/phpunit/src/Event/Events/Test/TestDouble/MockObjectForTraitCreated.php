@@ -14,21 +14,21 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class MockObjectForTraitCreated implements Event
+final readonly class MockObjectForTraitCreated implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
+    private Telemetry\Info $telemetryInfo;
 
     /**
-     * @psalm-var trait-string
+     * @var trait-string
      */
-    private readonly string $traitName;
+    private string $traitName;
 
     /**
-     * @psalm-param trait-string $traitName
+     * @param trait-string $traitName
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $traitName)
     {
@@ -42,7 +42,7 @@ final class MockObjectForTraitCreated implements Event
     }
 
     /**
-     * @psalm-return trait-string
+     * @return trait-string
      */
     public function traitName(): string
     {

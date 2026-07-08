@@ -32,7 +32,6 @@ class RateLimiter
      * Create a new rate limiter instance.
      *
      * @param  \Illuminate\Contracts\Cache\Repository  $cache
-     * @return void
      */
     public function __construct(Cache $cache)
     {
@@ -40,9 +39,9 @@ class RateLimiter
     }
 
     /**
-     * Register a named limiter configuration.
+     * Register a named rate limiter configuration.
      *
-     * @param  \BackedEnum|\UnitEnum|string  $name
+     * @param  \UnitEnum|string  $name
      * @param  \Closure  $callback
      * @return $this
      */
@@ -58,7 +57,7 @@ class RateLimiter
     /**
      * Get the given named rate limiter.
      *
-     * @param  \BackedEnum|\UnitEnum|string  $name
+     * @param  \UnitEnum|string  $name
      * @return \Closure|null
      */
     public function limiter($name)
@@ -100,7 +99,7 @@ class RateLimiter
      * @param  string  $key
      * @param  int  $maxAttempts
      * @param  \Closure  $callback
-     * @param  int  $decaySeconds
+     * @param  \DateTimeInterface|\DateInterval|int  $decaySeconds
      * @return mixed
      */
     public function attempt($key, $maxAttempts, Closure $callback, $decaySeconds = 60)
@@ -142,7 +141,7 @@ class RateLimiter
      * Increment (by 1) the counter for a given key for a given decay time.
      *
      * @param  string  $key
-     * @param  int  $decaySeconds
+     * @param  \DateTimeInterface|\DateInterval|int  $decaySeconds
      * @return int
      */
     public function hit($key, $decaySeconds = 60)
@@ -154,7 +153,7 @@ class RateLimiter
      * Increment the counter for a given key for a given decay time by a given amount.
      *
      * @param  string  $key
-     * @param  int  $decaySeconds
+     * @param  \DateTimeInterface|\DateInterval|int  $decaySeconds
      * @param  int  $amount
      * @return int
      */
@@ -172,9 +171,9 @@ class RateLimiter
 
         $hits = (int) $this->cache->increment($key, $amount);
 
-        if (! $added && $hits == 1) {
+        if (! $added && $hits == $amount) {
             $this->withoutSerializationOrCompression(
-                fn () => $this->cache->put($key, 1, $decaySeconds)
+                fn () => $this->cache->put($key, $amount, $decaySeconds)
             );
         }
 
@@ -185,7 +184,7 @@ class RateLimiter
      * Decrement the counter for a given key for a given decay time by a given amount.
      *
      * @param  string  $key
-     * @param  int  $decaySeconds
+     * @param  \DateTimeInterface|\DateInterval|int  $decaySeconds
      * @param  int  $amount
      * @return int
      */
@@ -211,7 +210,7 @@ class RateLimiter
      * Reset the number of attempts for the given key.
      *
      * @param  string  $key
-     * @return mixed
+     * @return bool
      */
     public function resetAttempts($key)
     {
@@ -233,7 +232,7 @@ class RateLimiter
 
         $attempts = $this->attempts($key);
 
-        return $maxAttempts - $attempts;
+        return max(0, $maxAttempts - $attempts);
     }
 
     /**
@@ -313,7 +312,7 @@ class RateLimiter
     /**
      * Resolve the rate limiter name.
      *
-     * @param  \BackedEnum|\UnitEnum|string  $name
+     * @param  \UnitEnum|string  $name
      * @return string
      */
     private function resolveLimiterName($name): string

@@ -29,6 +29,7 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Finder\Finder;
 use Throwable;
+use WeakMap;
 
 class Kernel implements KernelContract
 {
@@ -131,7 +132,6 @@ class Kernel implements KernelContract
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-     * @return void
      */
     public function __construct(Application $app, Dispatcher $events)
     {
@@ -163,13 +163,13 @@ class Kernel implements KernelContract
 
             $this->symfonyDispatcher->addListener(ConsoleEvents::COMMAND, function (ConsoleCommandEvent $event) {
                 $this->events->dispatch(
-                    new CommandStarting($event->getCommand()->getName(), $event->getInput(), $event->getOutput())
+                    new CommandStarting($event->getCommand()?->getName() ?? '', $event->getInput(), $event->getOutput())
                 );
             });
 
             $this->symfonyDispatcher->addListener(ConsoleEvents::TERMINATE, function (ConsoleTerminateEvent $event) {
                 $this->events->dispatch(
-                    new CommandFinished($event->getCommand()->getName(), $event->getInput(), $event->getOutput(), $event->getExitCode())
+                    new CommandFinished($event->getCommand()?->getName() ?? '', $event->getInput(), $event->getOutput(), $event->getExitCode())
                 );
             });
         }
@@ -367,16 +367,36 @@ class Kernel implements KernelContract
 
         $namespace = $this->app->getNamespace();
 
-        foreach (Finder::create()->in($paths)->files() as $file) {
-            $command = $this->commandClassFromFile($file, $namespace);
+        $possibleCommands = new WeakMap;
 
-            if (is_subclass_of($command, Command::class) &&
-                ! (new ReflectionClass($command))->isAbstract()) {
-                Artisan::starting(function ($artisan) use ($command) {
-                    $artisan->resolve($command);
-                });
-            }
+        $filterCommands = function (SplFileInfo $file) use ($namespace, &$possibleCommands) {
+            $commandClassName = $this->commandClassFromFile($file, $namespace);
+
+            $possibleCommands[$file] = $commandClassName;
+
+            $command = rescue(fn () => new ReflectionClass($commandClassName), null, false);
+
+            return $command instanceof ReflectionClass
+                && $command->isSubClassOf(Command::class)
+                && ! $command->isAbstract();
+        };
+
+        foreach ($this->findCommands($paths)->filter($filterCommands) as $file) {
+            Artisan::starting(function ($artisan) use ($file, $possibleCommands) {
+                $artisan->resolve($possibleCommands[$file]);
+            });
         }
+    }
+
+    /**
+     * Get the Finder instance for discovering command files.
+     *
+     * @param  array  $paths
+     * @return \Symfony\Component\Finder\Finder
+     */
+    protected function findCommands(array $paths)
+    {
+        return Finder::create()->in($paths)->name('*.php')->files();
     }
 
     /**
@@ -409,7 +429,7 @@ class Kernel implements KernelContract
     /**
      * Run an Artisan console command by name.
      *
-     * @param  string  $command
+     * @param  \Symfony\Component\Console\Command\Command|string  $command
      * @param  array  $parameters
      * @param  \Symfony\Component\Console\Output\OutputInterface|null  $outputBuffer
      * @return int

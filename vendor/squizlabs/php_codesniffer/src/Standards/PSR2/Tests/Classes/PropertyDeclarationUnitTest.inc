@@ -126,3 +126,11 @@ class AsymmetricVisibility {
     final static protected(set) bool $wrongOrder12;
     static public(set) final bool $wrongOrder13;
 }
+
+abstract class AbstractProperties {
+    abstract public int $foo { get; }
+    abstract protected (D|N)|false  $foo { set; }
+    abstract array $foo { get; }
+    public ABSTRACT ?int $wrongOrder1 { set; }
+    protected abstract ?string $wrongOrder2 { get; }
+}

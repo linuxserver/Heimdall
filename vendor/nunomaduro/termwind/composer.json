@@ -1,6 +1,6 @@
 {
     "name": "nunomaduro/termwind",
-    "description": "Its like Tailwind CSS, but for the console.",
+    "description": "It's like Tailwind CSS, but for the console.",
     "keywords": ["php", "cli", "package", "console", "css", "style"],
     "license": "MIT",
     "authors": [
@@ -12,16 +12,16 @@
     "require": {
         "php": "^8.2",
         "ext-mbstring": "*",
-        "symfony/console": "^7.2.6"
+        "symfony/console": "^7.4.4 || ^8.0.4"
     },
     "require-dev": {
-        "illuminate/console": "^11.44.7",
-        "laravel/pint": "^1.22.0",
+        "illuminate/console": "^11.47.0",
+        "laravel/pint": "^1.27.1",
         "mockery/mockery": "^1.6.12",
-        "pestphp/pest": "^2.36.0 || ^3.8.2",
-        "phpstan/phpstan": "^1.12.25",
+        "pestphp/pest": "^2.36.0 || ^3.8.4 || ^4.3.2",
+        "phpstan/phpstan": "^1.12.32",
         "phpstan/phpstan-strict-rules": "^1.6.2",
-        "symfony/var-dumper": "^7.2.6",
+        "symfony/var-dumper": "^7.3.5 || ^8.0.4",
         "thecodingmachine/phpstan-strict-rules": "^1.0.0"
     },
     "autoload": {

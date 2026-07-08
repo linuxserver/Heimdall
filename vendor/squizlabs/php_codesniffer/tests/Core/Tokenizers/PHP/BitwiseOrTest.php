@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -132,6 +132,9 @@ final class BitwiseOrTest extends AbstractTokenizerTestCase
             'type for public private(set) property'                    => ['/* testTypeUnionPropertyPublicPrivateSet */'],
             'type for protected(set) property'                         => ['/* testTypeUnionPropertyProtected */'],
             'type for public protected(set) property'                  => ['/* testTypeUnionPropertyPublicProtected */'],
+            'type for abstract property, no visibility'                => ['/* testTypeUnionWithPHP84AbstractKeyword */'],
+            'type for abstract property, reversed modifier order'      => ['/* testTypeUnionWithPHP84AbstractKeywordFirst */'],
+            'type for abstract property, no visibility, FQN type'      => ['/* testTypeUnionWithPHP84AbstractKeywordAndFQN */'],
             'type for method parameter'                                => ['/* testTypeUnionParam1 */'],
             'type for method parameter, first in multi-union'          => ['/* testTypeUnionParam2 */'],
             'type for method parameter, last in multi-union'           => ['/* testTypeUnionParam3 */'],

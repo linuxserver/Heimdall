@@ -17,15 +17,13 @@
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",
         "psr/http-message": "^1.0 || ^2.0",
-        "symfony/options-resolver": "~4.0.15 || ~4.1.9 || ^4.2.1 || ^5.0 || ^6.0 || ^7.0",
+        "symfony/options-resolver": "~4.0.15 || ~4.1.9 || ^4.2.1 || ^5.0 || ^6.0 || ^7.0 || ^8.0",
         "symfony/polyfill-php80": "^1.17"
     },
     "require-dev": {
         "doctrine/instantiator": "^1.1",
         "guzzlehttp/psr7": "^1.4",
         "nyholm/psr7": "^1.2",
-        "phpspec/phpspec": "^5.1 || ^6.3 || ^7.1",
-        "phpspec/prophecy": "^1.10.2",
         "phpunit/phpunit": "^7.5.20 || ^8.5.33 || ^9.6.7"
     },
     "suggest": {
@@ -42,17 +40,14 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "spec\\Http\\Client\\Common\\": "spec/",
             "Tests\\Http\\Client\\Common\\": "tests/"
         }
     },
     "scripts": {
         "test": [
-            "vendor/bin/phpspec run",
             "vendor/bin/phpunit"
         ],
         "test-ci": [
-            "vendor/bin/phpspec run -c phpspec.ci.yml",
             "vendor/bin/phpunit"
         ]
     },

@@ -12,20 +12,20 @@ namespace PHPUnit\Framework\Attributes;
 use Attribute;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-final class ExcludeGlobalVariableFromBackup
+final readonly class ExcludeGlobalVariableFromBackup
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $globalVariableName;
+    private string $globalVariableName;
 
     /**
-     * @psalm-param non-empty-string $globalVariableName
+     * @param non-empty-string $globalVariableName
      */
     public function __construct(string $globalVariableName)
     {
@@ -33,7 +33,7 @@ final class ExcludeGlobalVariableFromBackup
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function globalVariableName(): string
     {

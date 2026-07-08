@@ -22,10 +22,10 @@ use PHPUnit\Runner\Version;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SchemaFinder
+final readonly class SchemaFinder
 {
     /**
-     * @psalm-return non-empty-list<non-empty-string>
+     * @return non-empty-list<non-empty-string>
      */
     public function available(): array
     {

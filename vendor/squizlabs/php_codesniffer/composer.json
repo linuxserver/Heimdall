@@ -45,11 +45,6 @@
     "config": {
         "lock": false
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.x-dev"
-        }
-    },
     "scripts": {
         "cs": [
             "@php ./bin/phpcs"

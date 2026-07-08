@@ -43,7 +43,17 @@ use PHPUnit\Util\VersionComparisonOperator;
 final class AnnotationParser implements Parser
 {
     /**
-     * @psalm-param class-string $className
+     * @var array<string, true>
+     */
+    private static array $deprecationEmittedForClass = [];
+
+    /**
+     * @var array<string, true>
+     */
+    private static array $deprecationEmittedForMethod = [];
+
+    /**
+     * @param class-string $className
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -173,12 +183,25 @@ final class AnnotationParser implements Parser
             );
         }
 
+        if (!empty($result) &&
+            !isset(self::$deprecationEmittedForClass[$className]) &&
+            !str_starts_with($className, 'PHPUnit\TestFixture')) {
+            self::$deprecationEmittedForClass[$className] = true;
+
+            EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+                sprintf(
+                    'Metadata found in doc-comment for class %s. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.',
+                    $className,
+                ),
+            );
+        }
+
         return MetadataCollection::fromArray($result);
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -194,12 +217,12 @@ final class AnnotationParser implements Parser
         foreach (AnnotationRegistry::getInstance()->forMethod($className, $methodName)->symbolAnnotations() as $annotation => $values) {
             switch ($annotation) {
                 case 'after':
-                    $result[] = Metadata::after();
+                    $result[] = Metadata::after(0);
 
                     break;
 
                 case 'afterClass':
-                    $result[] = Metadata::afterClass();
+                    $result[] = Metadata::afterClass(0);
 
                     break;
 
@@ -215,12 +238,12 @@ final class AnnotationParser implements Parser
                     break;
 
                 case 'before':
-                    $result[] = Metadata::before();
+                    $result[] = Metadata::before(0);
 
                     break;
 
                 case 'beforeClass':
-                    $result[] = Metadata::beforeClass();
+                    $result[] = Metadata::beforeClass(0);
 
                     break;
 
@@ -339,12 +362,12 @@ final class AnnotationParser implements Parser
                     break;
 
                 case 'postCondition':
-                    $result[] = Metadata::postCondition();
+                    $result[] = Metadata::postCondition(0);
 
                     break;
 
                 case 'preCondition':
-                    $result[] = Metadata::preCondition();
+                    $result[] = Metadata::preCondition(0);
 
                     break;
 
@@ -384,33 +407,45 @@ final class AnnotationParser implements Parser
             }
         }
 
-        if (method_exists($className, $methodName)) {
-            try {
-                $result = array_merge(
-                    $result,
-                    $this->parseRequirements(
-                        AnnotationRegistry::getInstance()->forMethod($className, $methodName)->requirements(),
-                        'method',
-                    ),
-                );
-            } catch (InvalidVersionRequirementException $e) {
-                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                    sprintf(
-                        'Method %s::%s is annotated using an invalid version requirement: %s',
-                        $className,
-                        $methodName,
-                        $e->getMessage(),
-                    ),
-                );
-            }
+        try {
+            $result = array_merge(
+                $result,
+                $this->parseRequirements(
+                    AnnotationRegistry::getInstance()->forMethod($className, $methodName)->requirements(),
+                    'method',
+                ),
+            );
+        } catch (InvalidVersionRequirementException $e) {
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                sprintf(
+                    'Method %s::%s is annotated using an invalid version requirement: %s',
+                    $className,
+                    $methodName,
+                    $e->getMessage(),
+                ),
+            );
+        }
+
+        if (!empty($result) &&
+            !isset(self::$deprecationEmittedForMethod[$className . '::' . $methodName]) &&
+            !str_starts_with($className, 'PHPUnit\TestFixture')) {
+            self::$deprecationEmittedForMethod[$className . '::' . $methodName] = true;
+
+            EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+                sprintf(
+                    'Metadata found in doc-comment for method %s::%s(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.',
+                    $className,
+                    $methodName,
+                ),
+            );
         }
 
         return MetadataCollection::fromArray($result);
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      *
      * @throws AnnotationsAreNotSupportedForInternalClassesException
      * @throws InvalidVersionOperatorException
@@ -442,7 +477,9 @@ final class AnnotationParser implements Parser
     /**
      * @throws InvalidVersionOperatorException
      *
-     * @psalm-return list<Metadata>
+     * @return list<Metadata>
+     *
+     * @phpstan-ignore missingType.iterableValue
      */
     private function parseRequirements(array $requirements, string $level): array
     {

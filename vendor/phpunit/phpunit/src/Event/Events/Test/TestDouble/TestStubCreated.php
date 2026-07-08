@@ -14,21 +14,21 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class TestStubCreated implements Event
+final readonly class TestStubCreated implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
+    private Telemetry\Info $telemetryInfo;
 
     /**
      * @var class-string
      */
-    private readonly string $className;
+    private string $className;
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $className)
     {

@@ -16,13 +16,8 @@ use Exception;
 
 final class ConfigurationException extends InvalidArgumentException
 {
-    public function __construct(
-        string $option,
-        string $expected,
-        $value,
-        int $code = 0,
-        ?Exception $previous = null
-    ) {
+    public function __construct(string $option, string $expected, mixed $value, int $code = 0, ?Exception $previous = null)
+    {
         parent::__construct(
             sprintf(
                 'Option "%s" must be %s, got "%s".',

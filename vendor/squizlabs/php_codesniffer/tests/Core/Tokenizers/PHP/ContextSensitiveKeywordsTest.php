@@ -4,7 +4,7 @@
  *
  * @author    Jaroslav Hanslík <kukulich@kukulich.cz>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -448,6 +448,14 @@ final class ContextSensitiveKeywordsTest extends AbstractTokenizerTestCase
             'unset'                                  => [
                 'testMarker'        => '/* testUnsetIsKeyword */',
                 'expectedTokenType' => 'T_UNSET',
+            ],
+            '\\die: statement (fully qualified)'     => [
+                'testMarker'        => '/* testFullyQualifiedDieIsKeyword */',
+                'expectedTokenType' => 'T_EXIT',
+            ],
+            '\\exit: statement (fully qualified)'    => [
+                'testMarker'        => '/* testFullyQualifiedExitIsKeyword */',
+                'expectedTokenType' => 'T_EXIT',
             ],
 
             'include'                                => [

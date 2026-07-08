@@ -61,7 +61,7 @@ class Envelope
     public $tags = [];
 
     /**
-     * The message's meta data.
+     * The message's metadata.
      *
      * @var array
      */
@@ -86,7 +86,6 @@ class Envelope
      * @param  array  $tags
      * @param  array  $metadata
      * @param  \Closure|array  $using
-     * @return void
      *
      * @named-arguments-supported
      */

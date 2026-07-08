@@ -618,7 +618,7 @@ trait MakesHttpRequests
     }
 
     /**
-     * Turn the given URI into a fully qualified URL.
+     * Turn the given URI into a fully-qualified URL.
      *
      * @param  \Illuminate\Support\Uri|string  $uri
      * @return string
@@ -702,9 +702,10 @@ trait MakesHttpRequests
             return array_merge($this->defaultCookies, $this->unencryptedCookies);
         }
 
-        return (new Collection($this->defaultCookies))->map(function ($value, $key) {
-            return encrypt(CookieValuePrefix::create($key, app('encrypter')->getKey()).$value, false);
-        })->merge($this->unencryptedCookies)->all();
+        return (new Collection($this->defaultCookies))
+            ->map(fn ($value, $key) => encrypt(CookieValuePrefix::create($key, app('encrypter')->getKey()).$value, false))
+            ->merge($this->unencryptedCookies)
+            ->all();
     }
 
     /**

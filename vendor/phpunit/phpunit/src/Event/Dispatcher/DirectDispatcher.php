@@ -26,12 +26,12 @@ final class DirectDispatcher implements SubscribableDispatcher
     private readonly TypeMap $typeMap;
 
     /**
-     * @psalm-var array<class-string, list<Subscriber>>
+     * @var array<class-string, list<Subscriber>>
      */
     private array $subscribers = [];
 
     /**
-     * @psalm-var list<Tracer\Tracer>
+     * @var list<Tracer\Tracer>
      */
     private array $tracers = [];
 
@@ -102,6 +102,7 @@ final class DirectDispatcher implements SubscribableDispatcher
 
         foreach ($this->subscribers[$eventClassName] as $subscriber) {
             try {
+                /** @phpstan-ignore method.notFound */
                 $subscriber->notify($event);
             } catch (Throwable $t) {
                 $this->handleThrowable($t);

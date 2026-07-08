@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,9 +27,34 @@ class VariablesMatcher extends AbstractContextAwareMatcher
     {
         $var = \str_replace('$', '', $this->getInput($tokens));
 
-        return \array_filter(\array_keys($this->getVariables()), function ($variable) use ($var) {
-            return AbstractMatcher::startsWith($var, $variable);
-        });
+        return \array_filter(
+            \array_keys($this->getVariables()),
+            fn ($variable) => AbstractMatcher::startsWith($var, $variable)
+        );
+    }
+
+    /**
+     * Get current readline input word (variable name).
+     *
+     * Overrides parent to handle T_VARIABLE tokens.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     */
+    protected function getInput(array $tokens): string
+    {
+        $var = '';
+        $firstToken = \array_pop($tokens);
+
+        // Handle T_VARIABLE tokens (e.g., $varName)
+        if (\is_array($firstToken) && self::tokenIs($firstToken, self::T_VARIABLE)) {
+            // Token value includes the $, so strip it
+            $var = \ltrim((string) $firstToken[1], '$');
+        } elseif (\is_array($firstToken) && self::tokenIs($firstToken, self::T_STRING)) {
+            // Fallback to parent behavior for T_STRING tokens
+            $var = (string) $firstToken[1];
+        }
+
+        return $var;
     }
 
     /**

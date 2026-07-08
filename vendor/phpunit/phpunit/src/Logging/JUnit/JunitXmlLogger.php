@@ -50,39 +50,39 @@ final class JunitXmlLogger
     private DOMElement $root;
 
     /**
-     * @var DOMElement[]
+     * @var array<int, DOMElement>
      */
     private array $testSuites = [];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteTests = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteAssertions = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteErrors = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteFailures = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteSkipped = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, float>
      */
-    private array $testSuiteTimes        = [0];
+    private array $testSuiteTimes        = [0.0];
     private int $testSuiteLevel          = 0;
     private ?DOMElement $currentTestCase = null;
     private ?HRTime $time                = null;
@@ -131,7 +131,7 @@ final class JunitXmlLogger
         $this->testSuiteErrors[$this->testSuiteLevel]     = 0;
         $this->testSuiteFailures[$this->testSuiteLevel]   = 0;
         $this->testSuiteSkipped[$this->testSuiteLevel]    = 0;
-        $this->testSuiteTimes[$this->testSuiteLevel]      = 0;
+        $this->testSuiteTimes[$this->testSuiteLevel]      = 0.0;
     }
 
     public function testSuiteFinished(): void
@@ -184,19 +184,15 @@ final class JunitXmlLogger
     public function testPreparationStarted(PreparationStarted $event): void
     {
         $this->createTestCase($event);
+
+        $this->preparationFailed = false;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function testPreparationFailed(): void
     {
         $this->preparationFailed = true;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function testPrepared(): void
     {
         $this->prepared = true;
@@ -293,10 +289,11 @@ final class JunitXmlLogger
         $this->testSuiteTests[$this->testSuiteLevel]++;
         $this->testSuiteTimes[$this->testSuiteLevel] += $time;
 
-        $this->currentTestCase  = null;
-        $this->time             = null;
-        $this->prepared         = false;
-        $this->unexpectedOutput = null;
+        $this->currentTestCase   = null;
+        $this->time              = null;
+        $this->preparationFailed = false;
+        $this->prepared          = false;
+        $this->unexpectedOutput  = null;
     }
 
     /**
@@ -439,7 +436,7 @@ final class JunitXmlLogger
     /**
      * @throws InvalidArgumentException
      *
-     * @psalm-assert !null $this->currentTestCase
+     * @phpstan-assert !null $this->currentTestCase
      */
     private function createTestCase(Errored|Failed|MarkedIncomplete|PreparationStarted|Prepared|Skipped $event): void
     {

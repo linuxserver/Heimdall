@@ -10,30 +10,31 @@
 namespace PHPUnit\Metadata;
 
 use PHPUnit\Metadata\Version\Requirement;
+use PHPUnit\Runner\Extension\Extension;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-abstract class Metadata
+abstract readonly class Metadata
 {
     private const CLASS_LEVEL  = 0;
     private const METHOD_LEVEL = 1;
 
     /**
-     * @psalm-var 0|1
+     * @var 0|1
      */
-    private readonly int $level;
+    private int $level;
 
-    public static function after(): After
+    public static function after(int $priority): After
     {
-        return new After(self::METHOD_LEVEL);
+        return new After(self::METHOD_LEVEL, $priority);
     }
 
-    public static function afterClass(): AfterClass
+    public static function afterClass(int $priority): AfterClass
     {
-        return new AfterClass(self::METHOD_LEVEL);
+        return new AfterClass(self::METHOD_LEVEL, $priority);
     }
 
     public static function backupGlobalsOnClass(bool $enabled): BackupGlobals
@@ -56,18 +57,18 @@ abstract class Metadata
         return new BackupStaticProperties(self::METHOD_LEVEL, $enabled);
     }
 
-    public static function before(): Before
+    public static function before(int $priority): Before
     {
-        return new Before(self::METHOD_LEVEL);
+        return new Before(self::METHOD_LEVEL, $priority);
     }
 
-    public static function beforeClass(): BeforeClass
+    public static function beforeClass(int $priority): BeforeClass
     {
-        return new BeforeClass(self::METHOD_LEVEL);
+        return new BeforeClass(self::METHOD_LEVEL, $priority);
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public static function coversClass(string $className): CoversClass
     {
@@ -75,7 +76,24 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $functionName
+     * @param trait-string $traitName
+     */
+    public static function coversTrait(string $traitName): CoversTrait
+    {
+        return new CoversTrait(self::CLASS_LEVEL, $traitName);
+    }
+
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    public static function coversMethod(string $className, string $methodName): CoversMethod
+    {
+        return new CoversMethod(self::CLASS_LEVEL, $className, $methodName);
+    }
+
+    /**
+     * @param non-empty-string $functionName
      */
     public static function coversFunction(string $functionName): CoversFunction
     {
@@ -83,7 +101,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $target
+     * @param non-empty-string $target
      */
     public static function coversOnClass(string $target): Covers
     {
@@ -91,7 +109,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $target
+     * @param non-empty-string $target
      */
     public static function coversOnMethod(string $target): Covers
     {
@@ -99,7 +117,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public static function coversDefaultClass(string $className): CoversDefaultClass
     {
@@ -117,8 +135,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      */
     public static function dataProvider(string $className, string $methodName): DataProvider
     {
@@ -126,7 +144,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public static function dependsOnClass(string $className, bool $deepClone, bool $shallowClone): DependsOnClass
     {
@@ -134,12 +152,17 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      */
     public static function dependsOnMethod(string $className, string $methodName, bool $deepClone, bool $shallowClone): DependsOnMethod
     {
         return new DependsOnMethod(self::METHOD_LEVEL, $className, $methodName, $deepClone, $shallowClone);
+    }
+
+    public static function disableReturnValueGenerationForTestDoubles(): DisableReturnValueGenerationForTestDoubles
+    {
+        return new DisableReturnValueGenerationForTestDoubles(self::CLASS_LEVEL);
     }
 
     public static function doesNotPerformAssertionsOnClass(): DoesNotPerformAssertions
@@ -153,7 +176,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $globalVariableName
+     * @param non-empty-string $globalVariableName
      */
     public static function excludeGlobalVariableFromBackupOnClass(string $globalVariableName): ExcludeGlobalVariableFromBackup
     {
@@ -161,7 +184,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $globalVariableName
+     * @param non-empty-string $globalVariableName
      */
     public static function excludeGlobalVariableFromBackupOnMethod(string $globalVariableName): ExcludeGlobalVariableFromBackup
     {
@@ -169,8 +192,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $propertyName
+     * @param class-string     $className
+     * @param non-empty-string $propertyName
      */
     public static function excludeStaticPropertyFromBackupOnClass(string $className, string $propertyName): ExcludeStaticPropertyFromBackup
     {
@@ -178,8 +201,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $propertyName
+     * @param class-string     $className
+     * @param non-empty-string $propertyName
      */
     public static function excludeStaticPropertyFromBackupOnMethod(string $className, string $propertyName): ExcludeStaticPropertyFromBackup
     {
@@ -187,7 +210,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $groupName
+     * @param non-empty-string $groupName
      */
     public static function groupOnClass(string $groupName): Group
     {
@@ -195,7 +218,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $groupName
+     * @param non-empty-string $groupName
      */
     public static function groupOnMethod(string $groupName): Group
     {
@@ -213,38 +236,29 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public static function ignoreClassForCodeCoverage(string $className): IgnoreClassForCodeCoverage
+    public static function ignorePhpunitDeprecationsOnClass(): IgnorePhpunitDeprecations
     {
-        return new IgnoreClassForCodeCoverage(self::CLASS_LEVEL, $className);
+        return new IgnorePhpunitDeprecations(self::CLASS_LEVEL);
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public static function ignoreMethodForCodeCoverage(string $className, string $methodName): IgnoreMethodForCodeCoverage
+    public static function ignorePhpunitDeprecationsOnMethod(): IgnorePhpunitDeprecations
     {
-        return new IgnoreMethodForCodeCoverage(self::CLASS_LEVEL, $className, $methodName);
+        return new IgnorePhpunitDeprecations(self::METHOD_LEVEL);
     }
 
-    /**
-     * @psalm-param non-empty-string $functionName
-     */
-    public static function ignoreFunctionForCodeCoverage(string $functionName): IgnoreFunctionForCodeCoverage
+    public static function postCondition(int $priority): PostCondition
     {
-        return new IgnoreFunctionForCodeCoverage(self::CLASS_LEVEL, $functionName);
+        return new PostCondition(self::METHOD_LEVEL, $priority);
     }
 
-    public static function postCondition(): PostCondition
+    public static function preCondition(int $priority): PreCondition
     {
-        return new PostCondition(self::METHOD_LEVEL);
-    }
-
-    public static function preCondition(): PreCondition
-    {
-        return new PreCondition(self::METHOD_LEVEL);
+        return new PreCondition(self::METHOD_LEVEL, $priority);
     }
 
     public static function preserveGlobalStateOnClass(bool $enabled): PreserveGlobalState
@@ -258,7 +272,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $functionName
+     * @param non-empty-string $functionName
      */
     public static function requiresFunctionOnClass(string $functionName): RequiresFunction
     {
@@ -266,7 +280,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $functionName
+     * @param non-empty-string $functionName
      */
     public static function requiresFunctionOnMethod(string $functionName): RequiresFunction
     {
@@ -274,8 +288,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      */
     public static function requiresMethodOnClass(string $className, string $methodName): RequiresMethod
     {
@@ -283,8 +297,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @param class-string     $className
+     * @param non-empty-string $methodName
      */
     public static function requiresMethodOnMethod(string $className, string $methodName): RequiresMethod
     {
@@ -292,7 +306,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $operatingSystem
+     * @param non-empty-string $operatingSystem
      */
     public static function requiresOperatingSystemOnClass(string $operatingSystem): RequiresOperatingSystem
     {
@@ -300,7 +314,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $operatingSystem
+     * @param non-empty-string $operatingSystem
      */
     public static function requiresOperatingSystemOnMethod(string $operatingSystem): RequiresOperatingSystem
     {
@@ -308,7 +322,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $operatingSystemFamily
+     * @param non-empty-string $operatingSystemFamily
      */
     public static function requiresOperatingSystemFamilyOnClass(string $operatingSystemFamily): RequiresOperatingSystemFamily
     {
@@ -316,7 +330,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $operatingSystemFamily
+     * @param non-empty-string $operatingSystemFamily
      */
     public static function requiresOperatingSystemFamilyOnMethod(string $operatingSystemFamily): RequiresOperatingSystemFamily
     {
@@ -334,7 +348,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $extension
+     * @param non-empty-string $extension
      */
     public static function requiresPhpExtensionOnClass(string $extension, ?Requirement $versionRequirement): RequiresPhpExtension
     {
@@ -342,7 +356,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $extension
+     * @param non-empty-string $extension
      */
     public static function requiresPhpExtensionOnMethod(string $extension, ?Requirement $versionRequirement): RequiresPhpExtension
     {
@@ -360,8 +374,24 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $setting
-     * @psalm-param non-empty-string $value
+     * @param class-string<Extension> $extensionClass
+     */
+    public static function requiresPhpunitExtensionOnClass(string $extensionClass): RequiresPhpunitExtension
+    {
+        return new RequiresPhpunitExtension(self::CLASS_LEVEL, $extensionClass);
+    }
+
+    /**
+     * @param class-string<Extension> $extensionClass
+     */
+    public static function requiresPhpunitExtensionOnMethod(string $extensionClass): RequiresPhpunitExtension
+    {
+        return new RequiresPhpunitExtension(self::METHOD_LEVEL, $extensionClass);
+    }
+
+    /**
+     * @param non-empty-string $setting
+     * @param non-empty-string $value
      */
     public static function requiresSettingOnClass(string $setting, string $value): RequiresSetting
     {
@@ -369,8 +399,8 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $setting
-     * @psalm-param non-empty-string $value
+     * @param non-empty-string $setting
+     * @param non-empty-string $value
      */
     public static function requiresSettingOnMethod(string $setting, string $value): RequiresSetting
     {
@@ -398,7 +428,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $text
+     * @param non-empty-string $text
      */
     public static function testDoxOnClass(string $text): TestDox
     {
@@ -406,20 +436,23 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $text
+     * @param non-empty-string $text
      */
     public static function testDoxOnMethod(string $text): TestDox
     {
         return new TestDox(self::METHOD_LEVEL, $text);
     }
 
-    public static function testWith(mixed $data): TestWith
+    /**
+     * @param ?non-empty-string $name
+     */
+    public static function testWith(mixed $data, ?string $name = null): TestWith
     {
-        return new TestWith(self::METHOD_LEVEL, $data);
+        return new TestWith(self::METHOD_LEVEL, $data, $name);
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public static function usesClass(string $className): UsesClass
     {
@@ -427,7 +460,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $functionName
+     * @param trait-string $traitName
+     */
+    public static function usesTrait(string $traitName): UsesTrait
+    {
+        return new UsesTrait(self::CLASS_LEVEL, $traitName);
+    }
+
+    /**
+     * @param non-empty-string $functionName
      */
     public static function usesFunction(string $functionName): UsesFunction
     {
@@ -435,7 +476,16 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $target
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    public static function usesMethod(string $className, string $methodName): UsesMethod
+    {
+        return new UsesMethod(self::CLASS_LEVEL, $className, $methodName);
+    }
+
+    /**
+     * @param non-empty-string $target
      */
     public static function usesOnClass(string $target): Uses
     {
@@ -443,7 +493,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param non-empty-string $target
+     * @param non-empty-string $target
      */
     public static function usesOnMethod(string $target): Uses
     {
@@ -451,7 +501,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public static function usesDefaultClass(string $className): UsesDefaultClass
     {
@@ -464,7 +514,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-param 0|1 $level
+     * @param 0|1 $level
      */
     protected function __construct(int $level)
     {
@@ -482,7 +532,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true After $this
+     * @phpstan-assert-if-true After $this
      */
     public function isAfter(): bool
     {
@@ -490,7 +540,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true AfterClass $this
+     * @phpstan-assert-if-true AfterClass $this
      */
     public function isAfterClass(): bool
     {
@@ -498,7 +548,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true BackupGlobals $this
+     * @phpstan-assert-if-true BackupGlobals $this
      */
     public function isBackupGlobals(): bool
     {
@@ -506,7 +556,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true BackupStaticProperties $this
+     * @phpstan-assert-if-true BackupStaticProperties $this
      */
     public function isBackupStaticProperties(): bool
     {
@@ -514,7 +564,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true BeforeClass $this
+     * @phpstan-assert-if-true BeforeClass $this
      */
     public function isBeforeClass(): bool
     {
@@ -522,7 +572,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true Before $this
+     * @phpstan-assert-if-true Before $this
      */
     public function isBefore(): bool
     {
@@ -530,7 +580,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true Covers $this
+     * @phpstan-assert-if-true Covers $this
      */
     public function isCovers(): bool
     {
@@ -538,7 +588,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true CoversClass $this
+     * @phpstan-assert-if-true CoversClass $this
      */
     public function isCoversClass(): bool
     {
@@ -546,7 +596,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true CoversDefaultClass $this
+     * @phpstan-assert-if-true CoversDefaultClass $this
      */
     public function isCoversDefaultClass(): bool
     {
@@ -554,7 +604,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true CoversFunction $this
+     * @phpstan-assert-if-true CoversTrait $this
+     */
+    public function isCoversTrait(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true CoversFunction $this
      */
     public function isCoversFunction(): bool
     {
@@ -562,7 +620,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true CoversNothing $this
+     * @phpstan-assert-if-true CoversMethod $this
+     */
+    public function isCoversMethod(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true CoversNothing $this
      */
     public function isCoversNothing(): bool
     {
@@ -570,7 +636,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true DataProvider $this
+     * @phpstan-assert-if-true DataProvider $this
      */
     public function isDataProvider(): bool
     {
@@ -578,7 +644,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true DependsOnClass $this
+     * @phpstan-assert-if-true DependsOnClass $this
      */
     public function isDependsOnClass(): bool
     {
@@ -586,7 +652,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true DependsOnMethod $this
+     * @phpstan-assert-if-true DependsOnMethod $this
      */
     public function isDependsOnMethod(): bool
     {
@@ -594,7 +660,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true DoesNotPerformAssertions $this
+     * @phpstan-assert-if-true DisableReturnValueGenerationForTestDoubles $this
+     */
+    public function isDisableReturnValueGenerationForTestDoubles(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true DoesNotPerformAssertions $this
      */
     public function isDoesNotPerformAssertions(): bool
     {
@@ -602,7 +676,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true ExcludeGlobalVariableFromBackup $this
+     * @phpstan-assert-if-true ExcludeGlobalVariableFromBackup $this
      */
     public function isExcludeGlobalVariableFromBackup(): bool
     {
@@ -610,7 +684,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true ExcludeStaticPropertyFromBackup $this
+     * @phpstan-assert-if-true ExcludeStaticPropertyFromBackup $this
      */
     public function isExcludeStaticPropertyFromBackup(): bool
     {
@@ -618,7 +692,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true Group $this
+     * @phpstan-assert-if-true Group $this
      */
     public function isGroup(): bool
     {
@@ -626,7 +700,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true IgnoreDeprecations $this
+     * @phpstan-assert-if-true IgnoreDeprecations $this
      */
     public function isIgnoreDeprecations(): bool
     {
@@ -634,31 +708,17 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true IgnoreClassForCodeCoverage $this
+     * @phpstan-assert-if-true IgnorePhpunitDeprecations $this
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public function isIgnoreClassForCodeCoverage(): bool
+    public function isIgnorePhpunitDeprecations(): bool
     {
         return false;
     }
 
     /**
-     * @psalm-assert-if-true IgnoreMethodForCodeCoverage $this
-     */
-    public function isIgnoreMethodForCodeCoverage(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @psalm-assert-if-true IgnoreFunctionForCodeCoverage $this
-     */
-    public function isIgnoreFunctionForCodeCoverage(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @psalm-assert-if-true RunClassInSeparateProcess $this
+     * @phpstan-assert-if-true RunClassInSeparateProcess $this
      */
     public function isRunClassInSeparateProcess(): bool
     {
@@ -666,7 +726,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RunInSeparateProcess $this
+     * @phpstan-assert-if-true RunInSeparateProcess $this
      */
     public function isRunInSeparateProcess(): bool
     {
@@ -674,7 +734,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RunTestsInSeparateProcesses $this
+     * @phpstan-assert-if-true RunTestsInSeparateProcesses $this
      */
     public function isRunTestsInSeparateProcesses(): bool
     {
@@ -682,7 +742,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true Test $this
+     * @phpstan-assert-if-true Test $this
      */
     public function isTest(): bool
     {
@@ -690,7 +750,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true PreCondition $this
+     * @phpstan-assert-if-true PreCondition $this
      */
     public function isPreCondition(): bool
     {
@@ -698,7 +758,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true PostCondition $this
+     * @phpstan-assert-if-true PostCondition $this
      */
     public function isPostCondition(): bool
     {
@@ -706,7 +766,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true PreserveGlobalState $this
+     * @phpstan-assert-if-true PreserveGlobalState $this
      */
     public function isPreserveGlobalState(): bool
     {
@@ -714,7 +774,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresMethod $this
+     * @phpstan-assert-if-true RequiresMethod $this
      */
     public function isRequiresMethod(): bool
     {
@@ -722,7 +782,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresFunction $this
+     * @phpstan-assert-if-true RequiresFunction $this
      */
     public function isRequiresFunction(): bool
     {
@@ -730,7 +790,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresOperatingSystem $this
+     * @phpstan-assert-if-true RequiresOperatingSystem $this
      */
     public function isRequiresOperatingSystem(): bool
     {
@@ -738,7 +798,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresOperatingSystemFamily $this
+     * @phpstan-assert-if-true RequiresOperatingSystemFamily $this
      */
     public function isRequiresOperatingSystemFamily(): bool
     {
@@ -746,7 +806,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresPhp $this
+     * @phpstan-assert-if-true RequiresPhp $this
      */
     public function isRequiresPhp(): bool
     {
@@ -754,7 +814,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresPhpExtension $this
+     * @phpstan-assert-if-true RequiresPhpExtension $this
      */
     public function isRequiresPhpExtension(): bool
     {
@@ -762,7 +822,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresPhpunit $this
+     * @phpstan-assert-if-true RequiresPhpunit $this
      */
     public function isRequiresPhpunit(): bool
     {
@@ -770,7 +830,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true RequiresSetting $this
+     * @phpstan-assert-if-true RequiresPhpunitExtension $this
+     */
+    public function isRequiresPhpunitExtension(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true RequiresSetting $this
      */
     public function isRequiresSetting(): bool
     {
@@ -778,7 +846,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true TestDox $this
+     * @phpstan-assert-if-true TestDox $this
      */
     public function isTestDox(): bool
     {
@@ -786,7 +854,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true TestWith $this
+     * @phpstan-assert-if-true TestWith $this
      */
     public function isTestWith(): bool
     {
@@ -794,7 +862,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true Uses $this
+     * @phpstan-assert-if-true Uses $this
      */
     public function isUses(): bool
     {
@@ -802,7 +870,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true UsesClass $this
+     * @phpstan-assert-if-true UsesClass $this
      */
     public function isUsesClass(): bool
     {
@@ -810,7 +878,7 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true UsesDefaultClass $this
+     * @phpstan-assert-if-true UsesDefaultClass $this
      */
     public function isUsesDefaultClass(): bool
     {
@@ -818,7 +886,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true UsesFunction $this
+     * @phpstan-assert-if-true UsesTrait $this
+     */
+    public function isUsesTrait(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true UsesFunction $this
      */
     public function isUsesFunction(): bool
     {
@@ -826,7 +902,15 @@ abstract class Metadata
     }
 
     /**
-     * @psalm-assert-if-true WithoutErrorHandler $this
+     * @phpstan-assert-if-true UsesMethod $this
+     */
+    public function isUsesMethod(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @phpstan-assert-if-true WithoutErrorHandler $this
      */
     public function isWithoutErrorHandler(): bool
     {

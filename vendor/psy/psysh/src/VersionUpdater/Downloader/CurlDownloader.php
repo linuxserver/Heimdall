@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -58,7 +58,9 @@ class CurlDownloader implements Downloader
         \curl_setopt($curl, \CURLOPT_URL, $url);
         $result = \curl_exec($curl);
         $error = \curl_error($curl);
-        \curl_close($curl);
+        if (\PHP_VERSION_ID < 80000) {
+            \curl_close($curl);
+        }
 
         \fclose($outputHandle);
 

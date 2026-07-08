@@ -15,13 +15,15 @@
 		}
 	],
 	"require": {
-		"php": "8.0 - 8.4"
+		"php": "8.2 - 8.5"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",
 		"tracy/tracy": "^2.9",
-		"phpstan/phpstan": "^1.0",
-		"jetbrains/phpstorm-attributes": "dev-master"
+		"phpstan/phpstan": "^2.1@stable",
+		"phpstan/extension-installer": "^1.4@stable",
+		"nette/phpstan-rules": "^1.0",
+		"jetbrains/phpstorm-attributes": "^1.2"
 	},
 	"conflict": {
 		"nette/finder": "<3",
@@ -36,7 +38,10 @@
 		"ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
 	},
 	"autoload": {
-		"classmap": ["src/"]
+		"classmap": ["src/"],
+		"psr-4": {
+			"Nette\\": "src"
+		}
 	},
 	"minimum-stability": "dev",
 	"scripts": {
@@ -45,7 +50,12 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "4.0-dev"
+			"dev-master": "4.1-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"phpstan/extension-installer": true
 		}
 	}
 }

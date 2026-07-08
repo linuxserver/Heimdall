@@ -186,6 +186,11 @@ $a = isset($a);
 /* testUnsetIsKeyword */
 unset($a);
 
+/* testFullyQualifiedDieIsKeyword */
+\die;
+/* testFullyQualifiedExitIsKeyword */
+\exit($foo);
+
 /* testIncludeIsKeyword */
 include 'file.php';
 /* testIncludeOnceIsKeyword */

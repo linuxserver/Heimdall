@@ -7,6 +7,7 @@ use InvalidArgumentException;
 
 class SearchPrompt extends Prompt
 {
+    use Concerns\HasInfo;
     use Concerns\Scrolling;
     use Concerns\Truncation;
     use Concerns\TypedValue;
@@ -32,6 +33,7 @@ class SearchPrompt extends Prompt
         public string $hint = '',
         public bool|string $required = true,
         public ?Closure $transform = null,
+        public string|Closure $info = '',
     ) {
         if ($this->required === false) {
             throw new InvalidArgumentException('Argument [required] must be true or a string.');
@@ -50,6 +52,14 @@ class SearchPrompt extends Prompt
             Key::oneOf([Key::LEFT, Key::LEFT_ARROW, Key::RIGHT, Key::RIGHT_ARROW, Key::CTRL_B, Key::CTRL_F], $key) => $this->highlighted = null,
             default => $this->search(),
         });
+    }
+
+    /**
+     * Get the value of the highlighted option.
+     */
+    public function highlightedValue(): int|string|null
+    {
+        return $this->value();
     }
 
     /**

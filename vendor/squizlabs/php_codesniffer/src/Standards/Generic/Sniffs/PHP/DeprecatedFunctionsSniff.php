@@ -5,7 +5,7 @@
  * @author    Sebastian Bergmann <sb@sebastian-bergmann.de>
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\PHP;
@@ -53,7 +53,7 @@ class DeprecatedFunctionsSniff extends ForbiddenFunctionsSniff
      * @param int                         $stackPtr  The position of the forbidden function
      *                                               in the token array.
      * @param string                      $function  The name of the forbidden function.
-     * @param string                      $pattern   The pattern used for the match.
+     * @param string|null                 $pattern   The pattern used for the match.
      *
      * @return void
      */

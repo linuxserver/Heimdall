@@ -26,8 +26,7 @@ class In implements Stringable
     /**
      * Create a new in rule instance.
      *
-     * @param  \Illuminate\Contracts\Support\Arrayable|\BackedEnum|\UnitEnum|array|string  $values
-     * @return void
+     * @param  \Illuminate\Contracts\Support\Arrayable|\UnitEnum|array|string  $values
      */
     public function __construct($values)
     {

@@ -286,8 +286,8 @@ class AwsS3V3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumP
 
     private function fetchFileMetadata(string $path, string $type): FileAttributes
     {
-        $arguments = ['Bucket' => $this->bucket, 'Key' => $this->prefixer->prefixPath($path)];
-        $command = $this->client->getCommand('HeadObject', $arguments);
+        $options = ['Bucket' => $this->bucket, 'Key' => $this->prefixer->prefixPath($path)];
+        $command = $this->client->getCommand('HeadObject', $options + $this->options);
 
         try {
             $result = $this->client->execute($command);
@@ -375,7 +375,7 @@ class AwsS3V3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumP
     public function listContents(string $path, bool $deep): iterable
     {
         $prefix = trim($this->prefixer->prefixPath($path), '/');
-        $prefix = empty($prefix) ? '' : $prefix . '/';
+        $prefix = $prefix === '' ? '' : $prefix . '/';
         $options = ['Bucket' => $this->bucket, 'Prefix' => $prefix];
 
         if ($deep === false) {
@@ -441,6 +441,7 @@ class AwsS3V3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumP
 
         $options = $this->createOptionsFromConfig($config);
         $options['MetadataDirective'] = $config->get('MetadataDirective', 'COPY');
+        $acl = $options['params']['ACL'] ?? $this->visibility->visibilityToAcl($visibility ?: 'private');
 
         try {
             $this->client->copy(
@@ -448,7 +449,7 @@ class AwsS3V3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumP
                 $this->prefixer->prefixPath($source),
                 $this->bucket,
                 $this->prefixer->prefixPath($destination),
-                $this->visibility->visibilityToAcl($visibility ?: 'private'),
+                $acl,
                 $options,
             );
         } catch (Throwable $exception) {

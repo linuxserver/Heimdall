@@ -11,18 +11,19 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/sebastianbergmann/version/issues"
+        "issues": "https://github.com/sebastianbergmann/version/issues",
+        "security": "https://github.com/sebastianbergmann/version/security/policy"
     },
     "config": {
         "platform": {
-            "php": "8.1.0"
+            "php": "8.2.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2"
     },
     "autoload": {
         "classmap": [
@@ -31,7 +32,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "4.0-dev"
+            "dev-main": "5.0-dev"
         }
     }
 }

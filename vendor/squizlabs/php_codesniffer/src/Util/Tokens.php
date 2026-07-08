@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Util;
@@ -804,8 +804,8 @@ final class Tokens
      * @param array<int|string> $tokens The token types to get the highest weighted
      *                                  type for.
      *
-     * @return int The highest weighted token.
-     *             On equal "weight", returns the first token of that particular weight.
+     * @return int|string The highest weighted token.
+     *                    On equal "weight", returns the first token of that particular weight.
      */
     public static function getHighestWeightedToken(array $tokens)
     {

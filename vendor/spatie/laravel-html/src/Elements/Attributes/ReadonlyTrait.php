@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static isReadonlyIf(bool $condition, bool $readonly)
+ * @method static isReadonlyIfNotNull(bool $condition, bool $readonly)
+ * @method static isReadonlyUnless(bool $condition, bool $readonly)
+ */
 trait ReadonlyTrait
 {
     /**

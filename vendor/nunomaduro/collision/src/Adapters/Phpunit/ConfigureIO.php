@@ -34,7 +34,7 @@ final class ConfigureIO
         $application = new Application;
         $reflector = new ReflectionObject($application);
         $method = $reflector->getMethod('configureIO');
-        $method->setAccessible(true);
+
         $method->invoke($application, $input, $output);
     }
 }

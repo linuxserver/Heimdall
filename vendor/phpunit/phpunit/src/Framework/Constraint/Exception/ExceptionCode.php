@@ -50,8 +50,8 @@ final class ExceptionCode extends Constraint
     {
         return sprintf(
             '%s is equal to expected exception code %s',
-            Exporter::export($other, true),
-            Exporter::export($this->expectedCode, true),
+            Exporter::export($other),
+            Exporter::export($this->expectedCode),
         );
     }
 }

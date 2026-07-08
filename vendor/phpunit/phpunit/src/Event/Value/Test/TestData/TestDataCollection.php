@@ -14,40 +14,42 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * @template-implements IteratorAggregate<int, TestData>
+ * @template-implements IteratorAggregate<non-negative-int, TestData>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class TestDataCollection implements Countable, IteratorAggregate
+final readonly class TestDataCollection implements Countable, IteratorAggregate
 {
     /**
-     * @psalm-var list<TestData>
+     * @var list<TestData>
      */
-    private readonly array $data;
-    private ?DataFromDataProvider $fromDataProvider = null;
+    private array $data;
+    private ?DataFromDataProvider $fromDataProvider;
 
     /**
-     * @psalm-param list<TestData> $data
-     *
-     * @throws MoreThanOneDataSetFromDataProviderException
+     * @param list<TestData> $data
      */
     public static function fromArray(array $data): self
     {
         return new self(...$data);
     }
 
-    /**
-     * @throws MoreThanOneDataSetFromDataProviderException
-     */
     private function __construct(TestData ...$data)
     {
-        $this->ensureNoMoreThanOneDataFromDataProvider($data);
+        $fromDataProvider = null;
 
-        $this->data = $data;
+        foreach ($data as $_data) {
+            if ($_data->isFromDataProvider()) {
+                $fromDataProvider = $_data;
+            }
+        }
+
+        $this->data             = $data;
+        $this->fromDataProvider = $fromDataProvider;
     }
 
     /**
-     * @psalm-return list<TestData>
+     * @return list<TestData>
      */
     public function asArray(): array
     {
@@ -60,7 +62,7 @@ final class TestDataCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @psalm-assert-if-true !null $this->fromDataProvider
+     * @phpstan-assert-if-true !null $this->fromDataProvider
      */
     public function hasDataFromDataProvider(): bool
     {
@@ -82,23 +84,5 @@ final class TestDataCollection implements Countable, IteratorAggregate
     public function getIterator(): TestDataCollectionIterator
     {
         return new TestDataCollectionIterator($this);
-    }
-
-    /**
-     * @psalm-param list<TestData> $data
-     *
-     * @throws MoreThanOneDataSetFromDataProviderException
-     */
-    private function ensureNoMoreThanOneDataFromDataProvider(array $data): void
-    {
-        foreach ($data as $_data) {
-            if ($_data->isFromDataProvider()) {
-                if ($this->fromDataProvider !== null) {
-                    throw new MoreThanOneDataSetFromDataProviderException;
-                }
-
-                $this->fromDataProvider = $_data;
-            }
-        }
     }
 }

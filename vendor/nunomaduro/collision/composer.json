@@ -1,7 +1,7 @@
 {
     "name": "nunomaduro/collision",
     "description": "Cli error handling for console/command-line PHP applications.",
-    "keywords": ["console", "command-line", "php", "cli", "error", "handling", "laravel-zero", "laravel", "artisan", "symfony"],
+    "keywords": ["console", "command-line", "php", "cli", "error", "handling", "laravel-zero", "laravel", "artisan", "symfony", "dev"],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/nunomaduro/collision/issues",
@@ -15,24 +15,22 @@
     ],
     "require": {
         "php": "^8.2.0",
-        "filp/whoops": "^2.16.0",
-        "nunomaduro/termwind": "^2.1.0",
-        "symfony/console": "^7.1.5"
+        "filp/whoops": "^2.18.4",
+        "nunomaduro/termwind": "^2.4.0",
+        "symfony/console": "^7.4.8 || ^8.0.8"
     },
     "conflict": {
-        "laravel/framework": "<11.0.0 || >=12.0.0",
-        "phpunit/phpunit": "<10.5.1 || >=12.0.0"
+        "laravel/framework": "<11.48.0 || >=14.0.0",
+        "phpunit/phpunit": "<11.5.50 || >=14.0.0"
     },
     "require-dev": {
-        "laravel/framework": "^11.28.0",
-        "laravel/pint": "^1.18.1",
-        "laravel/tinker": "^2.10.0",
-        "laravel/sail": "^1.36.0",
-        "laravel/sanctum": "^4.0.3",
-        "larastan/larastan": "^2.9.8",
-        "orchestra/testbench-core": "^9.5.3",
-        "pestphp/pest": "^2.36.0 || ^3.4.0",
-        "sebastian/environment": "^6.1.0 || ^7.2.0"
+        "brianium/paratest": "^7.8.5",
+        "laravel/framework": "^11.48.0 || ^12.56.0 || ^13.5.0",
+        "laravel/pint": "^1.29.1",
+        "larastan/larastan": "^3.9.6",
+        "orchestra/testbench-core": "^9.12.0 || ^10.12.1 || ^11.2.1",
+        "pestphp/pest": "^3.8.5 || ^4.4.3 || ^5.0.0",
+        "sebastian/environment": "^7.2.1 || ^8.0.4 || ^9.3.0"
     },
     "autoload-dev": {
         "psr-4": {
@@ -71,17 +69,13 @@
         }
     },
     "scripts": {
+        "post-update-cmd": "@fix:pdo-constant",
+        "fix:pdo-constant": "@php scripts/fix-pdo-constant.php",
         "lint": "pint -v",
         "test:lint": "pint --test -v",
         "test:types": "phpstan analyse --ansi",
-        "test:unit:phpunit": [
-            "@putenv XDEBUG_MODE=coverage",
-            "phpunit --colors=always"
-        ],
-        "test:unit:pest": [
-            "@putenv XDEBUG_MODE=coverage",
-            "pest --colors=always -v"
-        ],
+        "test:unit:phpunit": "XDEBUG_MODE=coverage phpunit --colors=always",
+        "test:unit:pest": "XDEBUG_MODE=coverage pest --colors=always",
         "test": [
             "@test:lint",
             "@test:types",

@@ -13,7 +13,6 @@ use function array_keys;
 use function array_merge;
 use function array_reverse;
 use function assert;
-use function func_get_args;
 use function get_declared_classes;
 use function get_declared_interfaces;
 use function get_declared_traits;
@@ -36,20 +35,64 @@ use Throwable;
 /**
  * A snapshot of global state.
  */
-class Snapshot
+final class Snapshot
 {
     private ExcludeList $excludeList;
-    private array $globalVariables      = [];
-    private array $superGlobalArrays    = [];
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $globalVariables = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $superGlobalArrays = [];
+
+    /**
+     * @var array<string, array<string, mixed>>
+     */
     private array $superGlobalVariables = [];
-    private array $staticProperties     = [];
-    private array $iniSettings          = [];
-    private array $includedFiles        = [];
-    private array $constants            = [];
-    private array $functions            = [];
-    private array $interfaces           = [];
-    private array $classes              = [];
-    private array $traits               = [];
+
+    /**
+     * @var array<string, array<string, mixed>>
+     */
+    private array $staticProperties = [];
+
+    /**
+     * @var array<non-empty-string, array{global_value: string, local_value: string, access: int}>
+     */
+    private array $iniSettings = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $includedFiles = [];
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $constants = [];
+
+    /**
+     * @var list<callable-string>
+     */
+    private array $functions = [];
+
+    /**
+     * @var list<class-string>
+     */
+    private array $interfaces = [];
+
+    /**
+     * @var list<class-string>
+     */
+    private array $classes = [];
+
+    /**
+     * @var list<class-string>
+     */
+    private array $traits = [];
 
     public function __construct(?ExcludeList $excludeList = null, bool $includeGlobalVariables = true, bool $includeStaticProperties = true, bool $includeConstants = true, bool $includeFunctions = true, bool $includeClasses = true, bool $includeInterfaces = true, bool $includeTraits = true, bool $includeIniSettings = true, bool $includeIncludedFiles = true)
     {
@@ -81,7 +124,11 @@ class Snapshot
         }
 
         if ($includeIniSettings) {
-            $this->iniSettings = ini_get_all(null, false);
+            $iniSettings = ini_get_all(null, false);
+
+            assert($iniSettings !== false);
+
+            $this->iniSettings = $iniSettings;
         }
 
         if ($includeIncludedFiles) {
@@ -98,56 +145,89 @@ class Snapshot
         return $this->excludeList;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function globalVariables(): array
     {
         return $this->globalVariables;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function superGlobalVariables(): array
     {
         return $this->superGlobalVariables;
     }
 
+    /**
+     * @return list<string>
+     */
     public function superGlobalArrays(): array
     {
         return $this->superGlobalArrays;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function staticProperties(): array
     {
         return $this->staticProperties;
     }
 
+    /**
+     * @return array<non-empty-string, array{global_value: string, local_value: string, access: int}>
+     */
     public function iniSettings(): array
     {
         return $this->iniSettings;
     }
 
+    /**
+     * @return list<string>
+     */
     public function includedFiles(): array
     {
         return $this->includedFiles;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function constants(): array
     {
         return $this->constants;
     }
 
+    /**
+     * @return list<callable-string>
+     */
     public function functions(): array
     {
         return $this->functions;
     }
 
+    /**
+     * @return list<class-string>
+     */
     public function interfaces(): array
     {
         return $this->interfaces;
     }
 
+    /**
+     * @return list<class-string>
+     */
     public function classes(): array
     {
         return $this->classes;
     }
 
+    /**
+     * @return list<class-string>
+     */
     public function traits(): array
     {
         return $this->traits;
@@ -309,16 +389,11 @@ class Snapshot
         return true;
     }
 
-    private function enumerateObjectsAndResources(mixed $variable): array
+    /**
+     * @return array<mixed>
+     */
+    private function enumerateObjectsAndResources(mixed $variable, Context $processed = new Context): array
     {
-        if (isset(func_get_args()[1])) {
-            $processed = func_get_args()[1];
-        } else {
-            $processed = new Context;
-        }
-
-        assert($processed instanceof Context);
-
         $result = [];
 
         if ($processed->contains($variable)) {
@@ -331,6 +406,7 @@ class Snapshot
         $processed->add($variable);
 
         if (is_array($variable)) {
+            /** @phpstan-ignore foreach.nonIterable */
             foreach ($array as $element) {
                 if (!is_array($element) && !is_object($element) && !is_resource($element)) {
                     continue;

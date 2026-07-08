@@ -24,7 +24,11 @@ final class Counter
      */
     public function countInSourceFile(string $sourceFile): LinesOfCode
     {
-        return $this->countInSourceString(file_get_contents($sourceFile));
+        $source = file_get_contents($sourceFile);
+
+        assert($source !== false);
+
+        return $this->countInSourceString($source);
     }
 
     /**
@@ -37,8 +41,6 @@ final class Counter
         if ($linesOfCode === 0 && !empty($source)) {
             $linesOfCode = 1;
         }
-
-        assert($linesOfCode >= 0);
 
         try {
             $nodes = (new ParserFactory)->createForHostVersion()->parse($source);
@@ -59,9 +61,8 @@ final class Counter
     }
 
     /**
-     * @psalm-param non-negative-int $linesOfCode
-     *
-     * @param Node[] $nodes
+     * @param non-negative-int $linesOfCode
+     * @param Node[]           $nodes
      *
      * @throws RuntimeException
      */

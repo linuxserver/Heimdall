@@ -33,7 +33,7 @@ use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @psalm-type CodeUnitFunctionType = array{
+ * @phpstan-type CodeUnitFunctionType = array{
  *     name: string,
  *     namespacedName: string,
  *     namespace: string,
@@ -42,7 +42,7 @@ use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
  *     endLine: int,
  *     ccn: int
  * }
- * @psalm-type CodeUnitMethodType = array{
+ * @phpstan-type CodeUnitMethodType = array{
  *     methodName: string,
  *     signature: string,
  *     visibility: string,
@@ -50,7 +50,7 @@ use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
  *     endLine: int,
  *     ccn: int
  * }
- * @psalm-type CodeUnitClassType = array{
+ * @phpstan-type CodeUnitClassType = array{
  *     name: string,
  *     namespacedName: string,
  *     namespace: string,
@@ -58,7 +58,7 @@ use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
  *     endLine: int,
  *     methods: array<string, CodeUnitMethodType>
  * }
- * @psalm-type CodeUnitTraitType = array{
+ * @phpstan-type CodeUnitTraitType = array{
  *     name: string,
  *     namespacedName: string,
  *     namespace: string,
@@ -70,17 +70,17 @@ use SebastianBergmann\Complexity\CyclomaticComplexityCalculatingVisitor;
 final class CodeUnitFindingVisitor extends NodeVisitorAbstract
 {
     /**
-     * @psalm-var array<string, CodeUnitClassType>
+     * @var array<string, CodeUnitClassType>
      */
     private array $classes = [];
 
     /**
-     * @psalm-var array<string, CodeUnitTraitType>
+     * @var array<string, CodeUnitTraitType>
      */
     private array $traits = [];
 
     /**
-     * @psalm-var array<string, CodeUnitFunctionType>
+     * @var array<string, CodeUnitFunctionType>
      */
     private array $functions = [];
 
@@ -118,7 +118,7 @@ final class CodeUnitFindingVisitor extends NodeVisitorAbstract
     }
 
     /**
-     * @psalm-return array<string, CodeUnitClassType>
+     * @return array<string, CodeUnitClassType>
      */
     public function classes(): array
     {
@@ -126,7 +126,7 @@ final class CodeUnitFindingVisitor extends NodeVisitorAbstract
     }
 
     /**
-     * @psalm-return array<string, CodeUnitTraitType>
+     * @return array<string, CodeUnitTraitType>
      */
     public function traits(): array
     {
@@ -134,7 +134,7 @@ final class CodeUnitFindingVisitor extends NodeVisitorAbstract
     }
 
     /**
-     * @psalm-return array<string, CodeUnitFunctionType>
+     * @return array<string, CodeUnitFunctionType>
      */
     public function functions(): array
     {

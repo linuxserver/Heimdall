@@ -14,7 +14,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -1172,6 +1172,529 @@ final class UndoNamespacedNameSingleTokenTest extends AbstractTokenizerTestCase
                     ],
                 ],
             ],
+            'exit in partially qualified name (start)'                                                    => [
+                'testMarker'     => '/* testExitInNamespacedNameStart */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Exit',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'exit in fully qualified name (middle)'                                                       => [
+                'testMarker'     => '/* testExitInNamespacedNameMiddle */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'exit',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'exit in fully qualified name (end)'                                                          => [
+                'testMarker'     => '/* testExitInNamespacedNameEnd */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Exit',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'PHP 8.4 exit as function call, fully qualified'                                              => [
+                'testMarker'     => '/* testFullyQualifiedExitFunctionCall */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_EXIT',
+                        'content' => 'Exit',
+                    ],
+                    [
+                        'type'    => 'T_OPEN_PARENTHESIS',
+                        'content' => '(',
+                    ],
+                ],
+            ],
+            'exit as constant, fully qualified (illegal)'                                                 => [
+                'testMarker'     => '/* testFullyQualifiedExitConstant */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_EXIT',
+                        'content' => 'exit',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'die in partially qualified name (start)'                                                     => [
+                'testMarker'     => '/* testDieInNamespacedNameStart */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Die',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'die in fully qualified name (middle)'                                                        => [
+                'testMarker'     => '/* testDieInNamespacedNameMiddle */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'die',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'die in fully qualified name (end)'                                                           => [
+                'testMarker'     => '/* testDieInNamespacedNameEnd */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'DIE',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'PHP 8.4 die as function call, fully qualified'                                               => [
+                'testMarker'     => '/* testFullyQualifiedDieFunctionCall */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_EXIT',
+                        'content' => 'die',
+                    ],
+                    [
+                        'type'    => 'T_OPEN_PARENTHESIS',
+                        'content' => '(',
+                    ],
+                ],
+            ],
+            'die as constant, fully qualified (illegal)'                                                  => [
+                'testMarker'     => '/* testFullyQualifiedDieConstant */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_EXIT',
+                        'content' => 'DIE',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'false in partially qualified name (start)'                                                   => [
+                'testMarker'     => '/* testFalseInNamespacedNameStart */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'False',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'false in fully qualified name (middle)'                                                      => [
+                'testMarker'     => '/* testFalseInNamespacedNameMiddle */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'false',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'false in fully qualified name (end)'                                                         => [
+                'testMarker'     => '/* testFalseInNamespacedNameEnd */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'FALSE',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'false, fully qualified'                                                                      => [
+                'testMarker'     => '/* testFullyQualifiedFalse */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_FALSE',
+                        'content' => 'false',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'true in partially qualified name (start)'                                                    => [
+                'testMarker'     => '/* testTrueInNamespacedNameStart */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'True',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'true in fully qualified name (middle)'                                                       => [
+                'testMarker'     => '/* testTrueInNamespacedNameMiddle */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'true',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'true in fully qualified name (end)'                                                          => [
+                'testMarker'     => '/* testTrueInNamespacedNameEnd */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'True',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'true, fully qualified'                                                                       => [
+                'testMarker'     => '/* testFullyQualifiedTrue */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_TRUE',
+                        'content' => 'TRUE',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'null in partially qualified name (start)'                                                    => [
+                'testMarker'     => '/* testNullInNamespacedNameStart */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Null',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'null in fully qualified name (middle)'                                                       => [
+                'testMarker'     => '/* testNullInNamespacedNameMiddle */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Null',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Name',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'null in fully qualified name (end)'                                                          => [
+                'testMarker'     => '/* testNullInNamespacedNameEnd */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'Not',
+                    ],
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_STRING',
+                        'content' => 'null',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+            'null, fully qualified'                                                                       => [
+                'testMarker'     => '/* testFullyQualifiedNull */',
+                'expectedTokens' => [
+                    [
+                        'type'    => 'T_NS_SEPARATOR',
+                        'content' => '\\',
+                    ],
+                    [
+                        'type'    => 'T_NULL',
+                        'content' => 'Null',
+                    ],
+                    [
+                        'type'    => 'T_SEMICOLON',
+                        'content' => ';',
+                    ],
+                ],
+            ],
+
             'function call, namespace relative, with whitespace (invalid in PHP 8)'                       => [
                 'testMarker'     => '/* testInvalidInPHP8Whitespace */',
                 'expectedTokens' => [

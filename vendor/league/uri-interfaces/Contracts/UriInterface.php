@@ -23,8 +23,15 @@ use Stringable;
  * @phpstan-import-type ComponentMap from UriString
  *
  * @method string|null getUsername() returns the user component of the URI.
+ * @method self withUsername(?string $user) returns a new URI instance with the user component updated.
  * @method string|null getPassword() returns the scheme-specific information about how to gain authorization to access the resource.
+ * @method self withPassword(?string $password) returns a new URI instance with the password component updated.
+ * @method string toAsciiString() returns the string representation of the URI in its RFC3986 form
+ * @method string toUnicodeString() returns the string representation of the URI in its RFC3987 form (the host is in its IDN form)
  * @method array toComponents() returns an associative array containing all the URI components.
+ * @method self normalize() returns a new URI instance with normalized components
+ * @method self resolve(UriInterface $uri) resolves a URI against a base URI using RFC3986 rules
+ * @method self relativize(UriInterface $uri) relativize a URI against a base URI using RFC3986 rules
  */
 interface UriInterface extends JsonSerializable, Stringable
 {

@@ -14,6 +14,7 @@ use const PHP_MINOR_VERSION;
 use function array_keys;
 use function array_reverse;
 use function array_shift;
+use function assert;
 use function defined;
 use function get_defined_constants;
 use function get_included_files;
@@ -36,10 +37,10 @@ use Closure;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class GlobalState
+final readonly class GlobalState
 {
     /**
-     * @psalm-var list<string>
+     * @var list<string>
      */
     private const SUPER_GLOBAL_ARRAYS = [
         '_ENV',
@@ -52,7 +53,7 @@ final class GlobalState
     ];
 
     /**
-     * @psalm-var array<string, array<string, true>>
+     * @var array<string, array<string, true>>
      */
     private const DEPRECATED_INI_SETTINGS = [
         '7.3' => [
@@ -169,7 +170,7 @@ final class GlobalState
     }
 
     /**
-     * @psalm-param list<string> $files
+     * @param list<string> $files
      *
      * @throws Exception
      */
@@ -180,7 +181,9 @@ final class GlobalState
         $result      = '';
 
         if (defined('__PHPUNIT_PHAR__')) {
+            // @codeCoverageIgnoreStart
             $prefix = 'phar://' . __PHPUNIT_PHAR__ . '/';
+            // @codeCoverageIgnoreEnd
         }
 
         // Do not process bootstrap script
@@ -188,7 +191,9 @@ final class GlobalState
 
         // If bootstrap script was a Composer bin proxy, skip the second entry as well
         if (str_ends_with(strtr($files[0], '\\', '/'), '/phpunit/phpunit/phpunit')) {
+            // @codeCoverageIgnoreStart
             array_shift($files);
+            // @codeCoverageIgnoreEnd
         }
 
         foreach (array_reverse($files) as $file) {
@@ -218,7 +223,11 @@ final class GlobalState
     {
         $result = '';
 
-        foreach (ini_get_all(null, false) as $key => $value) {
+        $iniSettings = ini_get_all(null, false);
+
+        assert($iniSettings !== false);
+
+        foreach ($iniSettings as $key => $value) {
             if (self::isIniSettingDeprecated($key)) {
                 continue;
             }
@@ -299,6 +308,9 @@ final class GlobalState
         return 'unserialize(' . var_export(serialize($variable), true) . ')';
     }
 
+    /**
+     * @param array<mixed> $array
+     */
     private static function arrayOnlyContainsScalars(array $array): bool
     {
         $result = true;

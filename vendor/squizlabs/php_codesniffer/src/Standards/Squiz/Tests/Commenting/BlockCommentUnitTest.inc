@@ -331,3 +331,10 @@ class AsymVisibility {
      */
     private(set) int $prop = 1;
 }
+
+abstract class AbstractProperties {
+    /**
+     * Comment should be ignored.
+     */
+    abstract int $prop {get;}
+}

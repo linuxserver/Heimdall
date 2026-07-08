@@ -2,26 +2,12 @@
 
 namespace Laravel\Prompts\Themes\Default;
 
+use Laravel\Prompts\Concerns\HasSpinner;
 use Laravel\Prompts\Spinner;
 
 class SpinnerRenderer extends Renderer
 {
-    /**
-     * The frames of the spinner.
-     *
-     * @var array<string>
-     */
-    protected array $frames = ['⠂', '⠒', '⠐', '⠰', '⠠', '⠤', '⠄', '⠆'];
-
-    /**
-     * The frame to render when the spinner is static.
-     */
-    protected string $staticFrame = '⠶';
-
-    /**
-     * The interval between frames.
-     */
-    protected int $interval = 75;
+    use HasSpinner;
 
     /**
      * Render the spinner.
@@ -34,8 +20,6 @@ class SpinnerRenderer extends Renderer
 
         $spinner->interval = $this->interval;
 
-        $frame = $this->frames[$spinner->count % count($this->frames)];
-
-        return $this->line(" {$this->cyan($frame)} {$spinner->message}");
+        return $this->line(" {$this->cyan($this->spinnerFrame($spinner->count))} {$spinner->message}");
     }
 }

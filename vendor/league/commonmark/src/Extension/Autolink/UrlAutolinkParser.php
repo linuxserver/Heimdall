@@ -23,7 +23,7 @@ final class UrlAutolinkParser implements InlineParserInterface
     private const ALLOWED_AFTER = [null, ' ', "\t", "\n", "\x0b", "\x0c", "\x0d", '*', '_', '~', '('];
 
     // RegEx adapted from https://github.com/symfony/symfony/blob/6.3/src/Symfony/Component/Validator/Constraints/UrlValidator.php
-    private const REGEX = '~
+    private const REGEX = '~^
         (
             # Must start with a supported scheme + auth, or "www"
             (?:

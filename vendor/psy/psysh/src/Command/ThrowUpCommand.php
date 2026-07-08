@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,11 +13,9 @@ namespace Psy\Command;
 
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name\FullyQualified as FullyQualifiedName;
 use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Expression;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Exception\ThrowUpException;
 use Psy\Input\CodeArgument;
@@ -46,7 +44,7 @@ class ThrowUpCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('throw-up')
@@ -79,8 +77,8 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $args = $this->prepareArgs($input->getArgument('exception'));
-        $throwStmt = new Expression(new Throw_(new New_(new FullyQualifiedName(ThrowUpException::class), $args)));
-        $throwCode = $this->printer->prettyPrint([$throwStmt]);
+        $exception = new New_(new FullyQualifiedName(ThrowUpException::class), $args);
+        $throwCode = 'throw '.$this->printer->prettyPrintExpr($exception).';';
 
         $shell = $this->getShell();
         $shell->addCode($throwCode, !$shell->hasCode());
@@ -95,7 +93,7 @@ HELP
      *
      * @throws \InvalidArgumentException if there is no exception to throw
      *
-     * @param string $code
+     * @param string|null $code
      *
      * @return Arg[]
      */
@@ -118,7 +116,7 @@ HELP
 
         // Allow throwing via a string, e.g. `throw-up "SUP"`
         if ($expr instanceof String_) {
-            return [new New_(new FullyQualifiedName(\Exception::class), $args)];
+            return [new Arg(new New_(new FullyQualifiedName(\Exception::class), $args))];
         }
 
         return $args;

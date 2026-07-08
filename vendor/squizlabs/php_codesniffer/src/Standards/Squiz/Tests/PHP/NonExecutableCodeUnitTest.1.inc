@@ -311,7 +311,7 @@ function parseError2() {
 // All logical operators are allowed with inline expressions (but this was not correctly handled by the sniff).
 function exitExpressionsWithLogicalOperators() {
     $condition = false;
-    $condition || exit();
+    $condition || \exit();
     $condition or die();
 
     $condition = true;
@@ -327,7 +327,7 @@ function exitExpressionsWithLogicalOperators() {
 function exitExpressionsInTernary() {
     $value = $myValue ? $myValue : exit();
     $value = $myValue ?: exit();
-    $value = $var == 'foo' ? 'bar' : die( 'world' );
+    $value = $var == 'foo' ? 'bar' : \die( 'world' );
 
     $value = (!$myValue ) ? exit() : $myValue;
     $value = $var != 'foo' ? die( 'world' ) : 'bar';
@@ -418,3 +418,17 @@ $closure = function ()
     echo 'foo';
     return; // This return should be flagged as not required.
 };
+
+function fqnExitWithCodeAfter() {
+    do_something();
+    exit();
+    do_something_else();
+}
+
+function fqnExitInControlStructureWithCodeAfter() {
+    if(do_something()) {
+        die();
+        do_something_else();
+    }
+    do_something_else();
+}

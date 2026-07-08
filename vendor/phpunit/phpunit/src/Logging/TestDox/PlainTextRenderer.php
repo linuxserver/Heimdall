@@ -16,10 +16,10 @@ use function sprintf;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class PlainTextRenderer
+final readonly class PlainTextRenderer
 {
     /**
-     * @psalm-param array<string, TestResultCollection> $tests
+     * @param array<string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
@@ -43,7 +43,7 @@ final class PlainTextRenderer
     }
 
     /**
-     * @psalm-return array<string, 'x'|' '>
+     * @return array<string, ' '|'x'>
      */
     private function reduce(TestResultCollection $tests): array
     {

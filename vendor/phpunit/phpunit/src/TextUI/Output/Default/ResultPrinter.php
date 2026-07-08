@@ -84,7 +84,7 @@ final class ResultPrinter
         $this->displayDefectsInReverseOrder                 = $displayDefectsInReverseOrder;
     }
 
-    public function print(TestResult $result): void
+    public function print(TestResult $result, bool $stackTraceForDeprecations = false): void
     {
         if ($this->displayPhpunitErrors) {
             $this->printPhpunitErrors($result);
@@ -143,7 +143,7 @@ final class ResultPrinter
 
         if ($this->displayDetailsOnTestsThatTriggerDeprecations) {
             $this->printIssueList('PHP deprecation', $result->phpDeprecations());
-            $this->printIssueList('deprecation', $result->deprecations());
+            $this->printIssueList('deprecation', $result->deprecations(), $stackTraceForDeprecations);
         }
     }
 
@@ -358,10 +358,10 @@ final class ResultPrinter
     }
 
     /**
-     * @psalm-param non-empty-string $type
-     * @psalm-param list<Issue> $issues
+     * @param non-empty-string $type
+     * @param list<Issue>      $issues
      */
-    private function printIssueList(string $type, array $issues): void
+    private function printIssueList(string $type, array $issues, bool $stackTrace = false): void
     {
         if (empty($issues)) {
             return;
@@ -397,24 +397,32 @@ final class ResultPrinter
                 $issue->line(),
             );
 
-            $body = trim($issue->description()) . PHP_EOL . PHP_EOL . 'Triggered by:';
+            $body = trim($issue->description()) . PHP_EOL . PHP_EOL;
 
-            $triggeringTests = $issue->triggeringTests();
+            if ($stackTrace && $issue->hasStackTrace()) {
+                $body .= trim($issue->stackTrace()) . PHP_EOL . PHP_EOL;
+            }
 
-            ksort($triggeringTests);
+            if (!$issue->triggeredInTest()) {
+                $body .= 'Triggered by:';
 
-            foreach ($triggeringTests as $triggeringTest) {
-                $body .= PHP_EOL . PHP_EOL . '* ' . $triggeringTest['test']->id();
+                $triggeringTests = $issue->triggeringTests();
 
-                if ($triggeringTest['count'] > 1) {
-                    $body .= sprintf(
-                        ' (%d times)',
-                        $triggeringTest['count'],
-                    );
-                }
+                ksort($triggeringTests);
 
-                if ($triggeringTest['test']->isTestMethod()) {
-                    $body .= PHP_EOL . '  ' . $triggeringTest['test']->file() . ':' . $triggeringTest['test']->line();
+                foreach ($triggeringTests as $triggeringTest) {
+                    $body .= PHP_EOL . PHP_EOL . '* ' . $triggeringTest['test']->id();
+
+                    if ($triggeringTest['count'] > 1) {
+                        $body .= sprintf(
+                            ' (%d times)',
+                            $triggeringTest['count'],
+                        );
+                    }
+
+                    if ($triggeringTest['test']->isTestMethod()) {
+                        $body .= PHP_EOL . '  ' . $triggeringTest['test']->file() . ':' . $triggeringTest['test']->line();
+                    }
                 }
             }
 
@@ -463,7 +471,7 @@ final class ResultPrinter
     }
 
     /**
-     * @psalm-param list<array{title: string, body: string}> $elements
+     * @param list<array{title: string, body: string}> $elements
      */
     private function printList(array $elements): void
     {
@@ -527,9 +535,9 @@ final class ResultPrinter
     }
 
     /**
-     * @psalm-param array<string,list<ConsideredRisky|DeprecationTriggered|PhpDeprecationTriggered|PhpunitDeprecationTriggered|ErrorTriggered|NoticeTriggered|PhpNoticeTriggered|WarningTriggered|PhpWarningTriggered|PhpunitErrorTriggered|PhpunitWarningTriggered>> $events
+     * @param array<string,list<ConsideredRisky|DeprecationTriggered|ErrorTriggered|NoticeTriggered|PhpDeprecationTriggered|PhpNoticeTriggered|PhpunitDeprecationTriggered|PhpunitErrorTriggered|PhpunitWarningTriggered|PhpWarningTriggered|WarningTriggered>> $events
      *
-     * @psalm-return array{numberOfTestsWithIssues: int, numberOfIssues: int, elements: list<array{title: string, body: string}>}
+     * @return array{numberOfTestsWithIssues: int, numberOfIssues: int, elements: list<array{title: string, body: string}>}
      */
     private function mapTestsWithIssuesEventsToElements(array $events): array
     {

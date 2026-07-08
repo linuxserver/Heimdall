@@ -12,6 +12,9 @@
 namespace Symfony\Component\Mailer\Test;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -49,16 +52,16 @@ abstract class TransportFactoryTestCase extends AbstractTransportFactoryTestCase
 
     protected function getDispatcher(): EventDispatcherInterface
     {
-        return $this->dispatcher ??= $this->createMock(EventDispatcherInterface::class);
+        return $this->dispatcher ??= new EventDispatcher();
     }
 
     protected function getClient(): HttpClientInterface
     {
-        return $this->client ??= $this->createMock(HttpClientInterface::class);
+        return $this->client ??= new MockHttpClient();
     }
 
     protected function getLogger(): LoggerInterface
     {
-        return $this->logger ??= $this->createMock(LoggerInterface::class);
+        return $this->logger ??= new NullLogger();
     }
 }

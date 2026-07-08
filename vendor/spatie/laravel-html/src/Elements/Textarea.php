@@ -12,6 +12,17 @@ use Spatie\Html\Elements\Attributes\Placeholder;
 use Spatie\Html\Elements\Attributes\ReadonlyTrait;
 use Spatie\Html\Elements\Attributes\Required;
 
+/**
+ * @method static valueIf(bool $condition, string|null $value)
+ * @method static valueIfNotNull(bool $condition, string|null $value)
+ * @method static valueUnless(bool $condition, string|null $value)
+ * @method static rowsIf(bool $condition, int $rows)
+ * @method static rowsIfNotNull(bool $condition, int $rows)
+ * @method static rowsUnless(bool $condition, int $rows)
+ * @method static colsIf(bool $condition, int $cols)
+ * @method static colsIfNotNull(bool $condition, int $cols)
+ * @method static colsUnless(bool $condition, int $cols)
+ */
 class Textarea extends BaseElement
 {
     use Autofocus;

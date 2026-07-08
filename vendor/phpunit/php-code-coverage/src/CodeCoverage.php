@@ -37,7 +37,7 @@ use SebastianBergmann\CodeUnitReverseLookup\Wizard;
 /**
  * Provides collection functionality for PHP code coverage information.
  *
- * @psalm-type TestType = array{
+ * @phpstan-type TestType = array{
  *     size: string,
  *     status: string,
  * }
@@ -57,17 +57,17 @@ final class CodeCoverage
     private bool $useAnnotationsForIgnoringCode = true;
 
     /**
-     * @psalm-var array<string,list<int>>
+     * @var array<string,list<int>>
      */
     private array $linesToBeIgnored = [];
 
     /**
-     * @psalm-var array<string, TestType>
+     * @var array<string, TestType>
      */
     private array $tests = [];
 
     /**
-     * @psalm-var list<class-string>
+     * @var list<class-string>
      */
     private array $parentClassesExcludedFromUnintentionallyCoveredCodeCheck = [];
     private ?FileAnalyser $analyser                                         = null;
@@ -145,7 +145,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-return array<string, TestType>
+     * @return array<string, TestType>
      */
     public function getTests(): array
     {
@@ -153,7 +153,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-param array<string, TestType> $tests
+     * @param array<string, TestType> $tests
      */
     public function setTests(array $tests): void
     {
@@ -175,7 +175,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-param array<string,list<int>> $linesToBeIgnored
+     * @param array<string,list<int>> $linesToBeIgnored
      */
     public function stop(bool $append = true, ?TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): RawCodeCoverageData
     {
@@ -196,7 +196,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-param array<string,list<int>> $linesToBeIgnored
+     * @param array<string,list<int>> $linesToBeIgnored
      *
      * @throws ReflectionException
      * @throws TestIdMissingException
@@ -318,7 +318,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-assert-if-true !null $this->cacheDirectory
+     * @phpstan-assert-if-true !null $this->cacheDirectory
      */
     public function cachesStaticAnalysis(): bool
     {
@@ -350,7 +350,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public function excludeSubclassesOfThisClassFromUnintentionallyCoveredCodeCheck(string $className): void
     {
@@ -375,6 +375,22 @@ final class CodeCoverage
     public function detectsDeadCode(): bool
     {
         return $this->driver->detectsDeadCode();
+    }
+
+    /**
+     * @internal
+     */
+    public function driverIsPcov(): bool
+    {
+        return $this->driver->isPcov();
+    }
+
+    /**
+     * @internal
+     */
+    public function driverIsXdebug(): bool
+    {
+        return $this->driver->isXdebug();
     }
 
     /**
@@ -414,15 +430,15 @@ final class CodeCoverage
 
     private function applyFilter(RawCodeCoverageData $data): void
     {
-        if ($this->filter->isEmpty()) {
-            return;
-        }
-
-        foreach (array_keys($data->lineCoverage()) as $filename) {
-            if ($this->filter->isExcluded($filename)) {
-                $data->removeCoverageDataForFile($filename);
+        if (!$this->filter->isEmpty()) {
+            foreach (array_keys($data->lineCoverage()) as $filename) {
+                if ($this->filter->isExcluded($filename)) {
+                    $data->removeCoverageDataForFile($filename);
+                }
             }
         }
+
+        $data->skipEmptyLines();
     }
 
     private function applyExecutableLinesFilter(RawCodeCoverageData $data): void
@@ -447,7 +463,7 @@ final class CodeCoverage
     }
 
     /**
-     * @psalm-param array<string,list<int>> $linesToBeIgnored
+     * @param array<string,list<int>> $linesToBeIgnored
      */
     private function applyIgnoredLinesFilter(RawCodeCoverageData $data, array $linesToBeIgnored): void
     {

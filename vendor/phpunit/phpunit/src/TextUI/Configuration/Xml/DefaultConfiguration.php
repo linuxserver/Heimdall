@@ -29,9 +29,9 @@ use PHPUnit\TextUI\XmlConfiguration\Logging\Logging;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class DefaultConfiguration extends Configuration
+final readonly class DefaultConfiguration extends Configuration
 {
     public static function create(): self
     {
@@ -54,13 +54,16 @@ final class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
+                [
+                    'functions' => [],
+                    'methods'   => [],
+                ],
+                false,
+                false,
+                false,
+                true,
             ),
             new CodeCoverage(
-                null,
-                CodeCoverageFilterDirectoryCollection::fromArray([]),
-                FileCollection::fromArray([]),
-                CodeCoverageFilterDirectoryCollection::fromArray([]),
-                FileCollection::fromArray([]),
                 false,
                 true,
                 false,
@@ -99,7 +102,6 @@ final class DefaultConfiguration extends Configuration
             new PHPUnit(
                 null,
                 true,
-                null,
                 80,
                 \PHPUnit\TextUI\Configuration\Configuration::COLOR_DEFAULT,
                 false,
@@ -154,6 +156,7 @@ final class DefaultConfiguration extends Configuration
                 false,
                 false,
                 100,
+                0,
             ),
             TestSuiteCollection::fromArray([]),
         );

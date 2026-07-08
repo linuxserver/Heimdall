@@ -8,7 +8,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2017 Juliette Reinders Folmer. All rights reserved.
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis;
@@ -25,14 +25,14 @@ class AssignmentInConditionSniff implements Sniff
      *
      * Set in the register() method.
      *
-     * @var array
+     * @var array<int|string, int|string>
      */
     protected $assignmentTokens = [];
 
     /**
      * The tokens that indicate the start of a condition.
      *
-     * @var array
+     * @var array<int|string, int|string>
      */
     protected $conditionStartTokens = [];
 

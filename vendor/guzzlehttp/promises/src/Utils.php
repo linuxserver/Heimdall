@@ -168,6 +168,12 @@ final class Utils
 
         if (true === $recursive) {
             $promise = $promise->then(function ($results) use ($recursive, &$promises) {
+                // A consumed generator cannot be traversed again, so a
+                // recursive pass has nothing further to observe.
+                if ($promises instanceof \Generator) {
+                    return $results;
+                }
+
                 foreach ($promises as $promise) {
                     if (Is::pending($promise)) {
                         return self::all($promises, $recursive);

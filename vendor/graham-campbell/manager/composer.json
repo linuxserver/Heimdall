@@ -12,14 +12,14 @@
     ],
     "require": {
         "php": "^7.4.15 || ^8.0.2",
-        "illuminate/contracts": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
-        "illuminate/support": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0"
+        "illuminate/contracts": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^8.75 || ^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^4.2.1 || ^5.0.0",
-        "graham-campbell/testbench-core": "^4.2.1",
+        "graham-campbell/analyzer": "^4.2.1 || ^5.1",
+        "graham-campbell/testbench-core": "^4.3",
         "mockery/mockery": "^1.6.12",
-        "phpunit/phpunit": "^9.6.22 || ^10.5.45 || ^11.5.10"
+        "phpunit/phpunit": "^9.6.34 || ^10.5.63 || ^11.5.55 || ^12.5.14"
     },
     "autoload": {
         "psr-4": {
@@ -32,6 +32,9 @@
         }
     },
     "config": {
+        "audit": {
+            "ignore": ["PKSA-8qx3-n5y5-vvnd"]
+        },
         "preferred-install": "dist"
     }
 }

@@ -18,33 +18,38 @@ use function strtolower;
 use function substr;
 use PHPUnit\Framework\SelfDescribing;
 use PHPUnit\Util\Cloner;
-use SebastianBergmann\Exporter\Exporter;
+use PHPUnit\Util\Exporter;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Invocation implements SelfDescribing
+final readonly class Invocation implements SelfDescribing
 {
     /**
-     * @psalm-var class-string
+     * @var class-string
      */
-    private readonly string $className;
+    private string $className;
 
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $methodName;
-    private readonly array $parameters;
-    private readonly string $returnType;
-    private readonly bool $isReturnTypeNullable;
-    private readonly bool $proxiedCall;
-    private readonly MockObjectInternal|StubInternal $object;
+    private string $methodName;
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
+     * @var array<mixed>
+     */
+    private array $parameters;
+    private string $returnType;
+    private bool $isReturnTypeNullable;
+    private bool $proxiedCall;
+    private MockObjectInternal|StubInternal $object;
+
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     * @param array<mixed>     $parameters
      */
     public function __construct(string $className, string $methodName, array $parameters, string $returnType, MockObjectInternal|StubInternal $object, bool $cloneObjects = false, bool $proxiedCall = false)
     {
@@ -82,7 +87,7 @@ final class Invocation implements SelfDescribing
     }
 
     /**
-     * @psalm-return class-string
+     * @return class-string
      */
     public function className(): string
     {
@@ -90,13 +95,16 @@ final class Invocation implements SelfDescribing
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function methodName(): string
     {
         return $this->methodName;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function parameters(): array
     {
         return $this->parameters;
@@ -121,15 +129,13 @@ final class Invocation implements SelfDescribing
         return (new ReturnValueGenerator)->generate(
             $this->className,
             $this->methodName,
-            $this->object::class,
+            $this->object,
             $this->returnType,
         );
     }
 
     public function toString(): string
     {
-        $exporter = new Exporter;
-
         return sprintf(
             '%s::%s(%s)%s',
             $this->className,
@@ -137,7 +143,7 @@ final class Invocation implements SelfDescribing
             implode(
                 ', ',
                 array_map(
-                    [$exporter, 'shortenedExport'],
+                    [Exporter::class, 'shortenedExport'],
                     $this->parameters,
                 ),
             ),

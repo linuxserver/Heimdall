@@ -15,10 +15,10 @@
         "psr/simple-cache": "^2.0 || ^3.0"
     },
     "require-dev": {
-        "graham-campbell/analyzer": "^5.0",
-        "graham-campbell/testbench-core": "^4.2",
+        "graham-campbell/analyzer": "^5.1",
+        "graham-campbell/testbench-core": "^4.3",
         "mockery/mockery": "^1.6.12",
-        "phpunit/phpunit": "^10.5.45 || ^11.5.7"
+        "phpunit/phpunit": "^10.5.63 || ^11.5.55 || ^12.5.14"
     },
     "autoload": {
         "psr-4": {

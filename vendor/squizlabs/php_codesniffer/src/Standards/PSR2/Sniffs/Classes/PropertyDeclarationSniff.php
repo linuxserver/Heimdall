@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR2\Sniffs\Classes;
@@ -44,6 +44,7 @@ class PropertyDeclarationSniff extends AbstractVariableSniff
         $find[] = T_VAR;
         $find[] = T_READONLY;
         $find[] = T_FINAL;
+        $find[] = T_ABSTRACT;
         $find[] = T_SEMICOLON;
         $find[] = T_OPEN_CURLY_BRACKET;
 
@@ -189,6 +190,31 @@ class PropertyDeclarationSniff extends AbstractVariableSniff
 
                     $phpcsFile->fixer->replaceToken($finalPtr, '');
                     $phpcsFile->fixer->addContentBefore($scopePtr, $tokens[$finalPtr]['content'].' ');
+
+                    $phpcsFile->fixer->endChangeset();
+                }
+            }
+        }//end if
+
+        if ($hasVisibilityModifier === true && $propertyInfo['is_abstract'] === true) {
+            $scopePtr    = $firstVisibilityModifier;
+            $abstractPtr = $phpcsFile->findPrevious(T_ABSTRACT, ($stackPtr - 1));
+            if ($abstractPtr > $scopePtr) {
+                $error = 'The abstract declaration must come before the visibility declaration';
+                $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'AbstractAfterVisibility');
+                if ($fix === true) {
+                    $phpcsFile->fixer->beginChangeset();
+
+                    for ($i = ($abstractPtr + 1); $abstractPtr < $stackPtr; $i++) {
+                        if ($tokens[$i]['code'] !== T_WHITESPACE) {
+                            break;
+                        }
+
+                        $phpcsFile->fixer->replaceToken($i, '');
+                    }
+
+                    $phpcsFile->fixer->replaceToken($abstractPtr, '');
+                    $phpcsFile->fixer->addContentBefore($scopePtr, $tokens[$abstractPtr]['content'].' ');
 
                     $phpcsFile->fixer->endChangeset();
                 }

@@ -13,16 +13,20 @@ use function count;
 use Iterator;
 
 /**
- * @template-implements Iterator<int, Test>
+ * @template-implements Iterator<non-negative-int, Test>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 final class TestCollectionIterator implements Iterator
 {
     /**
-     * @psalm-var list<Test>
+     * @var list<Test>
      */
     private readonly array $tests;
+
+    /**
+     * @var non-negative-int
+     */
     private int $position = 0;
 
     public function __construct(TestCollection $tests)
@@ -40,6 +44,9 @@ final class TestCollectionIterator implements Iterator
         return $this->position < count($this->tests);
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
         return $this->position;

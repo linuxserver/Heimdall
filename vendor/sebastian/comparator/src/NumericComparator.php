@@ -10,6 +10,7 @@
 namespace SebastianBergmann\Comparator;
 
 use function abs;
+use function assert;
 use function is_float;
 use function is_infinite;
 use function is_nan;
@@ -32,8 +33,17 @@ final class NumericComparator extends ScalarComparator
      */
     public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false): void
     {
-        if ($this->isInfinite($actual) && $this->isInfinite($expected)) {
-            return;
+        assert(is_numeric($expected));
+        assert(is_numeric($actual));
+
+        if ($this->isInfinite($expected) && $this->isInfinite($actual)) {
+            if ($expected < 0 && $actual < 0) {
+                return;
+            }
+
+            if ($expected > 0 && $actual > 0) {
+                return;
+            }
         }
 
         if (($this->isInfinite($actual) xor $this->isInfinite($expected)) ||

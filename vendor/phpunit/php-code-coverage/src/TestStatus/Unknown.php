@@ -10,14 +10,11 @@
 namespace SebastianBergmann\CodeCoverage\Test\TestStatus;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 final class Unknown extends TestStatus
 {
-    /**
-     * @psalm-assert-if-true Unknown $this
-     */
-    public function isUnknown(): bool
+    public function isUnknown(): true
     {
         return true;
     }

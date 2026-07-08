@@ -13,12 +13,12 @@ final class ValidImplementsViaAbstractSniff extends AbstractArraySniff
 {
 
     protected function processSingleLineArray($phpcsFile, $stackPtr, $arrayStart, $arrayEnd, $indices)
-	{
-		// Do something.
+    {
+        // Do something.
     }
 
     protected function processMultiLineArray($phpcsFile, $stackPtr, $arrayStart, $arrayEnd, $indices)
-	{
-		// Do something.
+    {
+        // Do something.
     }
 }

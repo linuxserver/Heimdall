@@ -91,7 +91,7 @@ trait ManagesAttributes
     protected $rejects = [];
 
     /**
-     * The human readable description of the event.
+     * The human-readable description of the event.
      *
      * @var string|null
      */
@@ -113,7 +113,7 @@ trait ManagesAttributes
     /**
      * Limit the environments the command should run in.
      *
-     * @param  array|mixed  $environments
+     * @param  mixed  $environments
      * @return $this
      */
     public function environments($environments)

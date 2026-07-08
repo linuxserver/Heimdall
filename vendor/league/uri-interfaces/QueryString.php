@@ -13,17 +13,34 @@ declare(strict_types=1);
 
 namespace League\Uri;
 
+use BackedEnum;
 use League\Uri\Exceptions\SyntaxError;
 use League\Uri\KeyValuePair\Converter;
+use ReflectionEnum;
+use ReflectionException;
+use SplObjectStorage;
 use Stringable;
+use TypeError;
+use UnitEnum;
+use ValueError;
 
+use function array_is_list;
 use function array_key_exists;
 use function array_keys;
+use function get_debug_type;
+use function get_object_vars;
+use function http_build_query;
+use function implode;
 use function is_array;
+use function is_object;
+use function is_resource;
+use function is_scalar;
 use function rawurldecode;
+use function str_replace;
 use function strpos;
 use function substr;
 
+use const PHP_QUERY_RFC1738;
 use const PHP_QUERY_RFC3986;
 
 /**
@@ -35,6 +52,7 @@ final class QueryString
 {
     private const PAIR_VALUE_DECODED = 1;
     private const PAIR_VALUE_PRESERVED = 2;
+    private const RECURSION_MARKER = "\0__RECURSION_INTERNAL_MARKER__\0";
 
     /**
      * @codeCoverageIgnore
@@ -49,15 +67,15 @@ final class QueryString
      * @see QueryString::buildFromPairs()
      * @see https://datatracker.ietf.org/doc/html/rfc3986#section-2.2
      *
-     * @param iterable<array{0:string, 1:string|float|int|bool|null}> $pairs
+     * @param iterable<array{0:string, 1:mixed}> $pairs
      * @param non-empty-string $separator
      *
      * @throws SyntaxError If the encoding type is invalid
      * @throws SyntaxError If a pair is invalid
      */
-    public static function build(iterable $pairs, string $separator = '&', int $encType = PHP_QUERY_RFC3986): ?string
+    public static function build(iterable $pairs, string $separator = '&', int $encType = PHP_QUERY_RFC3986, StringCoercionMode $coercionMode = StringCoercionMode::Native): ?string
     {
-        return self::buildFromPairs($pairs, Converter::fromEncodingType($encType)->withSeparator($separator));
+        return self::buildFromPairs($pairs, Converter::fromEncodingType($encType)->withSeparator($separator), $coercionMode);
     }
 
     /**
@@ -74,12 +92,12 @@ final class QueryString
      *
      * @see https://datatracker.ietf.org/doc/html/rfc3986#section-2.2
      *
-     * @param iterable<array{0:string, 1:string|float|int|bool|null}> $pairs
+     * @param iterable<array{0:string, 1:mixed}> $pairs
      *
      * @throws SyntaxError If the encoding type is invalid
      * @throws SyntaxError If a pair is invalid
      */
-    public static function buildFromPairs(iterable $pairs, ?Converter $converter = null): ?string
+    public static function buildFromPairs(iterable $pairs, ?Converter $converter = null, StringCoercionMode $coercionMode = StringCoercionMode::Native): ?string
     {
         $keyValuePairs = [];
         foreach ($pairs as $pair) {
@@ -87,49 +105,244 @@ final class QueryString
                 throw new SyntaxError('A pair must be a sequential array starting at `0` and containing two elements.');
             }
 
-            $keyValuePairs[] = [(string) Encoder::encodeQueryKeyValue($pair[0]), match(null) {
-                $pair[1] => null,
-                default => Encoder::encodeQueryKeyValue($pair[1]),
-            }];
+            [$key, $value] = $pair;
+            $coercionMode->isCoercible($value) || throw new SyntaxError('Converting a type `'.get_debug_type($value).'` into a string is not supported by the '.(StringCoercionMode::Native === $coercionMode ? 'PHP Native' : 'Ecmascript').' coercion mode.');
+
+            try {
+                $key = $coercionMode->coerce($key);
+                $value = $coercionMode->coerce($value);
+            } catch (TypeError $typeError) {
+                throw new SyntaxError('The pair can not be converted to build a query string.', previous: $typeError);
+            }
+
+            $keyValuePairs[] = [(string) Encoder::encodeQueryKeyValue($key), null === $value ? null : Encoder::encodeQueryKeyValue($value)];
         }
 
         return ($converter ?? Converter::fromRFC3986())->toValue($keyValuePairs);
     }
 
     /**
-     * Parses the query string like parse_str without mangling the results.
+     * Build a query string from an object or an array like http_build_query without discarding values.
+     * The method differs from http_build_query for the following behavior:
+     *
+     *  - if a resource is used, a TypeError is thrown.
+     *  - if a recursion is detected a ValueError is thrown
+     *  - the method preserves value with `null` value (http_build_query) skip the key.
+     *  - the method does not handle prefix usage
+     *
+     * @param array<array-key, mixed> $data
+     * @param non-empty-string $separator
+     *
+     * @throws TypeError if a resource is found it the input array
+     * @throws ValueError if a recursion is detected
+     */
+    public static function compose(
+        array|object $data,
+        string $separator = '&',
+        int $encType = PHP_QUERY_RFC1738,
+        QueryComposeMode $composeMode = QueryComposeMode::Native
+    ): ?string {
+        if (QueryComposeMode::Native === $composeMode) {
+            return http_build_query(data: $data, arg_separator: $separator, encoding_type: $encType);
+        }
+
+        $query = self::composeFromValue($data, Converter::fromEncodingType($encType)->withSeparator($separator), $composeMode);
+
+        return QueryComposeMode::Safe !== $composeMode ? (string) $query : $query;
+    }
+
+    public static function composeFromValue(
+        array|object $data,
+        ?Converter $converter = null,
+        QueryComposeMode $composeMode = QueryComposeMode::Native,
+    ): ?string {
+        if (QueryComposeMode::EnumLenient === $composeMode && $data instanceof UnitEnum && !$data instanceof BackedEnum) {
+            return '';
+        }
+
+        QueryComposeMode::Safe !== $composeMode || is_array($data) || throw new TypeError('In safe mode only arrays are supported.');
+
+        $converter ??= Converter::fromRFC3986();
+
+        $pairs = QueryComposeMode::Native !== $composeMode
+            ? self::composeRecursive($composeMode, $data)
+            : self::parseFromValue(http_build_query(data: $data, arg_separator: '&'), Converter::fromRFC1738());
+
+        return self::buildFromPairs($pairs, $converter);
+    }
+
+    /**
+     * @param array<array-key, mixed>|object $data
+     * @param SplObjectStorage<object, null> $seenObjects
+     *
+     * @throws TypeError if a resource is found it the input array
+     * @throws ValueError if a recursion is detected
+     * @throws ReflectionException if reflection is not possible on the Enum
+     *
+     * @return iterable<array{0: array-key, 1: string|int|float|bool|null}>
+     */
+    private static function composeRecursive(
+        QueryComposeMode $composeMode,
+        array|object $data,
+        string|int $prefix = '',
+        SplObjectStorage $seenObjects = new SplObjectStorage(),
+    ): iterable {
+        QueryComposeMode::Safe !== $composeMode || is_array($data) || throw new TypeError('In safe mode only arrays are supported.');
+        in_array($composeMode, [QueryComposeMode::EnumCompatible, QueryComposeMode::EnumLenient], true) || !$data instanceof UnitEnum || throw new TypeError('Argument #1 ($data) must not be an enum, '.((new ReflectionEnum($data::class))->isBacked() ? 'Backed' : 'Pure').' given') ;
+
+        if (is_object($data)) {
+            if ($seenObjects->contains($data)) {
+                QueryComposeMode::Safe !== $composeMode || throw new ValueError('composition failed; circular reference detected.');
+
+                return;
+            }
+
+            $seenObjects->attach($data);
+            $data = get_object_vars($data);
+        }
+
+        if (self::hasCircularReference($data)) {
+            QueryComposeMode::Safe !== $composeMode || throw new ValueError('composition failed; circular reference detected.');
+
+            return;
+        }
+
+        $stripIndices = QueryComposeMode::Safe === $composeMode && array_is_list($data);
+
+        foreach ($data as $name => $value) {
+            $name = $stripIndices ? '' : $name;
+            if ('' !== $prefix) {
+                $name = $prefix.'['.$name.']';
+            }
+
+            if (is_resource($value)) {
+                QueryComposeMode::Safe !== $composeMode || throw new TypeError('composition failed; a resource has been detected and can not be converted.');
+                continue;
+            }
+
+            if (is_scalar($value)) {
+                yield [$name, $value];
+
+                continue;
+            }
+
+            if (null === $value) {
+                if (QueryComposeMode::Safe === $composeMode) {
+                    yield [$name, $value];
+                }
+
+                continue;
+            }
+
+            if ($value instanceof BackedEnum) {
+                if (QueryComposeMode::Compatible !== $composeMode) {
+                    yield [$name, $value->value];
+
+                    continue;
+                }
+
+                $value = get_object_vars($value);
+            }
+
+            if ($value instanceof UnitEnum) {
+                if (QueryComposeMode::EnumLenient === $composeMode) {
+                    continue;
+                }
+
+                QueryComposeMode::Compatible === $composeMode || throw new TypeError('Unbacked enum '.$value::class.' cannot be converted to a string');
+
+                $value = get_object_vars($value);
+            }
+
+            if (QueryComposeMode::Safe === $composeMode && is_object($value)) {
+                throw new ValueError('In conservative mode only arrays, scalar value or null are supported.');
+            }
+
+            yield from self::composeRecursive($composeMode, $value, $name, $seenObjects);
+        }
+    }
+
+    /**
+     * Array recursion detection.
+     * @see https://stackoverflow.com/questions/9042142/detecting-infinite-array-recursion-in-php
+     */
+    private static function hasCircularReference(array &$arr): bool
+    {
+        if (isset($arr[self::RECURSION_MARKER])) {
+            return true;
+        }
+
+        try {
+            $arr[self::RECURSION_MARKER] = true;
+            foreach ($arr as $key => &$value) {
+                if (self::RECURSION_MARKER !== $key && is_array($value) && self::hasCircularReference($value)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } finally {
+            unset($arr[self::RECURSION_MARKER]);
+        }
+    }
+
+    /**
+     * Parses the query string.
+     *
+     * The result depends on the query parsing mode
      *
      * @see QueryString::extractFromValue()
-     * @see http://php.net/parse_str
-     * @see https://wiki.php.net/rfc/on_demand_name_mangling
      *
      * @param non-empty-string $separator
      *
      * @throws SyntaxError
      */
-    public static function extract(Stringable|string|bool|null $query, string $separator = '&', int $encType = PHP_QUERY_RFC3986): array
-    {
-        return self::extractFromValue($query, Converter::fromEncodingType($encType)->withSeparator($separator));
+    public static function extract(
+        BackedEnum|Stringable|string|bool|null $query,
+        string $separator = '&',
+        int $encType = PHP_QUERY_RFC3986,
+        QueryExtractMode $extractMode = QueryExtractMode::Unmangled,
+    ): array {
+        return self::extractFromValue(
+            $query,
+            Converter::fromEncodingType($encType)->withSeparator($separator),
+            $extractMode,
+        );
     }
 
     /**
-     * Parses the query string like parse_str without mangling the results.
+     * Parses the query string.
      *
-     * The result is similar as PHP parse_str when used with its
-     * second argument with the difference that variable names are
-     * not mangled.
-     *
-     * @see http://php.net/parse_str
-     * @see https://wiki.php.net/rfc/on_demand_name_mangling
+     * The result depends on the query parsing mode
      *
      * @throws SyntaxError
      */
-    public static function extractFromValue(Stringable|string|bool|null $query, ?Converter $converter = null): array
-    {
-        return self::convert(self::decodePairs(
-            ($converter ?? Converter::fromRFC3986())->toPairs($query),
-            self::PAIR_VALUE_PRESERVED
-        ));
+    public static function extractFromValue(
+        BackedEnum|Stringable|string|bool|null $query,
+        ?Converter $converter = null,
+        QueryExtractMode $extractMode = QueryExtractMode::Unmangled,
+    ): array {
+        $pairs = ($converter ?? Converter::fromRFC3986())->toPairs($query);
+        if (QueryExtractMode::Native === $extractMode) {
+            if ([] === $pairs) {
+                return [];
+            }
+
+            $data = [];
+            foreach ($pairs as [$key, $value]) {
+                $key = str_replace('&', '%26', (string) $key);
+                $data[] = null === $value ? $key : $key.'='.str_replace('&', '%26', $value);
+            }
+
+            parse_str(implode('&', $data), $result);
+
+            return $result;
+        }
+
+        return self::convert(
+            self::decodePairs($pairs, self::PAIR_VALUE_PRESERVED),
+            $extractMode
+        );
     }
 
     /**
@@ -141,7 +354,7 @@ final class QueryString
      *
      * @return array<int, array{0:string, 1:string|null}>
      */
-    public static function parse(Stringable|string|bool|null $query, string $separator = '&', int $encType = PHP_QUERY_RFC3986): array
+    public static function parse(BackedEnum|Stringable|string|bool|null $query, string $separator = '&', int $encType = PHP_QUERY_RFC3986): array
     {
         return self::parseFromValue($query, Converter::fromEncodingType($encType)->withSeparator($separator));
     }
@@ -153,7 +366,7 @@ final class QueryString
      *
      * @return array<int, array{0:string, 1:string|null}>
      */
-    public static function parseFromValue(Stringable|string|bool|null $query, ?Converter $converter = null): array
+    public static function parseFromValue(BackedEnum|Stringable|string|bool|null $query, ?Converter $converter = null): array
     {
         return self::decodePairs(
             ($converter ?? Converter::fromRFC3986())->toPairs($query),
@@ -188,11 +401,11 @@ final class QueryString
      * Converts a collection of key/value pairs and returns
      * the store PHP variables as elements of an array.
      */
-    public static function convert(iterable $pairs): array
+    public static function convert(iterable $pairs, QueryExtractMode $extractMode = QueryExtractMode::Unmangled): array
     {
         $returnedValue = [];
         foreach ($pairs as $pair) {
-            $returnedValue = self::extractPhpVariable($returnedValue, $pair);
+            $returnedValue = self::extractPhpVariable($returnedValue, $pair, extractMode: $extractMode);
         }
 
         return $returnedValue;
@@ -223,11 +436,17 @@ final class QueryString
      * @param array|string $name the pair key
      * @param string $value the pair value
      */
-    private static function extractPhpVariable(array $data, array|string $name, string $value = ''): array
-    {
+    private static function extractPhpVariable(
+        array $data,
+        array|string $name,
+        ?string $value = '',
+        QueryExtractMode $extractMode = QueryExtractMode::Unmangled
+    ): array {
         if (is_array($name)) {
             [$name, $value] = $name;
-            $value = rawurldecode((string) $value);
+            if (null !== $value || QueryExtractMode::LossLess !== $extractMode) {
+                $value = rawurldecode((string) $value);
+            }
         }
 
         if ('' === $name) {
@@ -269,7 +488,7 @@ final class QueryString
             return $data;
         }
 
-        $data[$key] = self::extractPhpVariable($data[$key], $name, $value);
+        $data[$key] = self::extractPhpVariable($data[$key], $name, $value, $extractMode);
 
         return $data;
     }

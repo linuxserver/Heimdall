@@ -21,9 +21,15 @@ use PHPUnit\Framework\MockObject\NoMoreReturnValuesConfiguredException;
  */
 final class ConsecutiveCalls implements Stub
 {
+    /**
+     * @var array<mixed>
+     */
     private array $stack;
     private int $numberOfConfiguredReturnValues;
 
+    /**
+     * @param array<mixed> $stack
+     */
     public function __construct(array $stack)
     {
         $this->stack                          = $stack;

@@ -12,20 +12,20 @@ namespace PHPUnit\Framework\Attributes;
 use Attribute;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
-final class RequiresPhpunit
+final readonly class RequiresPhpunit
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $versionRequirement;
+    private string $versionRequirement;
 
     /**
-     * @psalm-param non-empty-string $versionRequirement
+     * @param non-empty-string $versionRequirement
      */
     public function __construct(string $versionRequirement)
     {
@@ -33,7 +33,7 @@ final class RequiresPhpunit
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function versionRequirement(): string
     {

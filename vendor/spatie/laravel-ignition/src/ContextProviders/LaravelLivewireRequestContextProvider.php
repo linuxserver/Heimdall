@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Livewire\LivewireManager;
-use Livewire\Mechanisms\ComponentRegistry;
 
 class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvider
 {
@@ -15,6 +14,19 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         protected LivewireManager $livewireManager
     ) {
         parent::__construct($request);
+    }
+
+    protected function getComponentClass(string $componentName): ?string
+    {
+        // Livewire v4
+        if (class_exists(\Livewire\Finder\Finder::class)) {
+            return app(\Livewire\Finder\Finder::class)
+                ->resolveClassComponentClassName($componentName);
+        }
+
+        // Livewire v3
+        return app(\Livewire\Mechanisms\ComponentRegistry::class)
+            ->getClass($componentName);
     }
 
     /** @return array<string, string> */
@@ -44,10 +56,16 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         if ($this->request->has('components')) {
             $data = [];
 
-            foreach ($this->request->get('components') as $component) {
+            $components = $this->request->input('components');
+
+            if (! is_array($components)) {
+                return [];
+            }
+
+            foreach ($components as $component) {
                 $snapshot = json_decode($component['snapshot'], true);
 
-                $class = app(ComponentRegistry::class)->getClass($snapshot['memo']['name']);
+                $class = $this->getComponentClass($snapshot['memo']['name']);
 
                 $data[] = [
                     'component_class' => $class ?? null,
@@ -72,7 +90,7 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         }
 
         try {
-            $componentClass = $this->livewireManager->getClass($componentAlias);
+            $componentClass = $this->getComponentClass($componentAlias);
         } catch (Exception $e) {
             $componentClass = null;
         }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,10 +22,10 @@ class TraceFormatter
     /**
      * Format the trace of the given exception.
      *
-     * @param \Throwable    $throwable  The error or exception with a backtrace
-     * @param FilterOptions $filter     (default: null)
-     * @param int           $count      (default: PHP_INT_MAX)
-     * @param bool          $includePsy (default: true)
+     * @param \Throwable         $throwable  The error or exception with a backtrace
+     * @param FilterOptions|null $filter     (default: null)
+     * @param int|null           $count      (default: PHP_INT_MAX)
+     * @param bool               $includePsy (default: true)
      *
      * @return string[] Formatted stacktrace lines
      */

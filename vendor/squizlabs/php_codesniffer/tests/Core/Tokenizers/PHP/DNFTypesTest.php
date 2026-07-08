@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -451,17 +451,24 @@ final class DNFTypesTest extends AbstractTokenizerTestCase
                 'testMarker' => '/* testDNFTypeWithPHP84FinalKeywordAndStatic */',
             ],
             'OO property type: asymmetric visibility, private(set)'       => [
-                'testMarker'  => '/* testDNFTypePropertyWithPrivateSet */',
+                'testMarker' => '/* testDNFTypePropertyWithPrivateSet */',
             ],
             'OO property type: asymmetric vis, public private(set)'       => [
-                'testMarker'  => '/* testDNFTypePropertyWithPublicPrivateSet */',
+                'testMarker' => '/* testDNFTypePropertyWithPublicPrivateSet */',
             ],
             'OO property type: asymmetric visibility, protected(set)'     => [
-                'testMarker'  => '/* testDNFTypePropertyWithProtectedSet */',
+                'testMarker' => '/* testDNFTypePropertyWithProtectedSet */',
             ],
             'OO property type: asymmetric vis, public protected(set)'     => [
-                'testMarker'  => '/* testDNFTypePropertyWithPublicProtectedSet */',
+                'testMarker' => '/* testDNFTypePropertyWithPublicProtectedSet */',
             ],
+            'OO property type: with only abstract keyword'                => [
+                'testMarker' => '/* testDNFTypeWithPHP84AbstractKeyword */',
+            ],
+            'OO property type: with abstract and public keyword'          => [
+                'testMarker' => '/* testDNFTypeWithPHP84AbstractKeywordAndPublic */',
+            ],
+
             'OO method param type: first param'                           => [
                 'testMarker' => '/* testDNFTypeParam1WithAttribute */',
             ],

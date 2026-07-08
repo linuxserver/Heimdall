@@ -7,6 +7,13 @@ use Spatie\Html\Elements\Attributes\Disabled;
 use Spatie\Html\Elements\Attributes\Value;
 use Spatie\Html\Selectable;
 
+/**
+ * @method static selectedIfNotNull(bool $condition)
+ * @method static selectedUnless(bool $condition)
+ * @method static unselectedIf(bool $condition)
+ * @method static unselectedIfNotNull(bool $condition)
+ * @method static unselectedUnless(bool $condition)
+ */
 class Option extends BaseElement implements Selectable
 {
     use Disabled;

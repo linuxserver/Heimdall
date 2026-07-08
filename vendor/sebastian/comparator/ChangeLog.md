@@ -2,11 +2,71 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [5.0.5] - 2026-01-24
+## [6.3.3] - 2026-01-24
 
 ### Changed
 
 * [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
+## [6.3.2] - 2025-08-10
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
+
+## [6.3.1] - 2025-03-07
+
+### Fixed
+
+* [#122](https://github.com/sebastianbergmann/comparator/issues/122): `INF` is considered equal to `-INF`
+
+## [6.3.0] - 2025-01-06
+
+### Added
+
+* [#121](https://github.com/sebastianbergmann/comparator/pull/121): Support for `BcMath\Number` objects
+
+## [6.2.1] - 2024-10-31
+
+### Fixed
+
+* [#119](https://github.com/sebastianbergmann/comparator/pull/119): `Uninitialized string offset -1` warning
+
+## [6.2.0] - 2024-10-30
+
+### Changed
+
+* [#117](https://github.com/sebastianbergmann/comparator/pull/117): Remove common prefixes and suffixes from actual and expected single-line strings
+
+## [6.1.1] - 2024-10-18
+
+### Fixed
+
+* Reverted [#113](https://github.com/sebastianbergmann/comparator/pull/113) as it broke backward compatibility
+
+## [6.1.0] - 2024-09-11
+
+### Added
+
+* Specialized comparator for enumerations
+
+## [6.0.2] - 2024-08-12
+
+### Fixed
+
+* [#112](https://github.com/sebastianbergmann/comparator/issues/112): Arrays with different keys and the same values are considered equal in canonicalize mode
+
+## [6.0.1] - 2024-07-03
+
+### Changed
+
+* This project now uses PHPStan instead of Psalm for static analysis
+
+## [6.0.0] - 2024-02-02
+
+### Removed
+
+* Removed support for PHP 8.1
 
 ## [5.0.4] - 2025-09-07
 
@@ -168,6 +228,17 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Added `SebastianBergmann\Comparator\Factory::reset()` to unregister all non-default comparators
 * Added support for `phpunit/phpunit-mock-objects` version `^5.0`
 
+[6.3.3]: https://github.com/sebastianbergmann/comparator/compare/6.3.2...6.3.3
+[6.3.2]: https://github.com/sebastianbergmann/comparator/compare/6.3.1...6.3.2
+[6.3.1]: https://github.com/sebastianbergmann/comparator/compare/6.3.0...6.3.1
+[6.3.0]: https://github.com/sebastianbergmann/comparator/compare/6.2.1...6.3.0
+[6.2.1]: https://github.com/sebastianbergmann/comparator/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/sebastianbergmann/comparator/compare/6.1.1...6.2.0
+[6.1.1]: https://github.com/sebastianbergmann/comparator/compare/6.1.0...6.1.1
+[6.1.0]: https://github.com/sebastianbergmann/comparator/compare/6.0.2...6.1.0
+[6.0.2]: https://github.com/sebastianbergmann/comparator/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/sebastianbergmann/comparator/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/comparator/compare/5.0...6.0.0
 [5.0.5]: https://github.com/sebastianbergmann/comparator/compare/5.0.4...5.0.5
 [5.0.4]: https://github.com/sebastianbergmann/comparator/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/sebastianbergmann/comparator/compare/5.0.2...5.0.3

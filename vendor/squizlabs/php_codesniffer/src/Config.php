@@ -7,7 +7,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -23,46 +23,46 @@ use PHP_CodeSniffer\Util\Standards;
 /**
  * Stores the configuration used to run PHPCS and PHPCBF.
  *
- * @property string[]   $files           The files and directories to check.
- * @property string[]   $standards       The standards being used for checking.
- * @property int        $verbosity       How verbose the output should be.
- *                                       0: no unnecessary output
- *                                       1: basic output for files being checked
- *                                       2: ruleset and file parsing output
- *                                       3: sniff execution output
- * @property bool       $interactive     Enable interactive checking mode.
- * @property int        $parallel        Check files in parallel.
- * @property bool       $cache           Enable the use of the file cache.
- * @property string     $cacheFile       Path to the file where the cache data should be written
- * @property bool       $colors          Display colours in output.
- * @property bool       $explain         Explain the coding standards.
- * @property bool       $local           Process local files in directories only (no recursion).
- * @property bool       $showSources     Show sniff source codes in report output.
- * @property bool       $showProgress    Show basic progress information while running.
- * @property bool       $quiet           Quiet mode; disables progress and verbose output.
- * @property bool       $annotations     Process phpcs: annotations.
- * @property int        $tabWidth        How many spaces each tab is worth.
- * @property string     $encoding        The encoding of the files being checked.
- * @property string[]   $sniffs          The sniffs that should be used for checking.
- *                                       If empty, all sniffs in the supplied standards will be used.
- * @property string[]   $exclude         The sniffs that should be excluded from checking.
- *                                       If empty, all sniffs in the supplied standards will be used.
- * @property string[]   $ignored         Regular expressions used to ignore files and folders during checking.
- * @property string     $reportFile      A file where the report output should be written.
- * @property string     $generator       The documentation generator to use.
- * @property string     $filter          The filter to use for the run.
- * @property string[]   $bootstrap       One of more files to include before the run begins.
- * @property int|string $reportWidth     The maximum number of columns that reports should use for output.
- *                                       Set to "auto" for have this value changed to the width of the terminal.
- * @property int        $errorSeverity   The minimum severity an error must have to be displayed.
- * @property int        $warningSeverity The minimum severity a warning must have to be displayed.
- * @property bool       $recordErrors    Record the content of error messages as well as error counts.
- * @property string     $suffix          A suffix to add to fixed files.
- * @property string     $basepath        A file system location to strip from the paths of files shown in reports.
- * @property bool       $stdin           Read content from STDIN instead of supplied files.
- * @property string     $stdinContent    Content passed directly to PHPCS on STDIN.
- * @property string     $stdinPath       The path to use for content passed on STDIN.
- * @property bool       $trackTime       Whether or not to track sniff run time.
+ * @property string[]    $files           The files and directories to check.
+ * @property string[]    $standards       The standards being used for checking.
+ * @property int         $verbosity       How verbose the output should be.
+ *                                        0: no unnecessary output
+ *                                        1: basic output for files being checked
+ *                                        2: ruleset and file parsing output
+ *                                        3: sniff execution output
+ * @property bool        $interactive     Enable interactive checking mode.
+ * @property int         $parallel        Check files in parallel.
+ * @property bool        $cache           Enable the use of the file cache.
+ * @property string      $cacheFile       Path to the file where the cache data should be written
+ * @property bool        $colors          Display colours in output.
+ * @property bool        $explain         Explain the coding standards.
+ * @property bool        $local           Process local files in directories only (no recursion).
+ * @property bool        $showSources     Show sniff source codes in report output.
+ * @property bool        $showProgress    Show basic progress information while running.
+ * @property bool        $quiet           Quiet mode; disables progress and verbose output.
+ * @property bool        $annotations     Process phpcs: annotations.
+ * @property int         $tabWidth        How many spaces each tab is worth.
+ * @property string      $encoding        The encoding of the files being checked.
+ * @property string[]    $sniffs          The sniffs that should be used for checking.
+ *                                        If empty, all sniffs in the supplied standards will be used.
+ * @property string[]    $exclude         The sniffs that should be excluded from checking.
+ *                                        If empty, all sniffs in the supplied standards will be used.
+ * @property string[]    $ignored         Regular expressions used to ignore files and folders during checking.
+ * @property string      $reportFile      A file where the report output should be written.
+ * @property string      $generator       The documentation generator to use.
+ * @property string      $filter          The filter to use for the run.
+ * @property string[]    $bootstrap       One of more files to include before the run begins.
+ * @property int|string  $reportWidth     The maximum number of columns that reports should use for output.
+ *                                        Set to "auto" for have this value changed to the width of the terminal.
+ * @property int         $errorSeverity   The minimum severity an error must have to be displayed.
+ * @property int         $warningSeverity The minimum severity a warning must have to be displayed.
+ * @property bool        $recordErrors    Record the content of error messages as well as error counts.
+ * @property string      $suffix          A suffix to add to fixed files.
+ * @property string|null $basepath        A file system location to strip from the paths of files shown in reports.
+ * @property bool        $stdin           Read content from STDIN instead of supplied files.
+ * @property string      $stdinContent    Content passed directly to PHPCS on STDIN.
+ * @property string      $stdinPath       The path to use for content passed on STDIN.
+ * @property bool        $trackTime       Whether or not to track sniff run time.
  *
  * @property array<string, string>      $extensions File extensions that should be checked, and what tokenizer to use.
  *                                                  E.g., array('inc' => 'PHP');
@@ -85,7 +85,7 @@ class Config
      *
      * @var string
      */
-    const VERSION = '3.13.2';
+    const VERSION = '3.13.5';
 
     /**
      * Package stability; either stable, beta or alpha.
@@ -1057,11 +1057,13 @@ class Config
                     break;
                 }
 
-                $this->basepath = Common::realpath(substr($arg, 9));
+                $basepath = Common::realpath(substr($arg, 9));
 
                 // It may not exist and return false instead.
-                if ($this->basepath === false) {
+                if ($basepath === false) {
                     $this->basepath = substr($arg, 9);
+                } else {
+                    $this->basepath = $basepath;
                 }
 
                 if (is_dir($this->basepath) === false) {

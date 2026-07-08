@@ -26,9 +26,7 @@ echo $translator->trans('Hello World!'); // outputs « Bonjour ! »
 Sponsor
 -------
 
-The Translation component for Symfony 7.1 is [backed][1] by:
-
- * [Crowdin][2], a cloud-based localization management software helping teams to go global and stay agile.
+This package is looking for a [backer][1].
 
 Help Symfony by [sponsoring][3] its development!
 
@@ -42,5 +40,4 @@ Resources
    in the [main Symfony repository](https://github.com/symfony/symfony)
 
 [1]: https://symfony.com/backers
-[2]: https://crowdin.com
 [3]: https://symfony.com/sponsor

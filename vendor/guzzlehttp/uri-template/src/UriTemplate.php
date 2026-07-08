@@ -26,54 +26,6 @@ final class UriTemplate
     ];
 
     /**
-     * @var string[] Delimiters
-     */
-    private static $delims = [
-        ':',
-        '/',
-        '?',
-        '#',
-        '[',
-        ']',
-        '@',
-        '!',
-        '$',
-        '&',
-        '\'',
-        '(',
-        ')',
-        '*',
-        '+',
-        ',',
-        ';',
-        '=',
-    ];
-
-    /**
-     * @var string[] Percent encoded delimiters
-     */
-    private static $delimsPct = [
-        '%3A',
-        '%2F',
-        '%3F',
-        '%23',
-        '%5B',
-        '%5D',
-        '%40',
-        '%21',
-        '%24',
-        '%26',
-        '%27',
-        '%28',
-        '%29',
-        '%2A',
-        '%2B',
-        '%2C',
-        '%3B',
-        '%3D',
-    ];
-
-    /**
      * @param array<string,mixed> $variables Variables to use in the template expansion
      *
      * @throws \RuntimeException
@@ -125,7 +77,8 @@ final class UriTemplate
         $prefix = self::$operatorHash[$parsed['operator']]['prefix'];
         $joiner = self::$operatorHash[$parsed['operator']]['joiner'];
         $useQuery = self::$operatorHash[$parsed['operator']]['query'];
-        $allUndefined = true;
+        $allowReserved = $parsed['operator'] === '+' || $parsed['operator'] === '#';
+        $hasDefinedVariable = false;
 
         foreach ($parsed['values'] as $value) {
             if (!isset($variables[$value['value']])) {
@@ -142,24 +95,25 @@ final class UriTemplate
                 /** @var mixed $var */
                 foreach ($variable as $key => $var) {
                     if ($isAssoc) {
-                        $key = \rawurlencode((string) $key);
+                        $rawKey = (string) $key;
+                        $key = \rawurlencode($rawKey);
                         $isNestedArray = \is_array($var);
                     } else {
                         $isNestedArray = false;
                     }
 
                     if (!$isNestedArray) {
-                        $var = \rawurlencode((string) $var);
-                        if ($parsed['operator'] === '+' || $parsed['operator'] === '#') {
-                            $var = self::decodeReserved($var);
-                        }
+                        $var = self::encodeValue(self::stringifyValue($var), $allowReserved);
                     }
 
                     if ($value['modifier'] === '*') {
                         if ($isAssoc) {
                             if ($isNestedArray) {
                                 // Nested arrays must allow for deeply nested structures.
-                                $var = \http_build_query([$key => $var], '', '&', \PHP_QUERY_RFC3986);
+                                $var = \http_build_query([$rawKey => self::stringifyNonFiniteFloats($var)], '', '&', \PHP_QUERY_RFC3986);
+                                if ($var === '') {
+                                    continue;
+                                }
                             } else {
                                 $var = \sprintf('%s=%s', (string) $key, (string) $var);
                             }
@@ -172,8 +126,8 @@ final class UriTemplate
                     $kvp[$key] = $var;
                 }
 
-                if (0 === \count($variable)) {
-                    $actuallyUseQuery = false;
+                if ($kvp === []) {
+                    continue;
                 } elseif ($value['modifier'] === '*') {
                     $expanded = \implode($joiner, $kvp);
                     if ($isAssoc) {
@@ -194,14 +148,12 @@ final class UriTemplate
                     $expanded = \implode(',', $kvp);
                 }
             } else {
-                $allUndefined = false;
+                $variable = self::stringifyValue($variable);
+
                 if ($value['modifier'] === ':' && isset($value['position'])) {
-                    $variable = \substr((string) $variable, 0, $value['position']);
+                    $variable = \substr($variable, 0, $value['position']);
                 }
-                $expanded = \rawurlencode((string) $variable);
-                if ($parsed['operator'] === '+' || $parsed['operator'] === '#') {
-                    $expanded = self::decodeReserved($expanded);
-                }
+                $expanded = self::encodeValue($variable, $allowReserved);
             }
 
             if ($actuallyUseQuery) {
@@ -212,20 +164,18 @@ final class UriTemplate
                 }
             }
 
+            $hasDefinedVariable = true;
+
             $replacements[] = $expanded;
         }
 
         $ret = \implode($joiner, $replacements);
 
-        if ('' === $ret) {
-            // Spec section 3.2.4 and 3.2.5
-            if (false === $allUndefined && ('#' === $prefix || '.' === $prefix)) {
-                return $prefix;
-            }
-        } else {
-            if ('' !== $prefix) {
-                return \sprintf('%s%s', $prefix, $ret);
-            }
+        // Spec section 3.2.1 and appendix A: the operator's first string is
+        // appended once any variable in the expression is defined, even when
+        // every defined value expands to an empty string.
+        if ('' !== $prefix && $hasDefinedVariable) {
+            return \sprintf('%s%s', $prefix, $ret);
         }
 
         return $ret;
@@ -252,7 +202,7 @@ final class UriTemplate
 
         $result['values'] = [];
         foreach (\explode(',', $expression) as $value) {
-            $value = \trim($value);
+            $value = \trim($value, " \n\r\t\0\x0B");
             $varspec = [];
             if ($colonPos = \strpos($value, ':')) {
                 $varspec['value'] = (string) \substr($value, 0, $colonPos);
@@ -285,11 +235,76 @@ final class UriTemplate
     }
 
     /**
-     * Removes percent encoding on reserved characters (used with + and #
-     * modifiers).
+     * Cast a variable value to its expansion string.
+     *
+     * Non-finite floats are converted explicitly because coercing them to
+     * string triggers a warning on PHP 8.5.
+     *
+     * @param mixed $value
      */
-    private static function decodeReserved(string $string): string
+    private static function stringifyValue($value): string
     {
-        return \str_replace(self::$delimsPct, self::$delims, $string);
+        if (\is_float($value) && !\is_finite($value)) {
+            return \is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Stringify non-finite float members of a nested array so that
+     * http_build_query does not trigger coercion warnings on PHP 8.5.
+     *
+     * @param array<array-key,mixed> $value
+     *
+     * @return array<array-key,mixed>
+     */
+    private static function stringifyNonFiniteFloats(array $value): array
+    {
+        /** @var mixed $member */
+        foreach ($value as $key => $member) {
+            if (\is_float($member) && !\is_finite($member)) {
+                $value[$key] = self::stringifyValue($member);
+            } elseif (\is_array($member)) {
+                $value[$key] = self::stringifyNonFiniteFloats($member);
+            }
+        }
+
+        return $value;
+    }
+
+    private static function encodeValue(string $value, bool $allowReserved): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $matches = [];
+        if (\preg_match_all('/%[0-9A-Fa-f]{2}|./s', $value, $matches) === false) {
+            throw new \RuntimeException(\sprintf('Unable to encode URI template value: %s', \preg_last_error_msg()));
+        }
+
+        $encoded = '';
+
+        foreach ($matches[0] as $token) {
+            if ($allowReserved && \preg_match('/\A%[0-9A-Fa-f]{2}\z/', $token) === 1) {
+                $encoded .= $token;
+                continue;
+            }
+
+            if (\preg_match('/\A[A-Za-z0-9._~-]\z/', $token) === 1) {
+                $encoded .= $token;
+                continue;
+            }
+
+            if ($allowReserved && \strlen($token) === 1 && \strpos(":/?#[]@!$&'()*+,;=", $token) !== false) {
+                $encoded .= $token;
+                continue;
+            }
+
+            $encoded .= \rawurlencode($token);
+        }
+
+        return $encoded;
     }
 }

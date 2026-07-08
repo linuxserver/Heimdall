@@ -1167,3 +1167,30 @@ public function setTranslator($a): void
 {
     $this->translator = $translator;
 }
+
+/**
+ * Issue PHPCSStandards/PHP_CodeSniffer#1197.
+ *
+ * @return int|WP_Error
+ */
+function doNotTruncateClassNamesContainingUnderscoresAtEndOfType() {
+    return 0;
+}
+
+/**
+ * Issue PHPCSStandards/PHP_CodeSniffer#1197.
+ *
+ * @return WP_Error|int
+ */
+function doNotTruncateClassNamesContainingUnderscoresAtStartOfType() {
+    return 0;
+}
+
+/**
+ * Issue PHPCSStandards/PHP_CodeSniffer#1197.
+ *
+ * @return int|WP_Error|false
+ */
+function doNotTruncateClassNamesContainingUnderscoresInTheMiddelOfType() {
+    return 0;
+}

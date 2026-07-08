@@ -26,27 +26,6 @@ use Psr\Http\Message\StreamFactoryInterface;
 class BuilderFactory
 {
     /**
-     * The http client instance.
-     *
-     * @var \Psr\Http\Client\ClientInterface
-     */
-    private ClientInterface $httpClient;
-
-    /**
-     * The request factory instance.
-     *
-     * @var \Psr\Http\Message\RequestFactoryInterface
-     */
-    private RequestFactoryInterface $requestFactory;
-
-    /**
-     * The stream factory instance.
-     *
-     * @var \Psr\Http\Message\StreamFactoryInterface
-     */
-    private StreamFactoryInterface $streamFactory;
-
-    /**
      * Create a new connection factory instance.
      *
      * @param \Psr\Http\Client\ClientInterface          $httpClient
@@ -55,11 +34,11 @@ class BuilderFactory
      *
      * @return void
      */
-    public function __construct(ClientInterface $httpClient, RequestFactoryInterface $requestFactory, StreamFactoryInterface $streamFactory)
-    {
-        $this->httpClient = $httpClient;
-        $this->requestFactory = $requestFactory;
-        $this->streamFactory = $streamFactory;
+    public function __construct(
+        private readonly ClientInterface $httpClient,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly StreamFactoryInterface $streamFactory,
+    ) {
     }
 
     /**

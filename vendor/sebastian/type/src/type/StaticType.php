@@ -12,6 +12,9 @@ namespace SebastianBergmann\Type;
 use function is_subclass_of;
 use function strcasecmp;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for this library
+ */
 final class StaticType extends Type
 {
     private TypeName $className;
@@ -44,6 +47,9 @@ final class StaticType extends Type
         return false;
     }
 
+    /**
+     * @return 'static'
+     */
     public function name(): string
     {
         return 'static';
@@ -54,9 +60,6 @@ final class StaticType extends Type
         return $this->allowsNull;
     }
 
-    /**
-     * @psalm-assert-if-true StaticType $this
-     */
     public function isStatic(): bool
     {
         return true;

@@ -15,22 +15,23 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/sebastianbergmann/php-invoker/issues"
+        "issues": "https://github.com/sebastianbergmann/php-invoker/issues",
+        "security": "https://github.com/sebastianbergmann/php-invoker/security/policy"
     },
     "prefer-stable": true,
     "config": {
         "platform": {
-            "php": "8.1.0"
+            "php": "8.2.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2"
     },
     "require-dev": {
         "ext-pcntl": "*",
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "classmap": [
@@ -47,7 +48,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "4.0-dev"
+            "dev-main": "5.0-dev"
         }
     }
 }
