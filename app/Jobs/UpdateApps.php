@@ -12,10 +12,25 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UpdateApps implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Most failures here are GitHub rate-limit responses; retries inside the
+     * same window do not help, so a single attempt is enough. The throttle
+     * loop in handle() means the job is intentionally long-running, so we
+     * leave $timeout unset and let the operator's worker config govern.
+     */
+    public int $tries = 1;
+
+    /**
+     * Expire the ShouldBeUnique lock after 10 minutes so a crashed worker
+     * does not permanently block future UpdateApps dispatches.
+     */
+    public int $uniqueFor = 600;
 
     /**
      * Create a new job instance.
@@ -49,8 +64,14 @@ class UpdateApps implements ShouldQueue, ShouldBeUnique
         Cache::lock('updateApps')->forceRelease();
     }
 
-    public function failed($exception): void
+    public function failed(Throwable $exception): void
     {
         Cache::lock('updateApps')->forceRelease();
+
+        Log::error(static::class . ' permanently failed', [
+            'exception_class' => $exception::class,
+            'exception_message' => $exception->getMessage(),
+            'file' => $exception->getFile() . ':' . $exception->getLine(),
+        ]);
     }
 }

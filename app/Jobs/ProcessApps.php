@@ -14,10 +14,23 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProcessApps implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Most failures here are GitHub rate-limit responses; retries inside the
+     * same window do not help, so a single attempt is enough.
+     */
+    public int $tries = 1;
+
+    /**
+     * Expire the ShouldBeUnique lock after 10 minutes so a crashed worker
+     * does not permanently block future ProcessApps dispatches.
+     */
+    public int $uniqueFor = 600;
 
     /**
      * Create a new job instance.
@@ -56,5 +69,14 @@ class ProcessApps implements ShouldQueue, ShouldBeUnique
                 }
             }
         }
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error(static::class . ' permanently failed', [
+            'exception_class' => $exception::class,
+            'exception_message' => $exception->getMessage(),
+            'file' => $exception->getFile() . ':' . $exception->getLine(),
+        ]);
     }
 }
