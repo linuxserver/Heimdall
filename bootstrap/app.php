@@ -32,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
 
+        $middleware->trustHosts();
+        $middleware->replace(\Illuminate\Http\Middleware\TrustHosts::class, \App\Http\Middleware\TrustHosts::class);
+
         $middleware->alias([
             'allowed' => \App\Http\Middleware\CheckAllowed::class,
             'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
