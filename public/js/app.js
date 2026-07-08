@@ -4446,7 +4446,7 @@ var getCSRFToken = function getCSRFToken() {
 var mergeItemWithAppDetails = function mergeItemWithAppDetails(item, appDetails) {
   return {
     pinned: 1,
-    tags: [0],
+    tags: Array.isArray(item.tags) && item.tags.length ? item.tags : [0],
     appid: item.appid,
     title: item.title,
     colour: item.colour,
