@@ -4287,6 +4287,14 @@ $.when($.ready).then(function () {
       alert("Something went wrong: ".concat(responseData.responseText.substring(0, 100)));
     });
   });
+  // Auto-select the configured default tag on load (tags mode only)
+  var taglist = document.getElementById("taglist");
+  if (taglist !== null) {
+    var defaultTag = taglist.getAttribute("data-default-tag");
+    if (typeof defaultTag === "string" && defaultTag !== "") {
+      $("#taglist .tag[data-tag=\"tag-".concat(defaultTag, "\"]")).trigger("click");
+    }
+  }
   $("#pinlist").on("click", "a", function (e) {
     e.preventDefault();
     var current = $(this);
