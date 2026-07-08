@@ -587,18 +587,46 @@ class ItemController extends Controller
     }
 
     /**
-     * @param $id
-     * @return void
+     * Return live stats for an enhanced application tile.
+     *
+     * Always responds with HTTP 200 and valid JSON so the frontend refresh
+     * loop (liveStatRefresh.js) keeps re-queueing the tile. On any failure we
+     * degrade gracefully to an inactive, empty tile instead of a 500.
+     *
+     * @param  int|string  $id
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function getStats($id)
     {
-        $item = Item::find($id);
+        $graceful = response()->json(['status' => 'inactive', 'html' => '']);
 
-        $config = $item->getconfig();
-        if (isset($item->class)) {
+        $item = Item::find($id);
+        if ($item === null) {
+            return $graceful;
+        }
+
+        // Non-enhanced items (or stale records) have no live-stats class.
+        if (empty($item->class)) {
+            return $graceful;
+        }
+
+        try {
+            $config = $item->getconfig();
+
+            // Guard against a stale/renamed class string from the remote apps repo.
+            if (! class_exists($item->class)) {
+                return $graceful;
+            }
+
             $application = new $item->class;
             $application->config = $config;
-            echo $application->livestats();
+
+            // livestats() returns a JSON string; return it verbatim (no re-encoding).
+            return response($application->livestats());
+        } catch (\Throwable $e) {
+            Log::error('getStats failed for item '.$id.' ('.$item->class.'): '.$e->getMessage());
+
+            return $graceful;
         }
     }
 
