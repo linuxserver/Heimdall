@@ -40,7 +40,6 @@ class ItemController extends Controller
         $treat_tags_as = \App\Setting::fetch('treat_tags_as');
 
         $data["treat_tags_as"] = $treat_tags_as;
-        $data['default_tag'] = \App\Setting::fetch('default_tag');
 
         if (config('app.auth_roles_enable')) {
             $roles = explode(config('app.auth_roles_delimiter'), $request->header(config('app.auth_roles_header')));

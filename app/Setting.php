@@ -125,7 +125,7 @@ class Setting extends Model
                         $options = Search::providers()->pluck('name', 'id')->toArray();
                     } elseif ($this->key === 'default_tag') {
                         $options = [];
-                        $tags = Item::where('type', 1)->where('id', '>', 0)->orderBy('title', 'asc')->get();
+                        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
                         foreach ($tags as $tag) {
                             $options[$tag->tag_url] = $tag->title;
                         }
@@ -198,7 +198,7 @@ class Setting extends Model
                     $options = Search::providers()->pluck('name', 'id');
                 } elseif ($this->key === 'default_tag') {
                     $options = ['' => 'app.options.none'];
-                    $tags = Item::where('type', 1)->where('id', '>', 0)->orderBy('title', 'asc')->get();
+                    $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
                     foreach ($tags as $tag) {
                         $options[$tag->tag_url] = $tag->title;
                     }

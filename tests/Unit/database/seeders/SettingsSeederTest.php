@@ -43,12 +43,23 @@ class SettingsSeederTest extends TestCase
             'title' => 'Home',
             'url' => 'home-dashboard',
             'type' => 1,
+            'pinned' => 1,
             'user_id' => 0,
         ]);
         Item::factory()->create([
             'title' => 'Media',
             'url' => 'media',
             'type' => 1,
+            'pinned' => 1,
+            'user_id' => 0,
+        ]);
+        // An unpinned tag is not rendered in the dashboard taglist, so it must
+        // not be offered as a default (selecting it would silently do nothing).
+        Item::factory()->create([
+            'title' => 'Archive',
+            'url' => 'archive',
+            'type' => 1,
+            'pinned' => 0,
             'user_id' => 0,
         ]);
 
@@ -59,10 +70,13 @@ class SettingsSeederTest extends TestCase
         $this->assertStringContainsString('<option value="" ', $editValue);
         $this->assertStringContainsString(__('app.options.none'), $editValue);
 
-        // One option per tag: the slug as the value, the raw title as the label.
+        // One option per pinned tag: the slug as the value, the raw title as the label.
         $this->assertStringContainsString('value="home-dashboard"', $editValue);
         $this->assertStringContainsString('>Home</option>', $editValue);
         $this->assertStringContainsString('value="media"', $editValue);
         $this->assertStringContainsString('>Media</option>', $editValue);
+
+        // The unpinned tag is excluded.
+        $this->assertStringNotContainsString('value="archive"', $editValue);
     }
 }
