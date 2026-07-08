@@ -105,4 +105,42 @@ class TrustHostsTest extends TestCase
         $this->assertContains(TrustHosts::class, $globalMiddleware);
         $this->assertNotContains(\Illuminate\Http\Middleware\TrustHosts::class, $globalMiddleware);
     }
+
+    public function test_handle_enforces_trusted_hosts_even_in_local_environment(): void
+    {
+        // The app runs as APP_ENV=local under the test runner; the parent
+        // middleware would skip enforcement entirely. Confirm handle() still
+        // applies the allow-list once TRUSTED_HOSTS is configured.
+        $this->setTrustedHostsEnv('example.com');
+
+        $request = Request::create('http://example.com/', 'GET');
+
+        $reachedNext = false;
+        $this->makeMiddleware()->handle($request, function ($req) use (&$reachedNext) {
+            $reachedNext = true;
+
+            return $req;
+        });
+
+        $this->assertTrue($reachedNext);
+
+        // The configured host is now accepted and any other Host is rejected.
+        $this->assertSame('example.com', Request::create('http://example.com/', 'GET')->getHost());
+
+        $this->expectException(SuspiciousOperationException::class);
+        Request::create('http://evil.com/', 'GET')->getHost();
+    }
+
+    public function test_handle_does_not_restrict_hosts_when_env_unset(): void
+    {
+        putenv('TRUSTED_HOSTS');
+        unset($_ENV['TRUSTED_HOSTS'], $_SERVER['TRUSTED_HOSTS']);
+
+        $request = Request::create('http://anything.example/', 'GET');
+
+        $this->makeMiddleware()->handle($request, fn ($req) => $req);
+
+        // No allow-list configured -> arbitrary hosts still accepted.
+        $this->assertSame('anything.example', Request::create('http://anything.example/', 'GET')->getHost());
+    }
 }

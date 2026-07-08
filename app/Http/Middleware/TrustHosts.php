@@ -38,4 +38,23 @@ class TrustHosts extends Middleware
 
         return $hosts;
     }
+
+    /**
+     * Determine if the application should specify trusted hosts.
+     *
+     * The parent implementation skips enforcement whenever the app runs in the
+     * "local" environment (Heimdall's shipped default, see .env.example) or
+     * under the test runner, which would leave the TRUSTED_HOSTS allow-list
+     * silently unenforced for almost every real deployment. Instead we tie
+     * enforcement directly to configuration: apply the allow-list whenever one
+     * has actually been provided, in any environment. When TRUSTED_HOSTS is
+     * unset hosts() is empty and this returns false, preserving the historic
+     * no-restriction behaviour.
+     *
+     * @return bool
+     */
+    protected function shouldSpecifyTrustedHosts()
+    {
+        return ! empty($this->hosts());
+    }
 }
