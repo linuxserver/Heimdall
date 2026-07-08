@@ -27,13 +27,17 @@ use Aws\Endpoint\UseFipsEndpoint\ConfigurationProvider as UseFipsConfigProvider;
 use Aws\EndpointDiscovery\ConfigurationInterface;
 use Aws\EndpointDiscovery\ConfigurationProvider;
 use Aws\EndpointV2\EndpointDefinitionProvider;
+use Aws\EndpointV2\EndpointProviderV2;
 use Aws\Exception\AwsException;
 use Aws\Exception\InvalidRegionException;
 use Aws\Retry\ConfigurationInterface as RetryConfigInterface;
 use Aws\Retry\ConfigurationProvider as RetryConfigProvider;
+use Aws\Retry\V3\OptIn as NewRetriesOptIn;
+use Aws\Retry\V3\RetryMiddleware as RetryV3Middleware;
 use Aws\Signature\SignatureProvider;
 use Aws\Token\Token;
 use Aws\Token\TokenInterface;
+use Aws\Token\BedrockTokenProvider;
 use Aws\Token\TokenProvider;
 use GuzzleHttp\Promise\PromiseInterface;
 use InvalidArgumentException as IAE;
@@ -60,6 +64,8 @@ class ClientResolver
         __CLASS__,
         '_resolve_from_env_ini'
     ];
+    private const ANONYMOUS_SIGNATURE = 'anonymous';
+    private const DPOP_SIGNATURE = 'dpop';
 
     /** @var array Map of types to a corresponding function */
     private static $typeMap = [
@@ -205,6 +211,13 @@ class ClientResolver
             'doc'     => 'Specifies the credentials used to sign requests. Provide an Aws\Credentials\CredentialsInterface object, an associative array of "key", "secret", and an optional "token" key, `false` to use null credentials, or a callable credentials provider used to create credentials or return null. See Aws\\Credentials\\CredentialProvider for a list of built-in credentials providers. If no credentials are provided, the SDK will attempt to load them from the environment.',
             'fn'      => [__CLASS__, '_apply_credentials'],
             'default' => [__CLASS__, '_default_credential_provider'],
+        ],
+        'auth_scheme_preference' => [
+            'type'    => 'value',
+            'valid'   => ['string', 'array'],
+            'doc'     => 'Comma-separated list of authentication scheme preferences in priority order. Configure via environment variable `AWS_AUTH_SCHEME_PREFERENCE`, INI config file `auth_scheme_preference`, or client constructor parameter `auth_scheme_preference` (string or array).\nExample: `AWS_AUTH_SCHEME_PREFERENCE=aws.auth#sigv4a,aws.auth#sigv4,smithy.api#httpBearerAuth`',
+            'default' => self::DEFAULT_FROM_ENV_INI,
+            'fn' => [__CLASS__, '_apply_auth_scheme_preference'],
         ],
         'token' => [
             'type'    => 'value',
@@ -537,28 +550,42 @@ class ClientResolver
     public static function _apply_retries($value, array &$args, HandlerList $list)
     {
         // A value of 0 for the config option disables retries
-        if ($value) {
-            $config = RetryConfigProvider::unwrap($value);
-
-            if ($config->getMode() === 'legacy') {
-                // # of retries is 1 less than # of attempts
-                $decider = RetryMiddleware::createDefaultDecider(
-                    $config->getMaxAttempts() - 1
-                );
-                $list->appendSign(
-                    Middleware::retry($decider, null, $args['stats']['retries']),
-                    'retry'
-                );
-            } else {
-                $list->appendSign(
-                    RetryMiddlewareV2::wrap(
-                        $config,
-                        ['collect_stats' => $args['stats']['retries']]
-                    ),
-                    'retry'
-                );
-            }
+        if (!$value) {
+            return;
         }
+
+        $config = RetryConfigProvider::unwrap($value);
+
+        if ($config->getMode() === 'legacy') {
+            // # of retries is 1 less than # of attempts
+            $decider = RetryMiddleware::createDefaultDecider(
+                $config->getMaxAttempts() - 1
+            );
+            $list->appendSign(
+                Middleware::retry($decider, null, $args['stats']['retries']),
+                'retry'
+            );
+            return;
+        }
+
+        if (NewRetriesOptIn::isEnabled()) {
+            $list->appendSign(
+                RetryV3Middleware::wrap($config, [
+                    'collect_stats' => $args['stats']['retries'],
+                    'service'       => $args['service'],
+                ]),
+                'retry'
+            );
+            return;
+        }
+
+        $list->appendSign(
+            RetryMiddlewareV2::wrap(
+                $config,
+                ['collect_stats' => $args['stats']['retries']]
+            ),
+            'retry'
+        );
     }
 
     public static function _apply_defaults($value, array &$args, HandlerList $list)
@@ -660,7 +687,10 @@ class ClientResolver
             $args['credentials'] = CredentialProvider::fromCredentials(
                 new Credentials('', '')
             );
-            $args['config']['signature_version'] = 'anonymous';
+            if ($args['config']['signature_version'] !== self::DPOP_SIGNATURE) {
+                $args['config']['signature_version'] = self::ANONYMOUS_SIGNATURE;
+            }
+
             $args['config']['configured_signature_version'] = true;
         } elseif ($value instanceof CacheInterface) {
             $args['credentials'] = CredentialProvider::defaultProvider($args);
@@ -704,8 +734,17 @@ class ClientResolver
         }
     }
 
-    public static function _default_token_provider(array $args)
+    public static function _default_token_provider(array &$args)
     {
+        if (($args['config']['signing_name'] ?? '') === 'bedrock') {
+            // Checks for env value, if present, sets auth_scheme_preference
+            // to bearer auth and returns a provider
+            $provider = BedrockTokenProvider::createIfAvailable($args);
+            if (!is_null($provider)) {
+                return $provider;
+            }
+        }
+
         return TokenProvider::defaultProvider($args);
     }
 
@@ -769,7 +808,7 @@ class ClientResolver
     public static function _apply_endpoint_provider($value, array &$args)
     {
         if (!isset($args['endpoint'])) {
-            if ($value instanceof \Aws\EndpointV2\EndpointProviderV2) {
+            if ($value instanceof EndpointProviderV2) {
                 $options = self::getEndpointProviderOptions($args);
                 $value = PartitionEndpointProvider::defaultProvider($options)
                     ->getPartition($args['region'], $args['service']);
@@ -1090,14 +1129,13 @@ class ClientResolver
         if (self::isValidService($serviceName)
             && self::isValidApiVersion($serviceName, $apiVersion)
         ) {
-            $ruleset = EndpointDefinitionProvider::getEndpointRuleset(
+            $partitions = EndpointDefinitionProvider::getPartitions();
+            $parsed = EndpointDefinitionProvider::getParsedRuleset(
                 $service->getServiceName(),
-                $service->getApiVersion()
+                $service->getApiVersion(),
+                $partitions
             );
-            return new \Aws\EndpointV2\EndpointProviderV2(
-                $ruleset,
-                EndpointDefinitionProvider::getPartitions()
-            );
+            return new EndpointProviderV2($parsed, $partitions);
         }
         $options = self::getEndpointProviderOptions($args);
         return PartitionEndpointProvider::defaultProvider($options)
@@ -1120,6 +1158,32 @@ class ClientResolver
     public static function _default_auth_scheme_resolver(array $args)
     {
         return new AuthSchemeResolver($args['credentials'], $args['token']);
+    }
+
+    public static function _apply_auth_scheme_preference(
+        string|array|null &$value,
+        array &$args
+    ): void
+    {
+        // Not provided user's preference auth scheme list
+        if (empty($value)) {
+            $value = null;
+            $args['config']['auth_scheme_preference'] = $value;
+            return;
+        }
+
+        // Normalize it as an array
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+
+        // Let`s trim each value to remove break lines, spaces and/or tabs
+        foreach ($value as &$val) {
+            $val = trim($val);
+        }
+
+        // Assign user's preferred auth scheme list
+        $args['config']['auth_scheme_preference'] = $value;
     }
 
     public static function _default_signature_version(array &$args)
@@ -1198,12 +1262,6 @@ class ClientResolver
         } elseif (!empty($_ENV["AWS_SUPPRESS_PHP_DEPRECATION_WARNING"])) {
             $args['suppress_php_deprecation_warning'] =
                 \Aws\boolean_value($_ENV["AWS_SUPPRESS_PHP_DEPRECATION_WARNING"]);
-        }
-
-        if ($args['suppress_php_deprecation_warning'] === false
-            && PHP_VERSION_ID < 80100
-        ) {
-            self::emitDeprecationWarning();
         }
     }
 
@@ -1390,23 +1448,6 @@ EOT;
         }
         return is_dir(
             __DIR__ . "/data/{$service}/$apiVersion"
-        );
-    }
-
-    private static function emitDeprecationWarning()
-    {
-        $phpVersionString = phpversion();
-        trigger_error(
-            "This installation of the SDK is using PHP version"
-            .  " {$phpVersionString}, which will be deprecated on January"
-            .  " 13th, 2025.\nPlease upgrade your PHP version to a minimum of"
-            .  " 8.1.x to continue receiving updates for the AWS"
-            .  " SDK for PHP.\nTo disable this warning, set"
-            .  " suppress_php_deprecation_warning to true on the client constructor"
-            .  " or set the environment variable AWS_SUPPRESS_PHP_DEPRECATION_WARNING"
-            .  " to true.\nMore information can be found at: "
-            .   "https://aws.amazon.com/blogs/developer/announcing-the-end-of-support-for-php-runtimes-8-0-x-and-below-in-the-aws-sdk-for-php/\n",
-            E_USER_DEPRECATED
         );
     }
 }

@@ -9,6 +9,10 @@ use GuzzleHttp\Psr7\Stream;
  */
 abstract class AbstractCryptoClientV2
 {
+    const KEY_COMMITMENT_POLICIES = [
+        'FORBID_ENCRYPT_ALLOW_DECRYPT'
+    ];
+
     public static $supportedCiphers = ['gcm'];
 
     public static $supportedKeyWraps = [
@@ -18,6 +22,18 @@ abstract class AbstractCryptoClientV2
     public static $supportedSecurityProfiles = ['V2', 'V2_AND_LEGACY'];
 
     public static $legacySecurityProfiles = ['V2_AND_LEGACY'];
+
+    /**
+     * Returns if the passed policy name is supported for encryption by the SDK.
+     *
+     * @param string $policy The name of a key commitment policy to verify is registered.
+     *
+     * @return bool If the key commitment policy passed is in our supported list.
+     */
+    public static function isSupportedKeyCommitmentPolicy(string $policy): bool
+    {
+        return in_array($policy, self::KEY_COMMITMENT_POLICIES, strict: true);
+    }
 
     /**
      * Returns if the passed cipher name is supported for encryption by the SDK.

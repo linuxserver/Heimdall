@@ -259,7 +259,7 @@ class StreamWrapper
         $this->initProtocol($path);
 
         // Some paths come through as S3:// for some reason.
-        $split = explode('://', $path);
+        $split = explode('://', $path, 2);
         $path = strtolower($split[0]) . '://' . $split[1];
 
         // Check if this path is in the url_stat cache
@@ -703,7 +703,7 @@ class StreamWrapper
     private function getBucketKey($path)
     {
         // Remove the protocol
-        $parts = explode('://', $path);
+        $parts = explode('://', $path, 2);
         // Get the bucket, key
         $parts = explode('/', $parts[1], 2);
 

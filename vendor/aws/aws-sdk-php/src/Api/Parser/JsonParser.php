@@ -50,7 +50,10 @@ class JsonParser
                 $values = $shape->getValue();
                 $target = [];
                 foreach ($value as $k => $v) {
-                    $target[$k] = $this->parse($values, $v);
+                    // null map values should not be deserialized
+                    if (!is_null($v)) {
+                        $target[$k] = $this->parse($values, $v);
+                    }
                 }
                 return $target;
 

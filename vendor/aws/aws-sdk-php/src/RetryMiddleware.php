@@ -163,11 +163,13 @@ class RetryMiddleware
             return true;
         }
 
-        if (isset($errorCodes[$error->getAwsErrorCode()])) {
+        $awsCode = $error->getAwsErrorCode();
+        if (!is_null($awsCode) && isset($errorCodes[$awsCode])) {
             return true;
         }
 
-        if (isset($statusCodes[$error->getStatusCode()])) {
+        $status = $error->getStatusCode();
+        if (!is_null($status) && isset($statusCodes[$status])) {
             return true;
         }
 
@@ -249,6 +251,7 @@ class RetryMiddleware
             }
             if ($value instanceof \Exception || $value instanceof \Throwable) {
                 if (!$decider($retries, $command, $request, null, $value)) {
+                    $g = null;
                     return Promise\Create::rejectionFor(
                         $this->bindStatsToReturn($value, $requestStats)
                     );
@@ -256,6 +259,7 @@ class RetryMiddleware
             } elseif ($value instanceof ResultInterface
                 && !$decider($retries, $command, $request, $value, null)
             ) {
+                $g = null;
                 return $this->bindStatsToReturn($value, $requestStats);
             }
 

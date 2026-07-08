@@ -60,12 +60,18 @@ class FnDispatcher
     {
         $this->validate('contains', $args, [['string', 'array'], ['any']]);
         if (is_array($args[0])) {
-            return in_array($args[1], $args[0]);
-        } elseif (is_string($args[1])) {
-            return mb_strpos($args[0], $args[1], 0, 'UTF-8') !== false;
-        } else {
-            return null;
+            foreach ($args[0] as $value) {
+                if (Utils::isEqual($value, $args[1])) {
+                    return true;
+                }
+            }
+
+            return false;
         }
+
+        return is_string($args[1])
+            ? mb_strpos($args[0], $args[1], 0, 'UTF-8') !== false
+            : false;
     }
 
     private function fn_ends_with(array $args)
@@ -100,7 +106,7 @@ class FnDispatcher
         $fn = function ($a, $b, $i) use ($args) {
             return $i ? ($a . $args[0] . $b) : $b;
         };
-        return $this->reduce('join:0', $args[1], ['string'], $fn);
+        return $args[1] ? $this->reduce('join:0', $args[1], ['string'], $fn) : '';
     }
 
     private function fn_keys(array $args)
@@ -118,8 +124,8 @@ class FnDispatcher
     private function fn_max(array $args)
     {
         $this->validate('max', $args, [['array']]);
-        $fn = function ($a, $b) {
-            return $a >= $b ? $a : $b;
+        $fn = function ($a, $b, $i) {
+            return $i && self::compareValues($a, $b) >= 0 ? $a : $b;
         };
         return $this->reduce('max:0', $args[0], ['number', 'string'], $fn);
     }
@@ -128,10 +134,21 @@ class FnDispatcher
     {
         $this->validate('max_by', $args, [['array'], ['expression']]);
         $expr = $this->wrapExpression('max_by:1', $args[1], ['number', 'string']);
-        $fn = function ($carry, $item, $index) use ($expr) {
-            return $index
-                ? ($expr($carry) >= $expr($item) ? $carry : $item)
-                : $item;
+        $carryKey = null;
+        $fn = function ($carry, $item, $index) use ($expr, &$carryKey) {
+            if (!$index) {
+                return $item;
+            }
+            if ($index === 1) {
+                $carryKey = $expr($carry);
+            }
+            $itemKey = $expr($item);
+            $this->validateSeq('max_by:0', ['number', 'string'], $carryKey, $itemKey);
+            if (self::compareValues($carryKey, $itemKey) >= 0) {
+                return $carry;
+            }
+            $carryKey = $itemKey;
+            return $item;
         };
         return $this->reduce('max_by:1', $args[0], ['any'], $fn);
     }
@@ -140,7 +157,7 @@ class FnDispatcher
     {
         $this->validate('min', $args, [['array']]);
         $fn = function ($a, $b, $i) {
-            return $i && $a <= $b ? $a : $b;
+            return $i && self::compareValues($a, $b) <= 0 ? $a : $b;
         };
         return $this->reduce('min:0', $args[0], ['number', 'string'], $fn);
     }
@@ -149,9 +166,21 @@ class FnDispatcher
     {
         $this->validate('min_by', $args, [['array'], ['expression']]);
         $expr = $this->wrapExpression('min_by:1', $args[1], ['number', 'string']);
-        $i = -1;
-        $fn = function ($a, $b) use ($expr, &$i) {
-            return ++$i ? ($expr($a) <= $expr($b) ? $a : $b) : $b;
+        $carryKey = null;
+        $fn = function ($carry, $item, $index) use ($expr, &$carryKey) {
+            if (!$index) {
+                return $item;
+            }
+            if ($index === 1) {
+                $carryKey = $expr($carry);
+            }
+            $itemKey = $expr($item);
+            $this->validateSeq('min_by:0', ['number', 'string'], $carryKey, $itemKey);
+            if (self::compareValues($carryKey, $itemKey) <= 0) {
+                return $carry;
+            }
+            $carryKey = $itemKey;
+            return $item;
         };
         return $this->reduce('min_by:1', $args[0], ['any'], $fn);
     }
@@ -162,7 +191,7 @@ class FnDispatcher
         if (is_array($args[0])) {
             return array_reverse($args[0]);
         } elseif (is_string($args[0])) {
-            return strrev($args[0]);
+            return implode('', array_reverse(mb_str_split($args[0], 1, 'UTF-8')));
         } else {
             throw new \RuntimeException('Cannot reverse provided argument');
         }
@@ -174,7 +203,7 @@ class FnDispatcher
         $fn = function ($a, $b) {
             return Utils::add($a, $b);
         };
-        return $this->reduce('sum:0', $args[0], ['number'], $fn);
+        return $args[0] ? $this->reduce('sum:0', $args[0], ['number'], $fn) : 0;
     }
 
     private function fn_sort(array $args)
@@ -183,7 +212,7 @@ class FnDispatcher
         $valid = ['string', 'number'];
         return Utils::stableSort($args[0], function ($a, $b) use ($valid) {
             $this->validateSeq('sort:0', $valid, $a, $b);
-            return strnatcmp($a, $b);
+            return self::compareValues($a, $b);
         });
     }
 
@@ -198,7 +227,7 @@ class FnDispatcher
                 $va = $expr($a);
                 $vb = $expr($b);
                 $this->validateSeq('sort_by:0', $valid, $va, $vb);
-                return strnatcmp($va, $vb);
+                return self::compareValues($va, $vb);
             }
         );
     }
@@ -236,14 +265,53 @@ class FnDispatcher
     {
         $this->validateArity('to_number', count($args), 1);
         $value = $args[0];
-        $type = Utils::type($value);
-        if ($type == 'number') {
+
+        if (Utils::type($value) == 'number') {
             return $value;
-        } elseif ($type == 'string' && is_numeric($value)) {
-            return mb_strpos($value, '.', 0, 'UTF-8') ? (float) $value : (int) $value;
-        } else {
+        }
+
+        if (!is_string($value)) {
             return null;
         }
+
+        return $this->parseJsonNumber($value);
+    }
+
+    /**
+     * Parses a string conforming to the JSON number grammar (RFC 8259) into
+     * an int when exactly representable, otherwise a float. Returns null for
+     * non-conforming or non-finite input.
+     */
+    private function parseJsonNumber($value)
+    {
+        if (!preg_match('/^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$/D', $value)) {
+            return null;
+        }
+
+        if (preg_match('/^-?(?:0|[1-9][0-9]*)$/D', $value)) {
+            return $this->parseJsonInteger($value);
+        }
+
+        $number = (float) $value;
+
+        return is_finite($number) ? $number : null;
+    }
+
+    private function parseJsonInteger($value)
+    {
+        $negative = $value[0] === '-';
+        $digits = $negative ? substr($value, 1) : $value;
+        $limit = $negative ? substr((string) PHP_INT_MIN, 1) : (string) PHP_INT_MAX;
+
+        if (strlen($digits) < strlen($limit)
+            || (strlen($digits) === strlen($limit) && strcmp($digits, $limit) <= 0)
+        ) {
+            return (int) $value;
+        }
+
+        $number = (float) $value;
+
+        return is_finite($number) ? $number : null;
     }
 
     private function fn_values(array $args)
@@ -272,7 +340,7 @@ class FnDispatcher
 
     private function fn_map(array $args)
     {
-        $this->validate('map', $args, [['expression'], ['any']]);
+        $this->validate('map', $args, [['expression'], ['array']]);
         $result = [];
         foreach ($args[1] as $a) {
             $result[] = $args[0]($a);
@@ -352,6 +420,21 @@ class FnDispatcher
                 . "Found {$ta}, {$tb}.";
             $this->typeError($from, $msg);
         }
+    }
+
+    /**
+     * Compares two values of the same JMESPath type.
+     *
+     * @param mixed $a Value A
+     * @param mixed $b Value B
+     *
+     * @return int Negative if $a < $b, zero if equal, positive if $a > $b.
+     */
+    private static function compareValues($a, $b)
+    {
+        return Utils::type($a) === 'string'
+            ? strcmp((string) $a, (string) $b)
+            : ($a <=> $b);
     }
 
     /**

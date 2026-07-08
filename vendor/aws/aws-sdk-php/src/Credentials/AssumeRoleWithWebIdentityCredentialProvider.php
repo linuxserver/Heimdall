@@ -36,6 +36,7 @@ class AssumeRoleWithWebIdentityCredentialProvider
 
     /** @var integer */
     private $tokenFileReadAttempts;
+
     /** @var string */
     private $source;
 
@@ -72,15 +73,15 @@ class AssumeRoleWithWebIdentityCredentialProvider
         $this->tokenFileReadAttempts = 0;
         $this->session = $config['SessionName']
             ?? 'aws-sdk-php-' . round(microtime(true) * 1000);
-        $region = $config['region'] ?? 'us-east-1';
+
         if (isset($config['client'])) {
             $this->client = $config['client'];
         } else {
-            $this->client = new StsClient([
-                'credentials' => false,
-                'region' => $region,
-                'version' => 'latest'
-            ]);
+            $region = $config['region']
+                ?? getEnv(CredentialProvider::ENV_REGION)
+                ?: null;
+
+            $this->client = $this->createDefaultStsClient($region);
         }
 
         $this->source = $config['source']
@@ -166,5 +167,35 @@ class AssumeRoleWithWebIdentityCredentialProvider
                 $this->source
             );
         });
+    }
+
+    /**
+     * @param string|null $region
+     *
+     * @return StsClient
+     */
+    private function createDefaultStsClient(
+        ?string $region
+    ): StsClient
+    {
+        if (empty($region)) {
+            $region = CredentialProvider::FALLBACK_REGION;
+            trigger_error(
+                'NOTICE: STS client created without explicit `region` configuration.' . PHP_EOL
+                . "Defaulting to {$region}. This fallback behavior may be removed." . PHP_EOL
+                . 'To avoid potential disruptions, configure a region using one of the following methods:' . PHP_EOL
+                . '(1) Pass `region` in the `$config` array when calling the provider,' . PHP_EOL
+                . '(2) Set the `AWS_REGION` environment variable.' . PHP_EOL
+                . 'OR provide an STS client in the `$config` array when creating the provider as `client`.' . PHP_EOL
+                . 'See: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/assume-role-with-web-identity-provider.html'
+                . PHP_EOL,
+                E_USER_NOTICE
+            );
+        }
+
+        return new StsClient([
+            'credentials' => false,
+            'region' => $region
+        ]);
     }
 }

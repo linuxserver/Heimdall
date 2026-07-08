@@ -51,9 +51,7 @@ class RequestCompressionMiddleware
         }
         $nextHandler = $this->nextHandler;
         $operation = $this->api->getOperation($command->getName());
-        $compressionInfo = isset($operation['requestcompression'])
-            ? $operation['requestcompression']
-            : null;
+        $compressionInfo = $operation['requestcompression'] ?? null;
 
         if (!$this->shouldCompressRequestBody(
             $compressionInfo,
@@ -87,8 +85,12 @@ class RequestCompressionMiddleware
         $body = $request->getBody()->getContents();
         $compressedBody = $fn($body);
 
-        return $request->withBody(Psr7\Utils::streamFor($compressedBody))
-            ->withHeader('content-encoding', $this->encoding);
+        $request = $request->withBody(Psr7\Utils::streamFor($compressedBody));
+        if ($request->hasHeader('Content-Encoding')) {
+            return $request->withAddedHeader('Content-Encoding', $this->encoding);
+        }
+
+        return $request->withHeader('Content-Encoding', $this->encoding);
     }
 
     private function determineEncoding()

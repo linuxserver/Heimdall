@@ -30,11 +30,6 @@ class DateTimeResult extends \DateTime implements \JsonSerializable
             throw new ParserException('Invalid timestamp value passed to DateTimeResult::fromEpoch');
         }
 
-        // PHP 5.5 does not support sub-second precision
-        if (\PHP_VERSION_ID < 56000) {
-            return new self(gmdate('c', $unixTimestamp));
-        }
-
         $decimalSeparator = isset(localeconv()['decimal_point']) ? localeconv()['decimal_point'] : ".";
         $formatString = "U" . $decimalSeparator . "u";
         $dateTime = DateTime::createFromFormat(

@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+7.4
+---
+
+ * Add `#[WithHttpStatus]` to define status codes: 404 for `SignedUriException` and 403 for `ExpiredSignedUriException`
+ * Add support for the `QUERY` HTTP method
+ * Add support for structured MIME suffix
+ * Add `Request::set/getAllowedHttpMethodOverride()` to list which HTTP methods can be overridden
+ * Deprecate using `Request::sendHeaders()` after headers have already been sent; use a `StreamedResponse` instead
+ * Deprecate method `Request::get()`, use properties `->attributes`, `query` or `request` directly instead
+ * Make `Request::createFromGlobals()` parse the body of PUT, DELETE, PATCH and QUERY requests
+ * Deprecate HTTP method override for methods GET, HEAD, CONNECT and TRACE; it will be ignored in Symfony 8.0
+ * Deprecate accepting null `$format` argument to `Request::setFormat()`
+
 7.3
 ---
 

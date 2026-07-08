@@ -3,12 +3,15 @@
 namespace GuzzleHttp;
 
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\InvalidArgumentException;
+use GuzzleHttp\Handler\CurlShareHandleState;
 use GuzzleHttp\Promise as P;
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -48,6 +51,8 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      *   default middleware to the handler.
      * - base_uri: (string|UriInterface) Base URI of the client that is merged
      *   into relative URIs. Can be a string or instance of UriInterface.
+     * - transport_sharing: (string|null) Transport sharing mode for the
+     *   default handler. Accepts TransportSharing::* or null. Defaults to null.
      * - **: any request option
      *
      * @param array $config Client configuration settings.
@@ -56,10 +61,18 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      */
     public function __construct(array $config = [])
     {
+        $transportSharing = \array_key_exists('transport_sharing', $config) ? $config['transport_sharing'] : null;
+        $transportSharingMode = CurlShareHandleState::normalizeMode($transportSharing, 'transport_sharing');
+        unset($config['transport_sharing']);
+
         if (!isset($config['handler'])) {
-            $config['handler'] = HandlerStack::create();
+            $config['handler'] = $transportSharingMode === TransportSharing::NONE
+                ? HandlerStack::create()
+                : HandlerStack::create(Utils::chooseHandler(['transport_sharing' => $transportSharingMode]));
         } elseif (!\is_callable($config['handler'])) {
             throw new InvalidArgumentException('handler must be a callable');
+        } elseif ($transportSharingMode === TransportSharing::HANDLER_REQUIRE) {
+            throw new InvalidArgumentException('The "transport_sharing" client option can only require sharing when Guzzle creates the default handler. Configure the "transport_sharing" option on CurlHandler or CurlMultiHandler when providing a custom cURL handler.');
         }
 
         // Convert the base_uri to a UriInterface
@@ -87,8 +100,12 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         $uri = $args[0];
         $opts = $args[1] ?? [];
 
-        return \substr($method, -5) === 'Async'
-            ? $this->requestAsync(\substr($method, 0, -5), $uri, $opts)
+        $isAsync = \substr($method, -5) === 'Async';
+        $method = $isAsync ? \substr($method, 0, -5) : $method;
+        $method = \strtoupper($method);
+
+        return $isAsync
+            ? $this->requestAsync($method, $uri, $opts)
             : $this->request($method, $uri, $opts);
     }
 
@@ -96,7 +113,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      * Asynchronously send an HTTP request.
      *
      * @param array $options Request options to apply to the given
-     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
+     *                       request and to the transfer. See {@see RequestOptions}.
      */
     public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
@@ -113,7 +130,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      * Send an HTTP request.
      *
      * @param array $options Request options to apply to the given
-     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
+     *                       request and to the transfer. See {@see RequestOptions}.
      *
      * @throws GuzzleException
      */
@@ -148,20 +165,35 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      *
      * @param string              $method  HTTP method
      * @param string|UriInterface $uri     URI object or string.
-     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     * @param array               $options Request options to apply. See {@see RequestOptions}.
      */
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
+        $normalizedMethod = \strtoupper($method);
+        if ($method !== $normalizedMethod) {
+            \trigger_deprecation(
+                'guzzlehttp/guzzle',
+                '7.11',
+                'Passing a non-uppercase HTTP method to Client::requestAsync() is deprecated; guzzlehttp/guzzle 8.0 will preserve HTTP method casing. Pass an uppercase method explicitly if uppercase is required.'
+            );
+            $method = $normalizedMethod;
+        }
+
         $options = $this->prepareDefaults($options);
         // Remove request modifying parameter because it can be done up-front.
         $headers = $options['headers'] ?? [];
+        $droppedHeaderNames = self::castDeprecatedHeaderOptionValues($headers);
+        if ($droppedHeaderNames !== [] && isset($options['_conditional'])) {
+            $options['_conditional'] = Psr7\Utils::caselessRemove($droppedHeaderNames, $options['_conditional']);
+        }
         $body = $options['body'] ?? null;
-        $version = $options['version'] ?? '1.1';
+        $version = self::normalizeProtocolVersion($options['version'] ?? '1.1');
         // Merge the URI into the base URI.
         $uri = $this->buildUri(Psr7\Utils::uriFor($uri), $options);
         if (\is_array($body)) {
             throw $this->invalidBody();
         }
+        $body = self::createBodyStream($body);
         $request = new Psr7\Request($method, $uri, $headers, $body, $version);
         // Remove the option so that they are not doubly-applied.
         unset($options['headers'], $options['body'], $options['version']);
@@ -178,12 +210,22 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      *
      * @param string              $method  HTTP method.
      * @param string|UriInterface $uri     URI object or string.
-     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     * @param array               $options Request options to apply. See {@see RequestOptions}.
      *
      * @throws GuzzleException
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
+        $normalizedMethod = \strtoupper($method);
+        if ($method !== $normalizedMethod) {
+            \trigger_deprecation(
+                'guzzlehttp/guzzle',
+                '7.11',
+                'Passing a non-uppercase HTTP method to Client::request() is deprecated; guzzlehttp/guzzle 8.0 will preserve HTTP method casing. Pass an uppercase method explicitly if uppercase is required.'
+            );
+            $method = $normalizedMethod;
+        }
+
         $options[RequestOptions::SYNCHRONOUS] = true;
 
         return $this->requestAsync($method, $uri, $options)->wait();
@@ -199,8 +241,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      * @param string|null $option The config option to retrieve.
      *
      * @return mixed
-     *
-     * @deprecated Client::getConfig will be removed in guzzlehttp/guzzle:8.0.
      */
     public function getConfig(?string $option = null)
     {
@@ -215,12 +255,16 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             $uri = Psr7\UriResolver::resolve(Psr7\Utils::uriFor($config['base_uri']), $uri);
         }
 
-        if (isset($config['idn_conversion']) && ($config['idn_conversion'] !== false)) {
-            $idnOptions = ($config['idn_conversion'] === true) ? \IDNA_DEFAULT : $config['idn_conversion'];
+        $idnOptions = Utils::normalizeIdnConversionOption($config['idn_conversion'] ?? null);
+        if ($idnOptions !== null) {
             $uri = Utils::idnUriConvert($uri, $idnOptions);
         }
 
-        return $uri->getScheme() === '' && $uri->getHost() !== '' ? $uri->withScheme('http') : $uri;
+        if ($uri->getScheme() === '' && $uri->getHost() !== '') {
+            $uri = $uri->withScheme('http');
+        }
+
+        return $uri;
     }
 
     /**
@@ -235,6 +279,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             'verify' => true,
             'cookies' => false,
             'idn_conversion' => false,
+            'protocols' => ['http', 'https'],
         ];
 
         // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set.
@@ -266,12 +311,22 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             $this->config['headers'] = ['User-Agent' => Utils::defaultUserAgent()];
         } else {
             // Add the User-Agent header if one was not already set.
+            $hasUserAgent = false;
             foreach (\array_keys($this->config['headers']) as $name) {
-                if (\strtolower($name) === 'user-agent') {
-                    return;
+                if (\strtolower((string) $name) === 'user-agent') {
+                    $hasUserAgent = true;
+                    break;
                 }
             }
-            $this->config['headers']['User-Agent'] = Utils::defaultUserAgent();
+
+            if (!$hasUserAgent) {
+                $this->config['headers']['User-Agent'] = Utils::defaultUserAgent();
+            }
+        }
+
+        if (\is_array($this->config['headers'])) {
+            self::warnAboutInvalidHeaderOptionTypes($this->config['headers']);
+            self::castDeprecatedHeaderOptionValues($this->config['headers']);
         }
     }
 
@@ -282,6 +337,8 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      */
     private function prepareDefaults(array $options): array
     {
+        self::warnAboutRequestLevelHandler($options);
+
         $defaults = $this->config;
 
         if (!empty($defaults['headers'])) {
@@ -312,7 +369,644 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             }
         }
 
-        return $result;
+        self::warnAboutInvalidRequestOptionTypes($result);
+
+        return self::normalizeDeprecatedRequestOptionValues($result);
+    }
+
+    /**
+     * Normalize values that guzzlehttp/guzzle 8.0 rejects only after the
+     * corresponding 7.x deprecation has already been emitted.
+     *
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private static function normalizeDeprecatedRequestOptionValues(array $options): array
+    {
+        self::normalizeDeprecatedAuthOptionValues($options);
+        self::normalizeDeprecatedTlsFileOptionValues($options, 'cert');
+        self::normalizeDeprecatedTlsFileOptionValues($options, 'ssl_key');
+        self::normalizeDeprecatedStringOptionValues($options);
+        self::normalizeDeprecatedNumericOptionValues($options);
+        self::normalizeDeprecatedIntegerOptionValues($options);
+
+        return $options;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function canStringifyDeprecatedValue($value): bool
+    {
+        return $value === null
+            || \is_scalar($value)
+            || (\is_object($value) && \method_exists($value, '__toString'));
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function stringifyDeprecatedValue($value): string
+    {
+        if (\is_float($value) && !\is_finite($value)) {
+            return \is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        if (\is_scalar($value)) {
+            return (string) $value;
+        }
+
+        if (\is_object($value) && \method_exists($value, '__toString')) {
+            return $value->__toString();
+        }
+
+        throw new \LogicException('Value is not stringable.');
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private static function normalizeDeprecatedAuthOptionValues(array &$options): void
+    {
+        if (!isset($options['auth']) || !\is_array($options['auth']) || $options['auth'] === []) {
+            return;
+        }
+
+        foreach ([0, 1] as $index) {
+            if (
+                \array_key_exists($index, $options['auth'])
+                && !\is_string($options['auth'][$index])
+                && self::canStringifyDeprecatedValue($options['auth'][$index])
+            ) {
+                $options['auth'][$index] = self::stringifyDeprecatedValue($options['auth'][$index]);
+            }
+        }
+
+        if (
+            \array_key_exists(2, $options['auth'])
+            && $options['auth'][2] !== null
+            && !\is_string($options['auth'][2])
+            && self::canStringifyDeprecatedValue($options['auth'][2])
+        ) {
+            $options['auth'][2] = self::stringifyDeprecatedValue($options['auth'][2]);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private static function normalizeDeprecatedTlsFileOptionValues(array &$options, string $option): void
+    {
+        if (!isset($options[$option]) || !\is_array($options[$option])) {
+            return;
+        }
+
+        foreach ([0, 1] as $index) {
+            if (
+                \array_key_exists($index, $options[$option])
+                && $options[$option][$index] !== null
+                && !\is_string($options[$option][$index])
+                && self::canStringifyDeprecatedValue($options[$option][$index])
+            ) {
+                $options[$option][$index] = self::stringifyDeprecatedValue($options[$option][$index]);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private static function normalizeDeprecatedStringOptionValues(array &$options): void
+    {
+        foreach (['cert_type', 'force_ip_resolve', 'ssl_key_type'] as $option) {
+            if (
+                \array_key_exists($option, $options)
+                && !\is_string($options[$option])
+                && self::canStringifyDeprecatedValue($options[$option])
+            ) {
+                $options[$option] = self::stringifyDeprecatedValue($options[$option]);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private static function normalizeDeprecatedNumericOptionValues(array &$options): void
+    {
+        foreach (['connect_timeout', 'delay', 'read_timeout', 'timeout'] as $option) {
+            if (
+                \array_key_exists($option, $options)
+                && \is_string($options[$option])
+                && \is_numeric($options[$option])
+            ) {
+                $options[$option] = $options[$option] + 0;
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private static function normalizeDeprecatedIntegerOptionValues(array &$options): void
+    {
+        foreach (['crypto_method', 'crypto_method_max', 'retries'] as $option) {
+            if (!\array_key_exists($option, $options)) {
+                continue;
+            }
+
+            if (\is_string($options[$option]) && \preg_match('/^-?\d+$/D', $options[$option]) === 1) {
+                $options[$option] = (int) $options[$option];
+            } elseif (
+                \is_float($options[$option])
+                && \is_finite($options[$option])
+                && $options[$option] === (float) (int) $options[$option]
+            ) {
+                $options[$option] = (int) $options[$option];
+            }
+        }
+    }
+
+    private static function warnAboutRequestLevelHandler(array $options): void
+    {
+        if (!\array_key_exists('handler', $options)) {
+            return;
+        }
+
+        \trigger_deprecation(
+            'guzzlehttp/guzzle',
+            '7.12',
+            'Passing the "handler" request option is deprecated; guzzlehttp/guzzle 8.0 will ignore request-level handlers. Configure the handler when creating the Client, or use a separate Client instance for requests that need a different handler.'
+        );
+    }
+
+    private static function warnAboutInvalidRequestOptionTypes(array $options): void
+    {
+        if (isset($options['handler']) && !\is_callable($options['handler'])) {
+            self::warnInvalidRequestOptionType('handler', 'callable', $options['handler']);
+        }
+
+        if (isset($options['allow_redirects']) && \is_array($options['allow_redirects'])) {
+            self::warnAboutInvalidAllowRedirectsOptionTypes($options['allow_redirects']);
+        } elseif (isset($options['allow_redirects']) && !\is_bool($options['allow_redirects'])) {
+            self::warnInvalidRequestOptionType('allow_redirects', 'bool|array', $options['allow_redirects'], '7.13');
+        }
+
+        if (isset($options['auth'])) {
+            self::warnAboutInvalidAuthOptionTypes($options['auth']);
+        }
+
+        if (isset($options['body']) && \is_array($options['body'])) {
+            self::warnInvalidRequestOptionType('body', 'resource|string|null|int|float|bool|StreamInterface|(callable&object)|\Iterator|\Stringable', $options['body']);
+        }
+
+        self::warnAboutInvalidTlsFileOptionTypes($options, 'cert');
+        self::warnIfPresentAndNotString($options, 'cert_type');
+        self::warnIfPresentAndNotNumber($options, 'connect_timeout');
+        self::warnIfPresentAndNotInt($options, 'crypto_method');
+        self::warnIfPresentAndNotInt($options, 'crypto_method_max', null, '7.13');
+        self::warnIfPresentAndNotBoolOrResource($options, 'debug');
+        self::warnIfPresentAndNotBoolOrString($options, 'decode_content');
+        self::warnIfPresentAndNotNumber($options, 'delay');
+        if (isset($options['delay']) && \is_numeric($options['delay'])) {
+            $delay = (float) $options['delay'];
+            if (!\is_finite($delay) || $delay < 0.0) {
+                self::warnInvalidRequestOptionType('delay', 'finite int|float greater than or equal to 0', $options['delay'], '7.13');
+            }
+        }
+        self::warnIfPresentAndNotBoolOrInt($options, 'expect');
+
+        if (isset($options['form_params'])) {
+            self::warnAboutInvalidFormParamTypes($options['form_params']);
+        }
+
+        if (isset($options['force_ip_resolve']) && !\is_string($options['force_ip_resolve'])) {
+            self::warnInvalidRequestOptionType('force_ip_resolve', 'string', $options['force_ip_resolve']);
+        }
+
+        if (
+            isset($options['force_ip_resolve'])
+            && \is_string($options['force_ip_resolve'])
+            && $options['force_ip_resolve'] !== 'v4'
+            && $options['force_ip_resolve'] !== 'v6'
+        ) {
+            self::warnInvalidRequestOptionType('force_ip_resolve', '"v4"|"v6"', $options['force_ip_resolve'], '7.13');
+        }
+
+        if (isset($options['headers'])) {
+            self::warnAboutInvalidHeaderOptionTypes($options['headers']);
+        }
+
+        self::warnIfPresentAndNotBool($options, 'http_errors');
+
+        if (isset($options['multipart'])) {
+            self::warnAboutInvalidMultipartOptionTypes($options['multipart']);
+        }
+
+        self::warnIfPresentAndNotCallable($options, 'on_headers');
+        self::warnIfPresentAndNotCallable($options, 'on_stats');
+        self::warnIfPresentAndNotCallable($options, 'progress');
+        self::warnIfPresentAndNotStringArray($options, 'protocols', true);
+        self::warnAboutInvalidProtocolValues($options, 'protocols');
+        self::warnAboutInvalidProxyOptionTypes($options);
+
+        self::warnIfPresentAndNotNumber($options, 'read_timeout');
+        self::warnIfPresentAndNotInt($options, 'retries');
+
+        if (isset($options['sink']) && !\is_bool($options['sink']) && !\is_resource($options['sink']) && !\is_string($options['sink']) && !$options['sink'] instanceof StreamInterface) {
+            self::warnInvalidRequestOptionType('sink', 'resource|string|StreamInterface', $options['sink']);
+        }
+
+        self::warnAboutInvalidTlsFileOptionTypes($options, 'ssl_key');
+        self::warnIfPresentAndNotString($options, 'ssl_key_type');
+        self::warnIfPresentAndNotBool($options, 'stream');
+        self::warnIfPresentAndNotArray($options, 'stream_context', 'array<array-key, mixed>');
+        self::warnIfPresentAndNotBool($options, 'synchronous');
+        self::warnIfPresentAndNotNumber($options, 'timeout');
+        self::warnIfPresentAndNotBoolOrString($options, 'verify');
+        self::warnIfPresentAndNotStringOrNumber($options, 'version');
+        self::warnIfPresentAndNotArray($options, 'curl', 'array<int|string, mixed>');
+
+        if (isset($options['cookies']) && $options['cookies'] === true) {
+            self::warnInvalidRequestOptionType('cookies', 'false|CookieJarInterface', $options['cookies']);
+        }
+
+        if (
+            isset($options['cookies'])
+            && $options['cookies'] !== false
+            && $options['cookies'] !== true
+            && !($options['cookies'] instanceof CookieJarInterface)
+        ) {
+            self::warnInvalidRequestOptionType('cookies', 'false|CookieJarInterface', $options['cookies'], '7.13');
+        }
+    }
+
+    private static function warnAboutInvalidAllowRedirectsOptionTypes(array $allowRedirects): void
+    {
+        self::warnIfPresentAndNotInt($allowRedirects, 'max', 'allow_redirects.max');
+        self::warnIfPresentAndNotBool($allowRedirects, 'strict', 'allow_redirects.strict');
+        self::warnIfPresentAndNotBool($allowRedirects, 'referer', 'allow_redirects.referer');
+        self::warnIfPresentAndNotStringArray($allowRedirects, 'protocols', true, 'allow_redirects.protocols');
+        self::warnAboutInvalidProtocolValues($allowRedirects, 'protocols', 'allow_redirects.protocols');
+        self::warnIfPresentAndNotCallable($allowRedirects, 'on_redirect', 'allow_redirects.on_redirect');
+        self::warnIfPresentAndNotBool($allowRedirects, 'track_redirects', 'allow_redirects.track_redirects');
+    }
+
+    /**
+     * @param mixed $auth
+     */
+    private static function warnAboutInvalidAuthOptionTypes($auth): void
+    {
+        if ($auth === false || \is_string($auth) || $auth === []) {
+            return;
+        }
+
+        if (!\is_array($auth)) {
+            self::warnInvalidRequestOptionType('auth', 'array{0: string, 1: string, 2?: string|null}|string|false|null', $auth);
+
+            return;
+        }
+
+        if (!\array_key_exists(0, $auth) || !\is_string($auth[0])) {
+            self::warnInvalidRequestOptionType('auth.0', 'string', $auth[0] ?? null);
+        }
+
+        if (!\array_key_exists(1, $auth) || !\is_string($auth[1])) {
+            self::warnInvalidRequestOptionType('auth.1', 'string', $auth[1] ?? null);
+        }
+
+        if (\array_key_exists(2, $auth) && $auth[2] !== null && !\is_string($auth[2])) {
+            self::warnInvalidRequestOptionType('auth.2', 'string|null', $auth[2]);
+        }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function warnAboutInvalidFormParamTypes($value): void
+    {
+        if (!\is_array($value)) {
+            self::warnInvalidRequestOptionType('form_params', 'array<array-key, string|int|float|bool|null|array>', $value);
+
+            return;
+        }
+
+        self::warnAboutInvalidFormParamArray($value, 'form_params');
+    }
+
+    private static function warnAboutInvalidFormParamArray(array $values, string $path): bool
+    {
+        foreach ($values as $key => $item) {
+            $itemPath = $path.'.'.(string) $key;
+            if (\is_array($item)) {
+                if (!self::warnAboutInvalidFormParamArray($item, $itemPath)) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if ($item !== null && !\is_scalar($item)) {
+                self::warnInvalidRequestOptionType($itemPath, 'string|int|float|bool|null|array', $item);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param mixed $headers
+     */
+    private static function warnAboutInvalidHeaderOptionTypes($headers): void
+    {
+        if (!\is_array($headers)) {
+            self::warnInvalidRequestOptionType('headers', 'array<array-key, string|non-empty-array<array-key, string>>|null', $headers);
+
+            return;
+        }
+
+        foreach ($headers as $name => $value) {
+            $path = 'headers.'.(string) $name;
+            if (\is_array($value)) {
+                if ($value === []) {
+                    self::warnInvalidRequestOptionType($path, 'string|non-empty-array<array-key, string>', $value);
+
+                    break;
+                }
+
+                foreach ($value as $index => $item) {
+                    if (!\is_string($item)) {
+                        self::warnInvalidRequestOptionType($path.'.'.(string) $index, 'string', $item);
+
+                        break 2;
+                    }
+                }
+            } elseif (!\is_string($value)) {
+                self::warnInvalidRequestOptionType($path, 'string|non-empty-array<array-key, string>', $value);
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * @param mixed $multipart
+     */
+    private static function warnAboutInvalidMultipartOptionTypes($multipart): void
+    {
+        if (!\is_array($multipart)) {
+            self::warnInvalidRequestOptionType('multipart', 'array<array-key, array{name: string|int, contents: mixed, headers?: array<array-key, string>, filename?: string}>', $multipart);
+
+            return;
+        }
+
+        foreach ($multipart as $index => $part) {
+            $path = 'multipart.'.(string) $index;
+            if (!\is_array($part)) {
+                self::warnInvalidRequestOptionType($path, 'array{name: string|int, contents: mixed, headers?: array<array-key, string>, filename?: string}', $part);
+
+                return;
+            }
+
+            if (!\array_key_exists('name', $part) || (!\is_string($part['name']) && !\is_int($part['name']))) {
+                self::warnInvalidRequestOptionType($path.'.name', 'string|int', $part['name'] ?? null);
+            }
+
+            if (!\array_key_exists('contents', $part)) {
+                self::warnInvalidRequestOptionType($path, 'array{name: string|int, contents: mixed, headers?: array<array-key, string>, filename?: string}', $part);
+            }
+
+            if (\array_key_exists('headers', $part)) {
+                if (!\is_array($part['headers'])) {
+                    self::warnInvalidRequestOptionType($path.'.headers', 'array<array-key, string>', $part['headers']);
+                } else {
+                    foreach ($part['headers'] as $name => $value) {
+                        if (!\is_string($value)) {
+                            self::warnInvalidRequestOptionType($path.'.headers.'.(string) $name, 'string', $value);
+
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if (\array_key_exists('filename', $part) && !\is_string($part['filename'])) {
+                self::warnInvalidRequestOptionType($path.'.filename', 'string', $part['filename']);
+            }
+        }
+    }
+
+    private static function warnAboutInvalidProxyOptionTypes(array $options): void
+    {
+        if (!isset($options['proxy'])) {
+            return;
+        }
+
+        if (!\is_string($options['proxy']) && !\is_array($options['proxy'])) {
+            self::warnInvalidRequestOptionType('proxy', 'string|array{http?: string|null, https?: string|null, no?: string|array<array-key, string>|null}', $options['proxy']);
+
+            return;
+        }
+
+        if (!\is_array($options['proxy'])) {
+            return;
+        }
+
+        foreach (['http', 'https'] as $scheme) {
+            if (\array_key_exists($scheme, $options['proxy']) && $options['proxy'][$scheme] !== null && !\is_string($options['proxy'][$scheme])) {
+                self::warnInvalidRequestOptionType('proxy.'.$scheme, 'string|null', $options['proxy'][$scheme]);
+            }
+        }
+
+        if (!\array_key_exists('no', $options['proxy']) || $options['proxy']['no'] === null) {
+            return;
+        }
+
+        if (\is_string($options['proxy']['no'])) {
+            return;
+        }
+
+        if (!\is_array($options['proxy']['no'])) {
+            self::warnInvalidRequestOptionType('proxy.no', 'string|array<array-key, string>|null', $options['proxy']['no']);
+
+            return;
+        }
+
+        foreach ($options['proxy']['no'] as $index => $noProxy) {
+            if (!\is_string($noProxy)) {
+                self::warnInvalidRequestOptionType('proxy.no.'.(string) $index, 'string', $noProxy);
+
+                return;
+            }
+        }
+    }
+
+    private static function warnAboutInvalidTlsFileOptionTypes(array $options, string $option): void
+    {
+        if (!isset($options[$option])) {
+            return;
+        }
+
+        if (\is_string($options[$option])) {
+            return;
+        }
+
+        if (!\is_array($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'string|array{0: string, 1?: string}', $options[$option]);
+
+            return;
+        }
+
+        if (!\array_key_exists(0, $options[$option]) || !\is_string($options[$option][0])) {
+            self::warnInvalidRequestOptionType($option.'.0', 'string', $options[$option][0] ?? null);
+        }
+
+        if (\array_key_exists(1, $options[$option]) && $options[$option][1] !== null && !\is_string($options[$option][1])) {
+            self::warnInvalidRequestOptionType($option.'.1', 'string|null', $options[$option][1]);
+        }
+    }
+
+    private static function warnIfPresentAndNotArray(array $options, string $option, string $expected): void
+    {
+        if (\array_key_exists($option, $options) && !\is_array($options[$option])) {
+            self::warnInvalidRequestOptionType($option, $expected, $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotBool(array $options, string $option, ?string $path = null): void
+    {
+        if (\array_key_exists($option, $options) && !\is_bool($options[$option])) {
+            self::warnInvalidRequestOptionType($path ?? $option, 'bool', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotBoolOrInt(array $options, string $option): void
+    {
+        if (\array_key_exists($option, $options) && !\is_bool($options[$option]) && !\is_int($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'bool|int', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotBoolOrResource(array $options, string $option): void
+    {
+        if (\array_key_exists($option, $options) && !\is_bool($options[$option]) && !\is_resource($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'bool|resource', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotBoolOrString(array $options, string $option): void
+    {
+        if (\array_key_exists($option, $options) && !\is_bool($options[$option]) && !\is_string($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'bool|string', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotCallable(array $options, string $option, ?string $path = null): void
+    {
+        if (\array_key_exists($option, $options) && !\is_callable($options[$option])) {
+            self::warnInvalidRequestOptionType($path ?? $option, 'callable', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotInt(
+        array $options,
+        string $option,
+        ?string $path = null,
+        string $since = '7.11'
+    ): void {
+        if (\array_key_exists($option, $options) && !\is_int($options[$option])) {
+            self::warnInvalidRequestOptionType($path ?? $option, 'int', $options[$option], $since);
+        }
+    }
+
+    private static function warnIfPresentAndNotNumber(array $options, string $option): void
+    {
+        if (\array_key_exists($option, $options) && !\is_int($options[$option]) && !\is_float($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'int|float', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotString(array $options, string $option): void
+    {
+        if (\array_key_exists($option, $options) && !\is_string($options[$option])) {
+            self::warnInvalidRequestOptionType($option, 'string', $options[$option]);
+        }
+    }
+
+    private static function warnIfPresentAndNotStringArray(array $options, string $option, bool $nonEmpty, ?string $path = null): void
+    {
+        if (!\array_key_exists($option, $options)) {
+            return;
+        }
+
+        $path = $path ?? $option;
+        $expected = ($nonEmpty ? 'non-empty-' : '').'array<array-key, string>';
+
+        if (!\is_array($options[$option]) || ($nonEmpty && $options[$option] === [])) {
+            self::warnInvalidRequestOptionType($path, $expected, $options[$option]);
+
+            return;
+        }
+
+        foreach ($options[$option] as $index => $item) {
+            if (!\is_string($item)) {
+                self::warnInvalidRequestOptionType($path.'.'.(string) $index, 'string', $item);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @param array<array-key, mixed> $options
+     */
+    private static function warnAboutInvalidProtocolValues(array $options, string $option, ?string $path = null): void
+    {
+        if (!isset($options[$option]) || !\is_array($options[$option])) {
+            return;
+        }
+
+        $path = $path ?? $option;
+
+        foreach ($options[$option] as $index => $protocol) {
+            if (\is_string($protocol) && $protocol !== 'http' && $protocol !== 'https') {
+                self::warnInvalidRequestOptionType($path.'.'.(string) $index, '"http"|"https"', $protocol, '7.13');
+            }
+        }
+    }
+
+    private static function warnIfPresentAndNotStringOrNumber(array $options, string $option): void
+    {
+        if (
+            \array_key_exists($option, $options)
+            && !\is_string($options[$option])
+            && !\is_int($options[$option])
+            && !\is_float($options[$option])
+        ) {
+            self::warnInvalidRequestOptionType($option, 'string|int|float', $options[$option]);
+        }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function warnInvalidRequestOptionType(string $option, string $expected, $value, string $since = '7.11'): void
+    {
+        \trigger_deprecation(
+            'guzzlehttp/guzzle',
+            $since,
+            'Passing %s to request option "%s" is deprecated; guzzlehttp/guzzle 8.0 requires %s.',
+            \get_debug_type($value),
+            $option,
+            $expected
+        );
     }
 
     /**
@@ -321,11 +1015,22 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      * The URI of the request is not modified and the request options are used
      * as-is without merging in default options.
      *
-     * @param array $options See \GuzzleHttp\RequestOptions.
+     * @param array $options See {@see RequestOptions}.
      */
     private function transfer(RequestInterface $request, array $options): PromiseInterface
     {
         $request = $this->applyOptions($request, $options);
+
+        $protocolVersion = $request->getProtocolVersion();
+
+        if ('' === $protocolVersion) {
+            \trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Sending a request with an empty protocol version is deprecated; guzzlehttp/guzzle 8.0 will reject empty protocol versions.');
+
+            $request = Psr7\Utils::modifyRequest($request, ['version' => '1.1']);
+        } elseif (!self::isProtocolVersionValid($protocolVersion)) {
+            \trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Sending a request with a malformed protocol version is deprecated; guzzlehttp/guzzle 8.0 will reject malformed protocol versions.');
+        }
+
         /** @var HandlerStack $handler */
         $handler = $options['handler'];
 
@@ -349,7 +1054,12 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             if (array_keys($options['headers']) === range(0, count($options['headers']) - 1)) {
                 throw new InvalidArgumentException('The headers array must have header name as keys.');
             }
-            $modify['set_headers'] = $options['headers'];
+            $headers = $options['headers'];
+            $droppedHeaderNames = self::castDeprecatedHeaderOptionValues($headers);
+            if ($droppedHeaderNames !== [] && isset($options['_conditional'])) {
+                $options['_conditional'] = Psr7\Utils::caselessRemove($droppedHeaderNames, $options['_conditional']);
+            }
+            $modify['set_headers'] = $headers;
             unset($options['headers']);
         }
 
@@ -361,7 +1071,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
                     .'x-www-form-urlencoded requests, and the multipart '
                     .'option to send multipart/form-data requests.');
             }
-            $options['body'] = \http_build_query($options['form_params'], '', '&');
+            $options['body'] = \http_build_query(self::normalizeNonFiniteFloats($options['form_params'], 'form_params'), '', '&');
             unset($options['form_params']);
             // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Content-Type'], $options['_conditional']);
@@ -381,19 +1091,17 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             $options['_conditional']['Content-Type'] = 'application/json';
         }
 
-        if (!empty($options['decode_content'])
-            && $options['decode_content'] !== true
-        ) {
+        if (isset($options['decode_content']) && \is_string($options['decode_content'])) {
             // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Accept-Encoding'], $options['_conditional']);
-            $modify['set_headers']['Accept-Encoding'] = $options['decode_content'];
+            $modify['set_headers']['Accept-Encoding'] = (string) $options['decode_content'];
         }
 
         if (isset($options['body'])) {
             if (\is_array($options['body'])) {
                 throw $this->invalidBody();
             }
-            $modify['body'] = Psr7\Utils::streamFor($options['body']);
+            $modify['body'] = self::createBodyStream($options['body']);
             unset($options['body']);
         }
 
@@ -413,6 +1121,11 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
                     $options['curl'][\CURLOPT_USERPWD] = "$value[0]:$value[1]";
                     break;
                 case 'ntlm':
+                    \trigger_deprecation(
+                        'guzzlehttp/guzzle',
+                        '7.12',
+                        'Passing "ntlm" as the built-in auth type is deprecated; guzzlehttp/guzzle 8.0 will no longer apply NTLM through the "auth" request option. Configure NTLM with cURL HTTP authentication options instead.'
+                    );
                     $options['curl'][\CURLOPT_HTTPAUTH] = \CURLAUTH_NTLM;
                     $options['curl'][\CURLOPT_USERPWD] = "$value[0]:$value[1]";
                     break;
@@ -422,7 +1135,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         if (isset($options['query'])) {
             $value = $options['query'];
             if (\is_array($value)) {
-                $value = \http_build_query($value, '', '&', \PHP_QUERY_RFC3986);
+                $value = \http_build_query(self::normalizeNonFiniteFloats($value, 'query'), '', '&', \PHP_QUERY_RFC3986);
             }
             if (!\is_string($value)) {
                 throw new InvalidArgumentException('query must be a string or array');
@@ -440,7 +1153,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         }
 
         if (isset($options['version'])) {
-            $modify['version'] = $options['version'];
+            $modify['version'] = self::normalizeProtocolVersion($options['version']);
         }
 
         $request = Psr7\Utils::modifyRequest($request, $modify);
@@ -457,8 +1170,9 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             // Build up the changes so it's in a single clone of the message.
             $modify = [];
             foreach ($options['_conditional'] as $k => $v) {
-                if (!$request->hasHeader($k)) {
-                    $modify['set_headers'][$k] = $v;
+                $name = (string) $k;
+                if (!$request->hasHeader($name)) {
+                    $modify['set_headers'][$name] = $v;
                 }
             }
             $request = Psr7\Utils::modifyRequest($request, $modify);
@@ -467,6 +1181,134 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         }
 
         return $request;
+    }
+
+    /**
+     * @param array<array-key, mixed> $headers
+     *
+     * @return list<string>
+     */
+    private static function castDeprecatedHeaderOptionValues(array &$headers): array
+    {
+        $droppedHeaderNames = [];
+
+        foreach ($headers as $name => $value) {
+            if (\is_array($value)) {
+                if ($value === []) {
+                    $droppedHeaderNames[] = (string) $name;
+                    unset($headers[$name]);
+
+                    continue;
+                }
+
+                foreach ($value as $index => $item) {
+                    if ($item === null || (!\is_string($item) && \is_scalar($item))) {
+                        if (\is_float($item) && !\is_finite($item)) {
+                            $item = \is_nan($item) ? 'NAN' : ($item > 0 ? 'INF' : '-INF');
+                        }
+                        $value[$index] = (string) $item;
+                    }
+                }
+
+                $headers[$name] = $value;
+
+                continue;
+            }
+
+            if ($value === null || (!\is_string($value) && \is_scalar($value))) {
+                if (\is_float($value) && !\is_finite($value)) {
+                    $value = \is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+                }
+                $headers[$name] = (string) $value;
+            }
+        }
+
+        return $droppedHeaderNames;
+    }
+
+    /**
+     * @param mixed $body
+     */
+    private static function createBodyStream($body): StreamInterface
+    {
+        if ($body instanceof StreamInterface) {
+            return $body;
+        }
+
+        if (\is_resource($body) || $body === null || \is_string($body) || $body instanceof \Iterator) {
+            return Psr7\Utils::streamFor($body);
+        }
+
+        if (\is_scalar($body)) {
+            \trigger_deprecation('guzzlehttp/guzzle', '7.12', 'Passing a non-string scalar to the "body" request option is deprecated; guzzlehttp/guzzle 8.0 will reject non-string scalar bodies.');
+
+            return Psr7\Utils::streamFor(self::stringifyScalar($body));
+        }
+
+        if (\is_object($body) && \method_exists($body, '__toString')) {
+            return Psr7\Utils::streamFor((string) $body);
+        }
+
+        if (\is_callable($body)) {
+            return Psr7\Utils::streamFor($body);
+        }
+
+        throw new InvalidArgumentException(\sprintf(
+            'Passing %s to request option "body" is invalid; expected resource|string|null|int|float|bool|StreamInterface|callable&object|Iterator|Stringable.',
+            \get_debug_type($body)
+        ));
+    }
+
+    /**
+     * @param bool|float|int|string $value
+     */
+    private static function stringifyScalar($value): string
+    {
+        // Normalize non-finite floats to dodge PHP 8.5's (string) NAN
+        // coercion warning while the value is still accepted.
+        if (\is_float($value) && !\is_finite($value)) {
+            $value = \is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Converts non-finite floats in the array to the strings PHP coerces
+     * them to, as implicit coercion of NAN emits a warning on PHP 8.5.
+     */
+    private static function normalizeNonFiniteFloats(array $values, string $option): array
+    {
+        foreach ($values as $key => $value) {
+            if (\is_array($value)) {
+                $values[$key] = self::normalizeNonFiniteFloats($value, $option);
+            } elseif (\is_float($value) && !\is_finite($value)) {
+                \trigger_deprecation('guzzlehttp/guzzle', '7.12', 'Passing a non-finite float in the "%s" request option is deprecated; guzzlehttp/guzzle 8.0 will reject non-finite floats.', $option);
+
+                $values[$key] = \is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param string|int|float $version
+     */
+    private static function normalizeProtocolVersion($version): string
+    {
+        if ('' === $version) {
+            \trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Passing an empty "version" request option is deprecated; guzzlehttp/guzzle 8.0 will reject empty protocol versions.');
+
+            return '1.1';
+        }
+
+        return \is_float($version) ? \number_format($version, 1, '.', '') : (string) $version;
+    }
+
+    private static function isProtocolVersionValid(string $version): bool
+    {
+        return 1 === \preg_match('/^\d+(?:\.\d+)?$/D', $version);
     }
 
     /**

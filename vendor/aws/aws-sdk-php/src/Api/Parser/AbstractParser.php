@@ -5,6 +5,7 @@ use Aws\Api\Service;
 use Aws\Api\StructureShape;
 use Aws\CommandInterface;
 use Aws\ResultInterface;
+use GuzzleHttp\Psr7\CachingStream;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -43,4 +44,27 @@ abstract class AbstractParser
         StructureShape $member,
         $response
     );
+
+    public static function getBodyContents(ResponseInterface $response): string
+    {
+        $body = $response->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
+        return $body->getContents();
+    }
+
+    public static function getResponseWithCachingStream(
+        ResponseInterface $response
+    ): ResponseInterface
+    {
+        if (!$response->getBody()->isSeekable()) {
+            return $response->withBody(
+                new CachingStream($response->getBody())
+            );
+        }
+
+        return $response;
+    }
 }

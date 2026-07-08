@@ -298,9 +298,10 @@ class Lexer
                     $buffer .= $current;
                     $current = next($chars);
                 } while ($current !== false && isset($this->numbers[$current]));
+                $value = $this->parseIndexNumber($buffer);
                 $tokens[] = [
-                    'type'  => self::T_NUMBER,
-                    'value' => (int)$buffer,
+                    'type'  => $value === null ? self::T_UNKNOWN : self::T_NUMBER,
+                    'value' => $value === null ? $buffer : $value,
                     'pos'   => $start
                 ];
 
@@ -415,6 +416,30 @@ class Lexer
         next($chars);
 
         return ['type' => $type, 'value' => $buffer, 'pos' => $position];
+    }
+
+    /**
+     * Parses a bare index/slice integer token ("-"? digit+). Returns null
+     * when the buffer is a lone "-" or the value cannot be represented as a
+     * PHP integer.
+     */
+    private function parseIndexNumber($buffer)
+    {
+        if ($buffer === '-') {
+            return null;
+        }
+
+        $negative = $buffer[0] === '-';
+        $digits = ltrim($negative ? substr($buffer, 1) : $buffer, '0') ?: '0';
+        $limit = $negative ? substr((string) PHP_INT_MIN, 1) : (string) PHP_INT_MAX;
+
+        if (strlen($digits) > strlen($limit)
+            || (strlen($digits) === strlen($limit) && strcmp($digits, $limit) > 0)
+        ) {
+            return null;
+        }
+
+        return (int) $buffer;
     }
 
     /**

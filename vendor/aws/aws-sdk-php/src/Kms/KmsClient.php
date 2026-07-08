@@ -56,6 +56,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise generateMacAsync(array $args = [])
  * @method \Aws\Result generateRandom(array $args = [])
  * @method \GuzzleHttp\Promise\Promise generateRandomAsync(array $args = [])
+ * @method \Aws\Result getKeyLastUsage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getKeyLastUsageAsync(array $args = [])
  * @method \Aws\Result getKeyPolicy(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getKeyPolicyAsync(array $args = [])
  * @method \Aws\Result getKeyRotationStatus(array $args = [])

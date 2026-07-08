@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## 2.9.2 - 2026-07-06
+
+* Pass explicit trim characters ahead of the PHP 8.6 trim default change.
+
+## 2.9.1 - 2026-06-11
+
+* Fixed the compiled runtime to emit function names as string literals, preventing arbitrary code execution.
+* Fixed the parser to reject non-identifier function callees, such as literal and raw string callees.
+
+## 2.9.0 - 2026-06-10
+
+* Added PHP 8.5 support.
+* Fixed to_number() to parse number strings using the JSON number grammar.
+* Fixed reverse() and string slicing to operate on UTF-8 characters rather than bytes.
+* Fixed slicing of array-like (ArrayAccess + Countable) values.
+* Fixed equality and contains() to use JSON semantics, e.g. 1 == 1.0 is now true.
+* Fixed multi-select hashes to end projections, so following tokens apply to the projected list.
+* Fixed sort() and sort_by() to compare numbers numerically.
+* Changed sort(), sort_by(), max(), min(), max_by() and min_by() to order strings by code point.
+* Fixed max_by() and min_by() to error on mixed-type keys instead of returning arbitrary elements.
+* Fixed max() returning null or erroring when the first array element is falsy, e.g. max([0, 1]).
+* Fixed sum() and join() to return 0 and an empty string respectively for empty arrays.
+* Fixed 0.0 to be truthy in filters and logical operators, like every other number.
+* Fixed the compiled runtime to apply JMESPath truthiness to || and &&.
+* Fixed @(foo), foo[-] and oversized index literals to throw syntax errors.
+* Fixed PHP warnings emitted while parsing certain invalid expressions.
+* Fixed the caret position in syntax error messages for errors at the end of an expression.
+* Fixed map() to error on non-array second arguments instead of returning [].
+* Fixed Env::cleanCompileDir() when JP_PHP_COMPILE=on.
+
 ## 2.8.0 - 2024-09-04
 
 * Add support for PHP 8.4.

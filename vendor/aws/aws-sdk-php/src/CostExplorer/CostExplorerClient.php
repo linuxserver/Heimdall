@@ -73,6 +73,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listCostAllocationTagsAsync(array $args = [])
  * @method \Aws\Result listCostCategoryDefinitions(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listCostCategoryDefinitionsAsync(array $args = [])
+ * @method \Aws\Result listCostCategoryResourceAssociations(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listCostCategoryResourceAssociationsAsync(array $args = [])
  * @method \Aws\Result listSavingsPlansPurchaseRecommendationGeneration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listSavingsPlansPurchaseRecommendationGenerationAsync(array $args = [])
  * @method \Aws\Result listTagsForResource(array $args = [])

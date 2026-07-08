@@ -28,10 +28,24 @@ class RestJsonParser extends AbstractRestParser
         StructureShape $member,
         array &$result
     ) {
-        $jsonBody = $this->parseJson($response->getBody(), $response);
+        $rawBody = AbstractParser::getBodyContents($response);
 
-        if ($jsonBody) {
-            $result += $this->parser->parse($member, $jsonBody);
+        // Parse JSON if we have content
+        if (!empty($rawBody)) {
+            $parsedJson = $this->parseJson($rawBody, $response);
+        } else {
+            // An empty response body should be deserialized as null
+            $result = null;
+            return;
+        }
+
+        $parsedBody = $this->parser->parse($member, $parsedJson);
+        if (is_string($parsedBody) && $member['document']) {
+            // Document types can be strings: replace entire result
+            $result = $parsedBody;
+        } else {
+            // Merge array/object results into existing result
+            $result = array_merge($result, (array) $parsedBody);
         }
     }
 

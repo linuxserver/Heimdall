@@ -69,6 +69,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getResourceLFTagsAsync(array $args = [])
  * @method \Aws\Result getTableObjects(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTableObjectsAsync(array $args = [])
+ * @method \Aws\Result getTemporaryDataLocationCredentials(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getTemporaryDataLocationCredentialsAsync(array $args = [])
  * @method \Aws\Result getTemporaryGluePartitionCredentials(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getTemporaryGluePartitionCredentialsAsync(array $args = [])
  * @method \Aws\Result getTemporaryGlueTableCredentials(array $args = [])

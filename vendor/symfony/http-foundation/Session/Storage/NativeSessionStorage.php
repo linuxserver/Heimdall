@@ -123,7 +123,7 @@ class NativeSessionStorage implements SessionStorageInterface
          * ---------- Part 1
          *
          * The part `[a-zA-Z0-9,-]` is related to the PHP ini directive `session.sid_bits_per_character` defined as 6.
-         * See https://www.php.net/manual/en/session.configuration.php#ini.session.sid-bits-per-character.
+         * See https://php.net/session.configuration#ini.session.sid-bits-per-character
          * Allowed values are integers such as:
          * - 4 for range `a-f0-9`
          * - 5 for range `a-v0-9` (@deprecated since Symfony 7.2, it will default to 4 and the option will be ignored in Symfony 8.0)
@@ -132,7 +132,7 @@ class NativeSessionStorage implements SessionStorageInterface
          * ---------- Part 2
          *
          * The part `{22,250}` is related to the PHP ini directive `session.sid_length`.
-         * See https://www.php.net/manual/en/session.configuration.php#ini.session.sid-length.
+         * See https://php.net/session.configuration#ini.session.sid-length
          * Allowed values are integers between 22 and 256, but we use 250 for the max.
          *
          * Where does the 250 come from?

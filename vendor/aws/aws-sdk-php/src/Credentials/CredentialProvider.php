@@ -43,15 +43,19 @@ use GuzzleHttp\Promise;
  */
 class CredentialProvider
 {
-    const ENV_ARN = 'AWS_ROLE_ARN';
-    const ENV_KEY = 'AWS_ACCESS_KEY_ID';
-    const ENV_PROFILE = 'AWS_PROFILE';
-    const ENV_ROLE_SESSION_NAME = 'AWS_ROLE_SESSION_NAME';
-    const ENV_SECRET = 'AWS_SECRET_ACCESS_KEY';
-    const ENV_ACCOUNT_ID = 'AWS_ACCOUNT_ID';
-    const ENV_SESSION = 'AWS_SESSION_TOKEN';
-    const ENV_TOKEN_FILE = 'AWS_WEB_IDENTITY_TOKEN_FILE';
-    const ENV_SHARED_CREDENTIALS_FILE = 'AWS_SHARED_CREDENTIALS_FILE';
+    public const ENV_ARN = 'AWS_ROLE_ARN';
+    public const ENV_KEY = 'AWS_ACCESS_KEY_ID';
+    public const ENV_PROFILE = 'AWS_PROFILE';
+    public const ENV_ROLE_SESSION_NAME = 'AWS_ROLE_SESSION_NAME';
+    public const ENV_SECRET = 'AWS_SECRET_ACCESS_KEY';
+    public const ENV_ACCOUNT_ID = 'AWS_ACCOUNT_ID';
+    public const ENV_SESSION = 'AWS_SESSION_TOKEN';
+    public const ENV_TOKEN_FILE = 'AWS_WEB_IDENTITY_TOKEN_FILE';
+    public const ENV_SHARED_CREDENTIALS_FILE = 'AWS_SHARED_CREDENTIALS_FILE';
+    public const ENV_CONFIG_FILE = 'AWS_CONFIG_FILE';
+    public const ENV_REGION = 'AWS_REGION';
+    public const FALLBACK_REGION = 'us-east-1';
+    public const REFRESH_WINDOW = 60;
 
     /**
      * Create a default credential provider that
@@ -79,6 +83,7 @@ class CredentialProvider
         $cacheable = [
             'web_identity',
             'sso',
+            'login',
             'process_credentials',
             'process_config',
             'ecs',
@@ -91,24 +96,24 @@ class CredentialProvider
             'env' => self::env(),
             'web_identity' => self::assumeRoleWithWebIdentityCredentialProvider($config),
         ];
-        if (
-            !isset($config['use_aws_shared_config_files'])
+        if (!isset($config['use_aws_shared_config_files'])
             || $config['use_aws_shared_config_files'] !== false
         ) {
             $defaultChain['sso'] = self::sso(
                 $profileName,
-                self::getHomeDir() . '/.aws/config',
+                self::getConfigFileName(),
                 $config
             );
+            $defaultChain['login'] = self::login($profileName, $config);
             $defaultChain['process_credentials'] = self::process();
-            $defaultChain['ini'] = self::ini();
+            $defaultChain['ini'] = self::ini(null, null, $config);
             $defaultChain['process_config'] = self::process(
                 'profile ' . $profileName,
-                self::getHomeDir() . '/.aws/config'
+                self::getConfigFileName()
             );
             $defaultChain['ini_config'] = self::ini(
                 'profile '. $profileName,
-                self::getHomeDir() . '/.aws/config'
+                self::getConfigFileName()
             );
         }
 
@@ -224,10 +229,14 @@ class CredentialProvider
                         return $creds;
                     }
 
-                    // Refresh expired credentials.
-                    if (!$creds->isExpired()) {
+                    // Check if credentials are expired or will expire in 1 minute
+                    $needsRefresh = $creds->getExpiration() - time() <= self::REFRESH_WINDOW;
+
+                    // Refresh if expired or expiring soon
+                    if (!$needsRefresh && !$creds->isExpired()) {
                         return $creds;
                     }
+
                     // Refresh the result and forward the promise.
                     return $result = $provider($creds);
                 })
@@ -332,11 +341,12 @@ class CredentialProvider
      *
      * @return callable
      */
-    public static function sso($ssoProfileName = 'default',
-                               $filename = null,
-                               $config = []
+    public static function sso(
+        $ssoProfileName = 'default',
+        $filename = null,
+        $config = []
     ) {
-        $filename = $filename ?: (self::getHomeDir() . '/.aws/config');
+        $filename = $filename ?? self::getConfigFileName();
 
         return function () use ($ssoProfileName, $filename, $config) {
             if (!@is_readable($filename)) {
@@ -482,17 +492,13 @@ class CredentialProvider
      */
     public static function ini($profile = null, $filename = null, array $config = [])
     {
-        $filename = self::getFileName($filename);
+        $filename = self::getCredentialsFileName($filename);
         $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
 
         return function () use ($profile, $filename, $config) {
-            $preferStaticCredentials = isset($config['preferStaticCredentials'])
-                ? $config['preferStaticCredentials']
-                : false;
-            $disableAssumeRole = isset($config['disableAssumeRole'])
-                ? $config['disableAssumeRole']
-                : false;
-            $stsClient = isset($config['stsClient']) ? $config['stsClient'] : null;
+            $preferStaticCredentials = $config['preferStaticCredentials'] ?? false;
+            $disableAssumeRole = $config['disableAssumeRole'] ?? false;
+            $stsClient = $config['stsClient'] ?? null;
 
             if (!@is_readable($filename)) {
                 return self::reject("Cannot read credentials from $filename");
@@ -576,7 +582,7 @@ class CredentialProvider
      */
     public static function process($profile = null, $filename = null)
     {
-        $filename = self::getFileName($filename);
+        $filename = self::getCredentialsFileName($filename);
         $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
 
         return function () use ($profile, $filename) {
@@ -653,6 +659,41 @@ class CredentialProvider
     }
 
     /**
+     * Login credential provider for AWS local development using console credentials
+     *
+     * @param string|null $profileName profile containing your console login session information
+     * @param array $config region used for refresh requests.
+     *                      pass `'region' => <your_region>` to configure a region,
+     *                      otherwise, provider construction falls back to AWS_REGION,
+     *                      then the profile specified for `login`
+     *
+     * @return callable
+     */
+    public static function login(
+        ?string $profileName = null,
+        array $config = [],
+    ): callable
+    {
+        $resolvedProfile = $profileName ?? getenv(self::ENV_PROFILE) ?: 'default';
+
+        return static function () use ($resolvedProfile, $config) {
+            try {
+                $provider = new LoginCredentialProvider(
+                    $resolvedProfile,
+                    $config['region'] ?? null
+                );
+            } catch (\Exception $e) {
+                return self::reject(
+                    "Failed to initialize login credential provider for profile '{$resolvedProfile}': " 
+                    . $e->getMessage()
+                );
+            }
+
+            return $provider();
+        };
+    }
+
+    /**
      * Assumes role for profile that includes role_arn
      *
      * @return callable
@@ -665,13 +706,11 @@ class CredentialProvider
         $config = []
     ) {
         $roleProfile = $profiles[$profileName];
-        $roleArn = isset($roleProfile['role_arn']) ? $roleProfile['role_arn'] : '';
-        $roleSessionName = isset($roleProfile['role_session_name'])
-            ? $roleProfile['role_session_name']
-            : 'aws-sdk-php-' . round(microtime(true) * 1000);
+        $roleArn = $roleProfile['role_arn'] ?? '';
+        $roleSessionName = $roleProfile['role_session_name']
+            ?? 'aws-sdk-php-' . round(microtime(true) * 1000);
 
-        if (
-            empty($roleProfile['source_profile'])
+        if (empty($roleProfile['source_profile'])
             == empty($roleProfile['credential_source'])
         ) {
             return self::reject("Either source_profile or credential_source must be set " .
@@ -703,9 +742,6 @@ class CredentialProvider
         }
 
         if (empty($stsClient)) {
-            $sourceRegion = isset($profiles[$sourceProfileName]['region'])
-                ? $profiles[$sourceProfileName]['region']
-                : 'us-east-1';
             $config['preferStaticCredentials'] = true;
             $sourceCredentials = null;
             if (!empty($roleProfile['source_profile'])){
@@ -718,11 +754,13 @@ class CredentialProvider
                     $filename
                 );
             }
-            $stsClient = new StsClient([
-                'credentials' => $sourceCredentials,
-                'region' => $sourceRegion,
-                'version' => '2011-06-15',
-            ]);
+
+            $region = $profiles[$sourceProfileName]['region']
+                ?? $config['region']
+                ?? getEnv(self::ENV_REGION)
+                ?: null;
+
+            $stsClient = self::createDefaultStsClient($sourceCredentials, $region);
         }
 
         $result = $stsClient->assumeRole([
@@ -742,7 +780,7 @@ class CredentialProvider
      *
      * @return null|string
      */
-    private static function getHomeDir()
+    public static function getHomeDir()
     {
         // On Linux/Unix-like systems, use the HOME environment variable
         if ($homeDir = getenv('HOME')) {
@@ -759,7 +797,7 @@ class CredentialProvider
     /**
      * Gets profiles from specified $filename, or default ini files.
      */
-    private static function loadProfiles($filename)
+    public static function loadProfiles($filename)
     {
         $profileData = \Aws\parse_ini_file($filename, true, INI_SCANNER_RAW);
 
@@ -767,7 +805,7 @@ class CredentialProvider
         if ($filename === self::getHomeDir() . '/.aws/credentials'
             && getenv('AWS_SDK_LOAD_NONDEFAULT_CONFIG')
         ) {
-            $configFilename = self::getHomeDir() . '/.aws/config';
+            $configFilename = self::getConfigFileName();
             $configProfileData = \Aws\parse_ini_file($configFilename, true, INI_SCANNER_RAW);
             foreach ($configProfileData as $name => $profile) {
                 // standardize config profile names
@@ -784,7 +822,8 @@ class CredentialProvider
     /**
      * Gets profiles from ~/.aws/credentials and ~/.aws/config ini files
      */
-    private static function loadDefaultProfiles() {
+    private static function loadDefaultProfiles()
+    {
         $profiles = [];
         $credFile = self::getHomeDir() . '/.aws/credentials';
         $configFile = self::getHomeDir() . '/.aws/config';
@@ -855,15 +894,32 @@ class CredentialProvider
     }
 
     /**
+     * Locates shared configuration file by first checking for AWS_CONFIG,
+     * then falling back to the default location.  Returns the path of the
+     * resolved configuration file.
+     *
+     * @return string
+     */
+    public static function getConfigFileName(): string
+    {
+        return getenv(self::ENV_CONFIG_FILE) ?: self::getHomeDir() . '/.aws/config';
+    }
+
+    /**
+     *  Locates credentials file by first checking for AWS_SHARED_CREDENTIALS_FILE,
+     *  then falling back to the default location.  Returns the path of the
+     *  resolved credentials file.
+     *
      * @param $filename
      * @return string
      */
-    private static function getFileName($filename)
+    public static function getCredentialsFileName($filename): string
     {
         if (!isset($filename)) {
             $filename = getenv(self::ENV_SHARED_CREDENTIALS_FILE) ?:
                 (self::getHomeDir() . '/.aws/credentials');
         }
+
         return $filename;
     }
 
@@ -1020,6 +1076,38 @@ class CredentialProvider
 
         $ssoCredentials = $ssoResponse['roleCredentials'];
         return $ssoCredentials;
+    }
+
+    /**
+     * @param CredentialsInterface $credentials
+     * @param string|null $region
+     *
+     * @return StsClient
+     */
+    private static function createDefaultStsClient(
+        CredentialsInterface|callable $credentials,
+        ?string $region
+    ): StsClient
+    {
+        if (empty($region)) {
+            $region = self::FALLBACK_REGION;
+            trigger_error(
+                'NOTICE: STS client created without explicit `region` configuration.' . PHP_EOL
+                . "Defaulting to `{$region}`. This fallback behavior may be removed." . PHP_EOL
+                . 'To avoid potential disruptions, configure a `region` using one of the following methods:' . PHP_EOL
+                . '(1) Add `region` to your source profile in ~/.aws/credentials,' . PHP_EOL
+                . '(2) Pass `region` in the `$config` array when calling the provider,' . PHP_EOL
+                . '(3) Set the `AWS_REGION` environment variable.' . PHP_EOL
+                . 'See: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_assume_role.html#assume-role-with-profile'
+                . PHP_EOL,
+                E_USER_NOTICE
+            );
+        }
+
+        return new StsClient([
+            'credentials' => $credentials,
+            'region' => $region
+        ]);
     }
 }
 

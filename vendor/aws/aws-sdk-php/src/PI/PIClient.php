@@ -23,6 +23,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listAvailableResourceDimensionsAsync(array $args = [])
  * @method \Aws\Result listAvailableResourceMetrics(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listAvailableResourceMetricsAsync(array $args = [])
+ * @method \Aws\Result listPerformanceAnalysisReportRecommendations(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listPerformanceAnalysisReportRecommendationsAsync(array $args = [])
  * @method \Aws\Result listPerformanceAnalysisReports(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listPerformanceAnalysisReportsAsync(array $args = [])
  * @method \Aws\Result listTagsForResource(array $args = [])

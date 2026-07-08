@@ -8,10 +8,10 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "ext-intl": "*",
         "ext-json": "*",
-        "enshrined/svg-sanitize": "^0.21.0",
+        "enshrined/svg-sanitize": "^0.22.0",
         "graham-campbell/github": "^12.5",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.45",
@@ -84,6 +84,9 @@
             "kylekatarnls/update-helper": true,
             "symfony/thanks": true,
             "php-http/discovery": true
+        },
+        "platform": {
+
         }
     },
     "minimum-stability": "stable",

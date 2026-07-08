@@ -31,5 +31,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
+ * @method \Aws\Result updateFHIRDatastore(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateFHIRDatastoreAsync(array $args = [])
  */
 class HealthLakeClient extends AwsClient {}

@@ -51,6 +51,18 @@ class Pool implements PromisorInterface
             $opts = [];
         }
 
+        if (!\is_iterable($requests)) {
+            \trigger_deprecation(
+                'guzzlehttp/guzzle',
+                '7.11',
+                'Passing a non-iterable request collection to %s::__construct() or %s::batch() is deprecated; guzzlehttp/guzzle 8.0 will require an iterable.',
+                __CLASS__,
+                __CLASS__
+            );
+
+            $requests = [$requests];
+        }
+
         $iterable = P\Create::iterFor($requests);
         $requests = static function () use ($iterable, $client, $opts) {
             foreach ($iterable as $key => $rfn) {
@@ -59,7 +71,7 @@ class Pool implements PromisorInterface
                 } elseif (\is_callable($rfn)) {
                     yield $key => $rfn($opts);
                 } else {
-                    throw new \InvalidArgumentException('Each value yielded by the iterator must be a Psr7\Http\Message\RequestInterface or a callable that returns a promise that fulfills with a Psr7\Message\Http\ResponseInterface object.');
+                    throw new \InvalidArgumentException('Each value yielded by the iterator must be a Psr\Http\Message\RequestInterface or a callable that returns a promise that fulfills with a Psr\Http\Message\ResponseInterface object.');
                 }
             }
         };

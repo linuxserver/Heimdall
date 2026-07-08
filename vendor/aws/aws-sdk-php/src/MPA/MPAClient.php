@@ -41,6 +41,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result startActiveApprovalTeamDeletion(array $args = [])
  * @method \GuzzleHttp\Promise\Promise startActiveApprovalTeamDeletionAsync(array $args = [])
+ * @method \Aws\Result startApprovalTeamBaseline(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startApprovalTeamBaselineAsync(array $args = [])
  * @method \Aws\Result tagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])

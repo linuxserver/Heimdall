@@ -215,6 +215,7 @@ class ConstExprEvaluator {
             case '<':   return $this->evaluate($l) <   $this->evaluate($r);
             case '<=':  return $this->evaluate($l) <=  $this->evaluate($r);
             case '<=>': return $this->evaluate($l) <=> $this->evaluate($r);
+            case '|>':  return ($this->fallbackEvaluator)($expr);
         }
 
         throw new \Exception('Should not happen');

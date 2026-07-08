@@ -8,7 +8,7 @@ class Tokenizer {
      *
      * @var array
      */
-    private $map = [
+    private const MAP = [
         '(' => 'T_OPEN_BRACKET',
         ')' => 'T_CLOSE_BRACKET',
         '[' => 'T_OPEN_SQUARE',
@@ -58,7 +58,7 @@ class Tokenizer {
             if (\is_string($tok)) {
                 $token = new Token(
                     $lastToken->getLine(),
-                    $this->map[$tok],
+                    self::MAP[$tok],
                     $tok
                 );
                 $result->addToken($token);
@@ -110,35 +110,37 @@ class Tokenizer {
         );
 
         $final = new TokenCollection();
+        $prevLine = $prev->getLine();
 
         foreach ($tokens as $token) {
-            $gap = $token->getLine() - $prev->getLine();
+            $line = $token->getLine();
+            $gap = $line - $prevLine;
 
             while ($gap > 1) {
                 $linebreak = new Token(
-                    $prev->getLine() + 1,
+                    $prevLine + 1,
                     'T_WHITESPACE',
                     ''
                 );
                 $final->addToken($linebreak);
-                $prev = $linebreak;
+                $prevLine = $linebreak->getLine();
                 $gap--;
             }
 
             $final->addToken($token);
-            $prev = $token;
+            $prevLine = $line;
         }
 
-        $gap = $maxLine - $prev->getLine();
+        $gap = $maxLine - $prevLine;
 
         while ($gap > 0) {
             $linebreak = new Token(
-                $prev->getLine() + 1,
+                $prevLine + 1,
                 'T_WHITESPACE',
                 ''
             );
             $final->addToken($linebreak);
-            $prev = $linebreak;
+            $prevLine = $linebreak->getLine();
             $gap--;
         }
 

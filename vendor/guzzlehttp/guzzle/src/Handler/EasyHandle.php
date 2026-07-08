@@ -51,12 +51,25 @@ final class EasyHandle
     public $errno = 0;
 
     /**
+     * @var string|null Effective CURLOPT_PROXY value the handle was created with (if any)
+     */
+    public $effectiveProxy;
+
+    /**
+     * Proxy tunnel section signature for connection-reuse isolation, or
+     * null when the request does not require sectioning.
+     *
+     * @var string|null
+     */
+    public $proxyTunnelSignature;
+
+    /**
      * @var \Throwable|null Exception during on_headers (if any)
      */
     public $onHeadersException;
 
     /**
-     * @var \Exception|null Exception during createResponse (if any)
+     * @var \Throwable|null Exception during createResponse (if any)
      */
     public $createResponseException;
 
@@ -68,11 +81,13 @@ final class EasyHandle
      */
     public function createResponse(): void
     {
+        $this->response = null;
+
         [$ver, $status, $reason, $headers] = HeaderProcessor::parseHeaders($this->headers);
 
         $normalizedKeys = Utils::normalizeHeaderKeys($headers);
 
-        if (!empty($this->options['decode_content']) && isset($normalizedKeys['content-encoding'])) {
+        if (isset($this->options['decode_content']) && $this->options['decode_content'] !== false && isset($normalizedKeys['content-encoding'])) {
             $headers['x-encoded-content-encoding'] = $headers[$normalizedKeys['content-encoding']];
             unset($headers[$normalizedKeys['content-encoding']]);
             if (isset($normalizedKeys['content-length'])) {
@@ -80,7 +95,7 @@ final class EasyHandle
 
                 $bodyLength = (int) $this->sink->getSize();
                 if ($bodyLength) {
-                    $headers[$normalizedKeys['content-length']] = $bodyLength;
+                    $headers[$normalizedKeys['content-length']] = [(string) $bodyLength];
                 } else {
                     unset($headers[$normalizedKeys['content-length']]);
                 }

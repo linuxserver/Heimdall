@@ -37,6 +37,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
  * @method \Aws\Result untagResource(array $args = [])
  * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
+ * @method \Aws\Result updateCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateClusterAsync(array $args = [])
  * @method \Aws\Result updateComputeNodeGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateComputeNodeGroupAsync(array $args = [])
  * @method \Aws\Result updateQueue(array $args = [])

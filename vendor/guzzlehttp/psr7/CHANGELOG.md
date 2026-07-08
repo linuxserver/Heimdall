@@ -5,6 +5,144 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.12.3 - 2026-06-23
+
+### Security
+
+- Validate the URI host so `getHost()` matches the URI authority (GHSA-c2w2-prh8-qm98)
+
+## 2.12.2 - 2026-06-23
+
+### Fixed
+
+- Report URI parsing, filtering, and normalization PCRE failures explicitly
+- Report HTTP message parser PCRE failures explicitly
+- Fail closed when PCRE validation fails for request targets and hosts
+
+## 2.12.1 - 2026-06-18
+
+### Security
+
+- Reject CR/LF in HTTP method, protocol version, and reason phrase (GHSA-vm85-hxw5-5432)
+
+## 2.12.0 - 2026-06-16
+
+### Deprecated
+
+- Deprecated non-finite float values in `Query::build()` that guzzlehttp/psr7 3.0 rejects
+- Deprecated non-finite float multipart contents that guzzlehttp/psr7 3.0 rejects
+- Deprecated non-string scalar bodies in `Utils::streamFor()`; cast them to a string for 3.0
+- Deprecated non-string `Uri::withQueryValues()` values; cast them to a string for 3.0
+
+## 2.11.1 - 2026-06-12
+
+### Fixed
+
+- Fixed non-finite float values emitting coercion warnings on PHP 8.5
+
+## 2.11.0 - 2026-06-02
+
+### Changed
+
+- Changed `Utils::modifyRequest()` to reject conflicting URI and `Host` header changes in the same call
+- Changed `Header::parse()` to split semicolon-separated parameters without repeated regular expression lookaheads
+- Changed `UriComparator::isCrossOrigin()` so only HTTP and HTTPS missing ports receive implicit default ports
+
+### Deprecated
+
+- Deprecated invalid PSR-7 arguments that guzzlehttp/psr7 3.0 will require native types for
+- Deprecated non-string header values that guzzlehttp/psr7 3.0 will reject
+- Deprecated empty header value arrays that guzzlehttp/psr7 3.0 will reject
+- Deprecated URI schemes that do not match guzzlehttp/psr7 3.0 syntax requirements
+- Deprecated multipart boundary and custom part header metadata that guzzlehttp/psr7 3.0 will reject
+- Deprecated reliance on automatic uppercasing of request methods; guzzlehttp/psr7 3.0 preserves method casing
+- Deprecated invalid `Utils::modifyRequest()` change values that guzzlehttp/psr7 3.0 will reject
+
+### Fixed
+
+- Fixed `Utils::copyToStream()` to retry short destination writes instead of dropping the unwritten remainder
+- Fixed `Header::parse()` splitting of semicolon-separated parameters with escaped quotes
+
+## 2.10.4 - 2026-05-29
+
+### Fixed
+
+- Apply `UriNormalizer` percent-encoding normalizations to URI fragments
+- Make `LimitStream::getSize()` return `0` for slices past the underlying stream end
+- Make `AppendStream::read()` return an empty string when no streams are attached
+- Make `CachingStream::read()` throw on an incomplete cache-target write instead of silently corrupting replays
+- Prevent `CachingStream::seek()` from looping indefinitely when the remote stream makes no progress
+
+## 2.10.3 - 2026-05-27
+
+### Fixed
+
+- Fixed URI parsing for IPv6 literals containing embedded IPv4 addresses
+- Fixed malformed UTF-8 URI strings being parsed as empty URIs
+
+## 2.10.2 - 2026-05-25
+
+### Security
+
+- Reject control and whitespace characters in URI host components (GHSA-hq7v-mx3g-29hw)
+- Reject malformed Host values when constructing request URIs (GHSA-34xg-wgjx-8xph)
+
+### Fixed
+
+- Make `ServerRequest::fromGlobals()` robust against unexpected HTTP header value types in `$_SERVER`
+
+## 2.10.1 - 2026-05-20
+
+### Fixed
+
+- Fix `Utils::modifyRequest()` with numeric header names
+
+## 2.10.0 - 2026-05-19
+
+### Changed
+
+- Harden `ServerRequest::fromGlobals()` against malformed `$_SERVER` values
+- Prevent custom stream metadata from affecting internal size handling
+- Throw when `StreamWrapper::getResource()` cannot create a resource
+- Preserve custom request implementations in `Utils::modifyRequest()`
+- Preserve custom URI implementations in `UriResolver::resolve()`
+- Make `Uri::__toString()` side-effect-free
+
+## 2.9.1 - 2026-05-19
+
+### Fixed
+
+- Fix parsing of relative path references containing a colon in a non-initial path segment
+- Fix `CachingStream::detach()` returning an incomplete resource before the decorated stream has been fully read
+- Fix `Message::bodySummary()` returning `null` when truncating printable UTF-8 bodies inside a multibyte character
+
+## 2.9.0 - 2026-03-10
+
+### Added
+
+- Added nested array expansion support to `MultipartStream`
+- Added `@return static` to `MessageTrait` methods
+
+### Changed
+
+- Updated MIME type mappings
+
+## 2.8.1 - 2026-03-10
+
+### Fixed
+
+- Encode `+` signs in `Uri::withQueryValue()` and `Uri::withQueryValues()` to prevent them being interpreted as spaces
+
+## 2.8.0 - 2025-08-23
+
+### Added
+
+- Allow empty lists as header values
+
+### Changed
+
+- PHP 8.5 support
+
 ## 2.7.1 - 2025-03-27
 
 ### Fixed

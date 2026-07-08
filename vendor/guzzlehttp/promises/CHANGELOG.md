@@ -1,6 +1,41 @@
 # CHANGELOG
 
 
+## 2.5.0 - 2026-06-02
+
+### Deprecated
+
+- Deprecated passing non-iterable inputs to promise collection helpers and `EachPromise`
+
+
+## 2.4.1 - 2026-05-20
+
+### Fixed
+
+- Fixed cancelling settled coroutines when no current promise remains
+
+
+## 2.4.0 - 2026-05-20
+
+### Changed
+
+- Empty `EachPromise` instances now resolve when the task queue runs without `wait()`
+
+
+## 2.3.1 - 2026-05-19
+
+### Fixed
+
+- Fixed `Utils::inspect()` returning the internal reason array instead of the `AggregateException`
+
+
+## 2.3.0 - 2025-08-22
+
+### Added
+
+- PHP 8.5 support
+
+
 ## 2.2.0 - 2025-03-27
 
 ### Fixed

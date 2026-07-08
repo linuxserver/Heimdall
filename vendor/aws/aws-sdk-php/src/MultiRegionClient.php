@@ -91,12 +91,13 @@ class MultiRegionClient implements AwsClientInterface
                                 . ' or "aws-us-gov").'
                             );
                         }
-                        $ruleset = EndpointDefinitionProvider::getEndpointRuleset(
-                            $args['service'],
-                            isset($args['version']) ? $args['version'] : 'latest'
-                        );
                         $partitions = EndpointDefinitionProvider::getPartitions();
-                        $args['endpoint_provider'] = new EndpointProviderV2($ruleset, $partitions);
+                        $parsed = EndpointDefinitionProvider::getParsedRuleset(
+                            $args['service'],
+                            isset($args['version']) ? $args['version'] : 'latest',
+                            $partitions
+                        );
+                        $args['endpoint_provider'] = new EndpointProviderV2($parsed, $partitions);
                     }
                 ],
             ];
@@ -231,6 +232,7 @@ class MultiRegionClient implements AwsClientInterface
      */
     protected function getClientFromPool($region = '')
     {
+        $region = $region ?? '';
         if (empty($this->clientPool[$region])) {
             $factory = $this->factory;
             $this->clientPool[$region] = $factory(

@@ -20,6 +20,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise copyObjectAsync(array $args = [])
  * @method \Aws\Result createBucket(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createBucketAsync(array $args = [])
+ * @method \Aws\Result createBucketMetadataConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createBucketMetadataConfigurationAsync(array $args = [])
  * @method \Aws\Result createBucketMetadataTableConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result createMultipartUpload(array $args = [])
@@ -40,6 +42,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise deleteBucketInventoryConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketLifecycle(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteBucketLifecycleAsync(array $args = [])
+ * @method \Aws\Result deleteBucketMetadataConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteBucketMetadataConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketMetadataTableConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result deleteBucketMetricsConfiguration(array $args = [])
@@ -56,12 +60,16 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise deleteBucketWebsiteAsync(array $args = [])
  * @method \Aws\Result deleteObject(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteObjectAsync(array $args = [])
+ * @method \Aws\Result deleteObjectAnnotation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteObjectAnnotationAsync(array $args = [])
  * @method \Aws\Result deleteObjectTagging(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteObjectTaggingAsync(array $args = [])
  * @method \Aws\Result deleteObjects(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteObjectsAsync(array $args = [])
  * @method \Aws\Result deletePublicAccessBlock(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deletePublicAccessBlockAsync(array $args = [])
+ * @method \Aws\Result getBucketAbac(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getBucketAbacAsync(array $args = [])
  * @method \Aws\Result getBucketAccelerateConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getBucketAccelerateConfigurationAsync(array $args = [])
  * @method \Aws\Result getBucketAcl(array $args = [])
@@ -84,6 +92,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise getBucketLocationAsync(array $args = [])
  * @method \Aws\Result getBucketLogging(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getBucketLoggingAsync(array $args = [])
+ * @method \Aws\Result getBucketMetadataConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getBucketMetadataConfigurationAsync(array $args = [])
  * @method \Aws\Result getBucketMetadataTableConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getBucketMetadataTableConfigurationAsync(array $args = [])
  * @method \Aws\Result getBucketMetricsConfiguration(array $args = [])
@@ -112,6 +122,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise getObjectAsync(array $args = [])
  * @method \Aws\Result getObjectAcl(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getObjectAclAsync(array $args = [])
+ * @method \Aws\Result getObjectAnnotation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getObjectAnnotationAsync(array $args = [])
  * @method \Aws\Result getObjectAttributes(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getObjectAttributesAsync(array $args = [])
  * @method \Aws\Result getObjectLegalHold(array $args = [])
@@ -144,6 +156,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise listDirectoryBucketsAsync(array $args = [])
  * @method \Aws\Result listMultipartUploads(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listMultipartUploadsAsync(array $args = [])
+ * @method \Aws\Result listObjectAnnotations(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listObjectAnnotationsAsync(array $args = [])
  * @method \Aws\Result listObjectVersions(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listObjectVersionsAsync(array $args = [])
  * @method \Aws\Result listObjects(array $args = [])
@@ -152,6 +166,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise listObjectsV2Async(array $args = [])
  * @method \Aws\Result listParts(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listPartsAsync(array $args = [])
+ * @method \Aws\Result putBucketAbac(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putBucketAbacAsync(array $args = [])
  * @method \Aws\Result putBucketAccelerateConfiguration(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putBucketAccelerateConfigurationAsync(array $args = [])
  * @method \Aws\Result putBucketAcl(array $args = [])
@@ -196,6 +212,8 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise putObjectAsync(array $args = [])
  * @method \Aws\Result putObjectAcl(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putObjectAclAsync(array $args = [])
+ * @method \Aws\Result putObjectAnnotation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putObjectAnnotationAsync(array $args = [])
  * @method \Aws\Result putObjectLegalHold(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putObjectLegalHoldAsync(array $args = [])
  * @method \Aws\Result putObjectLockConfiguration(array $args = [])
@@ -212,6 +230,14 @@ use GuzzleHttp\Promise;
  * @method \GuzzleHttp\Promise\Promise restoreObjectAsync(array $args = [])
  * @method \Aws\Result selectObjectContent(array $args = [])
  * @method \GuzzleHttp\Promise\Promise selectObjectContentAsync(array $args = [])
+ * @method \Aws\Result updateBucketMetadataAnnotationTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateBucketMetadataAnnotationTableConfigurationAsync(array $args = [])
+ * @method \Aws\Result updateBucketMetadataInventoryTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateBucketMetadataInventoryTableConfigurationAsync(array $args = [])
+ * @method \Aws\Result updateBucketMetadataJournalTableConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateBucketMetadataJournalTableConfigurationAsync(array $args = [])
+ * @method \Aws\Result updateObjectEncryption(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateObjectEncryptionAsync(array $args = [])
  * @method \Aws\Result uploadPart(array $args = [])
  * @method \GuzzleHttp\Promise\Promise uploadPartAsync(array $args = [])
  * @method \Aws\Result uploadPartCopy(array $args = [])
@@ -259,20 +285,23 @@ class S3MultiRegionClient extends BaseClient implements S3ClientInterface
 
     private function determineRegionMiddleware()
     {
-        return function (callable $handler) {
-            return function (CommandInterface $command) use ($handler) {
-                $cacheKey = $this->getCacheKey($command['Bucket']);
+        $clientRef = \WeakReference::create($this);
+        return static function (callable $handler) use ($clientRef) {
+            return static function (CommandInterface $command) use ($handler, $clientRef) {
+                $client = $clientRef->get();
+                $cacheKey = $client->getCacheKey($command['Bucket']);
                 if (
                     empty($command['@region']) &&
-                    $region = $this->cache->get($cacheKey)
+                    $region = $client->cache->get($cacheKey)
                 ) {
                     $command['@region'] = $region;
                 }
 
-                return Promise\Coroutine::of(function () use (
+                return Promise\Coroutine::of(static function () use (
                     $handler,
                     $command,
-                    $cacheKey
+                    $cacheKey,
+                    $clientRef
                 ) {
                     try {
                         yield $handler($command);
@@ -280,13 +309,14 @@ class S3MultiRegionClient extends BaseClient implements S3ClientInterface
                         if (empty($command['Bucket'])) {
                             throw $e;
                         }
+                        $client = $clientRef->get();
                         $result = $e->getResult();
                         $region = null;
                         if (isset($result['@metadata']['headers']['x-amz-bucket-region'])) {
                             $region = $result['@metadata']['headers']['x-amz-bucket-region'];
-                            $this->cache->set($cacheKey, $region);
+                            $client->cache->set($cacheKey, $region);
                         } else {
-                            $region = (yield $this->determineBucketRegionAsync(
+                            $region = (yield $client->determineBucketRegionAsync(
                                 $command['Bucket']
                             ));
                         }
@@ -295,11 +325,12 @@ class S3MultiRegionClient extends BaseClient implements S3ClientInterface
                         yield $handler($command);
                     } catch (AwsException $e) {
                         if ($e->getAwsErrorCode() === 'AuthorizationHeaderMalformed') {
-                            $region = $this->determineBucketRegionFromExceptionBody(
+                            $client = $clientRef->get();
+                            $region = $client->determineBucketRegionFromExceptionBody(
                                 $e->getResponse()
                             );
                             if (!empty($region)) {
-                                $this->cache->set($cacheKey, $region);
+                                $client->cache->set($cacheKey, $region);
 
                                 $command['@region'] = $region;
                                 yield $handler($command);

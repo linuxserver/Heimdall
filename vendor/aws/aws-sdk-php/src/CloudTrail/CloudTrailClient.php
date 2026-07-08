@@ -72,6 +72,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listImportFailuresAsync(array $args = [])
  * @method \Aws\Result listImports(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listImportsAsync(array $args = [])
+ * @method \Aws\Result listInsightsData(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listInsightsDataAsync(array $args = [])
  * @method \Aws\Result listInsightsMetricData(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listInsightsMetricDataAsync(array $args = [])
  * @method \Aws\Result listPublicKeys(array $args = [])

@@ -76,7 +76,8 @@ class ApplyChecksumMiddleware
         $name = $command->getName();
         $body = $request->getBody();
         $operation = $this->api->getOperation($name);
-        $mode = $this->config['request_checksum_calculation']
+        $mode = $command['@context']['request_checksum_calculation']
+            ?? $this->config['request_checksum_calculation']
             ?? self::DEFAULT_CALCULATION_MODE;
 
         $command->getMetricsBuilder()->identifyMetricByValueAndAppend(

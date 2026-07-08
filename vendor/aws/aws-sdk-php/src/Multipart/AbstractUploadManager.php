@@ -240,7 +240,7 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
         $id = [$required['upload_id'] => null];
         unset($required['upload_id']);
         foreach ($required as $key => $param) {
-            if (!$this->config[$key]) {
+            if (!isset($this->config[$key]) || $this->config[$key] === '') {
                 throw new IAE('You must provide a value for "' . $key . '" in '
                     . 'your config for the MultipartUploader for '
                     . $this->client->getApi()->getServiceFullName() . '.');

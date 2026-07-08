@@ -121,19 +121,12 @@ class UriSigner
         $uri = self::normalize($uri);
         $status = $this->doVerify($uri);
 
-        if (self::STATUS_VALID === $status) {
-            return;
-        }
-
-        if (self::STATUS_MISSING === $status) {
-            throw new UnsignedUriException();
-        }
-
-        if (self::STATUS_INVALID === $status) {
-            throw new UnverifiedSignedUriException();
-        }
-
-        throw new ExpiredSignedUriException();
+        match ($status) {
+            self::STATUS_VALID => null,
+            self::STATUS_INVALID => throw new UnverifiedSignedUriException(),
+            self::STATUS_EXPIRED => throw new ExpiredSignedUriException(),
+            default => throw new UnsignedUriException(),
+        };
     }
 
     private function computeHash(string $uri): string

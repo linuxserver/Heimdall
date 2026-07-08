@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "composer/xdebug-handler": "^3.0.3",
-        "phpunit/phpunit": "^8.5.33"
+        "phpunit/phpunit": "^8.5.52"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +32,7 @@
     "bin": ["bin/jp.php"],
     "extra": {
         "branch-alias": {
-            "dev-master": "2.8-dev"
+            "dev-master": "2.9-dev"
         }
     }
 }

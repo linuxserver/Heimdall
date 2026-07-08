@@ -75,6 +75,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise getManagedThingAsync(array $args = [])
  * @method \Aws\Result getManagedThingCapabilities(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getManagedThingCapabilitiesAsync(array $args = [])
+ * @method \Aws\Result getManagedThingCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getManagedThingCertificateAsync(array $args = [])
  * @method \Aws\Result getManagedThingConnectivityData(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getManagedThingConnectivityDataAsync(array $args = [])
  * @method \Aws\Result getManagedThingMetaData(array $args = [])

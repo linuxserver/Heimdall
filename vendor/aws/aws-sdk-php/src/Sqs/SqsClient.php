@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\UriResolver;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Client used to interact Amazon Simple Queue Service (Amazon SQS)
+ * Client used to interact with **Amazon Simple Queue Service (Amazon SQS)**.
  *
  * @method \Aws\Result addPermission(array $args = [])
  * @method \GuzzleHttp\Promise\Promise addPermissionAsync(array $args = [])
