@@ -20,7 +20,6 @@ use DOMDocument;
 use DOMElement;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestMethod;
-use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\InvalidArgumentException;
 use PHPUnit\Event\Telemetry\HRTime;
@@ -33,8 +32,8 @@ use PHPUnit\Event\Test\PreparationStarted;
 use PHPUnit\Event\Test\Prepared;
 use PHPUnit\Event\Test\PrintedUnexpectedOutput;
 use PHPUnit\Event\Test\Skipped;
+use PHPUnit\Event\TestSuite\Skipped as TestSuiteSkipped;
 use PHPUnit\Event\TestSuite\Started;
-use PHPUnit\Event\UnknownSubscriberTypeException;
 use PHPUnit\TextUI\Output\Printer;
 use PHPUnit\Util\Xml;
 
@@ -90,10 +89,6 @@ final class JunitXmlLogger
     private bool $preparationFailed      = false;
     private ?string $unexpectedOutput    = null;
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     public function __construct(Printer $printer, Facade $facade)
     {
         $this->printer = $printer;
@@ -104,8 +99,13 @@ final class JunitXmlLogger
 
     public function flush(): void
     {
-        $this->printer->print($this->document->saveXML());
+        $xml = $this->document->saveXML();
 
+        if ($xml === false) {
+            $xml = '';
+        }
+
+        $this->printer->print($xml);
         $this->printer->flush();
     }
 
@@ -132,6 +132,17 @@ final class JunitXmlLogger
         $this->testSuiteFailures[$this->testSuiteLevel]   = 0;
         $this->testSuiteSkipped[$this->testSuiteLevel]    = 0;
         $this->testSuiteTimes[$this->testSuiteLevel]      = 0.0;
+    }
+
+    public function testSuiteSkipped(TestSuiteSkipped $event): void
+    {
+        assert(isset($this->testSuiteSkipped[$this->testSuiteLevel]));
+        assert(isset($this->testSuiteTests[$this->testSuiteLevel]));
+
+        $this->testSuiteSkipped[$this->testSuiteLevel] += $event->testSuite()->count();
+        $this->testSuiteTests[$this->testSuiteLevel]   += $event->testSuite()->count();
+
+        $this->testSuiteFinished();
     }
 
     public function testSuiteFinished(): void
@@ -186,6 +197,11 @@ final class JunitXmlLogger
         $this->createTestCase($event);
 
         $this->preparationFailed = false;
+    }
+
+    public function testPreparationErrored(): void
+    {
+        $this->preparationFailed = true;
     }
 
     public function testPreparationFailed(): void
@@ -296,16 +312,14 @@ final class JunitXmlLogger
         $this->unexpectedOutput  = null;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function registerSubscribers(Facade $facade): void
     {
         $facade->registerSubscribers(
             new TestSuiteStartedSubscriber($this),
+            new TestSuiteSkippedSubscriber($this),
             new TestSuiteFinishedSubscriber($this),
             new TestPreparationStartedSubscriber($this),
+            new TestPreparationErroredSubscriber($this),
             new TestPreparationFailedSubscriber($this),
             new TestPreparedSubscriber($this),
             new TestPrintedUnexpectedOutputSubscriber($this),

@@ -87,57 +87,7 @@ enum RoundingMode
      *
      * Note that this is the rounding mode that statistically minimizes
      * cumulative error when applied repeatedly over a sequence of calculations.
-     * It is sometimes known as "Banker's rounding", and is chiefly used in the USA.
+     * It is sometimes known as "Banker's rounding", and is the default rounding mode in IEEE 754.
      */
     case HalfEven;
-
-    /**
-     * @deprecated Use RoundingMode::Unnecessary instead.
-     */
-    public const UNNECESSARY = self::Unnecessary;
-
-    /**
-     * @deprecated Use RoundingMode::Up instead.
-     */
-    public const UP = self::Up;
-
-    /**
-     * @deprecated Use RoundingMode::Down instead.
-     */
-    public const DOWN = self::Down;
-
-    /**
-     * @deprecated Use RoundingMode::Ceiling instead.
-     */
-    public const CEILING = self::Ceiling;
-
-    /**
-     * @deprecated Use RoundingMode::Floor instead.
-     */
-    public const FLOOR = self::Floor;
-
-    /**
-     * @deprecated Use RoundingMode::HalfUp instead.
-     */
-    public const HALF_UP = self::HalfUp;
-
-    /**
-     * @deprecated Use RoundingMode::HalfDown instead.
-     */
-    public const HALF_DOWN = self::HalfDown;
-
-    /**
-     * @deprecated Use RoundingMode::HalfCeiling instead.
-     */
-    public const HALF_CEILING = self::HalfCeiling;
-
-    /**
-     * @deprecated Use RoundingMode::HalfFloor instead.
-     */
-    public const HALF_FLOOR = self::HalfFloor;
-
-    /**
-     * @deprecated Use RoundingMode::HalfEven instead.
-     */
-    public const HALF_EVEN = self::HalfEven;
 }

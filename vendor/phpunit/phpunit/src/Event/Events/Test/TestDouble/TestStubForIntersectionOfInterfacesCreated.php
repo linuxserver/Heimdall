@@ -30,6 +30,8 @@ final readonly class TestStubForIntersectionOfInterfacesCreated implements Event
 
     /**
      * @param list<class-string> $interfaces
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, array $interfaces)
     {
@@ -50,6 +52,9 @@ final readonly class TestStubForIntersectionOfInterfacesCreated implements Event
         return $this->interfaces;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return sprintf(

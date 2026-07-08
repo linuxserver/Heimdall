@@ -10,10 +10,12 @@
 namespace SebastianBergmann\Diff\Output;
 
 use function array_splice;
+use function assert;
 use function count;
 use function fclose;
 use function fopen;
 use function fwrite;
+use function is_resource;
 use function max;
 use function min;
 use function str_ends_with;
@@ -45,6 +47,8 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
     public function getDiff(array $diff): string
     {
         $buffer = fopen('php://memory', 'r+b');
+
+        assert(is_resource($buffer));
 
         if ('' !== $this->header) {
             fwrite($buffer, $this->header);

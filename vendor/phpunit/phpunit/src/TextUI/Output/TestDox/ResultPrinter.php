@@ -50,7 +50,7 @@ final readonly class ResultPrinter
     }
 
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     public function print(TestResult $result, array $tests): void
     {
@@ -87,11 +87,11 @@ final readonly class ResultPrinter
     }
 
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     private function doPrint(array $tests, bool $onlySummary): void
     {
-        foreach ($tests as $prettifiedClassName => $_tests) {
+        foreach ($tests as $_tests) {
             $print = true;
 
             if ($onlySummary) {
@@ -116,7 +116,7 @@ final readonly class ResultPrinter
                 continue;
             }
 
-            $this->printPrettifiedClassName($prettifiedClassName);
+            $this->printPrettifiedClassName($_tests->asArray()[0]->test()->testDox()->prettifiedClassName());
 
             foreach ($_tests as $test) {
                 if ($onlySummary && $test->status()->isSuccess()) {
@@ -212,14 +212,14 @@ final readonly class ResultPrinter
         $stackTrace = $this->formatStackTrace($throwable->stackTrace());
         $diff       = '';
 
-        if (!empty($message) && $this->colors) {
+        if ($message !== '' && $this->colors) {
             ['message' => $message, 'diff' => $diff] = $this->colorizeMessageAndDiff(
                 $message,
                 $this->messageColorFor($status),
             );
         }
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $this->printer->print(
                 $this->prefixLines(
                     $this->prefixFor('message', $status),
@@ -230,7 +230,7 @@ final readonly class ResultPrinter
             $this->printer->print(PHP_EOL);
         }
 
-        if (!empty($diff)) {
+        if ($diff !== '') {
             $this->printer->print(
                 $this->prefixLines(
                     $this->prefixFor('diff', $status),
@@ -241,8 +241,8 @@ final readonly class ResultPrinter
             $this->printer->print(PHP_EOL);
         }
 
-        if (!empty($stackTrace)) {
-            if (!empty($message) || !empty($diff)) {
+        if ($stackTrace !== '') {
+            if ($message !== '' || $diff !== '') {
                 $tracePrefix = $this->prefixFor('default', $status);
             } else {
                 $tracePrefix = $this->prefixFor('trace', $status);
@@ -283,7 +283,12 @@ final readonly class ResultPrinter
      */
     private function colorizeMessageAndDiff(string $buffer, string $style): array
     {
-        $lines      = $buffer ? array_map('\rtrim', explode(PHP_EOL, $buffer)) : [];
+        $lines = [];
+
+        if ($buffer !== '') {
+            $lines = array_map('\rtrim', explode(PHP_EOL, $buffer));
+        }
+
         $message    = [];
         $diff       = [];
         $insideDiff = false;
@@ -311,7 +316,7 @@ final readonly class ResultPrinter
         $message = implode(PHP_EOL, $message);
         $diff    = implode(PHP_EOL, $diff);
 
-        if (!empty($message)) {
+        if ($message !== '') {
             // Testdox output has a left-margin of 5; keep right-margin to prevent terminal scrolling
             $message = Color::colorizeTextBox($style, $message, $this->columns - 7);
         }
@@ -332,7 +337,7 @@ final readonly class ResultPrinter
         $previousPath = '';
 
         foreach (explode(PHP_EOL, $stackTrace) as $line) {
-            if (preg_match('/^(.*):(\d+)$/', $line, $matches)) {
+            if (preg_match('/^(.*):(\d+)$/', $line, $matches) > 0) {
                 $lines[]      = Color::colorizePath($matches[1], $previousPath) . Color::dim(':') . Color::colorize('fg-blue', $matches[2]) . "\n";
                 $previousPath = $matches[1];
 
@@ -348,11 +353,17 @@ final readonly class ResultPrinter
 
     private function prefixLines(string $prefix, string $message): string
     {
+        $lines = preg_split('/\r\n|\r|\n/', $message);
+
+        if ($lines === false) {
+            $lines = [];
+        }
+
         return implode(
             PHP_EOL,
             array_map(
-                static fn (string $line) => '   ' . $prefix . ($line ? ' ' . $line : ''),
-                preg_split('/\r\n|\r|\n/', $message),
+                static fn (string $line) => '   ' . $prefix . ($line !== '' ? ' ' . $line : ''),
+                $lines,
             ),
         );
     }
@@ -460,7 +471,7 @@ final readonly class ResultPrinter
      */
     private function printBeforeClassOrAfterClassErrors(string $type, array $errors): void
     {
-        if (empty($errors)) {
+        if ($errors === []) {
             return;
         }
 

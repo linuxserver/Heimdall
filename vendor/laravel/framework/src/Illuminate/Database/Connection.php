@@ -57,6 +57,20 @@ class Connection implements ConnectionInterface
     protected $readPdoConfig = [];
 
     /**
+     * The active PDO connection used for direct connections.
+     *
+     * @var \PDO|(\Closure(): \PDO)
+     */
+    protected $directPdo;
+
+    /**
+     * The database connection configuration options for direct connections.
+     *
+     * @var array
+     */
+    protected $directPdoConfig = [];
+
+    /**
      * The name of the connected database.
      *
      * @var string
@@ -213,7 +227,7 @@ class Connection implements ConnectionInterface
     /**
      * The last retrieved PDO read / write type.
      *
-     * @var null|'read'|'write'
+     * @var null|'read'|'write'|'direct'
      */
     protected $latestPdoTypeRetrieved = null;
 
@@ -404,11 +418,12 @@ class Connection implements ConnectionInterface
      * @param  string  $query
      * @param  array  $bindings
      * @param  bool  $useReadPdo
+     * @param  array  $fetchUsing
      * @return array
      */
-    public function select($query, $bindings = [], $useReadPdo = true)
+    public function select($query, $bindings = [], $useReadPdo = true, array $fetchUsing = [])
     {
-        return $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo) {
+        return $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo, $fetchUsing) {
             if ($this->pretending()) {
                 return [];
             }
@@ -424,7 +439,7 @@ class Connection implements ConnectionInterface
 
             $statement->execute();
 
-            return $statement->fetchAll();
+            return $statement->fetchAll(...$fetchUsing);
         });
     }
 
@@ -434,11 +449,12 @@ class Connection implements ConnectionInterface
      * @param  string  $query
      * @param  array  $bindings
      * @param  bool  $useReadPdo
+     * @param  array  $fetchUsing
      * @return array
      */
-    public function selectResultSets($query, $bindings = [], $useReadPdo = true)
+    public function selectResultSets($query, $bindings = [], $useReadPdo = true, array $fetchUsing = [])
     {
-        return $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo) {
+        return $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo, $fetchUsing) {
             if ($this->pretending()) {
                 return [];
             }
@@ -454,7 +470,7 @@ class Connection implements ConnectionInterface
             $sets = [];
 
             do {
-                $sets[] = $statement->fetchAll();
+                $sets[] = $statement->fetchAll(...$fetchUsing);
             } while ($statement->nextRowset());
 
             return $sets;
@@ -467,9 +483,10 @@ class Connection implements ConnectionInterface
      * @param  string  $query
      * @param  array  $bindings
      * @param  bool  $useReadPdo
+     * @param  array  $fetchUsing
      * @return \Generator<int, \stdClass>
      */
-    public function cursor($query, $bindings = [], $useReadPdo = true)
+    public function cursor($query, $bindings = [], $useReadPdo = true, array $fetchUsing = [])
     {
         $statement = $this->run($query, $bindings, function ($query, $bindings) use ($useReadPdo) {
             if ($this->pretending()) {
@@ -494,7 +511,7 @@ class Connection implements ConnectionInterface
             return $statement;
         });
 
-        while ($record = $statement->fetch()) {
+        while ($record = $statement->fetch(...$fetchUsing)) {
             yield $record;
         }
     }
@@ -619,7 +636,7 @@ class Connection implements ConnectionInterface
     /**
      * Run a raw, unprepared query against the PDO connection.
      *
-     * @param  string  $query
+     * @param  literal-string  $query
      * @return bool
      */
     public function unprepared($query)
@@ -676,8 +693,10 @@ class Connection implements ConnectionInterface
     /**
      * Execute the given callback without "pretending".
      *
-     * @param  \Closure  $callback
-     * @return mixed
+     * @template TReturn
+     *
+     * @param  \Closure(): TReturn  $callback
+     * @return TReturn
      */
     public function withoutPretending(Closure $callback)
     {
@@ -831,11 +850,11 @@ class Connection implements ConnectionInterface
         // message to include the bindings with SQL, which will make this exception a
         // lot more helpful to the developer instead of just the database's errors.
         catch (Exception $e) {
-            $exceptionType = $this->isUniqueConstraintError($e)
+            $exceptionType = ($isUniqueConstraintError = $this->isUniqueConstraintError($e))
                 ? UniqueConstraintViolationException::class
                 : QueryException::class;
 
-            throw new $exceptionType(
+            $exception = new $exceptionType(
                 $this->getNameWithReadWriteType(),
                 $query,
                 $this->prepareBindings($bindings),
@@ -843,6 +862,14 @@ class Connection implements ConnectionInterface
                 $this->getConnectionDetails(),
                 $this->latestReadWriteTypeUsed(),
             );
+
+            if ($isUniqueConstraintError) {
+                ['index' => $index, 'columns' => $columns] = $this->parseUniqueConstraintViolation($e);
+
+                $exception->setIndex($index)->setColumns($columns);
+            }
+
+            throw $exception;
         }
     }
 
@@ -855,6 +882,17 @@ class Connection implements ConnectionInterface
     protected function isUniqueConstraintError(Exception $exception)
     {
         return false;
+    }
+
+    /**
+     * Extract the index and columns that caused a unique constraint violation.
+     *
+     * @param  Exception  $exception
+     * @return array{index: string|null, columns: list<string>}
+     */
+    protected function parseUniqueConstraintViolation(Exception $exception): array
+    {
+        return ['index' => null, 'columns' => []];
     }
 
     /**
@@ -878,7 +916,7 @@ class Connection implements ConnectionInterface
             : $query;
 
         if ($this->loggingQueries) {
-            $this->queryLog[] = compact('query', 'bindings', 'time', 'readWriteType');
+            $this->queryLog[] = ['query' => $query, 'bindings' => $bindings, 'time' => $time, 'readWriteType' => $readWriteType];
         }
     }
 
@@ -1037,7 +1075,9 @@ class Connection implements ConnectionInterface
      */
     public function disconnect()
     {
-        $this->setPdo(null)->setReadPdo(null);
+        $this->transactionsManager?->rollback($this->getName(), 0);
+
+        $this->setPdo(null)->setReadPdo(null)->setDirectPdo(null);
     }
 
     /**
@@ -1108,7 +1148,7 @@ class Connection implements ConnectionInterface
     /**
      * Get a new raw query expression.
      *
-     * @param  mixed  $value
+     * @param  literal-string|int|float  $value
      * @return \Illuminate\Contracts\Database\Query\Expression
      */
     public function raw($value)
@@ -1306,6 +1346,32 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Get the current PDO connection used for direct connections.
+     *
+     * @return \PDO
+     */
+    public function getDirectPdo()
+    {
+        $this->latestPdoTypeRetrieved = 'direct';
+
+        if ($this->directPdo instanceof Closure) {
+            return $this->directPdo = call_user_func($this->directPdo);
+        }
+
+        return $this->directPdo ?: $this->getPdo();
+    }
+
+    /**
+     * Get the current direct PDO connection parameter without executing any reconnect logic.
+     *
+     * @return \PDO|\Closure|null
+     */
+    public function getRawDirectPdo()
+    {
+        return $this->directPdo;
+    }
+
+    /**
      * Set the PDO connection.
      *
      * @param  \PDO|\Closure|null  $pdo
@@ -1344,6 +1410,52 @@ class Connection implements ConnectionInterface
         $this->readPdoConfig = $config;
 
         return $this;
+    }
+
+    /**
+     * Set the PDO connection used for direct connections.
+     *
+     * @param  \PDO|\Closure|null  $pdo
+     * @return $this
+     */
+    public function setDirectPdo($pdo)
+    {
+        $this->directPdo = $pdo;
+
+        return $this;
+    }
+
+    /**
+     * Set the direct PDO connection configuration.
+     *
+     * @param  array  $config
+     * @return $this
+     */
+    public function setDirectPdoConfig(array $config)
+    {
+        $this->directPdoConfig = $config;
+
+        return $this;
+    }
+
+    /**
+     * Get the direct PDO connection configuration.
+     *
+     * @return array
+     */
+    public function getDirectPdoConfig()
+    {
+        return $this->directPdoConfig;
+    }
+
+    /**
+     * Determine if this connection has a direct PDO connection configured.
+     *
+     * @return bool
+     */
+    public function hasDirectConnection()
+    {
+        return ! empty($this->directPdoConfig);
     }
 
     /**
@@ -1399,9 +1511,11 @@ class Connection implements ConnectionInterface
      */
     protected function getConnectionDetails()
     {
-        $config = $this->latestReadWriteTypeUsed() === 'read'
-            ? $this->readPdoConfig
-            : $this->config;
+        $config = match ($this->latestReadWriteTypeUsed()) {
+            'read' => $this->readPdoConfig,
+            'direct' => $this->directPdoConfig,
+            default => $this->config,
+        };
 
         return [
             'driver' => $this->getDriverName(),
@@ -1683,7 +1797,7 @@ class Connection implements ConnectionInterface
     /**
      * Retrieve the latest read / write type used.
      *
-     * @return 'read'|'write'|null
+     * @return 'read'|'write'|'direct'|null
      */
     protected function latestReadWriteTypeUsed()
     {
@@ -1716,8 +1830,10 @@ class Connection implements ConnectionInterface
     /**
      * Execute the given callback without table prefix.
      *
-     * @param  \Closure  $callback
-     * @return mixed
+     * @template TReturn
+     *
+     * @param  (\Closure($this): TReturn)  $callback
+     * @return TReturn
      */
     public function withoutTablePrefix(Closure $callback): mixed
     {

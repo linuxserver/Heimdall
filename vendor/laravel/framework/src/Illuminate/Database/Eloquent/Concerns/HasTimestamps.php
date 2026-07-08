@@ -2,6 +2,9 @@
 
 namespace Illuminate\Database\Eloquent\Concerns;
 
+use Illuminate\Database\Eloquent\Attributes\Initialize;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 
@@ -20,6 +23,23 @@ trait HasTimestamps
      * @var array
      */
     protected static $ignoreTimestampsOn = [];
+
+    /**
+     * Initialize the HasTimestamps trait.
+     *
+     * @return void
+     */
+    #[Initialize]
+    public function initializeHasTimestamps()
+    {
+        if ($this->timestamps === true) {
+            if (static::resolveClassAttribute(WithoutTimestamps::class) !== null) {
+                $this->timestamps = false;
+            } elseif (($table = static::resolveClassAttribute(Table::class)) && $table->timestamps !== null) {
+                $this->timestamps = $table->timestamps;
+            }
+        }
+    }
 
     /**
      * Update the model's update timestamp.
@@ -186,8 +206,10 @@ trait HasTimestamps
     /**
      * Disable timestamps for the current class during the given callback scope.
      *
-     * @param  callable  $callback
-     * @return mixed
+     * @template TReturn
+     *
+     * @param  (callable(): TReturn)  $callback
+     * @return TReturn
      */
     public static function withoutTimestamps(callable $callback)
     {
@@ -197,9 +219,11 @@ trait HasTimestamps
     /**
      * Disable timestamps for the given model classes during the given callback scope.
      *
+     * @template TReturn
+     *
      * @param  array  $models
-     * @param  callable  $callback
-     * @return mixed
+     * @param  callable(): TReturn  $callback
+     * @return TReturn
      */
     public static function withoutTimestampsOn($models, $callback)
     {

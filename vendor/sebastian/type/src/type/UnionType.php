@@ -32,7 +32,7 @@ final class UnionType extends Type
         $this->ensureMinimumOfTwoTypes(...$types);
         $this->ensureOnlyValidTypes(...$types);
 
-        assert(!empty($types));
+        assert($types !== []);
 
         $this->types = $types;
     }

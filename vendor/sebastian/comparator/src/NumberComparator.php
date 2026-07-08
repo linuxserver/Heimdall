@@ -17,6 +17,11 @@ use function max;
 use function number_format;
 use BcMath\Number;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class NumberComparator extends ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -34,17 +39,18 @@ final class NumberComparator extends ObjectComparator
     public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false, array &$processed = []): void
     {
         if (!$expected instanceof Number) {
-            assert(is_string($expected) || is_int($expected));
+            assert((is_string($expected) && is_numeric($expected)) || is_int($expected));
 
             $expected = new Number($expected);
         }
 
         if (!$actual instanceof Number) {
-            assert(is_string($actual) || is_int($actual));
+            assert((is_string($actual) && is_numeric($actual)) || is_int($actual));
 
             $actual = new Number($actual);
         }
 
+        /** @phpstan-ignore argument.type */
         $deltaNumber = new Number(number_format($delta, max($expected->scale, $actual->scale)));
 
         if ($actual < $expected - $deltaNumber || $actual > $expected + $deltaNumber) {

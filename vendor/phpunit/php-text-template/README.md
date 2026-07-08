@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/phpunit/php-text-template/v/stable.png)](https://packagist.org/packages/phpunit/php-text-template)
+[![Latest Stable Version](https://poser.pugx.org/phpunit/php-text-template/v)](https://packagist.org/packages/phpunit/php-text-template)
 [![CI Status](https://github.com/sebastianbergmann/php-text-template/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/php-text-template/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/php-text-template/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/php-text-template)
 

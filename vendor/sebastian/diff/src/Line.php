@@ -11,9 +11,9 @@ namespace SebastianBergmann\Diff;
 
 final class Line
 {
-    public const ADDED     = 1;
-    public const REMOVED   = 2;
-    public const UNCHANGED = 3;
+    public const int ADDED     = 1;
+    public const int REMOVED   = 2;
+    public const int UNCHANGED = 3;
     private int $type;
     private string $content;
 

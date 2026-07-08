@@ -25,6 +25,9 @@ final readonly class DataProviderMethodCalled implements Event
     private ClassMethod $testMethod;
     private ClassMethod $dataProviderMethod;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Info $telemetryInfo, ClassMethod $testMethod, ClassMethod $dataProviderMethod)
     {
         $this->telemetryInfo      = $telemetryInfo;
@@ -47,6 +50,9 @@ final readonly class DataProviderMethodCalled implements Event
         return $this->dataProviderMethod;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return sprintf(

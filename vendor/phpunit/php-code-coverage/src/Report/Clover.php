@@ -17,10 +17,10 @@ use function range;
 use function time;
 use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Node\File;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Util\Xml;
+use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
 final class Clover
 {
@@ -74,37 +74,39 @@ final class Clover
                 $classMethods           = 0;
 
                 // Assumption: one namespace per file
-                if ($class['namespace'] !== '') {
-                    $namespace = $class['namespace'];
+                if ($class->namespace !== '') {
+                    $namespace = $class->namespace;
                 }
 
-                foreach ($class['methods'] as $methodName => $method) {
-                    if ($method['executableLines'] == 0) {
+                foreach ($class->methods as $methodName => $method) {
+                    /** @phpstan-ignore equal.notAllowed */
+                    if ($method->executableLines == 0) {
                         continue;
                     }
 
                     $classMethods++;
-                    $classStatements        += $method['executableLines'];
-                    $coveredClassStatements += $method['executedLines'];
+                    $classStatements        += $method->executableLines;
+                    $coveredClassStatements += $method->executedLines;
 
-                    if ($method['coverage'] == 100) {
+                    /** @phpstan-ignore equal.notAllowed */
+                    if ($method->coverage == 100) {
                         $coveredMethods++;
                     }
 
                     $methodCount = 0;
 
-                    foreach (range($method['startLine'], $method['endLine']) as $line) {
+                    foreach (range($method->startLine, $method->endLine) as $line) {
                         if (isset($coverageData[$line])) {
                             $methodCount = max($methodCount, count($coverageData[$line]));
                         }
                     }
 
-                    $lines[$method['startLine']] = [
-                        'ccn'        => $method['ccn'],
+                    $lines[$method->startLine] = [
+                        'ccn'        => $method->ccn,
                         'count'      => $methodCount,
-                        'crap'       => $method['crap'],
+                        'crap'       => $method->crap,
                         'type'       => 'method',
-                        'visibility' => $method['visibility'],
+                        'visibility' => $method->visibility,
                         'name'       => $methodName,
                     ];
                 }
@@ -116,15 +118,15 @@ final class Clover
                 $xmlFile->appendChild($xmlClass);
 
                 $xmlMetrics = $xmlDocument->createElement('metrics');
-                $xmlMetrics->setAttribute('complexity', (string) $class['ccn']);
+                $xmlMetrics->setAttribute('complexity', (string) $class->ccn);
                 $xmlMetrics->setAttribute('methods', (string) $classMethods);
                 $xmlMetrics->setAttribute('coveredmethods', (string) $coveredMethods);
-                $xmlMetrics->setAttribute('conditionals', (string) $class['executableBranches']);
-                $xmlMetrics->setAttribute('coveredconditionals', (string) $class['executedBranches']);
+                $xmlMetrics->setAttribute('conditionals', (string) $class->executableBranches);
+                $xmlMetrics->setAttribute('coveredconditionals', (string) $class->executedBranches);
                 $xmlMetrics->setAttribute('statements', (string) $classStatements);
                 $xmlMetrics->setAttribute('coveredstatements', (string) $coveredClassStatements);
-                $xmlMetrics->setAttribute('elements', (string) ($classMethods + $classStatements + $class['executableBranches']));
-                $xmlMetrics->setAttribute('coveredelements', (string) ($coveredMethods + $coveredClassStatements + $class['executedBranches']));
+                $xmlMetrics->setAttribute('elements', (string) ($classMethods + $classStatements + $class->executableBranches));
+                $xmlMetrics->setAttribute('coveredelements', (string) ($coveredMethods + $coveredClassStatements + $class->executedBranches));
                 $xmlClass->appendChild($xmlMetrics);
             }
 
@@ -168,8 +170,8 @@ final class Clover
             $linesOfCode = $item->linesOfCode();
 
             $xmlMetrics = $xmlDocument->createElement('metrics');
-            $xmlMetrics->setAttribute('loc', (string) $linesOfCode['linesOfCode']);
-            $xmlMetrics->setAttribute('ncloc', (string) $linesOfCode['nonCommentLinesOfCode']);
+            $xmlMetrics->setAttribute('loc', (string) $linesOfCode->linesOfCode());
+            $xmlMetrics->setAttribute('ncloc', (string) $linesOfCode->nonCommentLinesOfCode());
             $xmlMetrics->setAttribute('classes', (string) $item->numberOfClassesAndTraits());
             $xmlMetrics->setAttribute('methods', (string) $item->numberOfMethods());
             $xmlMetrics->setAttribute('coveredmethods', (string) $item->numberOfTestedMethods());
@@ -201,8 +203,8 @@ final class Clover
 
         $xmlMetrics = $xmlDocument->createElement('metrics');
         $xmlMetrics->setAttribute('files', (string) count($report));
-        $xmlMetrics->setAttribute('loc', (string) $linesOfCode['linesOfCode']);
-        $xmlMetrics->setAttribute('ncloc', (string) $linesOfCode['nonCommentLinesOfCode']);
+        $xmlMetrics->setAttribute('loc', (string) $linesOfCode->linesOfCode());
+        $xmlMetrics->setAttribute('ncloc', (string) $linesOfCode->nonCommentLinesOfCode());
         $xmlMetrics->setAttribute('classes', (string) $report->numberOfClassesAndTraits());
         $xmlMetrics->setAttribute('methods', (string) $report->numberOfMethods());
         $xmlMetrics->setAttribute('coveredmethods', (string) $report->numberOfTestedMethods());

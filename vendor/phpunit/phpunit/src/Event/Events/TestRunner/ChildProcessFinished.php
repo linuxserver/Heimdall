@@ -23,6 +23,9 @@ final readonly class ChildProcessFinished implements Event
     private string $stdout;
     private string $stderr;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, string $stdout, string $stderr)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -45,6 +48,9 @@ final readonly class ChildProcessFinished implements Event
         return $this->stderr;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return 'Child Process Finished';

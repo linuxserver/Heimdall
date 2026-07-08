@@ -11,7 +11,7 @@ namespace PHPUnit\Framework\MockObject;
 
 use function strtolower;
 use Exception;
-use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use Throwable;
 
@@ -28,7 +28,7 @@ final class InvocationHandler
     private array $matchers = [];
 
     /**
-     * @var array<string,Matcher>
+     * @var array<non-empty-string, Matcher>
      */
     private array $matcherMap = [];
 
@@ -37,20 +37,39 @@ final class InvocationHandler
      */
     private readonly array $configurableMethods;
     private readonly bool $returnValueGeneration;
+    private readonly bool $isMockObject;
+    private ?AssertionFailedError $assertionFailure = null;
 
     /**
      * @param list<ConfigurableMethod> $configurableMethods
      */
-    public function __construct(array $configurableMethods, bool $returnValueGeneration)
+    public function __construct(array $configurableMethods, bool $returnValueGeneration, bool $isMockObject = false)
     {
         $this->configurableMethods   = $configurableMethods;
         $this->returnValueGeneration = $returnValueGeneration;
+        $this->isMockObject          = $isMockObject;
     }
 
-    public function hasMatchers(): bool
+    public function isMockObject(): bool
+    {
+        return $this->isMockObject;
+    }
+
+    public function hasInvocationCountRule(): bool
     {
         foreach ($this->matchers as $matcher) {
-            if ($matcher->hasMatchers()) {
+            if ($matcher->hasInvocationCountRule()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasParametersRule(): bool
+    {
+        foreach ($this->matchers as $matcher) {
+            if ($matcher->hasParametersRule()) {
                 return true;
             }
         }
@@ -60,6 +79,8 @@ final class InvocationHandler
 
     /**
      * Looks up the match builder with identification $id and returns it.
+     *
+     * @param non-empty-string $id
      */
     public function lookupMatcher(string $id): ?Matcher
     {
@@ -69,6 +90,8 @@ final class InvocationHandler
     /**
      * Registers a matcher with the identification $id. The matcher can later be
      * looked up using lookupMatcher() to figure out if it has been invoked.
+     *
+     * @param non-empty-string $id
      *
      * @throws MatcherAlreadyRegisteredException
      */
@@ -81,12 +104,12 @@ final class InvocationHandler
         $this->matcherMap[$id] = $matcher;
     }
 
-    public function expects(InvocationOrder $rule): InvocationMocker
+    public function expects(InvocationOrder $rule): InvocationStubber
     {
         $matcher = new Matcher($rule);
         $this->addMatcher($matcher);
 
-        return new InvocationMocker(
+        return new InvocationStubberImplementation(
             $this,
             $matcher,
             ...$this->configurableMethods,
@@ -115,6 +138,10 @@ final class InvocationHandler
                 }
             } catch (Exception $e) {
                 $exception = $e;
+
+                if ($this->assertionFailure === null && $e instanceof AssertionFailedError) {
+                    $this->assertionFailure = $e;
+                }
             }
         }
 
@@ -144,6 +171,10 @@ final class InvocationHandler
     {
         foreach ($this->matchers as $matcher) {
             $matcher->verify();
+        }
+
+        if ($this->assertionFailure !== null) {
+            throw $this->assertionFailure;
         }
     }
 

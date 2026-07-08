@@ -51,7 +51,6 @@ final class Calculator
             assert($nodes !== null);
 
             return $this->calculateForAbstractSyntaxTree($nodes);
-
             // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(

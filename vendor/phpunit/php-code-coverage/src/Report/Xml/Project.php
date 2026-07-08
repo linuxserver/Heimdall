@@ -9,82 +9,73 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use DOMDocument;
+use DateTimeImmutable;
+use SebastianBergmann\Environment\Runtime;
+use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Project extends Node
 {
-    public function __construct(string $directory)
+    private readonly string $directory;
+
+    public function __construct(XMLWriter $xmlWriter, string $directory)
     {
-        $this->init();
-        $this->setProjectSourceDirectory($directory);
+        $this->directory = $directory;
+
+        parent::__construct($xmlWriter);
+
+        $this->xmlWriter->startDocument();
+
+        $this->xmlWriter->startElement('phpunit');
+        $this->xmlWriter->writeAttribute('xmlns', Facade::XML_NAMESPACE);
     }
 
     public function projectSourceDirectory(): string
     {
-        return $this->contextNode()->getAttribute('source');
+        return $this->directory;
     }
 
-    public function buildInformation(): BuildInformation
-    {
-        $buildNode = $this->dom()->getElementsByTagNameNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'build',
-        )->item(0);
-
-        if (!$buildNode) {
-            $buildNode = $this->dom()->documentElement->appendChild(
-                $this->dom()->createElementNS(
-                    'https://schema.phpunit.de/coverage/1.0',
-                    'build',
-                ),
-            );
-        }
-
-        return new BuildInformation($buildNode);
+    public function buildInformation(
+        Runtime $runtime,
+        DateTimeImmutable $buildDate,
+        string $phpUnitVersion,
+        string $coverageVersion,
+        string $driverExtensionName,
+        string $driverExtensionVersion,
+    ): void {
+        new BuildInformation(
+            $this->xmlWriter,
+            $runtime,
+            $buildDate,
+            $phpUnitVersion,
+            $coverageVersion,
+            $driverExtensionName,
+            $driverExtensionVersion,
+        );
     }
 
     public function tests(): Tests
     {
-        $testsNode = $this->contextNode()->getElementsByTagNameNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'tests',
-        )->item(0);
-
-        if (!$testsNode) {
-            $testsNode = $this->contextNode()->appendChild(
-                $this->dom()->createElementNS(
-                    'https://schema.phpunit.de/coverage/1.0',
-                    'tests',
-                ),
-            );
-        }
-
-        return new Tests($testsNode);
+        return new Tests($this->xmlWriter);
     }
 
-    public function asDom(): DOMDocument
+    public function getWriter(): XMLWriter
     {
-        return $this->dom();
+        return $this->xmlWriter;
     }
 
-    private function init(): void
+    public function startProject(): void
     {
-        $dom = new DOMDocument;
-        $dom->loadXML('<?xml version="1.0" ?><phpunit xmlns="https://schema.phpunit.de/coverage/1.0"><build/><project/></phpunit>');
-
-        $this->setContextNode(
-            $dom->getElementsByTagNameNS(
-                'https://schema.phpunit.de/coverage/1.0',
-                'project',
-            )->item(0),
-        );
+        $this->xmlWriter->startElement('project');
+        $this->xmlWriter->writeAttribute('source', $this->directory);
     }
 
-    private function setProjectSourceDirectory(string $name): void
+    public function finalize(): void
     {
-        $this->contextNode()->setAttribute('source', $name);
+        $this->xmlWriter->endElement();
+        $this->xmlWriter->endDocument();
+        $this->xmlWriter->flush();
     }
 }

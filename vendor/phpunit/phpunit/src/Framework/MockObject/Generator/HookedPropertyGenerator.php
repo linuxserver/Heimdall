@@ -21,8 +21,6 @@ final class HookedPropertyGenerator
     /**
      * @param class-string         $className
      * @param list<HookedProperty> $properties
-     *
-     * @return non-empty-string
      */
     public function generate(string $className, array $properties): string
     {
@@ -38,14 +36,14 @@ EOT,
                 $property->name(),
             );
 
-            if ($property->hasGetHook()) {
+            if ($property->shouldGenerateGetHook()) {
                 $code .= sprintf(
                     <<<'EOT'
 
         get {
             return $this->__phpunit_getInvocationHandler()->invoke(
                 new \PHPUnit\Framework\MockObject\Invocation(
-                    '%s', '$%s::get', [], '%s', $this, false
+                    '%s', '$%s::get', [], '%s', $this
                 )
             );
         }
@@ -57,20 +55,20 @@ EOT,
                 );
             }
 
-            if ($property->hasSetHook()) {
+            if ($property->shouldGenerateSetHook()) {
                 $code .= sprintf(
                     <<<'EOT'
 
         set (%s $value) {
             $this->__phpunit_getInvocationHandler()->invoke(
                 new \PHPUnit\Framework\MockObject\Invocation(
-                    '%s', '$%s::set', [$value], 'void', $this, false
+                    '%s', '$%s::set', [$value], 'void', $this
                 )
             );
         }
 
 EOT,
-                    $property->setterType()->asString(),
+                    ($property->setterType() ?? $property->type())->asString(),
                     $className,
                     $property->name(),
                 );

@@ -24,9 +24,9 @@ final class CodeExporter
 
         foreach ($snapshot->constants() as $name => $value) {
             $result .= sprintf(
-                'if (!defined(\'%s\')) define(\'%s\', %s);' . "\n",
-                $name,
-                $name,
+                'if (!defined(%s)) define(%s, %s);' . "\n",
+                $this->exportVariable($name),
+                $this->exportVariable($name),
                 $this->exportVariable($value),
             );
         }

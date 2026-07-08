@@ -21,10 +21,12 @@ use function gmp_mul;
 use function gmp_or;
 use function gmp_pow;
 use function gmp_powm;
+use function gmp_root;
 use function gmp_sqrt;
 use function gmp_strval;
 use function gmp_sub;
 use function gmp_xor;
+use function substr;
 
 /**
  * Calculator implementation built around the GMP library.
@@ -148,5 +150,18 @@ final readonly class GmpCalculator extends Calculator
     public function sqrt(string $n): string
     {
         return gmp_strval(gmp_sqrt($n));
+    }
+
+    #[Override]
+    public function nthRoot(string $n, int $k): string
+    {
+        // Delegate on the absolute value and re-apply the sign ourselves so the
+        // truncation-toward-zero convention matches the shared Newton-Raphson fallback
+        // bit-for-bit, regardless of any PHP/GMP behaviour changes for negative inputs.
+        if ($n[0] === '-') {
+            return '-' . gmp_strval(gmp_root(substr($n, 1), $k));
+        }
+
+        return gmp_strval(gmp_root($n, $k));
     }
 }

@@ -19,7 +19,7 @@ final class ResourceUsageFormatter
     /**
      * @var array<string,int>
      */
-    private const SIZES = [
+    private const array SIZES = [
         'GB' => 1073741824,
         'MB' => 1048576,
         'KB' => 1024,

@@ -159,7 +159,7 @@ class Rule
     /**
      * Get a required_unless rule builder instance.
      *
-     * @param  (\Closure(): bool)|bool  $callback
+     * @param  (\Closure(): bool)|bool|null  $callback
      * @return \Illuminate\Validation\Rules\RequiredUnless
      */
     public static function requiredUnless($callback)
@@ -168,7 +168,7 @@ class Rule
     }
 
     /**
-     * Get a exclude_if rule builder instance.
+     * Get an exclude_if rule builder instance.
      *
      * @param  (\Closure(): bool)|bool  $callback
      * @return \Illuminate\Validation\Rules\ExcludeIf
@@ -179,7 +179,7 @@ class Rule
     }
 
     /**
-     * Get a exclude_unless rule builder instance.
+     * Get an exclude_unless rule builder instance.
      *
      * @param  (\Closure(): bool)|bool  $callback
      * @return \Illuminate\Validation\Rules\ExcludeUnless

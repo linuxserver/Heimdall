@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Runner\Baseline;
 
-use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\Test\DeprecationTriggered;
 use PHPUnit\Event\Test\NoticeTriggered;
@@ -17,7 +16,6 @@ use PHPUnit\Event\Test\PhpDeprecationTriggered;
 use PHPUnit\Event\Test\PhpNoticeTriggered;
 use PHPUnit\Event\Test\PhpWarningTriggered;
 use PHPUnit\Event\Test\WarningTriggered;
-use PHPUnit\Event\UnknownSubscriberTypeException;
 use PHPUnit\Runner\FileDoesNotExistException;
 use PHPUnit\TextUI\Configuration\Source;
 use PHPUnit\TextUI\Configuration\SourceFilter;
@@ -32,10 +30,6 @@ final readonly class Generator
     private Baseline $baseline;
     private Source $source;
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     public function __construct(Facade $facade, Source $source)
     {
         $facade->registerSubscribers(
@@ -90,7 +84,7 @@ final readonly class Generator
             return $this->source->restrictNotices();
         }
 
-        return $this->source->restrictDeprecations();
+        return false;
     }
 
     private function isSuppressionIgnored(DeprecationTriggered|NoticeTriggered|PhpDeprecationTriggered|PhpNoticeTriggered|PhpWarningTriggered|WarningTriggered $event): bool

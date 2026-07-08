@@ -9,6 +9,7 @@
  */
 namespace SebastianBergmann\Invoker;
 
+use const PHP_EOL;
 use function extension_loaded;
 use function function_exists;
 use function implode;

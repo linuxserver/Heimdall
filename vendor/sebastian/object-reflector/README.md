@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/object-reflector/v/stable.png)](https://packagist.org/packages/sebastian/object-reflector)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/object-reflector/v)](https://packagist.org/packages/sebastian/object-reflector)
 [![CI Status](https://github.com/sebastianbergmann/object-reflector/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/object-reflector/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/object-reflector/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/object-reflector)
 

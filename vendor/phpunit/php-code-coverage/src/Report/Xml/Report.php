@@ -12,88 +12,97 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
 use function basename;
 use function dirname;
 use DOMDocument;
+use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Report extends File
 {
-    public function __construct(string $name)
+    private readonly string $name;
+    private readonly string $sha1;
+
+    public function __construct(XMLWriter $xmlWriter, string $name, string $sha1)
     {
+        /*
         $dom = new DOMDocument;
         $dom->loadXML('<?xml version="1.0" ?><phpunit xmlns="https://schema.phpunit.de/coverage/1.0"><file /></phpunit>');
 
         $contextNode = $dom->getElementsByTagNameNS(
-            'https://schema.phpunit.de/coverage/1.0',
+            Facade::XML_NAMESPACE,
             'file',
         )->item(0);
+*/
+        parent::__construct($xmlWriter);
 
-        parent::__construct($contextNode);
+        $this->name = $name;
+        $this->sha1 = $sha1;
 
-        $this->setName($name);
+        $xmlWriter->startDocument();
+        $xmlWriter->startElement('phpunit');
+        $xmlWriter->writeAttribute('xmlns', Facade::XML_NAMESPACE);
+        $xmlWriter->startElement('file');
+        $xmlWriter->writeAttribute('name', basename($this->name));
+        $xmlWriter->writeAttribute('path', dirname($this->name));
+        $xmlWriter->writeAttribute('hash', $this->sha1);
     }
 
-    public function asDom(): DOMDocument
+    public function finalize(): void
     {
-        return $this->dom();
+        $this->xmlWriter->endElement();
+        $this->xmlWriter->endElement();
+
+        $this->xmlWriter->endDocument();
+        $this->xmlWriter->flush();
     }
 
-    public function functionObject($name): Method
-    {
-        $node = $this->contextNode()->appendChild(
-            $this->dom()->createElementNS(
-                'https://schema.phpunit.de/coverage/1.0',
-                'function',
-            ),
+    public function functionObject(
+        string $name,
+        string $signature,
+        string $start,
+        ?string $end,
+        string $executable,
+        string $executed,
+        string $coverage,
+        string $crap
+    ): void {
+        new Method(
+            $this->xmlWriter,
+            $name,
+            $signature,
+            $start,
+            $end,
+            $executable,
+            $executed,
+            $coverage,
+            $crap,
         );
-
-        return new Method($node, $name);
     }
 
-    public function classObject($name): Unit
-    {
-        return $this->unitObject('class', $name);
+    public function classObject(
+        string $name,
+        string $namespace,
+        int $start,
+        int $executable,
+        int $executed,
+        float $crap
+    ): Unit {
+        return new Unit($this->xmlWriter, $name, $namespace, $start, $executable, $executed, $crap);
     }
 
-    public function traitObject($name): Unit
-    {
-        return $this->unitObject('trait', $name);
+    public function traitObject(
+        string $name,
+        string $namespace,
+        int $start,
+        int $executable,
+        int $executed,
+        float $crap
+    ): Unit {
+        return new Unit($this->xmlWriter, $name, $namespace, $start, $executable, $executed, $crap);
     }
 
     public function source(): Source
     {
-        $source = $this->contextNode()->getElementsByTagNameNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'source',
-        )->item(0);
-
-        if (!$source) {
-            $source = $this->contextNode()->appendChild(
-                $this->dom()->createElementNS(
-                    'https://schema.phpunit.de/coverage/1.0',
-                    'source',
-                ),
-            );
-        }
-
-        return new Source($source);
-    }
-
-    private function setName(string $name): void
-    {
-        $this->contextNode()->setAttribute('name', basename($name));
-        $this->contextNode()->setAttribute('path', dirname($name));
-    }
-
-    private function unitObject(string $tagName, $name): Unit
-    {
-        $node = $this->contextNode()->appendChild(
-            $this->dom()->createElementNS(
-                'https://schema.phpunit.de/coverage/1.0',
-                $tagName,
-            ),
-        );
-
-        return new Unit($node, $name);
+        return new Source($this->xmlWriter);
     }
 }

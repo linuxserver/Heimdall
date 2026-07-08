@@ -21,6 +21,9 @@ final readonly class GarbageCollectionEnabled implements Event
 {
     private Telemetry\Info $telemetryInfo;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -31,6 +34,9 @@ final readonly class GarbageCollectionEnabled implements Event
         return $this->telemetryInfo;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return 'Test Runner Enabled Garbage Collection';

@@ -13,15 +13,17 @@ use const PHP_EOL;
 use const PHP_VERSION;
 use function assert;
 use function class_exists;
+use function defined;
+use function dirname;
 use function explode;
 use function function_exists;
 use function is_file;
-use function is_readable;
 use function method_exists;
 use function printf;
 use function realpath;
 use function sprintf;
 use function str_contains;
+use function str_starts_with;
 use function trim;
 use function unlink;
 use PHPUnit\Event\EventFacadeIsSealedException;
@@ -31,6 +33,8 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Logging\EventLogger;
 use PHPUnit\Logging\JUnit\JunitXmlLogger;
+use PHPUnit\Logging\OpenTestReporting\CannotOpenUriForWritingException;
+use PHPUnit\Logging\OpenTestReporting\OtrXmlLogger;
 use PHPUnit\Logging\TeamCity\TeamCityLogger;
 use PHPUnit\Logging\TestDox\HtmlRenderer as TestDoxHtmlRenderer;
 use PHPUnit\Logging\TestDox\PlainTextRenderer as TestDoxTextRenderer;
@@ -40,6 +44,7 @@ use PHPUnit\Runner\Baseline\Generator as BaselineGenerator;
 use PHPUnit\Runner\Baseline\Reader;
 use PHPUnit\Runner\Baseline\Writer;
 use PHPUnit\Runner\CodeCoverage;
+use PHPUnit\Runner\CodeCoverageInitializationStatus;
 use PHPUnit\Runner\DeprecationCollector\Facade as DeprecationCollector;
 use PHPUnit\Runner\DirectoryDoesNotExistException;
 use PHPUnit\Runner\ErrorHandler;
@@ -47,7 +52,7 @@ use PHPUnit\Runner\Extension\ExtensionBootstrapper;
 use PHPUnit\Runner\Extension\Facade as ExtensionFacade;
 use PHPUnit\Runner\Extension\PharLoader;
 use PHPUnit\Runner\GarbageCollection\GarbageCollectionHandler;
-use PHPUnit\Runner\PhptTestCase;
+use PHPUnit\Runner\Phpt\TestCase as PhptTestCase;
 use PHPUnit\Runner\ResultCache\DefaultResultCache;
 use PHPUnit\Runner\ResultCache\NullResultCache;
 use PHPUnit\Runner\ResultCache\ResultCache;
@@ -74,6 +79,9 @@ use PHPUnit\TextUI\Command\ShowHelpCommand;
 use PHPUnit\TextUI\Command\ShowVersionCommand;
 use PHPUnit\TextUI\Command\VersionCheckCommand;
 use PHPUnit\TextUI\Command\WarmCodeCoverageCacheCommand;
+use PHPUnit\TextUI\Configuration\BootstrapLoader;
+use PHPUnit\TextUI\Configuration\BootstrapScriptDoesNotExistException;
+use PHPUnit\TextUI\Configuration\BootstrapScriptException;
 use PHPUnit\TextUI\Configuration\CodeCoverageFilterRegistry;
 use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\Configuration\PhpHandler;
@@ -101,6 +109,8 @@ final readonly class Application
      */
     public function run(array $argv): int
     {
+        $this->preload();
+
         try {
             EventFacade::emitter()->applicationStarted();
 
@@ -118,8 +128,10 @@ final readonly class Application
 
             (new PhpHandler)->handle($configuration->php());
 
-            if ($configuration->hasBootstrap()) {
-                $this->loadBootstrapScript($configuration->bootstrap());
+            try {
+                (new BootstrapLoader)->handle($configuration);
+            } catch (BootstrapScriptDoesNotExistException|BootstrapScriptException $e) {
+                $this->exitWithErrorMessage($e->getMessage());
             }
 
             $this->executeCommandsThatDoNotRequireTheTestSuite($configuration, $cliConfiguration);
@@ -154,7 +166,7 @@ final readonly class Application
                 EventFacade::instance()->registerTracer(
                     new EventLogger(
                         'php://stdout',
-                        false,
+                        $configuration->withTelemetry(),
                     ),
                 );
             }
@@ -179,7 +191,11 @@ final readonly class Application
 
             EventFacade::instance()->seal();
 
+            ErrorHandler::instance()->registerDeprecationHandler();
+
             $testSuite = $this->buildTestSuite($configuration);
+
+            ErrorHandler::instance()->restoreDeprecationHandler();
 
             $this->executeCommandsThatRequireTheTestSuite($configuration, $cliConfiguration, $testSuite);
 
@@ -187,7 +203,7 @@ final readonly class Application
                 $this->execute(new ShowHelpCommand(Result::FAILURE));
             }
 
-            CodeCoverage::instance()->init(
+            $coverageInitializationStatus = CodeCoverage::instance()->init(
                 $configuration,
                 CodeCoverageFilterRegistry::instance(),
                 $extensionRequiresCodeCoverageCollection,
@@ -206,13 +222,16 @@ final readonly class Application
             $timer = new Timer;
             $timer->start();
 
-            $runner = new TestRunner;
+            if ($coverageInitializationStatus === CodeCoverageInitializationStatus::NOT_REQUESTED ||
+                $coverageInitializationStatus === CodeCoverageInitializationStatus::SUCCEEDED) {
+                $runner = new TestRunner;
 
-            $runner->run(
-                $configuration,
-                $resultCache,
-                $testSuite,
-            );
+                $runner->run(
+                    $configuration,
+                    $resultCache,
+                    $testSuite,
+                );
+            }
 
             $duration = $timer->stop();
 
@@ -335,48 +354,6 @@ final readonly class Application
         }
 
         exit(Result::EXCEPTION);
-    }
-
-    private function loadBootstrapScript(string $filename): void
-    {
-        if (!is_readable($filename)) {
-            $this->exitWithErrorMessage(
-                sprintf(
-                    'Cannot open bootstrap script "%s"',
-                    $filename,
-                ),
-            );
-        }
-
-        try {
-            include_once $filename;
-        } catch (Throwable $t) {
-            $message = sprintf(
-                'Error in bootstrap script: %s:%s%s%s%s',
-                $t::class,
-                PHP_EOL,
-                $t->getMessage(),
-                PHP_EOL,
-                $t->getTraceAsString(),
-            );
-
-            while ($t = $t->getPrevious()) {
-                $message .= sprintf(
-                    '%s%sPrevious error: %s:%s%s%s%s',
-                    PHP_EOL,
-                    PHP_EOL,
-                    $t::class,
-                    PHP_EOL,
-                    $t->getMessage(),
-                    PHP_EOL,
-                    $t->getTraceAsString(),
-                );
-            }
-
-            $this->exitWithErrorMessage($message);
-        }
-
-        EventFacade::emitter()->testRunnerBootstrapFinished($filename);
     }
 
     /**
@@ -601,10 +578,6 @@ final readonly class Application
         }
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function registerLogfileWriters(Configuration $configuration): void
     {
         if ($configuration->hasLogEventsText()) {
@@ -650,6 +623,24 @@ final readonly class Application
             }
         }
 
+        if ($configuration->hasLogfileOtr()) {
+            try {
+                new OtrXmlLogger(
+                    EventFacade::instance(),
+                    $configuration->logfileOtr(),
+                    $configuration->includeGitInformationInOtrLogfile(),
+                );
+            } catch (CannotOpenUriForWritingException $e) {
+                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                    sprintf(
+                        'Cannot log test results in Open Test Reporting XML format to "%s": %s',
+                        $configuration->logfileOtr(),
+                        $e->getMessage(),
+                    ),
+                );
+            }
+        }
+
         if ($configuration->hasLogfileTeamcity()) {
             try {
                 new TeamCityLogger(
@@ -670,10 +661,6 @@ final readonly class Application
         }
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function testDoxResultCollector(Configuration $configuration): ?TestDoxResultCollector
     {
         if ($configuration->hasLogfileTestdoxHtml() ||
@@ -688,10 +675,6 @@ final readonly class Application
         return null;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function initializeTestResultCache(Configuration $configuration): ResultCache
     {
         if ($configuration->cacheResult()) {
@@ -705,10 +688,6 @@ final readonly class Application
         return new NullResultCache;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function configureBaseline(Configuration $configuration): ?BaselineGenerator
     {
         if ($configuration->hasGenerateBaseline()) {
@@ -743,7 +722,7 @@ final readonly class Application
     {
         $message = $t->getMessage();
 
-        if (empty(trim($message))) {
+        if (trim($message) === '') {
             $message = '(no message)';
         }
 
@@ -758,7 +737,7 @@ final readonly class Application
 
         $first = true;
 
-        if ($t->getPrevious()) {
+        if ($t->getPrevious() !== null) {
             $t = $t->getPrevious();
         }
 
@@ -854,6 +833,32 @@ final readonly class Application
 
         if ($deprecationTriggers !== ['functions' => [], 'methods' => []]) {
             ErrorHandler::instance()->useDeprecationTriggers($deprecationTriggers);
+        }
+    }
+
+    private function preload(): void
+    {
+        if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+            return;
+        }
+
+        $classMapFile = dirname(PHPUNIT_COMPOSER_INSTALL) . '/composer/autoload_classmap.php';
+
+        if (!is_file($classMapFile)) {
+            return;
+        }
+
+        foreach (require $classMapFile as $codeUnitName => $sourceCodeFile) {
+            if (!str_starts_with($codeUnitName, 'PHPUnit\\') &&
+                !str_starts_with($codeUnitName, 'SebastianBergmann\\')) {
+                continue;
+            }
+
+            if (str_contains($sourceCodeFile, '/tests/')) {
+                continue;
+            }
+
+            require_once $sourceCodeFile;
         }
     }
 }

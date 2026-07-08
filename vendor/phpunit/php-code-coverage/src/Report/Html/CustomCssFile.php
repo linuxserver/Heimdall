@@ -15,9 +15,9 @@ use SebastianBergmann\CodeCoverage\InvalidArgumentException;
 /**
  * @immutable
  */
-final class CustomCssFile
+final readonly class CustomCssFile
 {
-    private readonly string $path;
+    private string $path;
 
     public static function default(): self
     {

@@ -9,78 +9,37 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use DOMDocument;
-use DOMElement;
+use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 abstract class Node
 {
-    private DOMDocument $dom;
-    private DOMElement $contextNode;
+    protected readonly XMLWriter $xmlWriter;
 
-    public function __construct(DOMElement $context)
+    public function __construct(XMLWriter $xmlWriter)
     {
-        $this->setContextNode($context);
-    }
-
-    public function dom(): DOMDocument
-    {
-        return $this->dom;
+        $this->xmlWriter = $xmlWriter;
     }
 
     public function totals(): Totals
     {
-        $totalsContainer = $this->contextNode()->firstChild;
-
-        if (!$totalsContainer) {
-            $totalsContainer = $this->contextNode()->appendChild(
-                $this->dom->createElementNS(
-                    'https://schema.phpunit.de/coverage/1.0',
-                    'totals',
-                ),
-            );
-        }
-
-        return new Totals($totalsContainer);
+        return new Totals($this->xmlWriter);
     }
 
-    public function addDirectory(string $name): Directory
+    public function addDirectory(): Directory
     {
-        $dirNode = $this->dom()->createElementNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'directory',
-        );
-
-        $dirNode->setAttribute('name', $name);
-        $this->contextNode()->appendChild($dirNode);
-
-        return new Directory($dirNode);
+        return new Directory($this->xmlWriter);
     }
 
-    public function addFile(string $name, string $href): File
+    public function addFile(): File
     {
-        $fileNode = $this->dom()->createElementNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'file',
-        );
-
-        $fileNode->setAttribute('name', $name);
-        $fileNode->setAttribute('href', $href);
-        $this->contextNode()->appendChild($fileNode);
-
-        return new File($fileNode);
+        return new File($this->xmlWriter);
     }
 
-    protected function setContextNode(DOMElement $context): void
+    public function getWriter(): XMLWriter
     {
-        $this->dom         = $context->ownerDocument;
-        $this->contextNode = $context;
-    }
-
-    protected function contextNode(): DOMElement
-    {
-        return $this->contextNode;
+        return $this->xmlWriter;
     }
 }

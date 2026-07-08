@@ -12,12 +12,18 @@ namespace SebastianBergmann\Comparator;
 use function abs;
 use function assert;
 use function floor;
+use function in_array;
 use function sprintf;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class DateTimeComparator extends ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -36,7 +42,16 @@ final class DateTimeComparator extends ObjectComparator
         assert($expected instanceof DateTime || $expected instanceof DateTimeImmutable);
         assert($actual instanceof DateTime || $actual instanceof DateTimeImmutable);
 
+        if (in_array([$actual, $expected], $processed, true) ||
+            in_array([$expected, $actual], $processed, true)) {
+            return;
+        }
+
+        $processed[] = [$actual, $expected];
+
         $absDelta = abs($delta);
+
+        /** @phpstan-ignore argument.type */
         $delta    = new DateInterval(sprintf('PT%dS', $absDelta));
         $delta->f = $absDelta - floor($absDelta);
 

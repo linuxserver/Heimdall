@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/lines-of-code/v/stable.png)](https://packagist.org/packages/sebastian/lines-of-code)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/lines-of-code/v)](https://packagist.org/packages/sebastian/lines-of-code)
 [![CI Status](https://github.com/sebastianbergmann/lines-of-code/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/lines-of-code/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/lines-of-code/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/lines-of-code)
 

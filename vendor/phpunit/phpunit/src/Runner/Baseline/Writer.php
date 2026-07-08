@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Runner\Baseline;
 
-use function assert;
 use function dirname;
 use function file_put_contents;
 use function is_dir;
@@ -49,8 +48,6 @@ final readonly class Writer
         $writer->writeAttribute('version', (string) Baseline::VERSION);
 
         foreach ($baseline->groupedByFileAndLine() as $file => $lines) {
-            assert(!empty($file));
-
             $writer->startElement('file');
             $writer->writeAttribute('path', $pathCalculator->calculate($file));
 

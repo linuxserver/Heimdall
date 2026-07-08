@@ -14,6 +14,9 @@ use function array_unshift;
 use function extension_loaded;
 use function version_compare;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class Factory
 {
     private static ?Factory $instance = null;
@@ -56,7 +59,9 @@ final class Factory
             }
         }
 
+        // @codeCoverageIgnoreStart
         throw new RuntimeException('No suitable Comparator implementation found');
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -95,6 +100,7 @@ final class Factory
 
     private function registerDefaultComparators(): void
     {
+        $this->registerDefaultComparator(new ClosureComparator);
         $this->registerDefaultComparator(new MockObjectComparator);
         $this->registerDefaultComparator(new DateTimeComparator);
         $this->registerDefaultComparator(new DOMNodeComparator);

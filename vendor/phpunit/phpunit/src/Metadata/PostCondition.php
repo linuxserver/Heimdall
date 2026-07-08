@@ -19,7 +19,7 @@ final readonly class PostCondition extends Metadata
     private int $priority;
 
     /**
-     * @param 0|1 $level
+     * @param int<0, 1> $level
      */
     protected function __construct(int $level, int $priority)
     {

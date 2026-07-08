@@ -44,7 +44,6 @@ final class Context
     public function __destruct()
     {
         foreach ($this->arrays as &$array) {
-            /* @phpstan-ignore function.alreadyNarrowedType */
             if (is_array($array)) {
                 array_pop($array);
                 array_pop($array);
@@ -145,6 +144,7 @@ final class Context
 
         if (isset($end[1]) &&
             $end[1] === $this->objects &&
+            isset($end[0]) &&
             is_int($end[0])) {
             return $end[0];
         }

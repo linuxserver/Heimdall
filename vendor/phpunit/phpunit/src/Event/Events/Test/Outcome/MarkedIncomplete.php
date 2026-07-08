@@ -28,6 +28,9 @@ final readonly class MarkedIncomplete implements Event
     private Code\Test $test;
     private Throwable $throwable;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, Throwable $throwable)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -50,11 +53,14 @@ final readonly class MarkedIncomplete implements Event
         return $this->throwable;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = trim($this->throwable->message());
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

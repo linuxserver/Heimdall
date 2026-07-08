@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:annotation>
         <xs:documentation source="https://phpunit.de/documentation.html">
-            This Schema file defines the rules by which the XML configuration file of PHPUnit 11.5 may be structured.
+            This Schema file defines the rules by which the XML configuration file of PHPUnit 12.5 may be structured.
         </xs:documentation>
         <xs:appinfo source="https://phpunit.de/documentation.html"/>
     </xs:annotation>
@@ -183,6 +183,7 @@
         <xs:attribute name="failOnAllIssues" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnDeprecation" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnPhpunitDeprecation" type="xs:boolean" default="false"/>
+        <xs:attribute name="failOnPhpunitNotice" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnPhpunitWarning" type="xs:boolean" default="true"/>
         <xs:attribute name="failOnEmptyTestSuite" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnIncomplete" type="xs:boolean" default="false"/>
@@ -221,10 +222,11 @@
         <xs:attribute name="displayDetailsOnSkippedTests" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerDeprecations" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnPhpunitDeprecations" type="xs:boolean" default="false"/>
+        <xs:attribute name="displayDetailsOnPhpunitNotices" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerErrors" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerNotices" type="xs:boolean" default="false"/>
         <xs:attribute name="displayDetailsOnTestsThatTriggerWarnings" type="xs:boolean" default="false"/>
-        <xs:attribute name="shortenArraysForExportThreshold" type="xs:integer" default="0"/>
+        <xs:attribute name="shortenArraysForExportThreshold" type="xs:integer" default="10"/>
     </xs:attributeGroup>
     <xs:group name="configGroup">
         <xs:all>
@@ -253,6 +255,7 @@
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="bootstrap" type="xs:string" use="optional"/>
     </xs:complexType>
     <xs:group name="testSuitePathGroup">
         <xs:sequence>
@@ -290,14 +293,16 @@
             <xs:element name="cobertura" type="logToFileType" minOccurs="0"/>
             <xs:element name="crap4j" type="coverageReportCrap4JType" minOccurs="0" />
             <xs:element name="html" type="coverageReportHtmlType" minOccurs="0" />
+            <xs:element name="openclover" type="logToFileType" minOccurs="0"/>
             <xs:element name="php" type="logToFileType" minOccurs="0" />
             <xs:element name="text" type="coverageReportTextType" minOccurs="0" />
-            <xs:element name="xml" type="logToDirectoryType" minOccurs="0" />
+            <xs:element name="xml" type="coverageReportXmlType" minOccurs="0" />
         </xs:all>
     </xs:group>
     <xs:group name="loggingGroup">
         <xs:all>
             <xs:element name="junit" type="logToFileType" minOccurs="0" />
+            <xs:element name="otr" type="otrType" minOccurs="0" />
             <xs:element name="teamcity" type="logToFileType" minOccurs="0" />
             <xs:element name="testdoxHtml" type="logToFileType" minOccurs="0" />
             <xs:element name="testdoxText" type="logToFileType" minOccurs="0" />
@@ -308,6 +313,10 @@
     </xs:complexType>
     <xs:complexType name="logToDirectoryType">
         <xs:attribute name="outputDirectory" type="xs:anyURI" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="otrType">
+        <xs:attribute name="outputFile" type="xs:anyURI" use="required"/>
+        <xs:attribute name="includeGitInformation" type="xs:boolean" default="false"/>
     </xs:complexType>
     <xs:complexType name="coverageReportCrap4JType">
         <xs:attribute name="outputFile" type="xs:anyURI" use="required"/>
@@ -328,6 +337,10 @@
         <xs:attribute name="outputFile" type="xs:anyURI" use="required"/>
         <xs:attribute name="showUncoveredFiles" type="xs:boolean" default="false"/>
         <xs:attribute name="showOnlySummary" type="xs:boolean" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="coverageReportXmlType">
+        <xs:attribute name="outputDirectory" type="xs:anyURI" use="required"/>
+        <xs:attribute name="includeSource" type="xs:boolean" default="true"/>
     </xs:complexType>
     <xs:complexType name="deprecationTriggerType">
         <xs:sequence>

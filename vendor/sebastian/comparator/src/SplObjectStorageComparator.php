@@ -13,6 +13,11 @@ use function assert;
 use SebastianBergmann\Exporter\Exporter;
 use SplObjectStorage;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class SplObjectStorageComparator extends Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool

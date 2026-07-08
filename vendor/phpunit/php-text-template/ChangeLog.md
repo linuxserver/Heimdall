@@ -2,6 +2,12 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [5.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
 ## [4.0.1] - 2024-07-03
 
 ### Changed
@@ -61,6 +67,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Removed support for PHP 5.3, PHP 5.4, PHP 5.5, PHP 5.6, PHP 7.0, PHP 7.1, and PHP 7.2 
 
+[5.0.0]: https://github.com/sebastianbergmann/php-text-template/compare/4.0...5.0.0
 [4.0.1]: https://github.com/sebastianbergmann/php-text-template/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/sebastianbergmann/php-text-template/compare/3.0...4.0.0
 [3.0.1]: https://github.com/sebastianbergmann/php-text-template/compare/3.0.0...3.0.1

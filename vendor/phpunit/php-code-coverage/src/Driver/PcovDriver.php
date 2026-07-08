@@ -38,6 +38,9 @@ final class PcovDriver extends Driver
         $this->filter = $filter;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function start(): void
     {
         start();
@@ -47,10 +50,11 @@ final class PcovDriver extends Driver
     {
         stop();
 
+        // @codeCoverageIgnoreStart
         $filesToCollectCoverageFor = waiting();
         $collected                 = [];
 
-        if ($filesToCollectCoverageFor) {
+        if ($filesToCollectCoverageFor !== []) {
             if (!$this->filter->isEmpty()) {
                 $filesToCollectCoverageFor = array_intersect($filesToCollectCoverageFor, $this->filter->files());
             }
@@ -61,6 +65,7 @@ final class PcovDriver extends Driver
         }
 
         return RawCodeCoverageData::fromXdebugWithoutPathCoverage($collected);
+        // @codeCoverageIgnoreEnd
     }
 
     public function nameAndVersion(): string

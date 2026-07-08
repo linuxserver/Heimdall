@@ -2,6 +2,36 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [6.0.4] - 2026-05-20
+
+### Fixed
+
+* [#18](https://github.com/sebastianbergmann/type/issues/18): Class aliases are not resolved when checking type assignability
+
+## [6.0.3] - 2025-08-09
+
+### Fixed
+
+* [#34](https://github.com/sebastianbergmann/type/pull/34): `infection.json` is missing from `.gitattributes`
+
+## [6.0.2] - 2025-03-18
+
+### Fixed
+
+* [#33](https://github.com/sebastianbergmann/type/issues/33): `ReflectionMapper` does not handle unions that contain `iterable` correctly
+
+## [6.0.1] - 2025-03-18
+
+### Fixed
+
+* [#33](https://github.com/sebastianbergmann/type/issues/33): `ReflectionMapper` does not handle unions that contain `iterable` correctly
+
+## [6.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
 ## [5.1.3] - 2025-08-09
 
 ### Fixed
@@ -189,6 +219,11 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Initial release based on [code contributed by Michel Hartmann to PHPUnit](https://github.com/sebastianbergmann/phpunit/pull/3673)
 
+[6.0.4]: https://github.com/sebastianbergmann/type/compare/6.0.3...6.0.4
+[6.0.3]: https://github.com/sebastianbergmann/type/compare/6.0.2...6.0.3
+[6.0.2]: https://github.com/sebastianbergmann/type/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/sebastianbergmann/type/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/type/compare/5.1...6.0.0
 [5.1.3]: https://github.com/sebastianbergmann/type/compare/5.1.2...5.1.3
 [5.1.2]: https://github.com/sebastianbergmann/type/compare/5.1.1...5.1.2
 [5.1.1]: https://github.com/sebastianbergmann/type/compare/5.1.0...5.1.1

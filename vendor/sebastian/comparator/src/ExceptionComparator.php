@@ -13,7 +13,9 @@ use function assert;
 use Exception;
 
 /**
- * Compares Exception instances for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 final class ExceptionComparator extends ObjectComparator
 {

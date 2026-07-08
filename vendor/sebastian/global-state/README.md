@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/global-state/v/stable.png)](https://packagist.org/packages/sebastian/global-state)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/global-state/v)](https://packagist.org/packages/sebastian/global-state)
 [![CI Status](https://github.com/sebastianbergmann/global-state/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/global-state/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/global-state/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/global-state)
 

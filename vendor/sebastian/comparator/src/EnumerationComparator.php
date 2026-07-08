@@ -13,6 +13,11 @@ use function assert;
 use function sprintf;
 use UnitEnum;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class EnumerationComparator extends Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool

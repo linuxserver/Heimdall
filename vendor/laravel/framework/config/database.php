@@ -99,6 +99,14 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            'pooled' => env('DB_POOLED', false),
+            'direct' => array_filter([
+                'host' => env('DB_DIRECT_HOST'),
+                'port' => env('DB_DIRECT_PORT'),
+                'username' => env('DB_DIRECT_USERNAME'),
+                'password' => env('DB_DIRECT_PASSWORD'),
+                'sslmode' => env('DB_DIRECT_SSLMODE'),
+            ]),
         ],
 
         'sqlsrv' => [
@@ -151,7 +159,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

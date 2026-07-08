@@ -11,6 +11,9 @@ namespace SebastianBergmann\Comparator;
 
 use Throwable;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 interface Exception extends Throwable
 {
 }

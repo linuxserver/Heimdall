@@ -92,7 +92,7 @@ final readonly class Exporter
             $maxLengthForStrings = $this->maxLengthForStrings;
         }
 
-        if (!$processed) {
+        if ($processed === null) {
             $processed = new RecursionContext;
         }
 
@@ -183,27 +183,41 @@ final readonly class Exporter
             return (array) $value;
         }
 
-        $array = [];
+        $properties = (array) $value;
+        $shadowed   = $this->shadowedPropertyNames($properties);
+        $array      = [];
 
-        foreach ((array) $value as $key => $val) {
+        foreach ($properties as $key => $val) {
+            $key = (string) $key;
+
             // Exception traces commonly reference hundreds to thousands of
             // objects currently loaded in memory. Including them in the result
             // has a severe negative performance impact.
-            if ("\0Error\0trace" === $key || "\0Exception\0trace" === $key) {
+            if ($key === "\0Error\0trace" || $key === "\0Exception\0trace") {
                 continue;
-            }
-
-            // properties are transformed to keys in the following way:
-            // private   $propertyName => "\0ClassName\0propertyName"
-            // protected $propertyName => "\0*\0propertyName"
-            // public    $propertyName => "propertyName"
-            if (preg_match('/\0.+\0(.+)/', (string) $key, $matches)) {
-                $key = $matches[1];
             }
 
             // See https://github.com/php/php-src/commit/5721132
             if ($key === "\0gcdata") {
                 continue;
+            }
+
+            // Properties are transformed to keys in the following way:
+            // private   $propertyName => "\0DeclaringClassName\0propertyName"
+            // protected $propertyName => "\0*\0propertyName"
+            // public    $propertyName => "propertyName"
+            //
+            // A private property that is redeclared in a derived class and the
+            // private property of the same name that it shadows both exist,
+            // independently of each other. To keep one from overwriting the
+            // other, the name of a shadowed private property is prefixed with
+            // the name of the class that declares it.
+            if (preg_match('/^\0([^\0]+)\0([^\0]+)$/', $key, $matches) === 1) {
+                if ($matches[1] !== '*' && isset($shadowed[$matches[2]])) {
+                    $key = $matches[1] . '::' . $matches[2];
+                } else {
+                    $key = $matches[2];
+                }
             }
 
             $array[$key] = $val;
@@ -243,6 +257,43 @@ final readonly class Exporter
     }
 
     /**
+     * Returns, as keys of the returned array, the names of properties that
+     * are declared more than once in the inheritance chain of an object.
+     *
+     * This can only happen when a derived class redeclares a private property
+     * that one of its parent classes also declares.
+     *
+     * @param array<array-key, mixed> $properties
+     *
+     * @return array<string, true>
+     */
+    private function shadowedPropertyNames(array $properties): array
+    {
+        $seen     = [];
+        $shadowed = [];
+
+        foreach ($properties as $key => $unused) {
+            $key = (string) $key;
+
+            if ($key === "\0Error\0trace" || $key === "\0Exception\0trace" || $key === "\0gcdata") {
+                continue;
+            }
+
+            if (preg_match('/^\0[^\0]+\0([^\0]+)$/', $key, $matches) === 1) {
+                $key = $matches[1];
+            }
+
+            if (isset($seen[$key])) {
+                $shadowed[$key] = true;
+            }
+
+            $seen[$key] = true;
+        }
+
+        return $shadowed;
+    }
+
+    /**
      * @param array<mixed> $data
      * @param positive-int $maxLengthForStrings
      */
@@ -262,7 +313,7 @@ final readonly class Exporter
             }
 
             if (is_array($value)) {
-                assert(is_array($data[$key]) || is_object($data[$key]));
+                assert(isset($data[$key]) && (is_array($data[$key]) || is_object($data[$key])));
 
                 if ($processed->contains($data[$key]) !== false) {
                     $result[] = '*RECURSION*';
@@ -302,6 +353,7 @@ final readonly class Exporter
         if (is_resource($value)) {
             return sprintf(
                 'resource(%d) of type (%s)',
+                /** @phpstan-ignore cast.useless */
                 (int) $value,
                 get_resource_type($value),
             );
@@ -330,7 +382,7 @@ final readonly class Exporter
             return $this->exportString($value);
         }
 
-        if (!$processed) {
+        if ($processed === null) {
             $processed = new RecursionContext;
         }
 
@@ -365,7 +417,7 @@ final readonly class Exporter
     private function exportString(string $value): string
     {
         // Match for most non-printable chars somewhat taking multibyte chars into account
-        if (preg_match('/[^\x09-\x0d\x1b\x20-\xff]/', $value)) {
+        if (preg_match('/[^\x09-\x0d\x1b\x20-\xff]/', $value) === 1) {
             return 'Binary String: 0x' . bin2hex($value);
         }
 

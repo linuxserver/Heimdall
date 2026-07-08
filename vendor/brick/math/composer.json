@@ -23,7 +23,6 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5",
-        "php-coveralls/php-coveralls": "^2.2",
         "phpstan/phpstan": "2.1.22"
     },
     "autoload": {

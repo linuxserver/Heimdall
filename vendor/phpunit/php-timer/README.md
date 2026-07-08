@@ -1,6 +1,6 @@
 # phpunit/php-timer
 
-[![Latest Stable Version](https://poser.pugx.org/phpunit/php-timer/v/stable.png)](https://packagist.org/packages/phpunit/php-timer)
+[![Latest Stable Version](https://poser.pugx.org/phpunit/php-timer/v)](https://packagist.org/packages/phpunit/php-timer)
 [![CI Status](https://github.com/sebastianbergmann/php-timer/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/php-timer/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/php-timer/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/php-timer)
 

@@ -14,10 +14,10 @@ use SebastianBergmann\CodeCoverage\InvalidArgumentException;
 /**
  * @immutable
  */
-final class Thresholds
+final readonly class Thresholds
 {
-    private readonly int $lowUpperBound;
-    private readonly int $highLowerBound;
+    private int $lowUpperBound;
+    private int $highLowerBound;
 
     public static function default(): self
     {

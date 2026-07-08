@@ -87,11 +87,11 @@ final class SimpleType extends Type
         $name = strtolower($name);
 
         return match ($name) {
-            'boolean' => 'bool',
+            'boolean'        => 'bool',
             'real', 'double' => 'float',
-            'integer' => 'int',
-            '[]'      => 'array',
-            default   => $name,
+            'integer'        => 'int',
+            '[]'             => 'array',
+            default          => $name,
         };
     }
 }

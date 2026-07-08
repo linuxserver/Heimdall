@@ -20,17 +20,17 @@
     },
     "config": {
         "platform": {
-            "php": "8.2.0"
+            "php": "8.3.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^12.0"
     },
     "autoload": {
         "classmap": [
@@ -39,7 +39,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "4.0-dev"
+            "dev-main": "5.0-dev"
         }
     }
 }

@@ -14,6 +14,7 @@ use function sprintf;
 use PHPUnit\Event\Code;
 use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @immutable
@@ -25,7 +26,7 @@ final readonly class BeforeFirstTestMethodFinished implements Event
     private Telemetry\Info$telemetryInfo;
 
     /**
-     * @var class-string
+     * @var class-string<TestCase>
      */
     private string $testClassName;
 
@@ -35,7 +36,9 @@ final readonly class BeforeFirstTestMethodFinished implements Event
     private array $calledMethods;
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $testClassName, Code\ClassMethod ...$calledMethods)
     {
@@ -50,7 +53,7 @@ final readonly class BeforeFirstTestMethodFinished implements Event
     }
 
     /**
-     * @return class-string
+     * @return class-string<TestCase>
      */
     public function testClassName(): string
     {
@@ -65,6 +68,9 @@ final readonly class BeforeFirstTestMethodFinished implements Event
         return $this->calledMethods;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $buffer = 'Before First Test Method Finished:';

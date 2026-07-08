@@ -25,7 +25,6 @@ final readonly class Source
     private FileCollection $includeFiles;
     private FilterDirectoryCollection $excludeDirectories;
     private FileCollection $excludeFiles;
-    private bool $restrictDeprecations;
     private bool $restrictNotices;
     private bool $restrictWarnings;
     private bool $ignoreSuppressionOfDeprecations;
@@ -49,7 +48,7 @@ final readonly class Source
      * @param ?non-empty-string                                                         $baseline
      * @param array{functions: list<non-empty-string>, methods: list<non-empty-string>} $deprecationTriggers
      */
-    public function __construct(?string $baseline, bool $ignoreBaseline, FilterDirectoryCollection $includeDirectories, FileCollection $includeFiles, FilterDirectoryCollection $excludeDirectories, FileCollection $excludeFiles, bool $restrictDeprecations, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations, bool $identifyIssueTrigger)
+    public function __construct(?string $baseline, bool $ignoreBaseline, FilterDirectoryCollection $includeDirectories, FileCollection $includeFiles, FilterDirectoryCollection $excludeDirectories, FileCollection $excludeFiles, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations, bool $identifyIssueTrigger)
     {
         $this->baseline                           = $baseline;
         $this->ignoreBaseline                     = $ignoreBaseline;
@@ -57,7 +56,6 @@ final readonly class Source
         $this->includeFiles                       = $includeFiles;
         $this->excludeDirectories                 = $excludeDirectories;
         $this->excludeFiles                       = $excludeFiles;
-        $this->restrictDeprecations               = $restrictDeprecations;
         $this->restrictNotices                    = $restrictNotices;
         $this->restrictWarnings                   = $restrictWarnings;
         $this->ignoreSuppressionOfDeprecations    = $ignoreSuppressionOfDeprecations;
@@ -127,11 +125,6 @@ final readonly class Source
     public function notEmpty(): bool
     {
         return $this->includeDirectories->notEmpty() || $this->includeFiles->notEmpty();
-    }
-
-    public function restrictDeprecations(): bool
-    {
-        return $this->restrictDeprecations;
     }
 
     public function restrictNotices(): bool

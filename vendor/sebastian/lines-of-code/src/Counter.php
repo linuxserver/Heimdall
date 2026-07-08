@@ -38,7 +38,7 @@ final class Counter
     {
         $linesOfCode = substr_count($source, "\n");
 
-        if ($linesOfCode === 0 && !empty($source)) {
+        if ($linesOfCode === 0 && $source !== '') {
             $linesOfCode = 1;
         }
 
@@ -48,7 +48,6 @@ final class Counter
             assert($nodes !== null);
 
             return $this->countInAbstractSyntaxTree($linesOfCode, $nodes);
-
             // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(

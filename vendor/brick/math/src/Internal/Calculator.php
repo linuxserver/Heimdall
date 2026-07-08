@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Brick\Math\Internal;
 
-use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Math\RoundingMode;
 
 use function chr;
+use function intdiv;
 use function ltrim;
 use function ord;
 use function str_repeat;
@@ -30,11 +30,6 @@ use function substr;
  */
 abstract readonly class Calculator
 {
-    /**
-     * The maximum exponent value allowed for the pow() method.
-     */
-    public const MAX_POWER = 1_000_000;
-
     /**
      * The alphabet for converting from and to base 2 to 36, lowercase.
      */
@@ -164,7 +159,7 @@ abstract readonly class Calculator
      * Exponentiates a number.
      *
      * @param string $a The base number.
-     * @param int    $e The exponent, validated as an integer between 0 and MAX_POWER.
+     * @param int    $e The exponent, validated as a non-negative integer.
      *
      * @return string The power.
      *
@@ -237,15 +232,11 @@ abstract readonly class Calculator
      */
     public function gcd(string $a, string $b): string
     {
-        if ($a === '0') {
-            return $this->abs($b);
+        while ($b !== '0') {
+            [$a, $b] = [$b, $this->divR($a, $b)];
         }
 
-        if ($b === '0') {
-            return $this->abs($a);
-        }
-
-        return $this->gcd($b, $this->divR($a, $b));
+        return $this->abs($a);
     }
 
     /**
@@ -276,6 +267,64 @@ abstract readonly class Calculator
      * @pure
      */
     abstract public function sqrt(string $n): string;
+
+    /**
+     * Returns the integer nth root of the given number, truncated toward zero.
+     *
+     * If $n is non-negative, the result is the largest x such that x^$k ≤ $n (floor).
+     * If $n is negative, $k MUST be odd, and the result is the negation of the floor root of |$n|
+     * (i.e., truncation toward zero: the smallest x such that x^$k ≥ $n).
+     *
+     * The caller MUST guarantee that $k ≥ 1 and that $n is non-negative when $k is even.
+     *
+     * This method can be overridden by the concrete implementation if the underlying library
+     * has built-in support for nth root calculations.
+     *
+     * @param string $n The number. May be negative only when $k is odd.
+     * @param int    $k The root degree. Must be strictly positive.
+     *
+     * @pure
+     */
+    public function nthRoot(string $n, int $k): string
+    {
+        if ($n === '0') {
+            return '0';
+        }
+
+        $negative = ($n[0] === '-');
+        $m = $negative ? substr($n, 1) : $n;
+
+        if ($m === '1') {
+            return $negative ? '-1' : '1';
+        }
+
+        // Initial overshoot: 10^ceil(strlen(m)/k) is strictly greater than the true root.
+        // Newton-Raphson requires starting above the true root to converge monotonically down.
+        $x = '1' . str_repeat('0', intdiv(strlen($m) - 1, $k) + 1);
+
+        $kStr = (string) $k;
+        $kMinusOneStr = (string) ($k - 1);
+
+        // Newton-Raphson recurrence for integer nth root:
+        //   x_{i+1} = floor(((k-1) * x_i + floor(m / x_i^{k-1})) / k)
+        for (; ;) {
+            $nx = $this->divQ(
+                $this->add(
+                    $this->mul($kMinusOneStr, $x),
+                    $this->divQ($m, $this->pow($x, $k - 1)),
+                ),
+                $kStr,
+            );
+
+            if ($this->cmp($nx, $x) >= 0) {
+                break;
+            }
+
+            $x = $nx;
+        }
+
+        return $negative ? $this->neg($x) : $x;
+    }
 
     /**
      * Converts a number from an arbitrary base.
@@ -407,17 +456,16 @@ abstract readonly class Calculator
     /**
      * Performs a rounded division.
      *
-     * Rounding is performed when the remainder of the division is not zero.
+     * When the remainder of the division is not zero, rounding is performed according to the rounding mode provided,
+     * unless RoundingMode::Unnecessary is used, in which case the method returns null.
      *
      * @param string       $a            The dividend.
      * @param string       $b            The divisor, must not be zero.
      * @param RoundingMode $roundingMode The rounding mode.
      *
-     * @throws RoundingNecessaryException If RoundingMode::Unnecessary is provided but rounding is necessary.
-     *
      * @pure
      */
-    final public function divRound(string $a, string $b, RoundingMode $roundingMode): string
+    final public function divRound(string $a, string $b, RoundingMode $roundingMode): ?string
     {
         [$quotient, $remainder] = $this->divQR($a, $b);
 
@@ -436,7 +484,7 @@ abstract readonly class Calculator
         switch ($roundingMode) {
             case RoundingMode::Unnecessary:
                 if ($hasDiscardedFraction) {
-                    throw RoundingNecessaryException::roundingNecessary();
+                    return null;
                 }
 
                 break;
@@ -552,22 +600,27 @@ abstract readonly class Calculator
     }
 
     /**
-     * @return array{string, string, string} GCD, X, Y
+     * @param string $a Must be non-negative.
+     * @param string $b Must be non-negative.
+     *
+     * @return array{string, string} GCD, X
      *
      * @pure
      */
     private function gcdExtended(string $a, string $b): array
     {
-        if ($a === '0') {
-            return [$b, '0', '1'];
+        // Iterative extended Euclidean algorithm; recursion would exhaust memory on large inputs.
+        [$r0, $r1] = [$a, $b];
+        [$x0, $x1] = ['1', '0'];
+
+        while ($r1 !== '0') {
+            [$q, $r] = $this->divQR($r0, $r1);
+
+            [$r0, $r1] = [$r1, $r];
+            [$x0, $x1] = [$x1, $this->sub($x0, $this->mul($q, $x1))];
         }
 
-        [$gcd, $x1, $y1] = $this->gcdExtended($this->mod($b, $a), $a);
-
-        $x = $this->sub($y1, $this->mul($this->divQ($b, $a), $x1));
-        $y = $x1;
-
-        return [$gcd, $x, $y];
+        return [$r0, $x0];
     }
 
     /**

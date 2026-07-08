@@ -2,7 +2,6 @@
 namespace TheSeer\Tokenizer;
 
 class Token {
-
     /** @var int */
     private $line;
 

@@ -9,16 +9,14 @@
  */
 namespace PHPUnit\Logging\TestDox;
 
-use function array_keys;
 use function array_merge;
 use function assert;
 use function is_subclass_of;
-use function ksort;
+use function uasort;
 use function uksort;
 use function usort;
 use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Event\Code\Throwable;
-use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\InvalidArgumentException;
 use PHPUnit\Event\Test\ConsideredRisky;
@@ -38,7 +36,6 @@ use PHPUnit\Event\Test\PhpWarningTriggered;
 use PHPUnit\Event\Test\Prepared;
 use PHPUnit\Event\Test\Skipped;
 use PHPUnit\Event\Test\WarningTriggered;
-use PHPUnit\Event\UnknownSubscriberTypeException;
 use PHPUnit\Framework\TestStatus\TestStatus;
 use PHPUnit\Logging\TestDox\TestResult as TestDoxTestMethod;
 use PHPUnit\TestRunner\IssueFilter;
@@ -54,17 +51,13 @@ final class TestResultCollector
     private readonly IssueFilter $issueFilter;
 
     /**
-     * @var array<string, list<TestDoxTestMethod>>
+     * @var array<class-string, list<TestDoxTestMethod>>
      */
     private array $tests          = [];
     private ?TestStatus $status   = null;
     private ?Throwable $throwable = null;
     private bool $prepared        = false;
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     public function __construct(Facade $facade, IssueFilter $issueFilter)
     {
         $this->issueFilter = $issueFilter;
@@ -73,13 +66,13 @@ final class TestResultCollector
     }
 
     /**
-     * @return array<string, TestResultCollection>
+     * @return array<class-string, TestResultCollection>
      */
     public function testMethodsGroupedByClass(): array
     {
         $result = [];
 
-        foreach ($this->tests as $prettifiedClassName => $tests) {
+        foreach ($this->tests as $className => $tests) {
             $testsByDeclaringClass = [];
 
             foreach ($tests as $test) {
@@ -92,9 +85,9 @@ final class TestResultCollector
                 $testsByDeclaringClass[$declaringClassName][] = $test;
             }
 
-            foreach (array_keys($testsByDeclaringClass) as $declaringClassName) {
+            foreach ($testsByDeclaringClass as $declaringClassName) {
                 usort(
-                    $testsByDeclaringClass[$declaringClassName],
+                    $declaringClassName,
                     static function (TestDoxTestMethod $a, TestDoxTestMethod $b): int
                     {
                         return $a->test()->line() <=> $b->test()->line();
@@ -128,10 +121,17 @@ final class TestResultCollector
                 $tests = array_merge($tests, $_tests);
             }
 
-            $result[$prettifiedClassName] = TestResultCollection::fromArray($tests);
+            $result[$className] = TestResultCollection::fromArray($tests);
         }
 
-        ksort($result);
+        uasort(
+            $result,
+            static function (TestResultCollection $a, TestResultCollection $b): int
+            {
+                return $a->asArray()[0]->test()->testDox()->prettifiedClassName()
+                    <=> $b->asArray()[0]->test()->testDox()->prettifiedClassName();
+            },
+        );
 
         return $result;
     }
@@ -315,6 +315,10 @@ final class TestResultCollector
             return;
         }
 
+        if ($event->ignoredByTest()) {
+            return;
+        }
+
         $this->updateTestStatus(TestStatus::warning());
     }
 
@@ -338,10 +342,6 @@ final class TestResultCollector
         $this->prepared  = false;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function registerSubscribers(Facade $facade): void
     {
         $facade->registerSubscribers(
@@ -377,11 +377,11 @@ final class TestResultCollector
 
     private function process(TestMethod $test): void
     {
-        if (!isset($this->tests[$test->testDox()->prettifiedClassName()])) {
-            $this->tests[$test->testDox()->prettifiedClassName()] = [];
+        if (!isset($this->tests[$test->className()])) {
+            $this->tests[$test->className()] = [];
         }
 
-        $this->tests[$test->testDox()->prettifiedClassName()][] = new TestDoxTestMethod(
+        $this->tests[$test->className()][] = new TestDoxTestMethod(
             $test,
             $this->status,
             $this->throwable,

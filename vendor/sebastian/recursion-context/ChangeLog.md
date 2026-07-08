@@ -2,6 +2,18 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [7.0.1] - 2025-08-13
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
+
+## [7.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
 ## [6.0.3] - 2025-08-13
 
 ### Changed
@@ -69,6 +81,8 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Tests etc. are now ignored for archive exports
 
+[7.0.1]: https://github.com/sebastianbergmann/recursion-context/compare/7.0.0...7.0.1
+[7.0.0]: https://github.com/sebastianbergmann/recursion-context/compare/6.0...7.0.0
 [6.0.3]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.2...6.0.3
 [6.0.2]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.1...6.0.2
 [6.0.1]: https://github.com/sebastianbergmann/recursion-context/compare/6.0.0...6.0.1

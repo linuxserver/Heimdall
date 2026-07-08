@@ -17,19 +17,21 @@ if (!defined('STDOUT')) {
 
 {iniSettings}
 ini_set('display_errors', 'stderr');
-set_include_path('{include_path}');
+if (get_include_path() !== '{include_path}') {
+    set_include_path('{include_path}');
+}
 
-$composerAutoload = {composerAutoload};
-$phar             = {phar};
+$__phpunit_composerAutoload = {composerAutoload};
+$__phpunit_phar             = {phar};
 
 ob_start();
 
-if ($composerAutoload) {
-    require_once $composerAutoload;
+if ($__phpunit_composerAutoload) {
+    require_once $__phpunit_composerAutoload;
 
-    define('PHPUNIT_COMPOSER_INSTALL', $composerAutoload);
-} else if ($phar) {
-    require $phar;
+    define('PHPUNIT_COMPOSER_INSTALL', $__phpunit_composerAutoload);
+} else if ($__phpunit_phar) {
+    require $__phpunit_phar;
 }
 
 function __phpunit_run_isolated_test()
@@ -102,8 +104,8 @@ function __phpunit_run_isolated_test()
 
     file_put_contents(
         '{processResultFile}',
-        serialize(
-            [
+        '{processResultNonce}' . serialize(
+            (object)[
                 'testResult'    => $test->result(),
                 'codeCoverage'  => {collectCodeCoverageInformation} ? CodeCoverage::instance()->codeCoverage() : null,
                 'numAssertions' => $test->numberOfAssertionsPerformed(),
@@ -138,6 +140,21 @@ if ('{sourceMapFile}' !== '') {
 
 if ('{bootstrap}' !== '') {
     require_once '{bootstrap}';
+}
+
+$__phpunit_includeTestSuites = ConfigurationRegistry::get()->includeTestSuites();
+$__phpunit_excludeTestSuites = ConfigurationRegistry::get()->excludeTestSuites();
+
+foreach (ConfigurationRegistry::get()->bootstrapForTestSuite() as $__phpunit_testSuiteName => $__phpunit_bootstrapForTestSuite) {
+    if ($__phpunit_includeTestSuites !== [] && !in_array($__phpunit_testSuiteName, $__phpunit_includeTestSuites, true)) {
+        continue;
+    }
+
+    if ($__phpunit_excludeTestSuites !== [] && in_array($__phpunit_testSuiteName, $__phpunit_excludeTestSuites, true)) {
+        continue;
+    }
+
+    require_once $__phpunit_bootstrapForTestSuite;
 }
 
 __phpunit_run_isolated_test();

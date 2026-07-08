@@ -435,10 +435,21 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      *
      * @deprecated use ->input() instead
      */
-    #[\Override]
     public function get(string $key, mixed $default = null): mixed
     {
-        return parent::get($key, $default);
+        if ($this !== $result = $this->attributes->get($key, $this)) {
+            return $result;
+        }
+
+        if ($this->query->has($key)) {
+            return $this->query->all()[$key];
+        }
+
+        if ($this->request->has($key)) {
+            return $this->request->all()[$key];
+        }
+
+        return $default;
     }
 
     /**
@@ -451,7 +462,9 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     public function json($key = null, $default = null)
     {
         if (! isset($this->json)) {
-            $this->json = new InputBag((array) json_decode($this->getContent() ?: '[]', true));
+            $content = $this->getContent();
+
+            $this->json = new InputBag((array) json_decode(trim($content) === '' ? '[]' : $content, true));
         }
 
         if (is_null($key)) {
@@ -535,7 +548,8 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
         $newRequest->content = $request->content;
 
         if ($newRequest->isJson()) {
-            $newRequest->request = $newRequest->json();
+            $newRequest->request->replace($newRequest->json()->all());
+            $newRequest->setJson($newRequest->request);
         }
 
         return $newRequest;

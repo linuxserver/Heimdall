@@ -15,14 +15,14 @@ use function is_string;
 use function round;
 use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Node\File;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\CodeCoverage\Util\Xml;
+use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
-final class Crap4j
+final readonly class Crap4j
 {
-    private readonly int $threshold;
+    private int $threshold;
 
     public function __construct(int $threshold = 30)
     {
@@ -70,31 +70,31 @@ final class Crap4j
             $classes = $item->classesAndTraits();
 
             foreach ($classes as $className => $class) {
-                foreach ($class['methods'] as $methodName => $method) {
-                    $crapLoad = $this->crapLoad((float) $method['crap'], $method['ccn'], $method['coverage']);
+                foreach ($class->methods as $methodName => $method) {
+                    $crapLoad = $this->crapLoad((float) $method->crap, $method->ccn, $method->coverage);
 
-                    $fullCrap     += $method['crap'];
+                    $fullCrap     += $method->crap;
                     $fullCrapLoad += $crapLoad;
                     $fullMethodCount++;
 
-                    if ($method['crap'] >= $this->threshold) {
+                    if ($method->crap >= $this->threshold) {
                         $fullCrapMethodCount++;
                     }
 
                     $methodNode = $document->createElement('method');
 
-                    if (!empty($class['namespace'])) {
-                        $namespace = $class['namespace'];
+                    if ($class->namespace !== '') {
+                        $namespace = $class->namespace;
                     }
 
                     $methodNode->appendChild($document->createElement('package', $namespace));
                     $methodNode->appendChild($document->createElement('className', $className));
                     $methodNode->appendChild($document->createElement('methodName', $methodName));
-                    $methodNode->appendChild($document->createElement('methodSignature', htmlspecialchars($method['signature'])));
-                    $methodNode->appendChild($document->createElement('fullMethod', htmlspecialchars($method['signature'])));
-                    $methodNode->appendChild($document->createElement('crap', (string) $this->roundValue((float) $method['crap'])));
-                    $methodNode->appendChild($document->createElement('complexity', (string) $method['ccn']));
-                    $methodNode->appendChild($document->createElement('coverage', (string) $this->roundValue($method['coverage'])));
+                    $methodNode->appendChild($document->createElement('methodSignature', htmlspecialchars($method->signature)));
+                    $methodNode->appendChild($document->createElement('fullMethod', htmlspecialchars($method->signature)));
+                    $methodNode->appendChild($document->createElement('crap', (string) $this->roundValue((float) $method->crap)));
+                    $methodNode->appendChild($document->createElement('complexity', (string) $method->ccn));
+                    $methodNode->appendChild($document->createElement('coverage', (string) $this->roundValue($method->coverage)));
                     $methodNode->appendChild($document->createElement('crapLoad', (string) round($crapLoad)));
 
                     $methodsNode->appendChild($methodNode);

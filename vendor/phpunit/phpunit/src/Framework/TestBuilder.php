@@ -11,8 +11,11 @@ namespace PHPUnit\Framework;
 
 use function array_merge;
 use function assert;
+use function sprintf;
+use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Metadata\Api\DataProvider;
 use PHPUnit\Metadata\Api\Groups;
+use PHPUnit\Metadata\Api\ProvidedData;
 use PHPUnit\Metadata\Api\Requirements;
 use PHPUnit\Metadata\BackupGlobals;
 use PHPUnit\Metadata\BackupStaticProperties;
@@ -20,6 +23,7 @@ use PHPUnit\Metadata\ExcludeGlobalVariableFromBackup;
 use PHPUnit\Metadata\ExcludeStaticPropertyFromBackup;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\PreserveGlobalState;
+use PHPUnit\Runner\ErrorHandler;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use ReflectionClass;
 
@@ -44,7 +48,13 @@ final readonly class TestBuilder
         $data = null;
 
         if ($this->requirementsSatisfied($className, $methodName)) {
-            $data = (new DataProvider)->providedData($className, $methodName);
+            try {
+                ErrorHandler::instance()->enterTestCaseContext($className, $methodName);
+
+                $data = (new DataProvider)->providedData($className, $methodName);
+            } finally {
+                ErrorHandler::instance()->leaveTestCaseContext();
+            }
         }
 
         if ($data !== null) {
@@ -76,7 +86,7 @@ final readonly class TestBuilder
     /**
      * @param non-empty-string                                                                                                                                                  $methodName
      * @param class-string<TestCase>                                                                                                                                            $className
-     * @param array<list<mixed>>                                                                                                                                                $data
+     * @param array<ProvidedData>                                                                                                                                               $data
      * @param array{backupGlobals: ?true, backupGlobalsExcludeList: list<string>, backupStaticProperties: ?true, backupStaticPropertiesExcludeList: array<string,list<string>>} $backupSettings
      * @param list<non-empty-string>                                                                                                                                            $groups
      */
@@ -94,7 +104,7 @@ final readonly class TestBuilder
         foreach ($data as $_dataName => $_data) {
             $_test = new $className($methodName);
 
-            $_test->setData($_dataName, $_data);
+            $_test->setData($_dataName, $_data->value());
 
             $this->configureTestCase(
                 $_test,
@@ -273,7 +283,18 @@ final readonly class TestBuilder
      */
     private function shouldAllTestMethodsOfTestClassBeRunInSingleSeparateProcess(string $className): bool
     {
-        return MetadataRegistry::parser()->forClass($className)->isRunClassInSeparateProcess()->isNotEmpty();
+        $result = MetadataRegistry::parser()->forClass($className)->isRunClassInSeparateProcess()->isNotEmpty();
+
+        if ($result) {
+            EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+                sprintf(
+                    'Class %s uses the #[RunClassInSeparateProcess]. This attribute is deprecated and will be removed in PHPUnit 13',
+                    $className,
+                ),
+            );
+        }
+
+        return $result;
     }
 
     /**

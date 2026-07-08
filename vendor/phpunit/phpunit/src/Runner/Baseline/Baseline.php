@@ -9,6 +9,10 @@
  */
 namespace PHPUnit\Runner\Baseline;
 
+use function ksort;
+use function strcmp;
+use function usort;
+
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -16,7 +20,7 @@ namespace PHPUnit\Runner\Baseline;
  */
 final class Baseline
 {
-    public const VERSION = 1;
+    public const int VERSION = 1;
 
     /**
      * @var array<non-empty-string, array<positive-int, list<Issue>>>
@@ -52,10 +56,25 @@ final class Baseline
     }
 
     /**
-     * @return array<string, array<positive-int, list<Issue>>>
+     * @return array<non-empty-string, array<positive-int, list<Issue>>>
      */
     public function groupedByFileAndLine(): array
     {
-        return $this->issues;
+        $issues = $this->issues;
+
+        ksort($issues);
+
+        foreach ($issues as &$lines) {
+            ksort($lines);
+
+            foreach ($lines as &$issuesOnLine) {
+                usort(
+                    $issuesOnLine,
+                    static fn (Issue $a, Issue $b): int => strcmp($a->description(), $b->description()),
+                );
+            }
+        }
+
+        return $issues;
     }
 }

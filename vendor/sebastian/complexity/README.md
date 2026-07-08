@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/complexity/v/stable.png)](https://packagist.org/packages/sebastian/complexity)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/complexity/v)](https://packagist.org/packages/sebastian/complexity)
 [![CI Status](https://github.com/sebastianbergmann/complexity/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/complexity/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/complexity/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/complexity)
 

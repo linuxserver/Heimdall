@@ -15,7 +15,6 @@ use function array_reverse;
 use function array_slice;
 use function count;
 use function in_array;
-use function max;
 
 final class MemoryEfficientLongestCommonSubsequenceCalculator implements LongestCommonSubsequenceCalculator
 {

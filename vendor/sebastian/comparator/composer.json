@@ -28,9 +28,9 @@
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
-        "sebastian/diff": "^6.0",
-        "sebastian/exporter": "^6.0",
+        "php": ">=8.3",
+        "sebastian/diff": "^7.0",
+        "sebastian/exporter": "^7.0.3",
         "ext-dom": "*",
         "ext-mbstring": "*"
     },
@@ -38,11 +38,11 @@
         "ext-bcmath": "For comparing BcMath\\Number objects"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.4"
+        "phpunit/phpunit": "^12.5.25"
     },
     "config": {
         "platform": {
-            "php": "8.2.0"
+            "php": "8.3.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
@@ -59,7 +59,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "6.3-dev"
+            "dev-main": "7.1-dev"
         }
     }
 }

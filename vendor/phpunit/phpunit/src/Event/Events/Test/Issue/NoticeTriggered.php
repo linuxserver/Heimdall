@@ -47,6 +47,8 @@ final readonly class NoticeTriggered implements Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline)
     {
@@ -103,11 +105,14 @@ final readonly class NoticeTriggered implements Event
         return $this->ignoredByBaseline;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = $this->message;
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

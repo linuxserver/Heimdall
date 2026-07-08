@@ -9,70 +9,57 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use function assert;
-use DOMElement;
+use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Unit
+final readonly class Unit
 {
-    private readonly DOMElement $contextNode;
+    private XMLWriter $xmlWriter;
 
-    public function __construct(DOMElement $context, string $name)
-    {
-        $this->contextNode = $context;
+    public function __construct(
+        XMLWriter $xmlWriter,
+        string $name,
+        string $namespace,
+        int $start,
+        int $executable,
+        int $executed,
+        float $crap
+    ) {
+        $this->xmlWriter = $xmlWriter;
 
-        $this->setName($name);
+        $this->xmlWriter->writeAttribute('name', $name);
+        $this->xmlWriter->writeAttribute('start', (string) $start);
+        $this->xmlWriter->writeAttribute('executable', (string) $executable);
+        $this->xmlWriter->writeAttribute('executed', (string) $executed);
+        $this->xmlWriter->writeAttribute('crap', (string) $crap);
+
+        $this->xmlWriter->startElement('namespace');
+        $this->xmlWriter->writeAttribute('name', $namespace);
+        $this->xmlWriter->endElement();
     }
 
-    public function setLines(int $start, int $executable, int $executed): void
-    {
-        $this->contextNode->setAttribute('start', (string) $start);
-        $this->contextNode->setAttribute('executable', (string) $executable);
-        $this->contextNode->setAttribute('executed', (string) $executed);
-    }
-
-    public function setCrap(float $crap): void
-    {
-        $this->contextNode->setAttribute('crap', (string) $crap);
-    }
-
-    public function setNamespace(string $namespace): void
-    {
-        $node = $this->contextNode->getElementsByTagNameNS(
-            'https://schema.phpunit.de/coverage/1.0',
-            'namespace',
-        )->item(0);
-
-        if (!$node) {
-            $node = $this->contextNode->appendChild(
-                $this->contextNode->ownerDocument->createElementNS(
-                    'https://schema.phpunit.de/coverage/1.0',
-                    'namespace',
-                ),
-            );
-        }
-
-        assert($node instanceof DOMElement);
-
-        $node->setAttribute('name', $namespace);
-    }
-
-    public function addMethod(string $name): Method
-    {
-        $node = $this->contextNode->appendChild(
-            $this->contextNode->ownerDocument->createElementNS(
-                'https://schema.phpunit.de/coverage/1.0',
-                'method',
-            ),
+    public function addMethod(
+        string $name,
+        string $signature,
+        string $start,
+        ?string $end,
+        string $executable,
+        string $executed,
+        string $coverage,
+        string $crap
+    ): void {
+        new Method(
+            $this->xmlWriter,
+            $name,
+            $signature,
+            $start,
+            $end,
+            $executable,
+            $executed,
+            $coverage,
+            $crap,
         );
-
-        return new Method($node, $name);
-    }
-
-    private function setName(string $name): void
-    {
-        $this->contextNode->setAttribute('name', $name);
     }
 }

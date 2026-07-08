@@ -871,6 +871,9 @@ class Container implements ArrayAccess, ContainerContract
      *
      * @param  string|class-string<TClass>  $id
      * @return ($id is class-string<TClass> ? TClass : mixed)
+     *
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     * @throws \Illuminate\Container\EntryNotFoundException
      */
     public function get(string $id)
     {
@@ -1226,7 +1229,7 @@ class Container implements ArrayAccess, ContainerContract
             $result = null;
 
             if (! is_null($attribute = Util::getContextualAttributeFromDependency($dependency))) {
-                $result = $this->resolveFromAttribute($attribute);
+                $result = $this->resolveFromAttribute($attribute, $dependency);
             }
 
             // If the class is null, it means the dependency is a string or some other
@@ -1372,8 +1375,10 @@ class Container implements ArrayAccess, ContainerContract
      * Resolve a dependency based on an attribute.
      *
      * @return mixed
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function resolveFromAttribute(ReflectionAttribute $attribute)
+    public function resolveFromAttribute(ReflectionAttribute $attribute, ReflectionParameter $parameter)
     {
         $handler = $this->contextualAttributes[$attribute->getName()] ?? null;
 
@@ -1387,7 +1392,7 @@ class Container implements ArrayAccess, ContainerContract
             throw new BindingResolutionException("Contextual binding attribute [{$attribute->getName()}] has no registered handler.");
         }
 
-        return $handler($instance, $this);
+        return $handler($instance, $this, $parameter);
     }
 
     /**
@@ -1788,42 +1793,42 @@ class Container implements ArrayAccess, ContainerContract
     /**
      * Determine if a given offset exists.
      *
-     * @param  string  $key
+     * @param  string  $offset
      */
-    public function offsetExists($key): bool
+    public function offsetExists($offset): bool
     {
-        return $this->bound($key);
+        return $this->bound($offset);
     }
 
     /**
      * Get the value at a given offset.
      *
-     * @param  string  $key
+     * @param  string  $offset
      */
-    public function offsetGet($key): mixed
+    public function offsetGet($offset): mixed
     {
-        return $this->make($key);
+        return $this->make($offset);
     }
 
     /**
      * Set the value at a given offset.
      *
-     * @param  string  $key
+     * @param  string  $offset
      * @param  mixed  $value
      */
-    public function offsetSet($key, $value): void
+    public function offsetSet($offset, $value): void
     {
-        $this->bind($key, $value instanceof Closure ? $value : fn () => $value);
+        $this->bind($offset, $value instanceof Closure ? $value : fn () => $value);
     }
 
     /**
      * Unset the value at a given offset.
      *
-     * @param  string  $key
+     * @param  string  $offset
      */
-    public function offsetUnset($key): void
+    public function offsetUnset($offset): void
     {
-        unset($this->bindings[$key], $this->instances[$key], $this->resolved[$key]);
+        unset($this->bindings[$offset], $this->instances[$offset], $this->resolved[$offset]);
     }
 
     /**

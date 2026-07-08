@@ -19,7 +19,7 @@ use function fstat;
 use function function_exists;
 use function getenv;
 use function in_array;
-use function is_array;
+use function is_int;
 use function is_resource;
 use function is_string;
 use function posix_isatty;
@@ -38,17 +38,17 @@ final class Console
     /**
      * @var int
      */
-    public const STDIN = 0;
+    public const int STDIN = 0;
 
     /**
      * @var int
      */
-    public const STDOUT = 1;
+    public const int STDOUT = 1;
 
     /**
      * @var int
      */
-    public const STDERR = 2;
+    public const int STDERR = 2;
 
     /**
      * Returns true if STDOUT supports colorization.
@@ -117,17 +117,19 @@ final class Console
      *
      * @param int|resource $fileDescriptor
      */
-    public function isInteractive($fileDescriptor = self::STDOUT): bool
+    public function isInteractive(mixed $fileDescriptor = self::STDOUT): bool
     {
+        assert(is_int($fileDescriptor) || is_resource($fileDescriptor));
+
         if (is_resource($fileDescriptor)) {
             if (function_exists('stream_isatty') && @stream_isatty($fileDescriptor)) {
                 return true;
             }
 
             if (function_exists('fstat')) {
-                $stat = @fstat(STDOUT);
+                $stat = @fstat($fileDescriptor);
 
-                return $stat && 0o020000 === ($stat['mode'] & 0o170000);
+                return $stat !== false && 0o020000 === ($stat['mode'] & 0o170000);
             }
 
             return false;
@@ -146,15 +148,29 @@ final class Console
      */
     private function getNumberOfColumnsInteractive(): int
     {
-        if (function_exists('shell_exec') && preg_match('#\d+ (\d+)#', shell_exec('stty size') ?: '', $match) === 1) {
-            if ((int) $match[1] > 0) {
-                return (int) $match[1];
-            }
-        }
+        if (function_exists('shell_exec')) {
+            $stty = shell_exec('stty size 2>/dev/null');
 
-        if (function_exists('shell_exec') && preg_match('#columns = (\d+);#', shell_exec('stty') ?: '', $match) === 1) {
-            if ((int) $match[1] > 0) {
-                return (int) $match[1];
+            if ($stty === false || $stty === null) {
+                $stty = '';
+            }
+
+            if (preg_match('#\d+ (\d+)#', $stty, $match) === 1) {
+                if ((int) $match[1] > 0) {
+                    return (int) $match[1];
+                }
+            }
+
+            $stty = shell_exec('stty 2>/dev/null');
+
+            if ($stty === false || $stty === null) {
+                $stty = '';
+            }
+
+            if (preg_match('#columns = (\d+);#', $stty, $match) === 1) {
+                if ((int) $match[1] > 0) {
+                    return (int) $match[1];
+                }
             }
         }
 
@@ -169,6 +185,7 @@ final class Console
         $ansicon = getenv('ANSICON');
         $columns = 80;
 
+        /** @phpstan-ignore booleanAnd.rightNotBoolean */
         if (is_string($ansicon) && preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim($ansicon), $matches)) {
             $columns = (int) $matches[1];
         } elseif (function_exists('proc_open')) {
@@ -184,7 +201,6 @@ final class Console
                 ['suppress_errors' => true],
             );
 
-            assert(is_array($pipes));
             assert(isset($pipes[1]) && is_resource($pipes[1]));
             assert(isset($pipes[2]) && is_resource($pipes[2]));
 
@@ -195,6 +211,7 @@ final class Console
                 fclose($pipes[2]);
                 proc_close($process);
 
+                /** @phpstan-ignore if.condNotBoolean */
                 if (preg_match('/--------+\r?\n.+?(\d+)\r?\n.+?(\d+)\r?\n/', (string) $info, $matches)) {
                     $columns = (int) $matches[2];
                 }

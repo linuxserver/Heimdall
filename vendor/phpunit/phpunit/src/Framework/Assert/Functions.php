@@ -59,13 +59,7 @@ use PHPUnit\Framework\MockObject\Rule\InvokedAtLeastCount as InvokedAtLeastCount
 use PHPUnit\Framework\MockObject\Rule\InvokedAtLeastOnce as InvokedAtLeastOnceMatcher;
 use PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount as InvokedAtMostCountMatcher;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount as InvokedCountMatcher;
-use PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls as ConsecutiveCallsStub;
 use PHPUnit\Framework\MockObject\Stub\Exception as ExceptionStub;
-use PHPUnit\Framework\MockObject\Stub\ReturnArgument as ReturnArgumentStub;
-use PHPUnit\Framework\MockObject\Stub\ReturnCallback as ReturnCallbackStub;
-use PHPUnit\Framework\MockObject\Stub\ReturnSelf as ReturnSelfStub;
-use PHPUnit\Framework\MockObject\Stub\ReturnStub;
-use PHPUnit\Framework\MockObject\Stub\ReturnValueMap as ReturnValueMapStub;
 use PHPUnit\Util\Xml\XmlException;
 use Throwable;
 
@@ -287,7 +281,7 @@ if (!function_exists('PHPUnit\Framework\assertContainsOnly')) {
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
      *
@@ -593,7 +587,7 @@ if (!function_exists('PHPUnit\Framework\assertNotContainsOnly')) {
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
      *
@@ -2520,24 +2514,6 @@ if (!function_exists('PHPUnit\Framework\assertStringMatchesFormat')) {
     }
 }
 
-if (!function_exists('PHPUnit\Framework\assertStringNotMatchesFormat')) {
-    /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     *
-     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
-     *
-     * @see Assert::assertStringNotMatchesFormat
-     */
-    function assertStringNotMatchesFormat(string $format, string $string, string $message = ''): void
-    {
-        Assert::assertStringNotMatchesFormat(...func_get_args());
-    }
-}
-
 if (!function_exists('PHPUnit\Framework\assertStringMatchesFormatFile')) {
     /**
      * Asserts that a string matches a given format file.
@@ -2551,24 +2527,6 @@ if (!function_exists('PHPUnit\Framework\assertStringMatchesFormatFile')) {
     function assertStringMatchesFormatFile(string $formatFile, string $string, string $message = ''): void
     {
         Assert::assertStringMatchesFormatFile(...func_get_args());
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\assertStringNotMatchesFormatFile')) {
-    /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     *
-     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
-     *
-     * @see Assert::assertStringNotMatchesFormatFile
-     */
-    function assertStringNotMatchesFormatFile(string $formatFile, string $string, string $message = ''): void
-    {
-        Assert::assertStringNotMatchesFormatFile(...func_get_args());
     }
 }
 
@@ -2706,7 +2664,7 @@ if (!function_exists('PHPUnit\Framework\assertStringEndsNotWith')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlFileEqualsXmlFile')) {
     /**
-     * Asserts that two XML files are equal.
+     * Asserts that two XML files are equal, ignoring comments.
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -2724,7 +2682,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlFileEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlFileNotEqualsXmlFile')) {
     /**
-     * Asserts that two XML files are not equal.
+     * Asserts that two XML files are not equal, ignoring comments.
      *
      * @throws \PHPUnit\Util\Exception
      * @throws ExpectationFailedException
@@ -2741,7 +2699,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlFileNotEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlFile')) {
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2758,7 +2716,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlFile')) {
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2775,7 +2733,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlString')) {
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2792,7 +2750,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlString')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlString')) {
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -3422,6 +3380,8 @@ if (!function_exists('PHPUnit\Framework\any')) {
     /**
      * Returns a matcher that matches when the method is executed
      * zero or more times.
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6461
      */
     function any(): AnyInvokedCountMatcher
     {
@@ -3494,61 +3454,9 @@ if (!function_exists('PHPUnit\Framework\atMost')) {
     }
 }
 
-if (!function_exists('PHPUnit\Framework\returnValue')) {
-    function returnValue(mixed $value): ReturnStub
-    {
-        return new ReturnStub($value);
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\returnValueMap')) {
-    /**
-     * @param array<mixed> $valueMap
-     */
-    function returnValueMap(array $valueMap): ReturnValueMapStub
-    {
-        return new ReturnValueMapStub($valueMap);
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\returnArgument')) {
-    function returnArgument(int $argumentIndex): ReturnArgumentStub
-    {
-        return new ReturnArgumentStub($argumentIndex);
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\returnCallback')) {
-    function returnCallback(callable $callback): ReturnCallbackStub
-    {
-        return new ReturnCallbackStub($callback);
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\returnSelf')) {
-    /**
-     * Returns the current object.
-     *
-     * This method is useful when mocking a fluent interface.
-     */
-    function returnSelf(): ReturnSelfStub
-    {
-        return new ReturnSelfStub;
-    }
-}
-
 if (!function_exists('PHPUnit\Framework\throwException')) {
     function throwException(Throwable $exception): ExceptionStub
     {
         return new ExceptionStub($exception);
-    }
-}
-
-if (!function_exists('PHPUnit\Framework\onConsecutiveCalls')) {
-    function onConsecutiveCalls(): ConsecutiveCallsStub
-    {
-        $arguments = func_get_args();
-
-        return new ConsecutiveCallsStub($arguments);
     }
 }

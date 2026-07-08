@@ -16,6 +16,7 @@ class CloudJob extends SqsJob
      * @param  string  $connectionName
      * @param  string  $queue
      * @param  callable(string, int|null): void  $reporter
+     * @param  array  $overflowStorage
      */
     public function __construct(
         Container $container,
@@ -24,8 +25,9 @@ class CloudJob extends SqsJob
         $connectionName,
         $queue,
         protected $reporter,
+        array $overflowStorage = [],
     ) {
-        parent::__construct($container, $sqs, $job, $connectionName, $queue);
+        parent::__construct($container, $sqs, $job, $connectionName, $queue, $overflowStorage);
     }
 
     /**
@@ -39,6 +41,9 @@ class CloudJob extends SqsJob
         Job::delete();
 
         $this->report('processed');
+
+        // Only reached once the agent has accepted the outcome (report() throws otherwise)...
+        $this->deleteOverflowPayload();
     }
 
     /**

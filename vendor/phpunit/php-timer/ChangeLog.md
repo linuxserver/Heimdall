@@ -2,6 +2,12 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [8.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.1
+
 ## [7.0.1] - 2024-07-03
 
 ### Changed
@@ -139,6 +145,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * This component is no longer supported on PHP 5.3, PHP 5.4, PHP 5.5, PHP 5.6, and PHP 7.0
 
+[8.0.0]: https://github.com/sebastianbergmann/php-timer/compare/7.0...8.0.0
 [7.0.1]: https://github.com/sebastianbergmann/php-timer/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/sebastianbergmann/php-timer/compare/6.0...7.0.0
 [6.0.0]: https://github.com/sebastianbergmann/php-timer/compare/5.0.3...6.0.0

@@ -17,33 +17,41 @@ use function is_array;
 use function is_dir;
 use function is_file;
 use function is_writable;
+use function phpversion;
 use function sprintf;
 use function strlen;
 use function substr;
 use DateTimeImmutable;
-use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\PathExistsButIsNotDirectoryException;
-use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
+use SebastianBergmann\CodeCoverage\Data\ProcessedClassType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedTraitType;
 use SebastianBergmann\CodeCoverage\Node\AbstractNode;
 use SebastianBergmann\CodeCoverage\Node\Directory as DirectoryNode;
 use SebastianBergmann\CodeCoverage\Node\File as FileNode;
+use SebastianBergmann\CodeCoverage\PathExistsButIsNotDirectoryException;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
-use SebastianBergmann\CodeCoverage\Util\Filesystem as DirectoryUtil;
-use SebastianBergmann\CodeCoverage\Util\Xml;
 use SebastianBergmann\CodeCoverage\Version;
+use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\XmlException;
 use SebastianBergmann\Environment\Runtime;
+use XMLWriter;
 
+/**
+ * @phpstan-import-type TestType from CodeCoverage
+ */
 final class Facade
 {
+    public const string XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
     private string $target;
     private Project $project;
     private readonly string $phpUnitVersion;
+    private readonly bool $includeSource;
 
-    public function __construct(string $version)
+    public function __construct(string $version, bool $includeSource = true)
     {
         $this->phpUnitVersion = $version;
+        $this->includeSource  = $includeSource;
     }
 
     /**
@@ -60,23 +68,46 @@ final class Facade
 
         $report = $coverage->getReport();
 
+        $writer = new XMLWriter;
+        $writer->openUri($this->targetFilePath('index'));
+        $writer->setIndent(true);
+        $writer->setIndentString('  ');
         $this->project = new Project(
+            $writer,
             $coverage->getReport()->name(),
         );
 
         $this->setBuildInformation($coverage);
+
+        $this->project->startProject();
         $this->processTests($coverage->getTests());
         $this->processDirectory($report, $this->project);
-
-        $this->saveDocument($this->project->asDom(), 'index');
+        $this->project->finalize();
     }
 
     private function setBuildInformation(CodeCoverage $coverage): void
     {
-        $buildNode = $this->project->buildInformation();
-        $buildNode->setRuntimeInformation(new Runtime, $coverage);
-        $buildNode->setBuildTime(new DateTimeImmutable);
-        $buildNode->setGeneratorVersions($this->phpUnitVersion, Version::id());
+        if ($coverage->driverIsPcov()) {
+            $driverExtensionName    = 'pcov';
+            $driverExtensionVersion = phpversion('pcov');
+        } elseif ($coverage->driverIsXdebug()) {
+            $driverExtensionName    = 'xdebug';
+            $driverExtensionVersion = phpversion('xdebug');
+        } else {
+            // @codeCoverageIgnoreStart
+            $driverExtensionName    = 'unknown';
+            $driverExtensionVersion = 'unknown';
+            // @codeCoverageIgnoreEnd
+        }
+
+        $this->project->buildInformation(
+            new Runtime,
+            new DateTimeImmutable,
+            $this->phpUnitVersion,
+            Version::id(),
+            $driverExtensionName,
+            $driverExtensionVersion,
+        );
     }
 
     /**
@@ -86,6 +117,7 @@ final class Facade
     private function initTargetDirectory(string $directory): void
     {
         if (is_file($directory)) {
+            // @codeCoverageIgnoreStart
             if (!is_dir($directory)) {
                 throw new PathExistsButIsNotDirectoryException($directory);
             }
@@ -93,9 +125,10 @@ final class Facade
             if (!is_writable($directory)) {
                 throw new WriteOperationFailedException($directory);
             }
+            // @codeCoverageIgnoreEnd
         }
 
-        DirectoryUtil::createDirectory($directory);
+        Filesystem::createDirectory($directory);
     }
 
     /**
@@ -109,7 +142,10 @@ final class Facade
             $directoryName = '/';
         }
 
-        $directoryObject = $context->addDirectory($directoryName);
+        $writer = $this->project->getWriter();
+        $writer->startElement('directory');
+        $writer->writeAttribute('name', $directoryName);
+        $directoryObject = $context->addDirectory();
 
         $this->setTotals($directory, $directoryObject->totals());
 
@@ -120,6 +156,7 @@ final class Facade
         foreach ($directory->files() as $node) {
             $this->processFile($node, $directoryObject);
         }
+        $writer->endElement();
     }
 
     /**
@@ -127,19 +164,27 @@ final class Facade
      */
     private function processFile(FileNode $file, Directory $context): void
     {
-        $fileObject = $context->addFile(
-            $file->name(),
-            $file->id() . '.xml',
-        );
+        $context->getWriter()->startElement('file');
+        $context->getWriter()->writeAttribute('name', $file->name());
+        $context->getWriter()->writeAttribute('href', $file->id() . '.xml');
+        $context->getWriter()->writeAttribute('hash', $file->sha1());
+
+        $fileObject = $context->addFile();
 
         $this->setTotals($file, $fileObject->totals());
+
+        $context->getWriter()->endElement();
 
         $path = substr(
             $file->pathAsString(),
             strlen($this->project->projectSourceDirectory()),
         );
 
-        $fileReport = new Report($path);
+        $writer = new XMLWriter;
+        $writer->openUri($this->targetFilePath($file->id()));
+        $writer->setIndent(true);
+        $writer->setIndentString('  ');
+        $fileReport = new Report($writer, $path, $file->sha1());
 
         $this->setTotals($file, $fileReport->totals());
 
@@ -151,86 +196,129 @@ final class Facade
             $this->processFunction($function, $fileReport);
         }
 
+        $fileReport->getWriter()->startElement('coverage');
+
         foreach ($file->lineCoverageData() as $line => $tests) {
             if (!is_array($tests) || count($tests) === 0) {
                 continue;
             }
 
             $coverage = $fileReport->lineCoverage((string) $line);
-
-            foreach ($tests as $test) {
-                $coverage->addTest($test);
-            }
-
-            $coverage->finalize();
+            $coverage->finalize($tests);
         }
+        $fileReport->getWriter()->endElement();
 
-        $fileReport->source()->setSourceCode(
-            file_get_contents($file->pathAsString()),
-        );
-
-        $this->saveDocument($fileReport->asDom(), $file->id());
-    }
-
-    private function processUnit(array $unit, Report $report): void
-    {
-        if (isset($unit['className'])) {
-            $unitObject = $report->classObject($unit['className']);
-        } else {
-            $unitObject = $report->traitObject($unit['traitName']);
-        }
-
-        $unitObject->setLines(
-            $unit['startLine'],
-            $unit['executableLines'],
-            $unit['executedLines'],
-        );
-
-        $unitObject->setCrap((float) $unit['crap']);
-        $unitObject->setNamespace($unit['namespace']);
-
-        foreach ($unit['methods'] as $method) {
-            $methodObject = $unitObject->addMethod($method['methodName']);
-            $methodObject->setSignature($method['signature']);
-            $methodObject->setLines((string) $method['startLine'], (string) $method['endLine']);
-            $methodObject->setCrap($method['crap']);
-            $methodObject->setTotals(
-                (string) $method['executableLines'],
-                (string) $method['executedLines'],
-                (string) $method['coverage'],
+        if ($this->includeSource) {
+            $fileReport->source()->setSourceCode(
+                file_get_contents($file->pathAsString()),
             );
         }
+
+        $fileReport->finalize();
     }
 
-    private function processFunction(array $function, Report $report): void
+    private function processUnit(ProcessedClassType|ProcessedTraitType $unit, Report $report): void
     {
-        $functionObject = $report->functionObject($function['functionName']);
+        if ($unit instanceof ProcessedClassType) {
+            $report->getWriter()->startElement('class');
 
-        $functionObject->setSignature($function['signature']);
-        $functionObject->setLines((string) $function['startLine']);
-        $functionObject->setCrap($function['crap']);
-        $functionObject->setTotals((string) $function['executableLines'], (string) $function['executedLines'], (string) $function['coverage']);
+            $unitObject = $report->classObject(
+                $unit->className,
+                $unit->namespace,
+                $unit->startLine,
+                $unit->executableLines,
+                $unit->executedLines,
+                (float) $unit->crap,
+            );
+        } else {
+            $report->getWriter()->startElement('trait');
+
+            $unitObject = $report->traitObject(
+                $unit->traitName,
+                $unit->namespace,
+                $unit->startLine,
+                $unit->executableLines,
+                $unit->executedLines,
+                (float) $unit->crap,
+            );
+        }
+
+        foreach ($unit->methods as $method) {
+            $report->getWriter()->startElement('method');
+
+            $unitObject->addMethod(
+                $method->methodName,
+                $method->signature,
+                (string) $method->startLine,
+                (string) $method->endLine,
+                (string) $method->executableLines,
+                (string) $method->executedLines,
+                (string) $method->coverage,
+                $method->crap,
+            );
+
+            $report->getWriter()->endElement();
+        }
+
+        $report->getWriter()->endElement();
     }
 
+    private function processFunction(ProcessedFunctionType $function, Report $report): void
+    {
+        $report->getWriter()->startElement('function');
+
+        $report->functionObject(
+            $function->functionName,
+            $function->signature,
+            (string) $function->startLine,
+            null,
+            (string) $function->executableLines,
+            (string) $function->executedLines,
+            (string) $function->coverage,
+            $function->crap,
+        );
+
+        $report->getWriter()->endElement();
+    }
+
+    /**
+     * @param array<string, TestType> $tests
+     */
     private function processTests(array $tests): void
     {
+        $this->project->getWriter()->startElement('tests');
+
         $testsObject = $this->project->tests();
 
         foreach ($tests as $test => $result) {
             $testsObject->addTest($test, $result);
         }
+
+        $this->project->getWriter()->endElement();
     }
 
     private function setTotals(AbstractNode $node, Totals $totals): void
     {
+        $totals->getWriter()->startElement('totals');
+
         $loc = $node->linesOfCode();
 
         $totals->setNumLines(
-            $loc['linesOfCode'],
-            $loc['commentLinesOfCode'],
-            $loc['nonCommentLinesOfCode'],
+            $loc->linesOfCode(),
+            $loc->commentLinesOfCode(),
+            $loc->nonCommentLinesOfCode(),
             $node->numberOfExecutableLines(),
             $node->numberOfExecutedLines(),
+        );
+
+        $totals->setNumMethods(
+            $node->numberOfMethods(),
+            $node->numberOfTestedMethods(),
+        );
+
+        $totals->setNumFunctions(
+            $node->numberOfFunctions(),
+            $node->numberOfTestedFunctions(),
         );
 
         $totals->setNumClasses(
@@ -243,15 +331,7 @@ final class Facade
             $node->numberOfTestedTraits(),
         );
 
-        $totals->setNumMethods(
-            $node->numberOfMethods(),
-            $node->numberOfTestedMethods(),
-        );
-
-        $totals->setNumFunctions(
-            $node->numberOfFunctions(),
-            $node->numberOfTestedFunctions(),
-        );
+        $totals->getWriter()->endElement();
     }
 
     private function targetDirectory(): string
@@ -259,15 +339,12 @@ final class Facade
         return $this->target;
     }
 
-    /**
-     * @throws XmlException
-     */
-    private function saveDocument(DOMDocument $document, string $name): void
+    private function targetFilePath(string $name): string
     {
         $filename = sprintf('%s/%s.xml', $this->targetDirectory(), $name);
 
         $this->initTargetDirectory(dirname($filename));
 
-        Filesystem::write($filename, Xml::asString($document));
+        return $filename;
     }
 }

@@ -22,13 +22,13 @@ final class PhptAssertionFailedError extends AssertionFailedError
     private readonly int $syntheticLine;
 
     /**
-     * @var list<array{function?: string, line?: int, file?: string, class?: class-string, type?: '->'|'::'|string, args?: list<mixed>, object?: object}>
+     * @var list<array{file?: string, line?: int, function?: string, type?: string, ...}>
      */
     private readonly array $syntheticTrace;
     private readonly string $diff;
 
     /**
-     * @param list<array{function?: string, line?: int, file?: string, class?: class-string, type?: '->'|'::'|string, args?: list<mixed>, object?: object}> $trace
+     * @param list<array{file?: string, line?: int, function?: string, type?: string, ...}> $trace
      */
     public function __construct(string $message, int $code, string $file, int $line, array $trace, string $diff)
     {
@@ -51,7 +51,7 @@ final class PhptAssertionFailedError extends AssertionFailedError
     }
 
     /**
-     * @return list<array{function?: string, line?: int, file?: string, class?: class-string, type?: '->'|'::'|string, args?: list<mixed>, object?: object}>
+     * @return list<array{file?: string, line?: int, function?: string, type?: string, ...}>
      */
     public function syntheticTrace(): array
     {

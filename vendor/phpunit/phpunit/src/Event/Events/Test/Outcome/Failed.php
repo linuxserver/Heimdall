@@ -30,6 +30,9 @@ final readonly class Failed implements Event
     private Throwable $throwable;
     private ?ComparisonFailure $comparisonFailure;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, Throwable $throwable, ?ComparisonFailure $comparisonFailure)
     {
         $this->telemetryInfo     = $telemetryInfo;
@@ -73,11 +76,14 @@ final readonly class Failed implements Event
         return $this->comparisonFailure;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = trim($this->throwable->message());
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

@@ -241,6 +241,7 @@ class Queue implements QueueContract, ClearableQueue
             fn (string $status, ?int $delay) => $this->reportJobStatusToAgent(
                 $messageId, $receiptHandle, $status, $delay
             ),
+            $this->config['connection']['overflow'] ?? [],
         );
     }
 

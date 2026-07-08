@@ -10,6 +10,7 @@ use Psy\Shell;
 use Psy\VersionUpdater\Checker;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 class TinkerCommand extends Command
 {
@@ -74,7 +75,11 @@ class TinkerCommand extends Command
         if ($code = $this->option('execute')) {
             try {
                 $shell->setOutput($this->output);
-                $shell->execute($code);
+                $shell->execute($code, true);
+            } catch (Throwable $e) {
+                $shell->writeException($e);
+
+                return 1;
             } finally {
                 $loader->unregister();
             }

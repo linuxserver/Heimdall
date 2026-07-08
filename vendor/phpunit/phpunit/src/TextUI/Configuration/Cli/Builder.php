@@ -10,8 +10,6 @@
 namespace PHPUnit\TextUI\CliArguments;
 
 use const DIRECTORY_SEPARATOR;
-use function array_map;
-use function array_merge;
 use function assert;
 use function basename;
 use function explode;
@@ -19,7 +17,6 @@ use function getcwd;
 use function is_file;
 use function is_numeric;
 use function sprintf;
-use function str_contains;
 use function strtolower;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Runner\TestSuiteSorter;
@@ -34,7 +31,11 @@ use SebastianBergmann\CliParser\Parser as CliParser;
  */
 final class Builder
 {
-    private const LONG_OPTIONS = [
+    /**
+     * @var non-empty-list<non-empty-string>
+     */
+    private const array LONG_OPTIONS = [
+        'all',
         'atleast-version=',
         'bootstrap=',
         'cache-result',
@@ -51,11 +52,13 @@ final class Builder
         'coverage-cobertura=',
         'coverage-crap4j=',
         'coverage-html=',
+        'coverage-openclover=',
         'coverage-php=',
         'coverage-text==',
         'only-summary-for-coverage-text',
         'show-uncovered-for-coverage-text',
         'coverage-xml=',
+        'exclude-source-from-xml-coverage',
         'path-coverage',
         'disallow-test-output',
         'display-all-issues',
@@ -63,6 +66,7 @@ final class Builder
         'display-skipped',
         'display-deprecations',
         'display-phpunit-deprecations',
+        'display-phpunit-notices',
         'display-errors',
         'display-notices',
         'display-warnings',
@@ -90,6 +94,8 @@ final class Builder
         'list-tests',
         'list-tests-xml=',
         'log-junit=',
+        'log-otr=',
+        'include-git-information',
         'log-teamcity=',
         'migrate-configuration',
         'no-configuration',
@@ -112,6 +118,7 @@ final class Builder
         'fail-on-all-issues',
         'fail-on-deprecation',
         'fail-on-phpunit-deprecation',
+        'fail-on-phpunit-notice',
         'fail-on-phpunit-warning',
         'fail-on-empty-test-suite',
         'fail-on-incomplete',
@@ -121,6 +128,7 @@ final class Builder
         'fail-on-warning',
         'do-not-fail-on-deprecation',
         'do-not-fail-on-phpunit-deprecation',
+        'do-not-fail-on-phpunit-notice',
         'do-not-fail-on-phpunit-warning',
         'do-not-fail-on-empty-test-suite',
         'do-not-fail-on-incomplete',
@@ -152,9 +160,11 @@ final class Builder
         'log-events-verbose-text=',
         'version',
         'debug',
+        'with-telemetry',
         'extension=',
     ];
-    private const SHORT_OPTIONS = 'd:c:h';
+
+    private const string SHORT_OPTIONS = 'd:c:h';
 
     /**
      * @var array<string, non-negative-int>
@@ -182,6 +192,7 @@ final class Builder
             );
         }
 
+        $all                               = null;
         $atLeastVersion                    = null;
         $backupGlobals                     = null;
         $backupStaticProperties            = null;
@@ -200,11 +211,13 @@ final class Builder
         $coverageCobertura                 = null;
         $coverageCrap4J                    = null;
         $coverageHtml                      = null;
+        $coverageOpenClover                = null;
         $coveragePhp                       = null;
         $coverageText                      = null;
         $coverageTextShowUncoveredFiles    = null;
         $coverageTextShowOnlySummary       = null;
         $coverageXml                       = null;
+        $excludeSourceFromXmlCoverage      = null;
         $pathCoverage                      = null;
         $defaultTimeLimit                  = null;
         $disableCodeCoverageIgnore         = null;
@@ -214,6 +227,7 @@ final class Builder
         $displaySkipped                    = null;
         $displayDeprecations               = null;
         $displayPhpunitDeprecations        = null;
+        $displayPhpunitNotices             = null;
         $displayErrors                     = null;
         $displayNotices                    = null;
         $displayWarnings                   = null;
@@ -224,6 +238,7 @@ final class Builder
         $failOnAllIssues                   = null;
         $failOnDeprecation                 = null;
         $failOnPhpunitDeprecation          = null;
+        $failOnPhpunitNotice               = null;
         $failOnPhpunitWarning              = null;
         $failOnEmptyTestSuite              = null;
         $failOnIncomplete                  = null;
@@ -233,6 +248,7 @@ final class Builder
         $failOnWarning                     = null;
         $doNotFailOnDeprecation            = null;
         $doNotFailOnPhpunitDeprecation     = null;
+        $doNotFailOnPhpunitNotice          = null;
         $doNotFailOnPhpunitWarning         = null;
         $doNotFailOnEmptyTestSuite         = null;
         $doNotFailOnIncomplete             = null;
@@ -265,6 +281,8 @@ final class Builder
         $includePath                       = null;
         $iniSettings                       = [];
         $junitLogfile                      = null;
+        $otrLogfile                        = null;
+        $includeGitInformation             = null;
         $listGroups                        = false;
         $listSuites                        = false;
         $listTestFiles                     = false;
@@ -297,14 +315,24 @@ final class Builder
         $printerTestDox                    = null;
         $printerTestDoxSummary             = null;
         $debug                             = false;
+        $withTelemetry                     = false;
         $extensions                        = [];
 
         foreach ($options[0] as $option) {
             $optionAllowedMultipleTimes = false;
 
             switch ($option[0]) {
+                case '--all':
+                    $all = true;
+
+                    break;
+
                 case '--colors':
-                    $colors = $option[1] ?: \PHPUnit\TextUI\Configuration\Configuration::COLOR_AUTO;
+                    $colors = \PHPUnit\TextUI\Configuration\Configuration::COLOR_AUTO;
+
+                    if ($option[1] !== null) {
+                        $colors = $option[1];
+                    }
 
                     break;
 
@@ -373,6 +401,11 @@ final class Builder
 
                     break;
 
+                case '--coverage-openclover':
+                    $coverageOpenClover = $option[1];
+
+                    break;
+
                 case '--coverage-text':
                     if ($option[1] === null) {
                         $option[1] = 'php://stdout';
@@ -394,6 +427,11 @@ final class Builder
 
                 case '--coverage-xml':
                     $coverageXml = $option[1];
+
+                    break;
+
+                case '--exclude-source-from-xml-coverage':
+                    $excludeSourceFromXmlCoverage = true;
 
                     break;
 
@@ -481,68 +519,44 @@ final class Builder
                     break;
 
                 case '--group':
-                    if (str_contains($option[1], ',')) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            'Using comma-separated values with --group is deprecated and will no longer work in PHPUnit 12. You can use --group multiple times instead.',
-                        );
-                    }
-
                     if ($groups === null) {
                         $groups = [];
                     }
 
-                    $groups = array_merge($groups, explode(',', $option[1]));
+                    $groups[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--exclude-group':
-                    if (str_contains($option[1], ',')) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            'Using comma-separated values with --exclude-group is deprecated and will no longer work in PHPUnit 12. You can use --exclude-group multiple times instead.',
-                        );
-                    }
-
                     if ($excludeGroups === null) {
                         $excludeGroups = [];
                     }
 
-                    $excludeGroups = array_merge($excludeGroups, explode(',', $option[1]));
+                    $excludeGroups[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--covers':
-                    if (str_contains($option[1], ',')) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            'Using comma-separated values with --covers is deprecated and will no longer work in PHPUnit 12. You can use --covers multiple times instead.',
-                        );
-                    }
-
                     if ($testsCovering === null) {
                         $testsCovering = [];
                     }
 
-                    $testsCovering = array_merge($testsCovering, array_map('strtolower', explode(',', $option[1])));
+                    $testsCovering[] = strtolower($option[1]);
 
                     $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--uses':
-                    if (str_contains($option[1], ',')) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            'Using comma-separated values with --uses is deprecated and will no longer work in PHPUnit 12. You can use --uses multiple times instead.',
-                        );
-                    }
-
                     if ($testsUsing === null) {
                         $testsUsing = [];
                     }
 
-                    $testsUsing = array_merge($testsUsing, array_map('strtolower', explode(',', $option[1])));
+                    $testsUsing[] = strtolower($option[1]);
 
                     $optionAllowedMultipleTimes = true;
 
@@ -560,17 +574,11 @@ final class Builder
                     break;
 
                 case '--test-suffix':
-                    if (str_contains($option[1], ',')) {
-                        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                            'Using comma-separated values with --test-suffix is deprecated and will no longer work in PHPUnit 12. You can use --test-suffix multiple times instead.',
-                        );
-                    }
-
                     if ($testSuffixes === null) {
                         $testSuffixes = [];
                     }
 
-                    $testSuffixes = array_merge($testSuffixes, explode(',', $option[1]));
+                    $testSuffixes[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
@@ -608,6 +616,16 @@ final class Builder
 
                 case '--log-junit':
                     $junitLogfile = $option[1];
+
+                    break;
+
+                case '--log-otr':
+                    $otrLogfile = $option[1];
+
+                    break;
+
+                case '--include-git-information':
+                    $includeGitInformation = true;
 
                     break;
 
@@ -710,6 +728,17 @@ final class Builder
 
                     break;
 
+                case '--fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnPhpunitNotice,
+                        '--fail-on-phpunit-notice',
+                        '--do-not-fail-on-phpunit-notice',
+                    );
+
+                    $failOnPhpunitNotice = true;
+
+                    break;
+
                 case '--fail-on-phpunit-warning':
                     $this->warnWhenOptionsConflict(
                         $doNotFailOnPhpunitWarning,
@@ -806,6 +835,17 @@ final class Builder
                     );
 
                     $doNotFailOnPhpunitDeprecation = true;
+
+                    break;
+
+                case '--do-not-fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $failOnPhpunitNotice,
+                        '--do-not-fail-on-phpunit-notice',
+                        '--fail-on-phpunit-notice',
+                    );
+
+                    $doNotFailOnPhpunitNotice = true;
 
                     break;
 
@@ -1016,7 +1056,15 @@ final class Builder
                     break;
 
                 case '--do-not-report-useless-tests':
+                    $reportUselessTests = false;
+
+                    break;
+
                 case '--dont-report-useless-tests':
+                    EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+                        'Option --dont-report-useless-tests is deprecated, use --do-not-report-useless-tests instead',
+                    );
+
                     $reportUselessTests = false;
 
                     break;
@@ -1063,6 +1111,11 @@ final class Builder
 
                 case '--display-phpunit-deprecations':
                     $displayPhpunitDeprecations = true;
+
+                    break;
+
+                case '--display-phpunit-notices':
+                    $displayPhpunitNotices = true;
 
                     break;
 
@@ -1175,6 +1228,11 @@ final class Builder
 
                     break;
 
+                case '--with-telemetry':
+                    $withTelemetry = true;
+
+                    break;
+
                 case '--extension':
                     $extensions[] = $option[1];
 
@@ -1188,20 +1246,23 @@ final class Builder
             }
         }
 
-        if (empty($iniSettings)) {
+        if ($iniSettings === []) {
             $iniSettings = null;
         }
 
-        if (empty($coverageFilter)) {
-            $coverageFilter = null;
+        if ($extensions === []) {
+            $extensions = null;
         }
 
-        if (empty($extensions)) {
-            $extensions = null;
+        if ($randomOrderSeed !== null && $executionOrder !== TestSuiteSorter::ORDER_RANDOMIZED) {
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                '--random-order-seed is only used when execution order is "random" (use --order-by random or --random-order)',
+            );
         }
 
         return new Configuration(
             $options[1],
+            $all,
             $atLeastVersion,
             $backupGlobals,
             $backupStaticProperties,
@@ -1218,11 +1279,13 @@ final class Builder
             $coverageCobertura,
             $coverageCrap4J,
             $coverageHtml,
+            $coverageOpenClover,
             $coveragePhp,
             $coverageText,
             $coverageTextShowUncoveredFiles,
             $coverageTextShowOnlySummary,
             $coverageXml,
+            $excludeSourceFromXmlCoverage,
             $pathCoverage,
             $warmCoverageCache,
             $defaultTimeLimit,
@@ -1235,6 +1298,7 @@ final class Builder
             $failOnAllIssues,
             $failOnDeprecation,
             $failOnPhpunitDeprecation,
+            $failOnPhpunitNotice,
             $failOnPhpunitWarning,
             $failOnEmptyTestSuite,
             $failOnIncomplete,
@@ -1244,6 +1308,7 @@ final class Builder
             $failOnWarning,
             $doNotFailOnDeprecation,
             $doNotFailOnPhpunitDeprecation,
+            $doNotFailOnPhpunitNotice,
             $doNotFailOnPhpunitWarning,
             $doNotFailOnEmptyTestSuite,
             $doNotFailOnIncomplete,
@@ -1276,6 +1341,8 @@ final class Builder
             $includePath,
             $iniSettings,
             $junitLogfile,
+            $otrLogfile,
+            $includeGitInformation,
             $listGroups,
             $listSuites,
             $listTestFiles,
@@ -1306,6 +1373,7 @@ final class Builder
             $displaySkipped,
             $displayDeprecations,
             $displayPhpunitDeprecations,
+            $displayPhpunitNotices,
             $displayErrors,
             $displayNotices,
             $displayWarnings,
@@ -1317,6 +1385,7 @@ final class Builder
             $printerTestDox,
             $printerTestDoxSummary,
             $debug,
+            $withTelemetry,
             $extensions,
         );
     }

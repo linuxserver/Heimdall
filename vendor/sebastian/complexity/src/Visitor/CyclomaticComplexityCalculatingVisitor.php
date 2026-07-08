@@ -31,7 +31,7 @@ final class CyclomaticComplexityCalculatingVisitor extends NodeVisitorAbstract
      */
     private int $cyclomaticComplexity = 1;
 
-    public function enterNode(Node $node): void
+    public function enterNode(Node $node): null
     {
         switch ($node::class) {
             case BooleanAnd::class:
@@ -49,6 +49,8 @@ final class CyclomaticComplexityCalculatingVisitor extends NodeVisitorAbstract
             case While_::class:
                 $this->cyclomaticComplexity++;
         }
+
+        return null;
     }
 
     /**

@@ -24,8 +24,8 @@ use SplFileInfo;
  */
 final class Iterator extends FilterIterator
 {
-    public const PREFIX = 0;
-    public const SUFFIX = 1;
+    public const int PREFIX = 0;
+    public const int SUFFIX = 1;
     private false|string $basePath;
 
     /**
@@ -72,7 +72,7 @@ final class Iterator extends FilterIterator
     private function acceptPath(string $path): bool
     {
         // Filter files in hidden directories by checking path that is relative to the base path.
-        if (preg_match('=/\.[^/]*/=', str_replace((string) $this->basePath, '', $path))) {
+        if (preg_match('=/\.[^/]*/=', str_replace((string) $this->basePath, '', $path)) === 1) {
             return false;
         }
 
@@ -94,7 +94,7 @@ final class Iterator extends FilterIterator
      */
     private function acceptSubString(string $filename, array $subStrings, int $type): bool
     {
-        if (empty($subStrings)) {
+        if ($subStrings === []) {
             return true;
         }
 

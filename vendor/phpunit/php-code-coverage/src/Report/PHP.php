@@ -12,8 +12,8 @@ namespace SebastianBergmann\CodeCoverage\Report;
 use const PHP_EOL;
 use function serialize;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
+use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
 final class PHP
 {

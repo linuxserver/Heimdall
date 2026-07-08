@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/cli-parser/v/stable.png)](https://packagist.org/packages/sebastian/cli-parser)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/cli-parser/v)](https://packagist.org/packages/sebastian/cli-parser)
 [![CI Status](https://github.com/sebastianbergmann/cli-parser/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/cli-parser/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/cli-parser/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/cli-parser)
 

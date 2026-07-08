@@ -1,6 +1,6 @@
 # phpunit/php-invoker
 
-[![Latest Stable Version](https://poser.pugx.org/phpunit/php-invoker/v/stable.png)](https://packagist.org/packages/phpunit/php-invoker)
+[![Latest Stable Version](https://poser.pugx.org/phpunit/php-invoker/v)](https://packagist.org/packages/phpunit/php-invoker)
 [![CI Status](https://github.com/sebastianbergmann/php-invoker/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/php-invoker/actions)
 [![codecov](https://codecov.io/gh/sebastianbergmann/php-invoker/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/php-invoker)
 

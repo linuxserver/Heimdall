@@ -23,11 +23,7 @@ use PHPUnit\Event\Telemetry;
 final readonly class BeforeTestMethodFinished implements Event
 {
     private Telemetry\Info $telemetryInfo;
-
-    /**
-     * @var class-string
-     */
-    private string $testClassName;
+    private Code\TestMethod $test;
 
     /**
      * @var list<Code\ClassMethod>
@@ -35,12 +31,12 @@ final readonly class BeforeTestMethodFinished implements Event
     private array $calledMethods;
 
     /**
-     * @param class-string $testClassName
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public function __construct(Telemetry\Info $telemetryInfo, string $testClassName, Code\ClassMethod ...$calledMethods)
+    public function __construct(Telemetry\Info $telemetryInfo, Code\TestMethod $test, Code\ClassMethod ...$calledMethods)
     {
         $this->telemetryInfo = $telemetryInfo;
-        $this->testClassName = $testClassName;
+        $this->test          = $test;
         $this->calledMethods = $calledMethods;
     }
 
@@ -49,12 +45,19 @@ final readonly class BeforeTestMethodFinished implements Event
         return $this->telemetryInfo;
     }
 
+    public function test(): Code\TestMethod
+    {
+        return $this->test;
+    }
+
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
-        return $this->testClassName;
+        return $this->test->className();
     }
 
     /**
@@ -65,6 +68,9 @@ final readonly class BeforeTestMethodFinished implements Event
         return $this->calledMethods;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $buffer = 'Before Test Method Finished:';

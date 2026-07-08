@@ -50,6 +50,8 @@ final readonly class PhpDeprecationTriggered implements Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, IssueTrigger $trigger)
     {
@@ -118,11 +120,14 @@ final readonly class PhpDeprecationTriggered implements Event
         return $this->trigger;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = $this->message;
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

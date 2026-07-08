@@ -2,6 +2,81 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [7.1.8] - 2026-05-21
+
+### Changed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Cleaner diff output for canonicalized list comparisons
+* [#160](https://github.com/sebastianbergmann/comparator/pull/160): Use by-value comparison for closures
+
+### Fixed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Canonicalized array comparison destroys string keys
+
+## [7.1.7] - 2026-05-20
+
+### Fixed
+
+* [#70](https://github.com/sebastianbergmann/comparator/issues/70): Non-ASCII text in XML diffs is rendered as numeric character references, making diffs unreadable
+* [#87](https://github.com/sebastianbergmann/comparator/issues/87): `DOMNodeComparator` crashes or returns false positives when `DOMNode::C14N()` fails
+* [#107](https://github.com/sebastianbergmann/comparator/issues/107): `DOMNodeComparator` reports XML documents as equal when they differ only in comments
+* [#115](https://github.com/sebastianbergmann/comparator/issues/115): `DateTimeComparator` does not track processed pairs, producing misleading diffs in nested structures
+* [#158](https://github.com/sebastianbergmann/comparator/issues/158): `ComparisonFailure` cannot be serialized when stack trace contains non-serializable objects
+
+## [7.1.6] - 2026-04-14
+
+### Fixed
+
+* [#141](https://github.com/sebastianbergmann/comparator/issues/141): `ArrayComparator` sorts objects by `spl_object_id()`, breaking canonicalized equality for arrays of equal objects
+
+## [7.1.5] - 2026-04-08
+
+### Fixed
+
+* [#140](https://github.com/sebastianbergmann/comparator/issues/140): `sort()` in `ArrayComparator` produces non-deterministic results for arrays with mixed types
+
+## [7.1.4] - 2026-01-24
+
+### Changed
+
+* [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
+## [7.1.3] - 2025-08-20
+
+### Changed
+
+* [#130](https://github.com/sebastianbergmann/comparator/pull/130): Provide a diff when `ClosureComparator` fails
+
+## [7.1.2] - 2025-08-10
+
+### Fixed
+
+* `SebastianBergmann\Comparator\Comparator` should not have been marked as private implementation detail of this library
+
+## [7.1.1] - 2025-08-10
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
+
+## [7.1.0] - 2025-06-17
+
+### Added
+
+* [#127](https://github.com/sebastianbergmann/comparator/issues/127): Support for comparing `Closure` objects
+
+## [7.0.1] - 2025-03-07
+
+### Fixed
+
+* [#122](https://github.com/sebastianbergmann/comparator/issues/122): `INF` is considered equal to `-INF`
+
+## [7.0.0] - 2025-02-07
+
+### Removed
+
+* Removed support for PHP 8.2
+
 ## [6.3.3] - 2026-01-24
 
 ### Changed
@@ -68,6 +143,12 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Removed support for PHP 8.1
 
+## [5.0.5] - 2026-01-24
+
+### Changed
+
+* [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
 ## [5.0.4] - 2025-09-07
 
 ### Changed
@@ -107,6 +188,18 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Removed `$identical` parameter from `ComparisonFailure::__construct()`
 * Removed `Comparator::$exporter`
 * Removed support for PHP 7.3, PHP 7.4, and PHP 8.0
+
+## [4.0.10] - 2026-01-24
+
+### Changed
+
+* [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
+## [4.0.9] - 2025-08-10
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
 
 ## [4.0.8] - 2022-09-14
 
@@ -161,6 +254,18 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 ### Removed
 
 * Removed support for PHP 7.1 and PHP 7.2
+
+## [3.0.7] - 2026-01-24
+
+### Changed
+
+* [#134](https://github.com/sebastianbergmann/comparator/issues/134): Suppress warning introduced in PHP 8.5
+
+## [3.0.6] - 2025-08-10
+
+### Changed
+
+* Do not use `SplObjectStorage` methods that will be deprecated in PHP 8.5
 
 ## [3.0.5] - 2022-09-14
 
@@ -228,6 +333,17 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Added `SebastianBergmann\Comparator\Factory::reset()` to unregister all non-default comparators
 * Added support for `phpunit/phpunit-mock-objects` version `^5.0`
 
+[7.1.8]: https://github.com/sebastianbergmann/comparator/compare/7.1.7...7.1.8
+[7.1.7]: https://github.com/sebastianbergmann/comparator/compare/7.1.6...7.1.7
+[7.1.6]: https://github.com/sebastianbergmann/comparator/compare/7.1.5...7.1.6
+[7.1.5]: https://github.com/sebastianbergmann/comparator/compare/7.1.4...7.1.5
+[7.1.4]: https://github.com/sebastianbergmann/comparator/compare/7.1.3...7.1.4
+[7.1.3]: https://github.com/sebastianbergmann/comparator/compare/7.1.2...7.1.3
+[7.1.2]: https://github.com/sebastianbergmann/comparator/compare/7.1.1...7.1.2
+[7.1.1]: https://github.com/sebastianbergmann/comparator/compare/7.1.0...7.1.1
+[7.1.0]: https://github.com/sebastianbergmann/comparator/compare/7.0.1...7.1.0
+[7.0.1]: https://github.com/sebastianbergmann/comparator/compare/7.0.0...7.0.1
+[7.0.0]: https://github.com/sebastianbergmann/comparator/compare/6.3...7.0.0
 [6.3.3]: https://github.com/sebastianbergmann/comparator/compare/6.3.2...6.3.3
 [6.3.2]: https://github.com/sebastianbergmann/comparator/compare/6.3.1...6.3.2
 [6.3.1]: https://github.com/sebastianbergmann/comparator/compare/6.3.0...6.3.1

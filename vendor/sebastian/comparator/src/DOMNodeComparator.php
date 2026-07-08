@@ -16,6 +16,11 @@ use DOMDocument;
 use DOMNode;
 use ValueError;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class DOMNodeComparator extends ObjectComparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -33,8 +38,8 @@ final class DOMNodeComparator extends ObjectComparator
         assert($expected instanceof DOMNode);
         assert($actual instanceof DOMNode);
 
-        $expectedAsString = $this->nodeToText($expected, true, $ignoreCase);
-        $actualAsString   = $this->nodeToText($actual, true, $ignoreCase);
+        $expectedAsString = $this->nodeToText($expected, $ignoreCase);
+        $actualAsString   = $this->nodeToText($actual, $ignoreCase);
 
         if ($expectedAsString !== $actualAsString) {
             $type = $expected instanceof DOMDocument ? 'documents' : 'nodes';
@@ -50,49 +55,63 @@ final class DOMNodeComparator extends ObjectComparator
     }
 
     /**
-     * Returns the normalized, whitespace-cleaned, and indented textual
-     * representation of a DOMNode.
+     * Canonicalizes nodes, removes empty text nodes and merges adjacent text nodes,
+     * and optionally ignores case.
+     *
+     * @see https://github.com/sebastianbergmann/phpunit/pull/1236#issuecomment-41765023
      */
-    private function nodeToText(DOMNode $node, bool $canonicalize, bool $ignoreCase): string
+    private function nodeToText(DOMNode $node, bool $ignoreCase): string
     {
-        if ($canonicalize) {
+        $c14n = @$node->C14N(false, true);
+
+        if ($c14n === false || $c14n === '') {
+            $text = $this->serialize($node);
+        } else {
             $document = new DOMDocument;
 
             try {
-                $c14n = $node->C14N();
-
-                assert(!empty($c14n));
-
                 @$document->loadXML($c14n);
+                // @codeCoverageIgnoreStart
             } catch (ValueError) {
+                // @codeCoverageIgnoreEnd
             }
 
-            $node = $document;
+            $document->encoding     = 'UTF-8';
+            $document->formatOutput = true;
+            $document->normalizeDocument();
+
+            $saved = $document->saveXML();
+
+            assert($saved !== false);
+
+            $text = $saved;
         }
-
-        if ($node instanceof DOMDocument) {
-            $document = $node;
-        } else {
-            $document = $node->ownerDocument;
-        }
-
-        assert($document instanceof DOMDocument);
-
-        $document->formatOutput = true;
-        $document->normalizeDocument();
-
-        if ($node instanceof DOMDocument) {
-            $text = $node->saveXML();
-        } else {
-            $text = $document->saveXML($node);
-        }
-
-        assert($text !== false);
 
         if ($ignoreCase) {
             return mb_strtolower($text, 'UTF-8');
         }
 
         return $text;
+    }
+
+    /**
+     * Serializes a node without canonicalization.
+     * Used as a fallback when DOMNode::C14N() fails.
+     */
+    private function serialize(DOMNode $node): string
+    {
+        if ($node instanceof DOMDocument) {
+            $document = $node;
+            $target   = null;
+        } else {
+            $document = $node->ownerDocument;
+            $target   = $node;
+        }
+
+        assert($document !== null);
+
+        $text = $document->saveXML($target);
+
+        return $text !== false ? $text : '';
     }
 }
