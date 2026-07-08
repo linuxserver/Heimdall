@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Item;
 use App\ItemTag;
+use App\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -79,5 +80,26 @@ class DashTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Tag 1');
         $response->assertSee('Tag 2');
+    }
+
+    public function test_dash_exposes_the_configured_default_tag(): void
+    {
+        $this->seed();
+
+        Setting::where('key', 'treat_tags_as')->update(['value' => 'tags']);
+        Setting::where('key', 'default_tag')->update(['value' => 'home-dashboard']);
+
+        Item::factory()->create([
+            'title' => 'Home',
+            'url' => 'home-dashboard',
+            'type' => 1,
+            'pinned' => 1,
+            'user_id' => 0,
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-default-tag="home-dashboard"', false);
     }
 }

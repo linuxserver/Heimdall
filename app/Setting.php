@@ -123,6 +123,12 @@ class Setting extends Model
                     $options = (array) json_decode($this->options);
                     if ($this->key === 'search_provider') {
                         $options = Search::providers()->pluck('name', 'id')->toArray();
+                    } elseif ($this->key === 'default_tag') {
+                        $options = [];
+                        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
+                        foreach ($tags as $tag) {
+                            $options[$tag->tag_url] = $tag->title;
+                        }
                     }
                     $value = (array_key_exists($this->value, $options))
                         ? __($options[$this->value])
@@ -190,6 +196,12 @@ class Setting extends Model
                 $options = json_decode($this->options);
                 if ($this->key === 'search_provider') {
                     $options = Search::providers()->pluck('name', 'id');
+                } elseif ($this->key === 'default_tag') {
+                    $options = ['' => 'app.options.none'];
+                    $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
+                    foreach ($tags as $tag) {
+                        $options[$tag->tag_url] = $tag->title;
+                    }
                 }
                 $value = '<select name="value" class="form-control">';
                 foreach ($options as $key => $opt) {

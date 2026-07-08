@@ -29,6 +29,7 @@ return array (
   'settings.custom_css' => 'Custom CSS',
   'settings.custom_js' => 'Custom JavaScript',
   'settings.treat_tags_as' => 'Treat Tags As:',
+  'settings.default_tag' => 'Default tag',
   'settings.folders' => 'Folders',
   'settings.tags' => 'Tags',
   'settings.categories' => 'Categories',

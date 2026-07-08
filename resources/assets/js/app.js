@@ -334,6 +334,15 @@ $.when($.ready).then(() => {
           );
         });
     });
+  // Auto-select the configured default tag on load (tags mode only)
+  const taglist = document.getElementById("taglist");
+  if (taglist !== null) {
+    const defaultTag = taglist.getAttribute("data-default-tag");
+    if (typeof defaultTag === "string" && defaultTag !== "") {
+      $(`#taglist .tag[data-tag="tag-${defaultTag}"]`).trigger("click");
+    }
+  }
+
   $("#pinlist").on("click", "a", function (e) {
     e.preventDefault();
     const current = $(this);

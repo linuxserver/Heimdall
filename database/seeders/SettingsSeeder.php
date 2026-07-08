@@ -349,5 +349,20 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.treat_tags_as';
             $setting->save();
         }
+
+        if (! $setting = Setting::find(15)) {
+            $setting = new Setting;
+            $setting->id = 15;
+            $setting->group_id = 4;
+            $setting->key = 'default_tag';
+            $setting->type = 'select';
+            $setting->label = 'app.settings.default_tag';
+            $setting->value = '';
+            $setting->save();
+        } else {
+            $setting->group_id = 4;
+            $setting->label = 'app.settings.default_tag';
+            $setting->save();
+        }
     }
 }
