@@ -31,17 +31,17 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Cache yarn dependencies
-        uses: actions/cache@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          node-version: '24'
+          cache: 'npm'
 
-      - name: Run yarn
-        run: yarn && yarn dev
+      - name: Install node modules and build assets
+        run: npm ci && npm run dev
 
       - name: Run ESLint
-        run: yarn lint
+        run: npm run lint
 
       - name: Run tests
         run: php artisan test
