@@ -1,0 +1,39 @@
+{
+    "name": "phrity/net-stream",
+    "type": "library",
+    "description": "Socket stream classes implementing PSR-7 Stream and PSR-17 StreamFactory",
+    "homepage": "https://phrity.sirn.se/net-stream",
+    "keywords": ["socket", "stream", "stream factory", "client", "server", "PSR-7", "PSR-17"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sören Jensen",
+            "email": "sirn@sirn.se",
+            "homepage": "https://phrity.sirn.se"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Phrity\\Net\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phrity\\Net\\Test\\": "tests/mock/"
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "phrity/util-errorhandler": "^1.1",
+        "phrity/util-interpolator": "^1.1",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "phrity/net-uri": "^2.0",
+        "robiningelbrecht/phpunit-coverage-tools": "^1.9",
+        "squizlabs/php_codesniffer": "^4.0"
+    }
+}
