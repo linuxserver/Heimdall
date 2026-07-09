@@ -1,0 +1,26 @@
+name: Tag version check
+
+# Safety net for manually pushed tags: fails if the tag doesn't match the
+# version in config/app.php. Tags created by the Release workflow are pushed
+# with GITHUB_TOKEN and therefore don't trigger this (they always match anyway).
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  check:
+    name: Tag matches config/app.php
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare tag with app version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(sed -nE "s/^[[:space:]]*'version' => '([0-9]+\.[0-9]+\.[0-9]+)',/\1/p" config/app.php)
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Tag v$tag does not match config/app.php version $version — bump the version (or use the Release workflow, which does it for you)"
+            exit 1
+          fi
+          echo "Tag v$tag matches config/app.php"

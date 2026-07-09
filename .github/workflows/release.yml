@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      version:
+        description: 'Explicit version (e.g. 2.9.0) — overrides bump type'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Bump version, tag and release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2.x
+          fetch-depth: 0
+
+      - name: Determine new version
+        id: version
+        env:
+          EXPLICIT_VERSION: ${{ inputs.version }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          current=$(sed -nE "s/^[[:space:]]*'version' => '([0-9]+\.[0-9]+\.[0-9]+)',/\1/p" config/app.php)
+          if [ -z "$current" ]; then
+            echo "::error::Could not read current version from config/app.php"
+            exit 1
+          fi
+          if [ -n "$EXPLICIT_VERSION" ]; then
+            new="$EXPLICIT_VERSION"
+            if ! echo "$new" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::Invalid version '$new' — expected X.Y.Z"
+              exit 1
+            fi
+          else
+            IFS=. read -r major minor patch <<< "$current"
+            case "$BUMP" in
+              major) new="$((major + 1)).0.0" ;;
+              minor) new="$major.$((minor + 1)).0" ;;
+              patch) new="$major.$minor.$((patch + 1))" ;;
+            esac
+          fi
+          if git rev-parse -q --verify "refs/tags/v$new" > /dev/null; then
+            echo "::error::Tag v$new already exists"
+            exit 1
+          fi
+          echo "Bumping $current -> $new"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+
+      - name: Commit bump and push tag
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          sed -i -E "s/^([[:space:]]*'version' => ')[0-9.]+(',)/\1$NEW_VERSION\2/" config/app.php
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Bump version to $NEW_VERSION"
+          git tag "v$NEW_VERSION"
+          git push origin HEAD:2.x "refs/tags/v$NEW_VERSION"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.new }}" \
+            --title "v${{ steps.version.outputs.new }}" \
+            --generate-notes
