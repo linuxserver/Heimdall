@@ -4484,6 +4484,9 @@ var fetchAppDetails = function fetchAppDetails(appId) {
       app: appId
     })
   }).then(function (response) {
+    if (!response.ok) {
+      return Promise.reject(new Error("Failed to find app id: ".concat(appId)));
+    }
     return response.json();
   });
 };

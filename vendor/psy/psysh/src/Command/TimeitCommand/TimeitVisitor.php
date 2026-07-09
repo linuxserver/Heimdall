@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -41,6 +41,8 @@ class TimeitVisitor extends NodeVisitorAbstract
     public function beforeTraverse(array $nodes)
     {
         $this->functionDepth = 0;
+
+        return null;
     }
 
     /**
@@ -55,13 +57,15 @@ class TimeitVisitor extends NodeVisitorAbstract
         if ($node instanceof FunctionLike) {
             $this->functionDepth++;
 
-            return;
+            return null;
         }
 
         // replace any top-level `return` statements with a `markEnd` call
         if ($this->functionDepth === 0 && $node instanceof Return_) {
             return new Return_($this->getEndCall($node->expr), $node->getAttributes());
         }
+
+        return null;
     }
 
     /**
@@ -74,6 +78,8 @@ class TimeitVisitor extends NodeVisitorAbstract
         if ($node instanceof FunctionLike) {
             $this->functionDepth--;
         }
+
+        return null;
     }
 
     /**

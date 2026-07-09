@@ -11,7 +11,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
-class WithReplacementContainingLinuxNewlinesSniff implements Sniff,DeprecatedSniff
+class WithReplacementContainingLinuxNewlinesSniff implements Sniff, DeprecatedSniff
 {
 
     public function getDeprecationVersion()

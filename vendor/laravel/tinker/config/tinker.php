@@ -47,4 +47,17 @@ return [
         'App\Nova',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Project Trust Mode
+    |--------------------------------------------------------------------------
+    |
+    | PsySH restricts local project features unless your project is trusted.
+    | Set this to "always" to avoid untrusted project warnings in Tinker.
+    | Accepted values: "prompt", "always", "never", true, false, null.
+    |
+    */
+
+    'trust_project' => env('TINKER_TRUST_PROJECT', 'always'),
+
 ];

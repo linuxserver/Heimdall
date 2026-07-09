@@ -5,13 +5,13 @@ namespace Illuminate\Support\Facades;
 use Illuminate\Support\Testing\Fakes\MailFake;
 
 /**
- * @method static \Illuminate\Contracts\Mail\Mailer mailer(string|null $name = null)
- * @method static \Illuminate\Mail\Mailer driver(string|null $driver = null)
+ * @method static \Illuminate\Contracts\Mail\Mailer mailer(\UnitEnum|string|null $name = null)
+ * @method static \Illuminate\Mail\Mailer driver(\UnitEnum|string|null $driver = null)
  * @method static \Illuminate\Mail\Mailer build(array $config)
  * @method static \Symfony\Component\Mailer\Transport\TransportInterface createSymfonyTransport(array $config)
  * @method static string getDefaultDriver()
- * @method static void setDefaultDriver(string $name)
- * @method static void purge(string|null $name = null)
+ * @method static void setDefaultDriver(\UnitEnum|string $name)
+ * @method static void purge(\UnitEnum|string|null $name = null)
  * @method static \Illuminate\Mail\MailManager extend(string $driver, \Closure $callback)
  * @method static \Illuminate\Contracts\Foundation\Application getApplication()
  * @method static \Illuminate\Mail\MailManager setApplication(\Illuminate\Contracts\Foundation\Application $app)
@@ -29,7 +29,7 @@ use Illuminate\Support\Testing\Fakes\MailFake;
  * @method static string render(string|array $view, array $data = [])
  * @method static \Illuminate\Mail\SentMessage|null send(\Illuminate\Contracts\Mail\Mailable|string|array $view, array $data = [], \Closure|string|null $callback = null)
  * @method static \Illuminate\Mail\SentMessage|null sendNow(\Illuminate\Contracts\Mail\Mailable|string|array $mailable, array $data = [], \Closure|string|null $callback = null)
- * @method static mixed queue(\Illuminate\Contracts\Mail\Mailable|string|array $view, \BackedEnum|string|null $queue = null)
+ * @method static mixed queue(\Illuminate\Contracts\Mail\Mailable $view, \BackedEnum|string|null $queue = null)
  * @method static mixed onQueue(\BackedEnum|string|null $queue, \Illuminate\Contracts\Mail\Mailable $view)
  * @method static mixed queueOn(string $queue, \Illuminate\Contracts\Mail\Mailable $view)
  * @method static mixed later(\DateTimeInterface|\DateInterval|int $delay, \Illuminate\Contracts\Mail\Mailable $view, string|null $queue = null)
@@ -43,6 +43,7 @@ use Illuminate\Support\Testing\Fakes\MailFake;
  * @method static bool hasMacro(string $name)
  * @method static void flushMacros()
  * @method static void assertSent(string|\Closure $mailable, callable|array|string|int|null $callback = null)
+ * @method static void assertSentTimes(string $mailable, int $times = 1)
  * @method static void assertNotOutgoing(string|\Closure $mailable, callable|null $callback = null)
  * @method static void assertNotSent(string|\Closure $mailable, callable|array|string|null $callback = null)
  * @method static void assertNothingOutgoing()
@@ -71,8 +72,8 @@ class Mail extends Facade
     public static function fake()
     {
         $actualMailManager = static::isFake()
-                ? static::getFacadeRoot()->manager
-                : static::getFacadeRoot();
+            ? static::getFacadeRoot()->manager
+            : static::getFacadeRoot();
 
         return tap(new MailFake($actualMailManager), function ($fake) {
             static::swap($fake);

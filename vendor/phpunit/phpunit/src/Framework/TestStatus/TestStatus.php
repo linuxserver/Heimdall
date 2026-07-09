@@ -10,15 +10,15 @@
 namespace PHPUnit\Framework\TestStatus;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-abstract class TestStatus
+abstract readonly class TestStatus
 {
-    private readonly string $message;
+    private string $message;
 
     public static function from(int $status): self
     {
@@ -92,7 +92,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Known $this
+     * @phpstan-assert-if-true Known $this
      */
     public function isKnown(): bool
     {
@@ -100,7 +100,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Unknown $this
+     * @phpstan-assert-if-true Unknown $this
      */
     public function isUnknown(): bool
     {
@@ -108,7 +108,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Success $this
+     * @phpstan-assert-if-true Success $this
      */
     public function isSuccess(): bool
     {
@@ -116,7 +116,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Skipped $this
+     * @phpstan-assert-if-true Skipped $this
      */
     public function isSkipped(): bool
     {
@@ -124,7 +124,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Incomplete $this
+     * @phpstan-assert-if-true Incomplete $this
      */
     public function isIncomplete(): bool
     {
@@ -132,7 +132,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Notice $this
+     * @phpstan-assert-if-true Notice $this
      */
     public function isNotice(): bool
     {
@@ -140,7 +140,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Deprecation $this
+     * @phpstan-assert-if-true Deprecation $this
      */
     public function isDeprecation(): bool
     {
@@ -148,7 +148,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Failure $this
+     * @phpstan-assert-if-true Failure $this
      */
     public function isFailure(): bool
     {
@@ -156,7 +156,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Error $this
+     * @phpstan-assert-if-true Error $this
      */
     public function isError(): bool
     {
@@ -164,7 +164,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Warning $this
+     * @phpstan-assert-if-true Warning $this
      */
     public function isWarning(): bool
     {
@@ -172,7 +172,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Risky $this
+     * @phpstan-assert-if-true Risky $this
      */
     public function isRisky(): bool
     {

@@ -3,6 +3,23 @@
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
 
+## 7.13.3 - 2026-07-08
+
+### Changed
+
+- Adjusted `guzzlehttp/promises` version constraint to `^2.5.1`
+- Adjusted `guzzlehttp/psr7` version constraint to `^2.12.4`
+- Pass explicit trim characters ahead of the PHP 8.6 trim default change
+
+### Fixed
+
+- Stop matching cookie domains against hosts with a trailing newline
+- Reject HTTP status codes and certificate type extensions with a trailing newline
+- Treat PCRE engine failures as invalid cookie names during cookie validation
+- Report PCRE engine failures when formatting log messages
+- Report PCRE engine failures when splitting `no_proxy` values
+
+
 ## 7.13.2 - 2026-07-05
 
 ### Fixed

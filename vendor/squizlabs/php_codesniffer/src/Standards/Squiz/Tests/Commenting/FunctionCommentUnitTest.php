@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\Commenting;
@@ -141,6 +141,9 @@ final class FunctionCommentUnitTest extends AbstractSniffUnitTest
             1144 => 1,
             1145 => 1,
             1151 => 1,
+            1174 => 1,
+            1183 => 1,
+            1192 => 1,
         ];
 
         // Scalar type hints only work from PHP 7 onwards.

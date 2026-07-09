@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@ namespace Psy\Command;
 
 use Psy\Formatter\TraceFormatter;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,7 +38,7 @@ class TraceCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 
@@ -75,7 +75,7 @@ HELP
     {
         $this->filter->bind($input);
         $trace = $this->getBacktrace(new \Exception(), $input->getOption('num'), $input->getOption('include-psy'));
-        $output->page($trace, ShellOutput::NUMBER_LINES);
+        $this->shellOutput($output)->page($trace, ShellOutputAdapter::NUMBER_LINES);
 
         return 0;
     }
@@ -87,7 +87,7 @@ HELP
      * Psy from the trace.
      *
      * @param \Throwable $e          The exception or error with a backtrace
-     * @param int        $count      (default: PHP_INT_MAX)
+     * @param int|null   $count      (default: PHP_INT_MAX)
      * @param bool       $includePsy (default: true)
      *
      * @return array Formatted stacktrace lines

@@ -9,16 +9,19 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report;
 
-use function dirname;
-use function file_put_contents;
+use const PHP_EOL;
 use function serialize;
-use function str_contains;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Util\Filesystem;
+use SebastianBergmann\CodeCoverage\WriteOperationFailedException;
 
 final class PHP
 {
+    /**
+     * @param null|non-empty-string $target
+     *
+     * @throws WriteOperationFailedException
+     */
     public function process(CodeCoverage $coverage, ?string $target = null): string
     {
         $coverage->clearCache();
@@ -27,13 +30,7 @@ final class PHP
 return \unserialize(<<<'END_OF_COVERAGE_SERIALIZATION'" . PHP_EOL . serialize($coverage) . PHP_EOL . 'END_OF_COVERAGE_SERIALIZATION' . PHP_EOL . ');';
 
         if ($target !== null) {
-            if (!str_contains($target, '://')) {
-                Filesystem::createDirectory(dirname($target));
-            }
-
-            if (@file_put_contents($target, $buffer) === false) {
-                throw new WriteOperationFailedException($target);
-            }
+            Filesystem::write($target, $buffer);
         }
 
         return $buffer;

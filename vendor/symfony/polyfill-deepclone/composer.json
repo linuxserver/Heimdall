@@ -1,0 +1,39 @@
+{
+    "name": "symfony/polyfill-deepclone",
+    "type": "library",
+    "description": "Symfony polyfill for the deepclone extension",
+    "keywords": ["polyfill", "shim", "compatibility", "portable", "deepclone"],
+    "homepage": "https://symfony.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nicolas Grekas",
+            "email": "p@tchwork.com"
+        },
+        {
+            "name": "Symfony Community",
+            "homepage": "https://symfony.com/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "provide": {
+        "ext-deepclone": "*"
+    },
+    "autoload": {
+        "psr-4": { "Symfony\\Polyfill\\DeepClone\\": "" },
+        "files": [ "bootstrap.php" ],
+        "classmap": [ "Resources/stubs" ]
+    },
+    "suggest": {
+        "ext-deepclone": "For best performance"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "thanks": {
+            "name": "symfony/polyfill",
+            "url": "https://github.com/symfony/polyfill"
+        }
+    }
+}

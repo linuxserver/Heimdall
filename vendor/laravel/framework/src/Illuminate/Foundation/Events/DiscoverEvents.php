@@ -2,6 +2,8 @@
 
 namespace Illuminate\Foundation\Events;
 
+use Illuminate\Contracts\Events\ShouldBeDiscovered;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Reflector;
 use Illuminate\Support\Str;
@@ -16,19 +18,23 @@ class DiscoverEvents
     /**
      * The callback to be used to guess class names.
      *
-     * @var callable(SplFileInfo, string): string|null
+     * @var (callable(SplFileInfo, string): class-string)|null
      */
     public static $guessClassNamesUsingCallback;
 
     /**
      * Get all of the events and listeners by searching the given listener directory.
      *
-     * @param  string  $listenerPath
+     * @param  array<int, string>|string  $listenerPath
      * @param  string  $basePath
      * @return array
      */
     public static function within($listenerPath, $basePath)
     {
+        if (Arr::wrap($listenerPath) === []) {
+            return [];
+        }
+
         $listeners = new Collection(static::getListenerEvents(
             Finder::create()->files()->in($listenerPath), $basePath
         ));
@@ -51,7 +57,7 @@ class DiscoverEvents
     /**
      * Get all of the listeners and their corresponding events.
      *
-     * @param  iterable  $listeners
+     * @param  iterable<string, SplFileInfo>  $listeners
      * @param  string  $basePath
      * @return array
      */
@@ -69,6 +75,11 @@ class DiscoverEvents
             }
 
             if (! $listener->isInstantiable()) {
+                continue;
+            }
+
+            if ($listener->implementsInterface(ShouldBeDiscovered::class) &&
+                $listener->getName()::shouldBeDiscovered() === false) {
                 continue;
             }
 
@@ -91,7 +102,7 @@ class DiscoverEvents
      *
      * @param  \SplFileInfo  $file
      * @param  string  $basePath
-     * @return string
+     * @return class-string
      */
     protected static function classFromFile(SplFileInfo $file, $basePath)
     {
@@ -111,7 +122,7 @@ class DiscoverEvents
     /**
      * Specify a callback to be used to guess class names.
      *
-     * @param  callable(SplFileInfo, string): string  $callback
+     * @param  callable(SplFileInfo, string): class-string  $callback
      * @return void
      */
     public static function guessClassNamesUsing(callable $callback)

@@ -2,8 +2,8 @@
 
 namespace Illuminate\Database\Concerns;
 
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 trait BuildsWhereDateClauses
 {
@@ -99,6 +99,8 @@ trait BuildsWhereDateClauses
      * Add an "where" clause to determine if a "date" column is in the past or future.
      *
      * @param  array|string  $columns
+     * @param  string  $operator
+     * @param  string  $boolean
      * @return $this
      */
     protected function wherePastOrFuture($columns, $operator, $boolean)
@@ -107,7 +109,7 @@ trait BuildsWhereDateClauses
         $value = Carbon::now();
 
         foreach (Arr::wrap($columns) as $column) {
-            $this->wheres[] = compact('type', 'column', 'boolean', 'operator', 'value');
+            $this->wheres[] = ['type' => $type, 'column' => $column, 'boolean' => $boolean, 'operator' => $operator, 'value' => $value];
 
             $this->addBinding($value);
         }
@@ -197,7 +199,6 @@ trait BuildsWhereDateClauses
      * Add an "or where date" clause to determine if a "date" column is today or before to the query.
      *
      * @param  array|string  $columns
-     * @param  string  $boolean
      * @return $this
      */
     public function orWhereTodayOrBefore($columns)
@@ -209,7 +210,6 @@ trait BuildsWhereDateClauses
      * Add an "or where date" clause to determine if a "date" column is after today.
      *
      * @param  array|string  $columns
-     * @param  string  $boolean
      * @return $this
      */
     public function orWhereAfterToday($columns)
@@ -221,7 +221,6 @@ trait BuildsWhereDateClauses
      * Add an "or where date" clause to determine if a "date" column is today or after to the query.
      *
      * @param  array|string  $columns
-     * @param  string  $boolean
      * @return $this
      */
     public function orWhereTodayOrAfter($columns)

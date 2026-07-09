@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,8 +28,8 @@ class ConfigPaths
      *
      * @see self::overrideDirs
      *
-     * @param string[]     $overrides Directory overrides
-     * @param EnvInterface $env
+     * @param string[]          $overrides Directory overrides
+     * @param EnvInterface|null $env
      */
     public function __construct(array $overrides = [], ?EnvInterface $env = null)
     {
@@ -185,6 +185,95 @@ class ConfigPaths
     }
 
     /**
+     * Get the current home data directory.
+     *
+     * Returns the highest precedence home data directory which actually
+     * exists and is writable. If none of them exists, returns the highest
+     * precedence home data directory.
+     */
+    public function currentDataDir(): ?string
+    {
+        if ($this->dataDir !== null) {
+            return $this->dataDir;
+        }
+
+        $dataDirs = $this->dataDirs();
+
+        // Find first writable directory
+        foreach ($dataDirs as $dir) {
+            if (@\is_dir($dir) && @\is_writable($dir)) {
+                return $dir;
+            }
+        }
+
+        // Return first (user) directory even if it doesn't exist yet
+        return $dataDirs[0] ?? null;
+    }
+
+    /**
+     * Get the local config root directory (cwd only, no ancestor walking).
+     *
+     * Used for local `.psysh.php` config file detection. Returns the current
+     * working directory, or null if getcwd() fails.
+     */
+    public function localConfigRoot(): ?string
+    {
+        $cwd = \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        return \strtr($cwd, '\\', '/');
+    }
+
+    /**
+     * Find a project root for trust decisions.
+     *
+     * Walks up ancestors to find the nearest composer.json or composer.lock.
+     * If none found, falls back to the nearest .psysh.php, then to the current
+     * working directory.
+     *
+     * Used for trust decisions on Composer autoload and project-level features.
+     */
+    public function projectRoot(?string $cwd = null): ?string
+    {
+        $cwd = $cwd ?? \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        $dir = \strtr($cwd, '\\', '/');
+        $root = null;
+        $localConfigRoot = null;
+
+        $current = $dir;
+        $parent = \dirname($current);
+
+        while ($current !== $parent) {
+            if ($root === null && (@\is_file($current.'/composer.json') || @\is_file($current.'/composer.lock'))) {
+                $root = $current;
+            }
+
+            if ($localConfigRoot === null && @\is_file($current.'/.psysh.php')) {
+                $localConfigRoot = $current;
+            }
+
+            $current = $parent;
+            $parent = \dirname($current);
+        }
+
+        if ($root !== null) {
+            return $root;
+        }
+
+        if ($localConfigRoot !== null) {
+            return $localConfigRoot;
+        }
+
+        return $dir;
+    }
+
+    /**
      * Find real data files in config directories.
      *
      * @param string[] $names Config file names
@@ -263,9 +352,7 @@ class ConfigPaths
     private function allDirNames(array $baseDirs): array
     {
         $baseDirs = \array_filter($baseDirs);
-        $dirs = \array_map(function ($dir) {
-            return \strtr($dir, '\\', '/').'/psysh';
-        }, $baseDirs);
+        $dirs = \array_map(fn ($dir) => \strtr($dir, '\\', '/').'/psysh', $baseDirs);
 
         // Add ~/.psysh
         if ($home = $this->getEnv('HOME')) {
@@ -309,6 +396,44 @@ class ConfigPaths
         }
 
         return $files;
+    }
+
+    /**
+     * Make a path prettier by replacing cwd with . or home directory with ~.
+     *
+     * @param string|mixed $path       Path to prettify
+     * @param string|null  $relativeTo Directory to make path relative to (defaults to cwd)
+     * @param string|null  $homeDir    Home directory to replace with ~ (defaults to actual home)
+     *
+     * @return string|mixed Pretty path, or original value if not a string
+     */
+    public static function prettyPath($path, ?string $relativeTo = null, ?string $homeDir = null)
+    {
+        if (!\is_string($path)) {
+            return $path;
+        }
+
+        $path = \strtr($path, '\\', '/');
+
+        // Try replacing relativeTo directory first (more specific)
+        $relativeTo = $relativeTo ?: \getcwd();
+        if ($relativeTo !== false) {
+            $relativeTo = \rtrim(\strtr($relativeTo, '\\', '/'), '/').'/';
+            if (\strpos($path, $relativeTo) === 0) {
+                return './'.\substr($path, \strlen($relativeTo));
+            }
+        }
+
+        // Fall back to replacing home directory
+        $homeDir = $homeDir ?: (new self())->homeDir();
+        if ($homeDir && $homeDir !== '/') {
+            $homeDir = \rtrim(\strtr($homeDir, '\\', '/'), '/').'/';
+            if (\strpos($path, $homeDir) === 0) {
+                return '~/'.\substr($path, \strlen($homeDir));
+            }
+        }
+
+        return $path;
     }
 
     /**

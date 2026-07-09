@@ -9,29 +9,30 @@
  */
 namespace PHPUnit\Event\Telemetry;
 
-use PHPUnit\Event\RuntimeException;
-
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class GarbageCollectorStatus
+final readonly class GarbageCollectorStatus
 {
-    private readonly int $runs;
-    private readonly int $collected;
-    private readonly int $threshold;
-    private readonly int $roots;
-    private readonly ?float $applicationTime;
-    private readonly ?float $collectorTime;
-    private readonly ?float $destructorTime;
-    private readonly ?float $freeTime;
-    private readonly ?bool $running;
-    private readonly ?bool $protected;
-    private readonly ?bool $full;
-    private readonly ?int $bufferSize;
+    private int $runs;
+    private int $collected;
+    private int $threshold;
+    private int $roots;
+    private float $applicationTime;
+    private float $collectorTime;
+    private float $destructorTime;
+    private float $freeTime;
+    private bool $running;
+    private bool $protected;
+    private bool $full;
+    private int $bufferSize;
 
-    public function __construct(int $runs, int $collected, int $threshold, int $roots, ?float $applicationTime, ?float $collectorTime, ?float $destructorTime, ?float $freeTime, ?bool $running, ?bool $protected, ?bool $full, ?int $bufferSize)
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function __construct(int $runs, int $collected, int $threshold, int $roots, float $applicationTime, float $collectorTime, float $destructorTime, float $freeTime, bool $running, bool $protected, bool $full, int $bufferSize)
     {
         $this->runs            = $runs;
         $this->collected       = $collected;
@@ -67,114 +68,43 @@ final class GarbageCollectorStatus
         return $this->roots;
     }
 
-    /**
-     * @psalm-assert-if-true !null $this->applicationTime
-     * @psalm-assert-if-true !null $this->collectorTime
-     * @psalm-assert-if-true !null $this->destructorTime
-     * @psalm-assert-if-true !null $this->freeTime
-     * @psalm-assert-if-true !null $this->running
-     * @psalm-assert-if-true !null $this->protected
-     * @psalm-assert-if-true !null $this->full
-     * @psalm-assert-if-true !null $this->bufferSize
-     */
-    public function hasExtendedInformation(): bool
-    {
-        return $this->running !== null;
-    }
-
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function applicationTime(): float
     {
-        if ($this->applicationTime === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->applicationTime;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function collectorTime(): float
     {
-        if ($this->collectorTime === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->collectorTime;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function destructorTime(): float
     {
-        if ($this->destructorTime === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->destructorTime;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function freeTime(): float
     {
-        if ($this->freeTime === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->freeTime;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function isRunning(): bool
     {
-        if ($this->running === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->running;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function isProtected(): bool
     {
-        if ($this->protected === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->protected;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function isFull(): bool
     {
-        if ($this->full === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->full;
     }
 
-    /**
-     * @throws RuntimeException on PHP < 8.3
-     */
     public function bufferSize(): int
     {
-        if ($this->bufferSize === null) {
-            throw new RuntimeException('Information not available');
-        }
-
         return $this->bufferSize;
     }
 }

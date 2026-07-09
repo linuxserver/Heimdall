@@ -39,7 +39,6 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
      *
      * @param  \Illuminate\Contracts\Debug\ExceptionHandler  $handler
      * @param  list<class-string<\Throwable>>  $exceptions
-     * @return void
      */
     public function __construct(
         protected ExceptionHandler $handler,
@@ -73,7 +72,7 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
 
         if (is_string($exception)) {
             Assert::assertTrue(
-                in_array($exception, array_map('get_class', $this->reported), true),
+                in_array($exception, array_map(get_class(...), $this->reported), true),
                 $message,
             );
 
@@ -109,12 +108,14 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
      *
      * @param  (\Closure(\Throwable): bool)|class-string<\Throwable>  $exception
      * @return void
+     *
+     * @throws \PHPUnit\Framework\ExpectationFailedException
      */
     public function assertNotReported(Closure|string $exception)
     {
         try {
             $this->assertReported($exception);
-        } catch (ExpectationFailedException $e) {
+        } catch (ExpectationFailedException) {
             return;
         }
 
@@ -135,7 +136,7 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
             $this->reported,
             sprintf(
                 'The following exceptions were reported: %s.',
-                implode(', ', array_map('get_class', $this->reported)),
+                implode(', ', array_map(get_class(...), $this->reported)),
             ),
         );
     }
@@ -145,6 +146,8 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
      *
      * @param  \Throwable  $e
      * @return void
+     *
+     * @throws \Throwable
      */
     public function report($e)
     {
@@ -173,7 +176,7 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
      */
     protected function isFakedException(Throwable $e)
     {
-        return count($this->exceptions) === 0 || in_array(get_class($e), $this->exceptions, true);
+        return $this->exceptions === [] || in_array(get_class($e), $this->exceptions, true);
     }
 
     /**
@@ -247,6 +250,16 @@ class ExceptionHandlerFake implements ExceptionHandler, Fake
         }
 
         return $this;
+    }
+
+    /**
+     * Get the exceptions that have been reported.
+     *
+     * @return list<\Throwable>
+     */
+    public function reported()
+    {
+        return $this->reported;
     }
 
     /**

@@ -37,7 +37,6 @@ class Pipe
      *
      * @param  \Illuminate\Process\Factory  $factory
      * @param  callable  $callback
-     * @return void
      */
     public function __construct(Factory $factory, callable $callback)
     {
@@ -63,6 +62,8 @@ class Pipe
      *
      * @param  callable|null  $output
      * @return \Illuminate\Contracts\Process\ProcessResult
+     *
+     * @throws \InvalidArgumentException
      */
     public function run(?callable $output = null)
     {

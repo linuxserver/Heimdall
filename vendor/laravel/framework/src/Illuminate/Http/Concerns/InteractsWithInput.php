@@ -80,7 +80,7 @@ trait InteractsWithInput
     /**
      * Get all of the input and files for the request.
      *
-     * @param  array|mixed|null  $keys
+     * @param  mixed  $keys
      * @return array
      */
     public function all($keys = null)
@@ -118,11 +118,14 @@ trait InteractsWithInput
      * Retrieve input from the request as a Fluent object instance.
      *
      * @param  array|string|null  $key
+     * @param  array  $default
      * @return \Illuminate\Support\Fluent
      */
-    public function fluent($key = null)
+    public function fluent($key = null, array $default = [])
     {
-        return new Fluent(is_array($key) ? $this->only($key) : $this->input($key));
+        $value = is_array($key) ? $this->only($key) : $this->input($key);
+
+        return new Fluent($value ?? $default);
     }
 
     /**
@@ -175,20 +178,20 @@ trait InteractsWithInput
     /**
      * Get an array of all of the files on the request.
      *
-     * @return array
+     * @return array<string, \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]>
      */
     public function allFiles()
     {
         $files = $this->files->all();
 
-        return $this->convertedFiles = $this->convertedFiles ?? $this->convertUploadedFiles($files);
+        return $this->convertedFiles ??= $this->convertUploadedFiles($files);
     }
 
     /**
      * Convert the given array of Symfony UploadedFiles to custom Laravel UploadedFiles.
      *
-     * @param  array  $files
-     * @return array
+     * @param  array<string, \Symfony\Component\HttpFoundation\File\UploadedFile|\Symfony\Component\HttpFoundation\File\UploadedFile[]>  $files
+     * @return array<string, \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]>
      */
     protected function convertUploadedFiles(array $files)
     {
@@ -198,8 +201,8 @@ trait InteractsWithInput
             }
 
             return is_array($file)
-                        ? $this->convertUploadedFiles($file)
-                        : UploadedFile::createFromBase($file);
+                ? $this->convertUploadedFiles($file)
+                : UploadedFile::createFromBase($file);
         }, $files);
     }
 
@@ -215,13 +218,7 @@ trait InteractsWithInput
             $files = [$files];
         }
 
-        foreach ($files as $file) {
-            if ($this->isValidFile($file)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($files, fn ($file) => $this->isValidFile($file));
     }
 
     /**
@@ -240,7 +237,7 @@ trait InteractsWithInput
      *
      * @param  string|null  $key
      * @param  mixed  $default
-     * @return \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|array|null
+     * @return ($key is null ? array<string, \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]> : \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|null)
      */
     public function file($key = null, $default = null)
     {
@@ -250,7 +247,7 @@ trait InteractsWithInput
     /**
      * Retrieve data from the instance.
      *
-     * @param  string  $key
+     * @param  string|null  $key
      * @param  mixed  $default
      * @return mixed
      */
@@ -290,7 +287,7 @@ trait InteractsWithInput
     {
         $keys = is_array($keys) ? $keys : func_get_args();
 
-        dump(count($keys) > 0 ? $this->only($keys) : $this->all());
+        dump($keys !== [] ? $this->only($keys) : $this->all());
 
         return $this;
     }

@@ -51,7 +51,6 @@ class PendingResourceRegistration
      * @param  string  $name
      * @param  string  $controller
      * @param  array  $options
-     * @return void
      */
     public function __construct(ResourceRegistrar $registrar, $name, $controller, array $options)
     {
@@ -64,7 +63,7 @@ class PendingResourceRegistration
     /**
      * Set the methods the controller should apply to.
      *
-     * @param  array|string|mixed  $methods
+     * @param  mixed  $methods
      * @return \Illuminate\Routing\PendingResourceRegistration
      */
     public function only($methods)
@@ -77,7 +76,7 @@ class PendingResourceRegistration
     /**
      * Set the methods the controller should exclude.
      *
-     * @param  array|string|mixed  $methods
+     * @param  mixed  $methods
      * @return \Illuminate\Routing\PendingResourceRegistration
      */
     public function except($methods)
@@ -199,7 +198,7 @@ class PendingResourceRegistration
      * Specify middleware that should be removed from the resource routes.
      *
      * @param  array|string  $middleware
-     * @return $this|array
+     * @return $this
      */
     public function withoutMiddleware($middleware)
     {
@@ -238,6 +237,22 @@ class PendingResourceRegistration
     public function where($wheres)
     {
         $this->options['wheres'] = $wheres;
+
+        return $this;
+    }
+
+    /**
+     * Add metadata to the registered resource routes.
+     *
+     * @param  array  $metadata
+     * @return $this
+     */
+    public function metadata(array $metadata)
+    {
+        $this->options['metadata'] = RouteGroup::mergeMetadata(
+            $this->options['metadata'] ?? [],
+            $metadata
+        );
 
         return $this;
     }

@@ -106,7 +106,7 @@ class GitHubClient
         }
     }
 
-    public function getRepositories(?array &$failures = null, $withFundingLinks = false): array
+    public function getRepositories(?array &$failures = null, bool $withFundingLinks = false): array
     {
         $repo = $this->composer->getRepositoryManager()->getLocalRepository();
 
@@ -146,34 +146,12 @@ class GitHubClient
 
         ksort($urls);
 
-        $i = 0;
-        $template = $withFundingLinks
-            ? '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred,fundingLinks{platform,url}}'."\n"
-            : '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred}'."\n";
-        $graphql = '';
+        $chunks = array_chunk($urls, 150, true);
 
-        foreach ($urls as $package => $url) {
-            if (preg_match('#^https://github.com/([^/]++)/(.*?)(?:\.git)?$#i', $url, $url)) {
-                $graphql .= sprintf($template, ++$i, $url[1], $url[2]);
-                $aliases['_'.$i] = [$package, sprintf('https://github.com/%s/%s', $url[1], $url[2])];
-            }
-        }
-
-        $failures = [];
         $repos = [];
 
-        foreach ($this->call(sprintf("query{\n%s}", $graphql), $failures) as $alias => $repo) {
-            $repo['package'] = $aliases[$alias][0];
-            $repo['url'] = $aliases[$alias][1];
-            $repos[$alias] = $repo;
-        }
-
-        foreach ($failures as $alias => $messages) {
-            $failures[$alias] = [
-                'messages' => $messages,
-                'package' => $aliases[$alias][0],
-                'url' => $aliases[$alias][1],
-            ];
+        foreach ($chunks as $chunk) {
+            $repos += $this->processChunks($chunk, $withFundingLinks, $failures);
         }
 
         return $repos;
@@ -230,5 +208,42 @@ class GitHubClient
         $data = array_keys($data['require'] + $data['require-dev']);
 
         return array_combine($data, $data);
+    }
+
+    private function processChunks(array $urls, bool $withFundingLinks, ?array &$failures = null): array
+    {
+        $i = 0;
+        $template = $withFundingLinks
+            ? '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred,fundingLinks{platform,url}}'."\n"
+            : '_%d: repository(owner:"%s",name:"%s"){id,viewerHasStarred}'."\n";
+        $graphql = '';
+
+        $aliases = [];
+
+        foreach ($urls as $package => $url) {
+            if (preg_match('#^https://github.com/([^/]++)/(.*?)(?:\.git)?$#i', $url, $url)) {
+                $graphql .= sprintf($template, ++$i, $url[1], $url[2]);
+                $aliases['_'.$i] = [$package, sprintf('https://github.com/%s/%s', $url[1], $url[2])];
+            }
+        }
+
+        $failures = [];
+        $repos = [];
+
+        foreach ($this->call(sprintf("query{\n%s}", $graphql), $failures) as $alias => $repo) {
+            $repo['package'] = $aliases[$alias][0];
+            $repo['url'] = $aliases[$alias][1];
+            $repos[$alias] = $repo;
+        }
+
+        foreach ($failures as $alias => $messages) {
+            $failures[$alias] = [
+                'messages' => $messages,
+                'package' => $aliases[$alias][0],
+                'url' => $aliases[$alias][1],
+            ];
+        }
+
+        return $repos;
     }
 }

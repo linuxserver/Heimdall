@@ -23,7 +23,7 @@ class ListensForPHPAndCSSAndJSSniff implements Sniff
     {
         return [
             T_OPEN_TAG,
-            T_OPEN_TAG_WITH_ECHO
+            T_OPEN_TAG_WITH_ECHO,
         ];
     }
 

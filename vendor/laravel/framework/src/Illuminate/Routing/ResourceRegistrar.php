@@ -62,7 +62,6 @@ class ResourceRegistrar
      * Create a new resource registrar instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @return void
      */
     public function __construct(Router $router)
     {
@@ -218,7 +217,7 @@ class ResourceRegistrar
             $me->resource($name, $controller, $options);
         };
 
-        return $this->router->group(compact('prefix'), $callback);
+        return $this->router->group(['prefix' => $prefix], $callback);
     }
 
     /**
@@ -240,7 +239,7 @@ class ResourceRegistrar
             $me->singleton($name, $controller, $options);
         };
 
-        return $this->router->group(compact('prefix'), $callback);
+        return $this->router->group(['prefix' => $prefix], $callback);
     }
 
     /**
@@ -547,8 +546,8 @@ class ResourceRegistrar
     protected function getShallowName($name, $options)
     {
         return isset($options['shallow']) && $options['shallow']
-                    ? last(explode('.', $name))
-                    : $name;
+            ? last(explode('.', $name))
+            : $name;
     }
 
     /**
@@ -655,6 +654,13 @@ class ResourceRegistrar
 
         if (isset($options['missing'])) {
             $action['missing'] = $options['missing'];
+        }
+
+        if (isset($options['metadata'])) {
+            $action['metadata'] = RouteGroup::mergeMetadata(
+                $action['metadata'] ?? [],
+                $options['metadata']
+            );
         }
 
         return $action;

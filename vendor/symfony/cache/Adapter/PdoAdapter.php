@@ -118,7 +118,7 @@ class PdoAdapter extends AbstractAdapter implements PruneableInterface
             // - trailing space removal
             // - case-insensitivity
             // - language processing like é == e
-            'mysql' => "CREATE TABLE $this->table ($this->idCol VARBINARY(255) NOT NULL PRIMARY KEY, $this->dataCol MEDIUMBLOB NOT NULL, $this->lifetimeCol INTEGER UNSIGNED, $this->timeCol INTEGER UNSIGNED NOT NULL) COLLATE utf8mb4_bin, ENGINE = InnoDB",
+            'mysql' => "CREATE TABLE $this->table ($this->idCol VARBINARY(255) NOT NULL PRIMARY KEY, $this->dataCol MEDIUMBLOB NOT NULL, $this->lifetimeCol INTEGER UNSIGNED, $this->timeCol INTEGER UNSIGNED NOT NULL) ENGINE = InnoDB",
             'sqlite' => "CREATE TABLE $this->table ($this->idCol TEXT NOT NULL PRIMARY KEY, $this->dataCol BLOB NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
             'pgsql' => "CREATE TABLE $this->table ($this->idCol VARCHAR(255) NOT NULL PRIMARY KEY, $this->dataCol BYTEA NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
             'oci' => "CREATE TABLE $this->table ($this->idCol VARCHAR2(255) NOT NULL PRIMARY KEY, $this->dataCol BLOB NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
@@ -224,7 +224,8 @@ class PdoAdapter extends AbstractAdapter implements PruneableInterface
                 $sql = "TRUNCATE TABLE $this->table";
             }
         } else {
-            $sql = "DELETE FROM $this->table WHERE $this->idCol LIKE '$namespace%'";
+            $namespace = str_replace('_', '!_', $namespace);
+            $sql = "DELETE FROM $this->table WHERE $this->idCol LIKE '$namespace%' ESCAPE '!'";
         }
 
         try {
@@ -324,7 +325,17 @@ class PdoAdapter extends AbstractAdapter implements PruneableInterface
             $insertStmt->bindValue(':time', $now, \PDO::PARAM_INT);
         }
 
+        if ('sqlsrv' === $driver) {
+            $dataStream = fopen('php://memory', 'r+');
+        }
         foreach ($values as $id => $data) {
+            if ('sqlsrv' === $driver) {
+                rewind($dataStream);
+                fwrite($dataStream, $data);
+                ftruncate($dataStream, \strlen($data));
+                rewind($dataStream);
+                $data = $dataStream;
+            }
             try {
                 $stmt->execute();
             } catch (\PDOException $e) {

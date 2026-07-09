@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,6 +27,17 @@ class PassthruPager extends StreamOutput implements OutputPager
     public function __construct(StreamOutput $output)
     {
         parent::__construct($output->getStream());
+    }
+
+    /**
+     * Writes a message to the output.
+     *
+     * @param string $message A message to write to the output
+     * @param bool   $newline Whether to add a newline or not
+     */
+    public function doWrite($message, $newline): void
+    {
+        parent::doWrite($message, $newline);
     }
 
     /**

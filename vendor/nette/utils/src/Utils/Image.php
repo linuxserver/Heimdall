@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Nette\Utils;
 
 use Nette;
+use function is_array, is_int, is_string;
+use const IMG_BMP, IMG_FLIP_BOTH, IMG_FLIP_HORIZONTAL, IMG_FLIP_VERTICAL, IMG_GIF, IMG_JPG, IMG_PNG, IMG_WEBP, PATHINFO_EXTENSION;
 
 
 /**
@@ -22,7 +22,7 @@ use Nette;
  * $image->send();
  * </code>
  *
- * @method Image affine(array $affine, ?array $clip = null)
+ * @method Image affine(array<int, float|int> $affine, ?array{x: int, y: int, width: int, height: int} $clip = null)
  * @method void alphaBlending(bool $enable)
  * @method void antialias(bool $enable)
  * @method void arc(int $centerX, int $centerY, int $width, int $height, int $startAngle, int $endAngle, ImageColor $color)
@@ -39,51 +39,51 @@ use Nette;
  * @method int colorResolve(int $red, int $green, int $blue)
  * @method int colorResolveAlpha(int $red, int $green, int $blue, int $alpha)
  * @method void colorSet(int $index, int $red, int $green, int $blue, int $alpha = 0)
- * @method array colorsForIndex(int $color)
+ * @method array{red: int, green: int, blue: int, alpha: int} colorsForIndex(int $color)
  * @method int colorsTotal()
  * @method int colorTransparent(?int $color = null)
- * @method void convolution(array $matrix, float $div, float $offset)
+ * @method void convolution(array<int, array<int, float>> $matrix, float $div, float $offset)
  * @method void copy(Image $src, int $dstX, int $dstY, int $srcX, int $srcY, int $srcW, int $srcH)
  * @method void copyMerge(Image $src, int $dstX, int $dstY, int $srcX, int $srcY, int $srcW, int $srcH, int $pct)
  * @method void copyMergeGray(Image $src, int $dstX, int $dstY, int $srcX, int $srcY, int $srcW, int $srcH, int $pct)
  * @method void copyResampled(Image $src, int $dstX, int $dstY, int $srcX, int $srcY, int $dstW, int $dstH, int $srcW, int $srcH)
  * @method void copyResized(Image $src, int $dstX, int $dstY, int $srcX, int $srcY, int $dstW, int $dstH, int $srcW, int $srcH)
- * @method Image cropAuto(int $mode = IMG_CROP_DEFAULT, float $threshold = .5, ?ImageColor $color = null)
+ * @method Image cropAuto(int $mode = 0, float $threshold = .5, ?ImageColor $color = null)
  * @method void ellipse(int $centerX, int $centerY, int $width, int $height, ImageColor $color)
  * @method void fill(int $x, int $y, ImageColor $color)
  * @method void filledArc(int $centerX, int $centerY, int $width, int $height, int $startAngle, int $endAngle, ImageColor $color, int $style)
  * @method void filledEllipse(int $centerX, int $centerY, int $width, int $height, ImageColor $color)
- * @method void filledPolygon(array $points, ImageColor $color)
+ * @method void filledPolygon(array<int, int> $points, ImageColor $color)
  * @method void filledRectangle(int $x1, int $y1, int $x2, int $y2, ImageColor $color)
  * @method void fillToBorder(int $x, int $y, ImageColor $borderColor, ImageColor $color)
  * @method void filter(int $filter, ...$args)
  * @method void flip(int $mode)
- * @method array ftText(float $size, float $angle, int $x, int $y, ImageColor $color, string $fontFile, string $text, array $options = [])
+ * @method array<int, int> ftText(float $size, float $angle, int $x, int $y, ImageColor $color, string $fontFile, string $text, array<string, mixed> $options = [])
  * @method void gammaCorrect(float $inputgamma, float $outputgamma)
- * @method array getClip()
+ * @method array{int, int, int, int} getClip()
  * @method int getInterpolation()
  * @method int interlace(?bool $enable = null)
  * @method bool isTrueColor()
  * @method void layerEffect(int $effect)
  * @method void line(int $x1, int $y1, int $x2, int $y2, ImageColor $color)
- * @method void openPolygon(array $points, ImageColor $color)
+ * @method void openPolygon(array<int, int> $points, ImageColor $color)
  * @method void paletteCopy(Image $source)
  * @method void paletteToTrueColor()
- * @method void polygon(array $points, ImageColor $color)
+ * @method void polygon(array<int, int> $points, ImageColor $color)
  * @method void rectangle(int $x1, int $y1, int $x2, int $y2, ImageColor $color)
  * @method mixed resolution(?int $resolutionX = null, ?int $resolutionY = null)
  * @method Image rotate(float $angle, ImageColor $backgroundColor)
  * @method void saveAlpha(bool $enable)
- * @method Image scale(int $newWidth, int $newHeight = -1, int $mode = IMG_BILINEAR_FIXED)
+ * @method Image scale(int $newWidth, int $newHeight = -1, int $mode = 3)
  * @method void setBrush(Image $brush)
  * @method void setClip(int $x1, int $y1, int $x2, int $y2)
- * @method void setInterpolation(int $method = IMG_BILINEAR_FIXED)
+ * @method void setInterpolation(int $method = 3)
  * @method void setPixel(int $x, int $y, ImageColor $color)
- * @method void setStyle(array $style)
+ * @method void setStyle(array<int, int> $style)
  * @method void setThickness(int $thickness)
  * @method void setTile(Image $tile)
  * @method void trueColorToPalette(bool $dither, int $ncolors)
- * @method array ttfText(float $size, float $angle, int $x, int $y, ImageColor $color, string $fontfile, string $text, array $options = [])
+ * @method array<int, int> ttfText(float $size, float $angle, int $x, int $y, ImageColor $color, string $fontfile, string $text, array<string, mixed> $options = [])
  * @property-read positive-int $width
  * @property-read positive-int $height
  * @property-read \GdImage $imageResource
@@ -137,6 +137,7 @@ class Image
 	public const EmptyGIF = "GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;";
 
 	private const Formats = [ImageType::JPEG => 'jpeg', ImageType::PNG => 'png', ImageType::GIF => 'gif', ImageType::WEBP => 'webp', ImageType::AVIF => 'avif', ImageType::BMP => 'bmp'];
+	private const Sentinel = "\0";
 
 	private \GdImage $image;
 
@@ -144,6 +145,7 @@ class Image
 	/**
 	 * Returns RGB color (0..255) and transparency (0..127).
 	 * @deprecated use ImageColor::rgb()
+	 * @return array{red: int, green: int, blue: int, alpha: int}
 	 */
 	public static function rgb(int $red, int $green, int $blue, int $transparency = 0): array
 	{
@@ -157,11 +159,13 @@ class Image
 
 
 	/**
-	 * Reads an image from a file and returns its type in $type.
+	 * Reads an image from a file and returns its type in $type. If $warnings is passed, recoverable decoder
+	 * warnings are returned in it instead of being raised as a PHP warning.
+	 * @param-out ?string  $warnings
 	 * @throws Nette\NotSupportedException if gd extension is not loaded
 	 * @throws UnknownImageFileException if file not found or file type is not known
 	 */
-	public static function fromFile(string $file, ?int &$type = null): static
+	public static function fromFile(string $file, ?int &$type = null, ?string &$warnings = self::Sentinel): static
 	{
 		self::ensureExtension();
 		$type = self::detectTypeFromFile($file);
@@ -169,16 +173,18 @@ class Image
 			throw new UnknownImageFileException(is_file($file) ? "Unknown type of file '$file'." : "File '$file' not found.");
 		}
 
-		return self::invokeSafe('imagecreatefrom' . self::Formats[$type], $file, "Unable to open file '$file'.", __METHOD__);
+		return self::invokeSafe('imagecreatefrom' . self::Formats[$type], $file, "Unable to open file '$file'.", __METHOD__, $warnings);
 	}
 
 
 	/**
-	 * Reads an image from a string and returns its type in $type.
+	 * Reads an image from a string and returns its type in $type. If $warnings is passed, recoverable decoder
+	 * warnings are returned in it instead of being raised as a PHP warning.
+	 * @param-out ?string  $warnings
 	 * @throws Nette\NotSupportedException if gd extension is not loaded
 	 * @throws ImageException
 	 */
-	public static function fromString(string $s, ?int &$type = null): static
+	public static function fromString(string $s, ?int &$type = null, ?string &$warnings = self::Sentinel): static
 	{
 		self::ensureExtension();
 		$type = self::detectTypeFromString($s);
@@ -186,21 +192,31 @@ class Image
 			throw new UnknownImageFileException('Unknown type of image.');
 		}
 
-		return self::invokeSafe('imagecreatefromstring', $s, 'Unable to open image from string.', __METHOD__);
+		return self::invokeSafe('imagecreatefromstring', $s, 'Unable to open image from string.', __METHOD__, $warnings);
 	}
 
 
-	private static function invokeSafe(string $func, string $arg, string $message, string $callee): static
+	/** @param  callable-string  $func */
+	private static function invokeSafe(
+		string $func,
+		string $arg,
+		string $message,
+		string $callee,
+		?string &$warnings = self::Sentinel,
+	): static
 	{
 		$errors = [];
 		$res = Callback::invokeSafe($func, [$arg], function (string $message) use (&$errors): void {
 			$errors[] = $message;
 		});
 
+		$raiseWarning = $warnings === self::Sentinel;
+		$warnings = $errors ? implode(', ', $errors) : null;
+
 		if (!$res) {
-			throw new ImageException($message . ' Errors: ' . implode(', ', $errors));
-		} elseif ($errors) {
-			trigger_error($callee . '(): ' . implode(', ', $errors), E_USER_WARNING);
+			throw new ImageException($message . ' Errors: ' . $warnings);
+		} elseif ($errors && $raiseWarning) {
+			trigger_error($callee . '(): ' . $warnings, E_USER_WARNING);
 		}
 
 		return new static($res);
@@ -211,6 +227,7 @@ class Image
 	 * Creates a new true color image of the given dimensions. The default color is black.
 	 * @param  positive-int  $width
 	 * @param  positive-int  $height
+	 * @param  ImageColor|array{red: int, green: int, blue: int, alpha?: int}|null  $color
 	 * @throws Nette\NotSupportedException if gd extension is not loaded
 	 */
 	public static function fromBlank(int $width, int $height, ImageColor|array|null $color = null): static
@@ -222,9 +239,9 @@ class Image
 
 		$image = new static(imagecreatetruecolor($width, $height));
 		if ($color) {
-			$image->alphablending(false);
-			$image->filledrectangle(0, 0, $width - 1, $height - 1, $color);
-			$image->alphablending(true);
+			$image->alphaBlending(false);
+			$image->filledRectangle(0, 0, $width - 1, $height - 1, self::normalizeColor($color));
+			$image->alphaBlending(true);
 		}
 
 		return $image;
@@ -233,23 +250,27 @@ class Image
 
 	/**
 	 * Returns the type of image from file.
-	 * @return ImageType::*|null
+	 * @param-out ?int  $width
+	 * @param-out ?int  $height
+	 * @return ?ImageType::*
 	 */
-	public static function detectTypeFromFile(string $file, &$width = null, &$height = null): ?int
+	public static function detectTypeFromFile(string $file, mixed &$width = null, mixed &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesize($file); // @ - files smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesize($file)); // @ - files smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
 	/**
 	 * Returns the type of image from string.
-	 * @return ImageType::*|null
+	 * @param-out ?int  $width
+	 * @param-out ?int  $height
+	 * @return ?ImageType::*
 	 */
-	public static function detectTypeFromString(string $s, &$width = null, &$height = null): ?int
+	public static function detectTypeFromString(string $s, mixed &$width = null, mixed &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesizefromstring($s); // @ - strings smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesizefromstring($s)); // @ - strings smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
@@ -295,6 +316,7 @@ class Image
 
 
 	/**
+	 * Checks whether the given image type is supported by the GD extension.
 	 * @param  ImageType::*  $type
 	 */
 	public static function isTypeSupported(int $type): bool
@@ -312,7 +334,10 @@ class Image
 	}
 
 
-	/** @return  ImageType[] */
+	/**
+	 * Returns list of image types supported by the GD extension.
+	 * @return  ImageType::*[]
+	 */
 	public static function getSupportedTypes(): array
 	{
 		self::ensureExtension();
@@ -384,6 +409,10 @@ class Image
 	public function resize(int|string|null $width, int|string|null $height, int $mode = self::OrSmaller): static
 	{
 		if ($mode & self::Cover) {
+			if ($width === null || $height === null) {
+				throw new Nette\InvalidArgumentException('Both width and height must be set for Cover mode.');
+			}
+
 			return $this->resize($width, $height, self::OrBigger)->crop('50%', '50%', $width, $height);
 		}
 
@@ -417,12 +446,13 @@ class Image
 	/**
 	 * Calculates dimensions of resized image. Width and height accept pixels or percent.
 	 * @param  int-mask-of<self::OrSmaller|self::OrBigger|self::Stretch|self::Cover|self::ShrinkOnly>  $mode
+	 * @return array{int<1, max>, int<1, max>}
 	 */
 	public static function calculateSize(
 		int $srcWidth,
 		int $srcHeight,
-		$newWidth,
-		$newHeight,
+		int|string|null $newWidth,
+		int|string|null $newHeight,
 		int $mode = self::OrSmaller,
 	): array
 	{
@@ -466,19 +496,19 @@ class Image
 			}
 
 			if ($mode & self::OrBigger) {
-				$scale = [max($scale)];
+				$scale = [max($scale ?: [1])];
 			}
 
 			if ($mode & self::ShrinkOnly) {
 				$scale[] = 1;
 			}
 
-			$scale = min($scale);
+			$scale = min($scale ?: [1]);
 			$newWidth = (int) round($srcWidth * $scale);
 			$newHeight = (int) round($srcHeight * $scale);
 		}
 
-		return [max($newWidth, 1), max($newHeight, 1)];
+		return [max((int) $newWidth, 1), max((int) $newHeight, 1)];
 	}
 
 
@@ -493,7 +523,7 @@ class Image
 			$this->image = imagecrop($this->image, $r);
 			imagesavealpha($this->image, true);
 		} else {
-			$newImage = static::fromBlank($r['width'], $r['height'], ImageColor::rgb(0, 0, 0, 0))->getImageResource();
+			$newImage = static::fromBlank(max(1, $r['width']), max(1, $r['height']), ImageColor::rgb(0, 0, 0, 0))->getImageResource();
 			imagecopy($newImage, $this->image, 0, 0, $r['x'], $r['y'], $r['width'], $r['height']);
 			$this->image = $newImage;
 		}
@@ -504,6 +534,7 @@ class Image
 
 	/**
 	 * Calculates dimensions of cutout in image. Arguments accepts pixels or percent.
+	 * @return array{int, int, int, int}
 	 */
 	public static function calculateCutout(
 		int $srcWidth,
@@ -514,21 +545,10 @@ class Image
 		int|string $newHeight,
 	): array
 	{
-		if (self::isPercent($newWidth)) {
-			$newWidth = (int) round($srcWidth / 100 * $newWidth);
-		}
-
-		if (self::isPercent($newHeight)) {
-			$newHeight = (int) round($srcHeight / 100 * $newHeight);
-		}
-
-		if (self::isPercent($left)) {
-			$left = (int) round(($srcWidth - $newWidth) / 100 * $left);
-		}
-
-		if (self::isPercent($top)) {
-			$top = (int) round(($srcHeight - $newHeight) / 100 * $top);
-		}
+		$newWidth = (int) (self::isPercent($newWidth) ? round($srcWidth / 100 * $newWidth) : $newWidth);
+		$newHeight = (int) (self::isPercent($newHeight) ? round($srcHeight / 100 * $newHeight) : $newHeight);
+		$left = (int) (self::isPercent($left) ? round(($srcWidth - $newWidth) / 100 * $left) : $left);
+		$top = (int) (self::isPercent($top) ? round(($srcHeight - $newHeight) / 100 * $top) : $top);
 
 		if ($left < 0) {
 			$newWidth += $left;
@@ -573,14 +593,8 @@ class Image
 
 		$width = $image->getWidth();
 		$height = $image->getHeight();
-
-		if (self::isPercent($left)) {
-			$left = (int) round(($this->getWidth() - $width) / 100 * $left);
-		}
-
-		if (self::isPercent($top)) {
-			$top = (int) round(($this->getHeight() - $height) / 100 * $top);
-		}
+		$left = (int) (self::isPercent($left) ? round(($this->getWidth() - $width) / 100 * $left) : $left);
+		$top = (int) (self::isPercent($top) ? round(($this->getHeight() - $height) / 100 * $top) : $top);
 
 		$output = $input = $image->image;
 		if ($opacity < 100) {
@@ -593,7 +607,7 @@ class Image
 			imagealphablending($output, false);
 			if (!$image->isTrueColor()) {
 				$input = $output;
-				imagefilledrectangle($output, 0, 0, $width, $height, imagecolorallocatealpha($output, 0, 0, 0, 127));
+				imagefilledrectangle($output, 0, 0, $width, $height, (int) imagecolorallocatealpha($output, 0, 0, 0, 127));
 				imagecopy($output, $image->image, 0, 0, 0, 0, $width, $height);
 			}
 
@@ -624,6 +638,8 @@ class Image
 
 	/**
 	 * Calculates the bounding box for a TrueType text. Returns keys left, top, width and height.
+	 * @param  array<string, mixed>  $options
+	 * @return array{left: int, top: int, width: int, height: int}
 	 */
 	public static function calculateTextBox(
 		string $text,
@@ -645,7 +661,7 @@ class Image
 
 
 	/**
-	 * Draw a rectangle.
+	 * Draws a rectangle using top-left coordinates and dimensions instead of two corner coordinates.
 	 */
 	public function rectangleWH(int $x, int $y, int $width, int $height, ImageColor $color): void
 	{
@@ -656,7 +672,7 @@ class Image
 
 
 	/**
-	 * Draw a filled rectangle.
+	 * Draws a filled rectangle using top-left coordinates and dimensions instead of two corner coordinates.
 	 */
 	public function filledRectangleWH(int $x, int $y, int $width, int $height, ImageColor $color): void
 	{
@@ -668,7 +684,7 @@ class Image
 
 	/**
 	 * Saves image to the file. Quality is in the range 0..100 for JPEG (default 85), WEBP (default 80) and AVIF (default 30) and 0..9 for PNG (default 9).
-	 * @param  ImageType::*|null  $type
+	 * @param  ?ImageType::*  $type
 	 * @throws ImageException
 	 */
 	public function save(string $file, ?int $quality = null, ?int $type = null): void
@@ -744,6 +760,7 @@ class Image
 
 	/**
 	 * Call to undefined method.
+	 * @param  mixed[]  $args
 	 * @throws Nette\MemberAccessException
 	 */
 	public function __call(string $name, array $args): mixed
@@ -758,6 +775,7 @@ class Image
 				$args[$key] = $value->getImageResource();
 
 			} elseif ($value instanceof ImageColor || (is_array($value) && isset($value['red']))) {
+				/** @var ImageColor|array{red: int, green: int, blue: int, alpha?: int} $value */
 				$args[$key] = $this->resolveColor($value);
 			}
 		}
@@ -771,12 +789,13 @@ class Image
 
 	public function __clone()
 	{
-		ob_start(function () {});
+		ob_start(fn() => '');
 		imagepng($this->image, null, 0);
-		$this->setImageResource(imagecreatefromstring(ob_get_clean()));
+		$this->setImageResource(imagecreatefromstring(ob_get_clean()) ?: throw new Nette\ShouldNotHappenException);
 	}
 
 
+	/** @param-out int|float $num */
 	private static function isPercent(int|string &$num): bool
 	{
 		if (is_string($num) && str_ends_with($num, '%')) {
@@ -794,16 +813,34 @@ class Image
 	/**
 	 * Prevents serialization.
 	 */
-	public function __sleep(): array
+	public function __serialize(): array
 	{
 		throw new Nette\NotSupportedException('You cannot serialize or unserialize ' . self::class . ' instances.');
 	}
 
 
+	/**
+	 * Resolves a color to a GD color index for the current image.
+	 * @param  ImageColor|array{red: int, green: int, blue: int, alpha?: int}  $color
+	 */
 	public function resolveColor(ImageColor|array $color): int
 	{
-		$color = $color instanceof ImageColor ? $color->toRGBA() : array_values($color);
+		$color = self::normalizeColor($color)->toRGBA();
 		return imagecolorallocatealpha($this->image, ...$color) ?: imagecolorresolvealpha($this->image, ...$color);
+	}
+
+
+	/** @param  ImageColor|array{red: int, green: int, blue: int, alpha?: int}  $color */
+	private static function normalizeColor(ImageColor|array $color): ImageColor
+	{
+		return $color instanceof ImageColor
+			? $color
+			: ImageColor::rgb(
+				$color['red'],
+				$color['green'],
+				$color['blue'],
+				(127 - ($color['alpha'] ?? 0)) / 127,
+			);
 	}
 
 

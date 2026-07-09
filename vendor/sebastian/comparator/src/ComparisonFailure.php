@@ -13,6 +13,9 @@ use RuntimeException;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ComparisonFailure extends RuntimeException
 {
     private mixed $expected;
@@ -28,6 +31,32 @@ final class ComparisonFailure extends RuntimeException
         $this->actual           = $actual;
         $this->expectedAsString = $expectedAsString;
         $this->actualAsString   = $actualAsString;
+    }
+
+    /**
+     * @return array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string}
+     */
+    public function __serialize(): array
+    {
+        return [
+            'expected'         => $this->expected,
+            'actual'           => $this->actual,
+            'expectedAsString' => $this->expectedAsString,
+            'actualAsString'   => $this->actualAsString,
+            'message'          => $this->message,
+        ];
+    }
+
+    /**
+     * @param array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->expected         = $data['expected'];
+        $this->actual           = $data['actual'];
+        $this->expectedAsString = $data['expectedAsString'];
+        $this->actualAsString   = $data['actualAsString'];
+        $this->message          = $data['message'];
     }
 
     public function getActual(): mixed
@@ -52,7 +81,7 @@ final class ComparisonFailure extends RuntimeException
 
     public function getDiff(): string
     {
-        if (!$this->actualAsString && !$this->expectedAsString) {
+        if ($this->actualAsString === '' && $this->expectedAsString === '') {
             return '';
         }
 

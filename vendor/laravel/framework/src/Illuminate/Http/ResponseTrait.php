@@ -99,6 +99,21 @@ trait ResponseTrait
     }
 
     /**
+     * Remove a header(s) from the response.
+     *
+     * @param  array|string  $key
+     * @return $this
+     */
+    public function withoutHeader($key)
+    {
+        foreach ((array) $key as $header) {
+            $this->headers->remove($header);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a cookie to the response.
      *
      * @param  \Symfony\Component\HttpFoundation\Cookie|mixed  $cookie
@@ -122,6 +137,21 @@ trait ResponseTrait
         }
 
         $this->headers->setCookie($cookie);
+
+        return $this;
+    }
+
+    /**
+     * Add multiple cookies to the response.
+     *
+     * @param  array  $cookies
+     * @return $this
+     */
+    public function withCookies(array $cookies)
+    {
+        foreach ($cookies as $cookie) {
+            $this->headers->setCookie($cookie);
+        }
 
         return $this;
     }

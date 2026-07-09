@@ -97,6 +97,7 @@ class ConsoleColor
         $sequences = [];
 
         foreach ($style as $s) {
+            // @phpstan-ignore-next-line
             if (isset($this->themes[$s])) {
                 $sequences = array_merge($sequences, $this->themeSequence($s));
             } elseif ($this->isValidStyle($s)) {
@@ -106,15 +107,14 @@ class ConsoleColor
             }
         }
 
-        $sequences = array_filter($sequences, function ($val) {
-            return $val !== null;
-        });
+        /** @var array<string> $filtered */
+        $filtered = array_filter($sequences);
 
-        if (empty($sequences)) {
+        if (empty($filtered)) {
             return $text;
         }
 
-        return $this->escSequence(implode(';', $sequences)).$text.$this->escSequence(self::RESET_STYLE);
+        return $this->escSequence(implode(';', $filtered)).$text.$this->escSequence(self::RESET_STYLE);
     }
 
     public function setForceStyle(bool $forceStyle): void
@@ -218,8 +218,8 @@ class ConsoleColor
 
         preg_match(self::COLOR256_REGEXP, $style, $matches);
 
-        $type = $matches[1] === 'bg_' ? self::BACKGROUND : self::FOREGROUND; // @phpstan-ignore-line
-        $value = $matches[2]; // @phpstan-ignore-line
+        $type = ($matches[1] ?? '') === 'bg_' ? self::BACKGROUND : self::FOREGROUND;
+        $value = $matches[2] ?? '0';
 
         return "$type;5;$value";
     }

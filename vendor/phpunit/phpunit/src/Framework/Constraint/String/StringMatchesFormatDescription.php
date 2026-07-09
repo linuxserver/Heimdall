@@ -13,10 +13,16 @@ use const DIRECTORY_SEPARATOR;
 use const PHP_EOL;
 use function explode;
 use function implode;
+use function preg_last_error_msg;
 use function preg_match;
 use function preg_quote;
 use function preg_replace;
+use function sprintf;
+use function strlen;
+use function strpos;
 use function strtr;
+use function substr;
+use PHPUnit\Framework\Exception as FrameworkException;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
@@ -40,17 +46,28 @@ final class StringMatchesFormatDescription extends Constraint
     /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
+     *
+     * @throws FrameworkException
      */
     protected function matches(mixed $other): bool
     {
         $other = $this->convertNewlines($other);
 
-        $matches = preg_match(
+        $matches = @preg_match(
             $this->regularExpressionForFormatDescription(
                 $this->convertNewlines($this->formatDescription),
             ),
             $other,
         );
+
+        if ($matches === false) {
+            throw new FrameworkException(
+                sprintf(
+                    'Format description cannot be matched: %s',
+                    preg_last_error_msg(),
+                ),
+            );
+        }
 
         return $matches > 0;
     }
@@ -60,15 +77,33 @@ final class StringMatchesFormatDescription extends Constraint
         return 'string matches format description';
     }
 
+    /**
+     * Returns a cleaned up diff.
+     *
+     * The expected string can contain placeholders like %s and %d.
+     * By using 'diff' such placeholders compared to the real output will
+     * always be different, although we don't want to show them as different.
+     * This method removes the expected differences by figuring out if a difference
+     * is allowed by the use of a placeholder.
+     *
+     * The problem here are %A and %a multiline placeholders since we look at the
+     * expected and actual output line by line. If differences allowed by those placeholders
+     * stretch over multiple lines they will still end up in the final diff.
+     * And since they mess up the line sync between the expected and actual output
+     * all following allowed changes will not be detected/removed anymore.
+     */
     protected function additionalFailureDescription(mixed $other): string
     {
         $from = explode("\n", $this->formatDescription);
         $to   = explode("\n", $this->convertNewlines($other));
 
         foreach ($from as $index => $line) {
+            // is the expected output line different from the actual output line
             if (isset($to[$index]) && $line !== $to[$index]) {
                 $line = $this->regularExpressionForFormatDescription($line);
 
+                // if the difference is allowed by a placeholder
+                // overwrite the expected line with the actual line to prevent it from showing up in the diff
                 if (preg_match($line, $to[$index]) > 0) {
                     $from[$index] = $to[$index];
                 }
@@ -83,8 +118,34 @@ final class StringMatchesFormatDescription extends Constraint
 
     private function regularExpressionForFormatDescription(string $string): string
     {
+        $quoted      = '';
+        $startOffset = 0;
+        $length      = strlen($string);
+
+        while ($startOffset < $length) {
+            $start = strpos($string, '%r', $startOffset);
+
+            if ($start !== false) {
+                $end = strpos($string, '%r', $start + 2);
+
+                if ($end === false) {
+                    $end = $start = $length;
+                }
+            } else {
+                $start = $end = $length;
+            }
+
+            $quoted .= preg_quote(substr($string, $startOffset, $start - $startOffset), '/');
+
+            if ($end > $start) {
+                $quoted .= '(' . substr($string, $start + 2, $end - $start - 2) . ')';
+            }
+
+            $startOffset = $end + 2;
+        }
+
         $string = strtr(
-            preg_quote($string, '/'),
+            $quoted,
             [
                 '%%' => '%',
                 '%e' => preg_quote(DIRECTORY_SEPARATOR, '/'),

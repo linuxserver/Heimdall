@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Util\Tokens;
@@ -41,7 +41,7 @@ final class GetHighestWeightedTokenTest extends TestCase
     /**
      * Data provider.
      *
-     * @return array<string, array<string, int|false|array<int|string>>>
+     * @return array<string, array<string, int|string|false|array<int|string>>>
      */
     public static function dataGetHighestWeightedToken()
     {

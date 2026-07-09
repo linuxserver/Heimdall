@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static placeholderIf(bool $condition, string|null $placeholder)
+ * @method static placeholderIfNotNull(bool $condition, string|null $placeholder)
+ * @method static placeholderUnless(bool $condition, string|null $placeholder)
+ */
 trait Placeholder
 {
     /**

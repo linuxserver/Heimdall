@@ -34,6 +34,9 @@ trait PacksPhpRedisValues
      *
      * @param  array<int|string,string>  $values
      * @return array<int|string,string>
+     *
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
      */
     public function pack(array $values): array
     {
@@ -42,7 +45,7 @@ trait PacksPhpRedisValues
         }
 
         if ($this->supportsPacking()) {
-            return array_map([$this->client, '_pack'], $values);
+            return array_map($this->client->_pack(...), $values);
         }
 
         if ($this->compressed()) {
@@ -85,8 +88,10 @@ trait PacksPhpRedisValues
     /**
      * Execute the given callback without serialization or compression when applicable.
      *
-     * @param  callable  $callback
-     * @return mixed
+     * @template TReturn
+     *
+     * @param  (callable(): TReturn)  $callback
+     * @return TReturn
      */
     public function withoutSerializationOrCompression(callable $callback)
     {

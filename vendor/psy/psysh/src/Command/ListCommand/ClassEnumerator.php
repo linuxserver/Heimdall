@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -58,11 +58,11 @@ class ClassEnumerator extends Enumerator
      * If $internal or $user is defined, results will be limited to internal or
      * user-defined classes as appropriate.
      *
-     * @param string $key
-     * @param array  $classes
-     * @param bool   $internal
-     * @param bool   $user
-     * @param string $prefix
+     * @param string      $key
+     * @param array       $classes
+     * @param bool        $internal
+     * @param bool        $user
+     * @param string|null $prefix
      *
      * @return array
      */
@@ -95,9 +95,7 @@ class ClassEnumerator extends Enumerator
         }
 
         if (!$user && !$internal) {
-            $ret[$key] = \array_filter($classes, function ($class) use ($prefix) {
-                return $prefix === null || \strpos(\strtolower($class), $prefix) === 0;
-            });
+            $ret[$key] = \array_filter($classes, fn ($class) => $prefix === null || \strpos(\strtolower($class), $prefix) === 0);
         }
 
         return $ret;

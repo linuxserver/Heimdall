@@ -26,6 +26,7 @@ use Symfony\Component\Mailer\Bridge\Mailjet\Transport\MailjetTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailomat\Transport\MailomatTransportFactory;
 use Symfony\Component\Mailer\Bridge\MailPace\Transport\MailPaceTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailtrap\Transport\MailtrapTransportFactory;
+use Symfony\Component\Mailer\Bridge\MicrosoftGraph\Transport\MicrosoftGraphTransportFactory;
 use Symfony\Component\Mailer\Bridge\Postal\Transport\PostalTransportFactory;
 use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkTransportFactory;
 use Symfony\Component\Mailer\Bridge\Resend\Transport\ResendTransportFactory;
@@ -67,6 +68,7 @@ final class Transport
         PostalTransportFactory::class,
         PostmarkTransportFactory::class,
         MailtrapTransportFactory::class,
+        MicrosoftGraphTransportFactory::class,
         ResendTransportFactory::class,
         ScalewayTransportFactory::class,
         SendgridTransportFactory::class,

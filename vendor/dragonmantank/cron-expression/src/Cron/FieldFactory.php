@@ -14,7 +14,7 @@ use InvalidArgumentException;
 class FieldFactory implements FieldFactoryInterface
 {
     /**
-     * @var array Cache of instantiated fields
+     * @var array<int, FieldInterface> Cache of instantiated fields
      */
     private $fields = [];
 

@@ -20,7 +20,6 @@ use DOMDocument;
 use DOMElement;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestMethod;
-use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\InvalidArgumentException;
 use PHPUnit\Event\Telemetry\HRTime;
@@ -33,8 +32,8 @@ use PHPUnit\Event\Test\PreparationStarted;
 use PHPUnit\Event\Test\Prepared;
 use PHPUnit\Event\Test\PrintedUnexpectedOutput;
 use PHPUnit\Event\Test\Skipped;
+use PHPUnit\Event\TestSuite\Skipped as TestSuiteSkipped;
 use PHPUnit\Event\TestSuite\Started;
-use PHPUnit\Event\UnknownSubscriberTypeException;
 use PHPUnit\TextUI\Output\Printer;
 use PHPUnit\Util\Xml;
 
@@ -50,39 +49,39 @@ final class JunitXmlLogger
     private DOMElement $root;
 
     /**
-     * @var DOMElement[]
+     * @var array<int, DOMElement>
      */
     private array $testSuites = [];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteTests = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteAssertions = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteErrors = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteFailures = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, int>
      */
     private array $testSuiteSkipped = [0];
 
     /**
-     * @psalm-var array<int,int>
+     * @var array<int, float>
      */
-    private array $testSuiteTimes        = [0];
+    private array $testSuiteTimes        = [0.0];
     private int $testSuiteLevel          = 0;
     private ?DOMElement $currentTestCase = null;
     private ?HRTime $time                = null;
@@ -90,10 +89,6 @@ final class JunitXmlLogger
     private bool $preparationFailed      = false;
     private ?string $unexpectedOutput    = null;
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     public function __construct(Printer $printer, Facade $facade)
     {
         $this->printer = $printer;
@@ -104,8 +99,13 @@ final class JunitXmlLogger
 
     public function flush(): void
     {
-        $this->printer->print($this->document->saveXML());
+        $xml = $this->document->saveXML();
 
+        if ($xml === false) {
+            $xml = '';
+        }
+
+        $this->printer->print($xml);
         $this->printer->flush();
     }
 
@@ -131,7 +131,18 @@ final class JunitXmlLogger
         $this->testSuiteErrors[$this->testSuiteLevel]     = 0;
         $this->testSuiteFailures[$this->testSuiteLevel]   = 0;
         $this->testSuiteSkipped[$this->testSuiteLevel]    = 0;
-        $this->testSuiteTimes[$this->testSuiteLevel]      = 0;
+        $this->testSuiteTimes[$this->testSuiteLevel]      = 0.0;
+    }
+
+    public function testSuiteSkipped(TestSuiteSkipped $event): void
+    {
+        assert(isset($this->testSuiteSkipped[$this->testSuiteLevel]));
+        assert(isset($this->testSuiteTests[$this->testSuiteLevel]));
+
+        $this->testSuiteSkipped[$this->testSuiteLevel] += $event->testSuite()->count();
+        $this->testSuiteTests[$this->testSuiteLevel]   += $event->testSuite()->count();
+
+        $this->testSuiteFinished();
     }
 
     public function testSuiteFinished(): void
@@ -184,19 +195,20 @@ final class JunitXmlLogger
     public function testPreparationStarted(PreparationStarted $event): void
     {
         $this->createTestCase($event);
+
+        $this->preparationFailed = false;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
+    public function testPreparationErrored(): void
+    {
+        $this->preparationFailed = true;
+    }
+
     public function testPreparationFailed(): void
     {
         $this->preparationFailed = true;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function testPrepared(): void
     {
         $this->prepared = true;
@@ -293,22 +305,21 @@ final class JunitXmlLogger
         $this->testSuiteTests[$this->testSuiteLevel]++;
         $this->testSuiteTimes[$this->testSuiteLevel] += $time;
 
-        $this->currentTestCase  = null;
-        $this->time             = null;
-        $this->prepared         = false;
-        $this->unexpectedOutput = null;
+        $this->currentTestCase   = null;
+        $this->time              = null;
+        $this->preparationFailed = false;
+        $this->prepared          = false;
+        $this->unexpectedOutput  = null;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function registerSubscribers(Facade $facade): void
     {
         $facade->registerSubscribers(
             new TestSuiteStartedSubscriber($this),
+            new TestSuiteSkippedSubscriber($this),
             new TestSuiteFinishedSubscriber($this),
             new TestPreparationStartedSubscriber($this),
+            new TestPreparationErroredSubscriber($this),
             new TestPreparationFailedSubscriber($this),
             new TestPreparedSubscriber($this),
             new TestPrintedUnexpectedOutputSubscriber($this),
@@ -439,7 +450,7 @@ final class JunitXmlLogger
     /**
      * @throws InvalidArgumentException
      *
-     * @psalm-assert !null $this->currentTestCase
+     * @phpstan-assert !null $this->currentTestCase
      */
     private function createTestCase(Errored|Failed|MarkedIncomplete|PreparationStarted|Prepared|Skipped $event): void
     {

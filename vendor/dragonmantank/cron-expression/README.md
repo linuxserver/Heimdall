@@ -1,7 +1,7 @@
 PHP Cron Expression Parser
 ==========================
 
-[![Latest Stable Version](https://poser.pugx.org/dragonmantank/cron-expression/v/stable.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Total Downloads](https://poser.pugx.org/dragonmantank/cron-expression/downloads.png)](https://packagist.org/packages/dragonmantank/cron-expression) [![Tests](https://github.com/dragonmantank/cron-expression/actions/workflows/tests.yml/badge.svg)](https://github.com/dragonmantank/cron-expression/actions/workflows/tests.yml) [![StyleCI](https://github.styleci.io/repos/103715337/shield?branch=master)](https://github.styleci.io/repos/103715337)
+[![Latest Stable Version](https://poser.pugx.org/dragonmantank/cron-expression/v)](https://packagist.org/packages/dragonmantank/cron-expression) [![Total Downloads](https://poser.pugx.org/dragonmantank/cron-expression/downloads)](https://packagist.org/packages/dragonmantank/cron-expression) [![Tests](https://github.com/dragonmantank/cron-expression/actions/workflows/tests.yml/badge.svg)](https://github.com/dragonmantank/cron-expression/actions/workflows/tests.yml) [![StyleCI](https://github.styleci.io/repos/103715337/shield?branch=master)](https://github.styleci.io/repos/103715337)
 
 The PHP cron expression parser can parse a CRON expression, determine if it is
 due to run, calculate the next run date of the expression, and calculate the previous

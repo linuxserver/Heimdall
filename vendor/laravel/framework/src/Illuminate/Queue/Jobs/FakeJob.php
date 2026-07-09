@@ -2,9 +2,10 @@
 
 namespace Illuminate\Queue\Jobs;
 
+use Illuminate\Contracts\Queue\Job as JobContract;
 use Illuminate\Support\Str;
 
-class FakeJob extends Job
+class FakeJob extends Job implements JobContract
 {
     /**
      * The number of seconds the released job was delayed.
@@ -82,12 +83,12 @@ class FakeJob extends Job
     /**
      * Delete the job, call the "failed" method, and raise the failed job event.
      *
-     * @param  \Throwable|null  $exception
+     * @param  \Throwable|null  $e
      * @return void
      */
-    public function fail($exception = null)
+    public function fail($e = null)
     {
         $this->failed = true;
-        $this->failedWith = $exception;
+        $this->failedWith = $e;
     }
 }

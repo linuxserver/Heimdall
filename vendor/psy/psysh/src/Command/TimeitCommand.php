@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,8 +27,9 @@ class TimeitCommand extends Command
     const RESULT_MSG = '<info>Command took %.6f seconds to complete.</info>';
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
-    // All times stored as nanoseconds!
-    private static ?int $start = null;
+    // All times stored as nanoseconds (int on 64-bit, float on 32-bit overflow)
+    /** @var int|float|null */
+    private static $start = null;
     private static array $times = [];
 
     private CodeArgumentParser $parser;
@@ -54,7 +55,7 @@ class TimeitCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('timeit')
@@ -91,7 +92,7 @@ HELP
         self::$times = [];
 
         do {
-            $_ = $shell->execute($instrumentedCode);
+            $_ = $shell->execute($instrumentedCode, true);
             $this->ensureEndMarked();
         } while (\count(self::$times) < $num);
 
@@ -101,11 +102,13 @@ HELP
         self::$times = [];
 
         if ($num === 1) {
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
             $output->writeln(\sprintf(self::RESULT_MSG, $times[0] / 1e+9));
         } else {
             $total = \array_sum($times);
             \rsort($times);
-            $median = $times[\round($num / 2)];
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
+            $median = $times[\intdiv($num, 2)];
 
             $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
         }

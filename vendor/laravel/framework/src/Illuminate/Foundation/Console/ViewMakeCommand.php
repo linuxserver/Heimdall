@@ -104,8 +104,8 @@ class ViewMakeCommand extends GeneratorCommand
     protected function resolveStubPath($stub)
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-                        ? $customPath
-                        : __DIR__.$stub;
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**
@@ -176,7 +176,7 @@ class ViewMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Get the class fully qualified name for the test.
+     * Get the class fully-qualified name for the test.
      *
      * @return string
      */

@@ -193,6 +193,12 @@ abstract class DNFTypes {
     /* testDNFTypePropertyWithPublicProtectedSet */
     public protected(set) (A&B&C)|true $asym4;
 
+    /* testDNFTypeWithPHP84AbstractKeyword */
+    abstract (className&InterfaceName)|false $abstractKeywordA { set; }
+
+    /* testDNFTypeWithPHP84AbstractKeywordAndPublic */
+    abstract public (\className&\InterfaceName)|false $abstractKeywordB { get; }
+
     public function paramTypes(
         /* testDNFTypeParam1WithAttribute */
         #[MyAttribute]

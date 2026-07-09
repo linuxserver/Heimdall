@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -214,6 +214,30 @@ final class NamedFunctionCallArgumentsTest extends AbstractTokenizerTestCase
                     '_valid',
                 ],
             ],
+            'PHP 8.4+: named arg in exit()'                                       => [
+                'testMarker' => '/* testPHP84Exit */',
+                'parameters' => [
+                    'status',
+                ],
+            ],
+            'PHP 8.4+: named arg in die()'                                        => [
+                'testMarker' => '/* testPHP84Die */',
+                'parameters' => [
+                    'status',
+                ],
+            ],
+            'PHP 8.4+: named arg in fully qualified exit()'                       => [
+                'testMarker' => '/* testPHP84FullyQualifiedExit */',
+                'parameters' => [
+                    'status',
+                ],
+            ],
+            'PHP 8.4+: named arg in fully qualified die()'                        => [
+                'testMarker' => '/* testPHP84FullyQualifiedDie */',
+                'parameters' => [
+                    'status',
+                ],
+            ],
 
             // Coding errors which should still be handled.
             'invalid: named arg before positional (compile error)'                => [
@@ -251,12 +275,6 @@ final class NamedFunctionCallArgumentsTest extends AbstractTokenizerTestCase
                 'parameters' => [
                     'param1',
                     'param2',
-                ],
-            ],
-            'invalid: named arg in exit() (parse error)'                          => [
-                'testMarker' => '/* testParseErrorExit */',
-                'parameters' => [
-                    'status',
                 ],
             ],
             'invalid: named arg in empty() (parse error)'                         => [

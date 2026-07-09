@@ -20,7 +20,7 @@ class ExecuteSolutionRequest extends FormRequest
     public function getSolution(): Solution
     {
         $solution = app(SolutionProviderRepository::class)
-            ->getSolutionForClass($this->get('solution'));
+            ->getSolutionForClass($this->input('solution'));
 
         abort_if(is_null($solution), 404, 'Solution could not be found');
 

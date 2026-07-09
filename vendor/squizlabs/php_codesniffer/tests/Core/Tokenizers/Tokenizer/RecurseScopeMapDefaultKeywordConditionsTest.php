@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020-2021 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\Tokenizer;
@@ -291,7 +291,7 @@ final class RecurseScopeMapDefaultKeywordConditionsTest extends AbstractTokenize
      *
      * @see testSwitchDefault()
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array<string, string|true|null>>
      */
     public static function dataSwitchDefault()
     {

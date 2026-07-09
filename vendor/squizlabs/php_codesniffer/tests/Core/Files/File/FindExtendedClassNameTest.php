@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Files\File;
@@ -128,6 +128,14 @@ final class FindExtendedClassNameTest extends AbstractMethodUnitTest
             'interface extends multiple interfaces (not supported)'       => [
                 'identifier' => '/* testInterfaceMultiExtends */',
                 'expected'   => '\Package\FooInterface',
+            ],
+            'readonly anon class extends fully qualified class'           => [
+                'identifier' => '/* testExtendedReadonlyAnonClass */',
+                'expected'   => '\Fully\Qualified\MyClass',
+            ],
+            'anon class with attribute extends partially qualified class' => [
+                'identifier' => '/* testExtendedAnonClassWithAttributes */',
+                'expected'   => 'Partially\Qualified\MyClass',
             ],
             'parse error - extends keyword, but no class name'            => [
                 'identifier' => '/* testMissingExtendsName */',

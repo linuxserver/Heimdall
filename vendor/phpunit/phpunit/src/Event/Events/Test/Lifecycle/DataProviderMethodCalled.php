@@ -15,16 +15,19 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry\Info;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class DataProviderMethodCalled implements Event
+final readonly class DataProviderMethodCalled implements Event
 {
-    private readonly Info $telemetryInfo;
-    private readonly ClassMethod $testMethod;
-    private readonly ClassMethod $dataProviderMethod;
+    private Info $telemetryInfo;
+    private ClassMethod $testMethod;
+    private ClassMethod $dataProviderMethod;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Info $telemetryInfo, ClassMethod $testMethod, ClassMethod $dataProviderMethod)
     {
         $this->telemetryInfo      = $telemetryInfo;
@@ -47,6 +50,9 @@ final class DataProviderMethodCalled implements Event
         return $this->dataProviderMethod;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return sprintf(

@@ -425,6 +425,9 @@ abstract class AbstractString implements \Stringable, \JsonSerializable
 
     abstract public function replace(string $from, string $to): static;
 
+    /**
+     * @param-immediately-invoked-callable $to
+     */
     abstract public function replaceMatches(string $fromRegexp, string|callable $to): static;
 
     abstract public function reverse(): static;
@@ -706,9 +709,9 @@ abstract class AbstractString implements \Stringable, \JsonSerializable
         return $str;
     }
 
-    public function __sleep(): array
+    public function __serialize(): array
     {
-        return ['string'];
+        return ['string' => $this->string];
     }
 
     public function __clone()

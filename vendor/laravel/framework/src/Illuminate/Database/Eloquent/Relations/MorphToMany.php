@@ -10,8 +10,10 @@ use Illuminate\Support\Collection;
 /**
  * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
  * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+ * @template TPivotModel of \Illuminate\Database\Eloquent\Relations\Pivot = \Illuminate\Database\Eloquent\Relations\MorphPivot
+ * @template TAccessor of string = 'pivot'
  *
- * @extends \Illuminate\Database\Eloquent\Relations\BelongsToMany<TRelatedModel, TDeclaringModel>
+ * @extends \Illuminate\Database\Eloquent\Relations\BelongsToMany<TRelatedModel, TDeclaringModel, TPivotModel, TAccessor>
  */
 class MorphToMany extends BelongsToMany
 {
@@ -23,9 +25,9 @@ class MorphToMany extends BelongsToMany
     protected $morphType;
 
     /**
-     * The class name of the morph type constraint.
+     * The morph class of the morph type constraint.
      *
-     * @var string
+     * @var class-string|string
      */
     protected $morphClass;
 
@@ -51,7 +53,6 @@ class MorphToMany extends BelongsToMany
      * @param  string  $relatedKey
      * @param  string|null  $relationName
      * @param  bool  $inverse
-     * @return void
      */
     public function __construct(
         Builder $query,
@@ -120,17 +121,18 @@ class MorphToMany extends BelongsToMany
     }
 
     /**
-     * Get the pivot models that are currently attached.
+     * Get the pivot models that are currently attached, filtered by related model keys.
      *
-     * @return \Illuminate\Support\Collection<int, \Illuminate\Database\Eloquent\Relations\Pivot|\Illuminate\Database\Eloquent\Relations\MorphPivot>
+     * @param  mixed  $ids
+     * @return \Illuminate\Support\Collection<int, TPivotModel>
      */
-    protected function getCurrentlyAttachedPivots()
+    protected function getCurrentlyAttachedPivotsForIds($ids = null)
     {
-        return parent::getCurrentlyAttachedPivots()->map(function ($record) {
+        return parent::getCurrentlyAttachedPivotsForIds($ids)->map(function ($record) {
             return $record instanceof MorphPivot
-                            ? $record->setMorphType($this->morphType)
-                                ->setMorphClass($this->morphClass)
-                            : $record;
+                ? $record->setMorphType($this->morphType)
+                    ->setMorphClass($this->morphClass)
+                : $record;
         });
     }
 
@@ -149,7 +151,7 @@ class MorphToMany extends BelongsToMany
      *
      * @param  array  $attributes
      * @param  bool  $exists
-     * @return \Illuminate\Database\Eloquent\Relations\Pivot
+     * @return TPivotModel
      */
     public function newPivot(array $attributes = [], $exists = false)
     {
@@ -157,8 +159,9 @@ class MorphToMany extends BelongsToMany
 
         $attributes = array_merge([$this->morphType => $this->morphClass], $attributes);
 
-        $pivot = $using ? $using::fromRawAttributes($this->parent, $attributes, $this->table, $exists)
-                        : MorphPivot::fromAttributes($this->parent, $attributes, $this->table, $exists);
+        $pivot = $using
+            ? $using::fromRawAttributes($this->parent, $attributes, $this->table, $exists)
+            : MorphPivot::fromAttributes($this->parent, $attributes, $this->table, $exists);
 
         $pivot->setPivotKeys($this->foreignPivotKey, $this->relatedPivotKey)
             ->setRelatedModel($this->related)
@@ -177,11 +180,15 @@ class MorphToMany extends BelongsToMany
      */
     protected function aliasedPivotColumns()
     {
-        $defaults = [$this->foreignPivotKey, $this->relatedPivotKey, $this->morphType];
-
-        return (new Collection(array_merge($defaults, $this->pivotColumns)))->map(function ($column) {
-            return $this->qualifyPivotColumn($column).' as pivot_'.$column;
-        })->unique()->all();
+        return (new Collection([
+            $this->foreignPivotKey,
+            $this->relatedPivotKey,
+            $this->morphType,
+            ...$this->pivotColumns,
+        ]))
+            ->map(fn ($column) => $this->qualifyPivotColumn($column).' as pivot_'.$column)
+            ->unique()
+            ->all();
     }
 
     /**
@@ -195,7 +202,7 @@ class MorphToMany extends BelongsToMany
     }
 
     /**
-     * Get the fully qualified morph type for the relation.
+     * Get the fully-qualified morph type for the relation.
      *
      * @return string
      */
@@ -207,7 +214,7 @@ class MorphToMany extends BelongsToMany
     /**
      * Get the class name of the parent model.
      *
-     * @return string
+     * @return class-string|string
      */
     public function getMorphClass()
     {

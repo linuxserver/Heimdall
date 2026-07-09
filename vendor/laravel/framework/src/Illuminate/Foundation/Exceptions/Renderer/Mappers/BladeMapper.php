@@ -2,6 +2,7 @@
 
 namespace Illuminate\Foundation\Exceptions\Renderer\Mappers;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -63,7 +64,6 @@ class BladeMapper
      *
      * @param  \Illuminate\Contracts\View\Factory  $factory
      * @param  \Illuminate\View\Compilers\BladeCompiler  $bladeCompiler
-     * @return void
      */
     public function __construct(Factory $factory, BladeCompiler $bladeCompiler)
     {

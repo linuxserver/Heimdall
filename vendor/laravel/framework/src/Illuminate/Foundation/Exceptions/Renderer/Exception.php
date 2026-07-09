@@ -47,7 +47,6 @@ class Exception
      * @param  \Illuminate\Http\Request  $request
      * @param  \Illuminate\Foundation\Exceptions\Renderer\Listener  $listener
      * @param  string  $basePath
-     * @return void
      */
     public function __construct(FlattenException $exception, Request $request, Listener $listener, string $basePath)
     {
@@ -88,17 +87,35 @@ class Exception
     }
 
     /**
-     * Get the first "non-vendor" frame index.
+     * Get the exception code.
+     *
+     * @return int|string
+     */
+    public function code()
+    {
+        return $this->exception->getCode();
+    }
+
+    /**
+     * Get the HTTP status code.
      *
      * @return int
      */
-    public function defaultFrame()
+    public function httpStatusCode()
     {
-        $key = array_search(false, array_map(function (Frame $frame) {
-            return $frame->isFromVendor();
-        }, $this->frames()->all()));
+        return $this->exception->getStatusCode();
+    }
 
-        return $key === false ? 0 : $key;
+    /**
+     * Get the previous exceptions in the chain.
+     *
+     * @return \Illuminate\Support\Collection<int, static>
+     */
+    public function previousExceptions()
+    {
+        return once(fn () => (new Collection($this->exception->getAllPrevious()))->map(
+            fn ($previous) => new static($previous, $this->request, $this->listener, $this->basePath),
+        ));
     }
 
     /**
@@ -108,22 +125,74 @@ class Exception
      */
     public function frames()
     {
-        $classMap = once(fn () => array_map(function ($path) {
-            return (string) realpath($path);
-        }, array_values(ClassLoader::getRegisteredLoaders())[0]->getClassMap()));
+        return once(function () {
+            $classMap = array_map(function ($path) {
+                return (string) realpath($path);
+            }, array_values(ClassLoader::getRegisteredLoaders())[0]->getClassMap());
 
-        $trace = array_values(array_filter(
-            $this->exception->getTrace(), fn ($trace) => isset($trace['file']),
-        ));
+            $trace = $this->exception->getTrace();
 
-        if (($trace[1]['class'] ?? '') === HandleExceptions::class) {
-            array_shift($trace);
-            array_shift($trace);
+            if (count($trace) > 1 && empty($trace[0]['class']) && empty($trace[0]['function'])) {
+                $trace[0]['class'] = $trace[1]['class'] ?? '';
+                $trace[0]['type'] = $trace[1]['type'] ?? '';
+                $trace[0]['function'] = $trace[1]['function'] ?? '';
+                $trace[0]['args'] = $trace[1]['args'] ?? [];
+            }
+
+            $trace = array_values(array_filter(
+                $trace, fn ($trace) => isset($trace['file']),
+            ));
+
+            if (($trace[1]['class'] ?? '') === HandleExceptions::class) {
+                array_shift($trace);
+                array_shift($trace);
+            }
+
+            $frames = [];
+            $previousFrame = null;
+
+            foreach (array_reverse($trace) as $frameData) {
+                $frame = new Frame($this->exception, $classMap, $frameData, $this->basePath, $previousFrame);
+                $frames[] = $frame;
+                $previousFrame = $frame;
+            }
+
+            $frames = array_reverse($frames);
+
+            foreach ($frames as $frame) {
+                if (! $frame->isFromVendor()) {
+                    $frame->markAsMain();
+                    break;
+                }
+            }
+
+            return new Collection($frames);
+        });
+    }
+
+    /**
+     * Get the exception's frames grouped by vendor status.
+     *
+     * @return array<int, array{is_vendor: bool, frames: array<int, Frame>}>
+     */
+    public function frameGroups()
+    {
+        $groups = [];
+
+        foreach ($this->frames() as $frame) {
+            $isVendor = $frame->isFromVendor();
+
+            if (empty($groups) || $groups[array_key_last($groups)]['is_vendor'] !== $isVendor) {
+                $groups[] = [
+                    'is_vendor' => $isVendor,
+                    'frames' => [],
+                ];
+            }
+
+            $groups[array_key_last($groups)]['frames'][] = $frame;
         }
 
-        return new Collection(array_map(
-            fn (array $trace) => new Frame($this->exception, $classMap, $trace, $this->basePath), $trace,
-        ));
+        return $groups;
     }
 
     /**

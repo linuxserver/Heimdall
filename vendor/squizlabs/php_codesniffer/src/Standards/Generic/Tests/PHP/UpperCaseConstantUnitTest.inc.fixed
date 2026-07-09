@@ -113,3 +113,12 @@ class WithAsym {
     protected(set) false|string|null $asym3 = NULL;
     public protected(set) Type|null|bool $asym4 = TRUE;
 }
+
+abstract class SkipOverPHP84AbstractProperties {
+    abstract MyType|true $propA {get;}
+    protected abstract null|MyClass $propB {set;}
+}
+
+$a = \NULL;
+$a = \FALSE;
+$a = \TRUE;

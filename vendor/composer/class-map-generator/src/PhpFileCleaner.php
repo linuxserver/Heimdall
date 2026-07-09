@@ -24,7 +24,7 @@ class PhpFileCleaner
     private static $typeConfig;
 
     /** @var non-empty-string */
-    private static $restPattern;
+    private static $rejectChars;
 
     /**
      * @readonly
@@ -53,14 +53,14 @@ class PhpFileCleaner
     public static function setTypeConfig(array $types): void
     {
         foreach ($types as $type) {
-            self::$typeConfig[$type[0]] = array(
+            self::$typeConfig[$type[0]] = [
                 'name' => $type,
                 'length' => \strlen($type),
                 'pattern' => '{.\b(?<![\$:>])'.$type.'\s++[a-zA-Z_\x7f-\xff:][a-zA-Z0-9_\x7f-\xff:\-]*+}Ais',
-            );
+            ];
         }
 
-        self::$restPattern = '{[^?"\'</'.implode('', array_keys(self::$typeConfig)).']+}A';
+        self::$rejectChars = '?"\'</'.implode('', array_keys(self::$typeConfig));
     }
 
     public function __construct(string $contents, int $maxMatches)
@@ -110,6 +110,7 @@ class PhpFileCleaner
                         $this->skipToNewline();
                         continue;
                     }
+
                     if ($this->peek('*')) {
                         $this->skipComment();
                         continue;
@@ -119,19 +120,18 @@ class PhpFileCleaner
                 if ($this->maxMatches === 1 && isset(self::$typeConfig[$char])) {
                     $type = self::$typeConfig[$char];
                     if (
-                        \substr($this->contents, $this->index, $type['length']) === $type['name']
+                        substr($this->contents, $this->index, $type['length']) === $type['name']
                         && Preg::isMatch($type['pattern'], $this->contents, $match, 0, $this->index - 1)
                     ) {
-                        $clean .= $match[0];
-
-                        return $clean;
+                        return $clean . $match[0];
                     }
                 }
 
                 $this->index += 1;
-                if ($this->match(self::$restPattern, $match)) {
-                    $clean .= $char . $match[0];
-                    $this->index += \strlen($match[0]);
+                $skip = strcspn($this->contents, self::$rejectChars, $this->index);
+                if ($skip > 0) {
+                    $clean .= $char . substr($this->contents, $this->index, $skip);
+                    $this->index += $skip;
                 } else {
                     $clean .= $char;
                 }
@@ -155,16 +155,24 @@ class PhpFileCleaner
 
     private function skipString(string $delimiter): void
     {
+        $rejectChars = '\\' . $delimiter;
         $this->index += 1;
         while ($this->index < $this->len) {
+            $this->index += strcspn($this->contents, $rejectChars, $this->index);
+            if ($this->index >= $this->len) {
+                break;
+            }
+
             if ($this->contents[$this->index] === '\\' && ($this->peek('\\') || $this->peek($delimiter))) {
                 $this->index += 2;
                 continue;
             }
+
             if ($this->contents[$this->index] === $delimiter) {
                 $this->index += 1;
                 break;
             }
+
             $this->index += 1;
         }
     }
@@ -173,7 +181,9 @@ class PhpFileCleaner
     {
         $this->index += 2;
         while ($this->index < $this->len) {
-            if ($this->contents[$this->index] === '*' && $this->peek('/')) {
+            $this->index += strcspn($this->contents, '*', $this->index);
+
+            if ($this->peek('/')) {
                 $this->index += 2;
                 break;
             }
@@ -184,12 +194,7 @@ class PhpFileCleaner
 
     private function skipToNewline(): void
     {
-        while ($this->index < $this->len) {
-            if ($this->contents[$this->index] === "\r" || $this->contents[$this->index] === "\n") {
-                return;
-            }
-            $this->index += 1;
-        }
+        $this->index += strcspn($this->contents, "\r\n", $this->index);
     }
 
     private function skipHeredoc(string $delimiter): void
@@ -207,27 +212,22 @@ class PhpFileCleaner
                     continue 2;
                 case $firstDelimiterChar:
                     if (
-                        \substr($this->contents, $this->index, $delimiterLength) === $delimiter
+                        substr($this->contents, $this->index, $delimiterLength) === $delimiter
                         && $this->match($delimiterPattern)
                     ) {
                         $this->index += $delimiterLength;
 
                         return;
                     }
+
                     break;
             }
 
             // skip the rest of the line
-            while ($this->index < $this->len) {
-                $this->skipToNewline();
+            $this->skipToNewline();
 
-                // skip newlines
-                while ($this->index < $this->len && ($this->contents[$this->index] === "\r" || $this->contents[$this->index] === "\n")) {
-                    $this->index += 1;
-                }
-
-                break;
-            }
+            // skip newlines
+            $this->index += strspn($this->contents, "\r\n", $this->index);
         }
     }
 

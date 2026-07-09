@@ -430,7 +430,7 @@ class ItemController extends Controller
      *
      * @throws GuzzleException
      */
-    public function appload(Request $request): ?string
+    public function appload(Request $request): \Illuminate\Http\JsonResponse|string|null
     {
         $output = [];
         $appid = $request->input('app');

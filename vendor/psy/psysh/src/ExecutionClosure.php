@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,7 @@ class ExecutionClosure
         $this->setClosure($__psysh__, function () use ($__psysh__) {
             try {
                 // Restore execution scope variables
+                // @phan-suppress-next-line PhanTypeNonVarPassByRef assigning to a temp variable pollutes scope
                 \extract($__psysh__->getScopeVariables(false));
 
                 // Buffer stdout; we'll need it later

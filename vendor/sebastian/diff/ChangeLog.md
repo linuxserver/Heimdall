@@ -2,6 +2,33 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [7.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.3
+
+## [6.0.2] - 2024-07-03
+
+### Changed
+
+* This project now uses PHPStan instead of Psalm for static analysis
+
+## [6.0.1] - 2024-03-02
+
+### Changed
+
+* Do not use implicitly nullable parameters
+
+## [6.0.0] - 2024-02-02
+
+### Removed
+
+* `SebastianBergmann\Diff\Chunk::getStart()`, `SebastianBergmann\Diff\Chunk::getStartRange()`, `SebastianBergmann\Diff\Chunk::getEnd()`, `SebastianBergmann\Diff\Chunk::getEndRange()`, and `SebastianBergmann\Diff\Chunk::getLines()`
+* `SebastianBergmann\Diff\Diff::getFrom()`, `SebastianBergmann\Diff\Diff::getTo()`, and `SebastianBergmann\Diff\Diff::getChunks()`
+* `SebastianBergmann\Diff\Line::getContent()` and `SebastianBergmann\Diff\Diff::getType()`
+* This component is no longer supported on PHP 8.1
+
 ## [5.1.1] - 2024-03-02
 
 ### Changed
@@ -54,7 +81,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 ### Removed
 
-* Removed support for PHP 7.3, PHP 7.4, and PHP 8.0
+* This component is no longer supported on PHP 7.3, PHP 7.4, and PHP 8.0
 
 ## [4.0.4] - 2020-10-26
 
@@ -84,7 +111,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 ### Removed
 
-* Removed support for PHP 7.1 and PHP 7.2
+* This component is no longer supported on PHP 7.1 and PHP 7.2
 
 ## [3.0.2] - 2019-02-04
 
@@ -108,7 +135,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 ### Removed
 
-* Removed support for PHP 7.0
+* This component is no longer supported on PHP 7.0
 
 ### Fixed
 
@@ -130,6 +157,10 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * This component is no longer supported on PHP 5.6
 
+[7.0.0]: https://github.com/sebastianbergmann/diff/compare/6.0...7.0.0
+[6.0.2]: https://github.com/sebastianbergmann/diff/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/sebastianbergmann/diff/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/diff/compare/5.1...6.0.0
 [5.1.1]: https://github.com/sebastianbergmann/diff/compare/5.1.0...5.1.1
 [5.1.0]: https://github.com/sebastianbergmann/diff/compare/5.0.3...5.1.0
 [5.0.3]: https://github.com/sebastianbergmann/diff/compare/5.0.2...5.0.3

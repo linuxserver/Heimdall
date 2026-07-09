@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Reports;
@@ -98,7 +98,7 @@ class Summary implements Report
 
         uksort(
             $reportFiles,
-            function ($keyA, $keyB) {
+            static function ($keyA, $keyB) {
                 $pathPartsA = explode(DIRECTORY_SEPARATOR, $keyA);
                 $pathPartsB = explode(DIRECTORY_SEPARATOR, $keyB);
 

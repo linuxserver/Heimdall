@@ -6,6 +6,8 @@ use Illuminate\Database\QueryException;
 use Spatie\FlareClient\Contracts\ProvidesFlareContext;
 use Spatie\FlareClient\FlareMiddleware\FlareMiddleware;
 use Spatie\FlareClient\Report;
+use Spatie\LaravelIgnition\Exceptions\ViewException;
+use Spatie\LaravelIgnition\Recorders\DumpRecorder\HtmlDumper;
 
 class AddExceptionInformation implements FlareMiddleware
 {
@@ -14,16 +16,34 @@ class AddExceptionInformation implements FlareMiddleware
         $throwable = $report->getThrowable();
 
         $this->addUserDefinedContext($report);
+        $this->addViewContext($report);
 
-        if (! $throwable instanceof QueryException) {
-            return $next($report);
+        if ($throwable instanceof QueryException) {
+            $report->group('exception', [
+                'raw_sql' => $throwable->getSql(),
+            ]);
         }
 
-        $report->group('exception', [
-            'raw_sql' => $throwable->getSql(),
-        ]);
-
         return $next($report);
+    }
+
+    private function addViewContext(Report $report): void
+    {
+        $throwable = $report->getThrowable();
+
+        if (! $throwable instanceof ViewException) {
+            return;
+        }
+
+        $dumper = new HtmlDumper();
+
+        $report->group('view', [
+            'view' => $throwable->getView(),
+            'data' => array_map(
+                fn (mixed $variable) => $dumper->dumpVariable($variable),
+                $throwable->getViewData()
+            ),
+        ]);
     }
 
     private function addUserDefinedContext(Report $report): void
@@ -35,7 +55,6 @@ class AddExceptionInformation implements FlareMiddleware
         }
 
         if ($throwable instanceof ProvidesFlareContext) {
-            // ProvidesFlareContext writes directly to context groups and is handled in the flare-client-php package.
             return;
         }
 

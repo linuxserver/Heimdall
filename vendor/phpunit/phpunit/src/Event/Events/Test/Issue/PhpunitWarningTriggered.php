@@ -10,34 +10,39 @@
 namespace PHPUnit\Event\Test;
 
 use const PHP_EOL;
+use function implode;
 use function sprintf;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class PhpunitWarningTriggered implements Event
+final readonly class PhpunitWarningTriggered implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly Test $test;
+    private Telemetry\Info $telemetryInfo;
+    private Test $test;
 
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $message;
+    private string $message;
+    private bool $ignoredByTest;
 
     /**
-     * @psalm-param non-empty-string $message
+     * @param non-empty-string $message
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message)
+    public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message, bool $ignoredByTest)
     {
         $this->telemetryInfo = $telemetryInfo;
         $this->test          = $test;
         $this->message       = $message;
+        $this->ignoredByTest = $ignoredByTest;
     }
 
     public function telemetryInfo(): Telemetry\Info
@@ -51,24 +56,38 @@ final class PhpunitWarningTriggered implements Event
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function message(): string
     {
         return $this->message;
     }
 
+    public function ignoredByTest(): bool
+    {
+        return $this->ignoredByTest;
+    }
+
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = $this->message;
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
+        }
+
+        $details = [$this->test->id()];
+
+        if ($this->ignoredByTest) {
+            $details[] = 'ignored by test';
         }
 
         return sprintf(
             'Test Triggered PHPUnit Warning (%s)%s',
-            $this->test->id(),
+            implode(', ', $details),
             $message,
         );
     }

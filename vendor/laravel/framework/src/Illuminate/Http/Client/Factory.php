@@ -12,7 +12,10 @@ use GuzzleHttp\TransferStats;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Illuminate\Support\Traits\Macroable;
+use InvalidArgumentException;
+use JsonException;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 /**
@@ -62,14 +65,14 @@ class Factory
     /**
      * The recorded response array.
      *
-     * @var array
+     * @var list<array{0: \Illuminate\Http\Client\Request, 1: \Illuminate\Http\Client\Response|null}>
      */
     protected $recorded = [];
 
     /**
      * All created response sequences.
      *
-     * @var array
+     * @var list<\Illuminate\Http\Client\ResponseSequence>
      */
     protected $responseSequences = [];
 
@@ -81,10 +84,16 @@ class Factory
     protected $preventStrayRequests = false;
 
     /**
+     * A list of URL patterns that are allowed to bypass the stray request guard.
+     *
+     * @var array<int, string>
+     */
+    protected $allowedStrayRequestUrls = [];
+
+    /**
      * Create a new factory instance.
      *
      * @param  \Illuminate\Contracts\Events\Dispatcher|null  $dispatcher
-     * @return void
      */
     public function __construct(?Dispatcher $dispatcher = null)
     {
@@ -155,22 +164,120 @@ class Factory
      */
     public static function response($body = null, $status = 200, $headers = [])
     {
+        return Create::promiseFor(
+            static::psr7Response($body, $status, $headers)
+        );
+    }
+
+    /**
+     * Create a new PSR-7 response instance for use during stubbing.
+     *
+     * @param  array|string|null  $body
+     * @param  int  $status
+     * @param  array<string, mixed>  $headers
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function psr7Response($body = null, $status = 200, $headers = [])
+    {
         if (is_array($body)) {
-            $body = json_encode($body);
+            try {
+                $body = json_encode($body, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new InvalidArgumentException('HTTP fake response body could not be JSON encoded.', previous: $e);
+            }
 
             $headers['Content-Type'] = 'application/json';
         }
 
-        $response = new Psr7Response($status, $headers, $body);
+        if (! is_string($body) && ! is_null($body)) {
+            throw new InvalidArgumentException('HTTP fake response body must be a string, array, or null.');
+        }
 
-        return Create::promiseFor($response);
+        return new Psr7Response($status, static::normalizeResponseHeaders($headers), $body);
+    }
+
+    /**
+     * Normalize the given fake response headers.
+     *
+     * @param  array  $headers
+     * @return array
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected static function normalizeResponseHeaders(array $headers): array
+    {
+        foreach ($headers as $name => $value) {
+            if (is_array($value)) {
+                if ($value === []) {
+                    $headers[$name] = '';
+
+                    continue;
+                }
+
+                foreach ($value as $key => $item) {
+                    $value[$key] = match (true) {
+                        $item === null => '',
+                        is_scalar($item) => static::normalizeScalarString($item),
+                        $item instanceof Stringable => $item->toString(),
+                        default => throw new InvalidArgumentException('HTTP fake response header values must be scalar, null, Laravel Stringable, or arrays of scalar, null, or Laravel Stringable values.'),
+                    };
+                }
+
+                $headers[$name] = $value;
+
+                continue;
+            }
+
+            $headers[$name] = match (true) {
+                $value === null => '',
+                is_scalar($value) => static::normalizeScalarString($value),
+                $value instanceof Stringable => $value->toString(),
+                default => throw new InvalidArgumentException('HTTP fake response header values must be scalar, null, Laravel Stringable, or arrays of scalar, null, or Laravel Stringable values.'),
+            };
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Normalize a scalar to a string without triggering PHP 8.5 non-finite float warnings.
+     *
+     * @param  scalar  $value
+     * @return string
+     */
+    protected static function normalizeScalarString($value): string
+    {
+        if (is_float($value) && ! is_finite($value)) {
+            return match (true) {
+                is_nan($value) => 'NAN',
+                $value > 0 => 'INF',
+                default => '-INF',
+            };
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Create a new RequestException instance for use during stubbing.
+     *
+     * @param  array|string|null  $body
+     * @param  int  $status
+     * @param  array<string, mixed>  $headers
+     * @return \Illuminate\Http\Client\RequestException
+     */
+    public static function failedRequest($body = null, $status = 200, $headers = [])
+    {
+        return new RequestException(new Response(static::psr7Response($body, $status, $headers)));
     }
 
     /**
      * Create a new connection exception for use during stubbing.
      *
      * @param  string|null  $message
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Closure(\Illuminate\Http\Client\Request): \GuzzleHttp\Promise\PromiseInterface
      */
     public static function failedConnection($message = null)
     {
@@ -196,7 +303,7 @@ class Factory
     /**
      * Register a stub callable that will intercept requests and be able to return stub responses.
      *
-     * @param  callable|array|null  $callback
+     * @param  callable|array<string, mixed>|null  $callback
      * @return $this
      */
     public function fake($callback = null)
@@ -227,7 +334,7 @@ class Factory
                     $response = $response($request, $options);
                 }
 
-                if ($response instanceof PromiseInterface) {
+                if ($response instanceof PromiseInterface && ($options['on_stats'] ?? null) instanceof Closure) {
                     $options['on_stats'](new TransferStats(
                         $request->toPsrRequest(),
                         $response->wait(),
@@ -258,8 +365,10 @@ class Factory
      * Stub the given URL using the given callback.
      *
      * @param  string  $url
-     * @param  \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable|int|string|array  $callback
+     * @param  \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable|int|string|array|\Illuminate\Http\Client\ResponseSequence  $callback
      * @return $this
+     *
+     * @throws \InvalidArgumentException
      */
     public function stubUrl($url, $callback)
     {
@@ -268,11 +377,15 @@ class Factory
                 return;
             }
 
-            if (is_int($callback) && $callback >= 100 && $callback < 600) {
-                return static::response(status: $callback);
+            if (is_int($callback)) {
+                if ($callback >= 100 && $callback < 600) {
+                    return static::response(status: $callback);
+                }
+
+                throw new InvalidArgumentException('HTTP status code must be between 100 and 599.');
             }
 
-            if (is_int($callback) || is_string($callback)) {
+            if (is_string($callback)) {
                 return static::response($callback);
             }
 
@@ -308,13 +421,22 @@ class Factory
     }
 
     /**
-     * Indicate that an exception should not be thrown if any request is not faked.
+     * Allow stray, unfaked requests entirely, or optionally allow only specific URLs.
      *
+     * @param  array<int, string>|null  $only
      * @return $this
      */
-    public function allowStrayRequests()
+    public function allowStrayRequests(?array $only = null)
     {
-        return $this->preventStrayRequests(false);
+        if (is_null($only)) {
+            $this->preventStrayRequests(false);
+
+            $this->allowedStrayRequestUrls = [];
+        } else {
+            $this->allowedStrayRequestUrls = array_values($only);
+        }
+
+        return $this;
     }
 
     /**
@@ -322,7 +444,7 @@ class Factory
      *
      * @return $this
      */
-    protected function record()
+    public function record()
     {
         $this->recording = true;
 
@@ -346,7 +468,7 @@ class Factory
     /**
      * Assert that a request / response pair was recorded matching a given truth test.
      *
-     * @param  callable  $callback
+     * @param  callable|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)  $callback
      * @return void
      */
     public function assertSent($callback)
@@ -360,7 +482,7 @@ class Factory
     /**
      * Assert that the given request was sent in the given order.
      *
-     * @param  array  $callbacks
+     * @param  list<string|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)|callable>  $callbacks
      * @return void
      */
     public function assertSentInOrder($callbacks)
@@ -382,7 +504,7 @@ class Factory
     /**
      * Assert that a request / response pair was not recorded matching a given truth test.
      *
-     * @param  callable  $callback
+     * @param  callable|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)  $callback
      * @return void
      */
     public function assertNotSent($callback)
@@ -435,8 +557,8 @@ class Factory
     /**
      * Get a collection of the request / response pairs matching the given truth test.
      *
-     * @param  callable  $callback
-     * @return \Illuminate\Support\Collection
+     * @param  (\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)|callable  $callback
+     * @return \Illuminate\Support\Collection<int, array{0: \Illuminate\Http\Client\Request, 1: \Illuminate\Http\Client\Response|null}>
      */
     public function recorded($callback = null)
     {
@@ -444,12 +566,13 @@ class Factory
             return new Collection;
         }
 
-        $callback = $callback ?: function () {
-            return true;
-        };
+        $collect = new Collection($this->recorded);
 
-        return (new Collection($this->recorded))
-            ->filter(fn ($pair) => $callback($pair[0], $pair[1]));
+        if ($callback) {
+            return $collect->filter(fn ($pair) => $callback($pair[0], $pair[1]));
+        }
+
+        return $collect;
     }
 
     /**
@@ -460,7 +583,10 @@ class Factory
     public function createPendingRequest()
     {
         return tap($this->newPendingRequest(), function ($request) {
-            $request->stub($this->stubCallbacks)->preventStrayRequests($this->preventStrayRequests);
+            $request
+                ->stub($this->stubCallbacks)
+                ->preventStrayRequests($this->preventStrayRequests)
+                ->allowStrayRequests($this->allowedStrayRequestUrls);
         });
     }
 

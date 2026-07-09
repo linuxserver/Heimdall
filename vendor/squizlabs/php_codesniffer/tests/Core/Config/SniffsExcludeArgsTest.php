@@ -3,7 +3,7 @@
  * Tests for the \PHP_CodeSniffer\Config --sniffs and --exclude arguments.
  *
  * @author  Dan Wallis <dan@wallis.nz>
- * @license https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Config;
@@ -24,7 +24,7 @@ final class SniffsExcludeArgsTest extends TestCase
     /**
      * Ensure that the expected error message is returned for invalid arguments.
      *
-     * @param string        $argument   'sniffs' or 'exclude'.
+     * @param string        $argument   Either 'sniffs' or 'exclude'.
      * @param string        $value      List of sniffs to include / exclude.
      * @param array<string> $errors     Sniff code and associated help text.
      * @param string|null   $suggestion Help text shown to end user with correct syntax for argument.
@@ -208,7 +208,7 @@ final class SniffsExcludeArgsTest extends TestCase
     /**
      * Ensure that the valid data does not throw an exception, and the value is stored.
      *
-     * @param string        $argument 'sniffs' or 'exclude'.
+     * @param string        $argument Either 'sniffs' or 'exclude'.
      * @param string        $value    List of sniffs to include or exclude.
      * @param array<string> $result   Expected sniffs to be set on the Config object.
      *
@@ -289,7 +289,7 @@ final class SniffsExcludeArgsTest extends TestCase
     /**
      * Ensure that only the first argument is processed and others are ignored.
      *
-     * @param string $argument 'sniffs' or 'exclude'.
+     * @param string $argument Either 'sniffs' or 'exclude'.
      *
      * @return       void
      * @dataProvider dataOnlySetOnce

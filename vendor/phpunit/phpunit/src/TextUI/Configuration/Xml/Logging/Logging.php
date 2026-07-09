@@ -18,18 +18,20 @@ use PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Text as TestDoxText;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class Logging
+final readonly class Logging
 {
-    private readonly ?Junit $junit;
-    private readonly ?TeamCity $teamCity;
-    private readonly ?TestDoxHtml $testDoxHtml;
-    private readonly ?TestDoxText $testDoxText;
+    private ?Junit $junit;
+    private ?Otr $otr;
+    private ?TeamCity $teamCity;
+    private ?TestDoxHtml $testDoxHtml;
+    private ?TestDoxText $testDoxText;
 
-    public function __construct(?Junit $junit, ?TeamCity $teamCity, ?TestDoxHtml $testDoxHtml, ?TestDoxText $testDoxText)
+    public function __construct(?Junit $junit, ?Otr $otr, ?TeamCity $teamCity, ?TestDoxHtml $testDoxHtml, ?TestDoxText $testDoxText)
     {
         $this->junit       = $junit;
+        $this->otr         = $otr;
         $this->teamCity    = $teamCity;
         $this->testDoxHtml = $testDoxHtml;
         $this->testDoxText = $testDoxText;
@@ -50,6 +52,23 @@ final class Logging
         }
 
         return $this->junit;
+    }
+
+    public function hasOtr(): bool
+    {
+        return $this->otr !== null;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function otr(): Otr
+    {
+        if ($this->otr === null) {
+            throw new Exception('Logger "Open Test Reporting XML" is not configured');
+        }
+
+        return $this->otr;
     }
 
     public function hasTeamCity(): bool

@@ -2,6 +2,9 @@
 
 namespace Illuminate\Contracts\Routing;
 
+use Closure;
+use Illuminate\Http\StreamedEvent;
+
 interface ResponseFactory
 {
     /**
@@ -58,6 +61,16 @@ interface ResponseFactory
     public function jsonp($callback, $data = [], $status = 200, array $headers = [], $options = 0);
 
     /**
+     * Create a new event stream response.
+     *
+     * @param  \Closure  $callback
+     * @param  array  $headers
+     * @param  \Illuminate\Http\StreamedEvent|string|null  $endStreamWith
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function eventStream(Closure $callback, array $headers = [], StreamedEvent|string|null $endStreamWith = '</stream>');
+
+    /**
      * Create a new streamed response instance.
      *
      * @param  callable  $callback
@@ -66,6 +79,17 @@ interface ResponseFactory
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function stream($callback, $status = 200, array $headers = []);
+
+    /**
+     * Create a new streamed JSON response instance.
+     *
+     * @param  array  $data
+     * @param  int  $status
+     * @param  array  $headers
+     * @param  int  $encodingOptions
+     * @return \Symfony\Component\HttpFoundation\StreamedJsonResponse
+     */
+    public function streamJson($data, $status = 200, $headers = [], $encodingOptions = 15);
 
     /**
      * Create a new streamed response instance as a file download.

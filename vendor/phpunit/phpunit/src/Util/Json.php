@@ -9,10 +9,12 @@
  */
 namespace PHPUnit\Util;
 
+use const JSON_ERROR_NONE;
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
 use const JSON_UNESCAPED_UNICODE;
 use const SORT_STRING;
+use function assert;
 use function is_object;
 use function is_scalar;
 use function json_decode;
@@ -25,7 +27,7 @@ use function ksort;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class Json
+final readonly class Json
 {
     /**
      * @throws InvalidJsonException
@@ -34,26 +36,29 @@ final class Json
     {
         $decodedJson = json_decode($json, false);
 
-        if (json_last_error()) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             throw new InvalidJsonException;
         }
 
-        return json_encode($decodedJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $result = json_encode($decodedJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        assert($result !== false);
+
+        return $result;
     }
 
     /**
-     * To allow comparison of JSON strings, first process them into a consistent
-     * format so that they can be compared as strings.
+     * Element 0 is true and element 1 is null when JSON decoding did not work.
+     * * Element 0 is false and element 1 has the decoded value when JSON decoding did work.
+     * * This is used to avoid ambiguity with JSON strings consisting entirely of 'null' or 'false'.
      *
-     * @return array ($error, $canonicalized_json)  The $error parameter is used
-     *               to indicate an error decoding the json. This is used to avoid ambiguity
-     *               with JSON strings consisting entirely of 'null' or 'false'.
+     * @return array{0: false, 1: mixed}|array{0: true, 1: null}
      */
     public static function canonicalize(string $json): array
     {
         $decodedJson = json_decode($json);
 
-        if (json_last_error()) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             return [true, null];
         }
 
@@ -72,8 +77,7 @@ final class Json
      */
     private static function recursiveSort(mixed &$json): void
     {
-        // Nulls, empty arrays, and scalars need no further handling.
-        if (!$json || is_scalar($json)) {
+        if ($json === null || $json === [] || is_scalar($json)) {
             return;
         }
 

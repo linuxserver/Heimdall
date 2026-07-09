@@ -12,26 +12,26 @@ namespace PHPUnit\Framework\Attributes;
 use Attribute;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-final class RequiresPhpExtension
+final readonly class RequiresPhpExtension
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $extension;
+    private string $extension;
 
     /**
-     * @psalm-var null|non-empty-string
+     * @var null|non-empty-string
      */
-    private readonly ?string $versionRequirement;
+    private ?string $versionRequirement;
 
     /**
-     * @psalm-param non-empty-string $extension
-     * @psalm-param null|non-empty-string $versionRequirement
+     * @param non-empty-string      $extension
+     * @param null|non-empty-string $versionRequirement
      */
     public function __construct(string $extension, ?string $versionRequirement = null)
     {
@@ -40,7 +40,7 @@ final class RequiresPhpExtension
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function extension(): string
     {
@@ -48,7 +48,7 @@ final class RequiresPhpExtension
     }
 
     /**
-     * @psalm-return null|non-empty-string
+     * @return null|non-empty-string
      */
     public function versionRequirement(): ?string
     {

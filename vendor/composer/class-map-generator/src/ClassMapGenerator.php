@@ -20,7 +20,6 @@ namespace Composer\ClassMapGenerator;
 
 use Composer\Pcre\Preg;
 use Symfony\Component\Finder\Finder;
-use Composer\IO\IOInterface;
 
 /**
  * ClassMapGenerator
@@ -57,7 +56,7 @@ class ClassMapGenerator
     {
         $this->extensions = $extensions;
         $this->classMap = new ClassMap;
-        $this->streamWrappersRegex = sprintf('{^(?:%s)://}', implode('|', array_map('preg_quote', stream_get_wrappers())));
+        $this->streamWrappersRegex = \sprintf('{^(?:%s)://}', implode('|', array_map('preg_quote', stream_get_wrappers())));
     }
 
     /**
@@ -109,21 +108,21 @@ class ClassMapGenerator
      */
     public function scanPaths($path, ?string $excluded = null, string $autoloadType = 'classmap', ?string $namespace = null, array $excludedDirs = []): void
     {
-        if (!in_array($autoloadType, ['psr-0', 'psr-4', 'classmap'], true)) {
+        if (!\in_array($autoloadType, ['psr-0', 'psr-4', 'classmap'], true)) {
             throw new \InvalidArgumentException('$autoloadType must be one of: "psr-0", "psr-4" or "classmap"');
         }
 
         if ('classmap' !== $autoloadType) {
-            if (!is_string($path)) {
+            if (!\is_string($path)) {
                 throw new \InvalidArgumentException('$path must be a string when specifying a psr-0 or psr-4 autoload type');
             }
-            if (!is_string($namespace)) {
+            if (!\is_string($namespace)) {
                 throw new \InvalidArgumentException('$namespace must be given (even if it is an empty string if you do not want to filter) when specifying a psr-0 or psr-4 autoload type');
             }
             $basePath = $path;
         }
 
-        if (is_string($path)) {
+        if (\is_string($path)) {
             if (is_file($path)) {
                 $path = [new \SplFileInfo($path)];
             } elseif (is_dir($path) || strpos($path, '*') !== false) {
@@ -144,7 +143,7 @@ class ClassMapGenerator
 
         foreach ($path as $file) {
             $filePath = $file->getPathname();
-            if (!in_array(pathinfo($filePath, PATHINFO_EXTENSION), $this->extensions, true)) {
+            if (!\in_array(pathinfo($filePath, PATHINFO_EXTENSION), $this->extensions, true)) {
                 continue;
             }
 
@@ -224,13 +223,18 @@ class ClassMapGenerator
         $validClasses = [];
         $rejectedClasses = [];
 
-        $realSubPath = substr($filePath, strlen($basePath) + 1);
+        $realSubPath = substr($filePath, \strlen($basePath) + 1);
         $dotPosition = strrpos($realSubPath, '.');
         $realSubPath = substr($realSubPath, 0, $dotPosition === false ? PHP_INT_MAX : $dotPosition);
 
         foreach ($classes as $class) {
             // transform class name to file path and validate
             if ('psr-0' === $namespaceType) {
+                if ('' !== $baseNamespace && !str_starts_with($class, $baseNamespace)) {
+                    $rejectedClasses[] = $class;
+                    continue;
+                }
+
                 $namespaceLength = strrpos($class, '\\');
                 if (false !== $namespaceLength) {
                     $namespace = substr($class, 0, $namespaceLength + 1);
@@ -241,7 +245,7 @@ class ClassMapGenerator
                     $subPath = str_replace('_', DIRECTORY_SEPARATOR, $class);
                 }
             } elseif ('psr-4' === $namespaceType) {
-                $subNamespace = ('' !== $baseNamespace) ? substr($class, strlen($baseNamespace)) : $class;
+                $subNamespace = ('' !== $baseNamespace) ? substr($class, \strlen($baseNamespace)) : $class;
                 $subPath = str_replace('\\', DIRECTORY_SEPARATOR, $subNamespace);
             } else {
                 throw new \InvalidArgumentException('$namespaceType must be "psr-0" or "psr-4"');
@@ -276,11 +280,8 @@ class ClassMapGenerator
      * Checks if the given path is absolute
      *
      * @see Composer\Util\Filesystem::isAbsolutePath
-     *
-     * @param  string $path
-     * @return bool
      */
-    private static function isAbsolutePath(string $path)
+    private static function isAbsolutePath(string $path): bool
     {
         return strpos($path, '/') === 0 || substr($path, 1, 1) === ':' || strpos($path, '\\\\') === 0;
     }
@@ -292,9 +293,8 @@ class ClassMapGenerator
      * @see Composer\Util\Filesystem::normalizePath
      *
      * @param  string $path Path to the file or directory
-     * @return string
      */
-    private static function normalizePath(string $path)
+    private static function normalizePath(string $path): string
     {
         $parts = [];
         $path = strtr($path, '\\', '/');
@@ -330,7 +330,7 @@ class ClassMapGenerator
         }
 
         // ensure c: is normalized to C:
-        $prefix = Preg::replaceCallback('{(?:^|://)[a-z]:$}i', function (array $m) { return strtoupper((string) $m[0]); }, $prefix);
+        $prefix = Preg::replaceCallback('{(?:^|://)[a-z]:$}i', static function (array $m) { return strtoupper((string) $m[0]); }, $prefix);
 
         return $prefix.$absolute.implode('/', $parts);
     }

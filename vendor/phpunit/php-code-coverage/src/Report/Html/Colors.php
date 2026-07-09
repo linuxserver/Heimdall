@@ -10,15 +10,15 @@
 namespace SebastianBergmann\CodeCoverage\Report\Html;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
-final class Colors
+final readonly class Colors
 {
-    private readonly string $successLow;
-    private readonly string $successMedium;
-    private readonly string $successHigh;
-    private readonly string $warning;
-    private readonly string $danger;
+    private string $successLow;
+    private string $successMedium;
+    private string $successHigh;
+    private string $warning;
+    private string $danger;
 
     public static function default(): self
     {

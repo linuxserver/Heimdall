@@ -18,7 +18,7 @@ class DatabaseJob extends Job implements JobContract
     /**
      * The database job payload.
      *
-     * @var \stdClass
+     * @var \Illuminate\Queue\Jobs\DatabaseJobRecord
      */
     protected $job;
 
@@ -27,10 +27,9 @@ class DatabaseJob extends Job implements JobContract
      *
      * @param  \Illuminate\Container\Container  $container
      * @param  \Illuminate\Queue\DatabaseQueue  $database
-     * @param  \stdClass  $job
+     * @param  \Illuminate\Queue\Jobs\DatabaseJobRecord  $job
      * @param  string  $connectionName
      * @param  string  $queue
-     * @return void
      */
     public function __construct(Container $container, DatabaseQueue $database, $job, $connectionName, $queue)
     {
@@ -79,7 +78,7 @@ class DatabaseJob extends Job implements JobContract
     /**
      * Get the job identifier.
      *
-     * @return string
+     * @return string|int
      */
     public function getJobId()
     {

@@ -50,10 +50,8 @@ abstract class Seeder
             $name = get_class($seeder);
 
             if ($silent === false && isset($this->command)) {
-                with(new TwoColumnDetail($this->command->getOutput()))->render(
-                    $name,
-                    '<fg=yellow;options=bold>RUNNING</>'
-                );
+                (new TwoColumnDetail($this->command->getOutput()))
+                    ->render($name, '<fg=yellow;options=bold>RUNNING</>');
             }
 
             $startTime = microtime(true);
@@ -63,10 +61,8 @@ abstract class Seeder
             if ($silent === false && isset($this->command)) {
                 $runTime = number_format((microtime(true) - $startTime) * 1000);
 
-                with(new TwoColumnDetail($this->command->getOutput()))->render(
-                    $name,
-                    "<fg=gray>$runTime ms</> <fg=green;options=bold>DONE</>"
-                );
+                (new TwoColumnDetail($this->command->getOutput()))
+                    ->render($name, "<fg=gray>$runTime ms</> <fg=green;options=bold>DONE</>");
 
                 $this->command->getOutput()->writeln('');
             }
@@ -188,9 +184,7 @@ abstract class Seeder
             ? $this->container->call([$this, 'run'], $parameters)
             : $this->run(...$parameters);
 
-        $uses = array_flip(class_uses_recursive(static::class));
-
-        if (isset($uses[WithoutModelEvents::class])) {
+        if (isset(class_uses_recursive(static::class)[WithoutModelEvents::class])) {
             $callback = $this->withoutModelEvents($callback);
         }
 

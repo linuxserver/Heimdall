@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,7 @@ use Psy\Formatter\SignatureFormatter;
 use Psy\Input\FilterOptions;
 use Psy\Util\Mirror;
 use Psy\VarDumper\Presenter;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -30,6 +31,7 @@ abstract class Enumerator
     const IS_CONSTANT = 'const';
     const IS_CLASS = 'class';
     const IS_FUNCTION = 'function';
+    const IS_VIRTUAL = 'virtual';
 
     private FilterOptions $filter;
     private Presenter $presenter;
@@ -91,6 +93,12 @@ abstract class Enumerator
 
     protected function presentRef($value)
     {
+        // Symfony VarDumper 5.4 trips over NAN/INF on PHP 8.5 in PHAR builds,
+        // so format non-finite floats directly instead of cloning them.
+        if (\is_float($value) && !\is_finite($value)) {
+            return OutputFormatter::escape(\sprintf('<float>%s</float>', \var_export($value, true)));
+        }
+
         return $this->presenter->presentRef($value);
     }
 

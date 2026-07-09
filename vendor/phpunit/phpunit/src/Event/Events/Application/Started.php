@@ -15,15 +15,18 @@ use PHPUnit\Event\Runtime\Runtime;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class Started implements Event
+final readonly class Started implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly Runtime $runtime;
+    private Telemetry\Info $telemetryInfo;
+    private Runtime $runtime;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Runtime $runtime)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -40,6 +43,9 @@ final class Started implements Event
         return $this->runtime;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return sprintf(

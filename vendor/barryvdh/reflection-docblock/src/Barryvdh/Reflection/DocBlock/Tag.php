@@ -409,6 +409,6 @@ class Tag implements \Reflector
      */
     public function __toString()
     {
-        return "@{$this->getName()} {$this->getContent()}";
+        return trim("@{$this->getName()} {$this->getContent()}");
     }
 }

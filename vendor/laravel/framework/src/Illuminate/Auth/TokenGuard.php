@@ -47,7 +47,6 @@ class TokenGuard implements Guard
      * @param  string  $inputKey
      * @param  string  $storageKey
      * @param  bool  $hash
-     * @return void
      */
     public function __construct(
         UserProvider $provider,
@@ -97,21 +96,10 @@ class TokenGuard implements Guard
      */
     public function getTokenForRequest()
     {
-        $token = $this->request->query($this->inputKey);
-
-        if (empty($token)) {
-            $token = $this->request->input($this->inputKey);
-        }
-
-        if (empty($token)) {
-            $token = $this->request->bearerToken();
-        }
-
-        if (empty($token)) {
-            $token = $this->request->getPassword();
-        }
-
-        return $token;
+        return $this->request->query($this->inputKey)
+            ?: $this->request->input($this->inputKey)
+            ?: $this->request->bearerToken()
+            ?: $this->request->getPassword();
     }
 
     /**
@@ -128,11 +116,7 @@ class TokenGuard implements Guard
 
         $credentials = [$this->storageKey => $credentials[$this->inputKey]];
 
-        if ($this->provider->retrieveByCredentials($credentials)) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->provider->retrieveByCredentials($credentials);
     }
 
     /**

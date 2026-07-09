@@ -33,58 +33,51 @@ use PHPUnit\Util\Filesystem;
  */
 final class DefaultResultCache implements ResultCache
 {
-    /**
-     * @var int
-     */
-    private const VERSION = 2;
-
-    /**
-     * @var string
-     */
-    private const DEFAULT_RESULT_CACHE_FILENAME = '.phpunit.result.cache';
+    private const int VERSION                          = 2;
+    private const string DEFAULT_RESULT_CACHE_FILENAME = '.phpunit.result.cache';
     private readonly string $cacheFilename;
 
     /**
-     * @psalm-var array<string, TestStatus>
+     * @var array<string, TestStatus>
      */
     private array $defects = [];
 
     /**
-     * @psalm-var array<string, float>
+     * @var array<string, float>
      */
     private array $times = [];
 
-    public function __construct(?string $filepath = null)
+    public function __construct(string $filepath)
     {
-        if ($filepath !== null && is_dir($filepath)) {
+        if (is_dir($filepath)) {
             $filepath .= DIRECTORY_SEPARATOR . self::DEFAULT_RESULT_CACHE_FILENAME;
         }
 
-        $this->cacheFilename = $filepath ?? $_ENV['PHPUNIT_RESULT_CACHE'] ?? self::DEFAULT_RESULT_CACHE_FILENAME;
+        $this->cacheFilename = $filepath;
     }
 
-    public function setStatus(string $id, TestStatus $status): void
+    public function setStatus(ResultCacheId $id, TestStatus $status): void
     {
         if ($status->isSuccess()) {
             return;
         }
 
-        $this->defects[$id] = $status;
+        $this->defects[$id->asString()] = $status;
     }
 
-    public function status(string $id): TestStatus
+    public function status(ResultCacheId $id): TestStatus
     {
-        return $this->defects[$id] ?? TestStatus::unknown();
+        return $this->defects[$id->asString()] ?? TestStatus::unknown();
     }
 
-    public function setTime(string $id, float $time): void
+    public function setTime(ResultCacheId $id, float $time): void
     {
-        $this->times[$id] = $time;
+        $this->times[$id->asString()] = $time;
     }
 
-    public function time(string $id): float
+    public function time(ResultCacheId $id): float
     {
-        return $this->times[$id] ?? 0.0;
+        return $this->times[$id->asString()] ?? 0.0;
     }
 
     public function mergeWith(self $other): void

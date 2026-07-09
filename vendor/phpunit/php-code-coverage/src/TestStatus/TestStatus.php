@@ -10,7 +10,7 @@
 namespace SebastianBergmann\CodeCoverage\Test\TestStatus;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 abstract class TestStatus
 {
@@ -30,7 +30,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Known $this
+     * @phpstan-assert-if-true Known $this
      */
     public function isKnown(): bool
     {
@@ -38,7 +38,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Unknown $this
+     * @phpstan-assert-if-true Unknown $this
      */
     public function isUnknown(): bool
     {
@@ -46,7 +46,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Success $this
+     * @phpstan-assert-if-true Success $this
      */
     public function isSuccess(): bool
     {
@@ -54,7 +54,7 @@ abstract class TestStatus
     }
 
     /**
-     * @psalm-assert-if-true Failure $this
+     * @phpstan-assert-if-true Failure $this
      */
     public function isFailure(): bool
     {

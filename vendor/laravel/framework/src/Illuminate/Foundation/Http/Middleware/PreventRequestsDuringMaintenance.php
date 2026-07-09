@@ -39,7 +39,6 @@ class PreventRequestsDuringMaintenance
      * Create a new middleware instance.
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
      */
     public function __construct(Application $app)
     {
@@ -81,17 +80,17 @@ class PreventRequestsDuringMaintenance
                 return $next($request);
             }
 
-            if (isset($data['redirect'])) {
+            if (isset($data['redirect']) && ! $request->expectsJson()) {
                 $path = $data['redirect'] === '/'
-                            ? $data['redirect']
-                            : trim($data['redirect'], '/');
+                    ? $data['redirect']
+                    : trim($data['redirect'], '/');
 
                 if ($request->path() !== $path) {
                     return redirect($path);
                 }
             }
 
-            if (isset($data['template'])) {
+            if (isset($data['template']) && ! $request->expectsJson()) {
                 return response(
                     $data['template'],
                     $data['status'] ?? 503,
@@ -128,14 +127,14 @@ class PreventRequestsDuringMaintenance
     }
 
     /**
-     * Redirect the user back to the root of the application with a maintenance mode bypass cookie.
+     * Redirect the user to their intended destination with a maintenance mode bypass cookie.
      *
      * @param  string  $secret
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function bypassResponse(string $secret)
     {
-        return redirect('/')->withCookie(
+        return redirect()->intended('/')->withCookie(
             MaintenanceModeBypassCookie::create($secret)
         );
     }

@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2019 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PSR12\Sniffs\Files;
@@ -36,7 +36,7 @@ class FileHeaderSniff implements Sniff
      * @param int                         $stackPtr  The position of the current
      *                                               token in the stack.
      *
-     * @return int|void
+     * @return int
      */
     public function process(File $phpcsFile, $stackPtr)
     {
@@ -52,7 +52,7 @@ class FileHeaderSniff implements Sniff
             $headerLines = $this->getHeaderLines($phpcsFile, $openTag);
             if (empty($headerLines) === true && $openTag === $stackPtr) {
                 // No content in the file.
-                return;
+                return $phpcsFile->numTokens;
             }
 
             $possibleHeaders[$openTag] = $headerLines;

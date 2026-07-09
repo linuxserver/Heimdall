@@ -60,9 +60,9 @@ class Cursor implements Arrayable
      */
     public function parameters(array $parameterNames)
     {
-        return (new Collection($parameterNames))->map(function ($parameterName) {
-            return $this->parameter($parameterName);
-        })->toArray();
+        return (new Collection($parameterNames))
+            ->map(fn ($parameterName) => $this->parameter($parameterName))
+            ->toArray();
     }
 
     /**
@@ -122,6 +122,10 @@ class Cursor implements Arrayable
         $parameters = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $encodedString)), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        if (! is_array($parameters) || ! array_key_exists('_pointsToNextItems', $parameters)) {
             return null;
         }
 

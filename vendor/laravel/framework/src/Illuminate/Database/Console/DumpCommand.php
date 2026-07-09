@@ -3,6 +3,7 @@
 namespace Illuminate\Database\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 #[AsCommand(name: 'schema:dump')]
 class DumpCommand extends Command
 {
+    use Prohibitable;
+
     /**
      * The console command name.
      *
@@ -23,7 +26,8 @@ class DumpCommand extends Command
     protected $signature = 'schema:dump
                 {--database= : The database connection to use}
                 {--path= : The path where the schema dump file should be stored}
-                {--prune : Delete all existing migration files}';
+                {--prune : Delete all existing migration files}
+                {--without-migration-data : Dump the schema without the migration data}';
 
     /**
      * The console command description.
@@ -41,6 +45,10 @@ class DumpCommand extends Command
      */
     public function handle(ConnectionResolverInterface $connections, Dispatcher $dispatcher)
     {
+        if ($this->isProhibited()) {
+            return Command::FAILURE;
+        }
+
         $connection = $connections->connection($database = $this->input->getOption('database'));
 
         $this->schemaState($connection)->dump(
@@ -53,7 +61,7 @@ class DumpCommand extends Command
 
         if ($this->option('prune')) {
             (new Filesystem)->deleteDirectory(
-                $path = database_path('migrations'), $preserve = false
+                $path = database_path('migrations'), preserve: false
             );
 
             $info .= ' and pruned';
@@ -75,6 +83,10 @@ class DumpCommand extends Command
         $migrations = Config::get('database.migrations', 'migrations');
 
         $migrationTable = is_array($migrations) ? ($migrations['table'] ?? 'migrations') : $migrations;
+
+        if ($this->option('without-migration-data')) {
+            $migrationTable = null;
+        }
 
         return $connection->getSchemaState()
             ->withMigrationTable($migrationTable)

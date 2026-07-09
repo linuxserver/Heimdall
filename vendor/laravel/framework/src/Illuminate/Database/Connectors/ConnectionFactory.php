@@ -4,6 +4,7 @@ namespace Illuminate\Database\Connectors;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Connectors\Concerns\ConfiguresPooledConnections;
 use Illuminate\Database\MariaDbConnection;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\PostgresConnection;
@@ -15,6 +16,8 @@ use PDOException;
 
 class ConnectionFactory
 {
+    use ConfiguresPooledConnections;
+
     /**
      * The IoC container instance.
      *
@@ -26,7 +29,6 @@ class ConnectionFactory
      * Create a new connection factory instance.
      *
      * @param  \Illuminate\Contracts\Container\Container  $container
-     * @return void
      */
     public function __construct(Container $container)
     {
@@ -43,6 +45,10 @@ class ConnectionFactory
     public function make(array $config, $name = null)
     {
         $config = $this->parseConfig($config, $name);
+
+        if (($config['driver'] ?? null) === 'pgsql') {
+            $config = $this->ensurePooledPostgresIsProperlyConfigured($config);
+        }
 
         if (isset($config['read'])) {
             return $this->createReadWriteConnection($config);
@@ -73,9 +79,16 @@ class ConnectionFactory
     {
         $pdo = $this->createPdoResolver($config);
 
-        return $this->createConnection(
+        $connection = $this->createConnection(
             $config['driver'], $pdo, $config['database'], $config['prefix'], $config
         );
+
+        if ($this->hasDirectConnection($config)) {
+            $connection->setDirectPdo($this->createDirectPdo($config))
+                ->setDirectPdoConfig($this->getDirectConfig($config));
+        }
+
+        return $connection;
     }
 
     /**
@@ -88,7 +101,16 @@ class ConnectionFactory
     {
         $connection = $this->createSingleConnection($this->getWriteConfig($config));
 
-        return $connection->setReadPdo($this->createReadPdo($config));
+        $connection
+            ->setReadPdo($this->createReadPdo($config))
+            ->setReadPdoConfig($this->getReadConfig($config));
+
+        if ($this->hasDirectConnection($config)) {
+            $connection->setDirectPdo($this->createDirectPdo($config))
+                ->setDirectPdoConfig($this->getDirectConfig($config));
+        }
+
+        return $connection;
     }
 
     /**
@@ -138,8 +160,8 @@ class ConnectionFactory
     protected function getReadWriteConfig(array $config, $type)
     {
         return isset($config[$type][0])
-                        ? Arr::random($config[$type])
-                        : $config[$type];
+            ? Arr::random($config[$type])
+            : $config[$type];
     }
 
     /**
@@ -155,6 +177,17 @@ class ConnectionFactory
     }
 
     /**
+     * Create a new PDO instance for direct connections.
+     *
+     * @param  array  $config
+     * @return \Closure
+     */
+    protected function createDirectPdo(array $config)
+    {
+        return $this->createPdoResolver($this->getDirectConfig($config));
+    }
+
+    /**
      * Create a new Closure that resolves to a PDO instance.
      *
      * @param  array  $config
@@ -163,8 +196,8 @@ class ConnectionFactory
     protected function createPdoResolver(array $config)
     {
         return array_key_exists('host', $config)
-                            ? $this->createPdoResolverWithHosts($config)
-                            : $this->createPdoResolverWithoutHosts($config);
+            ? $this->createPdoResolverWithHosts($config)
+            : $this->createPdoResolverWithoutHosts($config);
     }
 
     /**
@@ -178,18 +211,20 @@ class ConnectionFactory
     protected function createPdoResolverWithHosts(array $config)
     {
         return function () use ($config) {
+            $exception = null;
+
             foreach (Arr::shuffle($this->parseHosts($config)) as $host) {
                 $config['host'] = $host;
 
                 try {
                     return $this->createConnector($config)->connect($config);
                 } catch (PDOException $e) {
-                    continue;
+                    $exception = $e;
                 }
             }
 
-            if (isset($e)) {
-                throw $e;
+            if ($exception !== null) {
+                throw $exception;
             }
         };
     }

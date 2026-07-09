@@ -9,19 +9,19 @@ Install
 
 Install this as any other (dev) Composer package:
 ```sh
-$ composer require --dev symfony/thanks
+composer require --dev symfony/thanks
 ```
 
 You can also install it once for all your local projects:
 ```sh
-$ composer global require symfony/thanks
+composer global require symfony/thanks
 ```
 
 Usage
 -----
 
 ```sh
-$ composer thanks
+composer thanks
 ```
 
 This will find all of your Composer dependencies, find their github.com repository, and star their GitHub repositories. This was inspired by `cargo thanks`, which was inspired in part by Medium's clapping button as a way to show thanks for someone else's work you've found enjoyment in.

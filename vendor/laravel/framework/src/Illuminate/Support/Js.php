@@ -23,7 +23,13 @@ class Js implements Htmlable, Stringable
      *
      * @var int
      */
-    protected const REQUIRED_FLAGS = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR;
+    protected const REQUIRED_FLAGS = 0
+        | JSON_HEX_TAG
+        | JSON_HEX_APOS
+        | JSON_HEX_AMP
+        | JSON_HEX_QUOT
+        | JSON_UNESCAPED_UNICODE
+        | JSON_THROW_ON_ERROR;
 
     /**
      * Create a new class instance.
@@ -31,7 +37,6 @@ class Js implements Htmlable, Stringable
      * @param  mixed  $data
      * @param  int|null  $flags
      * @param  int  $depth
-     * @return void
      *
      * @throws \JsonException
      */
@@ -71,6 +76,13 @@ class Js implements Htmlable, Stringable
             return $data->toHtml();
         }
 
+        if ($data instanceof Htmlable &&
+            ! $data instanceof Arrayable &&
+            ! $data instanceof Jsonable &&
+            ! $data instanceof JsonSerializable) {
+            $data = $data->toHtml();
+        }
+
         if ($data instanceof UnitEnum) {
             $data = enum_value($data);
         }
@@ -86,6 +98,8 @@ class Js implements Htmlable, Stringable
 
     /**
      * Encode the given data as JSON.
+     *
+     * Invalid UTF-8 sequences are replaced with � instead of throwing.
      *
      * @param  mixed  $data
      * @param  int  $flags
@@ -104,7 +118,7 @@ class Js implements Htmlable, Stringable
             $data = $data->toArray();
         }
 
-        return json_encode($data, $flags | static::REQUIRED_FLAGS, $depth);
+        return json_encode($data, $flags | static::REQUIRED_FLAGS | JSON_INVALID_UTF8_SUBSTITUTE, $depth);
     }
 
     /**

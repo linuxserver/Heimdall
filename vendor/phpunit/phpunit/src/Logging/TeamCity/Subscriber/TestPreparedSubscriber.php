@@ -17,10 +17,10 @@ use PHPUnit\Event\Test\PreparedSubscriber;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestPreparedSubscriber extends Subscriber implements PreparedSubscriber
+final readonly class TestPreparedSubscriber extends Subscriber implements PreparedSubscriber
 {
     public function notify(Prepared $event): void
     {
-        $this->logger()->testPrepared($event);
+        $this->logger()->testPrepared();
     }
 }

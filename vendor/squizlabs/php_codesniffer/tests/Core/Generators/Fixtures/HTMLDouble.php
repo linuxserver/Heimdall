@@ -3,7 +3,7 @@
  * Test double for the HTML doc generator.
  *
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Generators\Fixtures;
@@ -20,7 +20,7 @@ class HTMLDouble extends HTML
      */
     protected function getFormattedFooter()
     {
-        $output ='  <div class="tag-line">Documentation generated on #REDACTED# by <a href="https://github.com/PHPCSStandards/PHP_CodeSniffer">PHP_CodeSniffer #VERSION#</a></div>
+        $output = '  <div class="tag-line">Documentation generated on #REDACTED# by <a href="https://github.com/PHPCSStandards/PHP_CodeSniffer">PHP_CodeSniffer #VERSION#</a></div>
  </body>
 </html>';
 

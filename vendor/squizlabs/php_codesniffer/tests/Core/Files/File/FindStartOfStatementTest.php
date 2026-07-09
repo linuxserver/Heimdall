@@ -5,8 +5,8 @@
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @copyright 2019-2024 PHPCSStandards Contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @copyright 2019 PHPCSStandards and contributors
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Files\File;
@@ -668,6 +668,12 @@ final class FindStartOfStatementTest extends AbstractMethodUnitTest
                 'testMarker'     => '/* testInsideCaseGotoStatement */',
                 'targets'        => T_SEMICOLON,
                 'expectedTarget' => T_GOTO,
+            ],
+            'Namespace separator for "die" should be start for contents - close parenthesis'          => [
+                // Note: not sure if this is actually correct - should this be the open parenthesis ?
+                'testMarker'     => '/* testInsideCaseFullyQualifiedDieStatement */',
+                'targets'        => T_CLOSE_PARENTHESIS,
+                'expectedTarget' => T_NS_SEPARATOR,
             ],
             'Default keyword should be start of default statement - default itself'                   => [
                 'testMarker'     => '/* testDefaultStatement */',

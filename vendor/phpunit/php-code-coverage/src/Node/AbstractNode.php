@@ -15,20 +15,23 @@ use function str_ends_with;
 use function str_replace;
 use function substr;
 use Countable;
+use SebastianBergmann\CodeCoverage\Data\ProcessedClassType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedTraitType;
+use SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
 use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @psalm-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @psalm-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
- * @psalm-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
- * @psalm-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
  */
 abstract class AbstractNode implements Countable
 {
     private readonly string $name;
     private string $pathAsString;
+
+    /**
+     * @var non-empty-list<self>
+     */
     private array $pathAsArray;
     private readonly ?AbstractNode $parent;
     private string $id;
@@ -61,6 +64,9 @@ abstract class AbstractNode implements Countable
         return $this->pathAsString;
     }
 
+    /**
+     * @return non-empty-list<self>
+     */
     public function pathAsArray(): array
     {
         return $this->pathAsArray;
@@ -153,6 +159,9 @@ abstract class AbstractNode implements Countable
         return $this->numberOfTestedClasses() + $this->numberOfTestedTraits();
     }
 
+    /**
+     * @return array<string, ProcessedClassType|ProcessedTraitType>
+     */
     public function classesAndTraits(): array
     {
         return array_merge($this->classes(), $this->traits());
@@ -169,24 +178,39 @@ abstract class AbstractNode implements Countable
     }
 
     /**
-     * @psalm-return array<string, ProcessedClassType>
+     * @return non-negative-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+        $ccn = 0;
+
+        foreach ($this->classesAndTraits() as $classLike) {
+            $ccn += $classLike->ccn;
+        }
+
+        foreach ($this->functions() as $function) {
+            $ccn += $function->ccn;
+        }
+
+        return $ccn;
+    }
+
+    /**
+     * @return array<string, ProcessedClassType>
      */
     abstract public function classes(): array;
 
     /**
-     * @psalm-return array<string, ProcessedTraitType>
+     * @return array<string, ProcessedTraitType>
      */
     abstract public function traits(): array;
 
     /**
-     * @psalm-return array<string, ProcessedFunctionType>
+     * @return array<string, ProcessedFunctionType>
      */
     abstract public function functions(): array;
 
-    /**
-     * @psalm-return LinesOfCodeType
-     */
-    abstract public function linesOfCode(): array;
+    abstract public function linesOfCode(): LinesOfCode;
 
     abstract public function numberOfExecutableLines(): int;
 

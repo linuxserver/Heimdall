@@ -4,6 +4,7 @@ namespace Illuminate\Queue\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Contracts\Queue\ClearableQueue;
 use Illuminate\Support\Str;
 use ReflectionClass;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 #[AsCommand(name: 'queue:clear')]
 class ClearCommand extends Command
 {
-    use ConfirmableTrait;
+    use ConfirmableTrait, Prohibitable;
 
     /**
      * The console command name.
@@ -37,12 +38,13 @@ class ClearCommand extends Command
      */
     public function handle()
     {
-        if (! $this->confirmToProceed()) {
+        if ($this->isProhibited() ||
+            ! $this->confirmToProceed()) {
             return 1;
         }
 
         $connection = $this->argument('connection')
-                        ?: $this->laravel['config']['queue.default'];
+            ?: $this->laravel['config']['queue.default'];
 
         // We need to get the right queue for the connection which is set in the queue
         // configuration file for the application. We will pull it based on the set

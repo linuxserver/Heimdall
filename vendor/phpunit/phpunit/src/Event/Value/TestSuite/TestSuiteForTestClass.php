@@ -12,21 +12,23 @@ namespace PHPUnit\Event\TestSuite;
 use PHPUnit\Event\Code\TestCollection;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class TestSuiteForTestClass extends TestSuite
+final readonly class TestSuiteForTestClass extends TestSuite
 {
     /**
-     * @psalm-var class-string
+     * @var class-string
      */
-    private readonly string $className;
-    private readonly string $file;
-    private readonly int $line;
+    private string $className;
+    private string $file;
+    private int $line;
 
     /**
-     * @psalm-param class-string $name
+     * @param class-string $name
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $name, int $size, TestCollection $tests, string $file, int $line)
     {
@@ -38,7 +40,7 @@ final class TestSuiteForTestClass extends TestSuite
     }
 
     /**
-     * @psalm-return class-string
+     * @return class-string
      */
     public function className(): string
     {
@@ -55,10 +57,7 @@ final class TestSuiteForTestClass extends TestSuite
         return $this->line;
     }
 
-    /**
-     * @psalm-assert-if-true TestSuiteForTestClass $this
-     */
-    public function isForTestClass(): bool
+    public function isForTestClass(): true
     {
         return true;
     }

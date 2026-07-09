@@ -75,6 +75,10 @@ if (class_exists(Version::class) && (int) Version::series() >= 10) {
          */
         public function notify(Started $event): void
         {
+            if (! isset($_SERVER['COLLISION_PRINTER'])) {
+                return;
+            }
+
             $printer = new ReportablePrinter(new DefaultPrinter(true));
 
             if (isset($_SERVER['COLLISION_PRINTER_COMPACT'])) {

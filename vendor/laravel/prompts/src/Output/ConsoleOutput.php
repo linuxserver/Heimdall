@@ -30,7 +30,9 @@ class ConsoleOutput extends SymfonyConsoleOutput
             $message .= \PHP_EOL;
         }
 
-        $trailingNewLines = strlen($message) - strlen(rtrim($message, \PHP_EOL));
+        preg_match('/(?:\r?\n)*$/', $message, $matches);
+
+        $trailingNewLines = substr_count($matches[0] ?? '', "\n");
 
         if (trim($message) === '') {
             $this->newLinesWritten += $trailingNewLines;

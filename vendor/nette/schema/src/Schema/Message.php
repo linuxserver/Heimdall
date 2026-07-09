@@ -1,15 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Nette\Schema;
 
-use Nette;
+use function implode, preg_replace_callback;
 
 
 final class Message
@@ -62,22 +60,15 @@ final class Message
 	/** @deprecated use Message::Deprecated */
 	public const DEPRECATED = self::Deprecated;
 
-	public string $message;
-	public string $code;
 
-	/** @var string[] */
-	public array $path;
-
-	/** @var string[] */
-	public array $variables;
-
-
-	public function __construct(string $message, string $code, array $path, array $variables = [])
-	{
-		$this->message = $message;
-		$this->code = $code;
-		$this->path = $path;
-		$this->variables = $variables;
+	public function __construct(
+		public string $message,
+		public string $code,
+		/** @var list<int|string> */
+		public array $path,
+		/** @var array<string, mixed> */
+		public array $variables = [],
+	) {
 	}
 
 
@@ -93,6 +84,6 @@ final class Message
 		return preg_replace_callback('~( ?)%(\w+)%~', function ($m) use ($vars) {
 			[, $space, $key] = $m;
 			return $vars[$key] === null ? '' : $space . $vars[$key];
-		}, $this->message) ?? throw new Nette\InvalidStateException(preg_last_error_msg());
+		}, $this->message);
 	}
 }

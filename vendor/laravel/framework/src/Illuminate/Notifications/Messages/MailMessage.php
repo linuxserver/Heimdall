@@ -212,7 +212,7 @@ class MailMessage extends SimpleMessage implements Renderable
     public function replyTo($address, $name = null)
     {
         if ($this->arrayOfAddresses($address)) {
-            $this->replyTo += $this->parseAddresses($address);
+            $this->replyTo = array_merge($this->replyTo, $this->parseAddresses($address));
         } else {
             $this->replyTo[] = [$address, $name];
         }
@@ -230,7 +230,7 @@ class MailMessage extends SimpleMessage implements Renderable
     public function cc($address, $name = null)
     {
         if ($this->arrayOfAddresses($address)) {
-            $this->cc += $this->parseAddresses($address);
+            $this->cc = array_merge($this->cc, $this->parseAddresses($address));
         } else {
             $this->cc[] = [$address, $name];
         }
@@ -248,7 +248,7 @@ class MailMessage extends SimpleMessage implements Renderable
     public function bcc($address, $name = null)
     {
         if ($this->arrayOfAddresses($address)) {
-            $this->bcc += $this->parseAddresses($address);
+            $this->bcc = array_merge($this->bcc, $this->parseAddresses($address));
         } else {
             $this->bcc[] = [$address, $name];
         }
@@ -273,7 +273,7 @@ class MailMessage extends SimpleMessage implements Renderable
             return $file->attachTo($this);
         }
 
-        $this->attachments[] = compact('file', 'options');
+        $this->attachments[] = ['file' => $file, 'options' => $options];
 
         return $this;
     }
@@ -307,9 +307,46 @@ class MailMessage extends SimpleMessage implements Renderable
      */
     public function attachData($data, $name, array $options = [])
     {
-        $this->rawAttachments[] = compact('data', 'name', 'options');
+        $this->rawAttachments[] = ['data' => $data, 'name' => $name, 'options' => $options];
 
         return $this;
+    }
+
+    /**
+     * Attach a file to the message from storage.
+     *
+     * @param  string  $path
+     * @param  string|null  $name
+     * @param  array  $options
+     * @return $this
+     */
+    public function attachFromStorage($path, $name = null, array $options = [])
+    {
+        return $this->attachFromStorageDisk(null, $path, $name, $options);
+    }
+
+    /**
+     * Attach a file to the message from storage.
+     *
+     * @param  string|null  $disk
+     * @param  string  $path
+     * @param  string|null  $name
+     * @param  array  $options
+     * @return $this
+     */
+    public function attachFromStorageDisk($disk, $path, $name = null, array $options = [])
+    {
+        $attachment = Attachment::fromStorageDisk($disk, $path);
+
+        if (! is_null($name)) {
+            $attachment->as($name);
+        }
+
+        if (isset($options['mime'])) {
+            $attachment->withMime($options['mime']);
+        }
+
+        return $this->attach($attachment);
     }
 
     /**
@@ -372,9 +409,10 @@ class MailMessage extends SimpleMessage implements Renderable
      */
     protected function parseAddresses($value)
     {
-        return (new Collection($value))->map(function ($address, $name) {
-            return [$address, is_numeric($name) ? null : $name];
-        })->values()->all();
+        return (new Collection($value))
+            ->map(fn ($address, $name) => [$address, is_numeric($name) ? null : $name])
+            ->values()
+            ->all();
     }
 
     /**

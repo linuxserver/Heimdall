@@ -6,6 +6,7 @@ use ArrayAccess;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Uri;
 use LogicException;
 
 class Request implements ArrayAccess
@@ -27,10 +28,16 @@ class Request implements ArrayAccess
     protected $data;
 
     /**
+     * The attribute data passed when building the PendingRequest.
+     *
+     * @var array<array-key, mixed>
+     */
+    protected $attributes = [];
+
+    /**
      * Create a new request instance.
      *
      * @param  \Psr\Http\Message\RequestInterface  $request
-     * @return void
      */
     public function __construct($request)
     {
@@ -55,6 +62,16 @@ class Request implements ArrayAccess
     public function url()
     {
         return (string) $this->request->getUri();
+    }
+
+    /**
+     * Get the request URI as a URI instance.
+     *
+     * @return \Illuminate\Support\Uri
+     */
+    public function uri()
+    {
+        return Uri::of($this->url());
     }
 
     /**
@@ -187,7 +204,7 @@ class Request implements ArrayAccess
     }
 
     /**
-     * Get the JSON decoded body of the request.
+     * Get the decoded JSON body of the request.
      *
      * @return array
      */
@@ -241,6 +258,29 @@ class Request implements ArrayAccess
     public function withData(array $data)
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Get the attribute data from the request.
+     *
+     * @return array<array-key, mixed>
+     */
+    public function attributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Set the request's attribute data.
+     *
+     * @param  array<array-key, mixed>  $attributes
+     * @return $this
+     */
+    public function setRequestAttributes($attributes)
+    {
+        $this->attributes = $attributes;
 
         return $this;
     }

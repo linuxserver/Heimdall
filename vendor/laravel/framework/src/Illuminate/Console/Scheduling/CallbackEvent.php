@@ -46,7 +46,6 @@ class CallbackEvent extends Event
      * @param  string|callable  $callback
      * @param  array  $parameters
      * @param  \DateTimeZone|string|null  $timezone
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -136,7 +135,7 @@ class CallbackEvent extends Event
      *
      * @throws \LogicException
      */
-    public function withoutOverlapping($expiresAt = 1440)
+    public function withoutOverlapping($expiresAt = 1440, $releaseOnTerminationSignals = true)
     {
         if (! isset($this->description)) {
             throw new LogicException(
@@ -144,7 +143,7 @@ class CallbackEvent extends Event
             );
         }
 
-        return parent::withoutOverlapping($expiresAt);
+        return parent::withoutOverlapping($expiresAt, $releaseOnTerminationSignals);
     }
 
     /**

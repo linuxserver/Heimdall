@@ -14,14 +14,14 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * @template-implements IteratorAggregate<int, Event>
+ * @template-implements IteratorAggregate<non-negative-int, Event>
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 final class EventCollection implements Countable, IteratorAggregate
 {
     /**
-     * @psalm-var list<Event>
+     * @var list<Event>
      */
     private array $events = [];
 
@@ -33,7 +33,7 @@ final class EventCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @psalm-return list<Event>
+     * @return list<Event>
      */
     public function asArray(): array
     {

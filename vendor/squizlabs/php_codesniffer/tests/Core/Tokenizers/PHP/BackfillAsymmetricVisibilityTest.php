@@ -4,7 +4,7 @@
  *
  * @author    Daniel Scherzer <daniel.e.scherzer@gmail.com>
  * @copyright 2025 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -24,8 +24,8 @@ final class BackfillAsymmetricVisibilityTest extends AbstractTokenizerTestCase
      * Test that the asymmetric visibility keywords are tokenized as such.
      *
      * @param string $testMarker  The comment which prefaces the target token in the test file.
-     * @param string $testType    The expected token type
-     * @param string $testContent The token content to look for
+     * @param string $testType    The expected token type.
+     * @param string $testContent The token content to look for.
      *
      * @dataProvider dataAsymmetricVisibility
      *
@@ -206,8 +206,8 @@ final class BackfillAsymmetricVisibilityTest extends AbstractTokenizerTestCase
      * tokenized as such.
      *
      * @param string $testMarker  The comment which prefaces the target token in the test file.
-     * @param string $testType    The expected token type
-     * @param string $testContent The token content to look for
+     * @param string $testType    The expected token type.
+     * @param string $testContent The token content to look for.
      *
      * @dataProvider dataNotAsymmetricVisibility
      *

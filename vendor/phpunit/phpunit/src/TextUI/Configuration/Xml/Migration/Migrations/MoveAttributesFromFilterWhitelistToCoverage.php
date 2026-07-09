@@ -17,7 +17,7 @@ use DOMElement;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class MoveAttributesFromFilterWhitelistToCoverage implements Migration
+final readonly class MoveAttributesFromFilterWhitelistToCoverage implements Migration
 {
     /**
      * @throws MigrationException
@@ -26,7 +26,7 @@ final class MoveAttributesFromFilterWhitelistToCoverage implements Migration
     {
         $whitelist = $document->getElementsByTagName('whitelist')->item(0);
 
-        if (!$whitelist) {
+        if ($whitelist === null) {
             return;
         }
 

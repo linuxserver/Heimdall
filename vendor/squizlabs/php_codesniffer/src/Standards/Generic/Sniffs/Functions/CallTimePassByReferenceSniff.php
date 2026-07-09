@@ -4,7 +4,7 @@
  *
  * @author    Florian Grandel <jerico.dev@gmail.com>
  * @copyright 2009-2014 Florian Grandel
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  *
  * @deprecated 3.12.1
  */

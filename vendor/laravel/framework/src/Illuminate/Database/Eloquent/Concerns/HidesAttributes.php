@@ -2,6 +2,10 @@
 
 namespace Illuminate\Database\Eloquent\Concerns;
 
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Initialize;
+use Illuminate\Database\Eloquent\Attributes\Visible;
+
 trait HidesAttributes
 {
     /**
@@ -17,6 +21,18 @@ trait HidesAttributes
      * @var array<string>
      */
     protected $visible = [];
+
+    /**
+     * Initialize the HidesAttributes trait.
+     *
+     * @return void
+     */
+    #[Initialize]
+    public function initializeHidesAttributes()
+    {
+        $this->mergeHidden(static::resolveClassAttribute(Hidden::class, 'columns') ?? []);
+        $this->mergeVisible(static::resolveClassAttribute(Visible::class, 'columns') ?? []);
+    }
 
     /**
      * Get the hidden attributes for the model.
@@ -42,6 +58,23 @@ trait HidesAttributes
     }
 
     /**
+     * Merge new hidden attributes with existing hidden attributes on the model.
+     *
+     * @param  array<string>  $hidden
+     * @return $this
+     */
+    public function mergeHidden(array $hidden)
+    {
+        if ($hidden === []) {
+            return $this;
+        }
+
+        $this->hidden = array_values(array_unique(array_merge($this->hidden, $hidden)));
+
+        return $this;
+    }
+
+    /**
      * Get the visible attributes for the model.
      *
      * @return array<string>
@@ -60,6 +93,23 @@ trait HidesAttributes
     public function setVisible(array $visible)
     {
         $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * Merge new visible attributes with existing visible attributes on the model.
+     *
+     * @param  array<string>  $visible
+     * @return $this
+     */
+    public function mergeVisible(array $visible)
+    {
+        if ($visible === []) {
+            return $this;
+        }
+
+        $this->visible = array_values(array_unique(array_merge($this->visible, $visible)));
 
         return $this;
     }

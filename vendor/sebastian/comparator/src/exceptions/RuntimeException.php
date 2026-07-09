@@ -9,6 +9,9 @@
  */
 namespace SebastianBergmann\Comparator;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class RuntimeException extends \RuntimeException implements Exception
 {
 }

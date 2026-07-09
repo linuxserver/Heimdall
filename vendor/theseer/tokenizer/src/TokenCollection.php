@@ -6,12 +6,16 @@ use ArrayIterator;
 use Countable;
 use Iterator;
 use IteratorAggregate;
+use function count;
+use function get_class;
+use function gettype;
+use function is_int;
+use function sprintf;
 
 /**
  * @implements IteratorAggregate<int, Token>
  */
 class TokenCollection implements IteratorAggregate, ArrayAccess, Countable {
-
     /** @var Token[] */
     private $tokens = [];
 
@@ -19,13 +23,12 @@ class TokenCollection implements IteratorAggregate, ArrayAccess, Countable {
         $this->tokens[] = $token;
     }
 
-    public function getIterator(): Iterator
-    {
+    public function getIterator(): Iterator {
         return new ArrayIterator($this->tokens);
     }
 
     public function count(): int {
-        return \count($this->tokens);
+        return count($this->tokens);
     }
 
     public function offsetExists($offset): bool {
@@ -38,7 +41,7 @@ class TokenCollection implements IteratorAggregate, ArrayAccess, Countable {
     public function offsetGet($offset): Token {
         if (!$this->offsetExists($offset)) {
             throw new TokenCollectionException(
-                \sprintf('No Token at offest %s', $offset)
+                sprintf('No Token at offest %s', $offset)
             );
         }
 
@@ -51,25 +54,25 @@ class TokenCollection implements IteratorAggregate, ArrayAccess, Countable {
      * @throws TokenCollectionException
      */
     public function offsetSet($offset, $value): void {
-        if (!\is_int($offset)) {
-            $type = \gettype($offset);
+        if (!is_int($offset)) {
+            $type = gettype($offset);
 
             throw new TokenCollectionException(
-                \sprintf(
+                sprintf(
                     'Offset must be of type integer, %s given',
-                    $type === 'object' ? \get_class($value) : $type
+                    $type === 'object' ? get_class($value) : $type
                 )
             );
         }
 
         if (!$value instanceof Token) {
-            $type = \gettype($value);
+            $type = gettype($value);
 
             throw new TokenCollectionException(
-                \sprintf(
+                sprintf(
                     'Value must be of type %s, %s given',
                     Token::class,
-                    $type === 'object' ? \get_class($value) : $type
+                    $type === 'object' ? get_class($value) : $type
                 )
             );
         }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -51,7 +51,17 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isArray(): bool
     {
-        return \array_key_exists('isArray', $this->opts) && $this->opts['isArray'];
+        return !empty($this->opts['isArray']);
+    }
+
+    public function hasType(): bool
+    {
+        return false;
+    }
+
+    public function getType(): ?\ReflectionType
+    {
+        return null;
     }
 
     /**
@@ -88,7 +98,12 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isOptional(): bool
     {
-        return \array_key_exists('isOptional', $this->opts) && $this->opts['isOptional'];
+        return !empty($this->opts['isOptional']);
+    }
+
+    public function isVariadic(): bool
+    {
+        return !empty($this->opts['isVariadic']);
     }
 
     /**
@@ -110,6 +125,6 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
      */
     public function isPassedByReference(): bool
     {
-        return \array_key_exists('isPassedByReference', $this->opts) && $this->opts['isPassedByReference'];
+        return !empty($this->opts['isPassedByReference']);
     }
 }

@@ -3,6 +3,7 @@
 namespace Illuminate\Redis\Limiters;
 
 use Illuminate\Contracts\Redis\LimiterTimeoutException;
+use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Throwable;
@@ -38,13 +39,19 @@ class ConcurrencyLimiter
     protected $releaseAfter;
 
     /**
+     * The cluster-safe key prefix for lock slots.
+     *
+     * @var string|null
+     */
+    protected $prefix;
+
+    /**
      * Create a new concurrency limiter instance.
      *
      * @param  \Illuminate\Redis\Connections\Connection  $redis
      * @param  string  $name
      * @param  int  $maxLocks
      * @param  int  $releaseAfter
-     * @return void
      */
     public function __construct($redis, $name, $maxLocks, $releaseAfter)
     {
@@ -102,13 +109,15 @@ class ConcurrencyLimiter
      */
     protected function acquire($id)
     {
-        $slots = array_map(function ($i) {
-            return $this->name.$i;
+        $prefix = $this->getPrefix();
+
+        $slots = array_map(function ($i) use ($prefix) {
+            return $prefix.$i;
         }, range(1, $this->maxLocks));
 
         return $this->redis->eval(...array_merge(
             [$this->lockScript(), count($slots)],
-            array_merge($slots, [$this->name, $this->releaseAfter, $id])
+            array_merge($slots, [$prefix, $this->releaseAfter, $id])
         ));
     }
 
@@ -164,5 +173,23 @@ else
     return 0
 end
 LUA;
+    }
+
+    /**
+     * Get the cluster-safe key prefix for lock slots.
+     *
+     * The result is cached for the lifetime of this limiter instance.
+     *
+     * @return string
+     */
+    protected function getPrefix()
+    {
+        if (is_null($this->prefix)) {
+            $this->prefix = $this->redis->isCluster() && ! Connection::hasHashTag($this->name)
+                ? '{'.$this->name.'}'
+                : $this->name;
+        }
+
+        return $this->prefix;
     }
 }

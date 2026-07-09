@@ -20,11 +20,11 @@ use PHPUnit\Util\Http\Downloader;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class VersionCheckCommand implements Command
+final readonly class VersionCheckCommand implements Command
 {
-    private readonly Downloader $downloader;
-    private readonly int $majorVersionNumber;
-    private readonly string $versionId;
+    private Downloader $downloader;
+    private int $majorVersionNumber;
+    private string $versionId;
 
     public function __construct(Downloader $downloader, int $majorVersionNumber, string $versionId)
     {
@@ -41,10 +41,12 @@ final class VersionCheckCommand implements Command
 
         $latestCompatibleVersion = $this->downloader->download('https://phar.phpunit.de/latest-version-of/phpunit-' . $this->majorVersionNumber);
 
-        assert($latestCompatibleVersion !== false);
-
         $notLatest           = version_compare($latestVersion, $this->versionId, '>');
-        $notLatestCompatible = version_compare($latestCompatibleVersion, $this->versionId, '>');
+        $notLatestCompatible = false;
+
+        if ($latestCompatibleVersion !== false) {
+            $notLatestCompatible = version_compare($latestCompatibleVersion, $this->versionId, '>');
+        }
 
         if (!$notLatest && !$notLatestCompatible) {
             return Result::from(
@@ -69,6 +71,6 @@ final class VersionCheckCommand implements Command
             );
         }
 
-        return Result::from($buffer);
+        return Result::from($buffer, Result::FAILURE);
     }
 }

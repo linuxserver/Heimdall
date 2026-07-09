@@ -19,17 +19,20 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class Failed implements Event
+final readonly class Failed implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly Code\Test $test;
-    private readonly Throwable $throwable;
-    private readonly ?ComparisonFailure $comparisonFailure;
+    private Telemetry\Info $telemetryInfo;
+    private Code\Test $test;
+    private Throwable $throwable;
+    private ?ComparisonFailure $comparisonFailure;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, Throwable $throwable, ?ComparisonFailure $comparisonFailure)
     {
         $this->telemetryInfo     = $telemetryInfo;
@@ -54,7 +57,7 @@ final class Failed implements Event
     }
 
     /**
-     * @psalm-assert-if-true !null $this->comparisonFailure
+     * @phpstan-assert-if-true !null $this->comparisonFailure
      */
     public function hasComparisonFailure(): bool
     {
@@ -73,11 +76,14 @@ final class Failed implements Event
         return $this->comparisonFailure;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = trim($this->throwable->message());
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

@@ -18,7 +18,7 @@ use PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestSuiteBeforeFirstTestMethodErroredSubscriber extends Subscriber implements BeforeFirstTestMethodErroredSubscriber
+final readonly class TestSuiteBeforeFirstTestMethodErroredSubscriber extends Subscriber implements BeforeFirstTestMethodErroredSubscriber
 {
     /**
      * @throws InvalidArgumentException

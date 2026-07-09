@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -67,11 +67,11 @@ final class OtherContextSensitiveKeywordsTest extends AbstractTokenizerTestCase
     public static function dataStrings()
     {
         return [
-            'constant declaration: parent'                                      => ['/* testParent */'],
-            'constant declaration: self'                                        => ['/* testSelf */'],
-            'constant declaration: false'                                       => ['/* testFalse */'],
-            'constant declaration: true'                                        => ['/* testTrue */'],
-            'constant declaration: null'                                        => ['/* testNull */'],
+            'constant declaration: parent'                                      => ['/* testKeywordParentAsConstantNameShouldBeString */'],
+            'constant declaration: self'                                        => ['/* testKeywordSelfAsConstantNameShouldBeString */'],
+            'constant declaration: false'                                       => ['/* testKeywordFalseAsConstantNameShouldBeString */'],
+            'constant declaration: true'                                        => ['/* testKeywordTrueAsConstantNameShouldBeString */'],
+            'constant declaration: null'                                        => ['/* testKeywordNullAsConstantNameShouldBeString */'],
 
             'function declaration with return by ref: self'                     => ['/* testKeywordSelfAfterFunctionByRefShouldBeString */'],
             'function declaration with return by ref: parent'                   => ['/* testKeywordParentAfterFunctionByRefShouldBeString */'],
@@ -713,6 +713,30 @@ final class OtherContextSensitiveKeywordsTest extends AbstractTokenizerTestCase
                 'expectedTokenType' => 'T_PARENT',
             ],
 
+            'false: in comparison, uppercase'                                 => [
+                'testMarker'        => '/* testFalseIsKeywordUppercase */',
+                'expectedTokenType' => 'T_FALSE',
+            ],
+            'true: in comparison, mixed case'                                 => [
+                'testMarker'        => '/* testTrueIsKeywordMixedCase */',
+                'expectedTokenType' => 'T_TRUE',
+            ],
+            'null: in comparison, uppercase'                                  => [
+                'testMarker'        => '/* testNullIsKeywordUppercase */',
+                'expectedTokenType' => 'T_NULL',
+            ],
+            'false: in assignment, fully qualified'                           => [
+                'testMarker'        => '/* testFullyQualifiedFalseIsKeyword */',
+                'expectedTokenType' => 'T_FALSE',
+            ],
+            'true: in assignment, fully qualified'                            => [
+                'testMarker'        => '/* testFullyQualifiedTrueIsKeyword */',
+                'expectedTokenType' => 'T_TRUE',
+            ],
+            'null: in assignment, fully qualified'                            => [
+                'testMarker'        => '/* testFullyQualifiedNullIsKeyword */',
+                'expectedTokenType' => 'T_NULL',
+            ],
         ];
 
     }//end dataKeywords()

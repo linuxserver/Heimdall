@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+8.1
+---
+
+ * Add `BinaryFileResponse::shouldDeleteFileAfterSend()`
+ * Deprecate setting public properties of `Request` and `Response` objects directly; use setters or constructor arguments instead
+ * Add `SessionHasFlashMessage` test constraint
+ * `Response::__construct()` now accepts a `ResponseHeaderBag` as its third argument
+ * `ParameterBag::getInt()` and `ParameterBag::getBoolean()` now throw `UnexpectedValueException` instead of silently returning `0`/`false` when the value cannot be converted
+
+8.0
+---
+
+ * Drop HTTP method override support for methods GET, HEAD, CONNECT and TRACE
+ * Add argument `$subtypeFallback` to `Request::getFormat()`
+ * Remove the following deprecated session options from `NativeSessionStorage`: `referer_check`, `use_only_cookies`, `use_trans_sid`, `sid_length`, `sid_bits_per_character`, `trans_sid_hosts`, `trans_sid_tags`
+ * Trigger PHP warning when using `Request::sendHeaders()` after headers have already been sent; use a `StreamedResponse` instead
+ * Add arguments `$v4Bytes` and `$v6Bytes` to `IpUtils::anonymize()`
+ * Add argument `$partitioned` to `ResponseHeaderBag::clearCookie()`
+ * Add argument `$expiration` to `UriSigner::sign()`
+ * Remove `Request::get()`, use properties `->attributes`, `query` or `request` directly instead
+ * Remove accepting null `$format` argument to `Request::setFormat()`
+
 7.4
 ---
 

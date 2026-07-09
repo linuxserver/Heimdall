@@ -43,7 +43,7 @@ class MultiSelectPromptRenderer extends Renderer implements Scrolling
                 ->box(
                     $this->cyan($this->truncate($prompt->label, $prompt->terminal()->cols() - 6)),
                     $this->renderOptions($prompt),
-                    info: count($prompt->options) > $prompt->scroll ? (count($prompt->value()).' selected') : '',
+                    info: $this->getInfoText($prompt),
                 )
                 ->when(
                     $prompt->hint,
@@ -108,6 +108,19 @@ class MultiSelectPromptRenderer extends Renderer implements Scrolling
             fn ($label) => $this->truncate($label, $prompt->terminal()->cols() - 6),
             $prompt->labels()
         ));
+    }
+
+    /**
+     * Render the info text.
+     */
+    protected function getInfoText(MultiSelectPrompt $prompt): string
+    {
+        $parts = array_filter([
+            $prompt->infoText(),
+            count($prompt->options) > $prompt->scroll ? (count($prompt->value()).' selected') : '',
+        ]);
+
+        return implode(' · ', $parts);
     }
 
     /**

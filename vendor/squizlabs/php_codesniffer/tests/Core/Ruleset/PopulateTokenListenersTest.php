@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Ruleset;
@@ -172,9 +172,9 @@ final class PopulateTokenListenersTest extends AbstractRulesetTestCase
     public function testRegistersWhenADeprecatedSniffIsLoaded()
     {
         $property = new ReflectionProperty(self::$ruleset, 'deprecatedSniffs');
-        $property->setAccessible(true);
+        (PHP_VERSION_ID < 80100) && $property->setAccessible(true);
         $actualValue = $property->getValue(self::$ruleset);
-        $property->setAccessible(false);
+        (PHP_VERSION_ID < 80100) && $property->setAccessible(false);
 
         // Only verify there is one deprecated sniff registered.
         // There are other tests which test the deprecated sniff handling in more detail.

@@ -2,6 +2,7 @@
 
 namespace Illuminate\Process;
 
+use Carbon\CarbonInterval;
 use Closure;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Support\Collection;
@@ -97,7 +98,6 @@ class PendingProcess
      * Create a new pending process instance.
      *
      * @param  \Illuminate\Process\Factory  $factory
-     * @return void
      */
     public function __construct(Factory $factory)
     {
@@ -133,12 +133,12 @@ class PendingProcess
     /**
      * Specify the maximum number of seconds the process may run.
      *
-     * @param  int  $timeout
+     * @param  CarbonInterval|int  $timeout
      * @return $this
      */
-    public function timeout(int $timeout)
+    public function timeout(CarbonInterval|int $timeout)
     {
-        $this->timeout = $timeout;
+        $this->timeout = $timeout instanceof CarbonInterval ? (int) $timeout->totalSeconds : $timeout;
 
         return $this;
     }
@@ -146,12 +146,12 @@ class PendingProcess
     /**
      * Specify the maximum number of seconds a process may go without returning output.
      *
-     * @param  int  $timeout
+     * @param  CarbonInterval|int  $timeout
      * @return $this
      */
-    public function idleTimeout(int $timeout)
+    public function idleTimeout(CarbonInterval|int $timeout)
     {
-        $this->idleTimeout = $timeout;
+        $this->idleTimeout = $timeout instanceof CarbonInterval ? (int) $timeout->totalSeconds : $timeout;
 
         return $this;
     }
@@ -247,6 +247,7 @@ class PendingProcess
         $this->command = $command ?: $this->command;
 
         $process = $this->toSymfonyProcess($command);
+
         try {
             if ($fake = $this->fakeFor($command = $process->getCommandline())) {
                 return tap($this->resolveSynchronousFake($command, $fake), function ($result) {
@@ -296,11 +297,11 @@ class PendingProcess
      */
     protected function toSymfonyProcess(array|string|null $command)
     {
-        $command = $command ?? $this->command;
+        $command ??= $this->command;
 
         $process = is_iterable($command)
-                ? new Process($command, null, $this->environment)
-                : Process::fromShellCommandline((string) $command, null, $this->environment);
+            ? new Process($command, null, $this->environment)
+            : Process::fromShellCommandline((string) $command, null, $this->environment);
 
         $process->setWorkingDirectory((string) ($this->path ?? getcwd()));
         $process->setTimeout($this->timeout);
@@ -369,6 +370,9 @@ class PendingProcess
      * @param  string  $command
      * @param  \Closure  $fake
      * @return mixed
+     *
+     * @throws \LogicException
+     * @throws \Throwable
      */
     protected function resolveSynchronousFake(string $command, Closure $fake)
     {
@@ -400,7 +404,7 @@ class PendingProcess
      * @param  \Closure  $fake
      * @return \Illuminate\Process\FakeInvokedProcess
      *
-     * @throw \LogicException
+     * @throws \LogicException
      */
     protected function resolveAsynchronousFake(string $command, ?callable $output, Closure $fake)
     {

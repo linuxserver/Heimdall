@@ -47,7 +47,7 @@ class RouteListCommand extends Command
      *
      * @var string[]
      */
-    protected $headers = ['Domain', 'Method', 'URI', 'Name', 'Action', 'Middleware'];
+    protected $headers = ['Domain', 'Method', 'URI', 'Name', 'Action', 'Middleware', 'Path'];
 
     /**
      * The terminal width resolver callback.
@@ -76,7 +76,6 @@ class RouteListCommand extends Command
      * Create a new route command instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @return void
      */
     public function __construct(Router $router)
     {
@@ -114,9 +113,10 @@ class RouteListCommand extends Command
      */
     protected function getRoutes()
     {
-        $routes = (new Collection($this->router->getRoutes()))->map(function ($route) {
-            return $this->getRouteInformation($route);
-        })->filter()->all();
+        $routes = (new Collection($this->router->getRoutes()))
+            ->map(fn ($route) => $this->getRouteInformation($route))
+            ->filter()
+            ->all();
 
         if (($sort = $this->option('sort')) !== null) {
             $routes = $this->sortRoutes($sort, $routes);
@@ -142,10 +142,11 @@ class RouteListCommand extends Command
         return $this->filterRoute([
             'domain' => $route->domain(),
             'method' => implode('|', $route->methods()),
-            'uri' => $route->uri(),
+            'uri' => $this->resolveUri($route),
             'name' => $route->getName(),
             'action' => ltrim($route->getActionName(), '\\'),
             'middleware' => $this->getMiddleware($route),
+            'path' => $this->getClosurePath($route),
             'vendor' => $this->isVendorRoute($route),
         ]);
     }
@@ -201,6 +202,23 @@ class RouteListCommand extends Command
     }
 
     /**
+     * Get the URI for the given route, including any binding fields.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @return string
+     */
+    protected function resolveUri(Route $route)
+    {
+        $uri = $route->uri();
+
+        foreach ($route->bindingFields() as $parameter => $field) {
+            $uri = str_replace("{{$parameter}}", "{{$parameter}:{$field}}", $uri);
+        }
+
+        return $uri;
+    }
+
+    /**
      * Get the middleware for the route.
      *
      * @param  \Illuminate\Routing\Route  $route
@@ -208,9 +226,30 @@ class RouteListCommand extends Command
      */
     protected function getMiddleware($route)
     {
-        return (new Collection($this->router->gatherRouteMiddleware($route)))->map(function ($middleware) {
-            return $middleware instanceof Closure ? 'Closure' : $middleware;
-        })->implode("\n");
+        return (new Collection($this->router->gatherRouteMiddleware($route)))
+            ->map(fn ($middleware) => $middleware instanceof Closure ? 'Closure' : $middleware)
+            ->implode("\n");
+    }
+
+    /**
+     * Get the file path and line number for a closure-based route.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @return string|null
+     *
+     * @throws \ReflectionException
+     */
+    protected function getClosurePath(Route $route)
+    {
+        if (! $route->action['uses'] instanceof Closure) {
+            return null;
+        }
+
+        $reflection = new ReflectionFunction($route->action['uses']);
+
+        return str_replace(
+            '\\', '/', ltrim(Str::after($reflection->getFileName(), base_path()), DIRECTORY_SEPARATOR)
+        ).':'.$reflection->getStartLine();
     }
 
     /**
@@ -268,6 +307,7 @@ class RouteListCommand extends Command
             ($this->option('path') && ! Str::contains($route['uri'], $this->option('path'))) ||
             ($this->option('method') && ! Str::contains($route['method'], strtoupper($this->option('method')))) ||
             ($this->option('domain') && ! Str::contains((string) $route['domain'], $this->option('domain'))) ||
+            ($this->option('middleware') && ! Str::contains($route['middleware'], $this->option('middleware'))) ||
             ($this->option('except-vendor') && $route['vendor']) ||
             ($this->option('only-vendor') && ! $route['vendor'])) {
             return;
@@ -301,7 +341,7 @@ class RouteListCommand extends Command
      */
     protected function getColumns()
     {
-        return array_map('strtolower', $this->headers);
+        return array_map(strtolower(...), $this->headers);
     }
 
     /**
@@ -322,7 +362,7 @@ class RouteListCommand extends Command
             }
         }
 
-        return array_map('strtolower', $results);
+        return array_map(strtolower(...), $results);
     }
 
     /**
@@ -361,7 +401,7 @@ class RouteListCommand extends Command
 
         $maxMethod = mb_strlen($routes->max('method'));
 
-        $terminalWidth = $this->getTerminalWidth();
+        $terminalWidth = self::getTerminalWidth();
 
         $routeCount = $this->determineRouteCountOutput($routes, $terminalWidth);
 
@@ -416,14 +456,20 @@ class RouteListCommand extends Command
      * Get the formatted action for display on the CLI.
      *
      * @param  array  $route
-     * @return string
+     * @return string|null
      */
     protected function formatActionForCli($route)
     {
         ['action' => $action, 'name' => $name] = $route;
 
         if ($action === 'Closure' || $action === ViewController::class) {
-            return $name;
+            $path = $route['path'] ?? null;
+
+            if ($name && $path) {
+                return $name.'   '.$path;
+            }
+
+            return $name ?? $path;
         }
 
         $name = $name ? "$name   " : null;
@@ -500,6 +546,7 @@ class RouteListCommand extends Command
             ['action', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by action'],
             ['name', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by name'],
             ['domain', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by domain'],
+            ['middleware', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by middleware'],
             ['path', null, InputOption::VALUE_OPTIONAL, 'Only show routes matching the given path pattern'],
             ['except-path', null, InputOption::VALUE_OPTIONAL, 'Do not display the routes matching the given path pattern'],
             ['reverse', 'r', InputOption::VALUE_NONE, 'Reverse the ordering of the routes'],

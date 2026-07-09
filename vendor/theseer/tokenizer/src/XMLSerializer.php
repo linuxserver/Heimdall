@@ -2,16 +2,18 @@
 namespace TheSeer\Tokenizer;
 
 use DOMDocument;
+use XMLWriter;
+use function count;
+use const ENT_DISALLOWED;
+use const ENT_NOQUOTES;
+use const ENT_XML1;
 
 class XMLSerializer {
-
     /** @var NamespaceUri */
     private $xmlns;
 
     /**
      * XMLSerializer constructor.
-     *
-     * @param NamespaceUri $xmlns
      */
     public function __construct(?NamespaceUri $xmlns = null) {
         if ($xmlns === null) {
@@ -29,23 +31,32 @@ class XMLSerializer {
     }
 
     public function toXML(TokenCollection $tokens): string {
-        $writer = new \XMLWriter();
+        $writer = new XMLWriter();
         $writer->openMemory();
         $writer->setIndent(true);
+
         $writer->startDocument();
+        $this->appendToWriter($writer, $tokens);
+        $writer->endDocument();
+
+        return $writer->outputMemory();
+    }
+
+    public function appendToWriter(XMLWriter $writer, TokenCollection $tokens): void {
         $writer->startElement('source');
         $writer->writeAttribute('xmlns', $this->xmlns->asString());
 
-        if (\count($tokens) > 0) {
+        if (count($tokens) > 0) {
             $writer->startElement('line');
             $writer->writeAttribute('no', '1');
 
-            $iterator = $tokens->getIterator();
+            $iterator      = $tokens->getIterator();
             $previousToken = $iterator->current();
-            $previousLine = $previousToken->getLine();
+            $previousLine  = $previousToken->getLine();
 
             foreach ($iterator as $token) {
                 $line = $token->getLine();
+
                 if ($previousLine < $line) {
                     $writer->endElement();
 
@@ -55,10 +66,11 @@ class XMLSerializer {
                 }
 
                 $value = $token->getValue();
+
                 if ($value !== '') {
                     $writer->startElement('token');
                     $writer->writeAttribute('name', $token->getName());
-                    $writer->writeRaw(\htmlspecialchars($value, \ENT_NOQUOTES | \ENT_DISALLOWED | \ENT_XML1));
+                    $writer->writeRaw(htmlspecialchars($value, ENT_NOQUOTES | ENT_DISALLOWED | ENT_XML1));
                     $writer->endElement();
                 }
             }
@@ -67,8 +79,5 @@ class XMLSerializer {
         }
 
         $writer->endElement();
-        $writer->endDocument();
-
-        return $writer->outputMemory();
     }
 }

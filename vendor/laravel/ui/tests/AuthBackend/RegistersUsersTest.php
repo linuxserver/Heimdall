@@ -7,13 +7,10 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Pipeline;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Testing\TestResponse;
-use Illuminate\Validation\ValidationException;
 use Orchestra\Testbench\Attributes\WithMigration;
-use Orchestra\Testbench\Factories\UserFactory;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 

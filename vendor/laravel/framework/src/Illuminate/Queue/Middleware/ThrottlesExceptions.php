@@ -2,6 +2,7 @@
 
 namespace Illuminate\Queue\Middleware;
 
+use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Container\Container;
 use Throwable;
@@ -39,7 +40,7 @@ class ThrottlesExceptions
     /**
      * The number of minutes to wait before retrying the job after an exception.
      *
-     * @var int
+     * @var int|(\Closure(\Throwable): int)
      */
     protected $retryAfterMinutes = 0;
 
@@ -56,6 +57,20 @@ class ThrottlesExceptions
      * @var callable
      */
     protected $whenCallback;
+
+    /**
+     * The callbacks that determine if the job should be deleted.
+     *
+     * @var callable[]
+     */
+    protected array $deleteWhenCallbacks = [];
+
+    /**
+     * The callbacks that determine if the job should be failed.
+     *
+     * @var callable[]
+     */
+    protected array $failWhenCallbacks = [];
 
     /**
      * The prefix of the rate limiter key.
@@ -76,7 +91,6 @@ class ThrottlesExceptions
      *
      * @param  int  $maxAttempts
      * @param  int  $decaySeconds
-     * @return void
      */
     public function __construct($maxAttempts = 10, $decaySeconds = 600)
     {
@@ -90,6 +104,8 @@ class ThrottlesExceptions
      * @param  mixed  $job
      * @param  callable  $next
      * @return mixed
+     *
+     * @throws \Throwable
      */
     public function handle($job, $next)
     {
@@ -104,17 +120,25 @@ class ThrottlesExceptions
 
             $this->limiter->clear($jobKey);
         } catch (Throwable $throwable) {
-            if ($this->whenCallback && ! call_user_func($this->whenCallback, $throwable)) {
+            if ($this->whenCallback && ! call_user_func($this->whenCallback, $throwable, $this->limiter)) {
                 throw $throwable;
             }
 
-            if ($this->reportCallback && call_user_func($this->reportCallback, $throwable)) {
+            if ($this->reportCallback && call_user_func($this->reportCallback, $throwable, $this->limiter)) {
                 report($throwable);
+            }
+
+            if ($this->shouldDelete($throwable)) {
+                return $job->delete();
+            }
+
+            if ($this->shouldFail($throwable)) {
+                return $job->fail($throwable);
             }
 
             $this->limiter->hit($jobKey, $this->decaySeconds);
 
-            return $job->release($this->retryAfterMinutes * 60);
+            return $job->release($this->getTimeUntilNextRetryAfterException($throwable));
         }
     }
 
@@ -129,6 +153,58 @@ class ThrottlesExceptions
         $this->whenCallback = $callback;
 
         return $this;
+    }
+
+    /**
+     * Add a callback that should determine if the job should be deleted.
+     *
+     * @param  callable|string  $callback
+     * @return $this
+     */
+    public function deleteWhen(callable|string $callback)
+    {
+        $this->deleteWhenCallbacks[] = is_string($callback)
+            ? fn (Throwable $e) => $e instanceof $callback
+            : $callback;
+
+        return $this;
+    }
+
+    /**
+     * Add a callback that should determine if the job should be failed.
+     *
+     * @param  callable|string  $callback
+     * @return $this
+     */
+    public function failWhen(callable|string $callback)
+    {
+        $this->failWhenCallbacks[] = is_string($callback)
+            ? fn (Throwable $e) => $e instanceof $callback
+            : $callback;
+
+        return $this;
+    }
+
+    /**
+     * Run the skip / delete callbacks to determine if the job should be deleted for the given exception.
+     *
+     * @param  \Throwable  $throwable
+     * @return bool
+     */
+    protected function shouldDelete(Throwable $throwable): bool
+    {
+        return array_any($this->deleteWhenCallbacks, fn ($callback) => call_user_func($callback, $throwable));
+    }
+
+    /**
+     * Run the skip / fail callbacks to determine if the job should be failed for the given exception.
+     *
+     * @param  \Throwable  $throwable
+     * @return bool
+     */
+    protected function shouldFail(Throwable $throwable): bool
+    {
+        return array_any($this->failWhenCallbacks, fn ($callback) => call_user_func($callback, $throwable));
     }
 
     /**
@@ -147,7 +223,7 @@ class ThrottlesExceptions
     /**
      * Specify the number of minutes a job should be delayed when it is released (before it has reached its max exceptions).
      *
-     * @param  int  $backoff
+     * @param  int|(\Closure(\Throwable): int)  $backoff
      * @return $this
      */
     public function backoff($backoff)
@@ -155,6 +231,21 @@ class ThrottlesExceptions
         $this->retryAfterMinutes = $backoff;
 
         return $this;
+    }
+
+    /**
+     * Get the number of seconds that should elapse before the job is retried after an exception.
+     *
+     * @param  \Throwable  $throwable
+     * @return int
+     */
+    protected function getTimeUntilNextRetryAfterException(Throwable $throwable)
+    {
+        $backoff = $this->retryAfterMinutes instanceof Closure
+            ? call_user_func($this->retryAfterMinutes, $throwable)
+            : $this->retryAfterMinutes;
+
+        return $backoff * 60;
     }
 
     /**
@@ -171,7 +262,11 @@ class ThrottlesExceptions
             return $this->prefix.$job->job->uuid();
         }
 
-        return $this->prefix.md5(get_class($job));
+        $jobName = method_exists($job, 'displayName')
+            ? $job->displayName()
+            : get_class($job);
+
+        return $this->prefix.hash('xxh128', $jobName);
     }
 
     /**

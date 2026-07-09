@@ -82,6 +82,7 @@ class ServeCommand extends Command
         'HERD_PHP_82_INI_SCAN_DIR',
         'HERD_PHP_83_INI_SCAN_DIR',
         'HERD_PHP_84_INI_SCAN_DIR',
+        'HERD_PHP_85_INI_SCAN_DIR',
         'IGNITION_LOCAL_SITES_PATH',
         'LARAVEL_SAIL',
         'PATH',
@@ -94,14 +95,22 @@ class ServeCommand extends Command
 
     /** {@inheritdoc} */
     #[\Override]
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->phpServerWorkers = transform((int) env('PHP_CLI_SERVER_WORKERS', 1), function (int $workers) {
             if ($workers < 2) {
                 return false;
             }
 
-            return $workers > 1 && ! $this->option('no-reload') ? false : $workers;
+            if ($workers > 1 &&
+                ! $this->option('no-reload') &&
+                ! (int) env('LARAVEL_SAIL', 0)) {
+                $this->components->warn('Unable to respect the `PHP_CLI_SERVER_WORKERS` environment variable without the `--no-reload` flag. Only creating a single server.');
+
+                return false;
+            }
+
+            return $workers;
         });
 
         parent::initialize($input, $output);
@@ -124,7 +133,7 @@ class ServeCommand extends Command
 
         $environmentLastModified = $hasEnvironment
             ? filemtime($environmentFile)
-            : now()->addDays(30)->getTimestamp();
+            : Carbon::now()->addDays(30)->getTimestamp();
 
         $process = $this->startProcess($hasEnvironment);
 
@@ -176,7 +185,7 @@ class ServeCommand extends Command
                 return [$key => $value];
             }
 
-            return in_array($key, static::$passthroughVariables) ? [$key => $value] : [$key => false];
+            return $this->shouldPassThroughEnvironmentVariable($key) ? [$key => $value] : [$key => false];
         })->merge(['PHP_CLI_SERVER_WORKERS' => $this->phpServerWorkers])->all());
 
         $this->trap(fn () => [SIGTERM, SIGINT, SIGHUP, SIGUSR1, SIGUSR2, SIGQUIT], function ($signal) use ($process) {
@@ -275,6 +284,21 @@ class ServeCommand extends Command
     }
 
     /**
+     * Determine if the environment variable should be passed to the PHP server process.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    protected function shouldPassThroughEnvironmentVariable($key)
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return in_array(strtoupper($key), array_map(strtoupper(...), static::$passthroughVariables), true);
+        }
+
+        return in_array($key, static::$passthroughVariables, true);
+    }
+
+    /**
      * Returns a "callable" to handle the process output.
      *
      * @return callable(string, string): void
@@ -335,7 +359,7 @@ class ServeCommand extends Command
                 } elseif ((new Stringable($line))->contains(' Closing')) {
                     $requestPort = static::getRequestPortFromLine($line);
 
-                    if (empty($this->requestsPool[$requestPort])) {
+                    if (empty($this->requestsPool[$requestPort]) || count($this->requestsPool[$requestPort] ?? []) !== 3) {
                         $this->requestsPool[$requestPort] = [
                             $this->getDateFromLine($line),
                             false,
@@ -399,6 +423,8 @@ class ServeCommand extends Command
      *
      * @param  string  $line
      * @return int
+     *
+     * @throws \InvalidArgumentException
      */
     public static function getRequestPortFromLine($line)
     {

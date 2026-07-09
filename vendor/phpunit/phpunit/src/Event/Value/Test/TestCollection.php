@@ -14,21 +14,21 @@ use Countable;
 use IteratorAggregate;
 
 /**
- * @template-implements IteratorAggregate<int, Test>
+ * @template-implements IteratorAggregate<non-negative-int, Test>
  *
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class TestCollection implements Countable, IteratorAggregate
+final readonly class TestCollection implements Countable, IteratorAggregate
 {
     /**
-     * @psalm-var list<Test>
+     * @var list<Test>
      */
-    private readonly array $tests;
+    private array $tests;
 
     /**
-     * @psalm-param list<Test> $tests
+     * @param list<Test> $tests
      */
     public static function fromArray(array $tests): self
     {
@@ -41,7 +41,7 @@ final class TestCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @psalm-return list<Test>
+     * @return list<Test>
      */
     public function asArray(): array
     {

@@ -219,6 +219,14 @@ class IgnitionConfig implements Arrayable
                     'label' => 'NetBeans',
                     'url' => 'netbeans://open/?f=%path:%line',
                 ],
+                'zed' => [
+                    'label' => 'Zed',
+                    'url' => 'zed://file/%path:%line',
+                ],
+                'windsurf' => [
+                    'label' => 'Windsurf',
+                    'url' => 'windsurf://file/%path:%line',
+                ],
                 'xdebug' => [
                     'label' => 'Xdebug',
                     'url' => 'xdebug://%path@%line',

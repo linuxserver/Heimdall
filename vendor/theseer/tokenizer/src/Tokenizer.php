@@ -1,8 +1,10 @@
 <?php declare(strict_types = 1);
 namespace TheSeer\Tokenizer;
 
-class Tokenizer {
+use PhpToken;
+use function preg_split;
 
+class Tokenizer {
     /**
      * Token Map for "non-tokens"
      *
@@ -30,7 +32,6 @@ class Tokenizer {
         ':' => 'T_COLON',
         '"' => 'T_DOUBLE_QUOTES',
         '@' => 'T_AT',
-        '&' => 'T_AMPERSAND',
         '%' => 'T_PERCENT',
         '|' => 'T_PIPE',
         '$' => 'T_DOLLAR',
@@ -46,20 +47,20 @@ class Tokenizer {
             return $result;
         }
 
-        $tokens = \token_get_all($source);
+        $tokens = PhpToken::tokenize($source);
 
         $lastToken = new Token(
-            $tokens[0][2],
+            $tokens[0]->line,
             'Placeholder',
             ''
         );
 
-        foreach ($tokens as $pos => $tok) {
-            if (\is_string($tok)) {
+        foreach ($tokens as $tok) {
+            if (isset(self::MAP[$tok->text])) {
                 $token = new Token(
                     $lastToken->getLine(),
-                    self::MAP[$tok],
-                    $tok
+                    self::MAP[$tok->text],
+                    $tok->text,
                 );
                 $result->addToken($token);
                 $lastToken = $token;
@@ -67,14 +68,14 @@ class Tokenizer {
                 continue;
             }
 
-            $line   = $tok[2];
-            $values = \preg_split('/\R+/Uu', $tok[1]);
+            $line   = $tok->line;
+            $values = preg_split('/\R+/Uu', $tok->text);
 
             if (!$values) {
                 $result->addToken(
                     new Token(
                         $line,
-                        \token_name($tok[0]),
+                        $tok->getTokenName(),
                         '{binary data}'
                     )
                 );
@@ -85,7 +86,7 @@ class Tokenizer {
             foreach ($values as $v) {
                 $token = new Token(
                     $line,
-                    \token_name($tok[0]),
+                    $tok->getTokenName(),
                     $v
                 );
                 $lastToken = $token;
@@ -109,12 +110,12 @@ class Tokenizer {
             ''
         );
 
-        $final = new TokenCollection();
+        $final    = new TokenCollection();
         $prevLine = $prev->getLine();
 
         foreach ($tokens as $token) {
             $line = $token->getLine();
-            $gap = $line - $prevLine;
+            $gap  = $line - $prevLine;
 
             while ($gap > 1) {
                 $linebreak = new Token(

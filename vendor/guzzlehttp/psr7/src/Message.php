@@ -19,7 +19,7 @@ final class Message
     {
         if ($message instanceof RequestInterface) {
             $msg = trim($message->getMethod().' '
-                    .$message->getRequestTarget())
+                    .$message->getRequestTarget(), " \n\r\t\0\x0B")
                 .' HTTP/'.$message->getProtocolVersion();
             if (!$message->hasHeader('host')) {
                 $msg .= "\r\nHost: ".$message->getUri()->getHost();
@@ -265,13 +265,24 @@ final class Message
         $host = self::getHostFromHeaders($headers);
 
         // If no host is found, then a full URI cannot be constructed.
+        // Collapse leading slashes so an origin-form target cannot be
+        // parsed as a network-path reference with its own authority.
         if ($host === null) {
-            return $path;
+            return self::normalizePathForOriginForm($path);
         }
 
         $scheme = substr($host, -4) === ':443' ? 'https' : 'http';
 
         return $scheme.'://'.$host.'/'.ltrim($path, '/');
+    }
+
+    private static function normalizePathForOriginForm(string $path): string
+    {
+        if (0 === strpos($path, '//')) {
+            return '/'.ltrim($path, '/');
+        }
+
+        return $path;
     }
 
     /**
@@ -349,7 +360,7 @@ final class Message
         // According to https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2
         // the space between status-code and reason-phrase is required. But
         // browsers accept responses without space and reason as well.
-        $responseStartLineMatch = preg_match('/^HTTP\/.* [0-9]{3}( .*|$)/', $data['start-line']);
+        $responseStartLineMatch = preg_match('/^HTTP\/.* [0-9]{3}( .*|$)/D', $data['start-line']);
 
         if ($responseStartLineMatch === false) {
             throw new \RuntimeException('Unable to parse response start line: '.preg_last_error_msg());

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -47,6 +47,8 @@ class AbstractClassPass extends CodeCleanerPass
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -71,5 +73,7 @@ class AbstractClassPass extends CodeCleanerPass
                 throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

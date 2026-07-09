@@ -34,17 +34,12 @@ class AuthenticatorFactory
      */
     public function make(string $method): AuthenticatorInterface
     {
-        switch ($method) {
-            case 'application':
-                return new Authenticator\ApplicationAuthenticator();
-            case 'jwt':
-                return new Authenticator\JwtAuthenticator();
-            case 'private':
-                return new Authenticator\PrivateKeyAuthenticator();
-            case 'token':
-                return new Authenticator\TokenAuthenticator();
-        }
-
-        throw new InvalidArgumentException("Unsupported authentication method [$method].");
+        return match ($method) {
+            'application' => new Authenticator\ApplicationAuthenticator(),
+            'jwt'         => new Authenticator\JwtAuthenticator(),
+            'private'     => new Authenticator\PrivateKeyAuthenticator(),
+            'token'       => new Authenticator\TokenAuthenticator(),
+            default       => throw new InvalidArgumentException("Unsupported authentication method [$method]."),
+        };
     }
 }

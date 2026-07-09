@@ -30,15 +30,12 @@ trait Test
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
      *   - When the string "now" is passed to the constructor or parse(), ex. new Carbon('now')
      *   - When a string containing the desired time is passed to Carbon::parse().
-     *
-     * Note the timezone parameter was left out of the examples above and
-     * has no affect as the mock value will be returned regardless of its value.
      *
      * Only the moment is mocked with setTestNow(), the timezone will still be the one passed
      * as parameter of date_default_timezone_get() as a fallback (see setTestNowAndTimezone()).
@@ -57,7 +54,7 @@ trait Test
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
@@ -169,7 +166,7 @@ trait Test
             : $testInstance->format(static::MOCK_DATETIME_FORMAT);
     }
 
-    private function getMockedTestNowClone($timezone): CarbonInterface|self|null
+    private static function getMockedTestNowClone($timezone): CarbonInterface|self|null
     {
         $mock = static::getMockedTestNow($timezone);
 

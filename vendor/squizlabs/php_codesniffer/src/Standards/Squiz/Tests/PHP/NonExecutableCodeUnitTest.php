@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Tests\PHP;
@@ -90,6 +90,8 @@ final class NonExecutableCodeUnitTest extends AbstractSniffUnitTest
                 406 => 1,
                 412 => 1,
                 419 => 1,
+                425 => 1,
+                431 => 1,
             ];
 
         case 'NonExecutableCodeUnitTest.2.inc':

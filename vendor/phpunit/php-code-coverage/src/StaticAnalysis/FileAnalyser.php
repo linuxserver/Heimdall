@@ -9,52 +9,45 @@
  */
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
+use function file_get_contents;
+
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @psalm-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @psalm-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @psalm-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- *
- * @psalm-type LinesOfCodeType = array{
- *     linesOfCode: int,
- *     commentLinesOfCode: int,
- *     nonCommentLinesOfCode: int
- * }
- * @psalm-type LinesType = array<int, int>
  */
-interface FileAnalyser
+final class FileAnalyser
 {
-    /**
-     * @psalm-return array<string, CodeUnitClassType>
-     */
-    public function classesIn(string $filename): array;
+    private readonly SourceAnalyser $sourceAnalyser;
+    private readonly bool $useAnnotationsForIgnoringCode;
+    private readonly bool $ignoreDeprecatedCode;
 
     /**
-     * @psalm-return array<string, CodeUnitTraitType>
+     * @var array<non-empty-string, AnalysisResult>
      */
-    public function traitsIn(string $filename): array;
+    private array $cache = [];
+
+    public function __construct(SourceAnalyser $sourceAnalyser, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
+    {
+        $this->sourceAnalyser                = $sourceAnalyser;
+        $this->useAnnotationsForIgnoringCode = $useAnnotationsForIgnoringCode;
+        $this->ignoreDeprecatedCode          = $ignoreDeprecatedCode;
+    }
 
     /**
-     * @psalm-return array<string, CodeUnitFunctionType>
+     * @param non-empty-string $sourceCodeFile
      */
-    public function functionsIn(string $filename): array;
+    public function analyse(string $sourceCodeFile): AnalysisResult
+    {
+        if (isset($this->cache[$sourceCodeFile])) {
+            return $this->cache[$sourceCodeFile];
+        }
 
-    /**
-     * @psalm-return LinesOfCodeType
-     */
-    public function linesOfCodeFor(string $filename): array;
+        $this->cache[$sourceCodeFile] = $this->sourceAnalyser->analyse(
+            $sourceCodeFile,
+            file_get_contents($sourceCodeFile),
+            $this->useAnnotationsForIgnoringCode,
+            $this->ignoreDeprecatedCode,
+        );
 
-    /**
-     * @psalm-return LinesType
-     */
-    public function executableLinesIn(string $filename): array;
-
-    /**
-     * @psalm-return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array;
+        return $this->cache[$sourceCodeFile];
+    }
 }

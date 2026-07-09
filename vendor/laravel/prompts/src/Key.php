@@ -96,6 +96,8 @@ class Key
      */
     const CTRL_U = "\x15";
 
+    const OPTION_BACKSPACE = "\e\177";
+
     /**
      * Checks for the constant values for the given match and returns the match
      *

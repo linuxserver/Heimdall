@@ -11,11 +11,14 @@ namespace PHPUnit\TestRunner\TestResult;
 
 use function array_merge;
 use function assert;
+use function explode;
 use function in_array;
 use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Framework\TestSize\Known;
 use PHPUnit\Framework\TestSize\TestSize;
 use PHPUnit\Metadata\Api\Groups;
+use ReflectionMethod;
+use ReflectionNamedType;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -27,12 +30,12 @@ final class PassedTests
     private static ?self $instance = null;
 
     /**
-     * @psalm-var list<class-string>
+     * @var list<class-string>
      */
     private array $passedTestClasses = [];
 
     /**
-     * @psalm-var array<string,array{returnValue: mixed, size: TestSize}>
+     * @var array<string,array{returnValue: mixed, size: TestSize}>
      */
     private array $passedTestMethods = [];
 
@@ -48,7 +51,7 @@ final class PassedTests
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public function testClassPassed(string $className): void
     {
@@ -82,7 +85,7 @@ final class PassedTests
     }
 
     /**
-     * @psalm-param class-string $className
+     * @param class-string $className
      */
     public function hasTestClassPassed(string $className): bool
     {
@@ -111,6 +114,13 @@ final class PassedTests
         assert($size instanceof Known);
 
         return $size->isGreaterThan($other);
+    }
+
+    public function hasReturnValue(string $method): bool
+    {
+        $returnType = (new ReflectionMethod(...explode('::', $method)))->getReturnType();
+
+        return !$returnType instanceof ReflectionNamedType || !in_array($returnType->getName(), ['never', 'void'], true);
     }
 
     public function returnValue(string $method): mixed

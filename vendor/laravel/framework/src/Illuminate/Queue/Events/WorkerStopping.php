@@ -5,29 +5,20 @@ namespace Illuminate\Queue\Events;
 class WorkerStopping
 {
     /**
-     * The worker exit status.
-     *
-     * @var int
-     */
-    public $status;
-
-    /**
-     * The worker options.
-     *
-     * @var \Illuminate\Queue\WorkerOptions|null
-     */
-    public $workerOptions;
-
-    /**
      * Create a new event instance.
      *
-     * @param  int  $status
-     * @param  \Illuminate\Queue\WorkerOptions|null  $workerOptions
-     * @return void
+     * @param  int  $status  The worker exit status.
+     * @param  \Illuminate\Queue\WorkerOptions|null  $workerOptions  The worker options.
+     * @param  \Illuminate\Queue\WorkerStopReason|null  $reason  The reason why the worker is stopping.
+     * @param  int|null  $jobsProcessed  The number of jobs processed by the worker.
+     * @param  int|float|null  $lastJobProcessedAt  The timestamp of the last job processed by the worker.
      */
-    public function __construct($status = 0, $workerOptions = null)
-    {
-        $this->status = $status;
-        $this->workerOptions = $workerOptions;
+    public function __construct(
+        public $status = 0,
+        public $workerOptions = null,
+        public $reason = null,
+        public $jobsProcessed = null,
+        public $lastJobProcessedAt = null,
+    ) {
     }
 }

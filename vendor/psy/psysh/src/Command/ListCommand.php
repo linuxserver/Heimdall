@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +22,6 @@ use Psy\Command\ListCommand\VariableEnumerator;
 use Psy\Exception\RuntimeException;
 use Psy\Input\CodeArgument;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
 use Psy\VarDumper\Presenter;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -51,7 +50,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 
@@ -118,26 +117,26 @@ HELP
     {
         $this->validateInput($input);
         $this->initEnumerators();
+        $shellOutput = $this->shellOutput($output);
 
         $method = $input->getOption('long') ? 'writeLong' : 'write';
 
         if ($target = $input->getArgument('target')) {
-            list($target, $reflector) = $this->getTargetAndReflector($target);
+            list($target, $reflector) = $this->getTargetAndReflector($target, $output);
         } else {
             $reflector = null;
         }
 
-        // @todo something cleaner than this :-/
-        if ($output instanceof ShellOutput && $input->getOption('long')) {
-            $output->startPaging();
+        if ($input->getOption('long')) {
+            $shellOutput->startPaging();
         }
 
         foreach ($this->enumerators as $enumerator) {
             $this->$method($output, $enumerator->enumerate($input, $reflector, $target));
         }
 
-        if ($output instanceof ShellOutput && $input->getOption('long')) {
-            $output->stopPaging();
+        if ($input->getOption('long')) {
+            $shellOutput->stopPaging();
         }
 
         // Set some magic local variables
@@ -181,9 +180,18 @@ HELP
             return;
         }
 
+        $formatter = $output->getFormatter();
+
         foreach ($result as $label => $items) {
-            $names = \array_map([$this, 'formatItemName'], $items);
-            $output->writeln(\sprintf('<strong>%s</strong>: %s', $label, \implode(', ', $names)));
+            // Pre-format each item individually to avoid O(n^2) performance
+            // in Symfony's OutputFormatter when processing large strings with many style tags.
+            $names = \array_map(fn ($item) => $formatter->format($this->formatItemName($item)), $items);
+
+            // Pre-format the label and join with pre-formatted names
+            $line = $formatter->format(\sprintf('<strong>%s</strong>: ', $label)).\implode(', ', $names);
+
+            // Write raw since we've already formatted everything
+            $output->writeln($line, OutputInterface::OUTPUT_RAW);
         }
     }
 
@@ -202,9 +210,12 @@ HELP
         }
 
         $table = $this->getTable($output);
+        $first = true;
 
         foreach ($result as $label => $items) {
-            $output->writeln('');
+            if (!$first) {
+                $output->writeln('');
+            }
             $output->writeln(\sprintf('<strong>%s:</strong>', $label));
 
             $table->setRows([]);
@@ -213,6 +224,7 @@ HELP
             }
 
             $table->render();
+            $first = false;
         }
     }
 

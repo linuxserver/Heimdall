@@ -37,7 +37,6 @@ class Attribute
      *
      * @param  callable|null  $get
      * @param  callable|null  $set
-     * @return void
      */
     public function __construct(?callable $get = null, ?callable $set = null)
     {
@@ -82,7 +81,7 @@ class Attribute
     /**
      * Disable object caching for the attribute.
      *
-     * @return static
+     * @return $this
      */
     public function withoutObjectCaching()
     {
@@ -94,7 +93,7 @@ class Attribute
     /**
      * Enable caching for the attribute.
      *
-     * @return static
+     * @return $this
      */
     public function shouldCache()
     {

@@ -14,6 +14,7 @@ namespace Symfony\Component\ErrorHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\ErrorHandler\Error\FatalError;
+use Symfony\Component\ErrorHandler\Error\MaxExecutionTimeError;
 use Symfony\Component\ErrorHandler\Error\OutOfMemoryError;
 use Symfony\Component\ErrorHandler\ErrorEnhancer\ClassNotFoundErrorEnhancer;
 use Symfony\Component\ErrorHandler\ErrorEnhancer\ErrorEnhancerInterface;
@@ -116,11 +117,12 @@ class ErrorHandler
             $handler = new static();
         }
 
-        if (null === $prev = set_error_handler([$handler, 'handleError'])) {
-            restore_error_handler();
+        if (null === $prev = get_error_handler()) {
             // Specifying the error types earlier would expose us to https://bugs.php.net/63206
             set_error_handler([$handler, 'handleError'], $handler->thrownErrors | $handler->loggedErrors);
             $handler->isRoot = true;
+        } else {
+            set_error_handler([$handler, 'handleError']);
         }
 
         if ($handlerIsNew && \is_array($prev) && $prev[0] instanceof self) {
@@ -155,6 +157,8 @@ class ErrorHandler
     /**
      * Calls a function and turns any PHP error into \ErrorException.
      *
+     * @param-immediately-invoked-callable $function
+     *
      * @throws \ErrorException When $function(...$arguments) triggers a PHP error
      */
     public static function call(callable $function, mixed ...$arguments): mixed
@@ -180,11 +184,6 @@ class ErrorHandler
         ?BufferingLogger $bootstrappingLogger = null,
         private bool $debug = false,
     ) {
-        if (\PHP_VERSION_ID < 80400) {
-            $this->levels[\E_STRICT] = 'Runtime Notice';
-            $this->loggers[\E_STRICT] = [null, LogLevel::ERROR];
-        }
-
         if ($bootstrappingLogger) {
             $this->bootstrappingLogger = $bootstrappingLogger;
             $this->setDefaultLogger($bootstrappingLogger);
@@ -362,9 +361,8 @@ class ErrorHandler
     private function reRegister(int $prev): void
     {
         if ($prev !== ($this->thrownErrors | $this->loggedErrors)) {
-            $handler = set_error_handler(static fn () => null);
+            $handler = get_error_handler();
             $handler = \is_array($handler) ? $handler[0] : null;
-            restore_error_handler();
             if ($handler === $this) {
                 restore_error_handler();
                 if ($this->isRoot) {
@@ -435,22 +433,6 @@ class ErrorHandler
                 return true;
             }
         } else {
-            if (\PHP_VERSION_ID < 80303 && str_contains($message, '@anonymous')) {
-                $backtrace = debug_backtrace(false, 5);
-
-                for ($i = 1; isset($backtrace[$i]); ++$i) {
-                    if (isset($backtrace[$i]['function'], $backtrace[$i]['args'][0])
-                        && ('trigger_error' === $backtrace[$i]['function'] || 'user_error' === $backtrace[$i]['function'])
-                    ) {
-                        if ($backtrace[$i]['args'][0] !== $message) {
-                            $message = $backtrace[$i]['args'][0];
-                        }
-
-                        break;
-                    }
-                }
-            }
-
             if (str_contains($message, "@anonymous\0")) {
                 $message = $this->parseAnonymousClass($message);
                 $logMessage = $this->levels[$type].': '.$message;
@@ -599,7 +581,7 @@ class ErrorHandler
         }
         if (!$handler) {
             if (null === $error && $exitCode = self::$exitCode) {
-                register_shutdown_function('register_shutdown_function', function () use ($exitCode) { exit($exitCode); });
+                register_shutdown_function('register_shutdown_function', static function () use ($exitCode) { exit($exitCode); });
             }
 
             return;
@@ -621,6 +603,8 @@ class ErrorHandler
 
             if (str_starts_with($error['message'], 'Allowed memory') || str_starts_with($error['message'], 'Out of memory')) {
                 $fatalError = new OutOfMemoryError($handler->levels[$error['type']].': '.$error['message'], 0, $error, 2, false, $trace);
+            } elseif (str_starts_with($error['message'], 'Maximum execution time of')) {
+                $fatalError = new MaxExecutionTimeError($handler->levels[$error['type']].': '.$error['message'], 0, $error, 2, false, $trace);
             } else {
                 $fatalError = new FatalError($handler->levels[$error['type']].': '.$error['message'], 0, $error, 2, true, $trace);
             }
@@ -638,7 +622,7 @@ class ErrorHandler
         }
 
         if ($exit && $exitCode = self::$exitCode) {
-            register_shutdown_function('register_shutdown_function', function () use ($exitCode) { exit($exitCode); });
+            register_shutdown_function('register_shutdown_function', static function () use ($exitCode) { exit($exitCode); });
         }
     }
 
@@ -652,22 +636,22 @@ class ErrorHandler
     {
         $renderer = \in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true) ? new CliErrorRenderer() : new HtmlErrorRenderer($this->debug);
 
-        $exception = $renderer->render($exception);
+        $flattenedException = $renderer->render($exception);
 
-        if (!headers_sent()) {
-            http_response_code($exception->getStatusCode());
+        if (!headers_sent() && !$exception instanceof OutOfMemoryError && !$exception instanceof MaxExecutionTimeError) {
+            http_response_code($flattenedException->getStatusCode());
 
-            foreach ($exception->getHeaders() as $name => $value) {
+            foreach ($flattenedException->getHeaders() as $name => $value) {
                 header($name.': '.$value, false);
             }
         }
 
-        echo $exception->getAsString();
+        echo $flattenedException->getAsString();
     }
 
     public function enhanceError(\Throwable $exception): \Throwable
     {
-        if ($exception instanceof OutOfMemoryError) {
+        if ($exception instanceof OutOfMemoryError || $exception instanceof MaxExecutionTimeError) {
             return $exception;
         }
 

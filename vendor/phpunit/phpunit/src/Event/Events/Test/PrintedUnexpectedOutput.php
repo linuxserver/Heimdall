@@ -15,21 +15,23 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class PrintedUnexpectedOutput implements Event
+final readonly class PrintedUnexpectedOutput implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
+    private Telemetry\Info $telemetryInfo;
 
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $output;
+    private string $output;
 
     /**
-     * @psalm-param non-empty-string $output
+     * @param non-empty-string $output
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $output)
     {
@@ -43,13 +45,16 @@ final class PrintedUnexpectedOutput implements Event
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function output(): string
     {
         return $this->output;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return sprintf(

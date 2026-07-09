@@ -13,14 +13,17 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class ExecutionFinished implements Event
+final readonly class ExecutionFinished implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
+    private Telemetry\Info $telemetryInfo;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -31,6 +34,9 @@ final class ExecutionFinished implements Event
         return $this->telemetryInfo;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         return 'Test Runner Execution Finished';

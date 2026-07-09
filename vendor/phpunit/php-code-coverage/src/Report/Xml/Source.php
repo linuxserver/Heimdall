@@ -9,33 +9,26 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use DOMElement;
 use TheSeer\Tokenizer\NamespaceUri;
 use TheSeer\Tokenizer\Tokenizer;
 use TheSeer\Tokenizer\XMLSerializer;
+use XMLWriter;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Source
+final readonly class Source
 {
-    private readonly DOMElement $context;
+    private XMLWriter $xmlWriter;
 
-    public function __construct(DOMElement $context)
+    public function __construct(XMLWriter $xmlWriter)
     {
-        $this->context = $context;
+        $this->xmlWriter = $xmlWriter;
     }
 
     public function setSourceCode(string $source): void
     {
-        $context = $this->context;
-
         $tokens = (new Tokenizer)->parse($source);
-        $srcDom = (new XMLSerializer(new NamespaceUri($context->namespaceURI)))->toDom($tokens);
-
-        $context->parentNode->replaceChild(
-            $context->ownerDocument->importNode($srcDom->documentElement, true),
-            $context,
-        );
+        (new XMLSerializer(new NamespaceUri(Facade::XML_NAMESPACE)))->appendToWriter($this->xmlWriter, $tokens);
     }
 }

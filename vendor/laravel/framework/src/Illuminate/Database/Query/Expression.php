@@ -6,7 +6,7 @@ use Illuminate\Contracts\Database\Query\Expression as ExpressionContract;
 use Illuminate\Database\Grammar;
 
 /**
- * @template TValue of string|int|float
+ * @template TValue of literal-string|int|float
  */
 class Expression implements ExpressionContract
 {
@@ -14,10 +14,9 @@ class Expression implements ExpressionContract
      * Create a new raw query expression.
      *
      * @param  TValue  $value
-     * @return void
      */
     public function __construct(
-        protected $value
+        protected $value,
     ) {
     }
 

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,15 +42,15 @@ class ListPass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if (!$node instanceof Assign) {
-            return;
+            return null;
         }
 
         if (!$node->var instanceof Array_ && !$node->var instanceof List_) {
-            return;
+            return null;
         }
 
         // Polyfill for PHP-Parser 2.x
-        $items = isset($node->var->items) ? $node->var->items : $node->var->vars;
+        $items = isset($node->var->items) ? $node->var->items : (\property_exists($node->var, 'vars') ? $node->var->vars : []);
 
         if ($items === [] || $items === [null]) {
             throw new ParseErrorException('Cannot use empty list', ['startLine' => $node->var->getStartLine(), 'endLine' => $node->var->getEndLine()]);
@@ -73,6 +73,8 @@ class ListPass extends CodeCleanerPass
         if (!$itemFound) {
             throw new ParseErrorException('Cannot use empty list');
         }
+
+        return null;
     }
 
     /**

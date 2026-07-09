@@ -3,8 +3,8 @@
  * Tests for the \PHP_CodeSniffer\Filters\GitModified class.
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
- * @copyright 2023 PHPCSStandards Contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @copyright 2023 PHPCSStandards and contributors
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Filters;
@@ -228,7 +228,7 @@ final class GitModifiedTest extends AbstractFilterTestCase
         $filter = new GitModified($fakeDI, '/', self::$config, self::$ruleset);
 
         $reflMethod = new ReflectionMethod($filter, 'exec');
-        $reflMethod->setAccessible(true);
+        (PHP_VERSION_ID < 80100) && $reflMethod->setAccessible(true);
         $result = $reflMethod->invoke($filter, $cmd);
 
         $this->assertSame($expected, $result);

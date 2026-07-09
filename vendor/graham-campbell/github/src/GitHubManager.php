@@ -52,6 +52,8 @@ use Illuminate\Support\Arr;
  * @method \Github\Api\Organization\Projects              orgProjects()
  * @method \Github\Api\Organization\Projects              organizationProject()
  * @method \Github\Api\Organization\Projects              organizationProjects()
+ * @method \Github\Api\Organization\Members               member()
+ * @method \Github\Api\Organization\Members               members()
  * @method \Github\Api\Organization\OutsideCollaborators  outsideCollaborators()
  * @method \Github\Api\PullRequest                        pr()
  * @method \Github\Api\PullRequest                        pullRequest()
@@ -83,12 +85,7 @@ use Illuminate\Support\Arr;
  */
 class GitHubManager extends AbstractManager
 {
-    /**
-     * The factory instance.
-     *
-     * @var \GrahamCampbell\GitHub\GitHubFactory
-     */
-    protected GitHubFactory $factory;
+    protected readonly GitHubFactory $factory;
 
     /**
      * Create a new github manager instance.

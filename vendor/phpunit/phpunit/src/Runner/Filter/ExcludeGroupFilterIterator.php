@@ -18,8 +18,12 @@ use function in_array;
  */
 final class ExcludeGroupFilterIterator extends GroupFilterIterator
 {
-    protected function doAccept(int $id): bool
+    /**
+     * @param non-empty-string       $id
+     * @param list<non-empty-string> $groupTests
+     */
+    protected function doAccept(string $id, array $groupTests): bool
     {
-        return !in_array($id, $this->groupTests, true);
+        return !in_array($id, $groupTests, true);
     }
 }

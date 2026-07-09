@@ -12,19 +12,19 @@ namespace PHPUnit\TextUI\Configuration;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class FilterDirectory
+final readonly class FilterDirectory
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $path;
-    private readonly string $prefix;
-    private readonly string $suffix;
+    private string $path;
+    private string $prefix;
+    private string $suffix;
 
     /**
-     * @psalm-param non-empty-string $path
+     * @param non-empty-string $path
      */
     public function __construct(string $path, string $prefix, string $suffix)
     {
@@ -34,7 +34,7 @@ final class FilterDirectory
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function path(): string
     {

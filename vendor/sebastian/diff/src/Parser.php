@@ -9,6 +9,7 @@
  */
 namespace SebastianBergmann\Diff;
 
+use const PREG_UNMATCHED_AS_NULL;
 use function array_pop;
 use function assert;
 use function count;
@@ -71,6 +72,9 @@ final class Parser
         return $diffs;
     }
 
+    /**
+     * @param string[] $lines
+     */
     private function parseFileDiff(Diff $diff, array $lines): void
     {
         $chunks    = [];

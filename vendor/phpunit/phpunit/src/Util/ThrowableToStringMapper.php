@@ -21,7 +21,7 @@ use Throwable;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ThrowableToStringMapper
+final readonly class ThrowableToStringMapper
 {
     public static function map(Throwable $t): string
     {
@@ -32,7 +32,7 @@ final class ThrowableToStringMapper
         if ($t instanceof SelfDescribing) {
             $buffer = $t->toString();
 
-            if ($t instanceof ExpectationFailedException && $t->getComparisonFailure()) {
+            if ($t instanceof ExpectationFailedException && $t->getComparisonFailure() !== null) {
                 $buffer .= $t->getComparisonFailure()->getDiff();
             }
 
@@ -40,7 +40,7 @@ final class ThrowableToStringMapper
                 $buffer .= $t->diff();
             }
 
-            if (!empty($buffer)) {
+            if ($buffer !== '') {
                 $buffer = trim($buffer) . "\n";
             }
 

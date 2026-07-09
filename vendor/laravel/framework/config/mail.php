@@ -46,7 +46,7 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
         'ses' => [
@@ -85,6 +85,7 @@ return [
                 'smtp',
                 'log',
             ],
+            'retry_after' => 60,
         ],
 
         'roundrobin' => [
@@ -93,6 +94,7 @@ return [
                 'ses',
                 'postmark',
             ],
+            'retry_after' => 60,
         ],
 
     ],
@@ -120,7 +122,7 @@ return [
     |
     | If you are using Markdown based email rendering, you may configure your
     | theme and component paths here, allowing you to customize the design
-    | of the emails. Or, you may simply stick with the Laravel defaults!
+    | of the emails. Or, you may simply stick with the Laravel defaults.
     |
     */
 
@@ -129,6 +131,10 @@ return [
 
         'paths' => [
             resource_path('views/vendor/mail'),
+        ],
+
+        'extensions' => [
+            // \League\CommonMark\Extension\Strikethrough\StrikethroughExtension::class,
         ],
     ],
 

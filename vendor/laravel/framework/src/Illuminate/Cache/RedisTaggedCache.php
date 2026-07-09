@@ -2,18 +2,29 @@
 
 namespace Illuminate\Cache;
 
+use Illuminate\Cache\Events\CacheFlushed;
+use Illuminate\Cache\Events\CacheFlushing;
+use Illuminate\Redis\Connections\PhpRedisClusterConnection;
+use Illuminate\Redis\Connections\PhpRedisConnection;
+use Illuminate\Redis\Connections\PredisClusterConnection;
+use Illuminate\Redis\Connections\PredisConnection;
+
+use function Illuminate\Support\enum_value;
+
 class RedisTaggedCache extends TaggedCache
 {
     /**
      * Store an item in the cache if the key does not exist.
      *
-     * @param  string  $key
+     * @param  \UnitEnum|string  $key
      * @param  mixed  $value
      * @param  \DateTimeInterface|\DateInterval|int|null  $ttl
      * @return bool
      */
     public function add($key, $value, $ttl = null)
     {
+        $key = enum_value($key);
+
         $seconds = null;
 
         if ($ttl !== null) {
@@ -33,13 +44,15 @@ class RedisTaggedCache extends TaggedCache
     /**
      * Store an item in the cache.
      *
-     * @param  string  $key
+     * @param  \UnitEnum|string  $key
      * @param  mixed  $value
      * @param  \DateTimeInterface|\DateInterval|int|null  $ttl
      * @return bool
      */
     public function put($key, $value, $ttl = null)
     {
+        $key = enum_value($key);
+
         if (is_null($ttl)) {
             return $this->forever($key, $value);
         }
@@ -59,12 +72,14 @@ class RedisTaggedCache extends TaggedCache
     /**
      * Increment the value of an item in the cache.
      *
-     * @param  string  $key
+     * @param  \UnitEnum|string  $key
      * @param  mixed  $value
      * @return int|bool
      */
     public function increment($key, $value = 1)
     {
+        $key = enum_value($key);
+
         $this->tags->addEntry($this->itemKey($key), updateWhen: 'NX');
 
         return parent::increment($key, $value);
@@ -73,7 +88,7 @@ class RedisTaggedCache extends TaggedCache
     /**
      * Decrement the value of an item in the cache.
      *
-     * @param  string  $key
+     * @param  \UnitEnum|string  $key
      * @param  mixed  $value
      * @return int|bool
      */
@@ -87,12 +102,14 @@ class RedisTaggedCache extends TaggedCache
     /**
      * Store an item in the cache indefinitely.
      *
-     * @param  string  $key
+     * @param  \UnitEnum|string  $key
      * @param  mixed  $value
      * @return bool
      */
     public function forever($key, $value)
     {
+        $key = enum_value($key);
+
         $this->tags->addEntry($this->itemKey($key));
 
         return parent::forever($key, $value);
@@ -105,8 +122,72 @@ class RedisTaggedCache extends TaggedCache
      */
     public function flush()
     {
+        $connection = $this->store->connection();
+
+        if ($connection instanceof PredisClusterConnection ||
+            $connection instanceof PhpRedisClusterConnection) {
+            return $this->flushClusteredConnection();
+        }
+
+        $this->event(new CacheFlushing($this->getName()));
+
+        $redisPrefix = match (true) {
+            $connection instanceof PhpRedisConnection => $connection->client()->getOption(\Redis::OPT_PREFIX),
+            $connection instanceof PredisConnection => $connection->client()->getOptions()->prefix,
+        };
+
+        $cachePrefix = $redisPrefix.$this->store->getPrefix();
+
+        $cacheTags = [];
+
+        foreach ($this->tags->getNames() as $name) {
+            $cacheTags[] = $cachePrefix.$this->tags->tagId($name);
+        }
+
+        $script = <<<'LUA'
+            local prefix = table.remove(ARGV, 1)
+
+            for i, key in ipairs(KEYS) do
+                redis.call('DEL', key)
+
+                for j, arg in ipairs(ARGV) do
+                    local zkey = string.gsub(key, prefix, "")
+                    redis.call('ZREM', arg, zkey)
+                end
+            end
+        LUA;
+
+        $entries = $this->tags->entries()
+            ->map(fn (string $key) => $this->store->getPrefix().$key)
+            ->chunk(1000);
+
+        foreach ($entries as $keysToBeDeleted) {
+            $connection->eval(
+                $script,
+                count($keysToBeDeleted),
+                ...$keysToBeDeleted,
+                ...[str_replace('-', '%-', $cachePrefix), ...$cacheTags]
+            );
+        }
+
+        $this->event(new CacheFlushed($this->getName()));
+
+        return true;
+    }
+
+    /**
+     * Remove all items from the cache.
+     *
+     * @return bool
+     */
+    protected function flushClusteredConnection()
+    {
+        $this->event(new CacheFlushing($this->getName()));
+
         $this->flushValues();
         $this->tags->flush();
+
+        $this->event(new CacheFlushed($this->getName()));
 
         return true;
     }
@@ -122,8 +203,18 @@ class RedisTaggedCache extends TaggedCache
             ->map(fn (string $key) => $this->store->getPrefix().$key)
             ->chunk(1000);
 
+        $connection = $this->store->connection();
+
         foreach ($entries as $cacheKeys) {
-            $this->store->connection()->del(...$cacheKeys);
+            if ($connection instanceof PredisClusterConnection) {
+                $connection->pipeline(function ($connection) use ($cacheKeys) {
+                    foreach ($cacheKeys as $cacheKey) {
+                        $connection->del($cacheKey);
+                    }
+                });
+            } else {
+                $connection->del(...$cacheKeys);
+            }
         }
     }
 

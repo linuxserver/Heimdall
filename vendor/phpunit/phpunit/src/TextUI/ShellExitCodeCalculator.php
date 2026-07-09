@@ -17,16 +17,17 @@ use PHPUnit\TextUI\Configuration\Configuration;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class ShellExitCodeCalculator
+final readonly class ShellExitCodeCalculator
 {
-    private const SUCCESS_EXIT   = 0;
-    private const FAILURE_EXIT   = 1;
-    private const EXCEPTION_EXIT = 2;
+    private const int SUCCESS_EXIT   = 0;
+    private const int FAILURE_EXIT   = 1;
+    private const int EXCEPTION_EXIT = 2;
 
     public function calculate(Configuration $configuration, TestResult $result): int
     {
         $failOnDeprecation        = false;
         $failOnPhpunitDeprecation = false;
+        $failOnPhpunitNotice      = false;
         $failOnPhpunitWarning     = false;
         $failOnEmptyTestSuite     = false;
         $failOnIncomplete         = false;
@@ -38,6 +39,7 @@ final class ShellExitCodeCalculator
         if ($configuration->failOnAllIssues()) {
             $failOnDeprecation        = true;
             $failOnPhpunitDeprecation = true;
+            $failOnPhpunitNotice      = true;
             $failOnPhpunitWarning     = true;
             $failOnEmptyTestSuite     = true;
             $failOnIncomplete         = true;
@@ -61,6 +63,14 @@ final class ShellExitCodeCalculator
 
         if ($configuration->doNotFailOnPhpunitDeprecation()) {
             $failOnPhpunitDeprecation = false;
+        }
+
+        if ($configuration->failOnPhpunitNotice()) {
+            $failOnPhpunitNotice = true;
+        }
+
+        if ($configuration->doNotFailOnPhpunitNotice()) {
+            $failOnPhpunitNotice = false;
         }
 
         if ($configuration->failOnPhpunitWarning()) {
@@ -134,6 +144,10 @@ final class ShellExitCodeCalculator
         }
 
         if ($failOnPhpunitDeprecation && $result->hasPhpunitDeprecations()) {
+            $returnCode = self::FAILURE_EXIT;
+        }
+
+        if ($failOnPhpunitNotice && $result->hasPhpunitNotices()) {
             $returnCode = self::FAILURE_EXIT;
         }
 

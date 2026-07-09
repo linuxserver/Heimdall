@@ -196,7 +196,7 @@ class CssToInlineStyles
                 \assert($element instanceof \DOMElement);
                 $propertyStorage[$element] = $this->calculatePropertiesToBeApplied(
                     $rule->getProperties(),
-                    $propertyStorage->contains($element) ? $propertyStorage[$element] : array()
+                    $propertyStorage->offsetExists($element) ? $propertyStorage[$element] : array()
                 );
             }
         }

@@ -12,23 +12,23 @@ namespace SebastianBergmann\Complexity;
 use function str_contains;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
-final class Complexity
+final readonly class Complexity
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $name;
+    private string $name;
 
     /**
-     * @psalm-var positive-int
+     * @var positive-int
      */
     private int $cyclomaticComplexity;
 
     /**
-     * @psalm-param non-empty-string $name
-     * @psalm-param positive-int $cyclomaticComplexity
+     * @param non-empty-string $name
+     * @param positive-int     $cyclomaticComplexity
      */
     public function __construct(string $name, int $cyclomaticComplexity)
     {
@@ -37,7 +37,7 @@ final class Complexity
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function name(): string
     {
@@ -45,7 +45,7 @@ final class Complexity
     }
 
     /**
-     * @psalm-return positive-int
+     * @return positive-int
      */
     public function cyclomaticComplexity(): int
     {

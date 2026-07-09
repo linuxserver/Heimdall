@@ -92,4 +92,6 @@ enum Foo: string {
     case DEFAULT = 'default';
     /* testKeywordAsEnumCaseNameShouldBeString7 */
     case ARRAY = 'array';
+    /* testKeywordAsEnumCaseNameShouldBeString8 */
+    case EXIT = 'exit';
 }

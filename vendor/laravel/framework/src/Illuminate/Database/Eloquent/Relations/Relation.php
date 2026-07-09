@@ -88,7 +88,6 @@ abstract class Relation implements BuilderContract
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
      * @param  TDeclaringModel  $parent
-     * @return void
      */
     public function __construct(Builder $query, Model $parent)
     {
@@ -172,8 +171,8 @@ abstract class Relation implements BuilderContract
     public function getEager()
     {
         return $this->eagerKeysWereEmpty
-                    ? $this->query->getModel()->newCollection()
-                    : $this->get();
+            ? $this->related->newCollection()
+            : $this->get();
     }
 
     /**
@@ -187,7 +186,7 @@ abstract class Relation implements BuilderContract
      */
     public function sole($columns = ['*'])
     {
-        $result = $this->take(2)->get($columns);
+        $result = $this->limit(2)->get($columns);
 
         $count = $result->count();
 
@@ -261,7 +260,7 @@ abstract class Relation implements BuilderContract
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
      * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
-     * @param  array|mixed  $columns
+     * @param  mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
@@ -347,7 +346,7 @@ abstract class Relation implements BuilderContract
     }
 
     /**
-     * Get the fully qualified parent key name.
+     * Get the fully-qualified parent key name.
      *
      * @return string
      */
@@ -424,9 +423,9 @@ abstract class Relation implements BuilderContract
     protected function whereInMethod(Model $model, $key)
     {
         return $model->getKeyName() === last(explode('.', $key))
-                    && in_array($model->getKeyType(), ['int', 'integer'])
-                        ? 'whereIntegerInRaw'
-                        : 'whereIn';
+            && in_array($model->getKeyType(), ['int', 'integer'])
+                ? 'whereIntegerInRaw'
+                : 'whereIn';
     }
 
     /**
@@ -453,7 +452,7 @@ abstract class Relation implements BuilderContract
     /**
      * Define the morph map for polymorphic relations and require all morphed models to be explicitly mapped.
      *
-     * @param  array<string, class-string<\Illuminate\Database\Eloquent\Model>>  $map
+     * @param  array<array-key, class-string<\Illuminate\Database\Eloquent\Model>>  $map
      * @param  bool  $merge
      * @return array
      */
@@ -467,7 +466,7 @@ abstract class Relation implements BuilderContract
     /**
      * Set or get the morph map for polymorphic relations.
      *
-     * @param  array<string, class-string<\Illuminate\Database\Eloquent\Model>>|null  $map
+     * @param  array<array-key, class-string<\Illuminate\Database\Eloquent\Model>>|null  $map
      * @param  bool  $merge
      * @return array<string, class-string<\Illuminate\Database\Eloquent\Model>>
      */
@@ -477,7 +476,8 @@ abstract class Relation implements BuilderContract
 
         if (is_array($map)) {
             static::$morphMap = $merge && static::$morphMap
-                            ? $map + static::$morphMap : $map;
+                ? $map + static::$morphMap
+                : $map;
         }
 
         return static::$morphMap;
@@ -486,7 +486,7 @@ abstract class Relation implements BuilderContract
     /**
      * Builds a table-keyed array from model class names.
      *
-     * @param  list<class-string<\Illuminate\Database\Eloquent\Model>>|null  $models
+     * @param  array<array-key, class-string<\Illuminate\Database\Eloquent\Model>>|null  $models
      * @return array<string, class-string<\Illuminate\Database\Eloquent\Model>>|null
      */
     protected static function buildMorphMapFromModels(?array $models = null)

@@ -65,8 +65,8 @@ but this repo is more modular and portable, because it has no dependencies.
 ## Requirements and Recommendations
 
 *   No extensions are required to run this library. Portable ASCII only needs PCRE library that is available by default since PHP 4.2.0 and cannot be disabled since PHP 5.3.0. "\u" modifier support in PCRE for ASCII handling is not a must.
-*   PHP 7.0 is the minimum requirement
-*   PHP 8.0 is also supported
+*   PHP 7.1 is the minimum requirement
+*   up to PHP 8.5 is also supported
 
 ## Usage
 
@@ -188,7 +188,7 @@ array</p>`
 
 #### clean(string $str, bool $normalize_whitespace, bool $keep_non_breaking_space, bool $normalize_msword, bool $remove_invisible_characters): string
 <a href="#voku-php-readme-class-methods">↑</a>
-Accepts a string and removes all non-UTF-8 characters from it + extras if needed.
+Accepts a string and removes malformed UTF-8 from it + extras if needed.
 
 **Parameters:**
 - `string $str <p>The string to be sanitized.</p>`
@@ -204,7 +204,7 @@ e.g.: "…"
 characters e.g.: "\0"</p>`
 
 **Return:**
-- `string <p>A clean UTF-8 string.</p>`
+- `string <p>A clean UTF-8 string with malformed byte sequences removed.</p>`
 
 --------
 
@@ -405,8 +405,8 @@ ASCII::to_transliterate('déjà σσς iıii'); // 'deja sss iiii'
 
 **Parameters:**
 - `string $str <p>The input string.</p>`
-- `string|null $unknown [optional] <p>Character use if character unknown. (default is '?')
-But you can also use NULL to keep the unknown chars.</p>`
+- `string|null $unknown [optional] <p>Character used for valid characters without a transliteration mapping. (default is '?')
+But you can also use NULL to keep those unknown chars. Malformed UTF-8 is discarded during cleaning.</p>`
 - `bool $strict [optional] <p>Use "transliterator_transliterate()" from PHP-Intl`
 
 **Return:**

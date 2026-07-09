@@ -131,3 +131,16 @@ class AsymVisibility {
      */
     private(set) int $prop = 1;
 }
+
+/**
+  *  Some info about the class here.
+    */
+abstract class AbstractClassWithAbstractProp
+{
+    /**
+   *Some info about the property here.
+    *
+     *  @var int
+      */
+    abstract $property {get;}
+}

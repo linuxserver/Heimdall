@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\PEAR\Sniffs\Functions;
@@ -54,11 +54,14 @@ class ValidDefaultValueSniff implements Sniff
             }
 
             if (array_key_exists('default', $param) === true) {
-                $defaultFound = true;
+                $defaultFound   = true;
+                $defaultValueLc = strtolower($param['default']);
                 // Check if the arg is type hinted and using NULL for the default.
                 // This does not make the argument optional - it just allows NULL
                 // to be passed in.
-                if ($param['type_hint'] !== '' && strtolower($param['default']) === 'null') {
+                if ($param['type_hint'] !== ''
+                    && ($defaultValueLc === 'null' || $defaultValueLc === '\null')
+                ) {
                     $defaultFound = false;
                 }
 

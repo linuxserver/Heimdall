@@ -5,13 +5,17 @@ namespace Illuminate\Routing\Controllers;
 use Closure;
 use Illuminate\Support\Arr;
 
+/**
+ * @phpstan-type NextClosure \Closure(\Illuminate\Http\Request): \Symfony\Component\HttpFoundation\Response
+ */
 class Middleware
 {
     /**
      * Create a new controller middleware definition.
      *
-     * @param  \Closure|string|array  $middleware
-     * @return void
+     * @param  (\Closure(\Illuminate\Http\Request, NextClosure): \Symfony\Component\HttpFoundation\Response)|string|array  $middleware
+     * @param  array<string>|null  $only
+     * @param  array<string>|null  $except
      */
     public function __construct(public Closure|string|array $middleware, public ?array $only = null, public ?array $except = null)
     {

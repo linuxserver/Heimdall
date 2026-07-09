@@ -10,13 +10,14 @@
 namespace PHPUnit\TextUI\CliArguments;
 
 use const DIRECTORY_SEPARATOR;
-use function array_map;
+use function assert;
 use function basename;
 use function explode;
 use function getcwd;
 use function is_file;
 use function is_numeric;
 use function sprintf;
+use function strtolower;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\Util\Filesystem;
@@ -30,30 +31,34 @@ use SebastianBergmann\CliParser\Parser as CliParser;
  */
 final class Builder
 {
-    private const LONG_OPTIONS = [
+    /**
+     * @var non-empty-list<non-empty-string>
+     */
+    private const array LONG_OPTIONS = [
+        'all',
         'atleast-version=',
         'bootstrap=',
         'cache-result',
         'do-not-cache-result',
         'cache-directory=',
-        'cache-result-file=',
         'check-version',
         'check-php-configuration',
         'colors==',
         'columns=',
         'configuration=',
-        'coverage-cache=',
         'warm-coverage-cache',
         'coverage-filter=',
         'coverage-clover=',
         'coverage-cobertura=',
         'coverage-crap4j=',
         'coverage-html=',
+        'coverage-openclover=',
         'coverage-php=',
         'coverage-text==',
         'only-summary-for-coverage-text',
         'show-uncovered-for-coverage-text',
         'coverage-xml=',
+        'exclude-source-from-xml-coverage',
         'path-coverage',
         'disallow-test-output',
         'display-all-issues',
@@ -61,6 +66,7 @@ final class Builder
         'display-skipped',
         'display-deprecations',
         'display-phpunit-deprecations',
+        'display-phpunit-notices',
         'display-errors',
         'display-notices',
         'display-warnings',
@@ -68,6 +74,7 @@ final class Builder
         'enforce-time-limit',
         'exclude-group=',
         'filter=',
+        'exclude-filter=',
         'generate-baseline=',
         'use-baseline=',
         'ignore-baseline',
@@ -76,15 +83,19 @@ final class Builder
         'group=',
         'covers=',
         'uses=',
+        'requires-php-extension=',
         'help',
         'resolve-dependencies',
         'ignore-dependencies',
         'include-path=',
         'list-groups',
         'list-suites',
+        'list-test-files',
         'list-tests',
         'list-tests-xml=',
         'log-junit=',
+        'log-otr=',
+        'include-git-information',
         'log-teamcity=',
         'migrate-configuration',
         'no-configuration',
@@ -107,6 +118,7 @@ final class Builder
         'fail-on-all-issues',
         'fail-on-deprecation',
         'fail-on-phpunit-deprecation',
+        'fail-on-phpunit-notice',
         'fail-on-phpunit-warning',
         'fail-on-empty-test-suite',
         'fail-on-incomplete',
@@ -116,6 +128,7 @@ final class Builder
         'fail-on-warning',
         'do-not-fail-on-deprecation',
         'do-not-fail-on-phpunit-deprecation',
+        'do-not-fail-on-phpunit-notice',
         'do-not-fail-on-phpunit-warning',
         'do-not-fail-on-empty-test-suite',
         'do-not-fail-on-incomplete',
@@ -124,7 +137,7 @@ final class Builder
         'do-not-fail-on-skipped',
         'do-not-fail-on-warning',
         'stop-on-defect',
-        'stop-on-deprecation',
+        'stop-on-deprecation==',
         'stop-on-error',
         'stop-on-failure',
         'stop-on-incomplete',
@@ -137,6 +150,7 @@ final class Builder
         'strict-global-state',
         'teamcity',
         'testdox',
+        'testdox-summary',
         'testdox-html=',
         'testdox-text=',
         'test-suffix=',
@@ -146,15 +160,20 @@ final class Builder
         'log-events-verbose-text=',
         'version',
         'debug',
+        'with-telemetry',
+        'extension=',
     ];
-    private const SHORT_OPTIONS = 'd:c:h';
+
+    private const string SHORT_OPTIONS = 'd:c:h';
 
     /**
-     * @psalm-var array<string, non-negative-int>
+     * @var array<string, non-negative-int>
      */
     private array $processed = [];
 
     /**
+     * @param list<string> $parameters
+     *
      * @throws Exception
      */
     public function fromParameters(array $parameters): Configuration
@@ -173,6 +192,7 @@ final class Builder
             );
         }
 
+        $all                               = null;
         $atLeastVersion                    = null;
         $backupGlobals                     = null;
         $backupStaticProperties            = null;
@@ -180,24 +200,24 @@ final class Builder
         $bootstrap                         = null;
         $cacheDirectory                    = null;
         $cacheResult                       = null;
-        $cacheResultFile                   = null;
         $checkPhpConfiguration             = false;
         $checkVersion                      = false;
         $colors                            = null;
         $columns                           = null;
         $configuration                     = null;
-        $coverageCacheDirectory            = null;
         $warmCoverageCache                 = false;
         $coverageFilter                    = null;
         $coverageClover                    = null;
         $coverageCobertura                 = null;
         $coverageCrap4J                    = null;
         $coverageHtml                      = null;
+        $coverageOpenClover                = null;
         $coveragePhp                       = null;
         $coverageText                      = null;
         $coverageTextShowUncoveredFiles    = null;
         $coverageTextShowOnlySummary       = null;
         $coverageXml                       = null;
+        $excludeSourceFromXmlCoverage      = null;
         $pathCoverage                      = null;
         $defaultTimeLimit                  = null;
         $disableCodeCoverageIgnore         = null;
@@ -207,6 +227,7 @@ final class Builder
         $displaySkipped                    = null;
         $displayDeprecations               = null;
         $displayPhpunitDeprecations        = null;
+        $displayPhpunitNotices             = null;
         $displayErrors                     = null;
         $displayNotices                    = null;
         $displayWarnings                   = null;
@@ -217,6 +238,7 @@ final class Builder
         $failOnAllIssues                   = null;
         $failOnDeprecation                 = null;
         $failOnPhpunitDeprecation          = null;
+        $failOnPhpunitNotice               = null;
         $failOnPhpunitWarning              = null;
         $failOnEmptyTestSuite              = null;
         $failOnIncomplete                  = null;
@@ -226,6 +248,7 @@ final class Builder
         $failOnWarning                     = null;
         $doNotFailOnDeprecation            = null;
         $doNotFailOnPhpunitDeprecation     = null;
+        $doNotFailOnPhpunitNotice          = null;
         $doNotFailOnPhpunitWarning         = null;
         $doNotFailOnEmptyTestSuite         = null;
         $doNotFailOnIncomplete             = null;
@@ -235,6 +258,7 @@ final class Builder
         $doNotFailOnWarning                = null;
         $stopOnDefect                      = null;
         $stopOnDeprecation                 = null;
+        $specificDeprecationToStopOn       = null;
         $stopOnError                       = null;
         $stopOnFailure                     = null;
         $stopOnIncomplete                  = null;
@@ -243,6 +267,7 @@ final class Builder
         $stopOnSkipped                     = null;
         $stopOnWarning                     = null;
         $filter                            = null;
+        $excludeFilter                     = null;
         $generateBaseline                  = null;
         $useBaseline                       = null;
         $ignoreBaseline                    = false;
@@ -251,12 +276,16 @@ final class Builder
         $groups                            = null;
         $testsCovering                     = null;
         $testsUsing                        = null;
+        $testsRequiringPhpExtension        = null;
         $help                              = false;
         $includePath                       = null;
         $iniSettings                       = [];
         $junitLogfile                      = null;
+        $otrLogfile                        = null;
+        $includeGitInformation             = null;
         $listGroups                        = false;
         $listSuites                        = false;
+        $listTestFiles                     = false;
         $listTests                         = false;
         $listTestsXml                      = null;
         $noCoverage                        = null;
@@ -284,14 +313,26 @@ final class Builder
         $logEventsVerboseText              = null;
         $printerTeamCity                   = null;
         $printerTestDox                    = null;
+        $printerTestDoxSummary             = null;
         $debug                             = false;
+        $withTelemetry                     = false;
+        $extensions                        = [];
 
         foreach ($options[0] as $option) {
             $optionAllowedMultipleTimes = false;
 
             switch ($option[0]) {
+                case '--all':
+                    $all = true;
+
+                    break;
+
                 case '--colors':
-                    $colors = $option[1] ?: \PHPUnit\TextUI\Configuration\Configuration::COLOR_AUTO;
+                    $colors = \PHPUnit\TextUI\Configuration\Configuration::COLOR_AUTO;
+
+                    if ($option[1] !== null) {
+                        $colors = $option[1];
+                    }
 
                     break;
 
@@ -315,11 +356,6 @@ final class Builder
 
                     break;
 
-                case '--cache-result-file':
-                    $cacheResultFile = $option[1];
-
-                    break;
-
                 case '--columns':
                     if (is_numeric($option[1])) {
                         $columns = (int) $option[1];
@@ -332,11 +368,6 @@ final class Builder
                 case 'c':
                 case '--configuration':
                     $configuration = $option[1];
-
-                    break;
-
-                case '--coverage-cache':
-                    $coverageCacheDirectory = $option[1];
 
                     break;
 
@@ -370,6 +401,11 @@ final class Builder
 
                     break;
 
+                case '--coverage-openclover':
+                    $coverageOpenClover = $option[1];
+
+                    break;
+
                 case '--coverage-text':
                     if ($option[1] === null) {
                         $option[1] = 'php://stdout';
@@ -394,6 +430,11 @@ final class Builder
 
                     break;
 
+                case '--exclude-source-from-xml-coverage':
+                    $excludeSourceFromXmlCoverage = true;
+
+                    break;
+
                 case '--path-coverage':
                     $pathCoverage = true;
 
@@ -403,7 +444,11 @@ final class Builder
                     $tmp = explode('=', $option[1]);
 
                     if (isset($tmp[0])) {
+                        assert($tmp[0] !== '');
+
                         if (isset($tmp[1])) {
+                            assert($tmp[1] !== '');
+
                             $iniSettings[$tmp[0]] = $tmp[1];
                         } else {
                             $iniSettings[$tmp[0]] = '1';
@@ -422,6 +467,11 @@ final class Builder
 
                 case '--filter':
                     $filter = $option[1];
+
+                    break;
+
+                case '--exclude-filter':
+                    $excludeFilter = $option[1];
 
                     break;
 
@@ -469,27 +519,68 @@ final class Builder
                     break;
 
                 case '--group':
-                    $groups = explode(',', $option[1]);
+                    if ($groups === null) {
+                        $groups = [];
+                    }
+
+                    $groups[] = $option[1];
+
+                    $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--exclude-group':
-                    $excludeGroups = explode(',', $option[1]);
+                    if ($excludeGroups === null) {
+                        $excludeGroups = [];
+                    }
+
+                    $excludeGroups[] = $option[1];
+
+                    $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--covers':
-                    $testsCovering = array_map('strtolower', explode(',', $option[1]));
+                    if ($testsCovering === null) {
+                        $testsCovering = [];
+                    }
+
+                    $testsCovering[] = strtolower($option[1]);
+
+                    $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--uses':
-                    $testsUsing = array_map('strtolower', explode(',', $option[1]));
+                    if ($testsUsing === null) {
+                        $testsUsing = [];
+                    }
+
+                    $testsUsing[] = strtolower($option[1]);
+
+                    $optionAllowedMultipleTimes = true;
+
+                    break;
+
+                case '--requires-php-extension':
+                    if ($testsRequiringPhpExtension === null) {
+                        $testsRequiringPhpExtension = [];
+                    }
+
+                    $testsRequiringPhpExtension[] = strtolower($option[1]);
+
+                    $optionAllowedMultipleTimes = true;
 
                     break;
 
                 case '--test-suffix':
-                    $testSuffixes = explode(',', $option[1]);
+                    if ($testSuffixes === null) {
+                        $testSuffixes = [];
+                    }
+
+                    $testSuffixes[] = $option[1];
+
+                    $optionAllowedMultipleTimes = true;
 
                     break;
 
@@ -508,6 +599,11 @@ final class Builder
 
                     break;
 
+                case '--list-test-files':
+                    $listTestFiles = true;
+
+                    break;
+
                 case '--list-tests':
                     $listTests = true;
 
@@ -520,6 +616,16 @@ final class Builder
 
                 case '--log-junit':
                     $junitLogfile = $option[1];
+
+                    break;
+
+                case '--log-otr':
+                    $otrLogfile = $option[1];
+
+                    break;
+
+                case '--include-git-information':
+                    $includeGitInformation = true;
 
                     break;
 
@@ -622,6 +728,17 @@ final class Builder
 
                     break;
 
+                case '--fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnPhpunitNotice,
+                        '--fail-on-phpunit-notice',
+                        '--do-not-fail-on-phpunit-notice',
+                    );
+
+                    $failOnPhpunitNotice = true;
+
+                    break;
+
                 case '--fail-on-phpunit-warning':
                     $this->warnWhenOptionsConflict(
                         $doNotFailOnPhpunitWarning,
@@ -721,6 +838,17 @@ final class Builder
 
                     break;
 
+                case '--do-not-fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $failOnPhpunitNotice,
+                        '--do-not-fail-on-phpunit-notice',
+                        '--fail-on-phpunit-notice',
+                    );
+
+                    $doNotFailOnPhpunitNotice = true;
+
+                    break;
+
                 case '--do-not-fail-on-phpunit-warning':
                     $this->warnWhenOptionsConflict(
                         $failOnPhpunitWarning,
@@ -806,6 +934,10 @@ final class Builder
                 case '--stop-on-deprecation':
                     $stopOnDeprecation = true;
 
+                    if ($option[1] !== null) {
+                        $specificDeprecationToStopOn = $option[1];
+                    }
+
                     break;
 
                 case '--stop-on-error':
@@ -850,6 +982,11 @@ final class Builder
 
                 case '--testdox':
                     $printerTestDox = true;
+
+                    break;
+
+                case '--testdox-summary':
+                    $printerTestDoxSummary = true;
 
                     break;
 
@@ -919,7 +1056,15 @@ final class Builder
                     break;
 
                 case '--do-not-report-useless-tests':
+                    $reportUselessTests = false;
+
+                    break;
+
                 case '--dont-report-useless-tests':
+                    EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
+                        'Option --dont-report-useless-tests is deprecated, use --do-not-report-useless-tests instead',
+                    );
+
                     $reportUselessTests = false;
 
                     break;
@@ -966,6 +1111,11 @@ final class Builder
 
                 case '--display-phpunit-deprecations':
                     $displayPhpunitDeprecations = true;
+
+                    break;
+
+                case '--display-phpunit-notices':
+                    $displayPhpunitNotices = true;
 
                     break;
 
@@ -1077,6 +1227,18 @@ final class Builder
                     $debug = true;
 
                     break;
+
+                case '--with-telemetry':
+                    $withTelemetry = true;
+
+                    break;
+
+                case '--extension':
+                    $extensions[] = $option[1];
+
+                    $optionAllowedMultipleTimes = true;
+
+                    break;
             }
 
             if (!$optionAllowedMultipleTimes) {
@@ -1084,16 +1246,23 @@ final class Builder
             }
         }
 
-        if (empty($iniSettings)) {
+        if ($iniSettings === []) {
             $iniSettings = null;
         }
 
-        if (empty($coverageFilter)) {
-            $coverageFilter = null;
+        if ($extensions === []) {
+            $extensions = null;
+        }
+
+        if ($randomOrderSeed !== null && $executionOrder !== TestSuiteSorter::ORDER_RANDOMIZED) {
+            EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+                '--random-order-seed is only used when execution order is "random" (use --order-by random or --random-order)',
+            );
         }
 
         return new Configuration(
             $options[1],
+            $all,
             $atLeastVersion,
             $backupGlobals,
             $backupStaticProperties,
@@ -1101,7 +1270,6 @@ final class Builder
             $bootstrap,
             $cacheDirectory,
             $cacheResult,
-            $cacheResultFile,
             $checkPhpConfiguration,
             $checkVersion,
             $colors,
@@ -1111,13 +1279,14 @@ final class Builder
             $coverageCobertura,
             $coverageCrap4J,
             $coverageHtml,
+            $coverageOpenClover,
             $coveragePhp,
             $coverageText,
             $coverageTextShowUncoveredFiles,
             $coverageTextShowOnlySummary,
             $coverageXml,
+            $excludeSourceFromXmlCoverage,
             $pathCoverage,
-            $coverageCacheDirectory,
             $warmCoverageCache,
             $defaultTimeLimit,
             $disableCodeCoverageIgnore,
@@ -1129,6 +1298,7 @@ final class Builder
             $failOnAllIssues,
             $failOnDeprecation,
             $failOnPhpunitDeprecation,
+            $failOnPhpunitNotice,
             $failOnPhpunitWarning,
             $failOnEmptyTestSuite,
             $failOnIncomplete,
@@ -1138,6 +1308,7 @@ final class Builder
             $failOnWarning,
             $doNotFailOnDeprecation,
             $doNotFailOnPhpunitDeprecation,
+            $doNotFailOnPhpunitNotice,
             $doNotFailOnPhpunitWarning,
             $doNotFailOnEmptyTestSuite,
             $doNotFailOnIncomplete,
@@ -1147,6 +1318,7 @@ final class Builder
             $doNotFailOnWarning,
             $stopOnDefect,
             $stopOnDeprecation,
+            $specificDeprecationToStopOn,
             $stopOnError,
             $stopOnFailure,
             $stopOnIncomplete,
@@ -1155,6 +1327,7 @@ final class Builder
             $stopOnSkipped,
             $stopOnWarning,
             $filter,
+            $excludeFilter,
             $generateBaseline,
             $useBaseline,
             $ignoreBaseline,
@@ -1163,12 +1336,16 @@ final class Builder
             $groups,
             $testsCovering,
             $testsUsing,
+            $testsRequiringPhpExtension,
             $help,
             $includePath,
             $iniSettings,
             $junitLogfile,
+            $otrLogfile,
+            $includeGitInformation,
             $listGroups,
             $listSuites,
+            $listTestFiles,
             $listTests,
             $listTestsXml,
             $noCoverage,
@@ -1196,6 +1373,7 @@ final class Builder
             $displaySkipped,
             $displayDeprecations,
             $displayPhpunitDeprecations,
+            $displayPhpunitNotices,
             $displayErrors,
             $displayNotices,
             $displayWarnings,
@@ -1205,12 +1383,15 @@ final class Builder
             $logEventsVerboseText,
             $printerTeamCity,
             $printerTestDox,
+            $printerTestDoxSummary,
             $debug,
+            $withTelemetry,
+            $extensions,
         );
     }
 
     /**
-     * @psalm-param non-empty-string $option
+     * @param non-empty-string $option
      */
     private function markProcessed(string $option): void
     {
@@ -1233,7 +1414,7 @@ final class Builder
     }
 
     /**
-     * @psalm-param non-empty-string $option
+     * @param non-empty-string $option
      */
     private function warnWhenOptionsConflict(?bool $current, string $option, string $opposite): void
     {

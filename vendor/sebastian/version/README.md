@@ -1,4 +1,4 @@
-[![Latest Stable Version](https://poser.pugx.org/sebastian/version/v/stable.png)](https://packagist.org/packages/sebastian/version)
+[![Latest Stable Version](https://poser.pugx.org/sebastian/version/v)](https://packagist.org/packages/sebastian/version)
 
 # sebastian/version
 

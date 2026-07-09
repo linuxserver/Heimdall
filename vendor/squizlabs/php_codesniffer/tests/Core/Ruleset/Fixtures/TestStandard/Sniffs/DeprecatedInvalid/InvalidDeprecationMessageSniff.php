@@ -12,7 +12,7 @@ use PHP_CodeSniffer\Sniffs\DeprecatedSniff;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use stdClass;
 
-class InvalidDeprecationMessageSniff implements Sniff,DeprecatedSniff
+class InvalidDeprecationMessageSniff implements Sniff, DeprecatedSniff
 {
 
     public function getDeprecationVersion()

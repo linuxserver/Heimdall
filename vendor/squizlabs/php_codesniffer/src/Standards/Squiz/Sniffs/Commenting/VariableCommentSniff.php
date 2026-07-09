@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting;
@@ -36,6 +36,7 @@ class VariableCommentSniff extends AbstractVariableSniff
             T_STATIC                 => T_STATIC,
             T_READONLY               => T_READONLY,
             T_FINAL                  => T_FINAL,
+            T_ABSTRACT               => T_ABSTRACT,
             T_WHITESPACE             => T_WHITESPACE,
             T_STRING                 => T_STRING,
             T_NS_SEPARATOR           => T_NS_SEPARATOR,
@@ -67,9 +68,8 @@ class VariableCommentSniff extends AbstractVariableSniff
             break;
         }
 
-        if ($commentEnd === false
-            || ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
-            && $tokens[$commentEnd]['code'] !== T_COMMENT)
+        if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
+            && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
             $phpcsFile->addError('Missing member variable doc comment', $stackPtr, 'Missing');
             return;
@@ -126,7 +126,7 @@ class VariableCommentSniff extends AbstractVariableSniff
             return;
         }
 
-         // Support both a var type and a description.
+        // Support both a var type and a description.
         preg_match('`^((?:\|?(?:array\([^\)]*\)|[\\\\a-z0-9\[\]]+))*)( .*)?`i', $tokens[($foundVar + 2)]['content'], $varParts);
         if (isset($varParts[1]) === false) {
             return;

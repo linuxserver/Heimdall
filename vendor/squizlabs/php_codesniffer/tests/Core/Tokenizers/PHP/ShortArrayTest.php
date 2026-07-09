@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2020 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Tests\Core\Tokenizers\PHP;
@@ -55,29 +55,33 @@ final class ShortArrayTest extends AbstractTokenizerTestCase
     public static function dataSquareBrackets()
     {
         return [
-            'array access 1'                                => ['/* testArrayAccess1 */'],
-            'array access 2'                                => ['/* testArrayAccess2 */'],
-            'array assignment'                              => ['/* testArrayAssignment */'],
-            'function call dereferencing'                   => ['/* testFunctionCallDereferencing */'],
-            'method call dereferencing'                     => ['/* testMethodCallDereferencing */'],
-            'static method call dereferencing'              => ['/* testStaticMethodCallDereferencing */'],
-            'property dereferencing'                        => ['/* testPropertyDereferencing */'],
-            'property dereferencing with inaccessable name' => ['/* testPropertyDereferencingWithInaccessibleName */'],
-            'static property dereferencing'                 => ['/* testStaticPropertyDereferencing */'],
-            'string dereferencing single quotes'            => ['/* testStringDereferencing */'],
-            'string dereferencing double quotes'            => ['/* testStringDereferencingDoubleQuoted */'],
-            'global constant dereferencing'                 => ['/* testConstantDereferencing */'],
-            'class constant dereferencing'                  => ['/* testClassConstantDereferencing */'],
-            'magic constant dereferencing'                  => ['/* testMagicConstantDereferencing */'],
-            'array access with curly braces'                => ['/* testArrayAccessCurlyBraces */'],
-            'array literal dereferencing'                   => ['/* testArrayLiteralDereferencing */'],
-            'short array literal dereferencing'             => ['/* testShortArrayLiteralDereferencing */'],
-            'class member dereferencing on instantiation 1' => ['/* testClassMemberDereferencingOnInstantiation1 */'],
-            'class member dereferencing on instantiation 2' => ['/* testClassMemberDereferencingOnInstantiation2 */'],
-            'class member dereferencing on clone'           => ['/* testClassMemberDereferencingOnClone */'],
-            'nullsafe method call dereferencing'            => ['/* testNullsafeMethodCallDereferencing */'],
-            'interpolated string dereferencing'             => ['/* testInterpolatedStringDereferencing */'],
-            'live coding'                                   => ['/* testLiveCoding */'],
+            'array access 1'                                 => ['/* testArrayAccess1 */'],
+            'array access 2'                                 => ['/* testArrayAccess2 */'],
+            'array assignment'                               => ['/* testArrayAssignment */'],
+            'function call dereferencing'                    => ['/* testFunctionCallDereferencing */'],
+            'method call dereferencing'                      => ['/* testMethodCallDereferencing */'],
+            'static method call dereferencing'               => ['/* testStaticMethodCallDereferencing */'],
+            'property dereferencing'                         => ['/* testPropertyDereferencing */'],
+            'property dereferencing with inaccessable name'  => ['/* testPropertyDereferencingWithInaccessibleName */'],
+            'static property dereferencing'                  => ['/* testStaticPropertyDereferencing */'],
+            'string dereferencing single quotes'             => ['/* testStringDereferencing */'],
+            'string dereferencing double quotes'             => ['/* testStringDereferencingDoubleQuoted */'],
+            'global constant dereferencing'                  => ['/* testConstantDereferencing */'],
+            'class constant dereferencing'                   => ['/* testClassConstantDereferencing */'],
+            'magic constant dereferencing'                   => ['/* testMagicConstantDereferencing */'],
+            'array access with curly braces'                 => ['/* testArrayAccessCurlyBraces */'],
+            'array literal dereferencing'                    => ['/* testArrayLiteralDereferencing */'],
+            'short array literal dereferencing'              => ['/* testShortArrayLiteralDereferencing */'],
+            'class member dereferencing on instantiation 1'  => ['/* testClassMemberDereferencingOnInstantiation1 */'],
+            'class member dereferencing on instantiation 2'  => ['/* testClassMemberDereferencingOnInstantiation2 */'],
+            'class member dereferencing on clone'            => ['/* testClassMemberDereferencingOnClone */'],
+            'nullsafe method call dereferencing'             => ['/* testNullsafeMethodCallDereferencing */'],
+            'interpolated string dereferencing'              => ['/* testInterpolatedStringDereferencing */'],
+            'new anonymous class expression dereferencing 1' => ['/* testNewAnonClassNoParenthesesExpressionDereferencing */'],
+            'new anonymous class expression dereferencing 2' => ['/* testNewAnonClassParenthesesExpressionDereferencing */'],
+            'new anonymous class expression dereferencing 3' => ['/* testNewAnonClassExtendsExpressionDereferencing */'],
+            'new anonymous class expression dereferencing 4' => ['/* testNewAnonClassImplementsExpressionDereferencing */'],
+            'live coding'                                    => ['/* testLiveCoding */'],
         ];
 
     }//end dataSquareBrackets()
@@ -133,6 +137,7 @@ final class ShortArrayTest extends AbstractTokenizerTestCase
             'short list after braced control structure'      => ['/* testShortListDeclarationAfterBracedControlStructure */'],
             'short list after non-braced control structure'  => ['/* testShortListDeclarationAfterNonBracedControlStructure */'],
             'short list after alternative control structure' => ['/* testShortListDeclarationAfterAlternativeControlStructure */'],
+            'short list after class declaration'             => ['/* testShortListDeclarationAfterClassDeclaration */'],
         ];
 
     }//end dataShortArrays()

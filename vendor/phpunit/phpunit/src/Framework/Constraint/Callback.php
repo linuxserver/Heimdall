@@ -13,19 +13,19 @@ use Closure;
 use ReflectionFunction;
 
 /**
- * @psalm-template CallbackInput of mixed
+ * @template CallbackInput of mixed
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 final class Callback extends Constraint
 {
     /**
-     * @psalm-var callable(CallbackInput $input): bool
+     * @var callable(CallbackInput): bool
      */
     private readonly mixed $callback;
 
     /**
-     * @psalm-param callable(CallbackInput $input): bool $callback
+     * @param callable(CallbackInput $input): bool $callback
      */
     public function __construct(callable $callback)
     {
@@ -40,27 +40,16 @@ final class Callback extends Constraint
         return 'is accepted by specified callback';
     }
 
-    /**
-     * @psalm-suppress ArgumentTypeCoercion
-     */
     public function isVariadic(): bool
     {
-        foreach ((new ReflectionFunction(Closure::fromCallable($this->callback)))->getParameters() as $parameter) {
-            if ($parameter->isVariadic()) {
-                return true;
-            }
-        }
-
-        return false;
+        return (new ReflectionFunction(Closure::fromCallable($this->callback)))->isVariadic();
     }
 
     /**
      * Evaluates the constraint for parameter $value. Returns true if the
      * constraint is met, false otherwise.
      *
-     * @psalm-param CallbackInput $other
-     *
-     * @psalm-suppress InvalidArgument
+     * @param CallbackInput $other
      */
     protected function matches(mixed $other): bool
     {

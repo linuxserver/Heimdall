@@ -15,7 +15,9 @@ use function str_starts_with;
 use PHPUnit\Framework\MockObject\Stub;
 
 /**
- * Compares PHPUnit\Framework\MockObject\MockObject instances for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
 final class MockObjectComparator extends ObjectComparator
 {
@@ -24,6 +26,9 @@ final class MockObjectComparator extends ObjectComparator
         return $expected instanceof Stub && $actual instanceof Stub;
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function toArray(object $object): array
     {
         assert($object instanceof Stub);

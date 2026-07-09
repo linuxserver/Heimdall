@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,7 +32,7 @@ class ShowCommand extends ReflectingCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('show')
@@ -102,8 +102,10 @@ HELP
 
     private function writeCodeContext(InputInterface $input, OutputInterface $output)
     {
+        $shellOutput = $this->shellOutput($output);
+
         try {
-            list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
+            list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'), $output);
         } catch (UnexpectedTargetException $e) {
             // If we didn't get a target and Reflector, maybe we got a filename?
             $target = $e->getTarget();
@@ -116,7 +118,7 @@ HELP
                     ]);
                 }
 
-                $output->page(CodeFormatter::formatCode($code));
+                $shellOutput->page(CodeFormatter::formatCode($code));
 
                 return;
             } else {
@@ -128,7 +130,7 @@ HELP
         $this->setCommandScopeVariables($reflector);
 
         try {
-            $output->page(CodeFormatter::format($reflector));
+            $shellOutput->page(CodeFormatter::format($reflector));
         } catch (RuntimeException $e) {
             $output->writeln(SignatureFormatter::format($reflector));
             throw $e;
@@ -167,9 +169,12 @@ HELP
         $this->lastException = $exception;
         $this->lastExceptionIndex = $index;
 
-        $output->writeln($this->getShell()->formatException($exception));
-        $output->writeln('--');
+        $shell = $this->getShell();
+
+        $shell->writeExceptionHeader($output, $exception);
+        $shell->writeSeparator($output);
         $this->writeTraceLine($output, $trace, $index);
+        $shell->writeSpacer($output);
         $this->writeTraceCodeSnippet($output, $trace, $index);
 
         $this->setCommandScopeVariablesFromContext($trace[$index]);

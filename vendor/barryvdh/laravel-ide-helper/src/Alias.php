@@ -22,6 +22,7 @@ use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Traits\Macroable;
 use ReflectionClass;
 use Throwable;
 
@@ -36,6 +37,7 @@ class Alias
     protected $classType = 'class';
     protected $short;
     protected $namespace = '__root';
+    protected $parentClass;
     protected $root = null;
     protected $classes = [];
     protected $methods = [];
@@ -45,8 +47,6 @@ class Alias
     protected $interfaces = [];
     protected $phpdoc = null;
     protected $classAliases = [];
-
-    protected $isMacroable = false;
 
     /** @var ConfigRepository  */
     protected $config;
@@ -62,13 +62,12 @@ class Alias
      * @param array            $magicMethods
      * @param array            $interfaces
      */
-    public function __construct($config, $alias, $facade, $magicMethods = [], $interfaces = [], $isMacroable = false)
+    public function __construct($config, $alias, $facade, $magicMethods = [], $interfaces = [])
     {
         $this->alias = $alias;
         $this->magicMethods = $magicMethods;
         $this->interfaces = $interfaces;
         $this->config = $config;
-        $this->isMacroable = $isMacroable;
 
         // Make the class absolute
         $facade = '\\' . ltrim($facade, '\\');
@@ -87,6 +86,7 @@ class Alias
         $this->detectNamespace();
         $this->detectClassType();
         $this->detectExtendsNamespace();
+        $this->detectParentClass();
 
         if (!empty($this->namespace)) {
             try {
@@ -101,7 +101,7 @@ class Alias
         }
 
         if ($facade === '\Illuminate\Database\Eloquent\Model') {
-            $this->usedMethods = ['decrement', 'increment'];
+            $this->usedMethods = ['decrement' => true, 'increment' => true];
         }
     }
 
@@ -172,6 +172,25 @@ class Alias
     }
 
     /**
+     * Get the parent class of the class which this alias extends
+     *
+     * @return null|string
+     */
+    public function getParentClass()
+    {
+        return $this->parentClass;
+    }
+
+    /**
+     * Check if this class should extend the parent class
+     */
+    public function shouldExtendParentClass()
+    {
+        return $this->parentClass
+            && !is_subclass_of($this->extends, Facade::class);
+    }
+
+    /**
      * Get the Alias by which this class is called
      *
      * @return string
@@ -229,11 +248,17 @@ class Alias
             return;
         }
 
+        $reflection = new \ReflectionMethod($facade, 'fake');
+        if ($reflection->getNumberOfRequiredParameters() > 0) {
+            return;
+        }
+
         $real = $facade::getFacadeRoot();
 
         try {
             $facade::fake();
             $fake = $facade::getFacadeRoot();
+
             if ($fake !== $real) {
                 $this->addClass(get_class($fake));
             }
@@ -269,6 +294,18 @@ class Alias
     }
 
     /**
+     * Detect the parent class
+     */
+    protected function detectParentClass()
+    {
+        $reflection = new ReflectionClass($this->root);
+
+        $parentClass = $reflection->getParentClass();
+
+        $this->parentClass = $parentClass ? '\\' . $parentClass->getName() : null;
+    }
+
+    /**
      * Detect the class type
      */
     protected function detectClassType()
@@ -288,9 +325,8 @@ class Alias
     /**
      * Get the real root of a facade
      *
-     * @return bool|string
      */
-    protected function detectRoot()
+    protected function detectRoot(): void
     {
         $facade = $this->facade;
 
@@ -345,11 +381,10 @@ class Alias
             $method = new \ReflectionMethod($className, $name);
             $class = new ReflectionClass($className);
 
-            if (!in_array($magic, $this->usedMethods)) {
+            if (!isset($this->usedMethods[$magic])) {
                 if ($class !== $this->root) {
                     $this->methods[] = new Method(
                         $method,
-                        $this->alias,
                         $class,
                         $magic,
                         $this->interfaces,
@@ -358,7 +393,7 @@ class Alias
                         $this->getTemplateNames()
                     );
                 }
-                $this->usedMethods[] = $magic;
+                $this->usedMethods[$magic] = true;
             }
         }
     }
@@ -366,7 +401,6 @@ class Alias
     /**
      * Get the methods for one or multiple classes.
      *
-     * @return string
      */
     protected function detectMethods()
     {
@@ -376,13 +410,12 @@ class Alias
             $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
             if ($methods) {
                 foreach ($methods as $method) {
-                    if (!in_array($method->name, $this->usedMethods)) {
+                    if (!isset($this->usedMethods[$method->name])) {
                         // Only add the methods to the output when the root is not the same as the class.
                         // And don't add the __*() methods
                         if ($this->extends !== $class && substr($method->name, 0, 2) !== '__') {
                             $this->methods[] = new Method(
                                 $method,
-                                $this->alias,
                                 $reflection,
                                 $method->name,
                                 $this->interfaces,
@@ -391,18 +424,18 @@ class Alias
                                 $this->getTemplateNames(),
                             );
                         }
-                        $this->usedMethods[] = $method->name;
+                        $this->usedMethods[$method->name] = true;
                     }
                 }
             }
 
             // Check if the class is macroable
             // (Eloquent\Builder is also macroable but doesn't use Macroable trait)
-            if ($this->isMacroable || $class === EloquentBuilder::class) {
+            if ($class === EloquentBuilder::class || in_array(Macroable::class, $reflection->getTraitNames())) {
                 $properties = $reflection->getStaticProperties();
                 $macros = isset($properties['macros']) ? $properties['macros'] : [];
                 foreach ($macros as $macro_name => $macro_func) {
-                    if (!in_array($macro_name, $this->usedMethods)) {
+                    if (!isset($this->usedMethods[$macro_name])) {
                         try {
                             $method = $this->getMacroFunction($macro_func);
                         } catch (Throwable $e) {
@@ -412,14 +445,13 @@ class Alias
                         // Add macros
                         $this->methods[] = new Macro(
                             $method,
-                            $this->alias,
                             $reflection,
                             $macro_name,
                             $this->interfaces,
                             $this->classAliases,
                             $this->getReturnTypeNormalizers($reflection)
                         );
-                        $this->usedMethods[] = $macro_name;
+                        $this->usedMethods[$macro_name] = true;
                     }
                 }
             }
@@ -557,12 +589,13 @@ class Alias
      */
     protected function removeDuplicateMethodsFromPhpDoc()
     {
-        $methodNames = array_map(function (Method $method) {
-            return $method->getName();
-        }, $this->getMethods());
+        $methodNames = [];
+        foreach ($this->getMethods() as $method) {
+            $methodNames[$method->getName()] = true;
+        }
 
         foreach ($this->phpdoc->getTags() as $tag) {
-            if ($tag instanceof MethodTag && in_array($tag->getMethodName(), $methodNames)) {
+            if ($tag instanceof MethodTag && isset($methodNames[$tag->getMethodName()])) {
                 $this->phpdoc->deleteTag($tag);
             }
         }

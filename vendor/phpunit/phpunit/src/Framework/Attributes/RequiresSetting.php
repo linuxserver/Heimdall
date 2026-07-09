@@ -12,26 +12,26 @@ namespace PHPUnit\Framework\Attributes;
 use Attribute;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-final class RequiresSetting
+final readonly class RequiresSetting
 {
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $setting;
+    private string $setting;
 
     /**
-     * @psalm-var non-empty-string
+     * @var non-empty-string
      */
-    private readonly string $value;
+    private string $value;
 
     /**
-     * @psalm-param non-empty-string $setting
-     * @psalm-param non-empty-string $value
+     * @param non-empty-string $setting
+     * @param non-empty-string $value
      */
     public function __construct(string $setting, string $value)
     {
@@ -40,7 +40,7 @@ final class RequiresSetting
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function setting(): string
     {
@@ -48,7 +48,7 @@ final class RequiresSetting
     }
 
     /**
-     * @psalm-return non-empty-string
+     * @return non-empty-string
      */
     public function value(): string
     {

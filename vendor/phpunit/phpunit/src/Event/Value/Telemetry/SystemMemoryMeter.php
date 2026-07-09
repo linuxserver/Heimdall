@@ -17,15 +17,15 @@ use function memory_get_usage;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SystemMemoryMeter implements MemoryMeter
+final readonly class SystemMemoryMeter implements MemoryMeter
 {
     public function memoryUsage(): MemoryUsage
     {
-        return MemoryUsage::fromBytes(memory_get_usage(true));
+        return MemoryUsage::fromBytes(memory_get_usage());
     }
 
     public function peakMemoryUsage(): MemoryUsage
     {
-        return MemoryUsage::fromBytes(memory_get_peak_usage(true));
+        return MemoryUsage::fromBytes(memory_get_peak_usage());
     }
 }

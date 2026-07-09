@@ -10,14 +10,11 @@
 namespace SebastianBergmann\CodeCoverage\Test\TestSize;
 
 /**
- * @psalm-immutable
+ * @immutable
  */
 final class Small extends Known
 {
-    /**
-     * @psalm-assert-if-true Small $this
-     */
-    public function isSmall(): bool
+    public function isSmall(): true
     {
         return true;
     }

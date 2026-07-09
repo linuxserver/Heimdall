@@ -1,14 +1,109 @@
+
+:root {
+    /* Implementing an auto-selection of dark/light theme via: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark */
+    color-scheme: light dark;
+
+    /* PHPUnit light/dark colors */
+    --phpunit-breadcrumbs: light-dark(var(--bs-gray-200), var(--bs-gray-800));
+    --phpunit-success-bar: light-dark(#28a745 ,#1f8135);
+    --phpunit-success-high: light-dark(#99cb84, #3d5c4e);
+    --phpunit-success-medium: light-dark(#c3e3b5,#3c6051);
+    --phpunit-success-low: light-dark(#dff0d8, #2d4431);
+    --phpunit-warning: light-dark(#fcf8e3, #3e3408);
+    --phpunit-warning-bar: light-dark(#ffc107 ,#c19406);
+    --phpunit-danger: light-dark(#f2dede, #42221e);
+    --phpunit-danger-bar: light-dark(#dc3545, #a62633);
+
+    /* Bootstrap v5.3 default colors (light, dark) */
+    --bs-body-bg-rgb: 255, 255, 255;
+    --bs-body-bg: light-dark(#fff, #212529);
+    --bs-body-color-rgb: light-dark(33, 37, 41, 222, 226, 230);
+    --bs-body-color: light-dark(#212529, #dee2e6);
+    --bs-border-color-translucent: light-dark(rgba(0, 0, 0, 0.175), rgba(255, 255, 255, 0.15));
+    --bs-border-color: light-dark(#dee2e6, #495057);
+    --bs-code-color: light-dark(#d63384, #e685b5);
+    --bs-danger-bg-subtle: light-dark(#f8d7da, #2c0b0e);
+    --bs-danger-border-subtle: light-dark(#f1aeb5, #842029);
+    --bs-danger-text-emphasis: light-dark(#58151c, #ea868f);
+    --bs-dark-bg-subtle: light-dark(#ced4da, #1a1d20);
+    --bs-dark-border-subtle: light-dark(#adb5bd, #343a40);
+    --bs-dark-text-emphasis: light-dark(#495057, #dee2e6);
+    --bs-emphasis-color-rgb: 0, 0, 0;
+    --bs-emphasis-color: light-dark(#000, #fff);
+    --bs-form-invalid-border-color: light-dark(#dc3545, #ea868f);
+    --bs-form-invalid-color: light-dark(#dc3545, #ea868f);
+    --bs-form-valid-border-color: light-dark(#198754, #75b798);
+    --bs-form-valid-color: light-dark(#198754, #75b798);
+    --bs-highlight-bg: light-dark(#fff3cd, #664d03);
+    --bs-highlight-color: light-dark(#212529, #dee2e6);
+    --bs-info-bg-subtle: light-dark(#cff4fc, #032830);
+    --bs-info-border-subtle: light-dark(#9eeaf9, #087990);
+    --bs-info-text-emphasis: light-dark(#055160, #6edff6);
+    --bs-light-bg-subtle: light-dark(#fcfcfd, #343a40);
+    --bs-light-border-subtle: light-dark(#e9ecef, #495057);
+    --bs-light-text-emphasis: light-dark(#495057, #f8f9fa);
+    --bs-link-color-rgb: 13, 110, 253;
+    --bs-link-color: light-dark(#0d6efd, #6ea8fe);
+    --bs-link-hover-color-rgb: 10, 88, 202;
+    --bs-link-hover-color: light-dark(#0a58ca, #8bb9fe);
+    --bs-primary-bg-subtle: light-dark(#cfe2ff, #031633);
+    --bs-primary-border-subtle: light-dark(#9ec5fe, #084298);
+    --bs-primary-text-emphasis: light-dark(#052c65, #6ea8fe);
+    --bs-secondary-bg-rgb: 233, 236, 239;
+    --bs-secondary-bg-subtle: light-dark(#e2e3e5, #161719);
+    --bs-secondary-bg: light-dark(#e9ecef, #343a40);
+    --bs-secondary-border-subtle: light-dark(#c4c8cb, #41464b);
+    --bs-secondary-color-rgb: 33, 37, 41;
+    --bs-secondary-color: light-dark(rgba(33, 37, 41, 0.75), rgba(222, 226, 230, 0.75));
+    --bs-secondary-text-emphasis: light-dark(#2b2f32, #a7acb1);
+    --bs-success-bg-subtle: light-dark(#d1e7dd, #051b11);
+    --bs-success-border-subtle: light-dark(#a3cfbb, #0f5132);
+    --bs-success-text-emphasis: light-dark(#0a3622, #75b798);
+    --bs-tertiary-bg-rgb: light-dark(248, 249, 250, 43, 48, 53);
+    --bs-tertiary-bg: light-dark(#f8f9fa, #2b3035);
+    --bs-tertiary-color-rgb: 33, 37, 41;
+    --bs-tertiary-color: light-dark(rgba(33, 37, 41, 0.5), rgba(222, 226, 230, 0.5));
+    --bs-warning-bg-subtle: light-dark(#fff3cd, #332701);
+    --bs-warning-border-subtle: light-dark(#ffe69c, #997404);
+    --bs-warning-text-emphasis: light-dark(#664d03, #ffda6a);
+}
+
+@media (prefers-color-scheme: dark) {
+ :root {
+  --bs-body-bg-rgb: 33, 37, 41;
+  --bs-emphasis-color-rgb: 255, 255, 255;
+  --bs-link-color-rgb: 110, 168, 254;
+  --bs-link-hover-color-rgb: 139, 185, 254;
+  --bs-secondary-bg-rgb: 52, 58, 64;
+  --bs-secondary-color-rgb: 222, 226, 230;
+  --bs-tertiary-color-rgb: 222, 226, 230;
+ }
+
+ /* Invert icon's colors on dark mode to improve readability */
+ img.octicon { filter: invert(1); }
+}
+
 body {
  font-family: sans-serif;
  font-size: 1em;
  font-kerning: normal;
- font-variant-ligatures: common-ligatures;
  text-rendering: optimizeLegibility;
  padding-top: 10px;
 }
 
+nav .breadcrumb {
+  border-radius: var(--bs-border-radius);
+  background-color: var(--phpunit-breadcrumbs);
+  padding: .75rem 1rem;
+}
+
 .popover {
  max-width: none;
+}
+
+.popover-body {
+ max-height: 90vh;
+ overflow-y: auto;
 }
 
 .octicon {
@@ -39,28 +134,28 @@ body {
  border: 0 !important;
 }
 
-.table tbody tr.covered-by-large-tests, li.covered-by-large-tests, tr.success, td.success, li.success, span.success {
- background-color: {{success-low}};
+.table tbody tr.covered-by-large-tests, .table tbody tr.covered-by-large-tests td, li.covered-by-large-tests, tr.success, tr.success td, td.success, li.success, span.success {
+ background-color: var(--phpunit-success-low);
 }
 
-.table tbody tr.covered-by-medium-tests, li.covered-by-medium-tests {
- background-color: {{success-medium}};
+.table tbody tr.covered-by-medium-tests, .table tbody tr.covered-by-medium-tests td, li.covered-by-medium-tests {
+ background-color: var(--phpunit-success-medium);
 }
 
-.table tbody tr.covered-by-small-tests, li.covered-by-small-tests {
- background-color: {{success-high}};
+.table tbody tr.covered-by-small-tests, .table tbody tr.covered-by-small-tests td, li.covered-by-small-tests {
+ background-color: var(--phpunit-success-high);
 }
 
-.table tbody tr.warning, .table tbody td.warning, li.warning, span.warning {
- background-color: {{warning}};
+.table tbody tr.warning, .table tbody tr.warning td, .table tbody td.warning, li.warning, span.warning {
+ background-color: var(--phpunit-warning);
 }
 
-.table tbody tr.danger, .table tbody td.danger, li.danger, span.danger {
- background-color: {{danger}};
+.table tbody tr.danger, .table tbody tr.danger td, .table tbody td.danger, li.danger, span.danger {
+ background-color: var(--phpunit-danger);
 }
 
 .table tbody td.info {
- background-color: #d9edf7;
+ background-color: rgb(from var(--bs-info) r g b / 0.25);
 }
 
 td.big {
@@ -72,29 +167,29 @@ td.small {
 }
 
 td.codeLine {
- font-family: "Source Code Pro", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ font-family: "Source Code Pro", var(--bs-font-monospace);
  white-space: pre-wrap;
 }
 
 td span.comment {
- color: #888a85;
+ color: var(--bs-secondary-color);
 }
 
 td span.default {
- color: #2e3436;
+ color: var(--bs-body-color);
 }
 
 td span.html {
- color: #888a85;
+ color: var(--bs-secondary-color);
 }
 
 td span.keyword {
- color: #2e3436;
+ color: var(--bs-body-color);
  font-weight: bold;
 }
 
 pre span.string {
- color: #2e3436;
+ color: var(--bs-body-color);
 }
 
 span.success, span.warning, span.danger {
@@ -112,10 +207,10 @@ span.success, span.warning, span.danger {
 }
 
 svg text {
- font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
+ font-family: var(--bs-font-sans-serif);
  font-size: 11px;
- color: #666;
- fill: #666;
+ color: var(--bs-gray);
+ fill: var(--bs-gray);
 }
 
 .scrollbox {
@@ -125,8 +220,17 @@ svg text {
 }
 
 table + .structure-heading {
- border-top: 1px solid lightgrey;
+ border-top: 1px solid var(--bs-gray-200);
  padding-top: 0.5em;
+}
+
+table#code td:first-of-type {
+  padding-left: .75em;
+  padding-right: .75em;
+}
+
+table#code td:first-of-type a {
+  text-decoration: none;
 }
 
 .legend {
@@ -138,21 +242,33 @@ table + .structure-heading {
 }
 
 .covered-by-small-tests {
- background-color: {{success-high}};
+ background-color: var(--phpunit-success-high);
 }
 
 .covered-by-medium-tests {
- background-color: {{success-medium}};
+ background-color: var(--phpunit-success-medium);
 }
 
 .covered-by-large-tests {
- background-color: {{success-low}};
+ background-color: var(--phpunit-success-low);
 }
 
 .not-covered {
- background-color: {{danger}};
+ background-color: var(--phpunit-danger);
 }
 
 .not-coverable {
- background-color: {{warning}};
+ background-color: var(--phpunit-warning);
+}
+
+.progress-bar.bg-success {
+ background-color: var(--phpunit-success-bar) !important;
+}
+
+.progress-bar.bg-warning {
+ background-color: var(--phpunit-warning-bar) !important;
+}
+
+.progress-bar.bg-danger {
+ background-color: var(--phpunit-danger-bar) !important;
 }

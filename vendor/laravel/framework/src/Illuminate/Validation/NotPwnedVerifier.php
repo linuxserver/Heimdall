@@ -27,7 +27,6 @@ class NotPwnedVerifier implements UncompromisedVerifier
      *
      * @param  \Illuminate\Http\Client\Factory  $factory
      * @param  int|null  $timeout
-     * @return void
      */
     public function __construct($factory, $timeout = null)
     {
@@ -56,7 +55,7 @@ class NotPwnedVerifier implements UncompromisedVerifier
             ->contains(function ($line) use ($hash, $hashPrefix, $threshold) {
                 [$hashSuffix, $count] = explode(':', $line);
 
-                return $hashPrefix.$hashSuffix == $hash && $count > $threshold;
+                return $hashPrefix.$hashSuffix === $hash && $count > $threshold;
             });
     }
 

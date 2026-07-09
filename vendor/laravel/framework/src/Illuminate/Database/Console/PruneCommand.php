@@ -4,9 +4,7 @@ namespace Illuminate\Database\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\MassPrunable;
-use Illuminate\Database\Eloquent\Prunable;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Events\ModelPruningFinished;
 use Illuminate\Database\Events\ModelPruningStarting;
 use Illuminate\Database\Events\ModelsPruned;
@@ -101,7 +99,7 @@ class PruneCommand extends Command
             ? $instance->prunableChunkSize
             : $this->option('chunk');
 
-        $total = $this->isPrunable($model)
+        $total = $model::isPrunable()
             ? $instance->pruneAll($chunkSize)
             : 0;
 
@@ -114,19 +112,22 @@ class PruneCommand extends Command
      * Determine the models that should be pruned.
      *
      * @return \Illuminate\Support\Collection
+     *
+     * @throws \InvalidArgumentException
      */
     protected function models()
     {
-        if (! empty($models = $this->option('model'))) {
-            return (new Collection($models))->filter(function ($model) {
-                return class_exists($model);
-            })->values();
-        }
-
+        $models = $this->option('model');
         $except = $this->option('except');
 
-        if (! empty($models) && ! empty($except)) {
-            throw new InvalidArgumentException('The --models and --except options cannot be combined.');
+        if ($models && $except) {
+            throw new InvalidArgumentException('The --model and --except options cannot be combined.');
+        }
+
+        if ($models) {
+            return (new Collection($models))
+                ->filter(static fn (string $model) => class_exists($model))
+                ->values();
         }
 
         return (new Collection(Finder::create()->in($this->getPath())->files()->name('*.php')))
@@ -138,15 +139,10 @@ class PruneCommand extends Command
                     ['\\', ''],
                     Str::after($model->getRealPath(), realpath(app_path()).DIRECTORY_SEPARATOR)
                 );
-            })->when(! empty($except), function ($models) use ($except) {
-                return $models->reject(function ($model) use ($except) {
-                    return in_array($model, $except);
-                });
-            })->filter(function ($model) {
-                return class_exists($model);
-            })->filter(function ($model) {
-                return $this->isPrunable($model);
-            })->values();
+            })
+            ->when(! empty($except), fn ($models) => $models->reject(fn ($model) => in_array($model, $except)))
+            ->filter(fn ($model) => $this->isPrunable($model))
+            ->values();
     }
 
     /**
@@ -166,22 +162,9 @@ class PruneCommand extends Command
     }
 
     /**
-     * Determine if the given model class is prunable.
-     *
-     * @param  string  $model
-     * @return bool
-     */
-    protected function isPrunable($model)
-    {
-        $uses = class_uses_recursive($model);
-
-        return in_array(Prunable::class, $uses) || in_array(MassPrunable::class, $uses);
-    }
-
-    /**
      * Display how many models will be pruned.
      *
-     * @param  string  $model
+     * @param  class-string  $model
      * @return void
      */
     protected function pretendToPrune($model)
@@ -189,7 +172,7 @@ class PruneCommand extends Command
         $instance = new $model;
 
         $count = $instance->prunable()
-            ->when(in_array(SoftDeletes::class, class_uses_recursive(get_class($instance))), function ($query) {
+            ->when($model::isSoftDeletable(), function ($query) {
                 $query->withTrashed();
             })->count();
 
@@ -198,5 +181,19 @@ class PruneCommand extends Command
         } else {
             $this->components->info("{$count} [{$model}] records will be pruned.");
         }
+    }
+
+    /**
+     * Determine if the given model is prunable.
+     *
+     * @param  string  $model
+     * @return bool
+     */
+    protected function isPrunable(string $model)
+    {
+        return class_exists($model)
+            && is_a($model, Model::class, true)
+            && ! (new \ReflectionClass($model))->isAbstract()
+            && $model::isPrunable();
     }
 }

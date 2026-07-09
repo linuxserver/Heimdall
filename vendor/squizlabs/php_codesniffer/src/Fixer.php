@@ -7,7 +7,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer;
@@ -82,7 +82,7 @@ class Fixer
      * All changes in changeset must be able to be applied, or else
      * the entire changeset is rejected.
      *
-     * @var array
+     * @var array<int, string>
      */
     private $changeset = [];
 
@@ -222,10 +222,10 @@ class Fixer
     /**
      * Generates a text diff of the original file and the new content.
      *
-     * @param string  $filePath Optional file path to diff the file against.
-     *                          If not specified, the original version of the
-     *                          file will be used.
-     * @param boolean $colors   Print coloured output or not.
+     * @param string|null $filePath Optional file path to diff the file against.
+     *                              If not specified, the original version of the
+     *                              file will be used.
+     * @param boolean     $colors   Print coloured output or not.
      *
      * @return string
      *
@@ -698,10 +698,10 @@ class Fixer
     /**
      * Replace the content of a token with a part of its current content.
      *
-     * @param int $stackPtr The position of the token in the token stack.
-     * @param int $start    The first character to keep.
-     * @param int $length   The number of characters to keep. If NULL, the content of
-     *                      the token from $start to the end of the content is kept.
+     * @param int      $stackPtr The position of the token in the token stack.
+     * @param int      $start    The first character to keep.
+     * @param int|null $length   The number of characters to keep. If NULL, the content of
+     *                           the token from $start to the end of the content is kept.
      *
      * @return bool If the change was accepted.
      */

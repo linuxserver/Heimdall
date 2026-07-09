@@ -2,6 +2,14 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static minlengthIf(bool $condition, int $minlength)
+ * @method static minlengthIfNotNull(bool $condition, int $minlength)
+ * @method static minlengthUnless(bool $condition, int $minlength)
+ * @method static maxlengthIf(bool $condition, int $maxlength)
+ * @method static maxlengthIfNotNull(bool $condition, int $maxlength)
+ * @method static maxlengthUnless(bool $condition, int $maxlength)
+ */
 trait MinMaxLength
 {
     /**

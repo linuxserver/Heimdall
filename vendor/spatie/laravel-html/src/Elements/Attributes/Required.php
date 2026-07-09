@@ -2,6 +2,11 @@
 
 namespace Spatie\Html\Elements\Attributes;
 
+/**
+ * @method static requiredIf(bool $condition, bool $required)
+ * @method static requiredIfNotNull(bool $condition, bool $required)
+ * @method static requiredUnless(bool $condition, bool $required)
+ */
 trait Required
 {
     /**

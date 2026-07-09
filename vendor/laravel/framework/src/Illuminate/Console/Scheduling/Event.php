@@ -11,6 +11,7 @@ use Illuminate\Console\Application;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Log\Context\Repository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Stringable;
@@ -91,12 +92,18 @@ class Event
     public $exitCode;
 
     /**
+     * Indicates whether the execution was skipped due to the mutex already being reserved.
+     *
+     * @var bool
+     */
+    public $skippedBecauseOverlapping = false;
+
+    /**
      * Create a new event instance.
      *
      * @param  \Illuminate\Console\Scheduling\EventMutex  $mutex
      * @param  string  $command
      * @param  \DateTimeZone|string|null  $timezone
-     * @return void
      */
     public function __construct(EventMutex $mutex, $command, $timezone = null)
     {
@@ -127,9 +134,15 @@ class Event
      */
     public function run(Container $container)
     {
+        $this->skippedBecauseOverlapping = false;
+
         if ($this->shouldSkipDueToOverlapping()) {
+            $this->skippedBecauseOverlapping = true;
+
             return;
         }
+
+        $this->ensureMutexIsReleasedOnSignal();
 
         $exitCode = $this->start($container);
 
@@ -198,8 +211,10 @@ class Event
      */
     protected function execute($container)
     {
+        $context = json_encode($container[Repository::class]->dehydrate());
+
         return Process::fromShellCommandline(
-            $this->buildCommand(), base_path(), null, null, null
+            $this->buildCommand(), base_path(), ['__LARAVEL_CONTEXT' => $context], null, null
         )->run(
             laravel_cloud()
                 ? fn ($type, $line) => fwrite($type === 'out' ? STDOUT : STDERR, $line)
@@ -234,7 +249,7 @@ class Event
     public function callBeforeCallbacks(Container $container)
     {
         foreach ($this->beforeCallbacks as $callback) {
-            $container->call($callback);
+            $this->callEventCallback($container, $callback);
         }
     }
 
@@ -247,7 +262,7 @@ class Event
     public function callAfterCallbacks(Container $container)
     {
         foreach ($this->afterCallbacks as $callback) {
-            $container->call($callback);
+            $this->callEventCallback($container, $callback);
         }
     }
 
@@ -288,6 +303,16 @@ class Event
     }
 
     /**
+     * Determine if the event runs when the scheduler is paused.
+     *
+     * @return bool
+     */
+    public function runsWhenPaused()
+    {
+        return $this->evenWhenPaused;
+    }
+
+    /**
      * Determine if the Cron expression passes.
      *
      * @return bool
@@ -325,13 +350,13 @@ class Event
         $this->lastChecked = Date::now();
 
         foreach ($this->filters as $callback) {
-            if (! $app->call($callback)) {
+            if (! $this->callEventCallback($app, $callback)) {
                 return false;
             }
         }
 
         foreach ($this->rejects as $callback) {
-            if ($app->call($callback)) {
+            if ($this->callEventCallback($app, $callback)) {
                 return false;
             }
         }
@@ -381,13 +406,13 @@ class Event
     /**
      * E-mail the results of the scheduled operation.
      *
-     * @param  array|mixed  $addresses
+     * @param  mixed  $addresses
      * @param  bool  $onlyIfOutputExists
      * @return $this
      *
      * @throws \LogicException
      */
-    public function emailOutputTo($addresses, $onlyIfOutputExists = false)
+    public function emailOutputTo($addresses, $onlyIfOutputExists = true)
     {
         $this->ensureOutputIsBeingCaptured();
 
@@ -401,7 +426,7 @@ class Event
     /**
      * E-mail the results of the scheduled operation if it produces output.
      *
-     * @param  array|mixed  $addresses
+     * @param  mixed  $addresses
      * @return $this
      *
      * @throws \LogicException
@@ -414,7 +439,7 @@ class Event
     /**
      * E-mail the results of the scheduled operation if it fails.
      *
-     * @param  array|mixed  $addresses
+     * @param  mixed  $addresses
      * @return $this
      */
     public function emailOutputOnFailure($addresses)
@@ -448,7 +473,7 @@ class Event
      * @param  bool  $onlyIfOutputExists
      * @return void
      */
-    protected function emailOutput(Mailer $mailer, $addresses, $onlyIfOutputExists = false)
+    protected function emailOutput(Mailer $mailer, $addresses, $onlyIfOutputExists = true)
     {
         $text = is_file($this->output) ? file_get_contents($this->output) : '';
 
@@ -676,7 +701,7 @@ class Event
 
         return $this->then(function (Container $container) use ($callback) {
             if ($this->exitCode === 0) {
-                $container->call($callback);
+                $this->callEventCallback($container, $callback);
             }
         });
     }
@@ -711,7 +736,7 @@ class Event
 
         return $this->then(function (Container $container) use ($callback) {
             if ($this->exitCode !== 0) {
-                $container->call($callback);
+                $this->callEventCallback($container, $callback);
             }
         });
     }
@@ -743,9 +768,47 @@ class Event
             $output = $this->output && is_file($this->output) ? file_get_contents($this->output) : '';
 
             return $onlyIfOutputExists && empty($output)
-                            ? null
-                            : $container->call($callback, ['output' => new Stringable($output)]);
+                ? null
+                : $this->callEventCallback($container, $callback, ['output' => new Stringable($output)]);
         };
+    }
+
+    /**
+     * Call the given event callback.
+     *
+     * @param  \Illuminate\Contracts\Container\Container  $container
+     * @param  callable  $callback
+     * @param  array<string, mixed>  $parameters
+     * @return mixed
+     */
+    protected function callEventCallback(Container $container, callable $callback, array $parameters = [])
+    {
+        $eventParameters = $callback instanceof Closure
+            ? $this->eventParametersForCallback($callback)
+            : [];
+
+        return $container->call($callback, array_merge(
+            $eventParameters, $parameters
+        ));
+    }
+
+    /**
+     * Get the event parameters for the given callback.
+     *
+     * @param  \Closure  $callback
+     * @return array
+     */
+    protected function eventParametersForCallback(Closure $callback)
+    {
+        $parameters = $this->closureParameterTypes($callback);
+
+        foreach ($parameters as $name => $type) {
+            if ($type !== null && is_a($this, $type)) {
+                return [$name => $this];
+            }
+        }
+
+        return [];
     }
 
     /**
@@ -813,7 +876,7 @@ class Event
         }
 
         return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.
-            sha1($this->expression.$this->normalizeCommand($this->command ?? ''));
+            sha1($this->expression.self::normalizeCommand($this->command ?? ''));
     }
 
     /**
@@ -827,6 +890,30 @@ class Event
         $this->mutexNameResolver = is_string($mutexName) ? fn () => $mutexName : $mutexName;
 
         return $this;
+    }
+
+    /**
+     * Ensure the mutex is released if the process receives a termination signal.
+     *
+     * @return void
+     */
+    protected function ensureMutexIsReleasedOnSignal()
+    {
+        if (! $this->releaseOnTerminationSignals ||
+            $this->runInBackground ||
+            ! extension_loaded('pcntl')) {
+            return;
+        }
+
+        pcntl_async_signals(true);
+
+        foreach ([SIGTERM, SIGINT, SIGQUIT] as $signal) {
+            pcntl_signal($signal, function () {
+                $this->removeMutex();
+
+                exit(1);
+            });
+        }
     }
 
     /**

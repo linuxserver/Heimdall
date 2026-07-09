@@ -643,7 +643,7 @@ final class Styles
     {
         $string = preg_replace("/\[?'?([^'|\]]+)'?\]?/", '$1', $string) ?? '';
 
-        $this->textModifiers[__METHOD__] = static fn (): string => str_repeat($string, (int) floor(terminal()->width() / mb_strlen($string, 'UTF-8')));
+        $this->textModifiers[__METHOD__] = static fn (): string => str_repeat($string, (int) floor(terminal()->width() / mb_strwidth($string, 'UTF-8')));
 
         return $this->with(['styles' => [
             'contentRepeat' => true,
@@ -855,7 +855,7 @@ final class Styles
 
         // @phpstan-ignore-next-line
         $width *= count($matches[0] ?? []) + 1;
-        $width += mb_strlen($matches[0][0] ?? '', 'UTF-8');
+        $width += mb_strwidth($matches[0][0] ?? '', 'UTF-8');
 
         if ($length <= $width) {
             $space = $width - $length;
@@ -942,7 +942,7 @@ final class Styles
      */
     public function getLength(?string $text = null): int
     {
-        return mb_strlen(preg_replace(
+        return mb_strwidth(preg_replace(
             self::STYLING_REGEX,
             '',
             $text ?? $this->element?->toString() ?? ''

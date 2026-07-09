@@ -115,9 +115,8 @@ if (PHP_VERSION_ID < 80000) {
         (function_exists('stream_get_wrappers') && in_array('phpvfscomposer', stream_get_wrappers(), true))
         || (function_exists('stream_wrapper_register') && stream_wrapper_register('phpvfscomposer', 'Composer\BinProxyWrapper'))
     ) {
-        include("phpvfscomposer://" . __DIR__ . '/..'.'/phpunit/phpunit/phpunit');
-        exit(0);
+        return include("phpvfscomposer://" . __DIR__ . '/..'.'/phpunit/phpunit/phpunit');
     }
 }
 
-include __DIR__ . '/..'.'/phpunit/phpunit/phpunit';
+return include __DIR__ . '/..'.'/phpunit/phpunit/phpunit';

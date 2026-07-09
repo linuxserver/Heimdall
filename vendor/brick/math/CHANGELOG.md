@@ -2,6 +2,307 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0](https://github.com/brick/math/releases/tag/0.18.0) - 2026-06-14
+
+💥 **Breaking changes**
+
+The following breaking change only affects you if you're using named arguments:
+
+- `BigInteger::fromBytes()` now uses `$bytes` as the parameter name
+
+🐛 **Bug fixes**
+
+- `of()` no longer accepts a trailing newline (`\n`) in the input string; such input now throws `NumberFormatException`
+- `of()` now consistently throws `NumberFormatException` for exponents too large to process, instead of `IntegerOverflowException` in some cases
+- `BigInteger::fromBase()` now reports the invalid character with its original case in the `NumberFormatException` message, instead of lower-casing it
+
+⚡️ **Performance improvements**
+
+- `BigInteger::gcd()` no longer exhausts memory on large inputs when the GMP extension is not installed
+- `BigInteger::modInverse()` no longer exhausts memory on large inputs, and is faster when the GMP extension is not installed
+
+👌 **Static analysis improvements**
+
+- Narrowed parameter and return types with static analysis annotations:
+  - `nthRoot()`'s `$n` is now `positive-int`
+  - `BigInteger::toBase()`, `toArbitraryBase()`, `toBytes()` and `BigRational::toRepeatingDecimalString()` now return `non-empty-string`
+
+## [0.17.2](https://github.com/brick/math/releases/tag/0.17.2) - 2026-05-25
+
+✨ **New features**
+
+- New methods: `BigInteger::nthRoot()` and `BigDecimal::nthRoot()` compute the nth root of a number (#113 by @Pablo1Gustavo)
+
+## [0.17.1](https://github.com/brick/math/releases/tag/0.17.1) - 2026-04-19
+
+👌 **Improvements**
+
+- More precise `float` approximations in `BigRational::toFloat()`
+
+## [0.17.0](https://github.com/brick/math/releases/tag/0.17.0) - 2026-03-17
+
+💥 **Breaking changes**
+
+- Deprecated method `BigDecimal::hasNonZeroFractionalPart()` has been removed, use `! $number->getFractionalPart()->isZero()` instead
+- Exception constructors and factory methods are now `@internal`
+
+✨ **Compatibility improvements**
+
+- `BigDecimal::fromFloatExact()` now supports 32-bit PHP
+
+## [0.16.2](https://github.com/brick/math/releases/tag/0.16.2) - 2026-03-15
+
+✨ **New features**
+
+New methods to create a `BigDecimal` from a `float` value:
+
+- `BigDecimal::fromFloatExact()`
+- `BigDecimal::fromFloatShortest()`
+
+## [0.16.1](https://github.com/brick/math/releases/tag/0.16.1) - 2026-03-09
+
+👌 **Improvements**
+
+- Add `@return non-empty-string` to `toString()`, `jsonSerialize()` and `__toString()` (#111 by @vudaltsov)
+
+## [0.16.0](https://github.com/brick/math/releases/tag/0.16.0) - 2026-03-06
+
+💥 **Breaking changes**
+
+- **`BigInteger::getLowestSetBit()` now returns `null` instead of `-1` when the number is zero**
+- Deprecated method `BigRational::simplified()` has been removed, as it is now a no-op
+
+✨ **New features**
+
+- New method: `BigDecimal::getIntegralPart()` returns the integral part as `BigInteger` (this method existed with a different signature in version 0.14, and was removed in 0.15)
+- New method: `BigDecimal::getFractionalPart()` returns the fractional part as `BigDecimal` (this method existed with a different signature and meaning in version 0.14, and was removed in 0.15)
+
+🗑️ **Deprecations**
+
+- Method `BigDecimal::hasNonZeroFractionalPart()` is deprecated, use `->getFractionalPart()->isZero()` instead
+
+## [0.15.0](https://github.com/brick/math/releases/tag/0.15.0) - 2026-02-20
+
+💥 **Breaking changes**
+
+- **floating-point inputs are no longer accepted by `of()` and arithmetic methods**, use `of((string) $float)` to get the same behaviour as before (#105)
+- **`BigRational` is now always simplified to lowest terms:** all operations, including `of()` and `ofFraction()`, now return a fraction in its simplest form (e.g. `2/3` instead of `4/6`)
+- **`BigDecimal::dividedBy()` now requires the `$scale` parameter**
+- **`BigInteger::sqrt()` and `BigDecimal::sqrt()` now default to `RoundingMode::Unnecessary`**, explicitly pass `RoundingMode::Down` to get the previous behaviour
+- **`BigInteger::mod()` now uses Euclidean modulo semantics**: the modulus must be strictly positive, and the result is always non-negative; this change aligns with Java's `BigInteger.mod()` behaviour
+- **`BigInteger::mod()`, `modInverse()` and `modPow()` now throw `InvalidArgumentException` (instead of `NegativeNumberException`) for negative modulus/exponent arguments**
+- **`MathException` is now an interface** instead of a class
+- **`BigDecimal::getPrecision()` now returns `1` for zero values**
+- `BigNumber::min()`, `max()` and `sum()` now throw an `ArgumentCountError` when called with no arguments (previously threw `InvalidArgumentException`)
+- `BigInteger::randomBits()` and `randomRange()` now throw `RandomSourceException` when random byte generation fails or returns invalid data
+
+Deprecated API elements removed:
+
+- deprecated method `BigInteger::testBit()` has been removed, use `isBitSet()` instead
+- deprecated method `BigInteger::gcdMultiple()` has been removed, use `gcdAll()` instead
+- deprecated method `BigDecimal::exactlyDividedBy()` has been removed, use `dividedByExact()` instead
+- deprecated method `BigDecimal::getIntegralPart()` has been removed (will be re-introduced as returning `BigInteger` in 0.16)
+- deprecated method `BigDecimal::getFractionalPart()` has been removed (will be re-introduced as returning `BigDecimal` with a different meaning in 0.16)
+- deprecated method `BigDecimal::stripTrailingZeros()` has been removed, use `strippedOfTrailingZeros()` instead
+- deprecated method `BigRational::nd()` has been removed, use `ofFraction()` instead
+- deprecated method `BigRational::quotient()` has been removed, use `getIntegralPart()` instead
+- deprecated method `BigRational::remainder()` has been removed, use `$number->getNumerator()->remainder($number->getDenominator())` instead
+- deprecated method `BigRational::quotientAndRemainder()` has been removed, use `$number->getNumerator()->quotientAndRemainder($number->getDenominator())` instead
+- deprecated `RoundingMode` upper snake case constants (e.g. `HALF_UP`) have been removed, use the pascal case version (e.g. `HalfUp`) instead
+
+The following breaking changes only affect you if you're using named arguments:
+
+- `BigInteger::mod()` now uses `$modulus` as the parameter name
+- `BigInteger::modInverse()` now uses `$modulus` as the parameter name
+- `BigInteger::modPow()` now uses `$exponent` and `$modulus` as parameter names
+- `BigInteger::shiftedLeft()` now uses `$bits` as the parameter name
+- `BigInteger::shiftedRight()` now uses `$bits` as the parameter name
+- `BigInteger::isBitSet()` now uses `$bitIndex` as the parameter name
+- `BigInteger::randomBits()` now uses `$bitCount` as the parameter name
+- `BigDecimal::withPointMovedLeft()` now uses `$places` as the parameter name
+- `BigDecimal::withPointMovedRight()` now uses `$places` as the parameter name
+
+The following breaking changes are unlikely to affect you:
+
+- `DivisionByZeroException::modulusMustNotBeZero()` has been renamed to `zeroModulus()`
+- `DivisionByZeroException::denominatorMustNotBeZero()` has been renamed to `zeroDenominator()`
+- `IntegerOverflowException::toIntOverflow()` has been renamed to `integerOutOfRange()`
+- `RoundingNecessaryException::roundingNecessary()` has been removed
+
+🗑️ **Deprecations**
+
+- Method `BigRational::simplified()` is deprecated, as it is now a no-op
+
+✨ **New features**
+
+- `BigInteger::power()`, `BigDecimal::power()` and `BigRational::power()` no longer enforce an exponent limit
+- `BigInteger::shiftedLeft()` and `BigInteger::shiftedRight()` no longer enforce a limit on the number of bits
+- `BigRational::power()` now accepts negative exponents
+- New exception: `InvalidArgumentException` for invalid argument errors
+- New exception: `NoInverseException` for modular inverse errors
+- New exception: `RandomSourceException` for random source errors
+
+👌 **Improvements**
+
+- Narrowed parameter and return types with static analysis annotations (#108 by @simPod)
+
+## [0.14.8](https://github.com/brick/math/releases/tag/0.14.8) - 2026-02-10
+
+🗑️ **Deprecations**
+
+- Method `BigInteger::testBit()` is deprecated, use `isBitSet()` instead
+
+✨ **New features**
+
+- New method: `BigInteger::isBitSet()` (replaces `testBit()`)
+- New method: `BigNumber::toString()` (alias of magic method `__toString()`)
+
+👌 **Improvements**
+
+- Performance optimization of `BigRational` comparison methods
+- More exceptions have been documented with `@throws` annotations
+
+## [0.14.7](https://github.com/brick/math/releases/tag/0.14.7) - 2026-02-07
+
+✨ **New features**
+
+- `clamp()` is now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Improved `@throws` exception documentation
+
+## [0.14.6](https://github.com/brick/math/releases/tag/0.14.6) - 2026-02-05
+
+🗑️ **Deprecations**
+
+- Not passing a `$scale` to `BigDecimal::dividedBy()` is deprecated; **`$scale` will be required in 0.15**
+
+👌 **Improvements**
+
+- `BigRational::toFloat()` never returns `NAN` anymore
+
+## [0.14.5](https://github.com/brick/math/releases/tag/0.14.5) - 2026-02-03
+
+🗑️ **Deprecations**
+
+- Not passing a rounding mode to `BigInteger::sqrt()` and `BigDecimal::sqrt()` triggers a deprecation notice: **the default rounding mode will change from `Down` to `Unnecessary` in 0.15**
+
+✨ **New features**
+
+- `BigInteger::sqrt()` and `BigDecimal::sqrt()` now support rounding
+- `abs()` and `negated()` methods are now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Alphabet is now checked for duplicate characters in `BigInteger::(from|to)ArbitraryBase()`
+- `BigNumber::ofNullable()` is now marked as `@pure`
+
+## [0.14.4](https://github.com/brick/math/releases/tag/0.14.4) - 2026-02-02
+
+🗑️ **Deprecations**
+
+- Passing a negative modulus to `BigInteger::mod()` is deprecated to align with Euclidean modulo semantics; it will throw `InvalidArgumentException` in 0.15
+- Method `BigDecimal::stripTrailingZeros()` is deprecated, use `strippedOfTrailingZeros()` instead
+
+✨ **New features**
+
+- `BigInteger::modPow()` now accepts negative bases
+- New method: `BigDecimal::strippedOfTrailingZeros()` (replaces `stripTrailingZeros()`)
+
+👌 **Improvements**
+
+- `clamp()` methods are now marked as `@pure`
+
+## [0.14.3](https://github.com/brick/math/releases/tag/0.14.3) - 2026-02-01
+
+✨ **New features**
+
+- New method: `BigInteger::lcm()`
+- New method: `BigInteger::lcmAll()`
+- New method: `BigRational::toRepeatingDecimalString()`
+
+🐛 **Bug fixes**
+
+- `BigInteger::gcdAll()` / `gcdMultiple()` could return a negative result when used with a single negative number
+
+## [0.14.2](https://github.com/brick/math/releases/tag/0.14.2) - 2026-01-30
+
+🗑️ **Deprecations**
+
+- **Passing `float` values to `of()` or arithmetic methods is deprecated** and will be removed in 0.15; cast to string explicitly to preserve the previous behaviour (#105)
+- **Accessing `RoundingMode` enum cases through upper snake case (e.g. `HALF_UP`) is deprecated**, use the pascal case version (e.g. `HalfUp`) instead
+- Method `BigInteger::gcdMultiple()` is deprecated, use `gcdAll()` instead
+- Method `BigDecimal::exactlyDividedBy()` is deprecated, use `dividedByExact()` instead
+- Method `BigDecimal::getIntegralPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigInteger` in 0.16)
+- Method `BigDecimal::getFractionalPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigDecimal` with a different meaning in 0.16)
+- Method `BigRational::nd()` is deprecated, use `ofFraction()` instead
+- Method `BigRational::quotient()` is deprecated, use `getIntegralPart()` instead
+- Method `BigRational::remainder()` is deprecated, use `$number->getNumerator()->remainder($number->getDenominator())` instead
+- Method `BigRational::quotientAndRemainder()` is deprecated, use `$number->getNumerator()->quotientAndRemainder($number->getDenominator())` instead
+
+✨ **New features**
+
+- New method: `BigInteger::gcdAll()` (replaces `gcdMultiple()`)
+- New method: `BigRational::clamp()`
+- New method: `BigRational::ofFraction()` (replaces `nd()`)
+- New method: `BigRational::getIntegralPart()` (replaces `quotient()`)
+- New method: `BigRational::getFractionalPart()`
+
+👌 **Improvements**
+
+- All exceptions thrown by the library now implement a common `MathException` interface
+- `BigInteger::modInverse()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+- `BigInteger::gcdMultiple()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+
+🐛 **Bug fixes**
+
+- `BigInteger::clamp()` and `BigDecimal::clamp()` now throw an exception on inverted bounds, instead of returning an incorrect result
+
+## [0.14.1](https://github.com/brick/math/releases/tag/0.14.1) - 2025-11-24
+
+✨ **New features**
+
+- New method: `BigNumber::ofNullable()` (#94 by @mrkh995)
+
+✨ **Compatibility fixes**
+
+- Fixed warnings on PHP 8.5 (#101 and #102 by @julien-boudry)
+
+## [0.14.0](https://github.com/brick/math/releases/tag/0.14.0) - 2025-08-29
+
+✨ **New features**
+
+- New methods: `BigInteger::clamp()` and `BigDecimal::clamp()` (#96 by @JesterIruka)
+
+✨ **Improvements**
+
+- All pure methods in `BigNumber` classes are now marked as `@pure` for better static analysis
+
+💥 **Breaking changes**
+
+- Minimum PHP version is now 8.2
+- `BigNumber` classes are now `readonly`
+- `BigNumber` is now marked as sealed: it must not be extended outside of this package
+- Exception classes are now `final`
+
+## [0.13.1](https://github.com/brick/math/releases/tag/0.13.1) - 2025-03-29
+
+✨ **Improvements**
+
+- `__toString()` methods of `BigInteger` and `BigDecimal` are now type-hinted as returning `numeric-string` instead of `string` (#90 by @vudaltsov)
+
+## [0.13.0](https://github.com/brick/math/releases/tag/0.13.0) - 2025-03-03
+
+💥 **Breaking changes**
+
+- `BigDecimal::ofUnscaledValue()` no longer throws an exception if the scale is negative
+- `MathException` now extends `RuntimeException` instead of `Exception`; this reverts the change introduced in version `0.11.0` (#82)
+
+✨ **New features**
+
+- `BigDecimal::ofUnscaledValue()` allows a negative scale (and converts the values to create a zero scale number)
+
 ## [0.12.3](https://github.com/brick/math/releases/tag/0.12.3) - 2025-02-28
 
 ✨ **New features**
@@ -476,4 +777,3 @@ Added `BigDecimal::divideAndRemainder()`
 ## [0.1.0](https://github.com/brick/math/releases/tag/0.1.0) - 2014-08-31
 
 First beta release.
-

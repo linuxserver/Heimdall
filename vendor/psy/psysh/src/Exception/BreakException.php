@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -40,10 +40,12 @@ class BreakException extends \Exception implements Exception
      *
      * Since `throw` can not be inserted into arbitrary expressions, it wraps with function call.
      *
+     * @param int|string|null $status Exit status code or message
+     *
      * @throws BreakException
      */
-    public static function exitShell()
+    public static function exitShell($status = 0)
     {
-        throw new self('Goodbye');
+        throw new self(\is_string($status) ? $status : 'Goodbye', \is_int($status) ? $status : 0);
     }
 }

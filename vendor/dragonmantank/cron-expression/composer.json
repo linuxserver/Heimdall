@@ -12,13 +12,12 @@
         }
     ],
     "require": {
-        "php": "^7.2|^8.0",
-        "webmozart/assert": "^1.0"
+        "php": "^8.2|^8.3|^8.4|^8.5"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.0",
-        "phpunit/phpunit": "^7.0|^8.0|^9.0",
-        "phpstan/extension-installer": "^1.0"
+        "phpstan/phpstan": "^1.12.32|^2.1.31",
+        "phpunit/phpunit": "^8.5.48|^9.0",
+        "phpstan/extension-installer": "^1.4.3"
     },
     "autoload": {
         "psr-4": {

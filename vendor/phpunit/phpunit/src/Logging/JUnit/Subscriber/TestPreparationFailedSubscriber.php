@@ -18,7 +18,7 @@ use PHPUnit\Event\Test\PreparationFailedSubscriber;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class TestPreparationFailedSubscriber extends Subscriber implements PreparationFailedSubscriber
+final readonly class TestPreparationFailedSubscriber extends Subscriber implements PreparationFailedSubscriber
 {
     /**
      * @throws InvalidArgumentException

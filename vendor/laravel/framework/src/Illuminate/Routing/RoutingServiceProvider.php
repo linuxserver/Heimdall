@@ -129,21 +129,23 @@ class RoutingServiceProvider extends ServiceProvider
      * Register a binding for the PSR-7 request implementation.
      *
      * @return void
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function registerPsrRequest()
     {
         $this->app->bind(ServerRequestInterface::class, function ($app) {
             if (class_exists(PsrHttpFactory::class)) {
-                return with((new PsrHttpFactory)
-                    ->createRequest($illuminateRequest = $app->make('request')), function (ServerRequestInterface $request) use ($illuminateRequest) {
-                        if ($illuminateRequest->getContentTypeFormat() !== 'json' && $illuminateRequest->request->count() === 0) {
-                            return $request;
-                        }
+                $illuminateRequest = $app->make('request');
+                $request = (new PsrHttpFactory)->createRequest($illuminateRequest);
 
-                        return $request->withParsedBody(
-                            array_merge($request->getParsedBody() ?? [], $illuminateRequest->getPayload()->all())
-                        );
-                    });
+                if ($illuminateRequest->getContentTypeFormat() !== 'json' && $illuminateRequest->request->count() === 0) {
+                    return $request;
+                }
+
+                return $request->withParsedBody(
+                    array_merge($request->getParsedBody() ?? [], $illuminateRequest->getPayload()->all())
+                );
             }
 
             throw new BindingResolutionException('Unable to resolve PSR request. Please install the "symfony/psr-http-message-bridge" package.');
@@ -154,6 +156,8 @@ class RoutingServiceProvider extends ServiceProvider
      * Register a binding for the PSR-7 response implementation.
      *
      * @return void
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function registerPsrResponse()
     {

@@ -609,3 +609,16 @@ switch ( $a ) {
 
 jumpOut:
 doSomething();
+
+// Fixable semicolon as case/default scope opener.
+switch ($value) {
+    case 'foo';
+    case 'bar' /*comment*/ ;
+    case 'baz'  ;
+        echo 'foo, bar, or baz';
+        break;
+    default;
+        echo 'Other';
+    default ;
+        echo 'Other';
+}

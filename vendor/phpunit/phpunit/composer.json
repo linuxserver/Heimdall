@@ -28,7 +28,7 @@
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.3",
         "ext-dom": "*",
         "ext-filter": "*",
         "ext-json": "*",
@@ -38,26 +38,26 @@
         "myclabs/deep-copy": "^1.13.4",
         "phar-io/manifest": "^2.0.4",
         "phar-io/version": "^3.2.1",
-        "phpunit/php-code-coverage": "^10.1.16",
-        "phpunit/php-file-iterator": "^4.1.0",
-        "phpunit/php-invoker": "^4.0.0",
-        "phpunit/php-text-template": "^3.0.1",
-        "phpunit/php-timer": "^6.0.0",
-        "sebastian/cli-parser": "^2.0.1",
-        "sebastian/code-unit": "^2.0.0",
-        "sebastian/comparator": "^5.0.5",
-        "sebastian/diff": "^5.1.1",
-        "sebastian/environment": "^6.1.0",
-        "sebastian/exporter": "^5.1.4",
-        "sebastian/global-state": "^6.0.2",
-        "sebastian/object-enumerator": "^5.0.0",
-        "sebastian/recursion-context": "^5.0.1",
-        "sebastian/type": "^4.0.0",
-        "sebastian/version": "^4.0.1"
+        "phpunit/php-code-coverage": "^12.5.7",
+        "phpunit/php-file-iterator": "^6.0.1",
+        "phpunit/php-invoker": "^6.0.0",
+        "phpunit/php-text-template": "^5.0.0",
+        "phpunit/php-timer": "^8.0.0",
+        "sebastian/cli-parser": "^4.2.1",
+        "sebastian/comparator": "^7.1.8",
+        "sebastian/diff": "^7.0.0",
+        "sebastian/environment": "^8.1.2",
+        "sebastian/exporter": "^7.0.3",
+        "sebastian/global-state": "^8.0.3",
+        "sebastian/object-enumerator": "^7.0.0",
+        "sebastian/recursion-context": "^7.0.1",
+        "sebastian/type": "^6.0.4",
+        "sebastian/version": "^6.0.0",
+        "staabm/side-effects-detector": "^1.0.5"
     },
     "config": {
         "platform": {
-            "php": "8.1.0"
+            "php": "8.3.0"
         },
         "policy": {
             "malware": {
@@ -73,9 +73,6 @@
         "classmap-authoritative": true,
         "optimize-autoloader": true,
         "sort-packages": true
-    },
-    "suggest": {
-        "ext-soap": "To be able to generate mocks based on WSDL files"
     },
     "bin": [
         "phpunit"
@@ -93,20 +90,48 @@
             "tests/_files"
         ],
         "files": [
+            "tests/_files/deprecation-trigger/trigger_deprecation.php",
             "tests/unit/Event/AbstractEventTestCase.php",
+            "tests/unit/TextUI/AbstractSourceFilterTestCase.php",
             "tests/unit/Framework/MockObject/TestDoubleTestCase.php",
-            "tests/unit/Metadata/Parser/AnnotationParserTestCase.php",
             "tests/unit/Metadata/Parser/AttributeParserTestCase.php",
-            "tests/_files/CoverageNamespacedFunctionTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyArrayTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyBoolTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyCallableTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyFloatTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyInstancesOfTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyIntTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyIterableTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyNullTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyNumericTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyObjectTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyResourceTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyClosedResourceTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyScalarTest.php",
+            "tests/unit/Framework/Assert/assertContainsOnlyStringTest.php",
+            "tests/unit/Framework/Assert/assertDirectoryExistsTest.php",
+            "tests/unit/Framework/Assert/assertFileExistsTest.php",
+            "tests/unit/Framework/Assert/assertIsNumericTest.php",
+            "tests/unit/Framework/Assert/assertIsObjectTest.php",
+            "tests/unit/Framework/Assert/assertIsReadableTest.php",
+            "tests/unit/Framework/Assert/assertIsResourceTest.php",
+            "tests/unit/Framework/Assert/assertIsScalarTest.php",
+            "tests/unit/Framework/Assert/assertIsStringTest.php",
+            "tests/unit/Framework/Assert/assertIsWritableTest.php",
+            "tests/unit/Framework/Assert/assertMatchesRegularExpressionTest.php",
+            "tests/unit/Framework/Assert/assertNullTest.php",
+            "tests/unit/Framework/Assert/assertSameSizeTest.php",
+            "tests/unit/Framework/Assert/assertSameTest.php",
+            "tests/unit/TextUI/Output/Default/ResultPrinterTest.php",
             "tests/_files/CoveredFunction.php",
             "tests/_files/Generator.php",
             "tests/_files/NamespaceCoveredFunction.php",
-            "tests/end-to-end/code-coverage/ignore-function-using-attribute/src/CoveredFunction.php"
+            "tests/end-to-end/_files/listing-tests-and-groups/ExampleAbstractTestCase.php"
         ]
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "10.5-dev"
+            "dev-main": "12.5-dev"
         }
     }
 }

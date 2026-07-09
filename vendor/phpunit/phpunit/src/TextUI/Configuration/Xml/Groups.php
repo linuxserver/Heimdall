@@ -16,12 +16,12 @@ use PHPUnit\TextUI\Configuration\GroupCollection;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
- * @psalm-immutable
+ * @immutable
  */
-final class Groups
+final readonly class Groups
 {
-    private readonly GroupCollection $include;
-    private readonly GroupCollection $exclude;
+    private GroupCollection $include;
+    private GroupCollection $exclude;
 
     public function __construct(GroupCollection $include, GroupCollection $exclude)
     {

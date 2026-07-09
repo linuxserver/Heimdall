@@ -13,6 +13,11 @@ use function assert;
 use function is_resource;
 use SebastianBergmann\Exporter\Exporter;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ResourceComparator extends Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -30,6 +35,7 @@ final class ResourceComparator extends Comparator
 
         $exporter = new Exporter;
 
+        /** @phpstan-ignore notEqual.notAllowed */
         if ($actual != $expected) {
             throw new ComparisonFailure(
                 $expected,

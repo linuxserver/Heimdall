@@ -18,16 +18,19 @@ use PHPUnit\Event\Event;
 use PHPUnit\Event\Telemetry;
 
 /**
- * @psalm-immutable
+ * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class Errored implements Event
+final readonly class Errored implements Event
 {
-    private readonly Telemetry\Info $telemetryInfo;
-    private readonly Code\Test $test;
-    private readonly Throwable $throwable;
+    private Telemetry\Info $telemetryInfo;
+    private Code\Test $test;
+    private Throwable $throwable;
 
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, Throwable $throwable)
     {
         $this->telemetryInfo = $telemetryInfo;
@@ -50,11 +53,14 @@ final class Errored implements Event
         return $this->throwable;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
         $message = trim($this->throwable->message());
 
-        if (!empty($message)) {
+        if ($message !== '') {
             $message = PHP_EOL . $message;
         }
 

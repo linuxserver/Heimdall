@@ -95,6 +95,8 @@ enum Foo: string {
     case DEFAULT = 'default';
     /* testKeywordAsEnumCaseNameShouldBeString7 */
     case ARRAY = 'array';
+    /* testKeywordAsEnumCaseNameShouldBeString8 */
+    case EXIT = 'exit';
 }
 
 // Test for https://github.com/squizlabs/PHP_CodeSniffer/issues/497

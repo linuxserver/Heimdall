@@ -2,27 +2,19 @@
 
 namespace Illuminate\Database\Schema\Grammars;
 
-use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Fluent;
 
 class MariaDbGrammar extends MySqlGrammar
 {
-    /**
-     * Compile a rename column command.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @param  \Illuminate\Database\Connection  $connection
-     * @return array|string
-     */
-    public function compileRenameColumn(Blueprint $blueprint, Fluent $command, Connection $connection)
+    /** @inheritDoc */
+    public function compileRenameColumn(Blueprint $blueprint, Fluent $command)
     {
-        if (version_compare($connection->getServerVersion(), '10.5.2', '<')) {
-            return $this->compileLegacyRenameColumn($blueprint, $command, $connection);
+        if (version_compare($this->connection->getServerVersion(), '10.5.2', '<')) {
+            return $this->compileLegacyRenameColumn($blueprint, $command);
         }
 
-        return parent::compileRenameColumn($blueprint, $command, $connection);
+        return parent::compileRenameColumn($blueprint, $command);
     }
 
     /**
@@ -33,6 +25,10 @@ class MariaDbGrammar extends MySqlGrammar
      */
     protected function typeUuid(Fluent $column)
     {
+        if (version_compare($this->connection->getServerVersion(), '10.7.0', '<')) {
+            return 'char(36)';
+        }
+
         return 'uuid';
     }
 
@@ -54,5 +50,38 @@ class MariaDbGrammar extends MySqlGrammar
             $subtype ?? 'geometry',
             $column->srid ? ' ref_system_id='.$column->srid : ''
         );
+    }
+
+    /**
+     * Compile a vector index key command.
+     *
+     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+     * @param  \Illuminate\Support\Fluent  $command
+     * @return string
+     */
+    public function compileVectorIndex(Blueprint $blueprint, Fluent $command)
+    {
+        return sprintf(
+            'alter table %s add %s %s(%s) %s%s',
+            $this->wrapTable($blueprint),
+            'vector index',
+            $this->wrap($command->index),
+            $this->columnize($command->columns),
+            $command->operatorClass ?? '',
+            $command->lock ? ', lock='.$command->lock : ''
+        );
+    }
+
+    /**
+     * Wrap the given JSON selector.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function wrapJsonSelector($value)
+    {
+        [$field, $path] = $this->wrapJsonFieldAndPath($value);
+
+        return 'json_value('.$field.$path.')';
     }
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,5 +34,7 @@ class LeavePsyshAlonePass extends CodeCleanerPass
         if ($node instanceof Variable && $node->name === '__psysh__') {
             throw new RuntimeException('Don\'t mess with $__psysh__; bad things will happen');
         }
+
+        return null;
     }
 }

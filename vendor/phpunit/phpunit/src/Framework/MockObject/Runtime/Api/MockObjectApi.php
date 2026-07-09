@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Framework\MockObject;
 
-use PHPUnit\Framework\MockObject\Builder\InvocationMocker as InvocationMockerBuilder;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 
 /**
@@ -19,16 +18,14 @@ use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
  */
 trait MockObjectApi
 {
-    private object $__phpunit_originalObject;
-
-    public function __phpunit_hasMatchers(): bool
+    public function __phpunit_hasInvocationCountRule(): bool
     {
-        return $this->__phpunit_getInvocationHandler()->hasMatchers();
+        return $this->__phpunit_getInvocationHandler()->hasInvocationCountRule();
     }
 
-    public function __phpunit_setOriginalObject(object $originalObject): void
+    public function __phpunit_hasParametersRule(): bool
     {
-        $this->__phpunit_originalObject = $originalObject;
+        return $this->__phpunit_getInvocationHandler()->hasParametersRule();
     }
 
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void
@@ -40,11 +37,13 @@ trait MockObjectApi
         }
     }
 
+    abstract public function __phpunit_state(): TestDoubleState;
+
     abstract public function __phpunit_getInvocationHandler(): InvocationHandler;
 
     abstract public function __phpunit_unsetInvocationMocker(): void;
 
-    public function expects(InvocationOrder $matcher): InvocationMockerBuilder
+    public function expects(InvocationOrder $matcher): InvocationStubber
     {
         return $this->__phpunit_getInvocationHandler()->expects($matcher);
     }

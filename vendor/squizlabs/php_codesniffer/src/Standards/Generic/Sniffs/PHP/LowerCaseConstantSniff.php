@@ -4,7 +4,7 @@
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
  * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\PHP;
@@ -78,6 +78,7 @@ class LowerCaseConstantSniff implements Sniff
         $targets[] = T_STATIC;
         $targets[] = T_READONLY;
         $targets[] = T_FINAL;
+        $targets[] = T_ABSTRACT;
 
         // Register function keywords to filter out param/return type declarations.
         $targets[] = T_FUNCTION;
@@ -139,6 +140,7 @@ class LowerCaseConstantSniff implements Sniff
             || $tokens[$stackPtr]['code'] === T_STATIC
             || $tokens[$stackPtr]['code'] === T_READONLY
             || $tokens[$stackPtr]['code'] === T_FINAL
+            || $tokens[$stackPtr]['code'] === T_ABSTRACT
         ) {
             $skipOver = (Tokens::$emptyTokens + $this->propertyTypeTokens);
             $skipTo   = $phpcsFile->findNext($skipOver, ($stackPtr + 1), null, true);

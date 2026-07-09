@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,10 +32,10 @@ class CodeArgument extends InputArgument
     /**
      * Constructor.
      *
-     * @param string $name        The argument name
-     * @param int    $mode        The argument mode: self::REQUIRED or self::OPTIONAL
-     * @param string $description A description text
-     * @param mixed  $default     The default value (for self::OPTIONAL mode only)
+     * @param string   $name        The argument name
+     * @param int|null $mode        The argument mode: self::REQUIRED or self::OPTIONAL
+     * @param string   $description A description text
+     * @param mixed    $default     The default value (for self::OPTIONAL mode only)
      *
      * @throws \InvalidArgumentException When argument mode is not valid
      */

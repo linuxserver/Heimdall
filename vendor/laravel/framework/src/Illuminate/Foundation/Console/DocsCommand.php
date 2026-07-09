@@ -82,7 +82,7 @@ class DocsCommand extends Command
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -97,6 +97,8 @@ class DocsCommand extends Command
      * @param  \Illuminate\Http\Client\Factory  $http
      * @param  \Illuminate\Contracts\Cache\Repository  $cache
      * @return int
+     *
+     * @throws \Symfony\Component\Process\Exception\ProcessFailedException
      */
     public function handle(Http $http, Cache $cache)
     {
@@ -125,11 +127,11 @@ class DocsCommand extends Command
      */
     protected function openUrl()
     {
-        with($this->url(), function ($url) {
-            $this->components->info("Opening the docs to: <fg=yellow>{$url}</>");
+        $url = $this->url();
 
-            $this->open($url);
-        });
+        $this->components->info("Opening the docs to: <fg=yellow>{$url}</>");
+
+        $this->open($url);
     }
 
     /**
@@ -145,9 +147,9 @@ class DocsCommand extends Command
             ]);
         }
 
-        return with($this->page(), function ($page) {
-            return trim("https://laravel.com/docs/{$this->version()}/{$page}#{$this->section($page)}", '#/');
-        });
+        $page = $this->page();
+
+        return trim("https://laravel.com/docs/{$this->version()}/{$page}#{$this->section($page)}", '#/');
     }
 
     /**
@@ -157,15 +159,15 @@ class DocsCommand extends Command
      */
     protected function page()
     {
-        return with($this->resolvePage(), function ($page) {
-            if ($page === null) {
-                $this->components->warn('Unable to determine the page you are trying to visit.');
+        $page = $this->resolvePage();
 
-                return '/';
-            }
+        if ($page === null) {
+            $this->components->warn('Unable to determine the page you are trying to visit.');
 
-            return $page;
-        });
+            return '/';
+        }
+
+        return $page;
     }
 
     /**
@@ -368,6 +370,8 @@ class DocsCommand extends Command
      *
      * @param  string  $url
      * @return void
+     *
+     * @throws \Symfony\Component\Process\Exception\ProcessFailedException
      */
     protected function openViaBuiltInStrategy($url)
     {
@@ -441,11 +445,11 @@ class DocsCommand extends Command
      */
     protected function refreshDocs()
     {
-        with($this->fetchDocs(), function ($response) {
-            if ($response->successful()) {
-                $this->cache->put("artisan.docs.{{$this->version()}}.index", $response->collect(), CarbonInterval::months(2));
-            }
-        });
+        $response = $this->fetchDocs();
+
+        if ($response->successful()) {
+            $this->cache->put("artisan.docs.{{$this->version()}}.index", $response->collect(), CarbonInterval::months(2));
+        }
     }
 
     /**

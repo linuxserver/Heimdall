@@ -44,11 +44,7 @@ $url = $generator->generate('blog_show', [
 Sponsor
 -------
 
-The Routing component for Symfony 7.1 is [backed][1] by [redirection.io][2].
-
-redirection.io logs all your website’s HTTP traffic, and lets you fix errors
-with redirect rules in seconds. Give your marketing, SEO and IT teams the
-right tool to manage your website traffic efficiently!
+This package is looking for a [backer][1].
 
 Help Symfony by [sponsoring][3] its development!
 
@@ -62,5 +58,4 @@ Resources
    in the [main Symfony repository](https://github.com/symfony/symfony)
 
 [1]: https://symfony.com/backers
-[2]: https://redirection.io
 [3]: https://symfony.com/sponsor

@@ -7,6 +7,7 @@ use Laravel\Prompts\Support\Utils;
 
 class MultiSearchPrompt extends Prompt
 {
+    use Concerns\HasInfo;
     use Concerns\Scrolling;
     use Concerns\Truncation;
     use Concerns\TypedValue;
@@ -44,6 +45,7 @@ class MultiSearchPrompt extends Prompt
         public mixed $validate = null,
         public string $hint = '',
         public ?Closure $transform = null,
+        public string|Closure $info = '',
     ) {
         $this->trackTypedValue(submit: false, ignore: fn ($key) => Key::oneOf([Key::SPACE, Key::HOME, Key::END, Key::CTRL_A, Key::CTRL_E], $key) && $this->highlighted !== null);
 
@@ -61,6 +63,22 @@ class MultiSearchPrompt extends Prompt
             Key::LEFT, Key::LEFT_ARROW, Key::RIGHT, Key::RIGHT_ARROW => $this->highlighted = null,
             default => $this->search(),
         });
+    }
+
+    /**
+     * Get the value of the highlighted option.
+     */
+    public function highlightedValue(): int|string|null
+    {
+        if ($this->highlighted === null || ! is_array($this->matches)) {
+            return null;
+        }
+
+        if ($this->isList()) {
+            return $this->matches[$this->highlighted] ?? null;
+        }
+
+        return array_keys($this->matches)[$this->highlighted] ?? null;
     }
 
     /**

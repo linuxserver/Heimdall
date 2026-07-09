@@ -46,6 +46,7 @@ class SuggestPromptRenderer extends Renderer implements Scrolling
                     $this->cyan($this->truncate($prompt->label, $prompt->terminal()->cols() - 6)),
                     $this->valueWithCursorAndArrow($prompt, $maxWidth),
                     $this->renderOptions($prompt),
+                    info: $prompt->infoText(),
                 )
                 ->when(
                     $prompt->hint,
