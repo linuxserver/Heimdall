@@ -364,5 +364,19 @@ class SettingsSeeder extends Seeder
             $setting->label = 'app.settings.default_tag';
             $setting->save();
         }
+
+        if (! $setting = Setting::find(16)) {
+            $setting = new Setting;
+            $setting->id = 16;
+            $setting->group_id = 4;
+            $setting->key = 'skip_tls_verification';
+            $setting->type = 'boolean';
+            $setting->label = 'app.settings.skip_tls_verification';
+            $setting->value = '0';
+            $setting->save();
+        } else {
+            $setting->label = 'app.settings.skip_tls_verification';
+            $setting->save();
+        }
     }
 }

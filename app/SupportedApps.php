@@ -85,6 +85,11 @@ abstract class SupportedApps
             'connect_timeout' => 15,
         ] : $overridevars;
 
+        // Check global setting to skip TLS verification (useful for self-signed certificates)
+        if (Setting::fetch('skip_tls_verification')) {
+            $vars['verify'] = false;
+        }
+
         $client = new Client($vars);
 
         $method = ($overridemethod === null || $overridemethod === false) ? $this->method : $overridemethod;

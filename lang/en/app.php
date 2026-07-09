@@ -33,6 +33,7 @@ return array (
   'settings.folders' => 'Folders',
   'settings.tags' => 'Tags',
   'settings.categories' => 'Categories',
+  'settings.skip_tls_verification' => 'Skip TLS Verification (for self-signed certificates)',
   'options.none' => '- not set -',
   'options.google' => 'Google',
   'options.ddg' => 'DuckDuckGo',
