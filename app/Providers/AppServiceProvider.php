@@ -150,9 +150,10 @@ class AppServiceProvider extends ServiceProvider
         $db_type = config()->get('database.default');
 
         if ($db_type == 'sqlite') {
-            $db_file = database_path(env('DB_DATABASE', 'app.sqlite'));
+            $db_file = config()->get('database.connections.sqlite.database');
             Log::debug('SQLite Database Path: ' . $db_file);
-            if (! is_file($db_file)) {
+            // Do not create a file for the in-memory database identifier.
+            if ($db_file !== ':memory:' && ! is_file($db_file)) {
                 touch($db_file);
             }
         }

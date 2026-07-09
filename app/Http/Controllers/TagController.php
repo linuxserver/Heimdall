@@ -142,7 +142,8 @@ class TagController extends Controller
             'url' => $slug,
         ]);
 
-        Item::find($id)->update($request->all());
+        // Exclude user_id so an update can never reassign ownership
+        Item::find($id)->update($request->except(['user_id']));
 
         $route = route('dash', []);
 

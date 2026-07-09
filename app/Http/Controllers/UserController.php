@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Item;
 use App\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -154,6 +155,11 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         if ($user->id !== 1) {
+            // Hard-delete this user's items (tiles and tags) so they don't become
+            // orphaned; item_tag pivot rows cascade via the existing FK. Shared
+            // items (user_id = 0) are left untouched.
+            Item::withoutGlobalScopes()->where('user_id', $user->id)->forceDelete();
+
             $user->delete();
             $route = route('dash', []);
 

@@ -328,11 +328,17 @@ class ItemController extends Controller
             $config = json_encode($configObject);
         }
 
-        $current_user = User::currentUser();
         $request->merge([
             'description' => $config,
-            'user_id' => $current_user->getId(),
         ]);
+
+        // Only assign ownership when creating; updates must keep the existing owner.
+        if ($id === null) {
+            $current_user = User::currentUser();
+            $request->merge([
+                'user_id' => $current_user->getId(),
+            ]);
+        }
 
         if ($request->input('appid') === 'null' || $request->input('appid') === null) {
             $request->merge([
@@ -348,7 +354,8 @@ class ItemController extends Controller
             $item = Item::create($request->all());
         } else {
             $item = Item::find($id);
-            $item->update($request->all());
+            // Exclude user_id so an update can never reassign ownership
+            $item->update($request->except(['user_id']));
         }
 
         $item->parents()->sync($request->tags);
