@@ -1,0 +1,41 @@
+name: Tag and release
+
+# Stage 2 of the release flow: whenever the version in config/app.php changes
+# on 2.x (normally by merging the PR opened by release.yml, but a hand-made
+# bump PR works too), create the matching tag and GitHub release.
+on:
+  push:
+    branches:
+      - 2.x
+    paths:
+      - config/app.php
+
+permissions:
+  contents: write
+
+jobs:
+  tag-release:
+    name: Tag and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create release if version is untagged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -nE "s/^[[:space:]]*'version' => '([0-9]+\.[0-9]+\.[0-9]+)',/\1/p" config/app.php)
+          if [ -z "$version" ]; then
+            echo "::error::Could not read version from config/app.php"
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
+            echo "Tag v$version already exists — nothing to do"
+            exit 0
+          fi
+          gh release create "v$version" \
+            --target "$GITHUB_SHA" \
+            --title "v$version" \
+            --generate-notes

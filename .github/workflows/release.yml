@@ -1,5 +1,8 @@
 name: Release
 
+# Stage 1 of the release flow: opens a version-bump PR against 2.x.
+# When that PR is merged, tag-release.yml (stage 2) creates the tag and
+# the GitHub release automatically.
 on:
   workflow_dispatch:
     inputs:
@@ -19,16 +22,21 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  release:
-    name: Bump version, tag and release
+  release-pr:
+    name: Open version bump PR
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: 2.x
           fetch-depth: 0
+          # Optional: set a RELEASE_TOKEN repo secret (fine-grained PAT with
+          # contents + pull-requests write) so the bump PR triggers CI checks.
+          # PRs created with the default github.token do not trigger workflows.
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
 
       - name: Determine new version
         id: version
@@ -62,7 +70,7 @@ jobs:
           echo "Bumping $current -> $new"
           echo "new=$new" >> "$GITHUB_OUTPUT"
 
-      - name: Commit bump and push tag
+      - name: Push bump commit to release branch
         env:
           NEW_VERSION: ${{ steps.version.outputs.new }}
         run: |
@@ -70,13 +78,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Bump version to $NEW_VERSION"
-          git tag "v$NEW_VERSION"
-          git push origin HEAD:2.x "refs/tags/v$NEW_VERSION"
+          git push --force origin "HEAD:refs/heads/release/v$NEW_VERSION"
 
-      - name: Create GitHub release
+      - name: Open pull request
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
         run: |
-          gh release create "v${{ steps.version.outputs.new }}" \
-            --title "v${{ steps.version.outputs.new }}" \
-            --generate-notes
+          existing=$(gh pr list --head "release/v$NEW_VERSION" --base 2.x --state open --json number -q '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing is already open for release/v$NEW_VERSION"
+          else
+            gh pr create \
+              --base 2.x \
+              --head "release/v$NEW_VERSION" \
+              --title "Bump version to $NEW_VERSION" \
+              --body "Automated version bump. Merging this PR will tag v$NEW_VERSION and publish the GitHub release. Merge it last, once everything for the release is on 2.x."
+          fi

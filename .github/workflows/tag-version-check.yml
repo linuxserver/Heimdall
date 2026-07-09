@@ -1,8 +1,8 @@
 name: Tag version check
 
 # Safety net for manually pushed tags: fails if the tag doesn't match the
-# version in config/app.php. Tags created by the Release workflow are pushed
-# with GITHUB_TOKEN and therefore don't trigger this (they always match anyway).
+# version in config/app.php. Tags created by tag-release.yml use GITHUB_TOKEN
+# and therefore don't trigger this (they always match anyway).
 on:
   push:
     tags:
