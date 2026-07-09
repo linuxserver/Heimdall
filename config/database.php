@@ -7,7 +7,11 @@ return [
     'connections' => [
         'sqlite' => [
             'driver' => 'sqlite',
-            'database' => database_path(env('DB_DATABASE', 'app.sqlite')), // Make sure to use the correct path
+            // Use the correct path, but let the special in-memory identifier
+            // pass through untouched so tests can run against ':memory:'.
+            'database' => env('DB_DATABASE', 'app.sqlite') === ':memory:'
+                ? ':memory:'
+                : database_path(env('DB_DATABASE', 'app.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true), // Enable foreign key constraints
         ],

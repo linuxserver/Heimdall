@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ItemExportTest extends TestCase
@@ -39,6 +40,18 @@ class ItemExportTest extends TestCase
 
     public function test_exports_assigned_tag_titles_excluding_the_root_tag(): void
     {
+        // Mirror the root/default dashboard row that production seeds (id 0),
+        // so the item_tag pivot's foreign key to items.id is satisfied on a
+        // fresh in-memory database.
+        DB::table('items')->insert([
+            'id' => 0,
+            'title' => 'app.dashboard',
+            'url' => '',
+            'type' => 1,
+            'user_id' => 0,
+            'pinned' => 0,
+        ]);
+
         $item = Item::factory()
             ->create([
                 'title' => 'Tagged Item',
