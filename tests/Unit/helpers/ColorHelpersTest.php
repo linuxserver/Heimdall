@@ -35,6 +35,12 @@ class ColorHelpersTest extends TestCase
     {
         // A value without the leading # must decode identically.
         $this->assertEqualsWithDelta(255, get_brightness('ffffff'), 0.0001);
+
+        // Interior non-hex separators (the "other non-hex" in the name) must be
+        // stripped before decoding, so these normalise to ffffff. If the
+        // preg_replace were dropped these would decode to a different value.
+        $this->assertEqualsWithDelta(255, get_brightness('#ff:ff:ff'), 0.0001);
+        $this->assertEqualsWithDelta(255, get_brightness('ff-ff-ff'), 0.0001);
     }
 
     public function test_get_brightness_weights_channels_per_luma_formula(): void

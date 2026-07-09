@@ -92,7 +92,16 @@ const fetchAppDetails = (appId) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ app: appId }),
-  }).then((response) => response.json());
+  }).then((response) => {
+    // A missing app now returns a genuine 404 (see ItemController::appload).
+    // fetch() does not reject on 4xx, so surface it as a rejection here to
+    // keep importItems reporting "Failed to find app id" rather than treating
+    // the {"error":...} body as a successful import.
+    if (!response.ok) {
+      return Promise.reject(new Error(`Failed to find app id: ${appId}`));
+    }
+    return response.json();
+  });
 };
 
 /**
