@@ -4271,7 +4271,12 @@ $.when($.ready).then(function () {
     data.url = apiurl;
     $(".config-item").each(function () {
       var config = $(this).data("config");
-      data[config] = $(this).val();
+      // For checkboxes, use checked state instead of value attribute
+      if ($(this).is(":checkbox")) {
+        data[config] = $(this).is(":checked") ? "1" : "0";
+      } else {
+        data[config] = $(this).val();
+      }
     });
     data.id = $("form[data-item-id]").data("item-id");
     if (data.password && data.password === fakePassword) {

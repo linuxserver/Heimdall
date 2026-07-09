@@ -310,7 +310,12 @@ $.when($.ready).then(() => {
       data.url = apiurl;
       $(".config-item").each(function () {
         const config = $(this).data("config");
-        data[config] = $(this).val();
+        // For checkboxes, use checked state instead of value attribute
+        if ($(this).is(":checkbox")) {
+          data[config] = $(this).is(":checked") ? "1" : "0";
+        } else {
+          data[config] = $(this).val();
+        }
       });
 
       data.id = $("form[data-item-id]").data("item-id");
