@@ -1,0 +1,34 @@
+{
+    "name": "phrity/util-errorhandler",
+    "type": "library",
+    "description": "Inline error handler; catch and resolve errors for code block.",
+    "homepage": "https://phrity.sirn.se/util-errorhandler",
+    "keywords": ["error", "warning"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sören Jensen",
+            "email": "sirn@sirn.se",
+            "homepage": "https://phrity.sirn.se"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Phrity\\Util\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phrity\\Util\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+        "robiningelbrecht/phpunit-coverage-tools": "^1.9",
+        "squizlabs/php_codesniffer": "^3.5 || ^4.0"
+    }
+}

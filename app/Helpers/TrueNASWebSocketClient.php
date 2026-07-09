@@ -5,7 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Log;
 use Phrity\Net\Context;
 use WebSocket\Client;
-use WebSocket\ConnectionException;
+use WebSocket\Exception\Exception as WebSocketException;
 
 /**
  * TrueNAS JSON-RPC 2.0 WebSocket Client
@@ -87,7 +87,7 @@ class TrueNASWebSocketClient
             }
 
             throw new \Exception('Authentication failed: Invalid API key');
-        } catch (ConnectionException $e) {
+        } catch (WebSocketException $e) {
             Log::error('TrueNAS WebSocket connection failed: ' . $e->getMessage());
             $this->disconnect();
             throw new \Exception('WebSocket connection failed: ' . $e->getMessage());
@@ -130,7 +130,7 @@ class TrueNASWebSocketClient
             }
 
             return $decoded['result'] ?? null;
-        } catch (ConnectionException $e) {
+        } catch (WebSocketException $e) {
             Log::error('TrueNAS WebSocket call failed: ' . $e->getMessage());
             throw new \Exception('WebSocket call failed: ' . $e->getMessage());
         }

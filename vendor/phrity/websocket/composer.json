@@ -1,0 +1,50 @@
+{
+    "name": "phrity/websocket",
+    "type": "library",
+    "description": "WebSocket client and server",
+    "homepage": "https://phrity.sirn.se/websocket",
+    "keywords": ["websocket", "client", "server"],
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Fredrik Liljegren"
+        },
+        {
+            "name": "Sören Jensen",
+            "email": "sirn@sirn.se",
+            "homepage": "https://phrity.sirn.se"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WebSocket\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WebSocket\\Test\\": "tests/mock/"
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "nyholm/psr7": "^1.4",
+        "phrity/http": "^1.1",
+        "phrity/net-uri": "^2.1",
+        "phrity/net-stream": "^2.4",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0",
+        "psr/log": "^1.0 || ^2.0 || ^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "phrity/logger-console": "^1.0",
+        "phrity/net-mock": "^2.4",
+        "phrity/util-errorhandler": "^1.1",
+        "robiningelbrecht/phpunit-coverage-tools": "^1.9",
+        "squizlabs/php_codesniffer": "^4.0"
+    },
+    "suggests": {
+        "ext-zlib": "Required for per-message deflate compression"
+    }
+}

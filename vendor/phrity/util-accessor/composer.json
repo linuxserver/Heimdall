@@ -1,0 +1,35 @@
+{
+    "name": "phrity/util-accessor",
+    "type": "library",
+    "description": "Utility to handle access to a data set by using access paths. Similar to and partly compatible with xpath and json-pointer.",
+    "homepage": "https://phrity.sirn.se/util-accessor",
+    "keywords": ["accessor"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sören Jensen",
+            "email": "sirn@sirn.se",
+            "homepage": "https://phrity.sirn.se"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Phrity\\Util\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phrity\\Util\\Test\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "phrity/util-transformer": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+        "robiningelbrecht/phpunit-coverage-tools": "^1.9",
+        "squizlabs/php_codesniffer": "^3.5 || ^4.0"
+    }
+}
