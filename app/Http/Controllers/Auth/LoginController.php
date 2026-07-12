@@ -123,10 +123,13 @@ class LoginController extends Controller
     /**
      * Show the application's login form.
      *
-     * @return Application|Factory|View
+     * @return Application|Factory|View|RedirectResponse
      */
-    public function showLoginForm(): \Illuminate\View\View
+    public function showLoginForm(Request $request): \Illuminate\View\View
     {
+        // Always show the login view. When OIDC is active the view renders a prominent
+        // "Sign in with Authentik" button at the top; the password form below it is the
+        // admin break-glass path — no magic URL required.
         return view('auth.login');
     }
 

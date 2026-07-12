@@ -33,6 +33,9 @@ if (config('app.url') !== 'http://localhost') {
 Route::get('/userselect/{user}', [LoginController::class, 'setUser'])->name('user.set');
 Route::get('/userselect', [UserController::class, 'selectUser'])->name('user.select');
 Route::get('/autologin/{uuid}', [LoginController::class, 'autologin'])->name('user.autologin');
+// OIDC SSO via Authentik. login() initiates auth-code flow, callback() handles the redirect back.
+Route::get('/auth/oidc/login', [App\Http\Controllers\Auth\OidcController::class, 'login'])->name('oidc.login');
+Route::get('/auth/oidc/callback', [App\Http\Controllers\Auth\OidcController::class, 'callback'])->name('oidc.callback');
 
 Route::get('/', [ItemController::class,'dash'])->name('dash');
 Route::get('check_app_list', [ItemController::class,'checkAppList'])->name('applist');
