@@ -927,9 +927,10 @@ div.create .input input, div.create .input select {
 }
 
 .app-icon {
-  max-width: 60px;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
   display: block;
-  max-height: 60px;
 }
 
 .sidenav {

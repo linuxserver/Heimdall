@@ -722,9 +722,10 @@ div.create {
 	flex: 0 0 60px;
 }
 .app-icon {
-	max-width: 60px;
+	width: 60px;
+	height: 60px;
+	object-fit: contain;
 	display: block;
-	max-height: 60px;
 }
 
 .sidenav {
