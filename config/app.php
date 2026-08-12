@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '2.8.1',
+    'version' => '2.8.2',
 
     'appsource' => env('APP_SOURCE', 'https://appslist.heimdall.site/'),
 
