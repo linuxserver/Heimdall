@@ -278,12 +278,45 @@ class ItemController extends Controller
                 $options['http']['proxy'] = $httpsProxy ?: $httpsProxyLower;
             }
 
+            // Do not follow redirects: a public URL must not be able to bounce to an internal one.
+            $options['http']['follow_location'] = 0;
+            $options['http']['max_redirects'] = 0;
+
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
             if (!array_key_exists('extension', $path_parts)) {
                 throw ValidationException::withMessages(['file' => 'Icon URL must have a valid file extension.']);
             }
             $extension = $path_parts['extension'];
+
+            // SSRF guard: this URL is fetched server-side, so restrict it to http(s)
+            // hosts that resolve to a public address. Without this an attacker can point
+            // it at internal services or cloud metadata (e.g. http://169.254.169.254/)
+            // and use Heimdall as a request proxy.
+            //
+            // Self-hosters who point icons at internal services (e.g. http://192.168.1.10:8080/favicon.png)
+            // can opt out by setting ALLOW_INTERNAL_REQUESTS=true in their .env file.
+            $scheme = strtolower((string) parse_url($file, PHP_URL_SCHEME));
+            $host = parse_url($file, PHP_URL_HOST);
+            if (!in_array($scheme, ['http', 'https'], true) || empty($host)) {
+                throw ValidationException::withMessages(['file' => 'Icon URL must be a valid http(s) URL.']);
+            }
+            if (!env('ALLOW_INTERNAL_REQUESTS', false)) {
+                $resolvedIps = filter_var($host, FILTER_VALIDATE_IP)
+                    ? [$host]
+                    : array_filter(array_map(
+                        static fn ($record) => $record['ip'] ?? $record['ipv6'] ?? null,
+                        @dns_get_record($host, DNS_A + DNS_AAAA) ?: []
+                    ));
+                if (empty($resolvedIps)) {
+                    throw ValidationException::withMessages(['file' => 'Icon URL host could not be resolved.']);
+                }
+                foreach ($resolvedIps as $ip) {
+                    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                        throw ValidationException::withMessages(['file' => 'Icon URL must not resolve to a private or reserved address.']);
+                    }
+                }
+            }
 
             $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
 
