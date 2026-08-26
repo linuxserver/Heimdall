@@ -120,4 +120,68 @@ class ItemImportTest extends TestCase
         $this->assertNotNull($item);
         $this->assertEquals(0, $item->pinned);
     }
+
+    public function test_import_saves_pinned_order(): void
+    {
+        $this->seed();
+
+        $response = $this->postJson('api/item', $this->importPayload([
+            'title'  => 'Ordered App',
+            'order'  => 5,
+        ]));
+
+        $response->assertStatus(200);
+
+        $item = Item::where('type', 0)->where('title', 'Ordered App')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals(5, $item->order);
+    }
+
+    public function test_import_defaults_order_to_zero_when_not_provided(): void
+    {
+        $this->seed();
+
+        $response = $this->postJson('api/item', $this->importPayload([
+            'title' => 'No Order App',
+        ]));
+
+        $response->assertStatus(200);
+
+        $item = Item::where('type', 0)->where('title', 'No Order App')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals(0, $item->order);
+    }
+
+    public function test_export_import_round_trip_preserves_pinned_and_order(): void
+    {
+        $this->seed();
+
+        // Create items with specific pinned/order values
+        $this->postJson('api/item', $this->importPayload([
+            'title'  => 'App One',
+            'pinned' => 1,
+            'order'  => 3,
+        ]))->assertStatus(200);
+
+        $this->postJson('api/item', $this->importPayload([
+            'title'  => 'App Two',
+            'pinned' => 0,
+            'order'  => 7,
+        ]))->assertStatus(200);
+
+        // Export
+        $export = $this->get('api/item');
+        $export->assertJsonCount(2);
+
+        $exported = $export->json();
+
+        // Verify the exported JSON has the right keys/values
+        $appOne = collect($exported)->firstWhere('title', 'App One');
+        $appTwo = collect($exported)->firstWhere('title', 'App Two');
+
+        $this->assertEquals(1, $appOne['pinned']);
+        $this->assertEquals(3, $appOne['pinned_order']);
+        $this->assertEquals(0, $appTwo['pinned']);
+        $this->assertEquals(7, $appTwo['pinned_order']);
+    }
 }
