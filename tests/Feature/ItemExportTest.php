@@ -27,6 +27,7 @@ class ItemExportTest extends TestCase
             "appid" => "123",
             "colour" => "#000",
             "description" => "Description",
+            "pinned" => 1,
             "title" => "Item Title",
             "url" => "http://gorczany.com/nihil-rerum-distinctio-voluptate-assumenda-accusantium-exercitationem"
         ];
@@ -36,6 +37,24 @@ class ItemExportTest extends TestCase
         $response = $this->get('api/item');
 
         $response->assertExactJson([$exampleItem + ["tags" => []]]);
+    }
+
+    public function test_exports_pinned_status_for_items(): void
+    {
+        $pinnedItem = Item::factory()->create([
+            'title' => 'Pinned App',
+            'pinned' => 1,
+        ]);
+        $unpinnedItem = Item::factory()->create([
+            'title' => 'Unpinned App',
+            'pinned' => 0,
+        ]);
+
+        $response = $this->get('api/item');
+
+        $response->assertJsonCount(2);
+        $response->assertJsonPath('0.pinned', 1);
+        $response->assertJsonPath('1.pinned', 0);
     }
 
     public function test_exports_assigned_tag_titles_excluding_the_root_tag(): void

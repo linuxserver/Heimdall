@@ -104,4 +104,20 @@ class ItemImportTest extends TestCase
             ItemTag::where('item_id', $item->id)->where('tag_id', 0)->exists()
         );
     }
+
+    public function test_import_saves_unpinned_item(): void
+    {
+        $this->seed();
+
+        $response = $this->postJson('api/item', $this->importPayload([
+            'title' => 'Unpinned App',
+            'pinned' => 0,
+        ]));
+
+        $response->assertStatus(200);
+
+        $item = Item::where('type', 0)->where('title', 'Unpinned App')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals(0, $item->pinned);
+    }
 }
