@@ -28,16 +28,16 @@ class ItemExportTest extends TestCase
             "colour" => "#000",
             "description" => "Description",
             "pinned" => 1,
-            "pinned_order" => 0,
             "title" => "Item Title",
             "url" => "http://gorczany.com/nihil-rerum-distinctio-voluptate-assumenda-accusantium-exercitationem"
         ];
+        // The DB column is "order"; it is exported under the "pinned_order" key.
         Item::factory()
-            ->create($exampleItem);
+            ->create($exampleItem + ["order" => 0]);
 
         $response = $this->get('api/item');
 
-        $response->assertExactJson([$exampleItem + ["tags" => []]]);
+        $response->assertExactJson([$exampleItem + ["pinned_order" => 0, "tags" => []]]);
     }
 
     public function test_exports_pinned_status_for_items(): void
