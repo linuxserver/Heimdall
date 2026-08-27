@@ -112,8 +112,9 @@ class SettingsSeederTest extends TestCase
     {
         $this->seed();
 
+        // list_value re-reads the stored value, so it has to be persisted.
+        Setting::where('key', 'default_tag')->update(['value' => '0-dash']);
         $setting = Setting::where('key', 'default_tag')->first();
-        $setting->value = '0-dash';
 
         $this->assertSame(__('app.dashboard'), $setting->list_value);
     }
