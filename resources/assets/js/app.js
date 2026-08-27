@@ -56,16 +56,18 @@ $.when($.ready).then(() => {
   const sortables = [];
   if (sortableEl !== null) {
     const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-    const createSortable = (el, options) => {
+    const createSortable = (el, draggable, handle) => {
       // eslint-disable-next-line no-undef
       const instance = Sortable.create(el, {
         disabled: true,
         animation: 150,
         forceFallback: !isFirefox,
-        onEnd() {
-          $.post(`${base}order`, { order: instance.toArray() });
+        draggable,
+        handle,
+        onEnd(evt) {
+          // eslint-disable-next-line no-undef
+          $.post(`${base}order`, { order: Sortable.get(evt.to).toArray() });
         },
-        ...options,
       });
       // prevent Firefox drag behavior
       if (isFirefox) {
@@ -74,23 +76,20 @@ $.when($.ready).then(() => {
         });
       }
       sortables.push(instance);
-      return instance;
     };
 
-    if (sortableEl.classList.contains("categories")) {
-      // Categories mode: the dashboard is a list of category blocks, each
-      // holding its own items. Categories are reordered by dragging their
-      // title bar; items are reordered within their category.
-      createSortable(sortableEl, {
-        draggable: ".category",
-        handle: ".category-title",
-      });
-      sortableEl.querySelectorAll(".category").forEach((categoryEl) => {
-        createSortable(categoryEl, { draggable: ".item-container" });
-      });
-    } else {
-      createSortable(sortableEl, { draggable: ".item-container" });
+    // In categories mode the items are nested inside .category blocks, so
+    // the categories get their own sortable (dragged by their title bar) and
+    // each category sorts its own items. The item sortables deliberately
+    // share no `group`: moving an item between categories is a tag change
+    // that /order cannot express.
+    const categoryEls = Array.from(sortableEl.querySelectorAll(".category"));
+    if (categoryEls.length > 0) {
+      createSortable(sortableEl, ".category", ".category > .title");
     }
+    (categoryEls.length > 0 ? categoryEls : [sortableEl]).forEach((el) => {
+      createSortable(el, ".item-container");
+    });
 
     if (isFirefox) {
       sortableEl.addEventListener("dragstart", (event) => {
