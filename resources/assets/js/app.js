@@ -53,27 +53,46 @@ $.when($.ready).then(() => {
       }); */
 
   const sortableEl = document.getElementById("sortable");
-  let sortable;
+  const sortables = [];
   if (sortableEl !== null) {
-    // eslint-disable-next-line no-undef
-    sortable = Sortable.create(sortableEl, {
-      disabled: true,
-      animation: 150,
-      forceFallback: !(
-        navigator.userAgent.toLowerCase().indexOf("firefox") > -1
-      ),
-      draggable: ".item-container",
-      onEnd() {
-        const idsInOrder = sortable.toArray();
-        $.post(`${base}order`, { order: idsInOrder });
-      },
-    });
-    // prevent Firefox drag behavior
-    if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
-      sortable.option("setData", (dataTransfer) => {
-        dataTransfer.setData("Text", "");
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+    const createSortable = (el, options) => {
+      // eslint-disable-next-line no-undef
+      const instance = Sortable.create(el, {
+        disabled: true,
+        animation: 150,
+        forceFallback: !isFirefox,
+        onEnd() {
+          $.post(`${base}order`, { order: instance.toArray() });
+        },
+        ...options,
       });
+      // prevent Firefox drag behavior
+      if (isFirefox) {
+        instance.option("setData", (dataTransfer) => {
+          dataTransfer.setData("Text", "");
+        });
+      }
+      sortables.push(instance);
+      return instance;
+    };
 
+    if (sortableEl.classList.contains("categories")) {
+      // Categories mode: the dashboard is a list of category blocks, each
+      // holding its own items. Categories are reordered by dragging their
+      // title bar; items are reordered within their category.
+      createSortable(sortableEl, {
+        draggable: ".category",
+        handle: ".category-title",
+      });
+      sortableEl.querySelectorAll(".category").forEach((categoryEl) => {
+        createSortable(categoryEl, { draggable: ".item-container" });
+      });
+    } else {
+      createSortable(sortableEl, { draggable: ".item-container" });
+    }
+
+    if (isFirefox) {
       sortableEl.addEventListener("dragstart", (event) => {
         const { target } = event;
         if (target.nodeName.toLowerCase() === "a") {
@@ -84,6 +103,9 @@ $.when($.ready).then(() => {
       });
     }
   }
+  const setSortableDisabled = (disabled) => {
+    sortables.forEach((instance) => instance.option("disabled", disabled));
+  };
 
   $("#main")
     .on("mouseenter", "#sortable .item", function () {
@@ -263,10 +285,10 @@ $.when($.ready).then(() => {
         $(".item-edit").hide();
         $("#app").removeClass("sidebar");
         $("#sortable .tooltip").css("display", "");
-        if (sortable !== undefined) sortable.option("disabled", true);
+        setSortableDisabled(true);
       } else {
         $("#sortable .tooltip").css("display", "none");
-        if (sortable !== undefined) sortable.option("disabled", false);
+        setSortableDisabled(false);
         setTimeout(() => {
           $(".add-item").fadeIn();
           $(".item-edit").fadeIn();

@@ -102,4 +102,37 @@ class DashTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('data-default-tag="home-dashboard"', false);
     }
+
+    public function test_categories_mode_renders_sortable_category_and_item_markup(): void
+    {
+        $this->seed();
+
+        Setting::where('key', 'treat_tags_as')->update(['value' => 'categories']);
+
+        $tag = Item::factory()->create([
+            'title' => 'Media',
+            'url' => 'media',
+            'type' => 1,
+            'pinned' => 1,
+            'user_id' => 0,
+        ]);
+        $app = Item::factory()->create([
+            'title' => 'Plex',
+            'pinned' => 1,
+        ]);
+        ItemTag::factory()->create([
+            'item_id' => $app->id,
+            'tag_id' => $tag->id,
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('<div id="sortable" class="categories">', false);
+        // The category block carries its id (what Sortable posts to /order)
+        // and a title bar that acts as the drag handle for reordering categories.
+        $response->assertSee('class="category item-containerz" data-name="Media" data-id="' . $tag->id . '"', false);
+        $response->assertSee('class="title category-title"', false);
+        $response->assertSee('data-name="Plex" data-id="' . $app->id . '"', false);
+    }
 }
