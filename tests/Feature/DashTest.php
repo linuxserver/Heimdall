@@ -102,4 +102,21 @@ class DashTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('data-default-tag="home-dashboard"', false);
     }
+
+    public function test_tags_mode_renders_the_home_dashboard_chip_matching_the_default_tag_slug(): void
+    {
+        $this->seed();
+
+        Setting::where('key', 'treat_tags_as')->update(['value' => 'tags']);
+        Setting::where('key', 'default_tag')->update(['value' => '0-dash']);
+
+        $this->addPinnedItemWithTitleToDB('Home Item');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-default-tag="0-dash"', false);
+        $response->assertSee('data-tag="tag-0-dash"', false);
+        $response->assertSee('class="item-container tag-0-dash"', false);
+    }
 }

@@ -124,11 +124,7 @@ class Setting extends Model
                     if ($this->key === 'search_provider') {
                         $options = Search::providers()->pluck('name', 'id')->toArray();
                     } elseif ($this->key === 'default_tag') {
-                        $options = [];
-                        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
-                        foreach ($tags as $tag) {
-                            $options[$tag->tag_url] = $tag->title;
-                        }
+                        $options = self::defaultTagOptions();
                     }
                     $value = (array_key_exists($this->value, $options))
                         ? __($options[$this->value])
@@ -197,11 +193,7 @@ class Setting extends Model
                 if ($this->key === 'search_provider') {
                     $options = Search::providers()->pluck('name', 'id');
                 } elseif ($this->key === 'default_tag') {
-                    $options = ['' => 'app.options.none'];
-                    $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
-                    foreach ($tags as $tag) {
-                        $options[$tag->tag_url] = $tag->title;
-                    }
+                    $options = ['' => 'app.options.none'] + self::defaultTagOptions();
                 }
                 $value = '<select name="value" class="form-control">';
                 foreach ($options as $key => $opt) {
@@ -310,5 +302,30 @@ class Setting extends Model
     public static function user()
     {
         return User::currentUser();
+    }
+
+    /**
+     * Tags that can be picked as the default tag, keyed by the slug the
+     * dashboard taglist uses (the value stored in the setting).
+     *
+     * Mirrors the taglist rendered in "tags" mode: the Home dashboard (root
+     * tag, id 0) first, then every pinned tag alphabetically.
+     *
+     * @return array<string, string>
+     */
+    public static function defaultTagOptions(): array
+    {
+        $options = [];
+
+        if ($home = Item::find(0)) {
+            $options[$home->tag_url] = $home->title;
+        }
+
+        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
+        foreach ($tags as $tag) {
+            $options[$tag->tag_url] = $tag->title;
+        }
+
+        return $options;
     }
 }
