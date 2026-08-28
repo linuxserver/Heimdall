@@ -16,7 +16,7 @@ class DashTest extends TestCase
      * Helpers
      */
 
-    private function addPinnedItemWithTitleToDB($title)
+    private function addPinnedItemWithTitleToDB($title, $tagId = 0): Item
     {
         $item = Item::factory()
             ->create([
@@ -26,22 +26,20 @@ class DashTest extends TestCase
 
         ItemTag::factory()->create([
             'item_id' => $item->id,
-            'tag_id' => 0,
+            'tag_id' => $tagId,
         ]);
+
+        return $item;
     }
 
-    private function addTagWithTitleToDB($title)
+    private function addTagWithTitleToDB($title, array $attributes = []): Item
     {
-        Item::factory()
-            ->create([
+        return Item::factory()
+            ->create($attributes + [
                 'title' => $title,
                 'type' => 1,
             ]);
     }
-
-    /**
-     * Test Cases
-     */
 
     public function test_loads_empty_dash(): void
     {
@@ -89,13 +87,7 @@ class DashTest extends TestCase
         Setting::where('key', 'treat_tags_as')->update(['value' => 'tags']);
         Setting::where('key', 'default_tag')->update(['value' => 'home-dashboard']);
 
-        Item::factory()->create([
-            'title' => 'Home',
-            'url' => 'home-dashboard',
-            'type' => 1,
-            'pinned' => 1,
-            'user_id' => 0,
-        ]);
+        $this->addTagWithTitleToDB('Home', ['url' => 'home-dashboard', 'pinned' => 1, 'user_id' => 0]);
 
         $response = $this->get('/');
 
@@ -119,5 +111,31 @@ class DashTest extends TestCase
         $response->assertSee('data-default-tag="0-dash"', false);
         $response->assertSee('data-tag="tag-0-dash"', false);
         $response->assertSee('class="item-container tag-0-dash"', false);
+    }
+
+    public function test_categories_mode_renders_sortable_category_and_item_markup(): void
+    {
+        $this->seed();
+
+        Setting::where('key', 'treat_tags_as')->update(['value' => 'categories']);
+
+        $tag = $this->addTagWithTitleToDB('Media', ['url' => 'media', 'pinned' => 1, 'user_id' => 0]);
+        $app = $this->addPinnedItemWithTitleToDB('Plex', $tag->id);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        // The category block and the item inside it both carry the id that
+        // Sortable posts to /order.
+        $response->assertSee('class="category item-containerz" data-name="Media" data-id="' . $tag->id . '"', false);
+        $response->assertSee('data-name="Plex" data-id="' . $app->id . '"', false);
+        // The item is rendered inside its category block (what the nested
+        // per-category sortable relies on), and the title link opts out of
+        // native dragging so the category itself is the drag source.
+        $html = $response->getContent();
+        $categoryPos = strpos($html, 'data-id="' . $tag->id . '"');
+        $itemPos = strpos($html, 'data-id="' . $app->id . '"');
+        $this->assertLessThan($itemPos, $categoryPos);
+        $this->assertStringContainsString('<a draggable="false" href=', $html);
     }
 }
