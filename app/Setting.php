@@ -305,27 +305,17 @@ class Setting extends Model
     }
 
     /**
-     * Tags that can be picked as the default tag, keyed by the slug the
-     * dashboard taglist uses (the value stored in the setting).
-     *
-     * Mirrors the taglist rendered in "tags" mode: the Home dashboard (root
-     * tag, id 0) first, then every pinned tag alphabetically.
+     * Tags offered by the default_tag setting, keyed by their taglist slug:
+     * the home dashboard first, then the pinned tags by title.
      *
      * @return array<string, string>
      */
     public static function defaultTagOptions(): array
     {
-        $options = [];
-
-        if ($home = Item::find(0)) {
-            $options[$home->tag_url] = $home->title;
-        }
-
-        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
-        foreach ($tags as $tag) {
-            $options[$tag->tag_url] = $tag->title;
-        }
-
-        return $options;
+        return Item::taglist()
+            ->get()
+            ->sortBy(fn (Item $tag) => $tag->id === 0 ? '' : $tag->title)
+            ->pluck('title', 'tag_url')
+            ->toArray();
     }
 }

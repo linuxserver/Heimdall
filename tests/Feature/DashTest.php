@@ -103,7 +103,7 @@ class DashTest extends TestCase
         $response->assertSee('data-default-tag="home-dashboard"', false);
     }
 
-    public function test_tags_mode_renders_the_home_dashboard_chip_matching_the_default_tag_slug(): void
+    public function test_dash_can_default_to_the_home_dashboard_tag(): void
     {
         $this->seed();
 
@@ -115,6 +115,7 @@ class DashTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+        // The stored slug matches the chip and the tile class the JS filters on.
         $response->assertSee('data-default-tag="0-dash"', false);
         $response->assertSee('data-tag="tag-0-dash"', false);
         $response->assertSee('class="item-container tag-0-dash"', false);

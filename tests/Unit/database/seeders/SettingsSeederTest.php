@@ -78,32 +78,14 @@ class SettingsSeederTest extends TestCase
 
         // The unpinned tag is excluded.
         $this->assertStringNotContainsString('value="archive"', $editValue);
-    }
 
-    public function test_default_tag_edit_value_offers_the_home_dashboard_first(): void
-    {
-        $this->seed();
-
-        Item::factory()->create([
-            'title' => 'Media',
-            'url' => 'media',
-            'type' => 1,
-            'pinned' => 1,
-            'user_id' => 0,
-        ]);
-
-        $setting = Setting::where('key', 'default_tag')->first();
-        $editValue = $setting->edit_value;
-
-        // The root tag (id 0) is what the dashboard taglist renders as the
-        // "Home Dashboard" chip, under the "0-dash" slug; its title is a
-        // translation key and must be rendered translated.
+        // The root tag (id 0) is what the taglist renders as the "Home
+        // Dashboard" chip, under the "0-dash" slug; its title is a
+        // translation key and is rendered translated, right after "none".
         $this->assertStringContainsString('value="0-dash"', $editValue);
         $this->assertStringContainsString('>' . __('app.dashboard') . '</option>', $editValue);
-
-        // It is listed right after "none", ahead of the user's own tags.
         $this->assertLessThan(
-            strpos($editValue, 'value="media"'),
+            strpos($editValue, 'value="home-dashboard"'),
             strpos($editValue, 'value="0-dash"')
         );
     }
