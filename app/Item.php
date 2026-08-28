@@ -122,6 +122,17 @@ class Item extends Model
         return $query->where('pinned', 1);
     }
 
+    /**
+     * Scope a query to the tags shown in the dashboard taglist: the home
+     * dashboard (root tag, id 0) plus every pinned tag.
+     */
+    public function scopeTaglist(Builder $query): Builder
+    {
+        return $query->where('id', 0)->orWhere(function (Builder $query) {
+            $query->where('type', 1)->pinned();
+        });
+    }
+
     public static function checkConfig($config)
     {
         // die(print_r($config));

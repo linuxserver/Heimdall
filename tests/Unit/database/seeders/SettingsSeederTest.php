@@ -78,5 +78,26 @@ class SettingsSeederTest extends TestCase
 
         // The unpinned tag is excluded.
         $this->assertStringNotContainsString('value="archive"', $editValue);
+
+        // The root tag (id 0) is what the taglist renders as the "Home
+        // Dashboard" chip, under the "0-dash" slug; its title is a
+        // translation key and is rendered translated, right after "none".
+        $this->assertStringContainsString('value="0-dash"', $editValue);
+        $this->assertStringContainsString('>' . __('app.dashboard') . '</option>', $editValue);
+        $this->assertLessThan(
+            strpos($editValue, 'value="home-dashboard"'),
+            strpos($editValue, 'value="0-dash"')
+        );
+    }
+
+    public function test_default_tag_list_value_shows_the_home_dashboard_when_selected(): void
+    {
+        $this->seed();
+
+        // list_value re-reads the stored value, so it has to be persisted.
+        Setting::where('key', 'default_tag')->update(['value' => '0-dash']);
+        $setting = Setting::where('key', 'default_tag')->first();
+
+        $this->assertSame(__('app.dashboard'), $setting->list_value);
     }
 }

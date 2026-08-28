@@ -124,11 +124,7 @@ class Setting extends Model
                     if ($this->key === 'search_provider') {
                         $options = Search::providers()->pluck('name', 'id')->toArray();
                     } elseif ($this->key === 'default_tag') {
-                        $options = [];
-                        $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
-                        foreach ($tags as $tag) {
-                            $options[$tag->tag_url] = $tag->title;
-                        }
+                        $options = self::defaultTagOptions();
                     }
                     $value = (array_key_exists($this->value, $options))
                         ? __($options[$this->value])
@@ -197,11 +193,7 @@ class Setting extends Model
                 if ($this->key === 'search_provider') {
                     $options = Search::providers()->pluck('name', 'id');
                 } elseif ($this->key === 'default_tag') {
-                    $options = ['' => 'app.options.none'];
-                    $tags = Item::where('type', 1)->where('id', '>', 0)->pinned()->orderBy('title', 'asc')->get();
-                    foreach ($tags as $tag) {
-                        $options[$tag->tag_url] = $tag->title;
-                    }
+                    $options = ['' => 'app.options.none'] + self::defaultTagOptions();
                 }
                 $value = '<select name="value" class="form-control">';
                 foreach ($options as $key => $opt) {
@@ -310,5 +302,20 @@ class Setting extends Model
     public static function user()
     {
         return User::currentUser();
+    }
+
+    /**
+     * Tags offered by the default_tag setting, keyed by their taglist slug:
+     * the home dashboard first, then the pinned tags by title.
+     *
+     * @return array<string, string>
+     */
+    public static function defaultTagOptions(): array
+    {
+        return Item::taglist()
+            ->get()
+            ->sortBy(fn (Item $tag) => $tag->id === 0 ? '' : $tag->title)
+            ->pluck('title', 'tag_url')
+            ->toArray();
     }
 }

@@ -95,6 +95,24 @@ class DashTest extends TestCase
         $response->assertSee('data-default-tag="home-dashboard"', false);
     }
 
+    public function test_dash_can_default_to_the_home_dashboard_tag(): void
+    {
+        $this->seed();
+
+        Setting::where('key', 'treat_tags_as')->update(['value' => 'tags']);
+        Setting::where('key', 'default_tag')->update(['value' => '0-dash']);
+
+        $this->addPinnedItemWithTitleToDB('Home Item');
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        // The stored slug matches the chip and the tile class the JS filters on.
+        $response->assertSee('data-default-tag="0-dash"', false);
+        $response->assertSee('data-tag="tag-0-dash"', false);
+        $response->assertSee('class="item-container tag-0-dash"', false);
+    }
+
     public function test_categories_mode_renders_sortable_category_and_item_markup(): void
     {
         $this->seed();
