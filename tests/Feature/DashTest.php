@@ -111,5 +111,13 @@ class DashTest extends TestCase
         // Sortable posts to /order.
         $response->assertSee('class="category item-containerz" data-name="Media" data-id="' . $tag->id . '"', false);
         $response->assertSee('data-name="Plex" data-id="' . $app->id . '"', false);
+        // The item is rendered inside its category block (what the nested
+        // per-category sortable relies on), and the title link opts out of
+        // native dragging so the category itself is the drag source.
+        $html = $response->getContent();
+        $categoryPos = strpos($html, 'data-id="' . $tag->id . '"');
+        $itemPos = strpos($html, 'data-id="' . $app->id . '"');
+        $this->assertLessThan($itemPos, $categoryPos);
+        $this->assertStringContainsString('<a draggable="false" href=', $html);
     }
 }

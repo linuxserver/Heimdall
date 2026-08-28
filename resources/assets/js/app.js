@@ -63,7 +63,7 @@ $.when($.ready).then(() => {
         animation: 150,
         forceFallback: !isFirefox,
         draggable,
-        handle,
+        ...(handle ? { handle } : {}),
         onEnd(evt) {
           // eslint-disable-next-line no-undef
           $.post(`${base}order`, { order: Sortable.get(evt.to).toArray() });
@@ -79,10 +79,11 @@ $.when($.ready).then(() => {
     };
 
     // In categories mode the items are nested inside .category blocks, so
-    // the categories get their own sortable (dragged by their title bar) and
-    // each category sorts its own items. The item sortables deliberately
-    // share no `group`: moving an item between categories is a tag change
-    // that /order cannot express.
+    // the categories get their own sortable (dragged by their title bar,
+    // whose link is draggable="false" so the native drag source is the
+    // block rather than the anchor) and each category sorts its own items.
+    // The item sortables deliberately share no `group`: moving an item
+    // between categories is a tag change that /order cannot express.
     const categoryEls = Array.from(sortableEl.querySelectorAll(".category"));
     if (categoryEls.length > 0) {
       createSortable(sortableEl, ".category", ".category > .title");
