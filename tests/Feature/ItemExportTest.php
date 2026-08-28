@@ -42,11 +42,11 @@ class ItemExportTest extends TestCase
 
     public function test_exports_pinned_status_for_items(): void
     {
-        $pinnedItem = Item::factory()->create([
+        Item::factory()->create([
             'title' => 'Pinned App', 
             'pinned' => 1, 
         ]);
-        $unpinnedItem = Item::factory()->create([
+        Item::factory()->create([
             'title' => 'Unpinned App',
             'pinned' => 0,
         ]);
