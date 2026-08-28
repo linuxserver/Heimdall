@@ -54,8 +54,9 @@ class ItemExportTest extends TestCase
         $response = $this->get('api/item');
 
         $response->assertJsonCount(2);
-        $response->assertJsonPath('0.pinned', 1);
-        $response->assertJsonPath('1.pinned', 0);
+        $exported = collect($response->json())->keyBy('title');
+        $this->assertSame(1, $exported['Pinned App']['pinned']);
+        $this->assertSame(0, $exported['Unpinned App']['pinned']);
     }
 
     public function test_exports_pinned_order_for_items(): void
