@@ -38,6 +38,45 @@ class AjaxPostEndpointsTest extends TestCase
         $this->assertSame(1, (int) $first->fresh()->order);
     }
 
+    public function test_order_endpoint_reorders_categories_including_the_home_tag(): void
+    {
+        $this->seed();
+
+        // The seeder creates the home dashboard tag at id 0; it is a valid
+        // category and must not be dropped as a "falsy" id.
+        $media = Item::factory()->create(['title' => 'Media', 'type' => 1, 'order' => 0]);
+        $work = Item::factory()->create(['title' => 'Work', 'type' => 1, 'order' => 1]);
+
+        $response = $this->post('/order', [
+            'order' => [$work->id, '0', $media->id],
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertSame(0, (int) $work->fresh()->order);
+        $this->assertSame(1, (int) Item::find(0)->order);
+        $this->assertSame(2, (int) $media->fresh()->order);
+    }
+
+    public function test_order_endpoint_skips_ids_that_no_longer_exist(): void
+    {
+        $this->seed();
+
+        $first = Item::factory()->create(['order' => 5]);
+        $second = Item::factory()->create(['order' => 9]);
+
+        $response = $this->post('/order', [
+            'order' => [$second->id, 999999, $first->id],
+        ]);
+
+        $response->assertStatus(200);
+
+        // Positions are taken from the posted list, so the missing id leaves
+        // a gap rather than shifting the items after it.
+        $this->assertSame(0, (int) $second->fresh()->order);
+        $this->assertSame(2, (int) $first->fresh()->order);
+    }
+
     public function test_appload_returns_null_for_the_none_selection(): void
     {
         $this->seed();

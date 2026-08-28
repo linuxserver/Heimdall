@@ -98,9 +98,17 @@ class ItemController extends Controller
      */
     public function setOrder(Request $request)
     {
-        $order = array_filter($request->input('order'));
-        foreach ($order as $o => $id) {
+        // Drop blanks only: "0" is the home dashboard tag, which is a valid
+        // id when categories are being reordered.
+        $order = array_filter(
+            (array) $request->input('order', []),
+            fn ($id) => $id !== null && $id !== ''
+        );
+        foreach (array_values($order) as $o => $id) {
             $item = Item::find($id);
+            if ($item === null) {
+                continue;
+            }
             $item->order = $o;
             $item->save();
         }

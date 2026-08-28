@@ -4,7 +4,7 @@
             @foreach($categories as $category)
                 <?php $apps = $category->children; ?>
                 <div class="category item-containerz" data-name="{{ $category->title }}" data-id="{{ $category->id }}">
-                <div class="title"><a href="{{ $category->link }}" style="{{ $category->colour ? 'color: ' . $category->colour .';' : '' }}">{{ $category->title }}</a></div>
+                <div class="title"><a draggable="false" href="{{ $category->link }}" style="{{ $category->colour ? 'color: ' . $category->colour .';' : '' }}">{{ $category->title }}</a></div>
                 @foreach($apps as $app)
                     @include('item')
                 @endforeach
