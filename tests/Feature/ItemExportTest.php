@@ -27,15 +27,48 @@ class ItemExportTest extends TestCase
             "appid" => "123",
             "colour" => "#000",
             "description" => "Description",
+            "pinned" => 1,
             "title" => "Item Title",
             "url" => "http://gorczany.com/nihil-rerum-distinctio-voluptate-assumenda-accusantium-exercitationem"
         ];
+        // The DB column is "order"; it is exported under the "pinned_order" key.
         Item::factory()
-            ->create($exampleItem);
+            ->create($exampleItem + ["order" => 0]);
 
         $response = $this->get('api/item');
 
-        $response->assertExactJson([$exampleItem + ["tags" => []]]);
+        $response->assertExactJson([$exampleItem + ["pinned_order" => 0, "tags" => []]]);
+    }
+
+    public function test_exports_pinned_status_for_items(): void
+    {
+        Item::factory()->create([
+            'title' => 'Pinned App', 
+            'pinned' => 1, 
+        ]);
+        Item::factory()->create([
+            'title' => 'Unpinned App',
+            'pinned' => 0,
+        ]);
+
+        $response = $this->get('api/item');
+
+        $response->assertJsonCount(2);
+        $exported = collect($response->json())->keyBy('title');
+        $this->assertSame(1, $exported['Pinned App']['pinned']);
+        $this->assertSame(0, $exported['Unpinned App']['pinned']);
+    }
+
+    public function test_exports_pinned_order_for_items(): void
+    {
+        Item::factory()->create(['title' => 'First',  'order' => 1]);
+        Item::factory()->create(['title' => 'Second', 'order' => 2]);
+
+        $response = $this->get('api/item');
+
+        $response->assertJsonCount(2);
+        $response->assertJsonPath('0.pinned_order', 1);
+        $response->assertJsonPath('1.pinned_order', 2);
     }
 
     public function test_exports_assigned_tag_titles_excluding_the_root_tag(): void

@@ -29,6 +29,8 @@ class ItemRestController extends Controller
             'description',
             'appid',
             'appdescription',
+            'pinned',
+            'order',
         ];
 
         return Item::with('parents')
@@ -45,6 +47,8 @@ class ItemRestController extends Controller
                     'description' => $item->description,
                     'appid' => $item->appid,
                     'appdescription' => $item->appdescription,
+                    'pinned' => $item->pinned,
+                    'pinned_order' => $item->order,
                     'tags' => $item->parents
                         ->where('id', '!=', 0)
                         ->pluck('title')

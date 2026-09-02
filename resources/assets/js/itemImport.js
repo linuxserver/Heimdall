@@ -59,7 +59,8 @@ const getCSRFToken = () => {
  * @returns {object}
  */
 const mergeItemWithAppDetails = (item, appDetails) => ({
-  pinned: 1,
+  pinned: item.pinned !== undefined ? item.pinned : 1,
+  order: item.pinned_order !== undefined ? item.pinned_order : 0,
   tags: Array.isArray(item.tags) && item.tags.length ? item.tags : [0],
 
   appid: item.appid,
