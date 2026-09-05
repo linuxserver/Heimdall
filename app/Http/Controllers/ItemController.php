@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Application;
+use App\Exceptions\BlockedUrlException;
+use App\Helpers\SafeUrlFetcher;
 use App\Item;
 use App\Jobs\ProcessApps;
 use App\User;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -264,20 +263,6 @@ class ItemController extends Controller
                 'icon' => $path,
             ]);
         } elseif (strpos($request->input('icon'), 'http') === 0) {
-            $options = [
-                "ssl" => [
-                    "verify_peer" => false,
-                    "verify_peer_name" => false,
-                ],
-            ];
-
-            // Proxy management
-            $httpsProxy = getenv('HTTPS_PROXY');
-            $httpsProxyLower = getenv('https_proxy');
-            if ($httpsProxy !== false || $httpsProxyLower !== false) {
-                $options['http']['proxy'] = $httpsProxy ?: $httpsProxyLower;
-            }
-
             $file = $request->input('icon');
             $path_parts = pathinfo($file);
             if (!array_key_exists('extension', $path_parts)) {
@@ -285,7 +270,21 @@ class ItemController extends Controller
             }
             $extension = $path_parts['extension'];
 
-            $contents = file_get_contents($request->input('icon'), false, stream_context_create($options));
+            // The icon is fetched server-side, so it goes through the same SSRF
+            // guard as website lookups: http(s) only, public addresses only, and
+            // every redirect hop re-checked. Proxy settings come from the
+            // HTTP(S)_PROXY environment, which Guzzle reads by default.
+            try {
+                $response = app(SafeUrlFetcher::class)->fetch($file);
+            } catch (BlockedUrlException $e) {
+                throw ValidationException::withMessages(['file' => 'Icon URL is not allowed: ' . $e->getMessage()]);
+            }
+
+            if ($response === null || $response->getStatusCode() !== 200) {
+                throw ValidationException::withMessages(['file' => 'Icon could not be downloaded from the given URL.']);
+            }
+
+            $contents = (string) $response->getBody();
 
             if ($extension === 'svg') {
                 $sanitizer = new Sanitizer();
@@ -520,62 +519,27 @@ class ItemController extends Controller
     }
 
     /**
+     * Fetch a caller-supplied URL through the SSRF guard. Every redirect hop
+     * is re-checked; a blocked URL aborts with 403.
+     *
      * @param $url
-     * @param array|bool $overridevars
-     * @throws GuzzleException
+     * @param array|bool $overridevars Guzzle client options replacing the defaults
      */
     public function execute($url, array $attrs = [], $overridevars = false): ?ResponseInterface
     {
-        // Default Guzzle client configuration
-        $clientOptions = [
-            'http_errors' => false,
-            'timeout' => 15,
-            'connect_timeout' => 15,
-            'verify' => false, // In production, set this to `true` and manage certs.
-        ];
-
-        // If the user provided overrides, use them.
-        if ($overridevars !== false) {
-            $clientOptions = $overridevars;
-        }
-
-        // Resolve the hostname to an IP address
-        $host = parse_url($url, PHP_URL_HOST);
-        $ip = gethostbyname($host);
-
-        // Check if the IP is private or reserved
-        $allowInternalIps = env('ALLOW_INTERNAL_REQUESTS', false);
-        if (!$allowInternalIps && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            Log::warning('Blocked access to private or reserved IPs.', ['ip' => $ip, 'host' => $host]);
+        try {
+            return app(SafeUrlFetcher::class)->fetch($url, $overridevars === false ? [] : $overridevars, $attrs);
+        } catch (BlockedUrlException $e) {
+            Log::warning('SSRF attempt blocked.', ['url' => $url, 'reason' => $e->getMessage()]);
             abort(Response::HTTP_FORBIDDEN, 'Access to private or reserved IPs is not allowed.');
         }
-
-        // Force Guzzle to use the resolved IP address
-        $clientOptions['curl'][CURLOPT_RESOLVE] = ["{$host}:80:{$ip}", "{$host}:443:{$ip}"];
-
-        $client = new Client($clientOptions);
-        $method = 'GET';
-
-        try {
-            return $client->request($method, $url, $attrs);
-        } catch (ConnectException $e) {
-            Log::warning('SSRF Attempt Blocked: Connection to a private IP was prevented.', [
-                'url' => $url,
-                'error' => $e->getMessage()
-            ]);
-            return null;
-        } catch (ServerException $e) {
-            Log::debug($e->getMessage());
-        } catch (\Exception $e) {
-            Log::error('General error: ' . $e->getMessage());
-        }
-
-        return null;
     }
 
     /**
-     * @param $url
-     * @throws GuzzleException
+     * Fetch the body of a caller-supplied URL for the add-item form's
+     * title and icon discovery. Blocked or unreachable URLs return 403.
+     *
+     * @param $url base64-encoded URL
      */
     public function websitelookup($url): StreamInterface
     {
@@ -593,7 +557,7 @@ class ItemController extends Controller
         if ($response === null) {
             abort(Response::HTTP_FORBIDDEN, 'Access to the requested resource is not allowed or the resource is unavailable.');
         }
-    
+
         return $response->getBody();
     }
 

@@ -185,7 +185,7 @@ Restart the container and the Enhanced apps should now be able to access your lo
 
 ## Allow Internal IP Requests
 
-By default, Heimdall blocks requests to private or reserved IP addresses to mitigate potential security risks such as Server-Side Request Forgery (SSRF). However, you can enable access to internal IPs by setting the `ALLOW_INTERNAL_REQUESTS` environment variable in your `.env` file.
+By default, Heimdall blocks requests to private or reserved IP addresses to mitigate potential security risks such as Server-Side Request Forgery (SSRF). This applies to every URL a user supplies that Heimdall fetches server-side: the website lookup used by the add-item form and icon URLs. The check runs on the initial URL and again on every redirect it returns, so a public address cannot bounce the request to an internal one. You can enable access to internal IPs by setting the `ALLOW_INTERNAL_REQUESTS` environment variable in your `.env` file.
 
 ### Steps to Enable Internal IP Requests
 1. Open your `.env` file located in the root directory of your Heimdall installation.
