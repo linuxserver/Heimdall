@@ -92,7 +92,17 @@ class AppServiceProvider extends ServiceProvider
             $view->with('allusers', $allusers);
             $view->with('current_user', $current_user);
             if (config('app.auth_roles_enable')) {
-                $view->with('enable_auth_admin_controls', in_array(config('app.auth_roles_admin'), explode(config('app.auth_roles_delimiter'), $_SERVER[config('app.auth_roles_http_header')])));
+                // Anything that reaches Heimdall without passing through the
+                // proxy arrives with no roles header: a container healthcheck,
+                // a probe on the published port, a proxy that is not set up
+                // yet. Reading the key unguarded turns each of those into a
+                // 500 for the whole view. Treat it as holding no roles, which
+                // fails closed on the admin check below.
+                $roles = $_SERVER[config('app.auth_roles_http_header')] ?? '';
+                $view->with(
+                    'enable_auth_admin_controls',
+                    in_array(config('app.auth_roles_admin'), explode(config('app.auth_roles_delimiter'), $roles))
+                );
             } else {
                 $view->with('enable_auth_admin_controls', true);
             }
