@@ -41,7 +41,10 @@ class ItemController extends Controller
         $data["treat_tags_as"] = $treat_tags_as;
 
         if (config('app.auth_roles_enable')) {
-            $roles = explode(config('app.auth_roles_delimiter'), $request->header(config('app.auth_roles_header')));
+            // Coalesce before exploding: the header is absent on any request
+            // that did not come through the proxy, and passing null to
+            // explode() is deprecated in PHP 8.1 and removed later.
+            $roles = explode(config('app.auth_roles_delimiter'), $request->header(config('app.auth_roles_header')) ?? '');
             if ($treat_tags_as == 'categories') {
                 $data['categories'] = Item::whereHas('children')->with('children', function ($query) {
                     $query->pinned()->orderBy('order', 'asc');
