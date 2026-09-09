@@ -40,6 +40,11 @@
     </head>
     <body>
         <div id="app"{!! $alt_bg !!}>
+            {{-- The pin list toggles global item state, so it belongs with
+                 #config-buttons behind the admin check rather than beside it.
+                 Under roles mode every visitor reaches this template, and an
+                 ungated list hands each of them a pintoggle link per item. --}}
+            @if($enable_auth_admin_controls)
             <nav class="sidenav">
                 <a class="close-sidenav" href=""><i class="fas fa-times-circle"></i></a>
                 @if(isset($all_apps))
@@ -56,6 +61,7 @@
                 </ul>
                 @endif
             </nav>
+            @endif
             <div class="content">
                 <header class="appheader">
                     <ul>
