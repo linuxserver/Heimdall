@@ -8,6 +8,7 @@ use App\Jobs\UpdateApps;
 use App\Setting;
 use App\User;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +34,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->setupDatabase();
 
-        if (! is_file(public_path('storage/.gitignore'))) {
+        // Check the link itself; the Docker image doesn't ship storage/app/public/.gitignore.
+        if (! file_exists(public_path('storage'))) {
             Artisan::call('storage:link');
             \Session::put('current_user', null);
         }
@@ -136,6 +138,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // The framework only adds these paths once providers have booted, but
+        // an Artisan::call() in boot() loads the console commands before
+        // then, which dropped register:app (#1606). Add them up front.
+        if ($this->app->runningInConsole()) {
+            $this->app->make(ConsoleKernel::class)
+                ->addCommandPaths([app_path('Console/Commands')])
+                ->addCommandRoutePaths([base_path('routes/console.php')]);
+        }
+
         if ($this->app->isLocal()) {
             $this->app->register(IdeHelperServiceProvider::class);
         }
