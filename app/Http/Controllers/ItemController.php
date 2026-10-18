@@ -241,14 +241,17 @@ class ItemController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|max:255',
             'url' => 'required',
-            'file' => 'image'
+            // SVG icons are accepted here because they are sanitized below.
+            'file' => 'image:allow_svg'
         ]);
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $extension = $image->getClientOriginalExtension();
 
-            if ($extension === 'svg') {
+            // Validation and the stored file name both go by the detected
+            // type, so an SVG uploaded under another extension is sanitized too.
+            if ($extension === 'svg' || $image->guessExtension() === 'svg') {
                 $sanitizer = new Sanitizer();
                 $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
 
