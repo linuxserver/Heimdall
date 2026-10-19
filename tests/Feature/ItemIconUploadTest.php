@@ -88,6 +88,16 @@ class ItemIconUploadTest extends TestCase
         $this->assertStringNotContainsString('onload', $stored);
     }
 
+    public function test_malformed_svg_upload_is_rejected(): void
+    {
+        $malformed = '<svg xmlns="http://www.w3.org/2000/svg"><circle r="1">&nbsp;</svg>';
+
+        $response = $this->post('/items', $this->itemPayload($this->upload($malformed, 'icon.svg')));
+
+        $response->assertSessionHasErrors('file');
+        $this->assertNull(Item::where('title', 'Item A')->first());
+    }
+
     public function test_non_image_upload_is_rejected(): void
     {
         $response = $this->post('/items', $this->itemPayload($this->upload('just some text', 'icon.txt')));

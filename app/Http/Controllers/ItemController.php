@@ -232,6 +232,29 @@ class ItemController extends Controller
     }
 
     /**
+     * Strip scripts and other active content from an SVG icon.
+     *
+     * @throws ValidationException
+     */
+    private static function sanitizeSvg(string $svg): string
+    {
+        $sanitized = (new Sanitizer())->sanitize($svg);
+
+        // The sanitizer returns false when the SVG is not well-formed XML;
+        // storing that would leave an empty, extensionless icon.
+        if ($sanitized === false) {
+            throw ValidationException::withMessages(['file' => 'SVG could not be parsed and cannot be uploaded.']);
+        }
+
+        // Verify that the sanitization removed malicious content
+        if (stripos($sanitized, '<script') !== false) {
+            throw ValidationException::withMessages(['file' => 'SVG contains malicious content and cannot be uploaded.']);
+        }
+
+        return $sanitized;
+    }
+
+    /**
      * @param null $id
      * @throws ValidationException
      */
@@ -251,16 +274,11 @@ class ItemController extends Controller
             // Validation and the stored file name both go by the detected
             // type, not the client file name, so the sanitizer does too.
             if ($image->guessExtension() === 'svg') {
-                $sanitizer = new Sanitizer();
-                $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
-
-                // Verify that the sanitization removed malicious content
-                if (strpos($sanitizedSvg, '<script>') !== false) {
-                    throw ValidationException::withMessages(['file' => 'SVG contains malicious content and cannot be uploaded.']);
-                }
-
                 // Save the sanitized SVG back to the file
-                file_put_contents($image->getRealPath(), $sanitizedSvg);
+                file_put_contents(
+                    $image->getRealPath(),
+                    self::sanitizeSvg(file_get_contents($image->getRealPath()))
+                );
             }
 
             $path = $image->store('icons', 'public');
@@ -292,13 +310,7 @@ class ItemController extends Controller
             $contents = (string) $response->getBody();
 
             if ($extension === 'svg') {
-                $sanitizer = new Sanitizer();
-                $contents = $sanitizer->sanitize($contents);
-
-                // Verify that the sanitization removed malicious content
-                if (strpos($contents, '<script>') !== false) {
-                    throw ValidationException::withMessages(['file' => 'SVG contains malicious content and cannot be uploaded.']);
-                }
+                $contents = self::sanitizeSvg($contents);
             }
 
             if (!isImage($contents, $extension)) {
