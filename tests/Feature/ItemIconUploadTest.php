@@ -6,6 +6,7 @@ use App\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -19,6 +20,24 @@ class ItemIconUploadTest extends TestCase
     private const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">'
         . '<script>alert(1)</script>'
         . '<circle cx="5" cy="5" r="4" onload="alert(2)"/></svg>';
+
+    /** @var string[] */
+    private array $tempFiles = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Storage::fake('public');
+        $this->seed();
+    }
+
+    protected function tearDown(): void
+    {
+        array_map('unlink', array_filter($this->tempFiles, 'file_exists'));
+
+        parent::tearDown();
+    }
 
     private function itemPayload(UploadedFile $file): array
     {
@@ -40,52 +59,37 @@ class ItemIconUploadTest extends TestCase
      */
     private function upload(string $contents, string $clientName): UploadedFile
     {
-        $path = tempnam(sys_get_temp_dir(), 'icon');
+        $path = $this->tempFiles[] = tempnam(sys_get_temp_dir(), 'icon');
         file_put_contents($path, $contents);
 
         return new UploadedFile($path, $clientName, null, null, true);
     }
 
-    private function storedIcon(): string
+    public static function svgClientNames(): array
     {
+        return [
+            'svg extension' => ['icon.svg'],
+            // Fails if the sanitizer goes by the client file name.
+            'png extension' => ['icon.png'],
+        ];
+    }
+
+    #[DataProvider('svgClientNames')]
+    public function test_svg_icon_upload_is_accepted_and_sanitized(string $clientName): void
+    {
+        $response = $this->post('/items', $this->itemPayload($this->upload(self::SVG, $clientName)));
+
+        $response->assertSessionHasNoErrors();
         $item = Item::where('title', 'Item A')->firstOrFail();
         Storage::disk('public')->assertExists($item->icon);
-
-        return Storage::disk('public')->get($item->icon);
-    }
-
-    public function test_svg_icon_upload_is_accepted_and_sanitized(): void
-    {
-        Storage::fake('public');
-        $this->seed();
-
-        $response = $this->post('/items', $this->itemPayload($this->upload(self::SVG, 'icon.svg')));
-
-        $response->assertSessionHasNoErrors();
-        $stored = $this->storedIcon();
+        $stored = Storage::disk('public')->get($item->icon);
         $this->assertStringContainsString('<circle', $stored);
-        $this->assertStringNotContainsString('<script', $stored);
-        $this->assertStringNotContainsString('onload', $stored);
-    }
-
-    public function test_svg_uploaded_under_another_extension_is_still_sanitized(): void
-    {
-        Storage::fake('public');
-        $this->seed();
-
-        $response = $this->post('/items', $this->itemPayload($this->upload(self::SVG, 'icon.png')));
-
-        $response->assertSessionHasNoErrors();
-        $stored = $this->storedIcon();
         $this->assertStringNotContainsString('<script', $stored);
         $this->assertStringNotContainsString('onload', $stored);
     }
 
     public function test_non_image_upload_is_rejected(): void
     {
-        Storage::fake('public');
-        $this->seed();
-
         $response = $this->post('/items', $this->itemPayload($this->upload('just some text', 'icon.txt')));
 
         $response->assertSessionHasErrors('file');

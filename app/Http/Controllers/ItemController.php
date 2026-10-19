@@ -247,11 +247,10 @@ class ItemController extends Controller
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $extension = $image->getClientOriginalExtension();
 
             // Validation and the stored file name both go by the detected
-            // type, so an SVG uploaded under another extension is sanitized too.
-            if ($extension === 'svg' || $image->guessExtension() === 'svg') {
+            // type, not the client file name, so the sanitizer does too.
+            if ($image->guessExtension() === 'svg') {
                 $sanitizer = new Sanitizer();
                 $sanitizedSvg = $sanitizer->sanitize(file_get_contents($image->getRealPath()));
 
