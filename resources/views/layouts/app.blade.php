@@ -25,7 +25,7 @@
         <meta name="theme-color" content="#ffffff">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="{{ asset(mix('css/app.css')) }}" type="text/css" />
+        @vite('resources/assets/sass/app.scss')
         <link rel="stylesheet" href="{{ asset('css/all.min.css?v='.config('app.version')) }}" type="text/css" />
         <script src="{{ asset('js/fontawesome.js') }}"></script>
         @if(config('app.url') !== 'http://localhost')
@@ -121,7 +121,7 @@
             </div>
         </div>
         <script src="{{ asset('js/jquery.min.js') }}"></script>
-        <script src="{{ asset(mix('js/app.js')) }}"></script>
+        @vite('resources/assets/js/index.js')
         @if($trianglify == 'true')
         <script src="{{ asset('js/trianglify.js') }}"></script>
         <script>
