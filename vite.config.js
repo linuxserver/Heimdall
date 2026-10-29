@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   build: {
+    // laravel-mix ran Babel over the bundle. The module script tag already
+    // needs an ES2015 browser, so lower syntax (e.g. object spread) to that
+    // rather than Vite's much newer default target.
+    target: "es2015",
     // `npm run dev` output is committed, so keep it readable
     minify: mode !== "development",
     rolldownOptions: {
