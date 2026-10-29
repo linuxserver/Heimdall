@@ -39,8 +39,8 @@
         "github/gfm": "0.29.0",
         "michelf/php-markdown": "^1.4 || ^2.0",
         "nyholm/psr7": "^1.5",
-        "phpstan/phpstan": "^1.8.2",
-        "phpunit/phpunit": "^9.5.21 || ^10.5.9 || ^11.0.0",
+        "phpstan/phpstan": "^2.0.0",
+        "phpunit/phpunit": "^9.5.21 || ^10.5.9 || ^11.0.0 || ^12.0.0 || ^13.0.0",
         "scrutinizer/ocular": "^1.8.1",
         "symfony/finder": "^5.3 | ^6.0 | ^7.0 || ^8.0",
         "symfony/process": "^5.4 | ^6.0 | ^7.0 || ^8.0",
@@ -116,7 +116,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "2.9-dev"
+            "dev-main": "2.11-dev"
         }
     },
     "config": {

@@ -49,23 +49,48 @@ final class Php85
         return $array ? current(\array_slice($array, -1)) : null;
     }
 
+    // Taken from CLDR 44 (ICU 74); the exact set is ICU-version dependent and won't match every version of the native locale_is_right_to_left().
     private const RTL_SCRIPTS = [
-        'Adlm' => true, 'Arab' => true, 'Armi' => true, 'Hebr' => true,
-        'Mand' => true, 'Mani' => true, 'Mend' => true, 'Nkoo' => true,
-        'Orkh' => true, 'Phnx' => true, 'Rohg' => true, 'Samr' => true,
+        'Adlm' => true, 'Arab' => true, 'Armi' => true, 'Avst' => true,
+        'Chrs' => true, 'Cprt' => true, 'Elym' => true, 'Hatr' => true,
+        'Hebr' => true, 'Hung' => true, 'Khar' => true, 'Lydi' => true,
+        'Mand' => true, 'Mani' => true, 'Mend' => true, 'Merc' => true,
+        'Mero' => true, 'Narb' => true, 'Nbat' => true, 'Nkoo' => true,
+        'Orkh' => true, 'Ougr' => true, 'Palm' => true, 'Phli' => true,
+        'Phlp' => true, 'Phnx' => true, 'Prti' => true, 'Rohg' => true,
+        'Samr' => true, 'Sarb' => true, 'Sogd' => true, 'Sogo' => true,
         'Syrc' => true, 'Thaa' => true, 'Yezi' => true,
     ];
 
     private const LANG_TO_SCRIPT = [
+        'aeb' => 'Arab',
         'ar' => 'Arab',
+        'arc' => 'Armi',
+        'arq' => 'Arab',
+        'ary' => 'Arab',
+        'arz' => 'Arab',
+        'bal' => 'Arab',
+        'bgn' => 'Arab',
         'ckb' => 'Arab',
         'dv' => 'Thaa',
         'fa' => 'Arab',
+        'glk' => 'Arab',
+        'haz' => 'Arab',
         'he' => 'Hebr',
-        'ku' => 'Arab',
+        'iw' => 'Hebr',
+        'kas' => 'Arab',
+        'ks' => 'Arab',
+        'lrc' => 'Arab',
+        'mzn' => 'Arab',
         'nqo' => 'Nkoo',
+        'pnb' => 'Arab',
         'ps' => 'Arab',
+        'rhg' => 'Rohg',
+        'sam' => 'Samr',
         'sd' => 'Arab',
+        'sdh' => 'Arab',
+        'skr' => 'Arab',
+        'syr' => 'Syrc',
         'ug' => 'Arab',
         'ur' => 'Arab',
         'yi' => 'Hebr',
@@ -74,29 +99,33 @@ final class Php85
     public static function locale_is_right_to_left(string $locale): bool
     {
         if ('' === $locale) {
-            return false;
+            $locale = \Locale::getDefault();
         }
 
-        $parts = preg_split('/[_-]/', $locale);
+        $parts = preg_split('/[_-]/', substr($locale, 0, strcspn($locale, '@.')));
         $language = strtolower($parts[0]);
 
-        foreach ($parts as $part) {
-            if (4 === \strlen($part) && ctype_alpha($part)) {
-                return isset(self::RTL_SCRIPTS[ucfirst(strtolower($part))]);
-            }
+        if (isset($parts[1]) && 4 === \strlen($parts[1]) && ctype_alpha($parts[1])) {
+            return isset(self::RTL_SCRIPTS[ucfirst(strtolower($parts[1]))]);
         }
 
         return isset(self::LANG_TO_SCRIPT[$language]) && isset(self::RTL_SCRIPTS[self::LANG_TO_SCRIPT[$language]]);
     }
 
-    public static function grapheme_levenshtein(string $s1, string $s2, int $insertion_cost = 1, int $replacement_cost = 1, int $deletion_cost = 1)
+    public static function grapheme_levenshtein(string $s1, string $s2, int $insertion_cost = 1, int $replacement_cost = 1, int $deletion_cost = 1, string $locale = '')
     {
-        if (!preg_match('//u', $s1) || !preg_match('//u', $s2)) {
-            return false;
+        if ($insertion_cost <= 0 || $insertion_cost > 1073741823) {
+            throw new \ValueError('grapheme_levenshtein(): Argument #3 ($insertion_cost) must be greater than 0 and less than or equal to 1073741823');
+        }
+        if ($replacement_cost <= 0 || $replacement_cost > 1073741823) {
+            throw new \ValueError('grapheme_levenshtein(): Argument #4 ($replacement_cost) must be greater than 0 and less than or equal to 1073741823');
+        }
+        if ($deletion_cost <= 0 || $deletion_cost > 1073741823) {
+            throw new \ValueError('grapheme_levenshtein(): Argument #5 ($deletion_cost) must be greater than 0 and less than or equal to 1073741823');
         }
 
-        if (0 > $insertion_cost || 0 > $replacement_cost || 0 > $deletion_cost) {
-            throw new \ValueError('grapheme_levenshtein(): Argument #3 ($insertion_cost), #4 ($replacement_cost), and #5 ($deletion_cost) must be greater than or equal to 0');
+        if (!preg_match('//u', $s1) || !preg_match('//u', $s2)) {
+            return false;
         }
 
         $regex = ((float) \PCRE_VERSION >= 10.44)
@@ -111,29 +140,43 @@ final class Php85
         $l1 = \count($s1);
         $l2 = \count($s2);
 
-        if (0 === $l1) {
-            return $l2 * $insertion_cost;
+        // Keep the rows as short as possible. Reversing the transformation
+        // swaps the meaning of insertion and deletion.
+        if ($l1 < $l2) {
+            [$s1, $s2] = [$s2, $s1];
+            [$l1, $l2] = [$l2, $l1];
+            [$insertion_cost, $deletion_cost] = [$deletion_cost, $insertion_cost];
         }
+
         if (0 === $l2) {
             return $l1 * $deletion_cost;
         }
 
-        $dp = array_fill(0, $l1 + 1, array_fill(0, $l2 + 1, 0));
-
-        for ($i = 1; $i <= $l1; ++$i) {
-            $dp[$i][0] = $dp[$i - 1][0] + $deletion_cost;
+        // Graphemes are equal when the collator says so, as with ucol_strcoll() in intl
+        try {
+            $collator = new \Collator('' === $locale ? 'root' : $locale);
+        } catch (\IntlException $e) {
+            return false;
         }
+        $s1 = array_map([$collator, 'getSortKey'], $s1);
+        $s2 = array_map([$collator, 'getSortKey'], $s2);
+
+        $previousRow = $currentRow = array_fill(0, $l2 + 1, 0);
         for ($j = 1; $j <= $l2; ++$j) {
-            $dp[0][$j] = $dp[0][$j - 1] + $insertion_cost;
+            $previousRow[$j] = $previousRow[$j - 1] + $insertion_cost;
         }
 
         for ($i = 1; $i <= $l1; ++$i) {
+            $currentRow[0] = $previousRow[0] + $deletion_cost;
+
             for ($j = 1; $j <= $l2; ++$j) {
                 $cost = ($s1[$i - 1] === $s2[$j - 1]) ? 0 : $replacement_cost;
-                $dp[$i][$j] = min($dp[$i - 1][$j] + $deletion_cost, $dp[$i][$j - 1] + $insertion_cost, $dp[$i - 1][$j - 1] + $cost);
+                $currentRow[$j] = min($previousRow[$j] + $deletion_cost, $currentRow[$j - 1] + $insertion_cost, $previousRow[$j - 1] + $cost);
             }
+
+            [$previousRow, $currentRow] = [$currentRow, $previousRow];
         }
 
-        return $dp[$l1][$l2];
+        return $previousRow[$l2];
     }
 }

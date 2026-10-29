@@ -50,7 +50,7 @@ final class DelimiterStack
             /** @psalm-suppress PropertyTypeCoercion */
             $this->missingIndexCache = new \WeakMap(); // @phpstan-ignore-line
         } else {
-            $this->missingIndexCache = new \SplObjectStorage(); // @phpstan-ignore-line
+            $this->missingIndexCache = new \SplObjectStorage();
         }
     }
 

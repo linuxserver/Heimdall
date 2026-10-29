@@ -15,11 +15,13 @@ namespace League\CommonMark\Extension\TableOfContents;
 
 use League\CommonMark\Environment\EnvironmentBuilderInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
+use League\CommonMark\Event\DocumentPreRenderEvent;
 use League\CommonMark\Extension\CommonMark\Node\Block\ListBlock;
 use League\CommonMark\Extension\CommonMark\Renderer\Block\ListBlockRenderer;
 use League\CommonMark\Extension\ConfigurableExtensionInterface;
 use League\CommonMark\Extension\TableOfContents\Node\TableOfContents;
 use League\CommonMark\Extension\TableOfContents\Node\TableOfContentsPlaceholder;
+use League\CommonMark\Extension\TableOfContents\Node\TableOfContentsReference;
 use League\Config\ConfigurationBuilderInterface;
 use Nette\Schema\Expect;
 
@@ -35,19 +37,26 @@ final class TableOfContentsExtension implements ConfigurableExtensionInterface
             'max_heading_level' => Expect::int()->min(1)->max(6)->default(6),
             'html_class' => Expect::string()->default('table-of-contents'),
             'placeholder' => Expect::anyOf(Expect::string(), Expect::null())->default(null),
+            'max_placeholder_entries' => Expect::anyOf(Expect::int()->min(0), Expect::null())->default(null),
         ]));
     }
 
     public function register(EnvironmentBuilderInterface $environment): void
     {
+        $builder = new TableOfContentsBuilder();
+
         $environment->addRenderer(TableOfContents::class, new TableOfContentsRenderer(new ListBlockRenderer()));
-        $environment->addEventListener(DocumentParsedEvent::class, [new TableOfContentsBuilder(), 'onDocumentParsed'], -150);
+        $environment->addEventListener(DocumentParsedEvent::class, [$builder, 'onDocumentParsed'], -150);
 
         // phpcs:ignore SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
         if ($environment->getConfiguration()->get('table_of_contents/position') === TableOfContentsBuilder::POSITION_PLACEHOLDER) {
             $environment->addBlockStartParser(TableOfContentsPlaceholderParser::blockStartParser(), 200);
             // If a placeholder cannot be replaced with a TOC element this renderer will ensure the parser won't error out
             $environment->addRenderer(TableOfContentsPlaceholder::class, new TableOfContentsPlaceholderRenderer());
+            // Placeholders become lightweight references to a single shared TOC which is only rendered once
+            $environment->addRenderer(TableOfContentsReference::class, new TableOfContentsReferenceRenderer());
+            // Non-HTML formats walk the node tree directly, so expand the references back into complete copies there
+            $environment->addEventListener(DocumentPreRenderEvent::class, [$builder, 'onDocumentPreRender']);
         }
     }
 }

@@ -158,7 +158,7 @@ class Promise implements PromiseInterface
                     self::callHandler($id, $value, $handler);
                 }
             });
-        } elseif ($value instanceof Promise && Is::pending($value)) {
+        } elseif ($value instanceof Promise && State::isPending($value)) {
             // We can just merge our handlers onto the next promise.
             $value->handlers = array_merge($value->handlers, $handlers);
         } else {
@@ -192,7 +192,7 @@ class Promise implements PromiseInterface
 
         // The promise may have been cancelled or resolved before placing
         // this thunk in the queue.
-        if (Is::settled($promise)) {
+        if (State::isSettled($promise)) {
             return;
         }
 

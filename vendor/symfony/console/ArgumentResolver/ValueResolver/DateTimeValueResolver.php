@@ -53,6 +53,10 @@ final class DateTimeValueResolver implements ValueResolverInterface
         /** @var class-string<\DateTimeImmutable>|class-string<\DateTime> $class */
         $class = \DateTimeInterface::class === $type->getName() ? \DateTimeImmutable::class : $type->getName();
 
+        if ($member->isVariadic()) {
+            return array_map(fn ($value) => $this->resolveDate($value, $class, $attribute?->format, $argumentName), (array) $value);
+        }
+
         if (!$value) {
             if ($member->isNullable()) {
                 return [null];
@@ -63,11 +67,17 @@ final class DateTimeValueResolver implements ValueResolverInterface
             $value = $this->clock->now();
         }
 
-        if ($value instanceof \DateTimeInterface) {
-            return [$value instanceof $class ? $value : $class::createFromInterface($value)];
-        }
+        return [$this->resolveDate($value, $class, $attribute?->format, $argumentName)];
+    }
 
-        $format = $attribute?->format;
+    /**
+     * @param class-string<\DateTimeImmutable>|class-string<\DateTime> $class
+     */
+    private function resolveDate(mixed $value, string $class, ?string $format, string $argumentName): \DateTimeInterface
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value instanceof $class ? $value : $class::createFromInterface($value);
+        }
 
         if (null !== $format) {
             $date = $class::createFromFormat($format, $value, $this->clock?->now()->getTimeZone());
@@ -96,6 +106,47 @@ final class DateTimeValueResolver implements ValueResolverInterface
             throw new \RuntimeException($message);
         }
 
-        return [$date];
+        return $this->clock ? $this->fillFromClock($class, $date, $value, $format) : $date;
+    }
+
+    /**
+     * Takes the fields that $value leaves out from the clock instead of from the system time.
+     *
+     * @param class-string<\DateTimeImmutable>|class-string<\DateTime> $class
+     */
+    private function fillFromClock(string $class, \DateTimeInterface $date, string $value, ?string $format): \DateTimeInterface
+    {
+        $now = $class::createFromInterface($this->clock->now())->setTimezone($date->getTimezone());
+
+        if (null !== $format) {
+            // createFromFormat() takes the fields that $format does not parse from the system time, so we prepend them from the clock
+            $parsed = date_parse_from_format($format, $value);
+            $nowFormat = $nowValue = '';
+
+            foreach (['year' => 'Y', 'month' => 'm', 'day' => 'd', 'hour' => 'H', 'minute' => 'i', 'second' => 's'] as $field => $char) {
+                if (false === $parsed[$field]) {
+                    $nowFormat .= $char.'-';
+                    $nowValue .= $now->format($char).'-';
+                }
+            }
+
+            return '' === $nowFormat ? $date : $class::createFromFormat($nowFormat.$format, $nowValue.$value, $date->getTimezone());
+        }
+
+        $parsed = date_parse($value);
+
+        // $date does not depend on the system time when $value sets the full date
+        if (false !== $parsed['year'] && false !== $parsed['month'] && false !== $parsed['day']) {
+            return $date;
+        }
+
+        // The constructor starts from midnight when $value has a date but no time, and resets the microseconds when $value sets any field. modify() does neither.
+        if (false === $parsed['hour'] && (false !== $parsed['month'] || false !== $parsed['day'])) {
+            $value = 'midnight '.$value;
+        } elseif (false === $parsed['fraction'] && (false !== $parsed['year'] || false !== $parsed['hour'])) {
+            $now = $now->setTimestamp($now->getTimestamp());
+        }
+
+        return $now->modify($value);
     }
 }

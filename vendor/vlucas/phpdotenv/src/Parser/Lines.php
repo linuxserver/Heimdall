@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dotenv\Parser;
 
 use Dotenv\Util\Regex;
-use Dotenv\Util\Str;
 
 final class Lines
 {
@@ -42,6 +41,11 @@ final class Lines
             if (!$multiline && !self::isCommentOrWhitespace($line)) {
                 $output[] = $line;
             }
+        }
+
+        // Emit an unterminated multiline value so the parser reports the missing quote.
+        if ($multiline) {
+            $output[] = \implode("\n", $multilineBuffer);
         }
 
         return $output;
@@ -87,9 +91,19 @@ final class Lines
      */
     private static function looksLikeMultilineStart(string $line)
     {
-        return Str::pos($line, '="')->map(static function () use ($line) {
-            return self::looksLikeMultilineStop($line, true) === false;
-        })->getOrElse(false);
+        $pos = \strpos($line, '="');
+
+        if ($pos === false) {
+            return false;
+        }
+
+        $hash = \strpos($line, '#');
+
+        if ($hash !== false && $hash < $pos) {
+            return false;
+        }
+
+        return self::looksLikeMultilineStop($line, true) === false;
     }
 
     /**
@@ -102,11 +116,7 @@ final class Lines
      */
     private static function looksLikeMultilineStop(string $line, bool $started)
     {
-        if ($line === '"') {
-            return true;
-        }
-
-        return Regex::occurrences('/(?=([^\\\\]"))/', \str_replace('\\\\', '', $line))->map(static function (int $count) use ($started) {
+        return Regex::occurrences('/(?<!\\\\)"/', \str_replace('\\\\', '', $line))->map(static function (int $count) use ($started) {
             return $started ? $count > 1 : $count >= 1;
         })->success()->getOrElse(false);
     }

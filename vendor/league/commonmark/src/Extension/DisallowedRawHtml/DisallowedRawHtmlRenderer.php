@@ -45,9 +45,11 @@ final class DisallowedRawHtmlRenderer implements NodeRendererInterface, Configur
             return $rendered;
         }
 
-        $regex = \sprintf('/<(\/?(?:%s)[\s\/>])/i', \implode('|', \array_map('preg_quote', $tags)));
+        // The tag name may also end the rendered HTML: the block parser accepts a bare
+        // `<script` line, and browsers treat the following block as its attributes.
+        $regex = \sprintf('/<(\/?(?:%s)(?:[\s\/>]|$))/i', \implode('|', \array_map('preg_quote', $tags)));
 
-        // Match these types of tags: <title> </title> <title x="sdf"> <title/> <title />
+        // Match these types of tags: <title> </title> <title x="sdf"> <title/> <title /> <title
         return \preg_replace($regex, '&lt;$1', $rendered);
     }
 

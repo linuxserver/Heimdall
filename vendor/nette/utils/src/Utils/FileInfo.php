@@ -8,7 +8,6 @@
 namespace Nette\Utils;
 
 use Nette;
-use const DIRECTORY_SEPARATOR;
 
 
 /**

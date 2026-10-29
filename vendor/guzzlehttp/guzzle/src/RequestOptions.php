@@ -5,7 +5,7 @@ namespace GuzzleHttp;
 /**
  * This class contains a list of built-in Guzzle request options.
  *
- * @see https://github.com/guzzle/guzzle/blob/7.13/docs/request-options.md
+ * @see https://github.com/guzzle/guzzle/blob/7.16/docs/request-options.md
  */
 final class RequestOptions
 {
@@ -203,6 +203,93 @@ final class RequestOptions
     public const MULTIPART = 'multipart';
 
     /**
+     * multiplex: (string) Controls how a request sent through a built-in
+     * cURL handler relates to shared, multiplexed connections: how an HTTP/2
+     * request pursues one, or, with Multiplexing::NONE, whether the transfer
+     * may share its connection at all. When the option is not set,
+     * multiplexing is left to libcurl: nothing waits, and established
+     * multiplex-capable connections are still shared. Use
+     * Multiplexing::EAGER to explicitly never wait for pending connections,
+     * Multiplexing::WAIT to wait on libcurl-eligible pending connections with
+     * CURLOPT_PIPEWAIT, normally to the same origin,
+     * Multiplexing::REQUIRE_EAGER to fail unless a multiplexed protocol is
+     * guaranteed while dialing eagerly, or Multiplexing::REQUIRE_WAIT for the
+     * same guarantee while also waiting on pending connections. The required
+     * modes require a handler that permits actual multiplexing, not merely a
+     * multiplexed protocol, and are rejected on a Multiplexing::NONE handler.
+     * The stream handler ignores EAGER and WAIT, and rejects the required
+     * family; CurlHandler has no multi handle to multiplex over. Explicit
+     * modes reject deprecated raw cURL options they conflict with: the
+     * required family cannot be combined with a raw CURLOPT_HTTP_VERSION,
+     * CURLOPT_URL, or CURLOPT_FOLLOWLOCATION; no explicit mode can be
+     * combined with a raw CURLOPT_PIPEWAIT on the CurlMultiHandler; and
+     * Multiplexing::NONE on a CurlMultiHandler that permits multiplexing
+     * cannot be combined with the raw CURLOPT_HTTP_VERSION, CURLOPT_HTTPAUTH
+     * (including the "auth" request option's "digest" and "ntlm" modes,
+     * which set it), CURLOPT_PROXYAUTH, CURLOPT_FOLLOWLOCATION,
+     * CURLOPT_HTTPHEADER, CURLOPT_ALTSVC, CURLOPT_ALTSVC_CTRL, or
+     * CURLOPT_PROXYTYPE cURL options. The required family also
+     * rejects final CURLOPT_HTTPAUTH masks that permit NTLM, which libcurl
+     * retries over HTTP/1.1. The required family validates its cleartext
+     * proxy rule against the final cURL configuration, after raw options
+     * such as CURLOPT_PROXY and CURLOPT_PRE_PROXY are applied; only the
+     * exact raw CURLOPT_NOPROXY wildcard '*' disables the primary proxy and
+     * pre-proxy there, and raw host-specific patterns are conservatively
+     * treated as leaving them active. These rejections are
+     * configuration-conflict checks, not remote security checks.
+     *
+     * Multiplexing::NONE disables multiplexing for a whole handler when
+     * passed as the "multiplex" client configuration option, which
+     * configures the default handler and also becomes the default request
+     * option, or, when constructing a handler directly, as the
+     * CurlMultiHandler "multiplex" constructor option. A handler
+     * configured with Multiplexing::NONE rejects explicitly requested wait
+     * modes as a configuration conflict when the transfer would actually
+     * wait, and always rejects the required modes, because they require a
+     * handler that permits actual multiplexing, not merely a multiplexed
+     * protocol. As a request option value, Multiplexing::NONE guarantees the
+     * transfer does not share its connection with any concurrent transfer.
+     * Multiplexing::NONE does not force HTTP/1.1: on a Multiplexing::NONE
+     * handler, HTTP/2 still negotiates and each transfer keeps its
+     * connection to itself.
+     *
+     * The request option value is accepted exactly where the guarantee
+     * holds and can be verified: on a CurlMultiHandler configured with
+     * Multiplexing::NONE, for requests whose declared protocol version is
+     * HTTP/1.x, on CurlHandler, and on the stream handler, which never
+     * multiplexes. An HTTP/2 request with a Multiplexing::NONE request
+     * option is rejected on a CurlMultiHandler that permits multiplexing.
+     * On a CurlMultiHandler that permits multiplexing, Multiplexing::NONE
+     * is also rejected with a custom "handle_factory", alongside a raw
+     * CURLMOPT_PIPELINING cURL multi option, and combined with the raw
+     * CURLOPT_HTTP_VERSION, CURLOPT_HTTPAUTH (including the "auth" request
+     * option's "digest" and "ntlm" modes, which set it), CURLOPT_PROXYAUTH,
+     * CURLOPT_FOLLOWLOCATION, CURLOPT_HTTPHEADER, CURLOPT_ALTSVC,
+     * CURLOPT_ALTSVC_CTRL, or CURLOPT_PROXYTYPE cURL options. It is also
+     * rejected when the request carries an Expect: 100-continue header (its
+     * 417 retries select connections outside the safeguards; remove an
+     * explicitly supplied header, or set the "expect" request option to
+     * false to prevent it being added automatically).
+     *
+     * On a client whose multi handler permits multiplexing, the ordinary
+     * non-streaming default stack - both cURL handlers available and no
+     * connection caps forcing multi-only routing - runs synchronous
+     * requests on the CurlHandler path, which satisfies the guarantee for
+     * any protocol version, while asynchronous requests run on the
+     * CurlMultiHandler, so an HTTP/2 request with Multiplexing::NONE
+     * succeeds synchronously and is rejected asynchronously on the same
+     * client. Keep-alive reuse between consecutive transfers is
+     * unaffected, except on libcurl versions below 7.77.0 and from 8.11.0
+     * through 8.12.1, where an accepted HTTP/1.x request on a multiplexing
+     * CurlMultiHandler forces a fresh connection. Custom handlers receive
+     * the "multiplex" option unchanged: its semantics are handler-defined,
+     * Guzzle does not guarantee it is honored, and a client-level
+     * Multiplexing::NONE with a custom handler flows to it as a default
+     * request option without client-side enforcement.
+     */
+    public const MULTIPLEX = 'multiplex';
+
+    /**
      * on_headers: (callable) A callable that is invoked when the HTTP headers
      * of the response have been received but the body has not yet begun to
      * download.
@@ -219,6 +306,17 @@ final class RequestOptions
      * taken to send the request.
      */
     public const ON_STATS = 'on_stats';
+
+    /**
+     * on_trailers: (callable) A callable that is invoked by the built-in cURL
+     * handlers once per successful transfer, after the response body has been
+     * received, with an associative array of the parsed HTTP trailers followed
+     * by the response. Trailer field names are lowercased and grouped
+     * case-insensitively; values keep their wire order. Malformed trailer
+     * field lines are discarded before parsing. Trailer fields are reported
+     * separately from response headers and are never merged into the response.
+     */
+    public const ON_TRAILERS = 'on_trailers';
 
     /**
      * progress: (callable) Defines a function to invoke when transfer

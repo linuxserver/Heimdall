@@ -23,7 +23,20 @@ final class DatePoint extends \DateTimeImmutable
      */
     public function __construct(string $datetime = 'now', ?\DateTimeZone $timezone = null, ?parent $reference = null)
     {
-        $now = $reference ?? Clock::get()->now();
+        if (null === $reference) {
+            $clock = Clock::get();
+
+            // copying the clock's date into $this goes through its local time, which is ambiguous during the DST fall-back hour
+            if ('now' === $datetime && $clock instanceof NativeClock) {
+                parent::__construct('now', $timezone ?? $clock->now()->getTimezone());
+
+                return;
+            }
+
+            $reference = $clock->now();
+        }
+
+        $now = $reference;
 
         if ('now' !== $datetime) {
             if (!$now instanceof static) {
@@ -33,16 +46,39 @@ final class DatePoint extends \DateTimeImmutable
             $builtInDate = new parent($datetime, $timezone ?? $now->getTimezone());
             $timezone = $builtInDate->getTimezone();
 
-            $now = $now->setTimezone($timezone)->modify($datetime);
+            $parsed = date_parse($datetime);
 
-            if ('00:00:00.000000' === $builtInDate->format('H:i:s.u')) {
-                $now = $now->setTime(0, 0);
+            if (false !== $parsed['year'] && false !== $parsed['month'] && false !== $parsed['day']) {
+                // the native result does not depend on the current time when $datetime has a full date
+                $now = $builtInDate;
+            } else {
+                $now = $now->setTimezone($timezone);
+
+                // the native constructor starts from midnight when $datetime has a date but no time, modify() does not
+                if (false === $parsed['hour'] && (false !== $parsed['month'] || false !== $parsed['day'])) {
+                    $datetime = 'midnight '.$datetime;
+                } elseif (false === $parsed['fraction'] && (false !== $parsed['year'] || false !== $parsed['hour'])) {
+                    // it also resets the microseconds when $datetime sets a field without a fraction
+                    $now = \PHP_INT_SIZE >= 8 ? $now->setTimestamp($now->getTimestamp()) : static::createFromFormat('U', $now->format('U'))->setTimezone($timezone);
+                }
+
+                $now = $now->modify($datetime);
             }
         } elseif (null !== $timezone) {
             $now = $now->setTimezone($timezone);
         }
 
         $this->__unserialize((array) $now);
+
+        // copying $now goes through its local time, which is ambiguous during the DST fall-back hour
+        if ($this != $now) {
+            // PHP picks the DST occurrence when the timezone is part of the string
+            $date = $now->format('Y-m-d H:i:s.u e');
+
+            if ($now == new parent($date)) {
+                parent::__construct($date);
+            }
+        }
     }
 
     /**

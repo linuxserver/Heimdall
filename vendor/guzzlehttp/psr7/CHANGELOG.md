@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.13.2 - 2026-10-18
+
+### Fixed
+
+- Fix `StreamWrapper` flushes reporting failure
+- Fix `CachingStream` skipping unread bytes after repeated writes
+
+## 2.13.1 - 2026-08-24
+
+### Added
+
+- Add support for PHP 8.6
+
+### Fixed
+
+- Prefix relative paths that begin with a colon segment with `./` instead of throwing
+
+## 2.13.0 - 2026-07-16
+
+### Added
+
+- Add `Utils::` `asciiToLower`, `asciiToUpper`, `asciiUcFirst`, `caselessEquals`, `caselessContains`
+
+### Changed
+
+- Use locale-independent ASCII case folding everywhere case is normalized
+- Trigger a runtime deprecation for previously deprecated functionality in 2.3.0
+
+## 2.12.5 - 2026-07-13
+
+### Fixed
+
+- Compare header names and hosts with locale-independent ASCII lowercasing
+- Compare hosts without locale sensitivity when detecting cross-origin redirects
+
 ## 2.12.4 - 2026-07-08
 
 ### Changed

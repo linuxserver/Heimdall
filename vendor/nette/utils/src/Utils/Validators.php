@@ -8,7 +8,7 @@
 namespace Nette\Utils;
 
 use Nette;
-use function array_key_exists, class_exists, explode, gettype, interface_exists, is_callable, is_float, is_int, is_iterable, is_numeric, is_object, is_string, preg_match, str_ends_with, str_replace, str_starts_with, strlen, strtolower, substr, trait_exists, var_export;
+use function array_key_exists, gettype, is_float, is_int, is_object, is_string, strlen;
 
 
 /**
@@ -144,6 +144,7 @@ class Validators
 				}
 
 				continue;
+
 			} elseif (str_starts_with($item, '?')) {
 				$item = substr($item, 1);
 				if ($value === null) {
@@ -166,6 +167,7 @@ class Validators
 				}
 
 				continue;
+
 			} elseif (!$value instanceof $type) {
 				continue;
 			}
@@ -337,14 +339,15 @@ class Validators
 	public static function isUrl(string $value): bool
 	{
 		$alpha = "a-z\x80-\xFF";
+		$octet = '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])'; // 0..255
 		return (bool) preg_match(<<<XX
 			(^(?n)
 				https?://(
 					(([-_0-9$alpha]+\\.)*                       # subdomain
 						[0-9$alpha]([-0-9$alpha]{0,61}[0-9$alpha])?\\.)?  # domain
 						[$alpha]([-0-9$alpha]{0,17}[$alpha])?   # top domain
-					|\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}  # IPv4
-					|\\[[0-9a-f:]{3,39}\\]                      # IPv6
+					|$octet(\\.$octet){3}                       # IPv4
+					|\\[[0-9a-f:]{3,39}]                        # IPv6
 				)(:\\d{1,5})?                                   # port
 				(/\\S*)?                                        # path
 				(\\?\\S*)?                                      # query
@@ -359,7 +362,7 @@ class Validators
 	 */
 	public static function isUri(string $value): bool
 	{
-		return (bool) preg_match('#^[a-z\d+\.-]+:\S+$#Di', $value);
+		return (bool) preg_match('#^[a-z\d+.-]+:\S+$#Di', $value);
 	}
 
 

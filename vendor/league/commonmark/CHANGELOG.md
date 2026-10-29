@@ -6,6 +6,139 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 
 ## [Unreleased][unreleased]
 
+## [2.10.4] - 2026-10-17
+
+### Fixed
+- Fixed `HeadingPermalinkExtension` overwriting an `id` set on a heading by the `AttributesExtension` when `heading_permalink/apply_id_to_heading` is enabled; the existing `id` is now used (with the configured prefix) for both the heading and its permalink (#1159, #1160)
+- Fixed Symfony `DebugClassLoader` deprecation notice about `ArrayCollection::offsetGet()` by adding an explicit `@return` annotation (#1158)
+
+## [2.10.3] - 2026-09-21
+
+### Fixed
+- Fixed footnote links and backlinks pointing at the wrong anchor when `footnote/footnote_id_prefix` or `footnote/ref_id_prefix` contains an uppercase character; the configured prefix is now emitted verbatim in the `href` as it already was in the matching `id` (#524)
+- Fixed inline raw HTML tags being escaped when the tag name or an attribute name contains an uppercase letter, such as `<svg viewBox="...">` or `<Warning>` (#1096)
+
+## [2.10.2] - 2026-09-21
+
+This is a **security release** to address a denial of service vulnerability in the `Table` extension and a raw HTML filtering bypass in the `DisallowedRawHtml` extension.
+
+### Changed
+- Improved performance of parsing table delimiter rows and splitting table rows into cells by scanning bytes directly instead of stepping a `Cursor` (roughly 4x faster for delimiter rows and 6x for cell splitting, and more on multibyte rows)
+
+### Fixed
+- Fixed `DisallowedRawHtmlRenderer` not blocking raw HTML that ends with a disallowed tag name, such as a line containing only `<script` (GHSA-97jj-33gv-5xf9)
+- Fixed quadratic-time parsing of long paragraphs when the `Table` extension is enabled (GHSA-3q6v-r5mr-hxv8)
+- Fixed table detection to match the GFM spec and reference implementation:
+  - Header rows no longer require a `|` character
+  - Header rows must now have the same number of cells as the delimiter row (previously, fewer cells were accepted)
+
+## [2.10.1] - 2026-09-07
+
+### Fixed
+- Accept `unordered_list_markers` config in InlinesOnlyExtension (#1015, #1151)
+
+## [2.10.0] - 2026-08-11
+
+This is a **security release** to address a denial of service vulnerability in the `AttributesExtension`.
+
+### Added
+- Added a new `table_of_contents/max_placeholder_entries` option to limit how many table of contents entries a document may render across all of its placeholders (#1134)
+- Added `Cursor::matchInPlace()`, which matches a regular expression at the cursor's position within the line using PCRE's native offset semantics instead of copying the remainder (#1145)
+    - `\G` anchors at the cursor, `^` anchors at the start of the line, and lookbehinds and `\b` see the characters actually preceding the cursor; this keeps scanning loops linear and enables left-context assertions that `match()` cannot express
+- Added `RegexHelper::PARTIAL_LINK_TITLE_UNANCHORED` and `RegexHelper::PARTIAL_LINK_DESTINATION_BRACES`, unanchored fragments so each call site can supply its own anchor
+- Added a `default_attributes` configuration format which pairs the node attribute map with a new `strict_callables` option:  `['default_attributes' => ['attributes' => [...], 'strict_callables' => true]]`.  With `strict_callables` enabled, only closures and invokable objects are treated as callbacks, so strings and arrays are always used as literal attribute values.  Callbacks written as string or array callables can be wrapped with `Closure::fromCallable()`.  The original format - passing the node map directly - is still accepted, and defaults `strict_callables` to `false`.
+- Added a new `slug_normalizer/reserved` option which treats the given slugs as already-used, so colliding headings receive an incremental numeric suffix just like duplicate headings do (#1080)
+
+### Changed
+- Changed the `TableOfContents` extension to render the table of contents once and share it across all placeholders instead of cloning it into each one (#1134)
+    - A custom renderer registered for the `TableOfContents` node is no longer called once per placeholder, so it must return the same markup each time it is called for a given document (#1134)
+    - The first placeholder receives the table of contents itself, so a document still contains a `TableOfContents` node for listeners which locate and reposition it (#1143)
+- `$environment->getConfiguration()->get('default_attributes')` now returns the normalized structure with `attributes` and `strict_callables` keys instead of the node map; read `default_attributes/attributes` to get the map.  Configuration written in either format continues to work unchanged.
+
+### Deprecated
+- Deprecated `RegexHelper::PARTIAL_LINK_TITLE` and `RegexHelper::REGEX_LINK_DESTINATION_BRACES`; use the unanchored variants with an explicit anchor instead
+- Deprecated the `default_attributes` `strict_callables` option, which will be removed in 3.0 when only closures and invokable objects will ever be treated as callbacks.
+
+### Fixed
+- Fixed `default_attributes` values which happen to match the name of a PHP function - such as `'class' => 'link'`, `'header'`, `'key'`, `'range'`, or `'current'` - being invoked as callbacks, producing errors like `link() expects exactly 2 arguments, 1 given`.  Enable `strict_callables` to treat strings and arrays as literal attribute values (#1123)
+- Fixed the `DefaultAttributesExtension` re-testing every configured value with `is_callable()` once per matching node, which asked the autoloader whether the first element of each array value named a real class every single time
+- Fixed a `default_attributes` value which PHP treats as callable reporting its failure from inside whichever function it collided with; the error now names the attribute and node class responsible, and keeps the original error as its previous exception
+- Fixed custom `UniqueSlugNormalizerInterface` implementations being wrapped by the built-in `UniqueSlugNormalizer` and never receiving the documented `clearHistory()` calls, which caused slug history to leak across documents when `slug_normalizer/unique` was set to `'document'` (#1080)
+    - Custom implementations are now trusted to enforce uniqueness themselves, per the interface contract; the extra deduplication layer the wrapper used to provide is no longer applied on top of them
+- Fixed the `AttributesExtension` re-merging and re-filtering everything a node had already collected each time another attribute node was applied to it, causing long runs of distinctly-named attributes to be resolved in quadratic time, which could be abused to cause a denial of service - this completes the fix for GHSA-jjv6-8j6v-6j52, which covered only the `class` attribute (GHSA-8rr7-cvq3-gmfh)
+- Fixed the `AttributesExtension` re-merging everything an attribute block had already collected on each of its continuation lines, causing long runs of distinctly-named attributes on consecutive lines to be resolved in quadratic time, which could be abused to cause a denial of service (GHSA-8rr7-cvq3-gmfh)
+
+## [2.9.2] - 2026-08-10
+
+This release fixes a regression introduced in 2.9.0 which changed the behavior of `Cursor::match()` for certain regular expression patterns.
+
+### Changed
+- Improved performance of reading single characters from multibyte lines
+- Improved performance of locating the next non-space character on lines without tabs
+- Optimized `Cursor::advanceToNextNonSpaceOrNewline()` to scan the line in place instead of copying everything left in the block on every call
+- Optimized inline link destination parsing to scan the line in place, so its cost follows the length of the destination rather than the length of everything left in the block
+
+### Fixed
+- Fixed a regression introduced in 2.9.0 where `Cursor::match()` treated text before the cursor as part of the match subject (#1145). Patterns were matched against the whole line at an offset, which silently changed the meaning of `\b`, `\B`, `\A`, lookbehinds, a `^` anywhere other than the very start of the pattern, and a leading `^` combined with the `m` modifier. `match()` once again matches against the remainder, exactly as it did in 2.8; the core parsers keep the optimized in-place matching via a new internal method with PCRE's native offset semantics, anchoring their patterns at the cursor with `\G`
+- Fixed heading permalinks rendered with `aria-hidden="true"` remaining in the keyboard tab order; they are now also given `tabindex="-1"`, as a focusable element removed from the accessibility tree has no accessible name to announce when focused (WCAG 4.1.2)
+- Fixed cloning a node breaking the link from the original node's children back to their parent, silently corrupting the document that node belonged to; detaching or inserting around those children afterwards could drop nodes from the tree
+- Fixed cloned nodes sharing their `data` with the node they were cloned from, so that setting an attribute on either one also set it on the other
+
+## [2.9.1] - 2026-08-09
+
+This is a **security release** to address multiple denial of service vulnerabilities and one cross-site scripting (XSS) vulnerability.
+
+### Changed
+- Shortcut and collapsed reference links (`[label]` and `[label][]`) now apply the spec's 999-character link label limit when resolving the label, matching the limit already enforced when parsing reference definitions and when resolving the `[text][label]` form. A label longer than 999 characters which collapsed to a shorter, defined label once whitespace was normalized will no longer resolve; this matches cmark's behavior.
+
+### Fixed
+- Fixed attribute names prefixed with a form feed (such as `{<FF>onclick="..."}`) bypassing both the `on*` event handler filter and the `allow_unsafe_links` protection, as browsers treat that byte as whitespace and parse the name as a genuine `onclick` or `href` (GHSA-f8fg-pg57-v4j8)
+- Fixed catastrophic backtracking in the fenced code block start pattern, causing a single line of backticks to be scanned in quadratic time, which could be abused to cause a denial of service (GHSA-j8pm-gj4c-rq4x)
+- Fixed shortcut reference link lookups normalizing arbitrarily long labels once a single reference definition is present, causing nested brackets to be resolved in quadratic time, which could be abused to cause a denial of service (GHSA-j8pm-gj4c-rq4x)
+- Fixed delimiter processors keying the opener-search cache on the raw closer run length, leaving the cache key space unbounded and causing emphasis, strikethrough, and highlight runs to be processed in super-linear time, which could be abused to cause a denial of service (GHSA-j8pm-gj4c-rq4x)
+- Fixed the `SmartPunctExtension` recopying the whole preceding text node when replacing each unpaired quote, causing documents with many apostrophes to be processed in quadratic time, which could be abused to cause a denial of service (GHSA-jjv6-8j6v-6j52)
+- Fixed the `AttributesExtension` scanning the remaining siblings of every block-level attribute node, causing long runs of adjacent attribute blocks to be resolved in quadratic time, which could be abused to cause a denial of service - this completes the fix for GHSA-g2gp-3wwq-f4ph, which covered only inline attributes (GHSA-jjv6-8j6v-6j52)
+- Fixed the `AttributesExtension` rebuilding the accumulated class list on every merge, causing long runs of `.class` attributes to be resolved in quadratic time, which could be abused to cause a denial of service (GHSA-jjv6-8j6v-6j52)
+
+## [2.9.0] - 2026-08-03
+
+This is a **security release** to address five denial of service vulnerabilities and one cross-site scripting (XSS) vulnerability.
+
+### Added
+
+- Added a new `NormalizeHeadingsExtension` to constrain headings to a configured level range (#989)
+    - Rewrites headings that skip levels so the resulting HTML is valid (#1115)
+    - `normalize_headings/rebase_to_min_level` - rebases each document so its headings begin at `min_level`
+- Added a new `footnote/enable_inline_footnotes` config option to disable the inline `^[Footnote text]` syntax (#1112)
+- Added `Cursor::getBytePosition()` for obtaining the cursor's current byte offset within the line
+- Added a new `xml/max_indentation_level` config option to control how far `XmlRenderer` indents nested elements (default: `16`; set to `0` for unindented output)
+
+### Changed
+
+- The `FootnoteExtension` now uses only the first definition of a footnote label, removing any duplicate definitions instead of rendering them in place
+- `NumberFootnotesListener` now stores footnote backrefs under a single `footnote/backrefs` key in the document data instead of one key per footnote destination
+- Optimized `Cursor` to translate character positions to byte offsets in constant time instead of re-decoding the line with `mb_substr()`
+- Optimized `Cursor::match()` to match against the line at the cursor's byte offset instead of copying the remaining line on every call
+- Optimized `InlineParserEngine` and `UrlAutolinkParser` to work with byte offsets directly
+
+### Fixed
+
+- Fixed quadratic parsing performance on lines containing multibyte characters, which could be abused to cause a denial of service (GHSA-2q4p-g7hv-5rgv)
+- Fixed the unsafe link filter failing to detect dangerous schemes obfuscated with embedded tabs, newlines, or leading control characters (such as `java<TAB>script:`), which allowed the `allow_unsafe_links` protection to be bypassed via `href` and `src` attributes (GHSA-29pj-957v-52mc)
+- Fixed duplicate footnote definitions each claiming the full list of backrefs for their label, causing a quadratic number of backrefs to be generated, which could be abused to cause a denial of service (GHSA-jfm3-95jq-q3rf)
+- Fixed footnote labels being treated as `.`/`/`-delimited key paths when storing backrefs, which allowed distinct labels such as `[^a.b]` and `[^a/b]` to share a single backref list (GHSA-jfm3-95jq-q3rf)
+- Fixed a fatal error when one footnote label was a prefix of another, such as `[^a]` and `[^a.b]`
+- Fixed the unique slug normalizer restarting its suffix search from `1` on every collision, causing headings or inline footnotes which normalize to the same slug to be de-duplicated in quadratic time, which could be abused to cause a denial of service (GHSA-mh25-x5hq-wrqp)
+- Fixed the `AttributesExtension` scanning the remaining siblings of an inline attribute which can only apply to its parent block, causing long runs of adjacent inline attributes to be resolved in quadratic time, which could be abused to cause a denial of service (GHSA-g2gp-3wwq-f4ph)
+- Fixed `XmlRenderer` indenting every element by its full nesting depth without any upper bound, causing deeply-nested documents to render as quadratically-sized XML, which could be abused to cause a denial of service (GHSA-mj63-m3rc-8ppr)
+- Fixed `MarkDelimiterProcessor` not being declared as a `CacheableDelimiterProcessorInterface`, preventing the delimiter stack from caching the opener search for `==` runs (#1133)
+
+## [2.8.3] - 2026-07-12
+
+### Fixed
+- Fixed tab-indented fenced code blocks inside list items losing the first character of each line and having their info string mangled (#981, #1130)
+- Fixed the unsafe link filter incorrectly blocking safe URLs containing `vbscript:`, `file:`, or `data:` anywhere after the start (#1131)
+
 ## [2.8.2] - 2026-03-19
 
 This is a **security release** to address an issue where the `allowed_domains` setting for the `Embed` extension can be bypassed, resulting in a possible SSRF and XSS vulnerabilities.
@@ -732,7 +865,16 @@ No changes were introduced since the previous release.
     - Alternative 1: Use `CommonMarkConverter` or `GithubFlavoredMarkdownConverter` if you don't need to customize the environment
     - Alternative 2: Instantiate a new `Environment` and add the necessary extensions yourself
 
-[unreleased]: https://github.com/thephpleague/commonmark/compare/2.8.2...HEAD
+[unreleased]: https://github.com/thephpleague/commonmark/compare/2.10.4...HEAD
+[2.10.4]: https://github.com/thephpleague/commonmark/compare/2.10.3...2.10.4
+[2.10.3]: https://github.com/thephpleague/commonmark/compare/2.10.2...2.10.3
+[2.10.2]: https://github.com/thephpleague/commonmark/compare/2.10.1...2.10.2
+[2.10.1]: https://github.com/thephpleague/commonmark/compare/2.10.0...2.10.1
+[2.10.0]: https://github.com/thephpleague/commonmark/compare/2.9.2...2.10.0
+[2.9.2]: https://github.com/thephpleague/commonmark/compare/2.9.1...2.9.2
+[2.9.1]: https://github.com/thephpleague/commonmark/compare/2.9.0...2.9.1
+[2.9.0]: https://github.com/thephpleague/commonmark/compare/2.8.3...2.9.0
+[2.8.3]: https://github.com/thephpleague/commonmark/compare/2.8.2...2.8.3
 [2.8.2]: https://github.com/thephpleague/commonmark/compare/2.8.1...2.8.2
 [2.8.1]: https://github.com/thephpleague/commonmark/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/thephpleague/commonmark/compare/2.7.1...2.8.0

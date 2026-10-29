@@ -28,7 +28,13 @@ final class VarSpecifier
      *
      * @link https://tools.ietf.org/html/rfc6570#section-2.3
      */
-    private const REGEXP_VARSPEC = '/^(?<name>(?:[A-z0-9_\.]|%[0-9a-fA-F]{2})+)(?<modifier>\:(?<position>\d+)|\*)?$/';
+    private const REGEXP_VARSPEC = '/^
+        (?<name>
+            (?:[A-Za-z0-9_\[\]]|%[0-9a-fA-F]{2})+
+            (?:\.(?:[A-Za-z0-9_\[\]]|%[0-9a-fA-F]{2})+)*
+        )
+        (?<modifier>\:(?<position>\d+)|\*)?
+    $/x';
 
     private const MODIFIER_POSITION_MAX_POSITION = 10_000;
 
@@ -45,7 +51,10 @@ final class VarSpecifier
         $properties = ['name' => $parsed['name'], 'modifier' => $parsed['modifier'] ?? '', 'position' => $parsed['position'] ?? ''];
 
         if ('' !== $properties['position']) {
+            1 === preg_match('/^(?:0|[1-9]\d*)$/', $properties['position']) || throw new SyntaxError('The variable specification "'.$specification.'" is invalid.');
             $properties['position'] = (int) $properties['position'];
+            0 !== $properties['position'] || throw new SyntaxError('The variable specification "'.$specification.'" is invalid the position modifier must be greater than 0.');
+
             $properties['modifier'] = ':';
         }
 
@@ -53,9 +62,7 @@ final class VarSpecifier
             $properties['position'] = 0;
         }
 
-        if (self::MODIFIER_POSITION_MAX_POSITION <= $properties['position']) {
-            throw new SyntaxError('The variable specification "'.$specification.'" is invalid the position modifier must be lower than 10000.');
-        }
+        self::MODIFIER_POSITION_MAX_POSITION > $properties['position'] || throw new SyntaxError('The variable specification "'.$specification.'" is invalid the position modifier must be lower than 10000.');
 
         return new self($properties['name'], $properties['modifier'], $properties['position']);
     }

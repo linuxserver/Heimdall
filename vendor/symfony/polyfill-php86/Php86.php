@@ -65,14 +65,16 @@ final class Php86
 
     public static function grapheme_strrev(string $string)
     {
-        if (!preg_match('//u', $string)) {
-            return false;
+        $iterator = \IntlBreakIterator::createCharacterInstance();
+        $iterator->setText($string);
+        $reversed = '';
+        $end = $iterator->last();
+
+        while (\IntlBreakIterator::DONE !== $start = $iterator->previous()) {
+            $reversed .= substr($string, $start, $end - $start);
+            $end = $start;
         }
 
-        if (false === $units = grapheme_str_split($string)) {
-            return false;
-        }
-
-        return implode('', array_reverse($units));
+        return $reversed;
     }
 }

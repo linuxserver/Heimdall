@@ -36,6 +36,8 @@ namespace PHPSTORM_META
         'renderer/block_separator',
         'renderer/inner_separator',
         'renderer/soft_break',
+        'xml',
+        'xml/max_indentation_level',
         'commonmark',
         'commonmark/enable_em',
         'commonmark/enable_strong',

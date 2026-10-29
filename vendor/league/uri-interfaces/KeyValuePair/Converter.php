@@ -109,7 +109,7 @@ final class Converter
     }
 
     /**
-     * @return array<non-empty-list<string|null>>
+     * @return list<non-empty-array<string|null>>
      */
     public function toPairs(BackedEnum|Stringable|string|int|float|bool|null $value): array
     {

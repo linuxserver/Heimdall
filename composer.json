@@ -11,7 +11,7 @@
         "php": "^8.4",
         "ext-intl": "*",
         "ext-json": "*",
-        "enshrined/svg-sanitize": "^0.22.0",
+        "enshrined/svg-sanitize": "^1.1.1",
         "graham-campbell/github": "^13.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^13.0",

@@ -28,6 +28,13 @@ use Symfony\Component\CssSelector\XPath\XPathExpr;
  */
 class HtmlExtension extends AbstractExtension
 {
+    // Each disabled fieldset ancestor disables the element, except the one whose first legend
+    // child the element sits in. Those excepted fieldsets are exactly the parents of the
+    // ancestors-or-self that are a first legend child of a disabled fieldset, one for one, so
+    // the element is disabled as soon as the first count exceeds the second one. Counting keeps
+    // this to two cheap ancestor walks instead of a predicate run on every ancestor.
+    private const DISABLING_FIELDSET = 'count(ancestor::fieldset[@disabled]) > count(ancestor-or-self::legend[not(preceding-sibling::legend)][parent::fieldset[@disabled]])';
+
     public function __construct(Translator $translator)
     {
         $translator
@@ -60,7 +67,8 @@ class HtmlExtension extends AbstractExtension
     public function translateChecked(XPathExpr $xpath): XPathExpr
     {
         return $xpath->addCondition(
-            '(@checked '
+            "(@selected and name(.) = 'option') or "
+            .'(@checked '
             ."and (name(.) = 'input' or name(.) = 'command')"
             ."and (@type = 'checkbox' or @type = 'radio'))"
         );
@@ -91,10 +99,10 @@ class HtmlExtension extends AbstractExtension
                 ." or name(.) = 'button'"
                 ." or name(.) = 'select'"
                 ." or name(.) = 'textarea'"
+                ." or name(.) = 'fieldset'"
             .')'
-            .' and ancestor::fieldset[@disabled]'
+            .' and '.self::DISABLING_FIELDSET
         );
-        // todo: in the second half, add "and is not a descendant of that fieldset element's first legend element child, if any."
     }
 
     public function translateEnabled(XPathExpr $xpath): XPathExpr
@@ -109,7 +117,6 @@ class HtmlExtension extends AbstractExtension
             .') or ('
                 .'('
                     ."name(.) = 'command'"
-                    ." or name(.) = 'fieldset'"
                     ." or name(.) = 'optgroup'"
                 .')'
                 .' and not(@disabled)'
@@ -120,8 +127,9 @@ class HtmlExtension extends AbstractExtension
                     ." or name(.) = 'select'"
                     ." or name(.) = 'textarea'"
                     ." or name(.) = 'keygen'"
+                    ." or name(.) = 'fieldset'"
                 .')'
-                .' and not (@disabled or ancestor::fieldset[@disabled])'
+                .' and not(@disabled or '.self::DISABLING_FIELDSET.')'
             .') or ('
                 ."name(.) = 'option' and not("
                     .'@disabled or ancestor::optgroup[@disabled]'

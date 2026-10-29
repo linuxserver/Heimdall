@@ -48,8 +48,9 @@
     ],
     "require": {
         "php": "^8.1",
-        "league/uri-interfaces": "^7.8.1",
-        "psr/http-factory": "^1"
+        "league/uri-interfaces": "^7.9.1",
+        "psr/http-factory": "^1",
+        "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {

@@ -26,6 +26,7 @@ final class NumberFootnotesListener
         $nextCounter  = 1;
         $usedLabels   = [];
         $usedCounters = [];
+        $backrefs     = [];
 
         foreach ($document->iterator() as $node) {
             if (! $node instanceof FootnoteRef) {
@@ -59,10 +60,15 @@ final class NumberFootnotesListener
             $document->getReferenceMap()->add($newReference);
 
             /*
-             * Store created references in document for
-             * creating FootnoteBackrefs
+             * Store created references for creating FootnoteBackrefs.
+             *
+             * These are collected into a plain array keyed by the exact destination rather than
+             * written straight into $document->data: destinations are built from user-supplied
+             * labels, and Data treats both "." and "/" as key path delimiters. Using them as
+             * paths would let distinct labels collapse onto a shared entry, or nest one label's
+             * entry inside another's.
              */
-            $document->data->append($existingReference->getDestination(), $newReference);
+            $backrefs[$existingReference->getDestination()][] = $newReference;
 
             $usedLabels[$label]   = 1;
             $usedCounters[$label] = $nextCounter;
@@ -71,5 +77,7 @@ final class NumberFootnotesListener
                 $nextCounter++;
             }
         }
+
+        $document->data->set('footnote/backrefs', $backrefs);
     }
 }

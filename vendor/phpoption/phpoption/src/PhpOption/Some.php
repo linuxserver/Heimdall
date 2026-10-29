@@ -21,7 +21,7 @@ namespace PhpOption;
 use ArrayIterator;
 
 /**
- * @template T
+ * @template-covariant T
  *
  * @extends Option<T>
  */
@@ -65,11 +65,21 @@ final class Some extends Option
         return $this->value;
     }
 
+    /**
+     * @param mixed $default
+     *
+     * @return T
+     */
     public function getOrElse($default)
     {
         return $this->value;
     }
 
+    /**
+     * @param callable():mixed $callable
+     *
+     * @return T
+     */
     public function getOrCall($callable)
     {
         return $this->value;
@@ -157,11 +167,29 @@ final class Some extends Option
         return new ArrayIterator([$this->value]);
     }
 
+    /**
+     * @template S
+     * @template R
+     *
+     * @param S                $initialValue
+     * @param callable(S, T):R $callable
+     *
+     * @return R
+     */
     public function foldLeft($initialValue, $callable)
     {
         return $callable($initialValue, $this->value);
     }
 
+    /**
+     * @template S
+     * @template R
+     *
+     * @param S                $initialValue
+     * @param callable(T, S):R $callable
+     *
+     * @return R
+     */
     public function foldRight($initialValue, $callable)
     {
         return $callable($this->value, $initialValue);

@@ -74,6 +74,10 @@ final class HeadingPermalinkProcessor implements EnvironmentAwareInterface
         ]);
 
         if ($applyToHeading) {
+            if ($heading->data->has('attributes/id')) {
+                $slug = $heading->data->get('attributes/id');
+            }
+
             $heading->data->set('attributes/id', $idPrefix . $slug);
         }
 

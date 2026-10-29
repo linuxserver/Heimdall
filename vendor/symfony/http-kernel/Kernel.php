@@ -45,11 +45,11 @@ abstract class Kernel extends AbstractKernel implements KernelInterface, Reboota
     private bool $resetServices = false;
     private bool $handlingHttpCache = false;
 
-    public const VERSION = '8.1.1';
-    public const VERSION_ID = 80101;
+    public const VERSION = '8.1.10';
+    public const VERSION_ID = 80110;
     public const MAJOR_VERSION = 8;
     public const MINOR_VERSION = 1;
-    public const RELEASE_VERSION = 1;
+    public const RELEASE_VERSION = 10;
     public const EXTRA_VERSION = '';
 
     public const END_OF_MAINTENANCE = '01/2027';
@@ -101,6 +101,18 @@ abstract class Kernel extends AbstractKernel implements KernelInterface, Reboota
     public function terminate(Request $request, Response $response): void
     {
         if (!$this->booted) {
+            return;
+        }
+
+        if (!$this->handlingHttpCache && $this->container->has('http_cache') && ($httpCache = $this->container->get('http_cache')) instanceof TerminableInterface) {
+            $this->handlingHttpCache = true;
+
+            try {
+                $httpCache->terminate($request, $response);
+            } finally {
+                $this->handlingHttpCache = false;
+            }
+
             return;
         }
 
@@ -231,6 +243,9 @@ abstract class Kernel extends AbstractKernel implements KernelInterface, Reboota
         ];
 
         foreach ($this->bundles as $name => $bundle) {
+            if ($bundle instanceof BundleAdapter) {
+                $parameters['kernel.bundles'][$name] = $bundle->getInnerBundle()::class;
+            }
             $parameters['kernel.bundles_metadata'][$name]['namespace'] = $bundle->getNamespace();
         }
 

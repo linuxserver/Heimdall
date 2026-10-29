@@ -28,6 +28,7 @@ class NormalizerFormatter implements FormatterInterface
     protected string $dateFormat;
     protected int $maxNormalizeDepth = 9;
     protected int $maxNormalizeItemCount = 1000;
+    protected ?int $maxTraceLength = null;
 
     private int $jsonEncodeOptions = Utils::DEFAULT_JSON_FLAGS;
 
@@ -123,6 +124,24 @@ class NormalizerFormatter implements FormatterInterface
     }
 
     /**
+     * The maximum number of stack trace frames to include
+     */
+    public function getMaxTraceLength(): ?int
+    {
+        return $this->maxTraceLength;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setMaxTraceLength(?int $maxTraceLength): self
+    {
+        $this->maxTraceLength = $maxTraceLength;
+
+        return $this;
+    }
+
+    /**
      * Enables `json_encode` pretty print.
      *
      * @return $this
@@ -174,10 +193,6 @@ class NormalizerFormatter implements FormatterInterface
      */
     protected function normalize(mixed $data, int $depth = 0): mixed
     {
-        if ($depth > $this->maxNormalizeDepth) {
-            return 'Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
-        }
-
         if (null === $data || \is_scalar($data)) {
             if (\is_float($data)) {
                 if (is_infinite($data)) {
@@ -189,6 +204,10 @@ class NormalizerFormatter implements FormatterInterface
             }
 
             return $data;
+        }
+
+        if ($depth > $this->maxNormalizeDepth) {
+            return 'Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
         }
 
         if (\is_array($data)) {
@@ -290,14 +309,36 @@ class NormalizerFormatter implements FormatterInterface
             }
         }
 
-        $trace = $e->getTrace();
+        $trace = array_slice($e->getTrace(), 0, $this->maxTraceLength);
         foreach ($trace as $frame) {
-            if (isset($frame['file'], $frame['line'])) {
+            if (isset($frame['file'])) {
                 $file = $frame['file'];
                 if ($this->basePath !== '') {
-                    $file = preg_replace('{^'.preg_quote($this->basePath).'}', '', $file);
+                    $file = preg_replace('{^'.preg_quote($this->basePath).'}', '', $file) ?? $file;
                 }
-                $data['trace'][] = $file.':'.$frame['line'];
+                $data['trace'][] = $file.':'.($frame['line'] ?? 0);
+            } else {
+                // Frames called by the engine itself have no file/line: shutdown functions,
+                // callbacks run by internal functions, destructors. Skipping them made traces
+                // look shorter than they were, and entirely empty for fatal errors caught in a
+                // shutdown function, so they are reported by name instead.
+                $call = $frame['function'];
+                // since PHP 8.4 a closure is named after its declaring scope, which already
+                // includes the class, so prefixing it again would just repeat it
+                if (isset($frame['class']) && !str_starts_with($call, '{closure:')) {
+                    // before 8.4 the name is <namespace>\{closure}, and the class has the namespace
+                    $call = str_ends_with($call, '\{closure}') ? '{closure}' : $call;
+                    $call = Utils::getClassName($frame['class']).($frame['type'] ?? '::').$call;
+                }
+                // anonymous classes carry their declaration site after a NUL byte, which truncates
+                // syslog lines and is not valid JSON; PHP 8.4 embeds it in closure names too
+                $call = preg_replace('{@anonymous\x00.*?\$[0-9a-f]++(?=::|$)}s', '@anonymous', $call) ?? $call;
+                if ($this->basePath !== '') {
+                    // closure names embed the file they were declared in since PHP 8.4, so the
+                    // pattern cannot be anchored; limit it or a recurring base path is stripped twice
+                    $call = preg_replace('{'.preg_quote($this->basePath).'}', '', $call, 1) ?? $call;
+                }
+                $data['trace'][] = 'internal['.$call.']:0';
             }
         }
 

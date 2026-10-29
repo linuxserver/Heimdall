@@ -29,23 +29,23 @@
         }
     ],
     "require": {
-        "php": "^7.2.5 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "symfony/polyfill-php80": "^1.25"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^8.5.52 || ^9.6.34",
-        "uri-template/tests": "1.0.0"
+        "phpunit/phpunit": "^9.6.34",
+        "uri-template/tests": "1.0.2"
     },
     "repositories": [
         {
             "type": "package",
             "package": {
                 "name": "uri-template/tests",
-                "version": "1.0.0",
+                "version": "1.0.2",
                 "dist": {
                     "type": "zip",
-                    "url": "https://github.com/uri-templates/uritemplate-test/archive/520fdd8b0f78779d12178c357a986e0e727f4bd0.zip"
+                    "url": "https://github.com/uri-templates/uritemplate-test/archive/4171dac22aa67fc710b3f6df308a50bd08552986.zip"
                 }
             }
         }

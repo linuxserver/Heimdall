@@ -36,12 +36,17 @@ class Gitignore
 
     private static function buildRegex(string $gitignoreFileContent, bool $inverted): string
     {
-        $gitignoreFileContent = preg_replace('~(?<!\\\\)#[^\n\r]*~', '', $gitignoreFileContent);
         $gitignoreLines = preg_split('~\r\n?|\n~', $gitignoreFileContent);
 
         $res = self::lineToRegex('');
+        $alternatives = [];
         foreach ($gitignoreLines as $line) {
-            $line = preg_replace('~(?<!\\\\)[ \t]+$~', '', $line);
+            // only a line starting with "#" is a comment, and only trailing spaces are stripped
+            if (str_starts_with($line, '#')) {
+                continue;
+            }
+
+            $line = preg_replace('~(?<!\\\\)((?:\\\\\\\\)*+) +$~', '$1', $line);
 
             if (str_starts_with($line, '!')) {
                 $line = substr($line, 1);
@@ -52,14 +57,32 @@ class Gitignore
 
             if ('' !== $line) {
                 if ($isNegative xor $inverted) {
-                    $res = '(?!'.self::lineToRegex($line).'$)'.$res;
+                    // a negative pattern only cancels the patterns before it, so it opens a new nesting level
+                    $res = '(?!'.self::lineToRegex($line).'$)'.self::alternate($res, $alternatives);
                 } else {
-                    $res = '(?:'.$res.'|'.self::lineToRegex($line).')';
+                    $alternatives[] = self::lineToRegex($line);
                 }
             }
         }
 
-        return '~^(?:'.$res.')~s';
+        return '~^(?:'.self::alternate($res, $alternatives).')~s';
+    }
+
+    /**
+     * Consecutive patterns share a single group, so deep nesting stays proportional to the number of negative patterns.
+     *
+     * @param list<string> $alternatives
+     */
+    private static function alternate(string $res, array &$alternatives): string
+    {
+        if (!$alternatives) {
+            return $res;
+        }
+
+        $regex = '(?:'.$res.'|'.implode('|', $alternatives).')';
+        $alternatives = [];
+
+        return $regex;
     }
 
     private static function lineToRegex(string $gitignoreLine): string
@@ -78,8 +101,18 @@ class Gitignore
             $isAbsolute = false;
         }
 
-        $regex = preg_quote(str_replace('\\', '', $gitignoreLine), '~');
-        $regex = preg_replace_callback('~\\\\\[((?:\\\\!)?)([^\[\]]*)\\\\\]~', static fn (array $matches): string => '['.('' !== $matches[1] ? '^' : '').str_replace('\\-', '-', $matches[2]).']', $regex);
+        $parts = preg_split('~\\\\(.)~s', $gitignoreLine, -1, \PREG_SPLIT_DELIM_CAPTURE);
+
+        if (str_ends_with(end($parts), '\\')) {
+            return '$f'; // a trailing backslash never matches
+        }
+
+        $regex = '';
+        foreach ($parts as $i => $part) {
+            // escaped characters are written in hex so that the replacements below leave them alone
+            $regex .= $i % 2 ? \sprintf('\x%02X', \ord($part)) : preg_quote($part, '~');
+        }
+        $regex = preg_replace_callback('~\\\\\[((?:\\\\[!^])?+)((?:\\\\\])?+[^\]]*)\\\\\]~', static fn (array $matches): string => ('' !== $matches[1] ? '(?!/)[^' : '[').self::rangesToRegex($matches[2]).']', $regex);
         $regex = preg_replace('~(?:(?:\\\\\*){2,}(/?))+~', '(?:(?:(?!//).(?<!//))+$1)?', $regex);
         $regex = preg_replace('~\\\\\*~', '[^/]*', $regex);
         $regex = preg_replace('~\\\\\?~', '[^/]', $regex);
@@ -87,5 +120,17 @@ class Gitignore
         return ($isAbsolute ? '' : '(?:[^/]+/)*')
             .$regex
             .(!str_ends_with($gitignoreLine, '/') ? '(?:$|/)' : '');
+    }
+
+    /**
+     * Unescapes the "-" of each range. A range that ends before its start only matches its start, as in git.
+     */
+    private static function rangesToRegex(string $class): string
+    {
+        return preg_replace_callback('~(\\\\x[0-9A-F]{2}|\\\\?.)\\\\-(\\\\x[0-9A-F]{2}|\\\\?.)~', static function (array $m): string {
+            [$from, $to] = array_map(static fn (string $c): int => 4 === \strlen($c) ? hexdec(substr($c, 2)) : \ord($c[-1]), [$m[1], $m[2]]);
+
+            return $from <= $to ? $m[1].'-'.$m[2] : $m[1];
+        }, $class) ?? $class;
     }
 }

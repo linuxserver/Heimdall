@@ -4,6 +4,69 @@ All notable changes to `uri-template` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v2.0.1 - 2026-08-24
+
+### Added
+
+- Added support for PHP 8.6
+
+## v2.0.0 - 2026-07-20
+
+### Changed
+
+- Invalid URI template syntax now throws `InvalidArgumentException` instead of expanding partially
+- Literal template text is now validated and valid non-ASCII literals are pct-encoded
+- URI template variable names and modifiers are now validated according to RFC 6570
+- Prefix modifiers are now rejected for list and map values
+- Referenced variable values are now validated before expansion
+- Dense zero-indexed arrays are expanded as lists and sparse or mixed-key arrays as maps
+- `UriTemplate` is now non-instantiable; use `UriTemplate::expand()` statically
+- Nested null values in lists and maps are now treated as undefined members and omitted
+- Variable values must now be valid UTF-8; invalid byte sequences throw `InvalidArgumentException`
+- Booleans now expand as `1` and `0` at every nesting level
+- Non-finite floats now throw `InvalidArgumentException` instead of expanding as `INF` or `NAN`
+- Non-empty lists whose members are all null are now treated as defined variables
+- Variable specifier whitespace padding is now detected with the real whitespace set
+- `UriTemplate` now rejects native PHP serialization and unserialization
+- Referenced variable values are now detached and formed before expansion begins
+- Template syntax is now validated for every expression before variable values are formed
+- Stringable objects are now converted to strings once per value position while values are formed
+- Invalid UTF-8 in variable values and map keys is now rejected while values are formed
+- Finite floats are now converted to their expansion strings while values are formed
+- Exceptions thrown by `__toString()` now surface while values are formed, before any output exists
+
+### Fixed
+
+- Fixed invalid template expressions being accepted as query and path-style parameter names
+- Fixed prefix modifiers counting bytes instead of Unicode code points and pct-encoded triplets
+- Fixed unsupported variable shapes producing warnings, conversion errors, or `Array` output
+- Fixed path-style parameter explode rendering empty members as `name=` instead of bare `name`
+- Fixed map keys not using the operator's allow set under reserved and fragment expansion
+- Fixed map explode rendering empty members as `name=` instead of bare `name` for unnamed operators
+- Fixed the documented variables array type rejecting integer keys for numeric variable names
+- Fixed all-null maps throwing with prefix modifiers instead of being skipped as undefined
+- Fixed prefix modifiers splitting Unicode code points encoded as multiple pct-encoded triplets
+- Fixed path-style composites rendering bare `name` instead of `name=` for empty joined members
+- Fixed null nested query array members being rejected for their keys instead of being omitted
+- Fixed float values expanding with the locale decimal separator on PHP versions before 8.0
+- Fixed PCRE engine failures on very long variable names being reported as invalid template syntax
+- Fixed invalid UTF-8 errors for list and map members not reporting the member path
+- Fixed exception messages embedding raw controls or malformed UTF-8 from expressions and map keys
+- Fixed invalid UTF-8 in literal text reported at the segment offset, not the first invalid byte
+- Fixed PCRE engine failures during literal text validation being reported as invalid UTF-8
+- Fixed PCRE engine failures during variable UTF-8 validation not being reported as runtime errors
+- Fixed PCRE engine failures during invalid UTF-8 offset recovery being reported as invalid UTF-8
+
+### Removed
+
+- Dropped support for PHP 7.2 and 7.3
+
+## v1.0.10 - 2026-07-17
+
+### Fixed
+
+- Fixed prefix modifiers counting Unicode code points and pct-encoded characters instead of bytes
+
 ## v1.0.9 - 2026-07-08
 
 ### Changed

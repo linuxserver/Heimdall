@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Carbon\Traits;
 
 use DateTimeZone;
+use ReturnTypeWillChange;
 
 /**
  * Trait Timestamp.
@@ -25,7 +26,7 @@ trait Timestamp
      *
      * Timestamp input can be given as int, float or a string containing one or more numbers.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public static function createFromTimestamp(
         float|int|string $timestamp,
         DateTimeZone|string|int|null $timezone = null,
@@ -65,7 +66,7 @@ trait Timestamp
         [$milliseconds, $microseconds] = self::getIntegerAndDecimalParts($timestamp, 3);
         $sign = $milliseconds < 0 || ($milliseconds === 0.0 && $microseconds < 0) ? -1 : 1;
         $milliseconds = abs($milliseconds);
-        $microseconds = $sign * abs($microseconds) + static::MICROSECONDS_PER_MILLISECOND * ($milliseconds % static::MILLISECONDS_PER_SECOND);
+        $microseconds = $sign * (abs($microseconds) + static::MICROSECONDS_PER_MILLISECOND * ($milliseconds % static::MILLISECONDS_PER_SECOND));
         $seconds = $sign * floor($milliseconds / static::MILLISECONDS_PER_SECOND);
         $delta = floor($microseconds / static::MICROSECONDS_PER_SECOND);
         $seconds = (int) ($seconds + $delta);
@@ -119,7 +120,9 @@ trait Timestamp
      */
     public function getPreciseTimestamp($precision = 6): float
     {
-        return round(((float) $this->rawFormat('Uu')) / pow(10, 6 - $precision));
+        $microseconds = (float) $this->getTimestamp() * static::MICROSECONDS_PER_SECOND + (float) $this->rawFormat('u');
+
+        return round($microseconds / pow(10, 6 - $precision));
     }
 
     /**

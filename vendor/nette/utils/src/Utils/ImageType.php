@@ -7,13 +7,11 @@
 
 namespace Nette\Utils;
 
-use const IMAGETYPE_BMP, IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP;
-
 
 /**
  * Type of image file.
  */
-/*enum*/ final class ImageType
+/* enum */ final class ImageType
 {
 	public const
 		JPEG = IMAGETYPE_JPEG,

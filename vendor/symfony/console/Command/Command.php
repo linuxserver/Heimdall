@@ -242,6 +242,14 @@ class Command implements SignalableCommandInterface
             }
         }
 
+        // The command name argument is often omitted when a command is executed directly with its run() method,
+        // and it may hold an abbreviation or an alias when the command was resolved from one (e.g. Application::find()).
+        // Normalize it to the command's actual name so it can be relied on afterwards, since it's required by the
+        // application, and so argument resolution during interact() below can already rely on it.
+        if ($input->hasArgument('command') && null !== $name = $this->getName()) {
+            $input->setArgument('command', $name);
+        }
+
         $this->initialize($input, $output);
 
         if (null !== $this->processTitle) {
@@ -266,13 +274,6 @@ class Command implements SignalableCommandInterface
             if ($this->code?->isInteractive()) {
                 $this->code->interact($input, $output);
             }
-        }
-
-        // The command name argument is often omitted when a command is executed directly with its run() method.
-        // It would fail the validation if we didn't make sure the command argument is present,
-        // since it's required by the application.
-        if ($input->hasArgument('command') && null === $input->getArgument('command')) {
-            $input->setArgument('command', $this->getName());
         }
 
         $input->validate();
@@ -692,9 +693,35 @@ class Command implements SignalableCommandInterface
         /** @var AsCommand|null $attribute */
         $attribute = ($reflection->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
 
-        if (!$attribute && '__invoke' === $reflection->getName()) {
+        if ('__invoke' === $reflection->getName()) {
+            $classAttribute = $class->getAttributes(AsCommand::class)[0] ?? null;
+
+            if ($attribute && $classAttribute) {
+                throw new LogicException(\sprintf('The "%s" class and its "__invoke()" method cannot both have the "%s" attribute.', $class->getName(), AsCommand::class));
+            }
+
             /** @var AsCommand|null $attribute */
-            $attribute = ($class->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
+            $attribute ??= $classAttribute?->newInstance();
+        } elseif ($attribute && $prefix = ($class->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()->name) {
+            // the class-level name prefixes the names declared on methods
+            $hidden = str_starts_with($prefix, '|');
+            if ($prefix = explode('|', ltrim($prefix, '|'))[0]) {
+                $names = explode('|', $attribute->name);
+                if ($hidden && '' !== $names[0]) {
+                    // the method commands of a hidden class-level command are hidden too
+                    array_unshift($names, '');
+                }
+                $attribute->name = implode('|', array_map(static function (string $name) use ($prefix, $class, $reflection) {
+                    if ('' === $name) {
+                        return $name;
+                    }
+                    if (str_starts_with($name, $prefix.':')) {
+                        throw new LogicException(\sprintf('The name "%s" of the command "%s::%s()" repeats the class-level name "%s": method-level names are relative to it, use "%s" instead.', $name, $class->getName(), $reflection->getName(), $prefix, substr($name, \strlen($prefix) + 1)));
+                    }
+
+                    return $prefix.':'.$name;
+                }, $names));
+            }
         }
 
         if (!$attribute) {

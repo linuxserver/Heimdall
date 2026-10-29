@@ -17,6 +17,7 @@ require_once( __DIR__ . '/ElementReference/Resolver.php' );
 require_once( __DIR__ . '/ElementReference/Subject.php' );
 require_once( __DIR__ . '/ElementReference/Usage.php' );
 require_once( __DIR__ . '/Exceptions/NestingException.php' );
+require_once( __DIR__ . '/Exceptions/RegexException.php' );
 require_once( __DIR__ . '/Helper.php' );
 require_once( __DIR__ . '/Sanitizer.php' );
 

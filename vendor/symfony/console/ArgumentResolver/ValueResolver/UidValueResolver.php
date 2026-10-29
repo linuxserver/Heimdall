@@ -33,7 +33,9 @@ final class UidValueResolver implements ValueResolverInterface
                 return [];
             }
 
-            return [$this->resolveArgument($argument, $input)];
+            $value = $input->getArgument($argument->name);
+
+            return $member->isVariadic() ? array_map(fn ($value) => $this->resolveArgument($argument, $value), (array) $value) : [$this->resolveArgument($argument, $value)];
         }
 
         if ($option = Option::tryFrom($member->getMember())) {
@@ -41,16 +43,16 @@ final class UidValueResolver implements ValueResolverInterface
                 return [];
             }
 
-            return [$this->resolveOption($option, $input)];
+            $value = $input->getOption($option->name);
+
+            return $member->isVariadic() ? array_map(fn ($value) => $this->resolveOption($option, $value), (array) $value) : [$this->resolveOption($option, $value)];
         }
 
         return [];
     }
 
-    private function resolveArgument(Argument $argument, InputInterface $input): ?AbstractUid
+    private function resolveArgument(Argument $argument, mixed $value): ?AbstractUid
     {
-        $value = $input->getArgument($argument->name);
-
         if (null === $value) {
             return null;
         }
@@ -59,17 +61,15 @@ final class UidValueResolver implements ValueResolverInterface
             return $value;
         }
 
-        if (!\is_string($value) || !$argument->typeName::isValid($value)) {
+        if (!\is_string($value) || !$argument->typeName::isValid($value, \defined("{$argument->typeName}::FORMAT_ALL") ? $argument->typeName::FORMAT_ALL : null)) {
             throw new InvalidArgumentException(\sprintf('The uid for the "%s" argument is invalid.', $argument->name));
         }
 
         return $argument->typeName::fromString($value);
     }
 
-    private function resolveOption(Option $option, InputInterface $input): ?AbstractUid
+    private function resolveOption(Option $option, mixed $value): ?AbstractUid
     {
-        $value = $input->getOption($option->name);
-
         if (null === $value) {
             return null;
         }
@@ -78,7 +78,7 @@ final class UidValueResolver implements ValueResolverInterface
             return $value;
         }
 
-        if (!\is_string($value) || !$option->typeName::isValid($value)) {
+        if (!\is_string($value) || !$option->typeName::isValid($value, \defined("{$option->typeName}::FORMAT_ALL") ? $option->typeName::FORMAT_ALL : null)) {
             throw new InvalidOptionException(\sprintf('The uid for the "--%s" option is invalid.', $option->name));
         }
 

@@ -26,6 +26,13 @@ use Symfony\Component\HttpFoundation\File\File;
  */
 class BinaryFileResponse extends Response
 {
+    // Values accepted for the "X-Sendfile-Type" header, mapped to the response header to send
+    private const SENDFILE_TYPES = [
+        'x-sendfile' => 'X-Sendfile',
+        'x-accel-redirect' => 'X-Accel-Redirect',
+        'x-lighttpd-send-file' => 'X-LIGHTTPD-send-file',
+    ];
+
     protected static bool $trustXSendfileTypeHeader = false;
 
     protected File $file;
@@ -185,7 +192,7 @@ class BinaryFileResponse extends Response
 
     public function prepare(Request $request): static
     {
-        if ($this->isInformational() || $this->isEmpty()) {
+        if (!$this->isSuccessful() || $this->isEmpty()) {
             parent::prepare($request);
 
             $this->maxlen = 0;
@@ -220,15 +227,17 @@ class BinaryFileResponse extends Response
             $this->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
         }
 
-        if (self::$trustXSendfileTypeHeader && $request->headers->has('X-Sendfile-Type')) {
+        $sendfileType = self::$trustXSendfileTypeHeader ? $request->headers->get('X-Sendfile-Type') : null;
+        $type = self::SENDFILE_TYPES[strtolower($sendfileType ?? '')] ?? null;
+
+        if (null !== $type) {
             // Use X-Sendfile, do not send any content.
-            $type = $request->headers->get('X-Sendfile-Type');
             $path = $this->file->getRealPath();
             // Fall back to scheme://path for stream wrapped locations.
             if (false === $path) {
                 $path = $this->file->getPathname();
             }
-            if ('x-accel-redirect' === strtolower($type)) {
+            if ('X-Accel-Redirect' === $type) {
                 // Do X-Accel-Mapping substitutions.
                 // @link https://github.com/rack/rack/blob/main/lib/rack/sendfile.rb
                 // @link https://mattbrictson.com/blog/accelerated-rails-downloads
@@ -256,13 +265,15 @@ class BinaryFileResponse extends Response
             if (!$request->headers->has('If-Range') || $this->hasValidIfRangeHeader($request->headers->get('If-Range'))) {
                 $range = $request->headers->get('Range');
 
-                if (str_starts_with($range, 'bytes=')) {
-                    [$start, $end] = explode('-', substr($range, 6), 2) + [1 => 0];
+                if (preg_match('/^bytes=(\d*)-(\d*)$/i', $range, $matches) && ('' !== $matches[1] || '' !== $matches[2])) {
+                    $start = $matches[1];
+                    $end = $matches[2];
 
                     $end = ('' === $end) ? $fileSize - 1 : (int) $end;
 
                     if ('' === $start) {
-                        $start = $fileSize - $end;
+                        // a suffix longer than the file selects the whole file, see RFC 9110 section 14.1.2
+                        $start = max(0, $fileSize - $end);
                         $end = $fileSize - 1;
                     } else {
                         $start = (int) $start;

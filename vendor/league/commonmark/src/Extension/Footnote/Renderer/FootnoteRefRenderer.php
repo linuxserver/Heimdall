@@ -40,7 +40,13 @@ final class FootnoteRefRenderer implements NodeRendererInterface, XmlNodeRendere
 
         $attrs = $node->data->getData('attributes');
         $attrs->append('class', $this->config->get('footnote/ref_class'));
-        $attrs->set('href', \mb_strtolower($node->getReference()->getDestination(), 'UTF-8'));
+        // The configured prefix is emitted verbatim in the target's id, so only lowercase the label.
+        $destination = $node->getReference()->getDestination();
+        $hrefPrefix  = '#' . $this->config->get('footnote/footnote_id_prefix');
+        $href        = \strncmp($destination, $hrefPrefix, \strlen($hrefPrefix)) === 0
+            ? $hrefPrefix . \mb_strtolower(\substr($destination, \strlen($hrefPrefix)), 'UTF-8')
+            : \mb_strtolower($destination, 'UTF-8');
+        $attrs->set('href', $href);
         $attrs->set('role', 'doc-noteref');
 
         $idPrefix = $this->config->get('footnote/ref_id_prefix');

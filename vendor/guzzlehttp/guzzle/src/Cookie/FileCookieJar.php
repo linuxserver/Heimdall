@@ -2,7 +2,7 @@
 
 namespace GuzzleHttp\Cookie;
 
-use GuzzleHttp\Utils;
+use GuzzleHttp\Exception\InvalidArgumentException;
 
 /**
  * Persists non-session cookies using a JSON formatted file
@@ -60,11 +60,18 @@ class FileCookieJar extends CookieJar
         /** @var SetCookie $cookie */
         foreach ($this as $cookie) {
             if (CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
-                $json[] = $cookie->toArray();
+                $data = $cookie->toArray();
+                $data['HostOnly'] = $cookie->getHostOnly();
+                $json[] = $data;
             }
         }
 
-        $jsonStr = Utils::jsonEncode($json);
+        $jsonStr = \json_encode($json);
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
+            throw new InvalidArgumentException('json_encode error: '.\json_last_error_msg());
+        }
+
+        /** @var non-empty-string $jsonStr */
         if (false === \file_put_contents($filename, $jsonStr, \LOCK_EX)) {
             throw new \RuntimeException("Unable to save file {$filename}");
         }
@@ -89,10 +96,23 @@ class FileCookieJar extends CookieJar
             return;
         }
 
-        $data = Utils::jsonDecode($json, true);
+        $data = \json_decode($json, true);
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
+            throw new InvalidArgumentException('json_decode error: '.\json_last_error_msg());
+        }
+
         if (\is_array($data)) {
+            $cookies = [];
             foreach ($data as $cookie) {
-                $this->setCookie(new SetCookie($cookie));
+                if (!\is_array($cookie) || !\array_key_exists('HostOnly', $cookie) || !\is_bool($cookie['HostOnly'])) {
+                    throw new \RuntimeException("Invalid cookie file: {$filename}");
+                }
+
+                $cookies[] = new SetCookie($cookie);
+            }
+
+            foreach ($cookies as $cookie) {
+                $this->setCookie($cookie);
             }
         } elseif (\is_scalar($data) && !empty($data)) {
             throw new \RuntimeException("Invalid cookie file: {$filename}");

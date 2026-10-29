@@ -23,18 +23,23 @@ class GridRenderer extends Renderer
             return $this;
         }
 
-        $maxWidth = $grid->maxWidth - 2;
-        $cellWidth = max(array_map(fn ($item) => mb_strwidth($this->stripEscapeSequences($item)), $grid->items)) + 4;
-        $maxColumns = max(1, (int) floor(($maxWidth - 1) / ($cellWidth + 1)));
-        $columnCount = max(1, $this->balancedColumnCount(count($grid->items), $maxColumns));
+        $items = array_map(
+            fn ($item) => $this->truncate($item, max(1, $grid->maxWidth - 5)),
+            $grid->items
+        );
 
-        $rows = $this->buildRowsWithSeparators($grid->items, $columnCount);
+        $maxWidth = $grid->maxWidth - 2;
+        $cellWidth = max(array_map(fn ($item) => mb_strwidth($this->stripEscapeSequences($item)), $items)) + 4;
+        $maxColumns = max(1, (int) floor(($maxWidth - 1) / ($cellWidth + 1)));
+        $columnCount = max(1, $this->balancedColumnCount(count($items), $maxColumns));
+
+        $rows = $this->buildRowsWithSeparators($items, $columnCount);
 
         $tableStyle = (new TableStyle)
             ->setHorizontalBorderChars('─')
             ->setVerticalBorderChars('│', '│')
             ->setCellRowFormat('<fg=default>%s</>')
-            ->setCrossingChars('┼', '', '', '', '┤', '┘', '┴', '└', '├', '┌', '┬', '┐');
+            ->setCrossingChars('┼', '┌', '┬', '┐', '┤', '┘', '┴', '└', '├', '┌', '┬', '┐');
 
         $buffered = new BufferedConsoleOutput;
 

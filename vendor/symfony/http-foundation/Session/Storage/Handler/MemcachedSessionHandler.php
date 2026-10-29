@@ -57,13 +57,24 @@ class MemcachedSessionHandler extends AbstractSessionHandler
         return $this->memcached->quit();
     }
 
-    protected function doRead(#[\SensitiveParameter] string $sessionId): string
+    protected function doRead(#[\SensitiveParameter] string $sessionId): string|false
     {
-        return $this->memcached->get($this->prefix.$sessionId) ?: '';
+        $data = $this->memcached->get($this->prefix.$sessionId);
+
+        if (false === $data && \Memcached::RES_NOTFOUND !== $this->memcached->getResultCode()) {
+            return false;
+        }
+
+        return $data ?: '';
     }
 
     public function updateTimestamp(#[\SensitiveParameter] string $sessionId, string $data): bool
     {
+        // PHP 8.6 calls updateTimestamp() instead of write() for a session that is still empty
+        if ('' === $data || (\function_exists('igbinary_serialize') && igbinary_serialize([]) === $data)) {
+            return $this->destroy($sessionId);
+        }
+
         $this->memcached->touch($this->prefix.$sessionId, $this->getCompatibleTtl());
 
         return true;

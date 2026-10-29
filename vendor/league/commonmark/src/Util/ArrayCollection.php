@@ -106,6 +106,8 @@ final class ArrayCollection implements \IteratorAggregate, \Countable, \ArrayAcc
      *
      * @phpstan-param int $offset
      *
+     * @return mixed|null
+     *
      * @phpstan-return T|null
      */
     #[\ReturnTypeWillChange]

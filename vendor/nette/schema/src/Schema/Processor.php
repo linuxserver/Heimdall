@@ -21,6 +21,9 @@ final class Processor
 	private bool $skipDefaults = false;
 
 
+	/**
+	 * When enabled, missing properties are not filled with their default values.
+	 */
 	public function skipDefaults(bool $value = true): void
 	{
 		$this->skipDefaults = $value;
@@ -33,12 +36,16 @@ final class Processor
 	 */
 	public function process(Schema $schema, mixed $data): mixed
 	{
-		$this->createContext();
-		$data = $schema->normalize($data, $this->context);
-		$this->throwsErrors();
-		$data = $schema->complete($data, $this->context);
-		$this->throwsErrors();
-		return $data;
+		$context = $this->createContext();
+		try {
+			$data = $schema->normalize($data, $context);
+			$this->throwErrors($context);
+			$data = $schema->complete($data, $context);
+			$this->throwErrors($context);
+			return $data;
+		} finally {
+			$this->context = $context;
+		}
 	}
 
 
@@ -49,46 +56,56 @@ final class Processor
 	 */
 	public function processMultiple(Schema $schema, array $dataset): mixed
 	{
-		$this->createContext();
-		$flatten = null;
-		$first = true;
-		foreach ($dataset as $data) {
-			$data = $schema->normalize($data, $this->context);
-			$this->throwsErrors();
-			$flatten = $first ? $data : $schema->merge($data, $flatten);
-			$first = false;
-		}
+		$context = $this->createContext();
+		try {
+			$flatten = null;
+			$first = true;
+			foreach ($dataset as $data) {
+				$data = $schema->normalize($data, $context);
+				$this->throwErrors($context);
+				$flatten = $first ? $data : $schema->merge($data, $flatten);
+				$first = false;
+			}
 
-		$data = $schema->complete($flatten, $this->context);
-		$this->throwsErrors();
-		return $data;
+			$data = $schema->complete($flatten, $context);
+			$this->throwErrors($context);
+			return $data;
+		} finally {
+			$this->context = $context;
+		}
 	}
 
 
-	/** @return list<string> */
+	/**
+	 * Returns all deprecation warnings collected during the last processing run.
+	 * @return list<string>
+	 */
 	public function getWarnings(): array
 	{
 		$res = [];
-		foreach ($this->context->warnings as $message) {
-			$res[] = $message->toString();
+		if (isset($this->context)) {
+			foreach ($this->context->warnings as $message) {
+				$res[] = $message->toString();
+			}
 		}
 
 		return $res;
 	}
 
 
-	private function throwsErrors(): void
+	private function throwErrors(Context $context): void
 	{
-		if ($this->context->errors) {
-			throw new ValidationException(null, $this->context->errors);
+		if ($context->errors) {
+			throw new ValidationException(null, $context->errors);
 		}
 	}
 
 
-	private function createContext(): void
+	private function createContext(): Context
 	{
-		$this->context = new Context;
-		$this->context->skipDefaults = $this->skipDefaults;
-		Nette\Utils\Arrays::invoke($this->onNewContext, $this->context);
+		$context = new Context;
+		$context->skipDefaults = $this->skipDefaults;
+		Nette\Utils\Arrays::invoke($this->onNewContext, $context);
+		return $context;
 	}
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.17.0 - 2026-07-09
+
+- Updated lookup
+
 ## 1.16.0 - 2025-09-21
 
 - Updated lookup

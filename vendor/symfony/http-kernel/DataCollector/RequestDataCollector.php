@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Process\Process;
 use Symfony\Component\VarDumper\Cloner\Data;
 
 /**
@@ -511,26 +510,26 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
             $command[] = \sprintf('--request %s', $method);
         }
 
-        $command[] = \sprintf('--url %s', escapeshellarg($request->getUri()));
+        $command[] = \sprintf('--url %s', $this->escapeArgument($request->getUri()));
 
         foreach ($request->headers->all() as $name => $values) {
             if (\in_array(strtolower($name), ['host', 'cookie'], true)) {
                 continue;
             }
 
-            $command[] = '--header '.escapeshellarg(ucwords($name, '-').': '.implode(', ', $values));
+            $command[] = '--header '.$this->escapeArgument(ucwords($name, '-').': '.implode(', ', $values));
         }
 
-        if ($request->cookies->all()) {
-            $cookies = [];
-            foreach ($request->cookies->all() as $name => $value) {
-                $cookies[] = urlencode($name).'='.urlencode($value);
-            }
-            $command[] = '--cookie '.escapeshellarg(implode('; ', $cookies));
+        if ($cookies = $this->flattenCookieArrayForCurl($request->cookies->all())) {
+            $command[] = '--cookie '.$this->escapeArgument(implode('; ', array_map(
+                static fn ($name, $value) => $name.'='.$value,
+                array_keys($cookies),
+                $cookies
+            )));
         }
 
         if ($content && \in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH, Request::METHOD_DELETE], true)) {
-            $command[] = '--data-raw '.$this->escapePayload($content);
+            $command[] = '--data-raw '.$this->escapeArgument($content);
         }
 
         return implode(" \\\n  ", $command);
@@ -541,18 +540,36 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return $this->data['curlCommand'] ?? '';
     }
 
-    private function escapePayload(string $payload): string
+    /**
+     * The command joins its arguments with "\" line continuations, so it targets a POSIX
+     * shell on every platform. escapeshellarg() cannot be used: it drops bytes that are
+     * not valid in the current locale, and turns "%" into a space on Windows.
+     */
+    private function escapeArgument(string $value): string
     {
-        static $useProcess;
+        return "'".str_replace("'", "'\\''", $value)."'";
+    }
 
-        if ($useProcess ??= \function_exists('proc_open') && class_exists(Process::class)) {
-            return substr((new Process(['', $payload]))->getCommandLine(), 3);
+    /**
+     * @param array<array-key, mixed> $data
+     *
+     * @return array<array-key, string>
+     */
+    private function flattenCookieArrayForCurl(array $data, string $prefix = ''): array
+    {
+        $pairs = [];
+
+        foreach ($data as $key => $value) {
+            $key = rawurlencode((string) $key);
+            $name = '' === $prefix ? $key : $prefix.'['.$key.']';
+
+            if (\is_array($value)) {
+                $pairs += $this->flattenCookieArrayForCurl($value, $name);
+            } else {
+                $pairs[$name] = rawurlencode((string) $value);
+            }
         }
 
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            return '"'.str_replace('"', '""', $payload).'"';
-        }
-
-        return "'".str_replace("'", "'\\''", $payload)."'";
+        return $pairs;
     }
 }

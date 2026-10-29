@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace League\CommonMark\Extension\Highlight;
 
 use League\CommonMark\Delimiter\DelimiterInterface;
-use League\CommonMark\Delimiter\Processor\DelimiterProcessorInterface;
+use League\CommonMark\Delimiter\Processor\CacheableDelimiterProcessorInterface;
 use League\CommonMark\Node\Inline\AbstractStringContainer;
 
-class MarkDelimiterProcessor implements DelimiterProcessorInterface
+class MarkDelimiterProcessor implements CacheableDelimiterProcessorInterface
 {
     public function getOpeningCharacter(): string
     {
@@ -64,6 +64,10 @@ class MarkDelimiterProcessor implements DelimiterProcessorInterface
 
     public function getCacheKey(DelimiterInterface $closer): string
     {
-        return '=' . $closer->getLength();
+        // getDelimiterUse() returns 0 for every possible opener once the closer exceeds 2
+        // characters, so all longer closers behave identically and can share a bucket.
+        // Clamping keeps the key space bounded, which is what makes the delimiter stack's
+        // lower-bound cache amortize.
+        return '=' . \min($closer->getLength(), 3);
     }
 }

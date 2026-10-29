@@ -13,16 +13,19 @@ declare(strict_types=1);
 
 namespace League\Uri\UriTemplate;
 
-use League\Uri\Encoder;
 use League\Uri\Exceptions\SyntaxError;
 use Stringable;
 
+use function array_pad;
+use function explode;
 use function implode;
 use function is_array;
+use function mb_substr;
 use function preg_match;
+use function preg_replace_callback;
+use function rawurldecode;
 use function rawurlencode;
 use function str_contains;
-use function substr;
 
 /**
  * Processing behavior according to the expression type operator.
@@ -34,6 +37,11 @@ use function substr;
  */
 enum Operator: string
 {
+    private const REGEXP_CHARS_INVALID = '/[\x00-\x1f\x7f]/';
+    private const REGEXP_CHARS_NOT_UNRESERVED = '/[^A-Za-z0-9_\-.~]/';
+    private const REGEXP_CHARS_ENCODED = ',%[A-Fa-f0-9]{2},';
+    private const REGEXP_CHARS_TO_ENCODE = '/[^A-Za-z0-9_\-.~!$&\'()*+,;=%:@\/?]+|%(?![A-Fa-f0-9]{2})/';
+
     /**
      * Expression regular expression pattern.
      *
@@ -57,6 +65,17 @@ enum Operator: string
     case QueryPair = '&';
     case Fragment = '#';
 
+    public function nextDelimiter(): ?string
+    {
+        return match ($this) {
+            self::Query,
+            self::QueryPair,
+            self::ReservedChars => '#',
+            self::Fragment => null,
+            default => '?#',
+        };
+    }
+
     public function first(): string
     {
         return match ($this) {
@@ -74,6 +93,18 @@ enum Operator: string
         };
     }
 
+    public function supportsListValue(): bool
+    {
+        return match ($this) {
+            self::None,
+            self::Path,
+            self::PathParam,
+            self::Query,
+            self::QueryPair => true,
+            default => false,
+        };
+    }
+
     public function isNamed(): bool
     {
         return match ($this) {
@@ -82,14 +113,56 @@ enum Operator: string
         };
     }
 
+    public function allowEmpty(): bool
+    {
+        return match ($this) {
+            self::None, self::ReservedChars => false,
+            default => true,
+        };
+    }
+
     /**
      * Removes percent encoding on reserved characters (used with + and # modifiers).
      */
-    public function decode(string $var): string
+    public function encode(string $value): string
     {
+        if ('' === $value) {
+            return $value;
+        }
+
+        $encoder = static fn (array $found): string => 1 === preg_match(self::REGEXP_CHARS_NOT_UNRESERVED, rawurldecode($found[0]))
+            ? rawurlencode($found[0])
+            : $found[0];
+
         return match ($this) {
-            Operator::ReservedChars, Operator::Fragment => (string) Encoder::encodeQueryOrFragment($var),
-            default => rawurlencode($var),
+            self::Fragment,
+            self::ReservedChars => (string) preg_replace_callback(self::REGEXP_CHARS_TO_ENCODE, $encoder, $value),
+            default => rawurlencode($value),
+        };
+    }
+
+    /**
+     * Decodes a URI template value.
+     *
+     * @throws SyntaxError if the value to decode contains invalid characters.
+     */
+    public function decode(string $value): string
+    {
+        if ('' === $value) {
+            return '';
+        }
+
+        1 !== preg_match(self::REGEXP_CHARS_INVALID, $value) || throw new SyntaxError('The value contains invalid encoded characters; "'.$value.'".');
+
+        $decoder = static fn (array $matches): string => match ($matches[0]) {
+            '%20', '%2F' => $matches[0],
+            default => rawurldecode($matches[0]),
+        };
+
+        return match ($this) {
+            self::Fragment,
+            self::ReservedChars => (string) preg_replace_callback(self::REGEXP_CHARS_ENCODED, $decoder, $value),
+            default => rawurldecode($value),
         };
     }
 
@@ -107,7 +180,6 @@ enum Operator: string
             throw new SyntaxError('The expression "'.$expression.'" is invalid.');
         }
 
-        /** @var array{operator:string, variables:string} $parts */
         $parts = $parts + ['operator' => ''];
         if ('' !== $parts['operator'] && str_contains(self::RESERVED_OPERATOR, $parts['operator'])) {
             throw new SyntaxError('The operator used in the expression "'.$expression.'" is reserved.');
@@ -156,10 +228,10 @@ enum Operator: string
         }
 
         if (':' === $varSpec->modifier) {
-            $value = substr($value, 0, $varSpec->position);
+            $value = mb_substr($value, 0, $varSpec->position, 'UTF-8');
         }
 
-        return [$this->decode($value), $this->isNamed()];
+        return [$this->encode($value), $this->isNamed()];
     }
 
     /**
@@ -173,9 +245,7 @@ enum Operator: string
      */
     private function replaceList(array $value, VarSpecifier $varSpec): array
     {
-        if (':' === $varSpec->modifier) {
-            throw TemplateCanNotBeExpanded::dueToUnableToProcessValueListWithPrefix($varSpec->name);
-        }
+        ':' !== $varSpec->modifier || throw TemplateCanNotBeExpanded::dueToUnableToProcessValueListWithPrefix($varSpec->name);
 
         if ([] === $value) {
             return ['', false];
@@ -189,7 +259,7 @@ enum Operator: string
                 $key = rawurlencode((string) $key);
             }
 
-            $var = $this->decode($var);
+            $var = $this->encode($var);
             if ('*' === $varSpec->modifier) {
                 if (!$isList) {
                     $var = $key.'='.$var;
@@ -221,5 +291,50 @@ enum Operator: string
         }
 
         return [implode(',', $pairs), $useQuery];
+    }
+
+    /**
+     * Extracts a variable from an operator value.
+     *
+     * A null value represents an absent variable. Exploded variables are delegated
+     * to list extraction, while named non-exploded variables must contain the
+     * expected variable name. Path and fragment operators may represent non-exploded
+     * values as key/value pairs. Extracted values are percent-decoded before being
+     * returned.
+     *
+     * @throws VariableCanNotBeExtracted If the value cannot be extracted according
+     *                                   to the variable specifier.
+     */
+    public function extract(VarSpecifier $varSpecifier, string|null $value): ExtractionResult
+    {
+        $content = match (true) {
+            null === $value => ExtractedValue::fromNull(),
+            '*' === $varSpecifier->modifier => ExtractedValue::fromList($value, $this, $varSpecifier),
+            $this->isNamed() => $this->extractNamedValue($varSpecifier, $value),
+            self::Fragment === $this => $this->extractFragmentValue($varSpecifier, $value),
+            default => ExtractedValue::fromValue($value, $this, $varSpecifier),
+        };
+
+        return  ExtractionResult::success([$varSpecifier->name => $content]);
+    }
+
+    /**
+     * @throws VariableCanNotBeExtracted
+     */
+    private function extractNamedValue(VarSpecifier $varSpecifier, string $value): ExtractedValue
+    {
+        [$name, $value] = array_pad(explode('=', $value, 2), 2, '');
+        $name === $varSpecifier->name || throw VariableCanNotBeExtracted::dueTo('The named variable is invalid.', ExtractionErrorReason::VariableMismatch);
+
+        return self::PathParam === $this && str_contains($value, ',')
+            ? ExtractedValue::fromNamedValue($value, $this)
+            : ExtractedValue::fromValue($value, $this, $varSpecifier);
+    }
+
+    private function extractFragmentValue(VarSpecifier $varSpecifier, string $value): ExtractedValue
+    {
+        return str_contains($value, ',')
+            ? ExtractedValue::fromList($value, $this, $varSpecifier)
+            : ExtractedValue::fromValue($value, $this, $varSpecifier);
     }
 }

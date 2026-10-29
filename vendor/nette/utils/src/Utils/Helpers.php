@@ -8,7 +8,7 @@
 namespace Nette\Utils;
 
 use Nette;
-use function array_unique, ini_get, levenshtein, max, min, ob_end_clean, ob_get_clean, ob_start, preg_replace, strlen;
+use function ini_get, strlen;
 use const PHP_OS_FAMILY;
 
 
@@ -103,9 +103,9 @@ class Helpers
 			'>=' => $left >= $right,
 			'<' => $left < $right,
 			'<=' => $left <= $right,
-			'=', '==' => $left == $right,
+			'=', '==' => $left == $right, // intentionally ==
 			'===' => $left === $right,
-			'!=', '<>' => $left != $right,
+			'!=', '<>' => $left != $right, // intentionally !=
 			'!==' => $left !== $right,
 			default => throw new Nette\InvalidArgumentException("Unknown operator '$operator'"),
 		};

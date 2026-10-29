@@ -8,7 +8,7 @@
 namespace Nette\Utils;
 
 use Nette;
-use function array_map, array_search, array_splice, array_values, count, explode, implode, is_a, is_resource, is_string, strcasecmp, strtolower, substr, trim;
+use function count, is_resource, is_string;
 
 
 /**
@@ -173,9 +173,9 @@ final readonly class Type
 			$this->allows($type) => $this,
 			$type->allows($this) => $type,
 			default => new self(array_unique(
-				array_merge($this->isIntersection() ? [$this] : $this->types, $type->isIntersection() ? [$type] : $type->types),
+				[...$this->isIntersection() ? [$this] : $this->types, ...$type->isIntersection() ? [$type] : $type->types],
 				SORT_REGULAR,
-			), '|'),
+			)),
 		};
 	}
 

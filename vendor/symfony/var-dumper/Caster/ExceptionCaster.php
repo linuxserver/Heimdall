@@ -196,10 +196,7 @@ class ExceptionCaster
         $prefix = Caster::PREFIX_VIRTUAL;
 
         if (isset($f['file'], $f['line'])) {
-            $cacheKey = $f;
-            unset($cacheKey['object'], $cacheKey['args']);
-            $cacheKey[] = self::$srcContext;
-            $cacheKey = implode('-', $cacheKey);
+            $cacheKey = "{$f['file']}-{$f['line']}-".($f['class'] ?? '').'-'.($f['type'] ?? '').'-'.($f['function'] ?? '').'-'.self::$srcContext;
 
             if (isset(self::$framesCache[$cacheKey])) {
                 $a[$prefix.'src'] = self::$framesCache[$cacheKey];
@@ -325,7 +322,7 @@ class ExceptionCaster
 
     private static function extractSource(string $srcLines, int $line, int $srcContext, string $lang, ?string $file, array $frame): EnumStub
     {
-        $srcLines = explode("\n", $srcLines);
+        $srcLines = explode("\n", str_replace(["\r\n", "\r"], "\n", $srcLines));
         $src = [];
 
         for ($i = $line - 1 - $srcContext; $i <= $line - 1 + $srcContext; ++$i) {
@@ -362,7 +359,7 @@ class ExceptionCaster
         do {
             $pad = null;
             for ($i = $srcContext << 1; $i >= 0; --$i) {
-                if (isset($src[$i][$ltrim]) && "\r" !== ($c = $src[$i][$ltrim]) && "\n" !== $c) {
+                if (isset($src[$i][$ltrim]) && "\n" !== ($c = $src[$i][$ltrim])) {
                     $pad ??= $c;
                     if ((' ' !== $c && "\t" !== $c) || $pad !== $c) {
                         break;
@@ -376,7 +373,7 @@ class ExceptionCaster
 
         foreach ($src as $i => $c) {
             if ($ltrim) {
-                $c = isset($c[$ltrim]) && "\r" !== $c[$ltrim] ? substr($c, $ltrim) : ltrim($c, " \t");
+                $c = isset($c[$ltrim]) ? substr($c, $ltrim) : ltrim($c, " \t");
             }
             $c = substr($c, 0, -1);
             if ($i !== $srcContext) {

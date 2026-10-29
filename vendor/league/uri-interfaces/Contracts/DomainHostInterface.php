@@ -15,10 +15,10 @@ namespace League\Uri\Contracts;
 
 use BackedEnum;
 use Countable;
-use Iterator;
 use IteratorAggregate;
 use League\Uri\Exceptions\SyntaxError;
 use Stringable;
+use Traversable;
 
 /**
  * @extends IteratorAggregate<int, string>
@@ -40,9 +40,9 @@ interface DomainHostInterface extends Countable, HostInterface, IteratorAggregat
     /**
      * Iterate over the Domain labels.
      *
-     * @return Iterator<string>
+     * @return Traversable<int, string>
      */
-    public function getIterator(): Iterator;
+    public function getIterator(): Traversable;
 
     /**
      * Retrieves a single host label.

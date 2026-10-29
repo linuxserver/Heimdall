@@ -8,8 +8,8 @@ use Brick\Math\Exception\DivisionByZeroException;
 use Brick\Math\Exception\InvalidArgumentException;
 use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NegativeNumberException;
+use Brick\Math\Exception\PlatformException;
 use Brick\Math\Exception\RoundingNecessaryException;
-use Brick\Math\Exception\UnsupportedPlatformException;
 use Brick\Math\Internal\CalculatorRegistry;
 use Brick\Math\Internal\DecimalHelper;
 use Brick\Math\Internal\Safe;
@@ -168,8 +168,8 @@ final readonly class BigDecimal extends BigNumber
      *
      * Note that BigDecimal has no concept of negative zero, so `-0.0` and `0.0` both convert to zero.
      *
-     * @throws InvalidArgumentException     If the value is NaN or infinite.
-     * @throws UnsupportedPlatformException If the platform uses a non-IEEE-754 double format.
+     * @throws InvalidArgumentException If the value is NaN or infinite.
+     * @throws PlatformException        If the platform uses a non-IEEE-754 double format.
      *
      * @pure
      */
@@ -182,9 +182,11 @@ final readonly class BigDecimal extends BigNumber
             throw InvalidArgumentException::cannotConvertFloat($value > 0 ? 'INF' : '-INF');
         }
 
+        // @codeCoverageIgnoreStart
         if (pack('E', 1.0) !== "\x3f\xf0\x00\x00\x00\x00\x00\x00") {
-            throw UnsupportedPlatformException::unsupportedFloatFormat();
+            throw PlatformException::unsupportedFloatFormat();
         }
+        // @codeCoverageIgnoreEnd
 
         if (PHP_INT_SIZE >= 8) {
             // 64-bit: extract the IEEE-754 bit pattern as a 64-bit integer.
@@ -687,8 +689,14 @@ final readonly class BigDecimal extends BigNumber
                 $sqrt = $calculator->add($sqrt, '1');
             }
 
-            // Irrational sqrt cannot land exactly on a midpoint; treat tie-to-down modes as HalfUp.
-            elseif (in_array($roundingMode, [RoundingMode::HalfDown, RoundingMode::HalfEven, RoundingMode::HalfFloor], true)) {
+            // Irrational sqrt cannot land exactly on a midpoint; the intermediate approximation can,
+            // so rewrite every tie-sensitive mode that could round down on such a phantom tie to HalfUp.
+            elseif (in_array($roundingMode, [
+                RoundingMode::HalfDown,
+                RoundingMode::HalfFloor,
+                RoundingMode::HalfEven,
+                RoundingMode::HalfOdd,
+            ], true)) {
                 $roundingMode = RoundingMode::HalfUp;
             }
         }
@@ -796,9 +804,10 @@ final readonly class BigDecimal extends BigNumber
             // in magnitude) true value for both positive and negative inputs.
             elseif (in_array($roundingMode, [
                 RoundingMode::HalfDown,
-                RoundingMode::HalfEven,
-                RoundingMode::HalfFloor,
                 RoundingMode::HalfCeiling,
+                RoundingMode::HalfFloor,
+                RoundingMode::HalfEven,
+                RoundingMode::HalfOdd,
             ], true)) {
                 $roundingMode = RoundingMode::HalfUp;
             }
@@ -1146,12 +1155,10 @@ final readonly class BigDecimal extends BigNumber
      */
     public function __unserialize(array $data): void
     {
-        /** @phpstan-ignore isset.initializedProperty */
         if (isset($this->value)) {
             throw new LogicException('__unserialize() is an internal function, it must not be called directly.');
         }
 
-        /** @phpstan-ignore deadCode.unreachable */
         $this->value = $data['value'];
         $this->scale = $data['scale'];
     }
@@ -1160,6 +1167,13 @@ final readonly class BigDecimal extends BigNumber
     protected static function from(BigNumber $number): static
     {
         return $number->toBigDecimal();
+    }
+
+    #[Override]
+    protected function digitCount(): int
+    {
+        // At least one integral digit is written: 0.001 counts 4 digits.
+        return max($this->getPrecision(), $this->scale + 1);
     }
 
     /**
