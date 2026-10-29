@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brick\Math\Internal\Calculator;
 
+use Brick\Math\Exception\PlatformException;
 use Brick\Math\Internal\Calculator;
 use Override;
 
@@ -47,7 +48,8 @@ final readonly class NativeCalculator extends Calculator
     {
         $this->maxDigits = match (PHP_INT_SIZE) {
             4 => 9,
-            8 => 18,
+            8 => 18, // @phpstan-ignore match.alwaysTrue
+            default => throw PlatformException::unsupportedIntSize(),
         };
     }
 

@@ -7,7 +7,7 @@
 
 namespace Nette\Utils;
 
-use function array_merge, checkdate, implode, is_numeric, is_string, preg_replace_callback, sprintf, time, trim;
+use function is_string;
 
 
 /**
@@ -96,7 +96,7 @@ class DateTime extends \DateTime implements \JsonSerializable
 
 	public function __construct(string $datetime = 'now', ?\DateTimeZone $timezone = null)
 	{
-		$this->apply($datetime, $timezone, true);
+		$this->apply($datetime, $timezone, ctr: true);
 	}
 
 
@@ -153,7 +153,7 @@ class DateTime extends \DateTime implements \JsonSerializable
 		);
 
 		if ($ctr) {
-			parent::__construct($absPart, $timezone);
+			parent::__construct(trim($absPart), $timezone);
 			$this->handleErrors($datetime);
 		} elseif (trim($absPart)) {
 			parent::modify($absPart) && $this->handleErrors($datetime);
@@ -199,7 +199,7 @@ class DateTime extends \DateTime implements \JsonSerializable
 	private function handleErrors(string $value): void
 	{
 		$errors = self::getLastErrors();
-		$errors = array_merge($errors['errors'] ?? [], $errors['warnings'] ?? []);
+		$errors = [...$errors['errors'] ?? [], ...$errors['warnings'] ?? []];
 		if ($errors) {
 			throw new \Exception(implode(', ', $errors) . " '$value'");
 		}

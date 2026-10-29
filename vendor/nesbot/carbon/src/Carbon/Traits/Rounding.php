@@ -17,6 +17,7 @@ use Carbon\CarbonInterface;
 use Carbon\Exceptions\UnknownUnitException;
 use Carbon\WeekDay;
 use DateInterval;
+use Time\Duration;
 
 /**
  * Trait Rounding.
@@ -37,7 +38,7 @@ trait Rounding
      */
     public function roundUnit(
         string $unit,
-        DateInterval|string|float|int $precision = 1,
+        DateInterval|Duration|string|float|int $precision = 1,
         callable|string $function = 'round',
     ): static {
         $metaUnits = [
@@ -69,6 +70,38 @@ trait Rounding
         }
 
         $precision *= $factor;
+
+        // How many of each unit make up the next one up. Only the steps with a
+        // fixed size are listed: a month holds a varying number of days, so a
+        // day precision is never carried into a month.
+        $unitsPerNextUnit = [
+            // @call roundUnit
+            'microsecond' => [static::MICROSECONDS_PER_SECOND, 'second'],
+            // @call roundUnit
+            'second' => [static::SECONDS_PER_MINUTE, 'minute'],
+            // @call roundUnit
+            'minute' => [static::MINUTES_PER_HOUR, 'hour'],
+            // @call roundUnit
+            'hour' => [static::HOURS_PER_DAY, 'day'],
+            // @call roundUnit
+            'month' => [static::MONTHS_PER_YEAR, 'year'],
+        ];
+
+        // A numeric precision counts units of $normalizedUnit, and that unit has
+        // a range it cannot leave, so a precision spanning the next unit up has
+        // to be re-targeted there, the same way "week" becomes "day" above.
+        if (\is_int($precision) || \is_float($precision)) {
+            while (isset($unitsPerNextUnit[$normalizedUnit])) {
+                [$span, $nextUnit] = $unitsPerNextUnit[$normalizedUnit];
+
+                if ($precision < $span) {
+                    break;
+                }
+
+                $precision /= $span;
+                $normalizedUnit = $nextUnit;
+            }
+        }
 
         if (!isset($ranges[$normalizedUnit])) {
             throw new UnknownUnitException($unit);
@@ -142,7 +175,7 @@ trait Rounding
     /**
      * Truncate the current instance at the given unit with given precision if specified.
      */
-    public function floorUnit(string $unit, DateInterval|string|float|int $precision = 1): static
+    public function floorUnit(string $unit, DateInterval|Duration|string|float|int $precision = 1): static
     {
         return $this->roundUnit($unit, $precision, 'floor');
     }
@@ -150,7 +183,7 @@ trait Rounding
     /**
      * Ceil the current instance at the given unit with given precision if specified.
      */
-    public function ceilUnit(string $unit, DateInterval|string|float|int $precision = 1): static
+    public function ceilUnit(string $unit, DateInterval|Duration|string|float|int $precision = 1): static
     {
         return $this->roundUnit($unit, $precision, 'ceil');
     }

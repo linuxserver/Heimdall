@@ -41,6 +41,9 @@ use Throwable;
  * @method Carbon              createFromDate($year = null, $month = null, $day = null, $timezone = null)                                                           Create a Carbon instance from just a date. The time portion is set to now.
  * @method ?Carbon             createFromFormat($format, $time, $timezone = null)                                                                                   Create a Carbon instance from a specific format.
  * @method ?Carbon             createFromIsoFormat(string $format, string $time, $timezone = null, ?string $locale = 'en', ?TranslatorInterface $translator = null) Create a Carbon instance from a specific ISO format (same replacements as ->isoFormat()).
+ *                                                                                                                                                                  Era tokens (N to NNNNN, y, yy, yyy, yyyy, yo) are read with the "eras" of $locale: the era name gives the
+ *                                                                                                                                                                  era and the year is the year of this era, so 'D MMMM N y' with 'th' reads '29 กุมภาพันธ์ พ.ศ. 2567' as
+ *                                                                                                                                                                  2024-02-29. Without any N token, the era of today's date in this locale is used.
  * @method ?Carbon             createFromLocaleFormat(string $format, string $locale, string $time, $timezone = null)                                               Create a Carbon instance from a specific format and a string in a given language.
  * @method ?Carbon             createFromLocaleIsoFormat(string $format, string $locale, string $time, $timezone = null)                                            Create a Carbon instance from a specific ISO format and a string in a given language.
  * @method Carbon              createFromTime($hour = 0, $minute = 0, $second = 0, $timezone = null)                                                                Create a Carbon instance from just a time. The date portion is set to today.
@@ -67,7 +70,15 @@ use Throwable;
  * @method mixed               executeWithLocale(string $locale, callable $func)                                                                                    Set the current locale to the given, execute the passed function, reset the locale to previous one,
  *                                                                                                                                                                  then return the result of the closure (or null if the closure was void).
  * @method Carbon              fromSerialized($value, array $options = [])                                                                                          Create an instance from a serialized string.
- *                                                                                                                                                                  If $value is not from a trusted source, consider using the allowed_classes option to limit
+ *                                                                                                                                                                  Unserializing object can lead to arbitrary execution of period filters, and assignation
+ *                                                                                                                                                                  of unvalidated values to properties.
+ *                                                                                                                                                                  You should never unserialize a value from not from a trusted source. Ensure you unserialize
+ *                                                                                                                                                                  only strings coming from storage no unauthorized party can read nor write, prefer to exchange
+ *                                                                                                                                                                  data with other systems via static formats such as JSON.
+ *                                                                                                                                                                  If the data has to transit via untrusted systems before unserialization, then you should
+ *                                                                                                                                                                  sign it cryptographically (with HMAC or OpenSSL for example), and verify the signature
+ *                                                                                                                                                                  before unserializing it.
+ *                                                                                                                                                                  If the content of $value is unknown, consider using the allowed_classes option to limit
  *                                                                                                                                                                  the types of objects that can be built, for instance:
  * @method array               getAvailableLocales()                                                                                                                Returns the list of internally available locales and already loaded custom locales.
  *                                                                                                                                                                  (It will ignore custom translator dynamic loading.)
@@ -815,20 +826,41 @@ class Factory
      */
     private function matchFormatPattern(string $date, string $format, array $replacements): bool
     {
+        // Null bytes would collide with the fragment sentinels used below.
+        $format = str_replace("\0", '', $format);
         // Preg quote, but remove escaped backslashes since we'll deal with escaped characters in the format string.
         $regex = str_replace('\\\\', '\\', $format);
-        // Replace not-escaped letters
+        // Replace not-escaped letters, wrapping each generated fragment between
+        // null-byte sentinels so the generic quoting below leaves them intact.
         $regex = preg_replace_callback(
             '/(?<!\\\\)((?:\\\\{2})*)(['.implode('', array_keys($replacements)).'])/',
-            static fn ($match) => $match[1].strtr($match[2], $replacements),
+            static fn ($match) => "\0".$match[1].strtr($match[2], $replacements)."\0",
             $regex,
         );
         // Replace escaped letters by the letter itself
         $regex = preg_replace('/(?<!\\\\)((?:\\\\{2})*)\\\\(\w)/', '$1$2', $regex);
-        // Escape not escaped slashes
-        $regex = preg_replace('#(?<!\\\\)((?:\\\\{2})*)/#', '$1\\/', $regex);
 
-        return (bool) @preg_match('/^'.$regex.'$/', $date);
+        $chunks = explode("\0", $regex);
+
+        foreach ($chunks as $index => $chunk) {
+            if ($index % 2) {
+                continue;
+            }
+
+            // Quote every character that did not come from a format token:
+            // backslash escapes resolve to their quoted literal target, any
+            // other byte (including dangling backslashes) is quoted as-is.
+            $chunks[$index] = preg_replace_callback(
+                '/\\\\.|./s',
+                static fn ($match) => preg_quote(
+                    $match[0][0] === '\\' && isset($match[0][1]) ? $match[0][1] : $match[0],
+                    '/',
+                ),
+                $chunk,
+            );
+        }
+
+        return (bool) @preg_match('/^'.implode('', $chunks).'$/', $date);
     }
 
     private function setDefaultTimezone(string $timezone, ?DateTimeInterface $date = null): void

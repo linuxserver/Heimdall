@@ -23,7 +23,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5",
-        "phpstan/phpstan": "2.1.22"
+        "phpstan/phpstan": "2.2.13",
+        "phpstan/phpstan-phpunit": "2.0.18"
     },
     "autoload": {
         "psr-4": {

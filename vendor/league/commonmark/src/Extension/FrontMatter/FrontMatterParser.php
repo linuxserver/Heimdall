@@ -23,7 +23,7 @@ final class FrontMatterParser implements FrontMatterParserInterface
     /** @psalm-readonly */
     private FrontMatterDataParserInterface $frontMatterParser;
 
-    private const REGEX_FRONT_MATTER = '/^---\\R.*?\\R---\\R/s';
+    private const REGEX_FRONT_MATTER = '/\G---\\R.*?\\R---\\R/s';
 
     public function __construct(FrontMatterDataParserInterface $frontMatterParser)
     {
@@ -38,7 +38,7 @@ final class FrontMatterParser implements FrontMatterParserInterface
         $cursor = new Cursor($markdownContent);
 
         // Locate the front matter
-        $frontMatter = $cursor->match(self::REGEX_FRONT_MATTER);
+        $frontMatter = $cursor->matchInPlace(self::REGEX_FRONT_MATTER);
         if ($frontMatter === null) {
             return new MarkdownInputWithFrontMatter($markdownContent);
         }
@@ -53,7 +53,7 @@ final class FrontMatterParser implements FrontMatterParserInterface
         $data = $this->frontMatterParser->parse($frontMatter);
 
         // Advance through any remaining newlines which separated the front matter from the Markdown text
-        $trailingNewlines = $cursor->match('/^\R+/');
+        $trailingNewlines = $cursor->matchInPlace('/\G\R+/');
 
         // Calculate how many lines the Markdown is offset from the front matter by counting the number of newlines
         // Don't forget to add 1 because we stripped one out when trimming the trailing delims

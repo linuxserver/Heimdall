@@ -148,7 +148,11 @@ class StreamHandler extends AbstractProcessingHandler
             }
             $this->createDir($url);
             $this->errorMessage = null;
-            set_error_handler($this->customErrorHandler(...));
+            // forwarding to $this->customErrorHandler using a closure to make the
+            // private method accessible, see https://github.com/Seldaek/monolog/issues/1866
+            set_error_handler(function (int $code, string $msg) {
+                return $this->customErrorHandler($code, $msg);
+            });
 
             try {
                 $stream = fopen($url, $this->fileOpenMode);
@@ -175,7 +179,11 @@ class StreamHandler extends AbstractProcessingHandler
         }
 
         $this->errorMessage = null;
-        set_error_handler($this->customErrorHandler(...));
+        // forwarding to $this->customErrorHandler using a closure to make the
+        // private method accessible, see https://github.com/Seldaek/monolog/issues/1866
+        set_error_handler(function (int $code, string $msg) {
+            return $this->customErrorHandler($code, $msg);
+        });
         try {
             $this->streamWrite($stream, $record);
         } finally {
@@ -207,7 +215,26 @@ class StreamHandler extends AbstractProcessingHandler
      */
     protected function streamWrite($stream, LogRecord $record): void
     {
-        fwrite($stream, (string) $record->formatted);
+        $data = (string) $record->formatted;
+        $length = \strlen($data);
+        $written = 0;
+
+        // fwrite() may write only part of the data on non-blocking streams, so loop until it is all written, see https://github.com/Seldaek/monolog/issues/2011
+        while ($written < $length) {
+            $result = fwrite($stream, substr($data, $written));
+            if ($result === false) {
+                // write failed, let the customErrorHandler/errorMessage logic in write() report and retry it
+                break;
+            }
+            if ($result === 0) {
+                // the non-blocking stream's buffer is full, wait until it can be written to again instead of busy-looping or dropping the rest of the record
+                $write = [$stream];
+                $read = $except = [];
+                stream_select($read, $write, $except, null);
+                continue;
+            }
+            $written += $result;
+        }
     }
 
     /**
@@ -244,8 +271,10 @@ class StreamHandler extends AbstractProcessingHandler
         $dir = $this->getDirFromStream($url);
         if (null !== $dir && !is_dir($dir)) {
             $this->errorMessage = null;
-            set_error_handler(function (...$args) {
-                return $this->customErrorHandler(...$args);
+            // forwarding to $this->customErrorHandler using a closure to make the
+            // private method accessible, see https://github.com/Seldaek/monolog/issues/1866
+            set_error_handler(function (int $code, string $msg) {
+                return $this->customErrorHandler($code, $msg);
             });
             $status = mkdir($dir, 0777, true);
             restore_error_handler();

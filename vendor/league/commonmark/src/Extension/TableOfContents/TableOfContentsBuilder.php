@@ -14,10 +14,13 @@ declare(strict_types=1);
 namespace League\CommonMark\Extension\TableOfContents;
 
 use League\CommonMark\Event\DocumentParsedEvent;
+use League\CommonMark\Event\DocumentPreRenderEvent;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
+use League\CommonMark\Extension\CommonMark\Node\Block\ListItem;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalink;
 use League\CommonMark\Extension\TableOfContents\Node\TableOfContents;
 use League\CommonMark\Extension\TableOfContents\Node\TableOfContentsPlaceholder;
+use League\CommonMark\Extension\TableOfContents\Node\TableOfContentsReference;
 use League\CommonMark\Node\Block\Document;
 use League\CommonMark\Node\NodeIterator;
 use League\Config\ConfigurationAwareInterface;
@@ -89,14 +92,64 @@ final class TableOfContentsBuilder implements ConfigurationAwareInterface
 
     private function replacePlaceholders(Document $document, TableOfContents $toc): void
     {
+        $maxEntries = $this->config->get('table_of_contents/max_placeholder_entries');
+        \assert(\is_int($maxEntries) || $maxEntries === null);
+        $perCopy  = $maxEntries === null ? 0 : self::countEntries($toc);
+        $cache    = new TableOfContentsRenderCache();
+        $entries  = 0;
+        $anchored = false;
+
         foreach ($document->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
             // Add the block once we find a placeholder
             if (! $node instanceof TableOfContentsPlaceholder) {
                 continue;
             }
 
-            $node->replaceWith(clone $toc);
+            // Leave any remaining placeholders as-is once the entry budget is spent
+            if ($maxEntries !== null && $entries + $perCopy > $maxEntries) {
+                continue;
+            }
+
+            // The first placeholder receives the table of contents itself, so that it remains
+            // part of the document; the rest share the single result of rendering it
+            if ($anchored) {
+                $node->replaceWith(new TableOfContentsReference($toc, $cache));
+            } else {
+                $node->replaceWith($toc);
+                $anchored = true;
+            }
+
+            $entries += $perCopy;
         }
+    }
+
+    public function onDocumentPreRender(DocumentPreRenderEvent $event): void
+    {
+        // The shared references are an HTML rendering optimization; other formats
+        // (like XML) walk the node tree directly and expect complete copies
+        if ($event->getFormat() === 'html') {
+            return;
+        }
+
+        foreach ($event->getDocument()->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
+            if (! $node instanceof TableOfContentsReference) {
+                continue;
+            }
+
+            $node->replaceWith(clone $node->getTableOfContents());
+        }
+    }
+
+    private static function countEntries(TableOfContents $toc): int
+    {
+        $count = 0;
+        foreach ($toc->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
+            if ($node instanceof ListItem) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     public function setConfiguration(ConfigurationInterface $configuration): void

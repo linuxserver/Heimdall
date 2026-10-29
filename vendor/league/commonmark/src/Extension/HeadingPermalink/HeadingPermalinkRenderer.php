@@ -73,6 +73,9 @@ final class HeadingPermalinkRenderer implements NodeRendererInterface, XmlNodeRe
         $hidden = $this->config->get('heading_permalink/aria_hidden');
         if ($hidden) {
             $attrs->set('aria-hidden', 'true');
+            // A focusable element removed from the accessibility tree is a WCAG 4.1.2 failure,
+            // so the link must also be taken out of the tab order
+            $attrs->set('tabindex', '-1');
         }
 
         $attrs->set('title', $this->config->get('heading_permalink/title'));

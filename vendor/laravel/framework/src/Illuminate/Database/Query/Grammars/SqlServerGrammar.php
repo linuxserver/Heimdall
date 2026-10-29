@@ -410,6 +410,24 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+     * Compile an update statement without joins into SQL.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  string  $table
+     * @param  string  $columns
+     * @param  string  $where
+     * @return string
+     */
+    protected function compileUpdateWithoutJoins(Builder $query, $table, $columns, $where)
+    {
+        $sql = parent::compileUpdateWithoutJoins($query, $table, $columns, $where);
+
+        return ! is_null($query->limit) && $query->limit > 0 && $query->offset <= 0
+            ? Str::replaceFirst('update', 'update top ('.$query->limit.')', $sql)
+            : $sql;
+    }
+
+    /**
      * Compile an update statement with joins into SQL.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -497,7 +515,7 @@ class SqlServerGrammar extends Grammar
      */
     public function compileJoinLateral(JoinLateralClause $join, string $expression): string
     {
-        $type = $join->type == 'left' ? 'outer' : 'cross';
+        $type = $join->type === 'left' ? 'outer' : 'cross';
 
         return trim("{$type} apply {$expression}");
     }

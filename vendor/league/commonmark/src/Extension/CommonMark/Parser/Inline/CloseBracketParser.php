@@ -181,6 +181,16 @@ final class CloseBracketParser implements InlineParserInterface, EnvironmentAwar
             // The reference must not contain a bracket. If we know there's a bracket, we don't even bother checking it.
             $start  = $opener->getPosition();
             $length = $startPos - $start;
+
+            // spec: A link label can have at most 999 characters inside the square brackets.
+            // ReferenceParser::parseLabel() enforces that when storing definitions, so a longer
+            // span here cannot possibly match one. Rejecting it up-front - before copying and
+            // normalizing the span - is what keeps deeply-nested brackets from being quadratic.
+            if ($length > 999) {
+                $cursor->restoreState($savePos);
+
+                return null;
+            }
         } else {
             $cursor->restoreState($savePos);
 

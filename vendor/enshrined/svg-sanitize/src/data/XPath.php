@@ -50,14 +50,14 @@ class XPath extends \DOMXPath
      */
     protected function getRootElements()
     {
+        // Only `<svg>` elements directly under the document count, so look at its
+        // children. Walking getElementsByTagName('svg') visited every `<svg>` in
+        // the document, and before PHP 8.3 each step searched it again.
         $rootElements = [];
-        $elements = $this->document->getElementsByTagName('svg');
-        /** @var \DOMElement $element */
-        foreach ($elements as $element) {
-            if ($element->parentNode !== $this->document) {
-                continue;
+        foreach ($this->document->childNodes as $node) {
+            if ($node instanceof \DOMElement && $node->tagName === 'svg') {
+                $rootElements[] = $node;
             }
-            $rootElements[] = $element;
         }
         return $rootElements;
     }

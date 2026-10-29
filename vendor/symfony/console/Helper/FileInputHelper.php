@@ -81,10 +81,12 @@ final class FileInputHelper
 
     public function displayFile(OutputInterface $output, InputFile $file): void
     {
-        $link = \sprintf('<href=file://%s>%s</>', OutputFormatter::escape($file->getRealPath()), OutputFormatter::escape($file->getFilename()));
+        $path = self::sanitizeForDisplay((string) $file->getRealPath());
+        $filename = self::sanitizeForDisplay($file->getFilename());
+        $link = \sprintf('<href=file://%s>%s</>', OutputFormatter::escape($path), OutputFormatter::escape($filename));
 
         if ($output->isVeryVerbose()) {
-            $output->writeln(\sprintf('<info>%s</info> %s (<comment>%s, %s</comment>)', "\u{1F4CE}", $link, OutputFormatter::escape($file->getMimeType() ?? 'unknown'), $file->getHumanReadableSize()));
+            $output->writeln(\sprintf('<info>%s</info> %s (<comment>%s, %s</comment>)', "\u{1F4CE}", $link, OutputFormatter::escape(self::sanitizeForDisplay($file->getMimeType() ?? 'unknown')), $file->getHumanReadableSize()));
         } else {
             $output->writeln(\sprintf('<info>%s</info> %s', "\u{1F4CE}", $link));
         }
@@ -102,47 +104,67 @@ final class FileInputHelper
         $buffer = '';
         $inPaste = false;
         $pasteBuffer = '';
+        $scanned = 0;
 
-        while (!feof($inputStream)) {
+        while (true) {
             $inputHelper->waitForInput();
-            $char = fread($inputStream, 1);
+            $chunk = fread($inputStream, 8192);
 
-            if (false === $char || '' === $char) {
+            if (false === $chunk || '' === $chunk) {
                 if ('' === $buffer && '' === $pasteBuffer) {
                     throw new MissingInputException('Aborted.');
                 }
                 break;
             }
 
-            $buffer .= $char;
+            $buffer .= $chunk;
 
             if (\strlen($buffer) > self::MAX_PASTE_BYTES) {
                 throw new InvalidFileException(\sprintf('Pasted input exceeds the maximum allowed size of %d bytes.', self::MAX_PASTE_BYTES));
             }
 
-            if (!$inPaste && str_ends_with($buffer, self::PASTE_START)) {
+            // Scan whole reads at once; appending byte by byte is quadratic for large pastes.
+            if (!$inPaste) {
+                // Look back so a marker split across two reads is still matched.
+                $pasteStart = strpos($buffer, self::PASTE_START, max(0, $scanned - \strlen(self::PASTE_START) + 1));
+                $newline = $scanned + strcspn($buffer, "\r\n", $scanned);
+                $hasNewline = $newline < \strlen($buffer);
+
+                if (false === $pasteStart || ($hasNewline && $newline <= $pasteStart + \strlen(self::PASTE_START) - 1)) {
+                    if ($hasNewline) {
+                        $buffer = substr($buffer, 0, $newline);
+                        break;
+                    }
+
+                    $scanned = \strlen($buffer);
+                    continue;
+                }
+
                 $inPaste = true;
-                $buffer = substr($buffer, 0, -\strlen(self::PASTE_START));
-                continue;
+                $buffer = substr($buffer, 0, $pasteStart).substr($buffer, $pasteStart + \strlen(self::PASTE_START));
+                $scanned = $pasteStart;
             }
 
-            if ($inPaste && str_ends_with($buffer, self::PASTE_END)) {
-                $pasteBuffer = substr($buffer, 0, -\strlen(self::PASTE_END));
+            $pasteEnd = strpos($buffer, self::PASTE_END, max(0, $scanned - \strlen(self::PASTE_END) + 1));
+
+            if (false !== $pasteEnd) {
+                $pasteBuffer = substr($buffer, 0, $pasteEnd);
+                $buffer = substr($buffer, 0, $pasteEnd + \strlen(self::PASTE_END));
                 break;
             }
 
-            if (!$inPaste && ("\n" === $char || "\r" === $char)) {
-                $buffer = rtrim($buffer, "\r\n");
-                break;
-            }
+            $scanned = \strlen($buffer);
         }
 
         if ('' !== $pasteBuffer) {
             if (null !== $this->protocol && $this->protocol->detectPastedImage($pasteBuffer)) {
                 $decoded = $this->protocol->decode($pasteBuffer);
-                if ('' !== $decoded['data']) {
-                    return InputFile::fromData($decoded['data'], $decoded['format']);
+
+                if ('' === $decoded['data']) {
+                    throw new InvalidFileException('The pasted image could not be decoded.');
                 }
+
+                return InputFile::fromData($decoded['data'], $decoded['format']);
             }
 
             $path = trim($pasteBuffer);
@@ -196,6 +218,27 @@ final class FileInputHelper
         }
 
         return null;
+    }
+
+    /**
+     * Strips terminal-escape introducer bytes from a file name or path before it is
+     * echoed back to the user, so a crafted name cannot inject escape sequences.
+     * OutputFormatter::escape() only neutralizes "<" and ">", not control bytes.
+     *
+     * Removes C0 controls (except TAB and LF), DEL, and the UTF-8 encoding of C1
+     * controls, matching Tui's StringUtils::stripControlBytes().
+     *
+     * The replacement is repeated until it reaches a fixed point: removing a byte
+     * can splice two survivors into a fresh control sequence (e.g. "\xc2\x1b\x9b"
+     * leaves "\xc2\x9b", the UTF-8 encoding of U+009B), so a single pass is not enough.
+     */
+    private static function sanitizeForDisplay(string $value): string
+    {
+        do {
+            $value = preg_replace("/[\x00-\x08\x0b-\x1f\x7f]|\xc2[\x80-\x9f]/", '', $value, -1, $count) ?? '';
+        } while ($count > 0);
+
+        return $value;
     }
 
     private function isDisplayableImage(InputFile $file): bool

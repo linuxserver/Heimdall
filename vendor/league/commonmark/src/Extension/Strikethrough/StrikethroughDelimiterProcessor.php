@@ -64,6 +64,10 @@ final class StrikethroughDelimiterProcessor implements CacheableDelimiterProcess
 
     public function getCacheKey(DelimiterInterface $closer): string
     {
-        return '~' . $closer->getLength();
+        // getDelimiterUse() returns 0 for every possible opener once the closer exceeds 2
+        // characters, so all longer closers behave identically and can share a bucket.
+        // Clamping keeps the key space bounded, which is what makes the delimiter stack's
+        // lower-bound cache amortize.
+        return '~' . \min($closer->getLength(), 3);
     }
 }

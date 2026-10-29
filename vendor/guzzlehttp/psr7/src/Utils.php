@@ -11,6 +11,65 @@ use Psr\Http\Message\UriInterface;
 final class Utils
 {
     /**
+     * Converts ASCII uppercase letters in a string to lowercase.
+     *
+     * Unlike strtolower(), which honors LC_CTYPE before PHP 8.2, the
+     * conversion is locale-independent and leaves every non-ASCII byte
+     * unchanged, as HTTP protocol elements require.
+     */
+    public static function asciiToLower(string $string): string
+    {
+        return strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+    }
+
+    /**
+     * Converts ASCII lowercase letters in a string to uppercase.
+     *
+     * Unlike strtoupper(), which honors LC_CTYPE before PHP 8.2, the
+     * conversion is locale-independent and leaves every non-ASCII byte
+     * unchanged, as HTTP protocol elements require.
+     */
+    public static function asciiToUpper(string $string): string
+    {
+        return strtr($string, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    }
+
+    /**
+     * Converts the first character of a string to uppercase when it is an
+     * ASCII lowercase letter.
+     *
+     * Unlike ucfirst(), which honors LC_CTYPE before PHP 8.2, the conversion
+     * is locale-independent and leaves every non-ASCII byte unchanged, as
+     * HTTP protocol elements require.
+     */
+    public static function asciiUcFirst(string $string): string
+    {
+        if ($string === '') {
+            return '';
+        }
+
+        return self::asciiToUpper($string[0]).substr($string, 1);
+    }
+
+    /**
+     * Checks whether the haystack contains the needle, comparing ASCII
+     * letters case-insensitively and without locale sensitivity.
+     */
+    public static function caselessContains(string $haystack, string $needle): bool
+    {
+        return str_contains(self::asciiToLower($haystack), self::asciiToLower($needle));
+    }
+
+    /**
+     * Checks whether two strings are equal, comparing ASCII letters
+     * case-insensitively and without locale sensitivity.
+     */
+    public static function caselessEquals(string $left, string $right): bool
+    {
+        return self::asciiToLower($left) === self::asciiToLower($right);
+    }
+
+    /**
      * Remove the items given by the keys, case insensitively from the data.
      *
      * @param (string|int)[] $keys
@@ -20,11 +79,11 @@ final class Utils
         $result = [];
 
         foreach ($keys as &$key) {
-            $key = strtolower((string) $key);
+            $key = self::asciiToLower((string) $key);
         }
 
         foreach ($data as $k => $v) {
-            if (!in_array(strtolower((string) $k), $keys)) {
+            if (!in_array(self::asciiToLower((string) $k), $keys)) {
                 $result[$k] = $v;
             }
         }
@@ -212,7 +271,7 @@ final class Utils
             if ($host !== '') {
                 if (isset($changes['set_headers']) && is_array($changes['set_headers'])) {
                     foreach (array_keys($changes['set_headers']) as $header) {
-                        if (strtolower((string) $header) === 'host') {
+                        if (self::asciiToLower((string) $header) === 'host') {
                             throw new \InvalidArgumentException(
                                 'Cannot modify request with both a URI containing a host and an explicit Host header.'
                             );
@@ -248,7 +307,7 @@ final class Utils
 
         $hasHost = false;
         foreach (array_keys($headers) as $header) {
-            if (strtolower((string) $header) === 'host') {
+            if (self::asciiToLower((string) $header) === 'host') {
                 $hasHost = true;
                 break;
             }
@@ -284,7 +343,7 @@ final class Utils
             $addedHeaders = [];
             foreach ($headers as $header => $value) {
                 $header = (string) $header;
-                $normalized = strtolower($header);
+                $normalized = self::asciiToLower($header);
 
                 if (isset($addedHeaders[$normalized])) {
                     /** @var RequestInterface */

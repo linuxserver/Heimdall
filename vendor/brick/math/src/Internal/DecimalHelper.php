@@ -22,6 +22,9 @@ use const STR_PAD_LEFT;
  */
 final class DecimalHelper
 {
+    /**
+     * @codeCoverageIgnore
+     */
     private function __construct()
     {
     }

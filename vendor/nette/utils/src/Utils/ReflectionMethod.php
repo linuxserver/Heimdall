@@ -7,7 +7,7 @@
 
 namespace Nette\Utils;
 
-use function explode, is_string, str_contains;
+use function is_string;
 
 
 /**

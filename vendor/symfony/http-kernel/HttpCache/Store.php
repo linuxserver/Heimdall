@@ -28,6 +28,7 @@ class Store implements StoreInterface
     private \SplObjectStorage $keyCache;
     /** @var array<string, resource> */
     private array $locks = [];
+    private int|false $pid;
 
     /**
      * Constructor.
@@ -43,6 +44,7 @@ class Store implements StoreInterface
         protected string $root,
         private array $options = [],
     ) {
+        $this->pid = getmypid();
         if (!is_dir($this->root) && !@mkdir($this->root, 0o777, true) && !is_dir($this->root)) {
             throw new \RuntimeException(\sprintf('Unable to create the store directory (%s).', $this->root));
         }
@@ -55,6 +57,8 @@ class Store implements StoreInterface
      */
     public function cleanup(): void
     {
+        $this->resetLocksAfterFork();
+
         // unlock everything
         foreach ($this->locks as $lock) {
             flock($lock, \LOCK_UN);
@@ -71,11 +75,13 @@ class Store implements StoreInterface
      */
     public function lock(Request $request): bool|string
     {
+        $this->resetLocksAfterFork();
+
         $key = $this->getCacheKey($request);
 
         if (!isset($this->locks[$key])) {
             $path = $this->getPath($key);
-            if (!is_dir(\dirname($path)) && false === @mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
+            if (!is_dir(\dirname($path)) && !@mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
                 return $path;
             }
             $h = fopen($path, 'c');
@@ -98,6 +104,8 @@ class Store implements StoreInterface
      */
     public function unlock(Request $request): bool
     {
+        $this->resetLocksAfterFork();
+
         $key = $this->getCacheKey($request);
 
         if (isset($this->locks[$key])) {
@@ -113,6 +121,8 @@ class Store implements StoreInterface
 
     public function isLocked(Request $request): bool
     {
+        $this->resetLocksAfterFork();
+
         $key = $this->getCacheKey($request);
 
         if (isset($this->locks[$key])) {
@@ -192,15 +202,21 @@ class Store implements StoreInterface
             }
         // Everything seems ok, omit writing content to disk
         } else {
+            // Responses that cannot provide their content, like BinaryFileResponse or
+            // StreamedResponse, have no entity to store, so no entry is written
+            if (false === $content = $response->getContent()) {
+                return $key;
+            }
+
             $digest = $this->generateContentDigest($response);
             $response->headers->set('X-Content-Digest', $digest);
 
-            if (!$this->save($digest, $response->getContent(), false)) {
+            if (!$this->save($digest, $content, false)) {
                 throw new \RuntimeException('Unable to store the entity.');
             }
 
             if (!$response->headers->has('Transfer-Encoding')) {
-                $response->headers->set('Content-Length', \strlen($response->getContent()));
+                $response->headers->set('Content-Length', \strlen($content));
             }
         }
 
@@ -327,6 +343,8 @@ class Store implements StoreInterface
      */
     private function doPurge(string $url): bool
     {
+        $this->resetLocksAfterFork();
+
         $key = $this->getCacheKey(Request::create($url));
         if (isset($this->locks[$key])) {
             flock($this->locks[$key], \LOCK_UN);
@@ -358,6 +376,8 @@ class Store implements StoreInterface
      */
     private function save(string $key, string $data, bool $overwrite = true): bool
     {
+        $this->resetLocksAfterFork();
+
         $path = $this->getPath($key);
 
         if (!$overwrite && file_exists($path)) {
@@ -375,7 +395,7 @@ class Store implements StoreInterface
                 return false;
             }
         } else {
-            if (!is_dir(\dirname($path)) && false === @mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
+            if (!is_dir(\dirname($path)) && !@mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
                 return false;
             }
 
@@ -394,7 +414,7 @@ class Store implements StoreInterface
                 return false;
             }
 
-            if (false === @rename($tmpFile, $path)) {
+            if (!@rename($tmpFile, $path)) {
                 @unlink($tmpFile);
 
                 return false;
@@ -488,5 +508,20 @@ class Store implements StoreInterface
         }
 
         return new Response($content, $status, $headers);
+    }
+
+    private function resetLocksAfterFork(): void
+    {
+        if ($this->pid === $pid = getmypid()) {
+            return;
+        }
+
+        // Closing an inherited handle preserves the parent's lock.
+        foreach ($this->locks as $lock) {
+            fclose($lock);
+        }
+
+        $this->locks = [];
+        $this->pid = $pid;
     }
 }

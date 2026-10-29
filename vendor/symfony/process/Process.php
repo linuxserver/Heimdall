@@ -257,7 +257,6 @@ class Process implements \IteratorAggregate
      * @throws RuntimeException            When process is already running
      * @throws ProcessTimedOutException    When process timed out
      * @throws ProcessSignaledException    When process stopped after receiving signal
-     * @throws LogicException              In case a callback is provided and output has been disabled
      *
      * @final
      */
@@ -285,7 +284,6 @@ class Process implements \IteratorAggregate
      * @throws RuntimeException         When process is already running
      * @throws ProcessTimedOutException When process timed out
      * @throws ProcessSignaledException When process stopped after receiving signal
-     * @throws LogicException           In case a callback is provided and output has been disabled
      *
      * @final
      */
@@ -316,7 +314,6 @@ class Process implements \IteratorAggregate
      *
      * @throws ProcessStartFailedException When process can't be launched
      * @throws RuntimeException            When process is already running
-     * @throws LogicException              In case a callback is provided and output has been disabled
      */
     public function start(?callable $callback = null, array $env = []): void
     {
@@ -333,7 +330,16 @@ class Process implements \IteratorAggregate
             $env += '\\' === \DIRECTORY_SEPARATOR ? array_diff_ukey($this->env, $env, 'strcasecmp') : $this->env;
         }
 
-        $env += '\\' === \DIRECTORY_SEPARATOR ? array_diff_ukey($this->getDefaultEnv(), $env, 'strcasecmp') : $this->getDefaultEnv();
+        $defaultEnv = '\\' === \DIRECTORY_SEPARATOR ? array_diff_ukey($this->getDefaultEnv(), $env, 'strcasecmp') : array_diff_key($this->getDefaultEnv(), $env);
+
+        // Vars passed explicitly are not loaded by Dotenv: don't let the child's Dotenv override them
+        if (isset($defaultEnv['SYMFONY_DOTENV_VARS']) && $env) {
+            $dotenvVars = explode(',', $defaultEnv['SYMFONY_DOTENV_VARS']);
+            $dotenvVars = '\\' === \DIRECTORY_SEPARATOR ? array_udiff($dotenvVars, array_keys($env), 'strcasecmp') : array_diff($dotenvVars, array_keys($env));
+            $defaultEnv['SYMFONY_DOTENV_VARS'] = implode(',', $dotenvVars);
+        }
+
+        $env += $defaultEnv;
 
         if (\is_array($commandline = $this->commandline)) {
             $commandline = array_values(array_map(strval(...), $commandline));
@@ -520,35 +526,51 @@ class Process implements \IteratorAggregate
     public function waitUntil(callable $callback): bool
     {
         $this->requireProcessIsStarted(__FUNCTION__);
-        $this->updateStatus(false);
-
-        if (!$this->processPipes->haveReadSupport()) {
-            $this->stop(0);
-            throw new LogicException('Pass the callback to the "Process::start" method or call enableOutput to use a callback with "Process::waitUntil".');
-        }
-        $callback = $this->buildCallback($callback);
 
         $ready = false;
-        while (true) {
-            $this->checkTimeout();
-            $running = '\\' === \DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->areOpen();
-            $output = $this->processPipes->readAndWrite($running, '\\' !== \DIRECTORY_SEPARATOR || !$running);
+        $previousCallback = $this->callback;
+        // updateStatus() and isRunning() read the pipes and pass the output to $this->callback: forward it to $callback too so that no output is missed
+        $this->callback = $waitUntilCallback = static function (string $type, string $data) use ($previousCallback, $callback, &$ready): bool {
+            $previousCallback($type, $data);
 
-            foreach ($output as $type => $data) {
-                if (3 !== $type) {
-                    $ready = $callback(self::STDOUT === $type ? self::OUT : self::ERR, $data) || $ready;
-                } elseif (!isset($this->fallbackStatus['signaled'])) {
-                    $this->fallbackStatus['exitcode'] = (int) $data;
+            return $ready = $callback($type, $data) || $ready;
+        };
+
+        try {
+            $this->updateStatus(false);
+
+            if (!$this->processPipes->haveReadSupport()) {
+                $this->stop(0);
+                throw new LogicException('Pass the callback to the "Process::start" method or call enableOutput to use a callback with "Process::waitUntil".');
+            }
+            $callback = $this->buildCallback($callback);
+
+            while (true) {
+                $this->checkTimeout();
+                $running = '\\' === \DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->areOpen();
+                $output = $this->processPipes->readAndWrite($running && !$ready, '\\' !== \DIRECTORY_SEPARATOR || !$running);
+
+                foreach ($output as $type => $data) {
+                    if (3 !== $type) {
+                        $ready = $callback(self::STDOUT === $type ? self::OUT : self::ERR, $data) || $ready;
+                    } elseif (!isset($this->fallbackStatus['signaled'])) {
+                        $this->fallbackStatus['exitcode'] = (int) $data;
+                    }
                 }
-            }
-            if ($ready) {
-                return true;
-            }
-            if (!$running) {
-                return false;
-            }
+                if ($ready) {
+                    return true;
+                }
+                if (!$running) {
+                    return false;
+                }
 
-            usleep(1000);
+                usleep(1000);
+            }
+        } finally {
+            // close() unsets the callback once the process is terminated
+            if ($waitUntilCallback === $this->callback) {
+                $this->callback = $previousCallback;
+            }
         }
     }
 
@@ -1634,12 +1656,15 @@ class Process implements \IteratorAggregate
 
         static $comSpec;
 
-        if (!$comSpec && $comSpec = (new ExecutableFinder())->find('cmd.exe')) {
+        if (!$comSpec) {
+            // use an absolute path to prevent CreateProcess() from looking for "cmd" in the current directory
+            $comSpec = (new ExecutableFinder())->find('cmd.exe') ?: (getenv('SystemRoot') ?: 'C:\Windows').'\System32\cmd.exe';
+
             // Escape according to CommandLineToArgvW rules
             $comSpec = '"'.preg_replace('{(\\\\*+)"}', '$1$1\"', $comSpec).'"';
         }
 
-        $cmd = ($comSpec ?? 'cmd').' /V:ON /E:ON /D /C ('.str_replace("\n", ' ', $cmd).')';
+        $cmd = $comSpec.' /V:ON /E:ON /D /C ('.str_replace("\n", ' ', $cmd).')';
         foreach ($this->processPipes->getFiles() as $offset => $filename) {
             $cmd .= ' '.$offset.'>"'.$filename.'"';
         }

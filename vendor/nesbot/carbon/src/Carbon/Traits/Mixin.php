@@ -84,7 +84,7 @@ trait Mixin
                 continue;
             }
 
-            $macro = $method->invoke($mixin);
+            $macro = $method->invoke($method->isStatic() ? null : $mixin);
 
             if (\is_callable($macro)) {
                 static::macro($method->name, $macro);

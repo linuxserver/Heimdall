@@ -36,6 +36,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class InvokableCommand implements SignalableCommandInterface
 {
+    /**
+     * @var list<array{?object, Command}>
+     */
+    private static array $running = [];
+
     private readonly ?SignalableCommandInterface $signalableCommand;
     private readonly \ReflectionFunction $invokable;
     /**
@@ -50,8 +55,11 @@ class InvokableCommand implements SignalableCommandInterface
         private ?ArgumentResolverInterface $argumentResolver = null,
     ) {
         $this->code = $code;
-        $this->signalableCommand = $code instanceof SignalableCommandInterface ? $code : null;
         $this->invokable = new \ReflectionFunction($this->getClosure($code));
+
+        // the container wraps the service in a closure; a closure bound to the command itself must not handle its signals
+        $code = $this->invokable->getClosureThis();
+        $this->signalableCommand = $code instanceof SignalableCommandInterface && !$code instanceof Command ? $code : null;
     }
 
     /**
@@ -59,7 +67,13 @@ class InvokableCommand implements SignalableCommandInterface
      */
     public function __invoke(InputInterface $input, OutputInterface $output): int
     {
-        $statusCode = $this->invokable->invoke(...$this->getParameters($this->invokable, $input, $output));
+        self::$running[] = [$this->invokable->getClosureThis(), $this->command];
+
+        try {
+            $statusCode = $this->invokable->invoke(...$this->getParameters($this->invokable, $input, $output));
+        } finally {
+            array_pop(self::$running);
+        }
 
         if (!\is_int($statusCode)) {
             throw new \TypeError(\sprintf('The command "%s" must return an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->invokable->getName(), get_debug_type($statusCode)));
@@ -109,6 +123,20 @@ class InvokableCommand implements SignalableCommandInterface
         return $this->code;
     }
 
+    /**
+     * Returns the command that is currently running the given object, if any.
+     */
+    public static function getRunningCommand(object $code): ?Command
+    {
+        for ($i = \count(self::$running) - 1; 0 <= $i; --$i) {
+            if ($code === self::$running[$i][0]) {
+                return self::$running[$i][1];
+            }
+        }
+
+        return null;
+    }
+
     private function getClosure(callable $code): \Closure
     {
         if (!$code instanceof \Closure) {
@@ -148,10 +176,10 @@ class InvokableCommand implements SignalableCommandInterface
                     Cursor::class => new Cursor($output),
                     Application::class => $this->command->getApplication(),
                     Command::class, self::class => $this->command,
-                    default => null,
+                    default => false,
                 };
 
-                if (null !== $argument) {
+                if (false !== $argument) {
                     $coreUtilities[$index] = $argument;
                     continue;
                 }
@@ -177,7 +205,7 @@ class InvokableCommand implements SignalableCommandInterface
         $resolvedIndex = 0;
 
         foreach ($function->getParameters() as $index => $param) {
-            if (isset($coreUtilities[$index])) {
+            if (\array_key_exists($index, $coreUtilities)) {
                 $parameters[] = $coreUtilities[$index];
             } elseif ($param->isVariadic()) {
                 // Variadic parameters consume all remaining resolved arguments

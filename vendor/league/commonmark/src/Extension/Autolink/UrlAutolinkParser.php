@@ -23,7 +23,7 @@ final class UrlAutolinkParser implements InlineParserInterface
     private const ALLOWED_AFTER = [null, ' ', "\t", "\n", "\x0b", "\x0c", "\x0d", '*', '_', '~', '('];
 
     // RegEx adapted from https://github.com/symfony/symfony/blob/6.3/src/Symfony/Component/Validator/Constraints/UrlValidator.php
-    private const REGEX = '~^
+    private const REGEX = '~
         (
             # Must start with a supported scheme + auth, or "www"
             (?:
@@ -49,7 +49,7 @@ final class UrlAutolinkParser implements InlineParserInterface
             (?:/ (?:[\pL\pN\-._\~!$&\'()*+,;=:@]|%%[0-9A-Fa-f]{2})* )*        # a path
             (?:\? (?:[\pL\pN\-._\~!$&\'\[\]()*+,;=:@/?]|%%[0-9A-Fa-f]{2})* )? # a query (optional)
             (?:\# (?:[\pL\pN\-._\~!$&\'()*+,;=:@/?]|%%[0-9A-Fa-f]{2})* )?     # a fragment (optional)
-        )~ixu';
+        )~ixuA';
 
     /**
      * @var string[]
@@ -99,8 +99,11 @@ final class UrlAutolinkParser implements InlineParserInterface
             return false;
         }
 
-        // Check if we have a valid URL
-        if (! \preg_match($this->finalRegex, $cursor->getRemainder(), $matches)) {
+        // Check if we have a valid URL. The regex is anchored (the "A" modifier) and matched
+        // against the full line at the current byte offset rather than against a fresh copy of
+        // the remaining text. This avoids re-allocating and re-validating (the "u" modifier) the
+        // entire remainder on every prefix occurrence, which would otherwise be quadratic.
+        if (! \preg_match($this->finalRegex, $cursor->getLine(), $matches, 0, $cursor->getBytePosition())) {
             return false;
         }
 

@@ -214,6 +214,12 @@ class HoursField extends AbstractField
         $actualHour = (int)$date->format('H');
         if ($invert && ($actualHour === ($target - 1) || (($actualHour === 23) && ($target === 0)))) {
             $date = $this->timezoneSafeModify($date, "+1 hour");
+
+            // Offset changes shorter than an hour (e.g. Australia/Lord_Howe) make the
+            // step above overshoot the target hour, so pull back to its last minute
+            if ((int)$date->format('H') !== $target) {
+                $date = $date->setTime($target, 59);
+            }
         }
 
         return $this;

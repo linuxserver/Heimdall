@@ -576,12 +576,10 @@ final readonly class BigRational extends BigNumber
      */
     public function __unserialize(array $data): void
     {
-        /** @phpstan-ignore isset.initializedProperty */
         if (isset($this->numerator)) {
             throw new LogicException('__unserialize() is an internal function, it must not be called directly.');
         }
 
-        /** @phpstan-ignore deadCode.unreachable */
         $this->numerator = $data['numerator'];
         $this->denominator = $data['denominator'];
     }
@@ -590,5 +588,18 @@ final readonly class BigRational extends BigNumber
     protected static function from(BigNumber $number): static
     {
         return $number->toBigRational();
+    }
+
+    #[Override]
+    protected function digitCount(): int
+    {
+        $count = $this->numerator->digitCount();
+
+        // Mirrors toString(), which does not write a denominator of 1.
+        if ($this->denominator->toString() === '1') {
+            return $count;
+        }
+
+        return $count + $this->denominator->digitCount();
     }
 }

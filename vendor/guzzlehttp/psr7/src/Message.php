@@ -33,7 +33,7 @@ final class Message
         }
 
         foreach ($message->getHeaders() as $name => $values) {
-            if (is_string($name) && strtolower($name) === 'set-cookie') {
+            if (is_string($name) && Utils::asciiToLower($name) === 'set-cookie') {
                 foreach ($values as $value) {
                     $msg .= "\r\n{$name}: ".$value;
                 }
@@ -294,7 +294,7 @@ final class Message
             // Numeric array keys are converted to int by PHP.
             $k = (string) $k;
 
-            return strtolower($k) === 'host';
+            return Utils::asciiToLower($k) === 'host';
         });
 
         if (!$hostKey) {

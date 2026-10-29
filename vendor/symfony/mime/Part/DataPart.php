@@ -143,6 +143,13 @@ class DataPart extends TextPart
 
     public function __unserialize(array $data): void
     {
+        if (!\is_string($data['filename'] ?? $data["\0".self::class."\0filename"] ?? '')
+            || !\is_string($data['mediaType'] ?? $data["\0".self::class."\0mediaType"] ?? null)
+            || !\is_string($data['cid'] ?? $data["\0".self::class."\0cid"] ?? '')
+        ) {
+            throw new \BadMethodCallException('Cannot unserialize '.self::class);
+        }
+
         parent::__unserialize(['_headers' => $data['_headers'] ?? $data["\0*\0_headers"], ...$data['_parent'] ?? $data["\0*\0_parent"]]);
         $this->filename = $data['filename'] ?? $data["\0".self::class."\0filename"] ?? null;
         $this->mediaType = $data['mediaType'] ?? $data["\0".self::class."\0mediaType"];

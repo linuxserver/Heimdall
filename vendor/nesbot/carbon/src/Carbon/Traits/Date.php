@@ -21,6 +21,7 @@ use Carbon\CarbonTimeZone;
 use Carbon\Exceptions\BadComparisonUnitException;
 use Carbon\Exceptions\ImmutableException;
 use Carbon\Exceptions\InvalidTimeZoneException;
+use Carbon\Exceptions\InvalidTypeException;
 use Carbon\Exceptions\UnitException;
 use Carbon\Exceptions\UnknownGetterException;
 use Carbon\Exceptions\UnknownMethodException;
@@ -44,6 +45,7 @@ use InvalidArgumentException;
 use ReflectionException;
 use Symfony\Component\Clock\NativeClock;
 use Throwable;
+use Time\Duration;
 
 /**
  * A simple API extension for DateTime.
@@ -870,6 +872,7 @@ trait Date
     use Converter;
     use Creator;
     use Difference;
+    use Eras;
     use Macro;
     use MagicParameter;
     use Modifiers;
@@ -1046,13 +1049,13 @@ trait Date
      * Return the Carbon instance passed through, a now instance in the same timezone
      * if null given or parse the input if string given.
      *
-     * @param Carbon|\Carbon\CarbonPeriod|\Carbon\CarbonInterval|\DateInterval|\DatePeriod|DateTimeInterface|string|null $date
+     * @param Carbon|\Carbon\CarbonPeriod|\Carbon\CarbonInterval|\DateInterval|\Time\Duration|\DatePeriod|DateTimeInterface|string|null $date
      *
      * @return static
      */
     public function carbonize($date = null)
     {
-        if ($date instanceof DateInterval) {
+        if ($date instanceof DateInterval || $date instanceof Duration) {
             return $this->avoidMutation()->add($date);
         }
 
@@ -1382,7 +1385,7 @@ trait Date
      */
     public function __set($name, $value)
     {
-        if ($this->constructedObjectId === spl_object_hash($this)) {
+        if ($this->constructedObjectId === spl_object_id($this)) {
             if ($this->isImmutable()) {
                 throw ImmutableException::fromClass(static::class);
             }
@@ -2127,15 +2130,9 @@ trait Date
             'SSSSSSSSS' => static fn (CarbonInterface $date) => self::floorZeroPad($date->micro * 1000, 9),
             'M' => 'month',
             'MM' => ['rawFormat', ['m']],
-            'MMM' => static function (CarbonInterface $date, $originalFormat = null) {
-                $month = $date->getTranslatedShortMonthName($originalFormat);
-                $suffix = $date->getTranslationMessage('mmm_suffix');
-                if ($suffix && $month !== $date->monthName) {
-                    $month .= $suffix;
-                }
-
-                return $month;
-            },
+            'MMM' => static fn (CarbonInterface $date, $originalFormat = null) => $date->getTranslatedShortMonthName(
+                $originalFormat,
+            ),
             'MMMM' => static fn (CarbonInterface $date, $originalFormat = null) => $date->getTranslatedMonthName(
                 $originalFormat,
             ),
@@ -2166,6 +2163,26 @@ trait Date
             'YYYYY' => ['getPaddedUnit', ['year', 5]],
             'YYYYYY' => static fn (CarbonInterface $date) => ($date->year < 0 ? '' : '+').
                 $date->getPaddedUnit('year', 6),
+            'N' => ['eraAbbr', []],
+            'NN' => ['eraAbbr', []],
+            'NNN' => ['eraAbbr', []],
+            'NNNN' => ['eraName', []],
+            'NNNNN' => ['eraNarrow', []],
+            'y' => static fn (CarbonInterface $date) => (string) $date->eraYear(),
+            'yy' => static fn (CarbonInterface $date) => self::zeroPadSigned($date->eraYear(), 2),
+            'yyy' => static fn (CarbonInterface $date) => self::zeroPadSigned($date->eraYear(), 3),
+            'yyyy' => static fn (CarbonInterface $date) => self::zeroPadSigned($date->eraYear(), 4),
+            'yo' => static function (CarbonInterface $date) {
+                $year = $date->eraYear();
+
+                try {
+                    $result = $date->translate('ordinal', [':number' => $year, ':period' => 'y']);
+
+                    return $result === 'ordinal' ? (string) $year : $result;
+                } catch (InvalidTypeException) {
+                    return (string) $year;
+                }
+            },
             'z' => ['rawFormat', ['T']],
             'zz' => 'tzName',
             'Z' => ['getOffsetString', []],
@@ -2203,6 +2220,48 @@ trait Date
     }
 
     /**
+     * Return the abbreviated name of the era the current date is in, according to the "eras" of the current locale
+     * (empty string if the date is in none of them).
+     */
+    public function eraAbbr(): string
+    {
+        return (string) ($this->getEra()['abbr'] ?? '');
+    }
+
+    /**
+     * Return the full name of the era the current date is in, according to the "eras" of the current locale
+     * (empty string if the date is in none of them).
+     */
+    public function eraName(): string
+    {
+        return (string) ($this->getEra()['name'] ?? '');
+    }
+
+    /**
+     * Return the narrow name of the era the current date is in, according to the "eras" of the current locale
+     * (empty string if the date is in none of them).
+     */
+    public function eraNarrow(): string
+    {
+        return (string) ($this->getEra()['narrow'] ?? '');
+    }
+
+    /**
+     * Return the year of the era the current date is in, according to the "eras" of the current locale
+     * (the calendar year if the date is in none of them).
+     */
+    public function eraYear(): int
+    {
+        $era = $this->getEra();
+
+        if ($era === null) {
+            return $this->year;
+        }
+
+        return ($this->year - $era['sinceYear']) * $era['direction'] + $era['offset'];
+    }
+
+    /**
      * Return the meridiem of the current time in the current locale.
      *
      * @param bool $isLower if true, returns lowercase variant if available in the current locale.
@@ -2211,6 +2270,16 @@ trait Date
     {
         $hour = $this->hour;
         $index = $hour < static::HOURS_PER_DAY / 2 ? 0 : 1;
+
+        // A locale that computes its meridiem (zh_CN, bn...) has no meridiem.0/meridiem.1 of its own,
+        // so the indexed lookup below would fall through to the fallback locale (e.g. en "PM").
+        if ($this->getTranslationMessage('meridiem') instanceof Closure) {
+            return $this->translate('meridiem', [
+                ':hour' => $this->hour,
+                ':minute' => $this->minute,
+                ':isLower' => $isLower,
+            ]);
+        }
 
         if ($isLower) {
             $key = 'meridiem.'.($index + 2);
@@ -2263,6 +2332,8 @@ trait Date
         $inEscaped = false;
         $formats = null;
         $units = null;
+        $macroIndex = -1;
+        $macroDepth = 0;
 
         for ($i = 0; $i < $length; $i++) {
             $char = mb_substr($format, $i, 1);
@@ -2293,7 +2364,10 @@ trait Date
 
             $input = mb_substr($format, $i);
 
-            if (preg_match('/^(LTS|LT|l{1,4}|L{1,4})/', $input, $match)) {
+            // Like moment.js, allow up to 5 nested macro expansions at the same position
+            $macroDepth = $i === $macroIndex ? $macroDepth + 1 : 0;
+
+            if ($macroDepth < 5 && preg_match('/^(LTS|LT|l{1,4}|L{1,4})/', $input, $match)) {
                 if ($formats === null) {
                     $formats = $this->getIsoFormats();
                 }
@@ -2304,10 +2378,14 @@ trait Date
                     static fn ($code) => mb_substr($code[0], 1),
                     $formats[strtoupper($code)] ?? '',
                 );
-                $rest = mb_substr($format, $i + mb_strlen($code));
-                $format = mb_substr($format, 0, $i).$sequence.$rest;
+                $format = mb_substr($format, 0, $i).$sequence.mb_substr($format, $i + mb_strlen($code));
                 $length = mb_strlen($format);
-                $input = $sequence.$rest;
+                $macroIndex = $i;
+                // Read the expanded sequence again from its first character,
+                // it may start with literal text, an escape or another macro
+                $i--;
+
+                continue;
             }
 
             if (preg_match('/^'.CarbonInterface::ISO_FORMAT_REGEXP.'/', $input, $match)) {
@@ -2367,6 +2445,8 @@ trait Date
             't' => true,
             'L' => true,
             'o' => true,
+            'X' => true,
+            'x' => true,
             'Y' => true,
             'y' => true,
             'a' => 'a',
@@ -2381,9 +2461,11 @@ trait Date
             'u' => true,
             'v' => true,
             'E' => true,
+            'e' => true,
             'I' => true,
             'O' => true,
             'P' => true,
+            'p' => true,
             'Z' => true,
             'c' => true,
             'r' => true,
@@ -3030,6 +3112,11 @@ trait Date
     private static function floorZeroPad(int|float $value, int $length): string
     {
         return str_pad((string) floor($value), $length, '0', STR_PAD_LEFT);
+    }
+
+    private static function zeroPadSigned(int $value, int $length): string
+    {
+        return ($value < 0 ? '-' : '').str_pad((string) abs($value), $length, '0', STR_PAD_LEFT);
     }
 
     /**

@@ -7,14 +7,14 @@ class SelfReference
     /**
      * The unique hash representing the object.
      *
-     * @var string
+     * @var string|int
      */
     public $hash;
 
     /**
      * Creates a new self reference instance.
      *
-     * @param  string  $hash
+     * @param  string|int  $hash
      * @return void
      */
     public function __construct($hash)

@@ -49,7 +49,7 @@ final class Iterables
 
 
 	/**
-	 * Returns the first item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+	 * Returns the first item (matching the predicate if given). If there is no such item, returns the result of $else or null.
 	 * @template K
 	 * @template V
 	 * @template E
@@ -70,7 +70,7 @@ final class Iterables
 
 
 	/**
-	 * Returns the key of first item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+	 * Returns the key of the first item (matching the predicate if given). If there is no such item, returns the result of $else or null.
 	 * @template K
 	 * @template V
 	 * @template E
@@ -195,7 +195,7 @@ final class Iterables
 		return new class ($factory(...)) implements \IteratorAggregate {
 			public function __construct(
 				/** @var \Closure(): iterable<mixed, mixed> */
-				private \Closure $factory,
+				private readonly \Closure $factory,
 			) {
 			}
 

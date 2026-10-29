@@ -15,8 +15,8 @@
         "php": "^8.2|^8.3|^8.4|^8.5"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.12.32|^2.1.31",
-        "phpunit/phpunit": "^8.5.48|^9.0",
+        "phpstan/phpstan": "^2.1.31",
+        "phpunit/phpunit": "^11.5.43 || ^12.4",
         "phpstan/extension-installer": "^1.4.3"
     },
     "autoload": {

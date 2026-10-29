@@ -33,10 +33,12 @@ final class TableStartParser implements BlockStartParserInterface
     public function tryStart(Cursor $cursor, MarkdownParserStateInterface $parserState): ?BlockStart
     {
         $paragraph = $parserState->getParagraphContent();
-        if ($paragraph === null || \strpos($paragraph, '|') === false) {
+        if ($paragraph === null) {
             return BlockStart::none();
         }
 
+        // Check the (short) current line for a delimiter row before touching the paragraph content. Scanning the
+        // paragraph on every line would be quadratic, and GFM does not require a pipe in the header row anyway.
         $columns = self::parseSeparator($cursor);
         if (\count($columns) === 0) {
             return BlockStart::none();
@@ -45,8 +47,9 @@ final class TableStartParser implements BlockStartParserInterface
         $lastLineBreak = \strrpos($paragraph, "\n");
         $lastLine      = $lastLineBreak === false ? $paragraph : \substr($paragraph, $lastLineBreak + 1);
 
+        // Per the GFM spec, the header row must have the same number of cells as the delimiter row
         $headerCells = TableParser::split($lastLine);
-        if (\count($headerCells) > \count($columns)) {
+        if (\count($headerCells) !== \count($columns)) {
             return BlockStart::none();
         }
 
@@ -76,14 +79,20 @@ final class TableStartParser implements BlockStartParserInterface
      */
     private static function parseSeparator(Cursor $cursor): array
     {
+        // Scan the raw bytes rather than stepping the Cursor: every character allowed in a delimiter row is ASCII,
+        // so any multibyte character is simply invalid, and byte indexing avoids the per-character method calls
+        // (and, on multibyte lines, the character-to-byte offset translation) that the Cursor incurs.
+        $line   = $cursor->getRemainder();
+        $length = \strlen($line);
+
         $columns = [];
         $pipes   = 0;
         $valid   = false;
 
-        while (! $cursor->isAtEnd()) {
-            switch ($c = $cursor->getCurrentCharacter()) {
+        for ($i = 0; $i < $length;) {
+            switch ($c = $line[$i]) {
                 case '|':
-                    $cursor->advanceBy(1);
+                    $i++;
                     $pipes++;
                     if ($pipes > 1) {
                         // More than one adjacent pipe not allowed
@@ -104,17 +113,20 @@ final class TableStartParser implements BlockStartParserInterface
                     $right = false;
                     if ($c === ':') {
                         $left = true;
-                        $cursor->advanceBy(1);
+                        $i++;
                     }
 
-                    if ($cursor->match('/^-+/') === null) {
+                    $dashes = \strspn($line, '-', $i);
+                    if ($dashes === 0) {
                         // Need at least one dash
                         return [];
                     }
 
-                    if ($cursor->getCurrentCharacter() === ':') {
+                    $i += $dashes;
+
+                    if ($i < $length && $line[$i] === ':') {
                         $right = true;
-                        $cursor->advanceBy(1);
+                        $i++;
                     }
 
                     $columns[] = self::getAlignment($left, $right);
@@ -124,7 +136,7 @@ final class TableStartParser implements BlockStartParserInterface
                 case ' ':
                 case "\t":
                     // White space is allowed between pipes and columns
-                    $cursor->advanceToNextNonSpaceOrTab();
+                    $i += \strspn($line, " \t", $i);
                     break;
                 default:
                     // Any other character is invalid

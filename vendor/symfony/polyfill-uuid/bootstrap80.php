@@ -11,6 +11,10 @@
 
 use Symfony\Polyfill\Uuid as p;
 
+if (\PHP_VERSION_ID >= 80500) {
+    require __DIR__.'/bootstrap85.php';
+}
+
 if (!defined('UUID_VARIANT_NCS')) {
     define('UUID_VARIANT_NCS', 0);
 }
@@ -28,6 +32,18 @@ if (!defined('UUID_TYPE_DEFAULT')) {
 }
 if (!defined('UUID_TYPE_TIME')) {
     define('UUID_TYPE_TIME', 1);
+}
+if (!defined('UUID_TYPE_SECURITY')) {
+    define('UUID_TYPE_SECURITY', 2);
+}
+if (!defined('UUID_TYPE_TIME_V6')) {
+    define('UUID_TYPE_TIME_V6', 6);
+}
+if (!defined('UUID_TYPE_TIME_V7')) {
+    define('UUID_TYPE_TIME_V7', 7);
+}
+if (!defined('UUID_TYPE_VENDOR')) {
+    define('UUID_TYPE_VENDOR', 8);
 }
 if (!defined('UUID_TYPE_MD5')) {
     define('UUID_TYPE_MD5', 3);

@@ -8,6 +8,8 @@
 namespace Nette\Utils;
 
 use Nette;
+use function is_resource, is_string, strlen;
+use const PHP_VERSION_ID;
 
 
 /**
@@ -41,7 +43,11 @@ final class Process
 
 	/** @var array<int, true> Output IDs whose target resource was supplied by the caller and must not be closed here. */
 	private array $callerOutputs = [];
+
+	/** @var array<int, true> Output IDs whose pipe is backed by a temporary file (Windows < 8.5 workaround). */
+	private array $fileBackedOutputs = [];
 	private float $startTime;
+	private bool $detached = false;
 
 
 	/**
@@ -50,9 +56,11 @@ final class Process
 	 * @param  string         $executable Path to the executable binary.
 	 * @param  list<string>   $arguments  Arguments passed to the executable.
 	 * @param  string[]|null  $env        Environment variables or null to use the same environment as the current process.
-	 * @param  array<string, mixed>  $options  Additional options for proc_open(). On Windows the executable is launched directly, without cmd.exe.
-	 * @param  mixed          $stdin      Input: string, a readable resource (its content is copied to STDIN), a Process (its STDOUT is piped in), or null (STDIN stays open for writeStdInput()).
-	 * @param  mixed          $stdout     Output target: string filename, a writable resource backed by a real OS file descriptor (not php://memory etc.), false to discard, or null to capture into memory.
+	 * @param  array<string, mixed>  $options  Options for proc_open(); on Windows the executable is launched directly, without cmd.exe.
+	 * @param  mixed          $stdin      Input: string, a readable resource (its content is copied to STDIN),
+	 *                                    a Process (its STDOUT is piped in), or null (STDIN stays open for writeStdInput()).
+	 * @param  mixed          $stdout     Output target: string filename, a writable resource backed by a real OS file descriptor
+	 *                                    (not php://memory etc.), false to discard, or null to capture into memory.
 	 * @param  mixed          $stderr     Error output target (same options as $stdout).
 	 * @param  string|null    $directory  Working directory.
 	 * @param  float|null     $timeout    Time limit in seconds, checked while waiting for or reading the process; null disables it.
@@ -79,8 +87,10 @@ final class Process
 	 * @param  string         $command    Shell command to run.
 	 * @param  string[]|null  $env        Environment variables or null to use the same environment as the current process.
 	 * @param  array<string, mixed>  $options  Options for proc_open(), e.g. ['bypass_shell' => true] on Windows to skip cmd.exe.
-	 * @param  mixed          $stdin      Input: string, a readable resource (its content is copied to STDIN), a Process (its STDOUT is piped in), or null (STDIN stays open for writeStdInput()).
-	 * @param  mixed          $stdout     Output target: string filename, a writable resource backed by a real OS file descriptor (not php://memory etc.), false to discard, or null to capture into memory.
+	 * @param  mixed          $stdin      Input: string, a readable resource (its content is copied to STDIN),
+	 *                                    a Process (its STDOUT is piped in), or null (STDIN stays open for writeStdInput()).
+	 * @param  mixed          $stdout     Output target: string filename, a writable resource backed by a real OS file descriptor
+	 *                                    (not php://memory etc.), false to discard, or null to capture into memory.
 	 * @param  mixed          $stderr     Error output target (same options as $stdout).
 	 * @param  string|null    $directory  Working directory.
 	 * @param  float|null     $timeout    Time limit in seconds, checked while waiting for or reading the process; null disables it.
@@ -113,7 +123,7 @@ final class Process
 		mixed $stdin,
 		mixed $stdout,
 		mixed $stderr,
-		private ?float $timeout,
+		private readonly ?float $timeout,
 	) {
 		$descriptors = [
 			self::StdIn => $this->createInputDescriptor($stdin),
@@ -121,7 +131,7 @@ final class Process
 			self::StdErr => $this->createOutputDescriptor(self::StdErr, $stderr),
 		];
 
-		$process = @proc_open($command, $descriptors, $pipes, $directory, $env, $options);
+		$process = @proc_open($command, $descriptors, $pipes, $directory, $env, $options); // @ is escalated to exception
 		if (!is_resource($process)) {
 			throw new ProcessFailedException('Failed to start process: ' . Helpers::getLastError());
 		}
@@ -139,14 +149,35 @@ final class Process
 		}
 
 		$this->writeInitialInput($stdin);
-		$this->startTime = microtime(true);
+		$this->startTime = microtime(as_float: true);
 	}
 
 
 	public function __destruct()
 	{
+		if ($this->detached) {
+			return;
+		}
 		$this->outputBuffers = [];
 		$this->terminate();
+	}
+
+
+	/**
+	 * Detaches the process: it keeps running in the background and is not terminated when the object
+	 * is destroyed. STDIN and output pipes are closed, so the output must not be captured in memory
+	 * (pass a file name, a resource or false as $stdout/$stderr). Only the destructor behavior changes:
+	 * wait() and getExitCode() still block ($timeout still applies) and terminate() still kills it.
+	 * On POSIX, a detached child that exits early stays a zombie until the script ends.
+	 */
+	public function detach(): void
+	{
+		if ($this->outputBuffers !== []) {
+			throw new Nette\InvalidStateException('Cannot detach process: its output is captured in memory, pass a file name, a resource or false as $stdout/$stderr.');
+		}
+		$this->detached = true;
+		$this->closeStdInput();
+		$this->closeOutputPipes();
 	}
 
 
@@ -189,12 +220,12 @@ final class Process
 
 	/**
 	 * Reads any new data from the captured pipes into the buffers, so a process producing more output
-	 * than the OS pipe buffer holds does not block. (On Windows the captured output is a file and never blocks.)
+	 * than the OS pipe buffer holds does not block. With $final (process already finished) reads to EOF.
 	 */
-	private function drainPipes(): void
+	private function drainPipes(bool $final = false): void
 	{
 		foreach ([self::StdOut, self::StdErr] as $id) {
-			$this->readFromPipe($id);
+			$this->readFromPipe($id, $final);
 		}
 	}
 
@@ -386,7 +417,7 @@ final class Process
 	 */
 	private function enforceTimeout(): void
 	{
-		if ($this->timeout !== null && (microtime(true) - $this->startTime) >= $this->timeout) {
+		if ($this->timeout !== null && (microtime(as_float: true) - $this->startTime) >= $this->timeout) {
 			$this->terminate();
 			throw new ProcessTimeoutException('Process exceeded the time limit of ' . $this->timeout . ' seconds');
 		}
@@ -397,16 +428,39 @@ final class Process
 	 * Reads any new data from the specified pipe and appends it to the buffer. Does nothing if the output
 	 * is not captured or the pipe is already closed (or handed over to another process).
 	 */
-	private function readFromPipe(int $id): void
+	private function readFromPipe(int $id, bool $final = false): void
 	{
-		if (!isset($this->outputBuffers[$id]) || !is_resource($this->outputPipes[$id] ?? null)) {
+		$pipe = $this->outputPipes[$id] ?? null;
+		if (!isset($this->outputBuffers[$id]) || !is_resource($pipe)) {
 			return;
-		} elseif (Helpers::IsWindows) {
-			fseek($this->outputPipes[$id], strlen($this->outputBuffers[$id]));
+
+		} elseif (isset($this->fileBackedOutputs[$id])) {
+			// Windows < 8.5: captured output is a temporary file; read whatever was appended since last time
+			fseek($pipe, strlen($this->outputBuffers[$id]));
+			$this->outputBuffers[$id] .= stream_get_contents($pipe);
+
+		} elseif ($final) {
+			// the process has finished, everything is buffered in the pipe; non-blocking read on POSIX
+			// (cannot hang on a leaked descendant still holding the write end), blocking read to EOF on
+			// Windows, where non-blocking mode does not work and stream_select() may miss buffered data
+			stream_set_blocking($pipe, Helpers::IsWindows);
+			$this->outputBuffers[$id] .= stream_get_contents($pipe);
+
 		} else {
-			stream_set_blocking($this->outputPipes[$id], false);
+			// non-blocking drain: stream_set_blocking(false) works on POSIX only, so reads are also
+			// guarded by stream_select(), which works on Windows pipes since PHP 8.5 (PeekNamedPipe fix)
+			stream_set_blocking($pipe, false);
+			$read = [$pipe];
+			$write = $except = [];
+			while (@stream_select($read, $write, $except, 0, 0) > 0) { // @ an interrupting signal triggers a warning
+				$chunk = fread($pipe, 8192);
+				if ($chunk === false || $chunk === '') {
+					break;
+				}
+				$this->outputBuffers[$id] .= $chunk;
+				$read = [$pipe];
+			}
 		}
-		$this->outputBuffers[$id] .= stream_get_contents($this->outputPipes[$id]);
 	}
 
 
@@ -470,9 +524,12 @@ final class Process
 		} elseif ($output === null) {
 			$this->outputBuffers[$id] = '';
 			$this->outputBufferOffsets[$id] = 0;
-			// On Windows anonymous pipes are blocking and cannot be polled without freezing the process,
-			// so captured output is backed by a temporary file that can be read non-blockingly (needed for timeouts).
-			return Helpers::IsWindows ? tmpfile() : ['pipe', 'w'];
+			if (Helpers::IsWindows && PHP_VERSION_ID < 80500) {
+				// Windows < 8.5: stream_select() doesn't work on pipes, capture into a temp file that reads non-blockingly
+				$this->fileBackedOutputs[$id] = true;
+				return tmpfile();
+			}
+			return ['pipe', 'w'];
 
 		} else {
 			throw new Nette\InvalidArgumentException('Output must be string, resource, bool or null, ' . get_debug_type($output) . ' given.');
@@ -485,7 +542,7 @@ final class Process
 	 */
 	private function close(): void
 	{
-		$this->drainPipes();
+		$this->drainPipes(final: true);
 		$this->closeStdInput();
 		$this->closeOutputPipes();
 		proc_close($this->process);
@@ -494,7 +551,7 @@ final class Process
 
 	/**
 	 * Closes the output pipes that this class opened; resources supplied by the caller are left untouched.
-	 * (The temporary file backing captured output on Windows is removed by fclose() itself.)
+	 * (The temporary file backing captured output on Windows < 8.5 is removed by fclose() itself.)
 	 */
 	private function closeOutputPipes(): void
 	{

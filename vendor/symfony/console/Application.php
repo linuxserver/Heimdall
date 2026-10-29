@@ -55,6 +55,7 @@ use Symfony\Component\Console\SignalRegistry\SignalRegistry;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\ErrorHandler\ErrorHandler;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as ComponentEventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -281,7 +282,7 @@ class Application implements ResetInterface
      */
     public function doRun(InputInterface $input, OutputInterface $output): int
     {
-        if (true === $input->hasParameterOption(['--version', '-V'], true)) {
+        if ($input->hasParameterOption(['--version', '-V'], true)) {
             $output->writeln($this->getLongVersion());
 
             return 0;
@@ -295,7 +296,7 @@ class Application implements ResetInterface
         }
 
         $name = $this->getCommandName($input);
-        if (true === $input->hasParameterOption(['--help', '-h'], true)) {
+        if ($input->hasParameterOption(['--help', '-h'], true)) {
             if (!$name) {
                 $name = 'help';
                 $input = new ArrayInput(['command_name' => $this->defaultCommand]);
@@ -1062,9 +1063,18 @@ class Application implements ResetInterface
             $this->getSignalRegistry()->pushCurrentHandlers();
 
             if ($this->dispatcher) {
+                // Build the lazy listeners before a signal handler needs them: a signal can interrupt the autoloading of a class they use, which cannot be loaded again from the handler
+                if ($this->signalsToDispatchEvent && $this->dispatcher instanceof ComponentEventDispatcherInterface) {
+                    foreach ([ConsoleEvents::SIGNAL, ConsoleAlarmEvent::class, ConsoleEvents::TERMINATE] as $eventName) {
+                        $this->dispatcher->getListeners($eventName);
+                    }
+                }
+
                 // We register application signals, so that we can dispatch the event
                 foreach ($this->signalsToDispatchEvent as $signal) {
-                    $signalEvent = new ConsoleSignalEvent($command, $input, $output, $signal);
+                    // When this application runs inside another application that handles the signal, the outer application decides if the process exits
+                    $previousHandler = pcntl_signal_get_handler($signal);
+                    $signalEvent = new ConsoleSignalEvent($command, $input, $output, $signal, \is_array($previousHandler) && $previousHandler[0] instanceof SignalRegistry ? false : 0);
                     $alarmEvent = \SIGALRM === $signal ? new ConsoleAlarmEvent($command, $input, $output) : null;
 
                     $signalRegistry->register($signal, function ($signal) use ($signalEvent, $alarmEvent, $command, $commandSignals, $input, $output) {
@@ -1358,7 +1368,7 @@ class Application implements ResetInterface
         $namespaces = [];
 
         foreach ($parts as $part) {
-            if (\count($namespaces)) {
+            if ($namespaces) {
                 $namespaces[] = end($namespaces).':'.$part;
             } else {
                 $namespaces[] = $part;

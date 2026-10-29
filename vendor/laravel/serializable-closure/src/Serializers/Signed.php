@@ -57,6 +57,8 @@ class Signed implements Serializable
      * Get the serializable representation of the closure.
      *
      * @return array
+     *
+     * @throws \Laravel\SerializableClosure\Exceptions\MissingSecretKeyException
      */
     public function __serialize()
     {
@@ -76,10 +78,15 @@ class Signed implements Serializable
      * @return void
      *
      * @throws \Laravel\SerializableClosure\Exceptions\InvalidSignatureException
+     * @throws \Laravel\SerializableClosure\Exceptions\MissingSecretKeyException
      */
     public function __unserialize($signature)
     {
-        if (static::$signer && ! static::$signer->verify($signature)) {
+        if (! static::$signer) {
+            throw new MissingSecretKeyException();
+        }
+
+        if (! static::$signer->verify($signature)) {
             throw new InvalidSignatureException();
         }
 

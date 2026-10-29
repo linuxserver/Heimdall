@@ -696,7 +696,7 @@ class Uri implements UriInterface, \JsonSerializable
             throw new \InvalidArgumentException('Scheme must be a string');
         }
 
-        $scheme = \strtr($scheme, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+        $scheme = Utils::asciiToLower($scheme);
 
         if ($scheme !== '' && !preg_match('/^[a-z][a-z0-9.+-]*$/D', $scheme)) {
             \trigger_deprecation(
@@ -739,7 +739,7 @@ class Uri implements UriInterface, \JsonSerializable
             throw new \InvalidArgumentException('Host must be a string');
         }
 
-        $host = \strtr($host, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+        $host = Utils::asciiToLower($host);
         self::assertValidHost($host);
 
         return $host;

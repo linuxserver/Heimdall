@@ -30,6 +30,7 @@ final class InlinesOnlyExtension implements ConfigurableExtensionInterface
             'use_underscore' => Expect::bool(true),
             'enable_strong' => Expect::bool(true),
             'enable_em' => Expect::bool(true),
+            'unordered_list_markers' => Expect::listOf('string')->min(1)->default(['*', '+', '-'])->mergeDefaults(false),
         ]));
     }
 

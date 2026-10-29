@@ -61,7 +61,13 @@ class XliffUtils
         $xliffVersion = static::getVersionNumber($dom);
         $internalErrors = libxml_use_internal_errors(true);
 
-        if (!@$dom->schemaValidateSource(self::getSchema($xliffVersion))) {
+        $schema = self::getSchema($xliffVersion);
+        if ('2.2' === $xliffVersion && 'urn:oasis:names:tc:xliff:document:2.0' === $dom->documentElement->namespaceURI) {
+            // Keep accepting XLIFF 2.2 files written with the legacy 2.0 namespace.
+            $schema = str_replace('urn:oasis:names:tc:xliff:document:2.2', 'urn:oasis:names:tc:xliff:document:2.0', $schema);
+        }
+
+        if (!@$dom->schemaValidateSource($schema)) {
             return self::getXmlErrors($internalErrors);
         }
 
@@ -130,11 +136,21 @@ class XliffUtils
      */
     private static function fixXmlLocation(string $schemaSource, string $xmlUri): string
     {
-        $path = __DIR__.'/../Resources/schemas/xml.xsd';
+        static $newPath;
 
-        if (0 === stripos($path, 'phar://')) {
-            if ($tmpfile = tempnam(sys_get_temp_dir(), 'symfony')) {
+        if (null === $newPath) {
+            $path = __DIR__.'/../Resources/schemas/xml.xsd';
+
+            if (0 !== stripos($path, 'phar://')) {
+                $newPath = self::getFileUrl($path);
+            } elseif ($tmpfile = tempnam(sys_get_temp_dir(), 'symfony')) {
                 copy($path, $tmpfile);
+                $pid = getmypid();
+                register_shutdown_function(static function () use ($tmpfile, $pid) {
+                    if (getmypid() === $pid) {
+                        @unlink($tmpfile);
+                    }
+                });
                 $newPath = self::getFileUrl($tmpfile);
             } else {
                 $parts = explode('/', '\\' === \DIRECTORY_SEPARATOR ? str_replace('\\', '/', $path) : $path);
@@ -142,8 +158,6 @@ class XliffUtils
                 $drive = '\\' === \DIRECTORY_SEPARATOR ? array_shift($parts).'/' : '';
                 $newPath = 'phar:///'.$drive.implode('/', array_map('rawurlencode', $parts));
             }
-        } else {
-            $newPath = self::getFileUrl($path);
         }
 
         return str_replace($xmlUri, $newPath, $schemaSource);

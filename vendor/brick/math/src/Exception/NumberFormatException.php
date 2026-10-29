@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Brick\Math\Exception;
 
+use Brick\Math\NumberSyntax;
 use RuntimeException;
 
-use function dechex;
 use function ord;
 use function sprintf;
-use function strtoupper;
+use function strlen;
+use function substr;
 
 /**
  * Exception thrown when attempting to create a number from a string with an invalid format.
@@ -35,7 +36,7 @@ final class NumberFormatException extends RuntimeException implements MathExcept
     {
         return new self(sprintf(
             'Value "%s" does not represent a valid number.',
-            $value,
+            self::truncateAndEscape($value),
         ));
     }
 
@@ -49,8 +50,8 @@ final class NumberFormatException extends RuntimeException implements MathExcept
     public static function charNotInAlphabet(string $char): self
     {
         return new self(sprintf(
-            'Character %s is not valid in the given alphabet.',
-            self::charToString($char),
+            'Character "%s" is not valid in the given alphabet.',
+            self::escapeChar($char),
         ));
     }
 
@@ -62,8 +63,8 @@ final class NumberFormatException extends RuntimeException implements MathExcept
     public static function charNotValidInBase(string $char, int $base): self
     {
         return new self(sprintf(
-            'Character %s is not valid in base %d.',
-            self::charToString($char),
+            'Character "%s" is not valid in base %d.',
+            self::escapeChar($char),
             $base,
         ));
     }
@@ -99,22 +100,76 @@ final class NumberFormatException extends RuntimeException implements MathExcept
     }
 
     /**
+     * @internal
+     *
      * @pure
      */
-    private static function charToString(string $char): string
+    public static function tooManyDigits(int $maxDigits): self
+    {
+        return new self(sprintf(
+            'The number exceeds the maximum number of %d digits.',
+            $maxDigits,
+        ));
+    }
+
+    /**
+     * @internal
+     *
+     * @pure
+     */
+    public static function syntaxNotAllowed(NumberSyntax $syntax): self
+    {
+        return new self(sprintf('The %s syntax is not allowed.', match ($syntax) {
+            NumberSyntax::DecimalPoint => 'decimal point',
+            NumberSyntax::Exponent => 'exponent',
+            NumberSyntax::Fraction => 'fraction',
+        }));
+    }
+
+    /**
+     * @internal
+     *
+     * @pure
+     */
+    public static function zeroDenominator(): self
+    {
+        return new self('The denominator of a rational number must not be zero.');
+    }
+
+    /**
+     * @pure
+     */
+    private static function truncateAndEscape(string $value): string
+    {
+        if (strlen($value) > 40) {
+            $value = substr($value, 0, 40) . '...';
+        }
+
+        $escaped = '';
+        $length = strlen($value);
+
+        for ($i = 0; $i < $length; $i++) {
+            $escaped .= self::escapeChar($value[$i]);
+        }
+
+        return $escaped;
+    }
+
+    /**
+     * @pure
+     */
+    private static function escapeChar(string $char): string
     {
         $ord = ord($char);
 
-        if ($ord < 32 || $ord > 126) {
-            $char = strtoupper(dechex($ord));
-
-            if ($ord < 16) {
-                $char = '0' . $char;
-            }
-
-            return '0x' . $char;
-        }
-
-        return '"' . $char . '"';
+        return match (true) {
+            $char === "\t" => '\t',
+            $char === "\n" => '\n',
+            $char === "\r" => '\r',
+            $char === '\\' => '\\\\',
+            $char === '"' => '\"',
+            $ord < 32 || $ord > 126 => sprintf('\x%02X', $ord),
+            default => $char,
+        };
     }
 }

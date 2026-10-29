@@ -60,11 +60,7 @@ final class TableOfContentsGenerator implements TableOfContentsGeneratorInterfac
         $this->normalizationStrategy = $normalizationStrategy;
         $this->minHeadingLevel       = $minHeadingLevel;
         $this->maxHeadingLevel       = $maxHeadingLevel;
-        $this->fragmentPrefix        = $fragmentPrefix;
-
-        if ($fragmentPrefix !== '') {
-            $this->fragmentPrefix .= '-';
-        }
+        $this->fragmentPrefix        = $fragmentPrefix === '' ? '' : $fragmentPrefix . '-';
     }
 
     public function generate(Document $document): ?TableOfContents

@@ -27,6 +27,7 @@ use DateInterval;
 use DateMalformedStringException;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
+use Time\Duration;
 
 /**
  * Trait Units.
@@ -161,7 +162,7 @@ trait Units
 
         $seconds = (int) $value;
         $microseconds = (int) round(
-            (abs($value) - abs($seconds)) * ($value < 0 ? -1 : 1) * static::MICROSECONDS_PER_SECOND,
+            (abs((float) $value) - abs($seconds)) * ($value < 0 ? -1 : 1) * static::MICROSECONDS_PER_SECOND,
         );
         $date = $this->setTimestamp($this->getTimestamp() + $seconds);
 
@@ -244,10 +245,10 @@ trait Units
      * @example $date->add(15, 'days')
      * @example $date->add(CarbonInterval::days(4))
      *
-     * @param Unit|int|string|DateInterval|Closure|CarbonConverterInterface $unit
-     * @param Unit|int|float|string                                         $value
-     * @param OverflowMode|bool|null                                        $overflow
-     * @param int|null                                                      $anchorDay
+     * @param Unit|int|string|DateInterval|Closure|CarbonConverterInterface|Duration $unit
+     * @param Unit|int|float|string                                                  $value
+     * @param OverflowMode|bool|null                                                 $overflow
+     * @param int|null                                                               $anchorDay
      *
      * @return static
      */
@@ -284,6 +285,12 @@ trait Units
 
         if ($unit instanceof DateInterval) {
             return parent::add($unit);
+        }
+
+        if ($unit instanceof Duration) {
+            return $this
+                ->addUnit(Unit::Second, ($unit->negative ? -1 : 1) * $unit->seconds)
+                ->addUnit(Unit::Microsecond, ($unit->negative ? -0.001 : 0.001) * $unit->nanoseconds);
         }
 
         if (is_numeric($unit)) {
@@ -333,11 +340,28 @@ trait Units
         }
 
         if ($unit === 'weekday') {
+            $absoluteValue = abs($value);
+            $sign = $value < 0 ? -1 : 1;
+            $intAbsoluteValue = (int) $absoluteValue;
+            $remaining = ((float) $absoluteValue - (float) $intAbsoluteValue);
+
+            if ($remaining !== 0.0) {
+                if ($intAbsoluteValue !== 0) {
+                    $date = $date->addUnit($unit, $sign * $intAbsoluteValue);
+                }
+
+                $date = $date->addDays($sign * $remaining);
+
+                while ($date->isWeekend()) {
+                    $date = $date->addDays($sign);
+                }
+
+                return $date;
+            }
+
             $weekendDays = $this->transmitFactory(static::getWeekendDays(...));
 
             if ($weekendDays !== [static::SATURDAY, static::SUNDAY]) {
-                $absoluteValue = abs($value);
-                $sign = $value / max(1, $absoluteValue);
                 $weekDaysCount = static::DAYS_PER_WEEK - min(static::DAYS_PER_WEEK - 1, \count(array_unique($weekendDays)));
                 $weeks = floor($absoluteValue / $weekDaysCount);
 
@@ -424,10 +448,10 @@ trait Units
      * @example $date->sub(15, 'days')
      * @example $date->sub(CarbonInterval::days(4))
      *
-     * @param Unit|int|string|DateInterval|Closure|CarbonConverterInterface $unit
-     * @param Unit|int|float|string                                         $value
-     * @param OverflowMode|bool|null                                        $overflow
-     * @param int|null                                                      $anchorDay
+     * @param Unit|int|string|DateInterval|Duration|Closure|CarbonConverterInterface $unit
+     * @param Unit|int|float|string                                                  $value
+     * @param OverflowMode|bool|null                                                 $overflow
+     * @param int|null                                                               $anchorDay
      *
      * @return static
      */
@@ -466,6 +490,12 @@ trait Units
             return parent::sub($unit);
         }
 
+        if ($unit instanceof Duration) {
+            return $this
+                ->addUnit(Unit::Second, ($unit->negative ? 1 : -1) * $unit->seconds)
+                ->addUnit(Unit::Microsecond, ($unit->negative ? 0.001 : -0.001) * $unit->nanoseconds);
+        }
+
         if (is_numeric($unit)) {
             [$value, $unit] = [$unit, $value];
         }
@@ -478,10 +508,10 @@ trait Units
      *
      * @see sub()
      *
-     * @param Unit|int|string|DateInterval $unit
-     * @param Unit|int|float|string        $value
-     * @param OverflowMode|bool|null       $overflow
-     * @param int|null                     $anchorDay
+     * @param Unit|int|string|DateInterval|Duration $unit
+     * @param Unit|int|float|string                 $value
+     * @param OverflowMode|bool|null                $overflow
+     * @param int|null                              $anchorDay
      *
      * @return static
      */

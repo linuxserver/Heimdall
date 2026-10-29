@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0](https://github.com/brick/math/releases/tag/1.0.0) - 2026-09-12
+
+**First stable release** 🎉
+
+No changes from version `0.20.0`.
+
+## [0.20.0](https://github.com/brick/math/releases/tag/0.20.0) - 2026-08-28
+
+💥 **Breaking changes**
+
+- Deprecated exception class `UnsupportedPlatformException` has been removed, catch `PlatformException` instead
+
+The following breaking change only affects you if you specifically catch `DivisionByZeroException` around calls to `of()` or to any method accepting strings:
+
+- `of()` now throws `NumberFormatException` instead of `DivisionByZeroException` when the string is a fraction with a denominator of zero, such as `'2/0'`
+
+✨ **New features**
+
+- New methods: `parse()` and `parseNullable()` safely parse untrusted input, by restricting the allowed syntax and limiting the number of digits
+- New enum: `NumberSyntax` lists the syntax features that `parse()` can accept, with constants for the most common combinations
+
+🐛 **Bug fixes**
+
+- `of()` no longer throws `PlatformException` on malformed input with many digits, crafted to trigger heavy backtracking in its parser; such input now throws `NumberFormatException` as documented
+
+👌 **Improvements**
+
+- `NumberFormatException` messages now escape control and non-ASCII characters, and truncate values longer than 40 bytes, instead of copying the raw input into the message
+
+## [0.19.1](https://github.com/brick/math/releases/tag/0.19.1) - 2026-08-08
+
+✨ **New features**
+
+- New exception class: `PlatformException` (replaces `UnsupportedPlatformException`)
+- `PlatformException` is now thrown when `preg_match()` fails due to improper PHP configuration
+- `PlatformException` is now thrown when `PHP_INT_SIZE` is an unsupported value
+
+🗑️ **Deprecations**
+
+- Exception class `UnsupportedPlatformException` is deprecated; catch `PlatformException` instead
+
+## [0.19.0](https://github.com/brick/math/releases/tag/0.19.0) - 2026-07-30
+
+✨ **New features**
+
+- New rounding mode: `RoundingMode::HalfOdd`
+- New method: `RoundingMode::fromNativeRoundingMode()` converts from a native PHP `RoundingMode` enum (PHP 8.4+)
+
 ## [0.18.0](https://github.com/brick/math/releases/tag/0.18.0) - 2026-06-14
 
 💥 **Breaking changes**

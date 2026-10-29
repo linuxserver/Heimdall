@@ -131,8 +131,8 @@ final class Urn implements Conditionable, Stringable, JsonSerializable, Transfor
         return new self(
             nid: $matches['nid'],
             nss: $matches['nss'],
-            rComponent: (isset($matches['frc']) && '' !== $matches['frc']) ? $matches['rcomponent'] : null,
-            qComponent: (isset($matches['fqc']) && '' !== $matches['fqc']) ? $matches['qcomponent'] : null,
+            rComponent: (isset($matches['frc'], $matches['rcomponent']) && '' !== $matches['frc']) ? $matches['rcomponent'] : null,
+            qComponent: (isset($matches['fqc'], $matches['qcomponent']) && '' !== $matches['fqc']) ? $matches['qcomponent'] : null,
             fComponent: $matches['fcomponent'] ?? null,
         );
     }

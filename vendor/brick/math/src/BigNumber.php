@@ -4,29 +4,31 @@ declare(strict_types=1);
 
 namespace Brick\Math;
 
-use Brick\Math\Exception\DivisionByZeroException;
 use Brick\Math\Exception\IntegerOverflowException;
 use Brick\Math\Exception\InvalidArgumentException;
 use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NumberFormatException;
+use Brick\Math\Exception\PlatformException;
 use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Math\Internal\Safe;
 use JsonSerializable;
 use Override;
 use Stringable;
 
+use function array_is_list;
 use function assert;
 use function filter_var;
+use function in_array;
 use function is_int;
-use function is_null;
 use function ltrim;
+use function max;
 use function preg_match;
 use function str_contains;
 use function str_repeat;
 use function strlen;
-use function substr;
 
 use const FILTER_VALIDATE_INT;
+use const PHP_INT_MAX;
 use const PREG_UNMATCHED_AS_NULL;
 
 /**
@@ -43,27 +45,31 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * The regular expression used to parse integer or decimal numbers.
      *
      * The end anchor must be \z, not $: the latter would also match before a trailing newline.
+     * The digit quantifiers must be possessive (++): backtracking on malformed input could exhaust
+     * pcre.backtrack_limit, surfacing as PlatformException instead of NumberFormatException.
      */
     private const PARSE_REGEXP_NUMERICAL =
         '/^' .
         '(?<sign>[\-\+])?' .
-        '(?<integral>[0-9]+)?' .
+        '(?<integral>[0-9]++)?' .
         '(?<point>\.)?' .
-        '(?<fractional>[0-9]+)?' .
-        '(?:[eE](?<exponent>[\-\+]?[0-9]+))?' .
+        '(?<fractional>[0-9]++)?' .
+        '(?:[eE](?<exponent>[\-\+]?[0-9]++))?' .
         '\z/';
 
     /**
      * The regular expression used to parse rational numbers.
      *
      * The end anchor must be \z, not $: the latter would also match before a trailing newline.
+     * The digit quantifiers must be possessive (++): backtracking on malformed input could exhaust
+     * pcre.backtrack_limit, surfacing as PlatformException instead of NumberFormatException.
      */
     private const PARSE_REGEXP_RATIONAL =
         '/^' .
         '(?<sign>[\-\+])?' .
-        '(?<numerator>[0-9]+)' .
+        '(?<numerator>[0-9]++)' .
         '\/' .
-        '(?<denominator>[0-9]+)' .
+        '(?<denominator>[0-9]++)' .
         '\z/';
 
     /**
@@ -79,11 +85,13 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * - strings containing only digits with an optional leading `+` or `-` sign are returned as BigInteger
      *
      * When of() is called on BigInteger, BigDecimal, or BigRational, the resulting number is converted to an instance
-     * of the subclass when possible; otherwise a RoundingNecessaryException exception is thrown.
+     * of the subclass when possible; otherwise a RoundingNecessaryException is thrown.
      *
-     * @throws NumberFormatException      If the format of the number is not valid.
-     * @throws DivisionByZeroException    If the value represents a rational number with a denominator of zero.
-     * @throws RoundingNecessaryException If the value cannot be converted to an instance of the subclass without rounding.
+     * When parsing untrusted input, use {@see parse()} instead.
+     *
+     * @throws NumberFormatException      If the input is a string, and the format of the number is not valid.
+     * @throws RoundingNecessaryException If the method is called on a subclass of BigNumber, and the value cannot be
+     *                                    converted to an instance of the subclass without rounding.
      *
      * @pure
      */
@@ -91,9 +99,8 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     {
         $value = self::_of($value);
 
-        if (static::class === BigNumber::class) {
-            assert($value instanceof static);
-
+        if ($value instanceof static) {
+            // No conversion needed.
             return $value;
         }
 
@@ -103,23 +110,140 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Creates a BigNumber of the given value, or returns null if the input is null.
      *
-     * Behaves like of() for non-null values.
+     * Behaves like {@see of()} for non-null values.
      *
-     * @see BigNumber::of()
+     * When parsing untrusted input, use {@see parseNullable()} instead.
      *
-     * @throws NumberFormatException      If the format of the number is not valid.
-     * @throws DivisionByZeroException    If the value represents a rational number with a denominator of zero.
-     * @throws RoundingNecessaryException If the value cannot be converted to an instance of the subclass without rounding.
+     * @throws NumberFormatException      If the input is a string, and the format of the number is not valid.
+     * @throws RoundingNecessaryException If the method is called on a subclass of BigNumber, and the value cannot be
+     *                                    converted to an instance of the subclass without rounding.
      *
      * @pure
      */
     final public static function ofNullable(BigNumber|int|string|null $value): ?static
     {
-        if (is_null($value)) {
+        if ($value === null) {
             return null;
         }
 
         return static::of($value);
+    }
+
+    /**
+     * Creates a BigNumber of the given string, limiting the allowed syntax and the number of digits.
+     *
+     * This method is designed to safely parse untrusted input: huge strings, and exponential notation that allows a
+     * short string such as `1e1000000000` to expand to gigabytes of memory.
+     *
+     * The $allowedSyntax parameter restricts the accepted notations: plain integers such as `123` are always accepted,
+     * then each NumberSyntax case allows one additional feature: DecimalPoint, Exponent, Fraction. A value is accepted
+     * only if every feature it uses is allowed. The NumberSyntax enum also provides constants for the most common
+     * combinations, from NumberSyntax::INTEGER to NumberSyntax::ALL.
+     *
+     * The $maxDigits parameter limits the number of digits, counted in each of these forms:
+     *
+     * - as written, where every digit of the input counts, including leading zeros and exponent digits: `005` counts
+     *   3 digits, `01e-3` counts 3, and `010/012` counts 6;
+     * - in its expanded form, with exponents materialized and leading zeros trimmed: `01e-3` counts 4 (`0.001`);
+     * - in its converted form, when called on a subclass, as written by toString(): `BigDecimal::parse('1/8', ...)`
+     *   counts 4 digits (`0.125`), although `1/8` counts only 2.
+     *
+     * When parse() is called on BigNumber, the concrete return type is determined by the format of the string,
+     * following the same rules as {@see of()}. When called on a subclass, the value is converted to an instance of
+     * that subclass when possible.
+     *
+     * @param string             $value         The untrusted value to parse.
+     * @param list<NumberSyntax> $allowedSyntax The allowed syntax features; plain integers are always accepted.
+     * @param positive-int       $maxDigits     The maximum number of digits, as written and in the resulting number.
+     *
+     * @throws NumberFormatException      If the format of $value is invalid, if it uses a syntax that is not allowed
+     *                                    by $allowedSyntax, or if it has more than $maxDigits digits.
+     * @throws RoundingNecessaryException If the method is called on a subclass of BigNumber, and the value cannot be
+     *                                    converted to an instance of the subclass without rounding.
+     * @throws InvalidArgumentException   If $allowedSyntax is not a list of NumberSyntax cases, or if $maxDigits is
+     *                                    less than 1.
+     *
+     * @pure
+     */
+    final public static function parse(
+        string $value,
+        array $allowedSyntax,
+        int $maxDigits,
+    ): static {
+        if (! array_is_list($allowedSyntax)) { // @phpstan-ignore function.alreadyNarrowedType
+            throw InvalidArgumentException::invalidAllowedSyntax();
+        }
+
+        foreach ($allowedSyntax as $syntax) {
+            if (! $syntax instanceof NumberSyntax) { // @phpstan-ignore instanceof.alwaysTrue
+                throw InvalidArgumentException::invalidAllowedSyntax();
+            }
+        }
+
+        if ($maxDigits < 1) { // @phpstan-ignore smaller.alwaysFalse
+            throw InvalidArgumentException::nonPositiveMaxDigits();
+        }
+
+        $value = self::_parse($value, $allowedSyntax, $maxDigits);
+
+        if ($value instanceof static) {
+            // No conversion needed.
+            return $value;
+        }
+
+        $result = static::from($value);
+
+        // The conversion may expand the number (1/8 -> 0.125): the limit applies to the result as well.
+        if ($result->digitCount() > $maxDigits) {
+            throw NumberFormatException::tooManyDigits($maxDigits);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Creates a BigNumber of the given string, limiting the allowed syntax and the number of digits, or returns null
+     * if the input is null.
+     *
+     * Behaves like {@see parse()} for non-null values.
+     *
+     * @param string|null        $value         The untrusted value to parse, or null.
+     * @param list<NumberSyntax> $allowedSyntax The allowed syntax features; plain integers are always accepted.
+     * @param positive-int       $maxDigits     The maximum number of digits, as written and in the resulting number.
+     *
+     * @throws NumberFormatException      If the format of $value is invalid, if it uses a syntax that is not allowed
+     *                                    by $allowedSyntax, or if it has more than $maxDigits digits.
+     * @throws RoundingNecessaryException If the method is called on a subclass of BigNumber, and the value cannot be
+     *                                    converted to an instance of the subclass without rounding.
+     * @throws InvalidArgumentException   If $allowedSyntax is not a list of NumberSyntax cases, or if $maxDigits is
+     *                                    less than 1.
+     *
+     * @pure
+     */
+    final public static function parseNullable(
+        ?string $value,
+        array $allowedSyntax,
+        int $maxDigits,
+    ): ?static {
+        if ($value === null) {
+            if (! array_is_list($allowedSyntax)) { // @phpstan-ignore function.alreadyNarrowedType
+                throw InvalidArgumentException::invalidAllowedSyntax();
+            }
+
+            foreach ($allowedSyntax as $syntax) {
+                if (! $syntax instanceof NumberSyntax) { // @phpstan-ignore instanceof.alwaysTrue
+                    throw InvalidArgumentException::invalidAllowedSyntax();
+                }
+            }
+
+            if ($maxDigits < 1) { // @phpstan-ignore smaller.alwaysFalse
+                throw InvalidArgumentException::nonPositiveMaxDigits();
+            }
+
+            return null;
+        }
+
+        return static::parse($value, $allowedSyntax, $maxDigits);
     }
 
     /**
@@ -510,6 +634,13 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     abstract protected static function from(BigNumber $number): static;
 
     /**
+     * Returns the number of digits in this number, as written by toString().
+     *
+     * @pure
+     */
+    abstract protected function digitCount(): int;
+
+    /**
      * Proxy method to access BigInteger's protected constructor from sibling classes.
      *
      * @internal
@@ -548,8 +679,7 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     }
 
     /**
-     * @throws NumberFormatException   If the format of the number is not valid.
-     * @throws DivisionByZeroException If the value represents a rational number with a denominator of zero.
+     * @throws NumberFormatException If the format of the number is not valid.
      *
      * @pure
      */
@@ -563,25 +693,55 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
             return new BigInteger((string) $value);
         }
 
+        return self::_parse($value, null, null);
+    }
+
+    /**
+     * Note: $allowedSyntax and $maxDigits are nullable as a performance optimization for of(): null behaves like
+     * `NumberSyntax::ALL` and `PHP_INT_MAX`, but skips the checks, which could never fail against those values.
+     *
+     * @param list<NumberSyntax>|null $allowedSyntax The allowed syntax features; plain integers are always accepted. Null for all.
+     * @param positive-int|null       $maxDigits     The maximum number of digits, as written and in the resulting number. Null for no limit.
+     *
+     * @throws NumberFormatException If the format of $value is invalid, if it uses a syntax that is not allowed
+     *                               by $allowedSyntax, or if it has more than $maxDigits digits.
+     *
+     * @pure
+     */
+    private static function _parse(string $value, ?array $allowedSyntax, ?int $maxDigits): BigNumber
+    {
         if ($value === '') {
             throw NumberFormatException::emptyNumber();
         }
 
         if (str_contains($value, '/')) {
             // Rational number
-            if (preg_match(self::PARSE_REGEXP_RATIONAL, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+            $result = preg_match(self::PARSE_REGEXP_RATIONAL, $value, $matches, PREG_UNMATCHED_AS_NULL);
+
+            if ($result === false) {
+                throw PlatformException::pcreFailure();
+            }
+
+            if ($result === 0) {
                 throw NumberFormatException::invalidFormat($value);
             }
 
-            $sign = $matches['sign'];
-            $numerator = $matches['numerator'];
-            $denominator = $matches['denominator'];
+            if ($allowedSyntax !== null && ! in_array(NumberSyntax::Fraction, $allowedSyntax, true)) {
+                throw NumberFormatException::syntaxNotAllowed(NumberSyntax::Fraction);
+            }
 
-            $numerator = self::cleanUp($sign, $numerator);
-            $denominator = self::cleanUp(null, $denominator);
+            $sign = $matches['sign'];
+            $numerator = self::cleanUp($sign, $matches['numerator']);
+            $denominator = self::cleanUp(null, $matches['denominator']);
 
             if ($denominator === '0') {
-                throw DivisionByZeroException::zeroDenominator();
+                throw NumberFormatException::zeroDenominator();
+            }
+
+            // The digit count is taken as written, before trimming zeros and before simplification:
+            // the final count will always be less or equal.
+            if ($maxDigits !== null && strlen($matches['numerator']) + strlen($matches['denominator']) > $maxDigits) {
+                throw NumberFormatException::tooManyDigits($maxDigits);
             }
 
             return new BigRational(
@@ -593,7 +753,13 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
         }
 
         // Integer or decimal number
-        if (preg_match(self::PARSE_REGEXP_NUMERICAL, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+        $result = preg_match(self::PARSE_REGEXP_NUMERICAL, $value, $matches, PREG_UNMATCHED_AS_NULL);
+
+        if ($result === false) {
+            throw PlatformException::pcreFailure();
+        }
+
+        if ($result === 0) {
             throw NumberFormatException::invalidFormat($value);
         }
 
@@ -611,53 +777,91 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
             $integral = '0';
         }
 
-        if ($point !== null || $exponent !== null) {
-            $fractional ??= '';
-
-            if ($exponent !== null) {
-                if ($exponent[0] === '-') {
-                    $exponent = ltrim(substr($exponent, 1), '0') ?: '0';
-                    $exponent = filter_var($exponent, FILTER_VALIDATE_INT);
-                    if ($exponent !== false) {
-                        $exponent = -$exponent;
-                    }
-                } else {
-                    if ($exponent[0] === '+') {
-                        $exponent = substr($exponent, 1);
-                    }
-                    $exponent = ltrim($exponent, '0') ?: '0';
-                    $exponent = filter_var($exponent, FILTER_VALIDATE_INT);
-                }
-            } else {
-                $exponent = 0;
+        if ($point === null && $exponent === null) {
+            // Integer number.
+            if ($maxDigits !== null && strlen($integral) > $maxDigits) {
+                throw NumberFormatException::tooManyDigits($maxDigits);
             }
 
-            if ($exponent === false) {
-                throw NumberFormatException::exponentTooLarge();
-            }
+            $integral = self::cleanUp($sign, $integral);
 
-            $unscaledValue = self::cleanUp($sign, $integral . $fractional);
-
-            $scale = strlen($fractional) - $exponent;
-
-            // @phpstan-ignore function.alreadyNarrowedType
-            if (! is_int($scale)) {
-                throw NumberFormatException::exponentTooLarge();
-            }
-
-            if ($scale < 0) {
-                if ($unscaledValue !== '0') {
-                    $unscaledValue .= str_repeat('0', Safe::neg($scale));
-                }
-                $scale = 0;
-            }
-
-            return new BigDecimal($unscaledValue, $scale);
+            return new BigInteger($integral);
         }
 
-        $integral = self::cleanUp($sign, $integral);
+        // Decimal number.
+        if ($allowedSyntax !== null) {
+            if ($point !== null && ! in_array(NumberSyntax::DecimalPoint, $allowedSyntax, true)) {
+                throw NumberFormatException::syntaxNotAllowed(NumberSyntax::DecimalPoint);
+            }
 
-        return new BigInteger($integral);
+            if ($exponent !== null && ! in_array(NumberSyntax::Exponent, $allowedSyntax, true)) {
+                throw NumberFormatException::syntaxNotAllowed(NumberSyntax::Exponent);
+            }
+        }
+
+        if ($exponent === null) {
+            $exponent = 0;
+        } else {
+            $exponentSign = $exponent[0] === '-' ? '-' : '';
+            $exponent = ltrim(ltrim($exponent, '+-'), '0');
+
+            if ($exponent === '') {
+                $exponent = 0;
+            } else {
+                $exponent = filter_var($exponentSign . $exponent, FILTER_VALIDATE_INT);
+
+                if ($exponent === false) {
+                    throw NumberFormatException::exponentTooLarge();
+                }
+            }
+        }
+
+        $fractional ??= '';
+
+        $unscaledValue = self::cleanUp($sign, $integral . $fractional);
+        $scale = strlen($fractional) - $exponent;
+
+        // @phpstan-ignore function.alreadyNarrowedType (may overflow to float)
+        if (! is_int($scale)) {
+            throw NumberFormatException::exponentTooLarge();
+        }
+
+        $unscaledDigits = strlen($unscaledValue) - (int) ($unscaledValue[0] === '-');
+
+        if ($scale < 0 && $unscaledValue !== '0') {
+            // The unscaled value is padded with -$scale zeros below.
+            $expandedDigits = $unscaledDigits - $scale;
+        } else {
+            // The fractional digits, plus at least a zero integer part.
+            $expandedDigits = max($unscaledDigits, $scale + 1);
+        }
+
+        // @phpstan-ignore function.alreadyNarrowedType (may overflow to float)
+        if (! is_int($expandedDigits)) {
+            throw NumberFormatException::tooManyDigits($maxDigits ?? PHP_INT_MAX);
+        }
+
+        if ($maxDigits !== null) {
+            // Digits as written: every digit of the input counts, including leading zeros and exponent digits.
+            $writtenDigits = strlen($matches['integral'] ?? '') + strlen($matches['fractional'] ?? '');
+
+            if ($matches['exponent'] !== null) {
+                $writtenDigits += strlen($matches['exponent']) - (int) ($matches['exponent'][0] === '-' || $matches['exponent'][0] === '+');
+            }
+
+            if ($expandedDigits > $maxDigits || $writtenDigits > $maxDigits) {
+                throw NumberFormatException::tooManyDigits($maxDigits);
+            }
+        }
+
+        if ($scale < 0) {
+            if ($unscaledValue !== '0') {
+                $unscaledValue .= str_repeat('0', Safe::neg($scale));
+            }
+            $scale = 0;
+        }
+
+        return new BigDecimal($unscaledValue, $scale);
     }
 
     /**
@@ -668,7 +872,7 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      *
      * @pure
      */
-    private static function cleanUp(string|null $sign, string $number): string
+    private static function cleanUp(?string $sign, string $number): string
     {
         $number = ltrim($number, '0');
 

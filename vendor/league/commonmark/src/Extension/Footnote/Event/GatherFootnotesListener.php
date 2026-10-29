@@ -30,14 +30,42 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
 
     public function onDocumentParsed(DocumentParsedEvent $event): void
     {
-        $document  = $event->getDocument();
-        $footnotes = [];
+        $document    = $event->getDocument();
+        $footnotes   = [];
+        $definitions = [];
+        $discarded   = [];
 
+        /** @var array<string, Reference[]> $backrefs */
+        $backrefs = $document->data->get('footnote/backrefs', []);
+
+        /*
+         * A label may be defined more than once. Only the first definition is used, matching how
+         * duplicate link reference definitions are resolved; the rest are discarded below.
+         *
+         * Keeping just one definition per label is also what bounds the work done here: every
+         * definition sharing a label claims that label's entire backref list, so N duplicate
+         * definitions of a label referenced M times would otherwise produce M * N backrefs - a
+         * denial of service vector, since both are attacker-controlled.
+         *
+         * Nodes are collected rather than detached here because detaching mid-iteration would
+         * truncate the walk.
+         */
         foreach ($document->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
             if (! $node instanceof Footnote) {
                 continue;
             }
 
+            $label = $node->getReference()->getLabel();
+            if (isset($definitions[$label])) {
+                $discarded[] = $node;
+
+                continue;
+            }
+
+            $definitions[$label] = $node;
+        }
+
+        foreach ($definitions as $node) {
             // Look for existing reference with footnote label
             $ref = $document->getReferenceMap()->get($node->getReference()->getLabel());
             if ($ref !== null) {
@@ -49,9 +77,13 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
             }
 
             $key = '#' . $this->config->get('footnote/footnote_id_prefix') . $node->getReference()->getDestination();
-            if ($document->data->has($key)) {
-                $this->createBackrefs($node, $document->data->get($key));
+            if (isset($backrefs[$key])) {
+                $this->createBackrefs($node, $backrefs[$key]);
             }
+        }
+
+        foreach ($discarded as $duplicate) {
+            $duplicate->detach();
         }
 
         // Only add a footnote container if there are any

@@ -148,7 +148,7 @@ final class Converter
             return null;
         }
 
-        /** @var array<string> $parts */
+        /** @var non-empty-list<numeric-string> $parts */
         $parts = array_map(
             fn (string $part): string => sprintf('%02x', $part),
             explode('.', $host)

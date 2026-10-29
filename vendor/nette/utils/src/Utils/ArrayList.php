@@ -8,7 +8,7 @@
 namespace Nette\Utils;
 
 use Nette;
-use function array_slice, array_splice, count, is_int;
+use function count, is_int;
 
 
 /**
@@ -123,8 +123,8 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function prepend(mixed $value): void
 	{
-		$first = array_slice($this->list, 0, 1);
-		$this->offsetSet(0, $value);
-		array_splice($this->list, 1, 0, $first);
+		// route the value through offsetSet() first so a validation added in a subclass isn't bypassed
+		$this->offsetSet(null, $value);
+		array_unshift($this->list, ...array_splice($this->list, -1));
 	}
 }

@@ -57,6 +57,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     protected RequestStack $requestStack;
     private ArgumentResolverInterface $argumentResolver;
     private bool $terminating = false;
+    private ?\WeakReference $terminateException = null;
 
     public function __construct(
         protected EventDispatcherInterface $dispatcher,
@@ -85,7 +86,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             if ($e instanceof RequestExceptionInterface) {
                 $e = new BadRequestHttpException($e->getMessage(), $e);
             }
-            if (false === $catch) {
+            if (!$catch) {
                 $this->finishRequest($request, $type, $controllerMetadata);
 
                 throw $e;
@@ -115,6 +116,10 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         try {
             $this->terminating = true;
             $this->dispatcher->dispatch(new TerminateEvent($this, $request, $response), KernelEvents::TERMINATE);
+        } catch (\Throwable $e) {
+            $this->terminateException = \WeakReference::create($e);
+
+            throw $e;
         } finally {
             $this->terminating = false;
         }
@@ -133,15 +138,22 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
             $this->requestStack->push($request);
         }
 
+        $terminating = $this->terminating;
+        $this->terminating = $terminating || $exception === $this->terminateException?->get();
+
         try {
             $response = $this->handleThrowable($exception, $request, self::MAIN_REQUEST);
         } finally {
+            $this->terminating = $terminating;
+
             if ($pop) {
                 $this->requestStack->pop();
             }
         }
 
-        $response->sendHeaders();
+        if (!headers_sent()) {
+            $response->sendHeaders();
+        }
         $response->sendContent();
 
         $this->terminate($request, $response);

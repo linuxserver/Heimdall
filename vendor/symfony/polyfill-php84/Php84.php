@@ -19,6 +19,8 @@ namespace Symfony\Polyfill\Php84;
  */
 final class Php84
 {
+    private const BCMATH_WELL_FORMED = '/^[+-]?[0-9]*+(?:\.[0-9]*+)?$/D';
+
     /** @return string|false */
     public static function mb_ucfirst(string $string, ?string $encoding = null)
     {
@@ -123,6 +125,11 @@ final class Php84
 
     public static function fpow(float $num, float $exponent): float
     {
+        if (0.0 === $num && $exponent < 0.0) {
+            // IEEE 754 pow(±0, y < 0), which the ** operator deprecates since PHP 8.4
+            return -1.0 === fmod($exponent, 2.0) && '-' === ((string) $num)[0] ? -\INF : \INF;
+        }
+
         return $num ** $exponent;
     }
 
@@ -168,11 +175,15 @@ final class Php84
         }
 
         if ('' === $characters) {
-            return null === $encoding ? $string : mb_convert_encoding($string, $encoding);
+            return $string;
         }
 
         if ('UTF-8' === $encoding || \in_array(strtolower($encoding), ['utf-8', 'utf8'], true)) {
             $encoding = 'UTF-8';
+        }
+
+        if ('UTF-8' === $encoding && (!preg_match('//u', $string) || (null !== $characters && !preg_match('//u', $characters)))) {
+            return self::mb_trim_invalid_utf8($string, $characters, $function);
         }
 
         $string = mb_convert_encoding($string, 'UTF-8', $encoding);
@@ -196,10 +207,54 @@ final class Php84
         return mb_convert_encoding($string, $encoding, 'UTF-8');
     }
 
+    /**
+     * Trims ill-formed UTF-8 like mbstring: each maximal subpart of an ill-formed
+     * sequence counts as one character, and the string is returned as is when
+     * nothing is trimmed, else re-encoded with the substitute character.
+     */
+    private static function mb_trim_invalid_utf8(string $string, ?string $characters, string $function): string
+    {
+        // Well-formed characters in group 1, then the maximal subparts of ill-formed sequences
+        $regex = '/([\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|\xE0[\xA0-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]|\xED[\x80-\x9F]|\xF0[\x90-\xBF][\x80-\xBF]?|[\xF1-\xF3][\x80-\xBF]{1,2}|\xF4[\x80-\x8F][\x80-\xBF]?|[\x80-\xFF]/';
+
+        // Ill-formed sequences leave group 1 empty: they are trimmed when $characters has one too
+        preg_match_all($regex, $characters ?? "\0 \f\n\r\t\v\u{00A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{0085}\u{180E}", $m);
+        $trimmed = array_flip($m[1]);
+
+        $start = 0;
+        $end = \strlen($string);
+
+        while ('mb_rtrim' !== $function && $start < $end && preg_match($regex, $string, $m, 0, $start) && isset($trimmed[$m[1] ?? ''])) {
+            $start += \strlen($m[0]);
+        }
+
+        while ('mb_ltrim' !== $function && $start < $end) {
+            // Characters are at most 4 bytes long, and only continuation bytes don't start one
+            for ($i = $end - 1; $i > $start && $i > $end - 4 && 0x80 === (\ord($string[$i]) & 0xC0); --$i) {
+            }
+
+            preg_match_all($regex, substr($string, $i, $end - $i), $m);
+
+            if (!isset($trimmed[end($m[1])])) {
+                break;
+            }
+
+            $end -= \strlen(end($m[0]));
+        }
+
+        if (0 === $start && \strlen($string) === $end) {
+            return $string;
+        }
+
+        $string = substr($string, $start, $end - $start);
+
+        return 'none' === mb_substitute_character() ? preg_replace($regex, '$1', $string) : mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+    }
+
     public static function grapheme_str_split(string $string, int $length)
     {
-        if (0 > $length || 1073741823 < $length) {
-            throw new \ValueError('grapheme_str_split(): Argument #2 ($length) must be greater than 0 and less than or equal to 1073741823.');
+        if (0 >= $length || 1073741823 < $length) {
+            throw new \ValueError('grapheme_str_split(): Argument #2 ($length) must be greater than 0 and less than or equal to 1073741823');
         }
 
         if ('' === $string) {
@@ -210,15 +265,21 @@ final class Php84
             ? '\X'
             : '(?:\r\n|[\x{1F1E6}-\x{1F1FF}][\x{1F1E6}-\x{1F1FF}]?|(?:[ -~\x{200C}\x{200D}]|[ᆨ-ᇹ]+|[ᄀ-ᅟ]*(?:[가개갸걔거게겨계고과괘괴교구궈궤귀규그긔기까깨꺄꺠꺼께껴꼐꼬꽈꽤꾀꾜꾸꿔꿰뀌뀨끄끠끼나내냐냬너네녀녜노놔놰뇌뇨누눠눼뉘뉴느늬니다대댜댸더데뎌뎨도돠돼되됴두둬뒈뒤듀드듸디따때땨떄떠떼뗘뗴또똬뙈뙤뚀뚜뚸뛔뛰뜌뜨띄띠라래랴럐러레려례로롸뢔뢰료루뤄뤠뤼류르릐리마매먀먜머메며몌모뫄뫠뫼묘무뭐뭬뮈뮤므믜미바배뱌뱨버베벼볘보봐봬뵈뵤부붜붸뷔뷰브븨비빠빼뺘뺴뻐뻬뼈뼤뽀뽜뽸뾔뾰뿌뿨쀄쀠쀼쁘쁴삐사새샤섀서세셔셰소솨쇄쇠쇼수숴쉐쉬슈스싀시싸쌔쌰썌써쎄쎠쎼쏘쏴쐐쐬쑈쑤쒀쒜쒸쓔쓰씌씨아애야얘어에여예오와왜외요우워웨위유으의이자재쟈쟤저제져졔조좌좨죄죠주줘줴쥐쥬즈즤지짜째쨔쨰쩌쩨쪄쪠쪼쫘쫴쬐쬬쭈쭤쮀쮜쮸쯔쯰찌차채챠챼처체쳐쳬초촤쵀최쵸추춰췌취츄츠츼치카캐캬컈커케켜켸코콰쾌쾨쿄쿠쿼퀘퀴큐크킈키타태탸턔터테텨톄토톼퇘퇴툐투퉈퉤튀튜트틔티파패퍄퍠퍼페펴폐포퐈퐤푀표푸풔풰퓌퓨프픠피하해햐햬허헤혀혜호화홰회효후훠훼휘휴흐희히]?[ᅠ-ᆢ]+|[가-힣])[ᆨ-ᇹ]*|[ᄀ-ᅟ]+|[^\p{Cc}\p{Cf}\p{Zl}\p{Zp}])[\p{Mn}\p{Mc}\p{Me}\x{09BE}\x{09D7}\x{0B3E}\x{0B57}\x{0BBE}\x{0BD7}\x{0CC2}\x{0CD5}\x{0CD6}\x{0D3E}\x{0D57}\x{0DCF}\x{0DDF}\x{200C}\x{1D165}\x{1D16E}-\x{1D172}\x{1F3FB}-\x{1F3FF}\x{FE0E}-\x{FE0F}\x{E0020}-\x{E007F}]*(?:\x{200D}(?:[\x{1F1E6}-\x{1F1FF}]|[ -~\x{200C}\x{200D}]|[ᆨ-ᇹ]+|[ᄀ-ᅟ]*(?:[가-힣]?[ᅠ-ᆢ]+|[가-힣])[ᆨ-ᇹ]*|[ᄀ-ᅟ]+|[^\p{Cc}\p{Cf}\p{Zl}\p{Zp}])[\p{Mn}\p{Mc}\p{Me}\x{09BE}\x{09D7}\x{0B3E}\x{0B57}\x{0BBE}\x{0BD7}\x{0CC2}\x{0CD5}\x{0CD6}\x{0D3E}\x{0D57}\x{0DCF}\x{0DDF}\x{200C}\x{1D165}\x{1D16E}-\x{1D172}\x{1F3FB}-\x{1F3FF}\x{FE0E}-\x{FE0F}\x{E0020}-\x{E007F}]*)*|[\p{Cc}\p{Cf}\p{Zl}\p{Zp}])';
 
-        if (!preg_match_all('/'.$regex.'/u', $string, $matches)) {
+        if (preg_match_all('/'.$regex.'/u', $string, $matches)) {
+            $graphemes = $matches[0];
+        } else {
+            $graphemes = self::splitIllFormed($string, $regex);
+        }
+
+        if (!$graphemes) {
             return false;
         }
 
         if (1 === $length) {
-            return $matches[0];
+            return $graphemes;
         }
 
-        $chunks = array_chunk($matches[0], $length);
+        $chunks = array_chunk($graphemes, $length);
         foreach ($chunks as &$chunk) {
             $chunk = implode('', $chunk);
         }
@@ -228,7 +289,7 @@ final class Php84
 
     public static function bcceil(string $num): string
     {
-        if (!is_numeric($num)) {
+        if (!preg_match(self::BCMATH_WELL_FORMED, $num)) {
             throw new \ValueError('bcceil(): Argument #1 ($num) is not well-formed');
         }
 
@@ -247,7 +308,7 @@ final class Php84
 
     public static function bcfloor(string $num): string
     {
-        if (!is_numeric($num)) {
+        if (!preg_match(self::BCMATH_WELL_FORMED, $num)) {
             throw new \ValueError('bcfloor(): Argument #1 ($num) is not well-formed');
         }
 
@@ -259,7 +320,7 @@ final class Php84
      */
     public static function bcround(string $num, int $precision = 0, $mode = \RoundingMode::HalfAwayFromZero): string
     {
-        if (!is_numeric($num)) {
+        if (!preg_match(self::BCMATH_WELL_FORMED, $num)) {
             throw new \ValueError('bcround(): Argument #1 ($num) is not well-formed');
         }
 
@@ -440,5 +501,49 @@ final class Php84
         $length = \strlen($digits);
 
         return $length ? \ord($digits[$length - 1]) - 48 : 0;
+    }
+
+    /**
+     * Splits a string that is not valid UTF-8 into grapheme clusters.
+     *
+     * The intl extension keeps the ill-formed bytes and breaks around them the
+     * way it would around the U+FFFD each maximal subpart stands for. Standing
+     * one in for real makes the cluster regexp applicable, then each cluster is
+     * mapped back to the bytes it was made of.
+     */
+    private static function splitIllFormed(string $string, string $regex): array
+    {
+        // Table 3-7 of the Unicode standard for the well-formed byte sequences (group 1),
+        // then the maximal subparts an ill-formed sequence is made of (group 2).
+        preg_match_all('/([\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|[\xEE-\xEF][\x80-\xBF]{2}|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|(\xF0[\x90-\xBF][\x80-\xBF]?|[\xF1-\xF3][\x80-\xBF]{1,2}|\xF4[\x80-\x8F][\x80-\xBF]?|\xE0[\xA0-\xBF]|[\xE1-\xEC][\x80-\xBF]|\xED[\x80-\x9F]|[\xEE-\xEF][\x80-\xBF]|[\x80-\xFF])/s', $string, $matches, \PREG_SET_ORDER);
+
+        $segments = [];
+        $segmentAt = [];
+        $sanitized = '';
+
+        foreach ($matches as $m) {
+            $segmentAt[\strlen($sanitized)] = \count($segments);
+
+            if (isset($m[2]) && '' !== $m[2]) {
+                $segments[] = $m[2];
+                $sanitized .= "\xEF\xBF\xBD";
+            } else {
+                $segments[] = $m[1];
+                $sanitized .= $m[1];
+            }
+        }
+
+        $segmentAt[\strlen($sanitized)] = \count($segments);
+
+        preg_match_all('/'.$regex.'/u', $sanitized, $clusters, \PREG_OFFSET_CAPTURE);
+
+        $graphemes = [];
+
+        foreach ($clusters[0] as $cluster) {
+            $start = $segmentAt[$cluster[1]];
+            $graphemes[] = implode('', \array_slice($segments, $start, $segmentAt[$cluster[1] + \strlen($cluster[0])] - $start));
+        }
+
+        return $graphemes;
     }
 }
