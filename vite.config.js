@@ -11,7 +11,8 @@ export default defineConfig(({ mode }) => ({
     // `npm run dev` output is committed, so keep it readable
     minify: mode !== "development",
     rolldownOptions: {
-      // Relative to the built CSS in public/build/assets, resolved at runtime
+      // CSS url()s to public/img are written relative to the built CSS in
+      // public/build/assets. Vite leaves them as-is; this hides its warning.
       external: [/^\.\.\/\.\.\/img\//],
     },
   },
