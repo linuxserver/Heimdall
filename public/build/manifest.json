@@ -1,0 +1,17 @@
+{
+  "resources/assets/js/index.js": {
+    "file": "assets/index-DpSil1cM.js",
+    "name": "index",
+    "src": "resources/assets/js/index.js",
+    "isEntry": true
+  },
+  "resources/assets/sass/app.scss": {
+    "file": "assets/app-kl1o1-gn.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/assets/sass/app.scss",
+    "isEntry": true
+  }
+}

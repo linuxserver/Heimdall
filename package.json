@@ -1,16 +1,14 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "npx mix",
-        "watch": "npx mix watch",
-        "watch-poll": "npx mix watch -- --watch-options-poll=1000",
-        "hot": "npx mix watch --hot",
-        "prod": "npm run production",
-        "production": "npx mix --production",
+        "dev": "vite build --mode development",
+        "watch": "vite build --mode development --watch",
+        "hot": "vite",
+        "prod": "vite build",
         "lint": "eslint 'resources/assets/js/*'"
     },
     "devDependencies": {
+        "autoprefixer": "^10.6.2",
         "bootstrap-sass": "^3.4.3",
         "eslint": "^8.28.0",
         "eslint-config-airbnb-base": "^15.0.0",
@@ -18,42 +16,15 @@
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-prettier": "^4.2.1",
         "jquery": "^3.6.3",
-        "laravel-mix": "^6.0.49",
+        "laravel-vite-plugin": "^3.2.0",
         "prettier": "^2.8.1",
         "sass": "^1.56.1",
-        "sass-loader": "13.*",
-        "webpack": "~5.105.4",
-        "webpack-cli": "^6.0.1"
+        "vite": "^8.3.5"
     },
     "dependencies": {
+        "huebee": "~2.0.0",
         "select2": "~4.0.13",
         "sortablejs": "^1.15.0"
     },
-    "overrides": {
-        "@babel/core": "^7.29.7",
-        "@babel/plugin-transform-modules-systemjs": "^7.29.7",
-        "bn.js": "^5.2.4",
-        "brace-expansion": "^1.1.16",
-        "fast-uri": "^3.1.3",
-        "flatted": "^3.4.2",
-        "follow-redirects": "^1.16.0",
-        "http-proxy-middleware": "^2.0.10",
-        "immutable": "^5.1.9",
-        "js-yaml": "^4.3.0",
-        "launch-editor": "^2.14.1",
-        "lodash": "^4.18.1",
-        "minimatch": "^3.1.5",
-        "node-forge": "^1.4.0",
-        "on-headers": "^1.1.0",
-        "path-to-regexp": "^0.1.13",
-        "picomatch": "^2.3.2",
-        "postcss": "^8.5.16",
-        "qs": "^6.15.3",
-        "serialize-javascript": "^7.0.7",
-        "shell-quote": "^1.9.0",
-        "svgo": "^2.8.2",
-        "uuid": "^11.1.1",
-        "ws": "^8.21.0",
-        "yaml": "^1.10.3"
-    }
+    "type": "module"
 }

@@ -288,7 +288,7 @@ body {
 .create .textarea label:not(.switch) {
   width: 100%;
   font-size: 13px;
-  color: #9094a5;
+  color: rgb(56.4593837535%, 57.9607843137%, 64.7170868347%);
   margin-bottom: 15px;
   display: block;
   font-weight: 300;
@@ -334,7 +334,7 @@ body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background-image: url("../img/bg1.jpg");
+  background-image: url("../../img/bg1.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom center;
@@ -529,8 +529,7 @@ body {
   left: 0;
   right: 0;
   font-size: 13px;
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   z-index: 0;
   opacity: 0;
   transform: translateY(-20px);
@@ -846,7 +845,7 @@ body {
 }
 .module-actions .button {
   font-size: 18px;
-  color: #515564;
+  color: rgb(31.8599439776%, 33.2156862745%, 39.3165266106%);
   padding: 0 10px;
   border: none;
   border-left: 1px solid #cdced8;
@@ -904,7 +903,7 @@ div.create .input {
 div.create .input label:not(.switch) {
   width: 100%;
   font-size: 13px;
-  color: #9094a5;
+  color: rgb(56.4593837535%, 57.9607843137%, 64.7170868347%);
   margin-bottom: 15px;
   display: block;
   font-weight: 300;
@@ -929,7 +928,8 @@ div.create .input input, div.create .input select {
 .app-icon {
   width: 60px;
   height: 60px;
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
   display: block;
 }
 
@@ -1496,7 +1496,7 @@ http://huebee.buzz
   padding: 10px;
   background: #EEE;
   border-radius: 5px;
-  box-shadow: 0 5px 10px hsla(0deg, 0%, 0%, 0.3);
+  box-shadow: 0 5px 10px hsla(0, 0%, 0%, 0.3);
 }
 
 .huebee.is-static-open .huebee__container {
@@ -1713,7 +1713,6 @@ http://huebee.buzz
 .select2-hidden-accessible {
   border: 0 !important;
   clip: rect(0 0 0 0) !important;
-  -webkit-clip-path: inset(50%) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;
   overflow: hidden !important;
@@ -1964,7 +1963,7 @@ http://huebee.buzz
   outline: 0;
   background-image: linear-gradient(to bottom, white 50%, #eeeeee 100%);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFFFF", endColorstr="#FFEEEEEE", GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0);
 }
 
 .select2-container--classic .select2-selection--single:focus {
@@ -2000,7 +1999,7 @@ http://huebee.buzz
   width: 20px;
   background-image: linear-gradient(to bottom, #eeeeee 50%, #cccccc 100%);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFEEEEEE", endColorstr="#FFCCCCCC", GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFCCCCCC', GradientType=0);
 }
 
 .select2-container--classic .select2-selection--single .select2-selection__arrow b {
@@ -2050,7 +2049,7 @@ http://huebee.buzz
   border-top-right-radius: 0;
   background-image: linear-gradient(to bottom, white 0%, #eeeeee 50%);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFFFF", endColorstr="#FFEEEEEE", GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0);
 }
 
 .select2-container--classic.select2-container--open.select2-container--below .select2-selection--single {
@@ -2059,7 +2058,7 @@ http://huebee.buzz
   border-bottom-right-radius: 0;
   background-image: linear-gradient(to bottom, #eeeeee 50%, white 100%);
   background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFEEEEEE", endColorstr="#FFFFFFFF", GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFFFFFFF', GradientType=0);
 }
 
 .select2-container--classic .select2-selection--multiple {
