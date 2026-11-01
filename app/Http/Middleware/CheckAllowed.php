@@ -37,17 +37,9 @@ class CheckAllowed
             }
         }
 
-        // Continue with passwordless user
-        if (empty($current_user->password)) {
+        // Continue with a passwordless user, or one the visitor is logged in as
+        if ($current_user->isOpenToVisitor()) {
             return $next($request);
-        }
-
-        // Check if user is logged in as $current_user
-        if (Auth::check()) {
-            $loggedin_user = Auth::user();
-            if ($loggedin_user->id === $current_user->getId()) {
-                return $next($request);
-            }
         }
 
         // Redirect to login

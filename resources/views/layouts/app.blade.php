@@ -119,6 +119,7 @@
                 </main>
 
             </div>
+            @include('partials.quicklauncher')
         </div>
         <script src="{{ asset('js/jquery.min.js') }}"></script>
         @vite('resources/assets/js/index.js')

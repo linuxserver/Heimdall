@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Item;
 use App\Search;
+use App\Setting;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +14,13 @@ use Illuminate\Support\Facades\Http;
 
 class SearchController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        // The item list exposes the user's apps, so it gets the dashboard gate
+        $this->middleware('allowed')->only('items');
+    }
+
     /**
      * @return Application|RedirectResponse|Redirector|mixed|void
      */
@@ -42,6 +51,61 @@ class SearchController extends Controller
         }
 
         abort(404, 'Provider type not supported');
+    }
+
+    /**
+     * All apps the current user can see, pinned or not, for the quick launcher
+     */
+    public function items(Request $request): JsonResponse
+    {
+        $query = Item::where('type', 0)->with('parents')->orderBy('order', 'asc');
+
+        if (config('app.auth_roles_enable')) {
+            $roles = explode(
+                config('app.auth_roles_delimiter'),
+                $request->header(config('app.auth_roles_header')) ?? ''
+            );
+            $query->whereIn('role', $roles);
+        }
+
+        $items = $query->get()->map(function (Item $app) {
+            return [
+                'id' => $app->id,
+                'title' => $app->title,
+                'url' => $app->link,
+                'colour' => $app->colour,
+                'icon' => $app->icon_url,
+                'tags' => $app->parents->where('id', '!=', 0)->pluck('title')->values(),
+            ];
+        })->values();
+
+        // Web search fallback, unless the provider is the tile filter or search is off
+        $fallback = null;
+        if ((bool) Setting::fetch('homepage_search')) {
+            $provider = Setting::fetch('search_provider');
+            $details = $provider && $provider !== 'tiles' && $provider !== 'none'
+                ? Search::providerDetails($provider)
+                : false;
+            if ($details) {
+                $fallback = ['provider' => $provider, 'name' => $details->name, 'url' => url('search')];
+            }
+        }
+
+        return response()->json([
+            'items' => $items,
+            'fallback' => $fallback,
+            'target' => $this->linkTarget(),
+        ]);
+    }
+
+    /**
+     * The "Link opens in" setting as an anchor target
+     */
+    private function linkTarget(): string
+    {
+        $target = Setting::fetch('window_target');
+
+        return in_array($target, [null, '', 'current'], true) ? '_self' : $target;
     }
 
     /**

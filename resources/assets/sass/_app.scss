@@ -1264,3 +1264,108 @@ select:-webkit-autofill:focus {
 		}
 	}
 }
+
+// Quick launcher (Cmd/Ctrl+K)
+.quicklauncher {
+	display: none;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 2000;
+	background: rgba(0, 0, 0, 0.45);
+	padding-top: 14vh;
+	&.open {
+		display: block;
+	}
+	.quicklauncher-box {
+		width: 90%;
+		max-width: 600px;
+		margin: 0 auto;
+		background: white;
+		border-radius: 10px;
+		overflow: hidden;
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+	}
+	.quicklauncher-input {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+		height: 56px;
+		padding: 0 20px;
+		font-size: 20px;
+		border: 0;
+		outline: none;
+		color: $app-text;
+	}
+	.quicklauncher-list {
+		max-height: 50vh;
+		overflow-y: auto;
+		border-top: 1px solid #f0f0f0;
+	}
+	.quicklauncher-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 10px 20px;
+		cursor: pointer;
+		color: $app-text;
+		&.active {
+			background: #eef1f6;
+		}
+	}
+	.quicklauncher-icon {
+		flex: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		border-radius: 6px;
+		img {
+			max-width: 22px;
+			max-height: 22px;
+		}
+		svg {
+			width: 18px;
+			height: 18px;
+		}
+	}
+	.quicklauncher-title {
+		flex: 1;
+		font-size: 16px;
+	}
+	.quicklauncher-tags {
+		font-size: 12px;
+		color: #8a8d99;
+	}
+	.quicklauncher-empty {
+		padding: 16px 20px;
+		color: #8a8d99;
+	}
+}
+
+// Opens the quick launcher where there is no keyboard shortcut (touch devices)
+.quicklauncher-button {
+	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 50px;
+	height: 50px;
+	padding: 0;
+	border: 1px solid transparent;
+	background: rgba(0, 0, 0, 0.8);
+	color: white;
+	cursor: pointer;
+	align-items: center;
+	justify-content: center;
+	@media (hover: none) {
+		display: flex;
+	}
+	// Reorder mode has its own controls
+	#app.header & {
+		display: none;
+	}
+}

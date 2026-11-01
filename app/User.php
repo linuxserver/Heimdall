@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 // @codingStandardsIgnoreStart
 /**
@@ -74,6 +75,20 @@ class User extends Authenticatable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Whether the current visitor may use this user's private pages: the user
+     * has no password, or the visitor is logged in as them. The "allowed"
+     * middleware and the views that must match it both use this.
+     */
+    public function isOpenToVisitor(): bool
+    {
+        if (empty($this->password)) {
+            return true;
+        }
+
+        return Auth::check() && Auth::user()->id === $this->getId();
     }
 
     /**

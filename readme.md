@@ -55,6 +55,9 @@ There is also a multi-arch Docker which supports x86-64, armhf and arm64, instru
 ## Updating
 To update your instance, simply clone this repository or download the zip/tar file with the new version and copy it over the old installation.
 
+## Quick launcher
+Press `Cmd+K` (`Ctrl+K` on Windows and Linux) on any page to open a quick launcher that finds any of your apps, pinned or not. Use the arrow keys and `Enter` to open one, or `Esc` to close it. Apps you open most recently are listed first (this history is kept in your browser, so it isn't shared between devices). If a default search provider is set for the homepage search, the launcher offers a web search for anything it can't find. On touch devices a search button in the bottom left corner opens it.
+
 ## Search Providers
 v2.3.0 added the ability for users to customise the search options.
 

@@ -37,6 +37,7 @@ use Symfony\Component\ClassLoader\ClassMapGenerator;
  * @property-read \Illuminate\Database\Eloquent\Collection|Item[] $children
  * @property-read int|null $children_count
  * @property-read string $droppable
+ * @property-read string $icon_url
  * @property-read \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\UrlGenerator|mixed|string $link
  * @property-read string $link_icon
  * @property-read string $link_target
@@ -228,6 +229,14 @@ class Item extends Model
         } else {
             return '';
         }
+    }
+
+    /** The tile icon URL, or the default Heimdall icon when there is none */
+    public function getIconUrlAttribute(): string
+    {
+        return $this->icon
+            ? asset('/storage/'.str_replace('supportedapps', 'icons', $this->icon))
+            : asset('/img/heimdall-icon-small.png');
     }
 
     public function getLinkTargetAttribute(): string
