@@ -119,4 +119,10 @@ return array (
   'role' => 'Authentication role',
   'unauthorized_for_form' => 'You are not authorized to view this form.',
   'disabled_feature' => 'This feature is disabled.',
+  'quicklauncher.title' => 'Quick launcher',
+  'quicklauncher.open' => 'Open quick launcher',
+  'quicklauncher.placeholder' => 'Search apps…',
+  'quicklauncher.loading' => 'Loading…',
+  'quicklauncher.error' => 'Could not load your apps',
+  'quicklauncher.search_web' => 'Search :provider for “:query”',
 );

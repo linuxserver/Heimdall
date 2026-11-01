@@ -4,6 +4,7 @@ import "./globals";
 import "./jquery-ui.min";
 import "./app";
 import "./keyBindings";
+import "./quicklauncher";
 import "./itemExport";
 import "./itemImport";
 import "./liveStatRefresh";
